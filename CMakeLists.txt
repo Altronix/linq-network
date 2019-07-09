@@ -6,8 +6,8 @@ include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 include(cmake/libzmq.cmake)
 include(cmake/czmq.cmake)
 
-set(dependency-libraries libzmq czmq)
-set(dependency-libraries-test cmocka)
+set(deps-libs libzmq czmq)
+set(test-libs cmocka mock-czmq)
 
 add_subdirectory(src)
 
@@ -16,7 +16,6 @@ IF(ENABLE_TESTING)
     	include(CTest)
 	include(cmake/cmocka.cmake)
 	# include(cmake/CodeCoverage.cmake)
-	# add_subdirectory(test/...
-	# add_subdirectory(test/...
-	# add_subdirectory(test/...
+	add_subdirectory(test/mocks)
+	add_subdirectory(test/linq)
 ENDIF()

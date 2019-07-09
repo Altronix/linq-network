@@ -9,7 +9,20 @@ extern "C"
     typedef struct device device;
     typedef struct linq linq;
 
-    linq* linq_create();
+    typedef enum
+    {
+        e_linq_ok = 0,
+        e_linq_oom = -1,
+        e_linq_bad_args = -2,
+    } e_linq_error;
+
+    typedef struct linq_callbacks
+    {
+    } linq_callbacks;
+
+    linq* linq_create(linq_callbacks*, void*);
+    void linq_destroy(linq**);
+    e_linq_error linq_listen(linq*, const char* ep);
 
 #ifdef __cplusplus
 }

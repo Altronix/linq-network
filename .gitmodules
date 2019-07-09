@@ -4,3 +4,6 @@
 [submodule "external/czmq"]
 	path = external/czmq
 	url = https://github.com/zeromq/czmq
+[submodule "external/cmocka"]
+	path = external/cmocka
+	url = git://git.cryptomilk.org/projects/cmocka.git
