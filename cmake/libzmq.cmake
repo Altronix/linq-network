@@ -1,5 +1,7 @@
 # libzmq
 
+set(zmq_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/libzmq)
+
 ExternalProject_Add(zmq-project
 	SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/libzmq
 	UPDATE_COMMAND ""
@@ -22,6 +24,6 @@ set_property(TARGET zmq
 	)
 set_property(TARGET zmq 
 	PROPERTY INTERFACE_INCLUDE_DIRECTORIES 
-	${install_dir}/include
+	${zmq_SOURCE_DIR}/include
 	)
 add_dependencies(zmq zmq-project)

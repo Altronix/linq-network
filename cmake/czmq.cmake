@@ -1,7 +1,9 @@
 # czmq
 
+set(czmq_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/czmq)
+
 ExternalProject_Add(czmq-project
-	SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/czmq
+	SOURCE_DIR ${czmq_SOURCE_DIR}
 	UPDATE_COMMAND ""
 	INSTALL_COMMAND ""
 	LIST_SEPARATOR |
@@ -21,5 +23,5 @@ set_property(TARGET czmq
 	)
 set_property(TARGET czmq 
 	PROPERTY INTERFACE_INCLUDE_DIRECTORIES 
-	${install_dir}/include
+	${czmq_SOURCE_DIR}/include
 	)

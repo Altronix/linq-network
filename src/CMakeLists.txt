@@ -12,10 +12,10 @@ set(linq-c-sources-test ${sources})
 set(linq-c-headers-test ${headers})
 
 
+include_directories(../include)
+
 add_library(linq-c ${linq-c-sources} ${linq-c-headers})
 target_link_libraries(linq-c ${dependency-libraries})
-target_include_directories(linq-c PUBLIC ../include)
 
 add_library(linq-c-test ${linq-c-sources-test} ${linq-c-headers-test})
-# target_link_libraries(linq-c ${dependency-libraries})
-target_include_directories(linq-c-test PUBLIC ../include)
+target_link_libraries(linq-c-test ${dependency-libraries})
