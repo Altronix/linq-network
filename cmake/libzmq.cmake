@@ -3,7 +3,7 @@
 set(zmq_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/libzmq)
 
 ExternalProject_Add(zmq-project
-	SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/libzmq
+	SOURCE_DIR ${zmq_SOURCE_DIR}
 	UPDATE_COMMAND ""
 	INSTALL_COMMAND ""
 	LIST_SEPARATOR |
