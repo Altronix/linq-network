@@ -42,6 +42,32 @@ static void
 test_mock_push_outgoing(void** context_p)
 {
     ((void)context_p);
+    zmsg_t *a, *b, *c;
+
+    a = helpers_make_legacy_alert();
+    b = helpers_make_legacy_alert();
+    c = helpers_make_legacy_alert();
+    czmq_spy_push_outgoing_mesg(&a);
+    czmq_spy_push_outgoing_mesg(&b);
+    czmq_spy_push_outgoing_mesg(&c);
+    assert_null(a);
+    assert_null(b);
+    assert_null(c);
+    a = czmq_spy_pop_outgoing_mesg(NULL);
+    b = czmq_spy_pop_outgoing_mesg(NULL);
+    c = czmq_spy_pop_outgoing_mesg(NULL);
+    assert_non_null(a);
+    assert_non_null(b);
+    assert_non_null(c);
+    zmsg_destroy(&a);
+    zmsg_destroy(&b);
+    zmsg_destroy(&c);
+    a = helpers_make_legacy_alert();
+    assert_non_null(a);
+    czmq_spy_push_outgoing_mesg(&a);
+    a = czmq_spy_pop_outgoing_mesg(NULL);
+    assert_non_null(a);
+    zmsg_destroy(&a);
 }
 
 int

@@ -20,8 +20,8 @@ czmq_spy_push_mesg(mock_zmsg_s** dir_p, zmsg_t** msg_p)
     next->msg = *msg_p;
     next->next = NULL;
     *msg_p = NULL;
-    if (!incoming) {
-        incoming = next;
+    if (!*dir_p) {
+        *dir_p = next;
     } else {
         while (seek->next) seek = seek->next;
         seek->next = next;
@@ -35,7 +35,7 @@ czmq_spy_pop_mesg(mock_zmsg_s** dir_p)
     mock_zmsg_s* next = *dir_p;
     if (!next) return NULL;
     ret = next->msg;
-    incoming = next->next;
+    *dir_p = next->next;
     free(next);
     return ret;
 }
@@ -51,6 +51,19 @@ czmq_spy_pop_incoming_mesg()
 {
     return czmq_spy_pop_mesg(&incoming);
 }
+
+void
+czmq_spy_push_outgoing_mesg(zmsg_t** msg_p)
+{
+    czmq_spy_push_mesg(&outgoing, msg_p);
+}
+
+zmsg_t*
+czmq_spy_pop_outgoing_mesg()
+{
+    return czmq_spy_pop_mesg(&outgoing);
+}
+
 
 zmsg_t*
 __wrap_zmsg_recv(void* source)
