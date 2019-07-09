@@ -16,14 +16,10 @@ ExternalProject_Add(zmq-project
 	)
 
 ExternalProject_Get_Property(zmq-project install_dir)
+set(zmq_SHARED_LIBRARY ${install_dir}/lib64/${CMAKE_SHARED_LIBRARY_PREFIX}zmq${CMAKE_SHARED_LIBRARY_SUFFIX})
+set(zmq_INCLUDE_DIR ${zmq_SOURCE_DIR}/include)
 
 add_library(zmq SHARED IMPORTED)
-set_property(TARGET zmq 
-	PROPERTY IMPORTED_LOCATION 
-	${install_dir}/lib64/${CMAKE_SHARED_LIBRARY_PREFIX}zmq${CMAKE_SHARED_LIBRARY_SUFFIX}
-	)
-set_property(TARGET zmq 
-	PROPERTY INTERFACE_INCLUDE_DIRECTORIES 
-	${zmq_SOURCE_DIR}/include
-	)
+set_property(TARGET zmq PROPERTY IMPORTED_LOCATION ${zmq_SHARED_LIBRARY})
+set_property(TARGET zmq PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${zmq_INCLUDE_DIR})
 add_dependencies(zmq zmq-project)
