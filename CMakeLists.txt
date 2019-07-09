@@ -15,6 +15,7 @@ include(cmake/czmq.cmake)
 add_subdirectory(src)
 
 IF(ENABLE_TESTING)
+	set(CMAKE_BUILD_TYPE Debug)
     	enable_testing()
     	include(CTest)
 	include(cmake/cmocka.cmake)

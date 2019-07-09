@@ -71,6 +71,7 @@ flags = [
 '-I./external/cmocka/include',
 
 '-I./test/mocks',
+'-I./test/helpers',
 '-I./test/linq',
 '-I./include',
 '-I./src-c'

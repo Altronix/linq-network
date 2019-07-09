@@ -4,3 +4,18 @@
 add_library(mock-czmq mock_zmsg.c mock_zsock.c)
 target_link_libraries(mock-czmq linq-c czmq zmq)
 target_include_directories(mock-czmq PUBLIC .)
+
+string(CONCAT wrap_flags "-Wl,")
+string(CONCAT wrap_flags ${wrap_flags} "--wrap=zmsg_recv,")
+string(CONCAT wrap_flags ${wrap_flags} "--wrap=zmsg_send,")
+string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_bind,")
+string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_connect,")
+string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_send,")
+string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_recv")
+
+
+add_executable(test-mocks main.c)
+set_target_properties(test-mocks PROPERTIES LINK_FLAGS ${wrap_flags})
+target_link_libraries(test-mocks linq-c zmq czmq helpers mock-czmq cmocka)
+add_test(NAME test-mocks COMMAND test-mocks)
+install(TARGETS test-mocks DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

@@ -1,7 +1,7 @@
 #include "helpers.h"
 
 zmsg_t*
-test_bridge_make_alert()
+helpers_make_legacy_alert()
 {
     zmsg_t* msg = zmsg_new();
     zframe_t *rid, *typ, *sid, *dat;
