@@ -7,6 +7,7 @@ include(cmake/libzmq.cmake)
 include(cmake/czmq.cmake)
 
 set(dependency-libraries libzmq czmq)
+set(dependency-libraries-test cmocka)
 
 add_subdirectory(src)
 
@@ -14,8 +15,7 @@ IF(ENABLE_TESTING)
     	enable_testing()
     	include(CTest)
 	include(cmake/cmocka.cmake)
-    	include(cmake/cmocka.cmake)
-    	include(cmake/CodeCoverage.cmake)
+	# include(cmake/CodeCoverage.cmake)
 	# add_subdirectory(test/...
 	# add_subdirectory(test/...
 	# add_subdirectory(test/...
