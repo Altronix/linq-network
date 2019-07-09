@@ -14,9 +14,9 @@ set(linq-c-headers-test ${headers})
 
 
 add_library(linq-c ${linq-c-sources} ${linq-c-headers})
-target_link_libraries(linq-c ${deps-libs})
+target_link_libraries(linq-c ${deps_LIBRARIES})
 target_include_directories(linq-c PUBLIC ../include)
 
 add_library(linq-c-test ${linq-c-sources-test} ${linq-c-headers-test})
-target_link_libraries(linq-c-test ${deps-libs})
+target_link_libraries(linq-c-test ${deps_TEST_LIBRARIES})
 target_include_directories(linq-c-test PUBLIC ../include)

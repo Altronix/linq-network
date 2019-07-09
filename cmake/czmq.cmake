@@ -1,19 +1,17 @@
 # czmq
 
-set(czmq_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/czmq)
-
 ExternalProject_Add(czmq-project
-	SOURCE_DIR ${czmq_SOURCE_DIR}
+	SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/czmq
+	INSTALL_DIR ${deps_INSTALL_DIR}
 	UPDATE_COMMAND ""
-	INSTALL_COMMAND ""
 	LIST_SEPARATOR |
 	CMAKE_ARGS 
-		-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+		-DCMAKE_INSTALL_PREFIX=${deps_INSTALL_DIR}
 	)
 
 ExternalProject_Get_Property(czmq-project install_dir)
 set(czmq_LIBRARY ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}czmq${CMAKE_STATIC_LIBRARY_SUFFIX})
-set(czmq_INCLUDE_DIR ${czmq_SOURCE_DIR}/include)
+set(czmq_INCLUDE_DIR ${install_dir}/include)
 
 add_library(czmq STATIC IMPORTED)
 add_dependencies(czmq-project zmq-project)

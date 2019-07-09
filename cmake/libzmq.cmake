@@ -1,14 +1,12 @@
 # libzmq
 
-set(zmq_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/libzmq)
-
 ExternalProject_Add(zmq-project
-	SOURCE_DIR ${zmq_SOURCE_DIR}
+	SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/libzmq
+	INSTALL_DIR ${deps_INSTALL_DIR}
 	UPDATE_COMMAND ""
-	INSTALL_COMMAND ""
 	LIST_SEPARATOR |
 	CMAKE_ARGS 
-		-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} 
+		-DCMAKE_INSTALL_PREFIX=${deps_INSTALL_DIR} 
 		-DZMQ_BUILD_TESTS:BOOL=OFF 
 		-DBUILD_TESTS:BOOL=OFF 
 		-DBUILD_STATIC:BOOL=ON
@@ -17,7 +15,7 @@ ExternalProject_Add(zmq-project
 
 ExternalProject_Get_Property(zmq-project install_dir)
 set(zmq_LIBRARY ${install_dir}/lib64/${CMAKE_STATIC_LIBRARY_PREFIX}zmq${CMAKE_STATIC_LIBRARY_SUFFIX})
-set(zmq_INCLUDE_DIR ${zmq_SOURCE_DIR}/include)
+set(zmq_INCLUDE_DIR ${install_dir}/include)
 
 add_library(zmq STATIC IMPORTED)
 set_property(TARGET zmq PROPERTY IMPORTED_LOCATION ${zmq_LIBRARY})
