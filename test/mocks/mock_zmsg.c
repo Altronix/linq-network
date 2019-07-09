@@ -1,5 +1,8 @@
 #include "mock_zmsg.h"
 
+#include "altronix/linq.h"
+#include <cmocka.h>
+
 typedef struct mock_zmsg_s
 {
     struct mock_zmsg_s* next;
@@ -7,12 +10,13 @@ typedef struct mock_zmsg_s
 } mock_zmsg_s;
 
 static mock_zmsg_s* incoming = NULL;
+static mock_zmsg_s* outgoing = NULL;
 
-void
-czmq_spy_push_incoming_mesg(zmsg_t** msg_p)
+static void
+czmq_spy_push_mesg(mock_zmsg_s** dir_p, zmsg_t** msg_p)
 {
-    mock_zmsg_s *seek = incoming, *next = malloc(sizeof(mock_zmsg_s));
-    assert(next);
+    mock_zmsg_s *seek = *dir_p, *next = malloc(sizeof(mock_zmsg_s));
+    assert_non_null(next);
     next->msg = *msg_p;
     next->next = NULL;
     *msg_p = NULL;
@@ -24,17 +28,35 @@ czmq_spy_push_incoming_mesg(zmsg_t** msg_p)
     }
 }
 
-zmsg_t*
-__wrap_zmsg_recv(void* source)
+static zmsg_t*
+czmq_spy_pop_mesg(mock_zmsg_s** dir_p)
 {
-    ((void)source);
     zmsg_t* ret = NULL;
-    mock_zmsg_s* next = incoming;
+    mock_zmsg_s* next = *dir_p;
     if (!next) return NULL;
     ret = next->msg;
     incoming = next->next;
     free(next);
     return ret;
+}
+
+void
+czmq_spy_push_incoming_mesg(zmsg_t** msg_p)
+{
+    czmq_spy_push_mesg(&incoming, msg_p);
+}
+
+zmsg_t*
+czmq_spy_pop_incoming_mesg()
+{
+    return czmq_spy_pop_mesg(&incoming);
+}
+
+zmsg_t*
+__wrap_zmsg_recv(void* source)
+{
+    ((void)source);
+    return czmq_spy_pop_incoming_mesg();
 }
 
 int
