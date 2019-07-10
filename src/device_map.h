@@ -2,15 +2,14 @@
 #define DEVICE_MAP_H_
 
 // includes
+#include "czmq.h"
+#include "klib/khash.h"
+#include "linq_internal.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-
-#include "czmq.h"
-#include "klib/khash.h"
-#include "linq_internal.h"
 
     typedef struct device_map device_map;
 
