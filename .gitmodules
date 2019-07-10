@@ -7,3 +7,6 @@
 [submodule "external/cmocka"]
 	path = external/cmocka
 	url = git://git.cryptomilk.org/projects/cmocka.git
+[submodule "external/klib"]
+	path = external/klib
+	url = https://github.com/attractivechaos/klib

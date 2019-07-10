@@ -69,6 +69,7 @@ flags = [
 '-I./external/czmq/include',
 '-I./external/libzmq/include',
 '-I./external/cmocka/include',
+'-I./external/klib',
 
 '-I./test/mocks',
 '-I./test/helpers',
