@@ -14,6 +14,7 @@ extern "C"
         e_linq_ok = 0,
         e_linq_oom = -1,
         e_linq_bad_args = -2,
+        e_linq_protocol = -3
     } e_linq_error;
 
     typedef struct linq_callbacks
