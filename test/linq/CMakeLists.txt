@@ -7,6 +7,7 @@ find_package(Threads)
 add_executable(test-linq main.c)
 
 string(CONCAT wrap_flags "-Wl,")
+string(CONCAT wrap_flags ${wrap_flags} "--wrap=zmq_poll,")
 string(CONCAT wrap_flags ${wrap_flags} "--wrap=zmsg_recv,")
 string(CONCAT wrap_flags ${wrap_flags} "--wrap=zmsg_send,")
 string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_bind,")
