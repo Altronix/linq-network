@@ -50,6 +50,14 @@ typedef struct
     };
 } packet;
 
+static void
+on_error(linq* l, e_linq_error e, const char* serial)
+{
+    if (l->callbacks && l->callbacks->err) {
+        l->callbacks->err(l->context, e, "", serial);
+    }
+}
+
 // Read a valid version frame
 static version
 pop_version(zmsg_t* msg)
@@ -151,14 +159,18 @@ process_incoming(linq* l)
 {
     e_linq_error e = e_linq_protocol;
     zmsg_t* msg = zmsg_recv(l->sock);
-    if (!(msg && zmsg_size(msg) >= 4)) return e;
-    packet p;
-    p.router = zmsg_pop(msg);
-    p.version = pop_version(msg);
-    p.type = pop_type(msg);
-    p.serial = zmsg_pop(msg);
-    return p.version == 0 ? process_incoming_packet(l, msg, &p)
-                          : process_incoming_packet_legacy(l, msg, &p);
+    if ((msg && zmsg_size(msg) >= 4)) {
+        packet p;
+        p.router = zmsg_pop(msg);
+        p.version = pop_version(msg);
+        p.type = pop_type(msg);
+        p.serial = zmsg_pop(msg);
+        e = p.version == 0 ? process_incoming_packet(l, msg, &p)
+                           : process_incoming_packet_legacy(l, msg, &p);
+    }
+    if (e) on_error(l, e_linq_protocol, "");
+    zmsg_destroy(&msg);
+    return e;
 }
 
 // Create main context for the caller

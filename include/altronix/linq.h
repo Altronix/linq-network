@@ -8,6 +8,7 @@ extern "C"
 
     typedef struct device device;
     typedef struct linq linq;
+    typedef void (*linq_error_fn)(void*, int, const char*, const char*);
 
     typedef enum
     {
@@ -19,6 +20,7 @@ extern "C"
 
     typedef struct linq_callbacks
     {
+        linq_error_fn err;
     } linq_callbacks;
 
     linq* linq_create(linq_callbacks*, void*);
