@@ -8,8 +8,19 @@
 #include <setjmp.h>
 
 static e_linq_error expect_error = e_linq_ok;
-static const char* expect_what = "";
-static const char* expect_serial = "";
+static char* empty = "";
+static char* expect_what = "";
+static char* expect_serial = "";
+
+static void
+test_reset()
+{
+    expect_error = e_linq_ok;
+    expect_what = empty;
+    expect_serial = empty;
+    czmq_spy_mesg_reset();
+    czmq_spy_poll_reset();
+}
 
 static void
 linq_on_error_fn(
@@ -52,9 +63,8 @@ test_linq_receive_protocol_error_short(void** context_p)
 
     assert_true(pass);
 
-    czmq_spy_mesg_reset();
-    czmq_spy_poll_reset();
     linq_destroy(&l);
+    test_reset();
 }
 
 static void
