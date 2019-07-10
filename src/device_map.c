@@ -23,8 +23,8 @@ device_map_destroy(device_map** d_p)
     *d_p = NULL;
     for (khint_t k = kh_begin(map->map); k != kh_end(map->map); ++k) {
         if (kh_exist(map->map, k)) {
-            // device* d = kh_val(map->map, k);
-            // device_destroy(&d);
+            device* d = kh_val(map->map, k);
+            device_destroy(&d);
         }
     }
     kh_destroy(dev, map->map);
@@ -39,10 +39,11 @@ device_map_insert(
     zframe_t* serial,
     zframe_t* product)
 {
-    int ret;
+    int ret = 0;
     device* d = device_create(sock_p, router, serial, product);
-    kh_put(dev, map->map, device_serial(d), &ret);
-    ((void)ret);
+    khiter_t k = kh_put(dev, map->map, device_serial(d), &ret);
+    linq_assert(ret == 1); // If double insert we crash
+    kh_val(map->map, k) = d;
 }
 
 uint32_t

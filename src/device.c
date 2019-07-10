@@ -37,6 +37,7 @@ device_destroy(device** d_p)
     device* d = *d_p;
     memset(d, 0, sizeof(device));
     *d_p = NULL;
+    linq_free(d);
 }
 
 const char*

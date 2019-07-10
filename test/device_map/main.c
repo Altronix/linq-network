@@ -26,7 +26,7 @@ test_device_map_insert(void** context_p)
     zframe_t* pid = zframe_new("product", 3);
     zsock_t* sock = NULL;
 
-    // device_map_insert(m, &sock, rid, sid, pid);
+    device_map_insert(m, &sock, rid, sid, pid);
     zframe_destroy(&rid);
     zframe_destroy(&sid);
     zframe_destroy(&pid);
