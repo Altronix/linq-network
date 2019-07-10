@@ -5,10 +5,11 @@
 
 #ifdef __cplusplus
 extern "C"
+{
 #endif
 
-    void
-    czmq_spy_poll_push_incoming(bool i);
+    void czmq_spy_poll_reset(void);
+    void czmq_spy_poll_push_incoming(bool i);
 
 #ifdef __cplusplus
 }

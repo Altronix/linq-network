@@ -31,3 +31,10 @@ __wrap_zsock_recv(void* self, const char* picture, ...)
     ((void)picture);
     return 0;
 }
+
+void*
+__wrap_zsock_resolve(void* self)
+{
+    ((void)self);
+    return NULL;
+}

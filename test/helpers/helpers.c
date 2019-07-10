@@ -3,8 +3,6 @@
 zmsg_t*
 helpers_make_legacy_alert()
 {
-    zmsg_t* msg = zmsg_new();
-    zframe_t *rid, *typ, *sid, *dat;
     const char* alert = "{"
                         "\"meth\":\"POST\","
                         "\"path\":\"home/exe/alert\","
@@ -17,17 +15,41 @@ helpers_make_legacy_alert()
                         "\"mesg\":\"Power Supply Turn On\""
                         "}"
                         "}";
-    rid = zframe_new("sid", 3);
-    sid = zframe_new("rid", 3);
-    typ = zframe_new("typ", 3);
-    dat = zframe_new(alert, strlen(alert) + 1);
 
+    return helpers_create_message_str(4, "rid", "sid", "typ", alert);
+}
+
+zmsg_t*
+helpers_create_message_str(int n, ...)
+{
+    va_list list;
+    va_start(list, n);
+    zmsg_t* msg = zmsg_new();
     assert_non_null(msg);
-    assert_true(rid && sid && typ && dat);
-    zmsg_append(msg, &rid);
-    zmsg_append(msg, &typ);
-    zmsg_append(msg, &sid);
-    zmsg_append(msg, &dat);
+    for (int i = 0; i < n; i++) {
+        char* arg = va_arg(list, char*);
+        zframe_t* frame = zframe_new(arg, strlen(arg));
+        assert_non_null(frame);
+        zmsg_append(msg, &frame);
+    }
+    va_end(list);
     return msg;
 }
 
+zmsg_t*
+helpers_create_message_mem(int n, ...)
+{
+    va_list list;
+    va_start(list, n);
+    zmsg_t* msg = zmsg_new();
+    assert_non_null(msg);
+    for (int i = 0; i < n; i++) {
+        uint8_t* arg = va_arg(list, uint8_t*);
+        size_t sz = va_arg(list, size_t);
+        zframe_t* frame = zframe_new(arg, sz);
+        assert_non_null(frame);
+        zmsg_append(msg, &frame);
+    }
+    va_end(list);
+    return msg;
+}

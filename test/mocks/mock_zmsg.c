@@ -12,8 +12,21 @@ typedef struct mock_zmsg_s
 static mock_zmsg_s* incoming = NULL;
 static mock_zmsg_s* outgoing = NULL;
 
+void
+czmq_spy_mesg_reset()
+{
+    while (incoming) {
+        zmsg_t* m = czmq_spy_mesg_pop_incoming();
+        zmsg_destroy(&m);
+    }
+    while (outgoing) {
+        zmsg_t* m = czmq_spy_mesg_pop_outgoing();
+        zmsg_destroy(&m);
+    }
+}
+
 static void
-czmq_spy_push_mesg(mock_zmsg_s** dir_p, zmsg_t** msg_p)
+czmq_spy_mesg_push(mock_zmsg_s** dir_p, zmsg_t** msg_p)
 {
     mock_zmsg_s *seek = *dir_p, *next = malloc(sizeof(mock_zmsg_s));
     assert_non_null(next);
@@ -29,7 +42,7 @@ czmq_spy_push_mesg(mock_zmsg_s** dir_p, zmsg_t** msg_p)
 }
 
 static zmsg_t*
-czmq_spy_pop_mesg(mock_zmsg_s** dir_p)
+czmq_spy_mesg_pop(mock_zmsg_s** dir_p)
 {
     zmsg_t* ret = NULL;
     mock_zmsg_s* next = *dir_p;
@@ -41,35 +54,34 @@ czmq_spy_pop_mesg(mock_zmsg_s** dir_p)
 }
 
 void
-czmq_spy_push_incoming_mesg(zmsg_t** msg_p)
+czmq_spy_mesg_push_incoming(zmsg_t** msg_p)
 {
-    czmq_spy_push_mesg(&incoming, msg_p);
+    czmq_spy_mesg_push(&incoming, msg_p);
 }
 
 zmsg_t*
-czmq_spy_pop_incoming_mesg()
+czmq_spy_mesg_pop_incoming()
 {
-    return czmq_spy_pop_mesg(&incoming);
+    return czmq_spy_mesg_pop(&incoming);
 }
 
 void
-czmq_spy_push_outgoing_mesg(zmsg_t** msg_p)
+czmq_spy_mesg_push_outgoing(zmsg_t** msg_p)
 {
-    czmq_spy_push_mesg(&outgoing, msg_p);
+    czmq_spy_mesg_push(&outgoing, msg_p);
 }
 
 zmsg_t*
-czmq_spy_pop_outgoing_mesg()
+czmq_spy_mesg_pop_outgoing()
 {
-    return czmq_spy_pop_mesg(&outgoing);
+    return czmq_spy_mesg_pop(&outgoing);
 }
-
 
 zmsg_t*
 __wrap_zmsg_recv(void* source)
 {
     ((void)source);
-    return czmq_spy_pop_incoming_mesg();
+    return czmq_spy_mesg_pop_incoming();
 }
 
 int

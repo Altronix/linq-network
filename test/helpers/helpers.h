@@ -1,13 +1,15 @@
 #ifndef HELPERS_H_
 #define HELPERS_H_
 
-#include <stdlib.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 
-#include "czmq.h"
+#include <setjmp.h>
+
 #include "cmocka.h"
+#include "czmq.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -15,6 +17,8 @@ extern "C"
 #endif
 
     zmsg_t* helpers_make_legacy_alert();
+    zmsg_t* helpers_create_message_mem(int n, ...);
+    zmsg_t* helpers_create_message_str(int n, ...);
 
 #ifdef __cplusplus
 }

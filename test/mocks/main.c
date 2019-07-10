@@ -15,9 +15,9 @@ test_mock_push_incoming(void** context_p)
     a = helpers_make_legacy_alert();
     b = helpers_make_legacy_alert();
     c = helpers_make_legacy_alert();
-    czmq_spy_push_incoming_mesg(&a);
-    czmq_spy_push_incoming_mesg(&b);
-    czmq_spy_push_incoming_mesg(&c);
+    czmq_spy_mesg_push_incoming(&a);
+    czmq_spy_mesg_push_incoming(&b);
+    czmq_spy_mesg_push_incoming(&c);
     assert_null(a);
     assert_null(b);
     assert_null(c);
@@ -32,7 +32,7 @@ test_mock_push_incoming(void** context_p)
     zmsg_destroy(&c);
     a = helpers_make_legacy_alert();
     assert_non_null(a);
-    czmq_spy_push_incoming_mesg(&a);
+    czmq_spy_mesg_push_incoming(&a);
     a = zmsg_recv(NULL);
     assert_non_null(a);
     zmsg_destroy(&a);
@@ -47,15 +47,15 @@ test_mock_push_outgoing(void** context_p)
     a = helpers_make_legacy_alert();
     b = helpers_make_legacy_alert();
     c = helpers_make_legacy_alert();
-    czmq_spy_push_outgoing_mesg(&a);
-    czmq_spy_push_outgoing_mesg(&b);
-    czmq_spy_push_outgoing_mesg(&c);
+    czmq_spy_mesg_push_outgoing(&a);
+    czmq_spy_mesg_push_outgoing(&b);
+    czmq_spy_mesg_push_outgoing(&c);
     assert_null(a);
     assert_null(b);
     assert_null(c);
-    a = czmq_spy_pop_outgoing_mesg(NULL);
-    b = czmq_spy_pop_outgoing_mesg(NULL);
-    c = czmq_spy_pop_outgoing_mesg(NULL);
+    a = czmq_spy_mesg_pop_outgoing(NULL);
+    b = czmq_spy_mesg_pop_outgoing(NULL);
+    c = czmq_spy_mesg_pop_outgoing(NULL);
     assert_non_null(a);
     assert_non_null(b);
     assert_non_null(c);
@@ -64,8 +64,8 @@ test_mock_push_outgoing(void** context_p)
     zmsg_destroy(&c);
     a = helpers_make_legacy_alert();
     assert_non_null(a);
-    czmq_spy_push_outgoing_mesg(&a);
-    a = czmq_spy_pop_outgoing_mesg(NULL);
+    czmq_spy_mesg_push_outgoing(&a);
+    a = czmq_spy_mesg_pop_outgoing(NULL);
     assert_non_null(a);
     zmsg_destroy(&a);
 }
