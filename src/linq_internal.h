@@ -10,7 +10,6 @@
 
 // Dependencies includes
 #include "czmq.h"
-#include "khash.h"
 
 // project includes
 #include "altronix/linq.h"

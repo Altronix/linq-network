@@ -6,4 +6,4 @@ add_custom_target(klib-install
 
 add_library(klib INTERFACE)
 add_dependencies(klib klib-install)
-target_include_directories(klib INTERFACE ${deps_INSTALL_DIR}/include/klib)
+target_include_directories(klib INTERFACE ${deps_INSTALL_DIR}/include)

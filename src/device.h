@@ -8,6 +8,10 @@ extern "C"
 {
 #endif
 
+#include "czmq.h"
+#include "klib/khash.h"
+#include "linq_internal.h"
+
 #ifdef __cplusplus
 }
 #endif

@@ -70,6 +70,7 @@ flags = [
 '-I./external/libzmq/include',
 '-I./external/cmocka/include',
 '-I./external/klib',
+'-I./build/install/include',
 
 '-I./test/mocks',
 '-I./test/helpers',
