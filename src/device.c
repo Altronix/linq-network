@@ -11,21 +11,6 @@ typedef struct device
     uint32_t last_seen;
 } device;
 
-KHASH_MAP_INIT_STR(dev, device*);
-
-void
-device_add(
-    zsock_t** sock_p,
-    zframe_t* router,
-    zframe_t* serial,
-    zframe_t* product)
-{
-    ((void)sock_p);
-    ((void)router);
-    ((void)serial);
-    ((void)product);
-}
-
 int
 device_remove_serial(const char* serial)
 {

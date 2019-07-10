@@ -1,10 +1,12 @@
 set(sources 
 	linq.c
-	device.c)
+	device.c
+	device_map.c)
 set(headers 
 	../include/altronix/linq.h
 	linq_internal.h
-	device.h)
+	device.h
+	device_map.h)
 
 set(linq-c-sources ${sources})
 set(linq-c-headers ${headers})

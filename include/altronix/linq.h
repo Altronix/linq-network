@@ -7,6 +7,7 @@ extern "C"
 #endif
 
     typedef struct device device;
+    typedef struct devices devices;
     typedef struct linq linq;
     typedef void (*linq_error_fn)(void*, int, const char*, const char*);
 
