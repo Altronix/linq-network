@@ -242,7 +242,7 @@ linq_poll(linq* l)
     zmq_pollitem_t item = { zsock_resolve(l->sock), 0, ZMQ_POLLIN, 0 };
     err = zmq_poll(&item, 1, 1000);
     if (err < 0) return err;
-    if (item.revents && ZMQ_POLLIN) err = process_incoming(l);
+    if (item.revents & ZMQ_POLLIN) err = process_incoming(l);
     return err;
 }
 device**
