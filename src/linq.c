@@ -1,5 +1,7 @@
 #include "linq_internal.h"
 
+#define snprintframe(x, f) snprintf(x, sizeof(x), "%s", zframe_data(f))
+
 // Main class
 typedef struct linq
 {
@@ -20,10 +22,17 @@ typedef enum
     alert = 3
 } type;
 
+typedef struct
+{
+    uint8_t id[256];
+    uint32_t sz;
+} router;
+
 // Packet containing incoming "frames" from net
 typedef struct
 {
-    uint8_t router[256];
+    // uint8_t router[256];
+    router router;
     char serial[64];
     version version;
     type type;
@@ -68,14 +77,11 @@ pop_incoming(packet* p, zmsg_t* m)
         ver = zmsg_pop(m);
         typ = zmsg_pop(m);
         sid = zmsg_pop(m);
-        if ((zframe_size(rid) <= sizeof(p->router)) &&
+        if (((p->router.sz = zframe_size(rid)) <= sizeof(p->router)) &&
             (zframe_size(ver) == 1) && (zframe_size(typ) == 1) &&
             (zframe_size(sid) <= sizeof(p->serial))) {
-            // TODO snprintf serial, store router size
-            memset(p->router, 0, sizeof(p->router));
-            memset(p->serial, 0, sizeof(p->serial));
-            memcpy(p->router, zframe_data(rid), zframe_size(rid));
-            memcpy(p->serial, zframe_data(sid), zframe_size(sid));
+            memcpy(p->router.id, zframe_data(rid), zframe_size(rid));
+            snprintframe(p->serial, sid);
             p->version = zframe_data(ver)[0];
             p->type = zframe_data(typ)[0];
             e = e_linq_ok;
@@ -98,10 +104,8 @@ pop_heartbeat(packet* p, zmsg_t* m)
         sid = zmsg_pop(m);
         if ((zframe_size(pid) <= sizeof(p->heartbeat.product)) &&
             (zframe_size(sid) <= sizeof(p->heartbeat.site_id))) {
-            memset(p->heartbeat.product, 0, sizeof(p->heartbeat.product));
-            memset(p->heartbeat.site_id, 0, sizeof(p->heartbeat.site_id));
-            memcpy(p->heartbeat.product, zframe_data(pid), zframe_size(pid));
-            memcpy(p->heartbeat.site_id, zframe_data(sid), zframe_size(sid));
+            snprintframe(p->heartbeat.product, pid);
+            snprintframe(p->heartbeat.site_id, sid);
             e = e_linq_ok;
         }
         zframe_destroy(&pid);
