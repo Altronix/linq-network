@@ -19,9 +19,12 @@ extern "C"
     void device_map_insert(
         device_map*,
         zsock_t** sock_p,
-        zframe_t* router,
-        zframe_t* serial,
-        zframe_t* product);
+        router* r,
+        const char* serial,
+        const char* product);
+    device** device_map_get(device_map* m, const char* serial);
+    uint32_t device_map_remove(device_map* dmap, const char* serial);
+    uint32_t device_map_size(device_map* map);
 
 #ifdef __cplusplus
 }

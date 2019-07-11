@@ -14,6 +14,12 @@
 // project includes
 #include "altronix/linq.h"
 
+typedef struct
+{
+    uint8_t id[256];
+    uint32_t sz;
+} router;
+
 #ifdef __cplusplus
 extern "C"
 {

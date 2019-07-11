@@ -1,6 +1,6 @@
 #include "linq_internal.h"
 
-#define snprintframe(x, f) snprintf(x, sizeof(x), "%s", zframe_data(f))
+#define SNPRINTFRAME(x, f) snprintf(x, sizeof(x), "%s", zframe_data(f))
 
 // Main class
 typedef struct linq
@@ -22,16 +22,9 @@ typedef enum
     alert = 3
 } type;
 
-typedef struct
-{
-    uint8_t id[256];
-    uint32_t sz;
-} router;
-
 // Packet containing incoming "frames" from net
 typedef struct
 {
-    // uint8_t router[256];
     router router;
     char serial[64];
     version version;
@@ -81,7 +74,7 @@ pop_incoming(packet* p, zmsg_t* m)
             (zframe_size(ver) == 1) && (zframe_size(typ) == 1) &&
             (zframe_size(sid) <= sizeof(p->serial))) {
             memcpy(p->router.id, zframe_data(rid), zframe_size(rid));
-            snprintframe(p->serial, sid);
+            SNPRINTFRAME(p->serial, sid);
             p->version = zframe_data(ver)[0];
             p->type = zframe_data(typ)[0];
             e = e_linq_ok;
@@ -104,8 +97,8 @@ pop_heartbeat(packet* p, zmsg_t* m)
         sid = zmsg_pop(m);
         if ((zframe_size(pid) <= sizeof(p->heartbeat.product)) &&
             (zframe_size(sid) <= sizeof(p->heartbeat.site_id))) {
-            snprintframe(p->heartbeat.product, pid);
-            snprintframe(p->heartbeat.site_id, sid);
+            SNPRINTFRAME(p->heartbeat.product, pid);
+            SNPRINTFRAME(p->heartbeat.site_id, sid);
             e = e_linq_ok;
         }
         zframe_destroy(&pid);

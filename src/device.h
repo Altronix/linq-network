@@ -12,11 +12,13 @@ extern "C"
 
     device* device_create(
         zsock_t** sock_p,
-        zframe_t* router,
-        zframe_t* serial,
-        zframe_t* product);
+        router* router,
+        const char* serial,
+        const char* product);
     void device_destroy(device** d_p);
     const char* device_serial(device* d);
+    const char* device_product(device* d);
+    const router* device_router(device* d);
 
 #ifdef __cplusplus
 }
