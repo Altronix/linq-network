@@ -61,6 +61,7 @@ helpers_create_message_str(int n, ...)
     return msg;
 }
 
+// TODO set more flag on frames...
 zmsg_t*
 helpers_create_message_mem(int n, ...)
 {

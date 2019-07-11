@@ -109,6 +109,8 @@ process_heartbeat(linq* l, zmsg_t** msg, zframe_t** frames)
 static e_linq_error
 process_packet(linq* l, zmsg_t** msg, zframe_t** frames)
 {
+    // TODO we can loop on zmsg_pop when our test helpers supports setting the
+    // more flag on incoming frames...
     e_linq_error e = e_linq_protocol;
     zframe_t *rid, *ver, *typ, *sid;
     *msg = zmsg_recv(l->sock);
