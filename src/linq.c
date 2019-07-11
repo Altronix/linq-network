@@ -89,14 +89,6 @@ pop_incoming(packet* p, zmsg_t* m)
 }
 
 static e_linq_error
-pop_legacy(packet* p, zmsg_t* m)
-{
-    ((void)p);
-    ((void)m);
-    return e_linq_protocol;
-}
-
-static e_linq_error
 pop_heartbeat(packet* p, zmsg_t* m)
 {
     zframe_t *pid, *sid;
@@ -186,27 +178,23 @@ process_incoming(linq* l)
     packet p;
     e_linq_error e = e_linq_protocol;
     zmsg_t* msg = zmsg_recv(l->sock);
-    if (msg) e = pop_incoming(&p, msg);
-    if (e == e_linq_ok) {
-        if (!(p.version == 0)) e = pop_legacy(&p, msg);
-        if (e == e_linq_ok) {
-            switch (p.type) {
-                case heartbeat:
-                    if ((e = pop_heartbeat(&p, msg)) == e_linq_ok) {
-                        process_heartbeat(l, &p);
-                    }
-                    break;
-                case request: break;
-                case response:
-                    if ((e = pop_response(&p, msg)) == e_linq_ok)
-                        process_response(l, &p);
-                    break;
-                case alert:
-                    if ((e = pop_alert(&p, msg)) == e_linq_ok) {
-                        process_alert(l, &p);
-                    }
-                    break;
-            }
+    if (msg && ((e = pop_incoming(&p, msg)) == e_linq_ok)) {
+        switch (p.type) {
+            case heartbeat:
+                if ((e = pop_heartbeat(&p, msg)) == e_linq_ok) {
+                    process_heartbeat(l, &p);
+                }
+                break;
+            case request: break;
+            case response:
+                if ((e = pop_response(&p, msg)) == e_linq_ok)
+                    process_response(l, &p);
+                break;
+            case alert:
+                if ((e = pop_alert(&p, msg)) == e_linq_ok) {
+                    process_alert(l, &p);
+                }
+                break;
         }
     }
     if (e) on_error(l, e, "");
