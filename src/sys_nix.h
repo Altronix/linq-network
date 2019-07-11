@@ -1,6 +1,8 @@
 #ifndef SYS_NIX_H_
 #define SYS_NIX_H_
 
+#include <stdint.h>
+
 #define linq_malloc_fn malloc
 #define linq_free_fn free
 #define linq_assert_fn assert
