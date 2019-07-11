@@ -22,6 +22,16 @@ extern "C"
         e_linq_protocol = -3
     } e_linq_error;
 
+    typedef struct linq_alert
+    {
+        const char* who;
+        const char* what;
+        const char* where;
+        const char* when;
+        const char* mesg;
+        const char* email[5];
+    } linq_alert;
+
     typedef struct linq_callbacks
     {
         linq_error_fn err;

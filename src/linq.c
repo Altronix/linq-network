@@ -2,7 +2,8 @@
 #include "device_map.h"
 #include "linq_internal.h"
 
-#define SNPRINTFRAME(x, f) snprintf(x, sizeof(x), "%s", zframe_data(f))
+#define JSMN_HEADER
+#include "jsmn/jsmn.h"
 
 // Main class
 typedef struct linq
@@ -43,8 +44,7 @@ typedef struct
         struct alert
         {
             void* product;
-            void* alert;
-            void* mail;
+            linq_alert* alert;
         } alert;
 
         struct response
@@ -92,11 +92,11 @@ pop_incoming(packet* p, zmsg_t* m)
         ver = zmsg_pop(m);
         typ = zmsg_pop(m);
         sid = zmsg_pop(m);
-        if (((p->router.sz = zframe_size(rid)) <= sizeof(p->router)) &&
+        if (((p->router.sz = zframe_size(rid)) <= RID_LEN) &&
             (zframe_size(ver) == 1) && (zframe_size(typ) == 1) &&
-            (zframe_size(sid) <= sizeof(p->serial))) {
+            (zframe_size(sid) <= SID_LEN)) {
             memcpy(p->router.id, zframe_data(rid), zframe_size(rid));
-            SNPRINTFRAME(p->serial, sid);
+            snprintf(p->serial, SID_LEN, "%s", zframe_data(sid));
             p->version = zframe_data(ver)[0];
             p->type = zframe_data(typ)[0];
             e = e_linq_ok;
@@ -117,10 +117,9 @@ pop_heartbeat(packet* p, zmsg_t* m)
     if (zmsg_size(m) == 2) {
         pid = zmsg_pop(m);
         sid = zmsg_pop(m);
-        if ((zframe_size(pid) <= sizeof(p->heartbeat.product)) &&
-            (zframe_size(sid) <= sizeof(p->heartbeat.site_id))) {
-            SNPRINTFRAME(p->heartbeat.product, pid);
-            SNPRINTFRAME(p->heartbeat.site_id, sid);
+        if ((zframe_size(pid) <= PID_LEN) && (zframe_size(sid) <= SITE_LEN)) {
+            snprintf(p->heartbeat.product, PID_LEN, "%s", zframe_data(pid));
+            snprintf(p->heartbeat.site_id, SITE_LEN, "%s", zframe_data(sid));
             e = e_linq_ok;
         }
         zframe_destroy(&pid);

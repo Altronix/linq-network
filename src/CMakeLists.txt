@@ -1,7 +1,8 @@
 set(sources 
 	linq.c
 	device.c
-	device_map.c)
+	device_map.c
+	jsmn.c)
 set(headers 
 	../include/altronix/linq.h
 	linq_internal.h
