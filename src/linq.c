@@ -31,8 +31,8 @@ typedef struct
     {
         struct heartbeat
         {
-            zframe_t* product;
-            zframe_t* site_id;
+            char product[64];
+            char site_id[64];
         } heartbeat;
 
         struct alert
@@ -62,27 +62,93 @@ static e_linq_error
 pop_incoming(packet* p, zmsg_t* m)
 {
     zframe_t *rid, *ver, *typ, *sid;
-    e_linq_error e;
-    rid = zmsg_pop(m);
-    ver = zmsg_pop(m);
-    typ = zmsg_pop(m);
-    sid = zmsg_pop(m);
-    if ((zframe_size(rid) <= sizeof(p->router)) && (zframe_size(ver) == 1) &&
-        (zframe_size(typ) == 1) && (zframe_size(sid) <= sizeof(p->serial))) {
-        memset(p->router, 0, sizeof(p->router));
-        memset(p->serial, 0, sizeof(p->serial));
-        memcpy(p->router, zframe_data(rid), zframe_size(rid));
-        memcpy(p->serial, zframe_data(sid), zframe_size(sid));
-        p->version = zframe_data(ver)[0];
-        p->type = zframe_data(typ)[0];
-        e = e_linq_ok;
-    } else {
-        e = e_linq_protocol;
+    e_linq_error e = e_linq_protocol;
+    if (zmsg_size(m) == 4) {
+        rid = zmsg_pop(m);
+        ver = zmsg_pop(m);
+        typ = zmsg_pop(m);
+        sid = zmsg_pop(m);
+        if ((zframe_size(rid) <= sizeof(p->router)) &&
+            (zframe_size(ver) == 1) && (zframe_size(typ) == 1) &&
+            (zframe_size(sid) <= sizeof(p->serial))) {
+            // TODO snprintf serial, store router size
+            memset(p->router, 0, sizeof(p->router));
+            memset(p->serial, 0, sizeof(p->serial));
+            memcpy(p->router, zframe_data(rid), zframe_size(rid));
+            memcpy(p->serial, zframe_data(sid), zframe_size(sid));
+            p->version = zframe_data(ver)[0];
+            p->type = zframe_data(typ)[0];
+            e = e_linq_ok;
+        }
+        zframe_destroy(&sid);
+        zframe_destroy(&rid);
+        zframe_destroy(&ver);
+        zframe_destroy(&typ);
     }
-    zframe_destroy(&sid);
-    zframe_destroy(&rid);
-    zframe_destroy(&ver);
-    zframe_destroy(&typ);
+    return e;
+}
+
+static e_linq_error
+pop_legacy(packet* p, zmsg_t* m)
+{
+    ((void)p);
+    ((void)m);
+    return e_linq_protocol;
+}
+
+static e_linq_error
+pop_heartbeat(packet* p, zmsg_t* m)
+{
+    zframe_t *pid, *sid;
+    e_linq_error e = e_linq_protocol;
+    if (zmsg_size(m) == 2) {
+        pid = zmsg_pop(m);
+        sid = zmsg_pop(m);
+        if ((zframe_size(pid) <= sizeof(p->heartbeat.product)) &&
+            (zframe_size(sid) <= sizeof(p->heartbeat.site_id))) {
+            memset(p->heartbeat.product, 0, sizeof(p->heartbeat.product));
+            memset(p->heartbeat.site_id, 0, sizeof(p->heartbeat.site_id));
+            memcpy(p->heartbeat.product, zframe_data(pid), zframe_size(pid));
+            memcpy(p->heartbeat.site_id, zframe_data(sid), zframe_size(sid));
+            e = e_linq_ok;
+        }
+        zframe_destroy(&pid);
+        zframe_destroy(&sid);
+    }
+    return e;
+}
+
+static e_linq_error
+pop_response(packet* p, zmsg_t* m)
+{
+    zframe_t *err, *dat;
+    e_linq_error e = e_linq_protocol;
+    if (zmsg_size(m) == 2) {
+        err = zmsg_pop(m);
+        dat = zmsg_pop(m);
+        // TODO
+        ((void)p);
+        zframe_destroy(&err);
+        zframe_destroy(&dat);
+    }
+    return e;
+}
+
+static e_linq_error
+pop_alert(packet* p, zmsg_t* m)
+{
+    e_linq_error e = e_linq_protocol;
+    zframe_t *product, *alert, *mail;
+    if (zmsg_size(m) == 3) {
+        product = zmsg_pop(m);
+        alert = zmsg_pop(m);
+        mail = zmsg_pop(m);
+        // TODO
+        ((void)p);
+        zframe_destroy(&product);
+        zframe_destroy(&alert);
+        zframe_destroy(&mail);
+    }
     return e;
 }
 
@@ -106,79 +172,44 @@ process_response(linq* l, packet* response)
 
 // Process an assumed alert
 static e_linq_error
-process_alert(linq* l, zmsg_t* msg)
+process_alert(linq* l, packet* alert)
 {
     ((void)l);
-    ((void)msg);
+    ((void)alert);
     return -1;
-}
-
-// Finish reading data from network
-static e_linq_error
-process_incoming_packet(linq* l, zmsg_t* msg, packet* p)
-{
-    e_linq_error e = e_linq_protocol;
-    switch (p->type) {
-        case heartbeat:
-            if ((zmsg_size(msg) == 2)) {
-                p->heartbeat.product = zmsg_pop(msg);
-                p->heartbeat.site_id = zmsg_pop(msg);
-                e = process_heartbeat(l, p);
-                zframe_destroy(&p->heartbeat.product);
-                zframe_destroy(&p->heartbeat.site_id);
-            }
-            break;
-        case request:
-            if ((zmsg_size(msg) == 2)) {}
-            break;
-        case response:
-            if ((zmsg_size(msg) == 2)) {
-                p->response.error = zmsg_pop(msg);
-                p->response.data = zmsg_pop(msg);
-                e = process_response(l, p);
-                zframe_destroy(&p->response.error);
-                zframe_destroy(&p->response.data);
-            }
-            break;
-        case alert:
-            if ((zmsg_size(msg) == 3)) {
-                p->alert.product = zmsg_pop(msg);
-                p->alert.alert = zmsg_pop(msg);
-                p->alert.mail = zmsg_pop(msg);
-                zframe_destroy(&p->alert.product);
-                zframe_destroy(&p->alert.alert);
-                zframe_destroy(&p->alert.mail);
-            }
-            break;
-    }
-    return e;
-}
-
-// Read legacy data from the network
-static e_linq_error
-process_incoming_packet_legacy(linq* l, zmsg_t* msg, packet* pack)
-{
-    ((void)l);
-    ((void)msg);
-    ((void)pack);
-    return e_linq_protocol;
 }
 
 // Start reading data from the network
 static e_linq_error
 process_incoming(linq* l)
 {
+    packet p;
     e_linq_error e = e_linq_protocol;
     zmsg_t* msg = zmsg_recv(l->sock);
-    if ((msg && zmsg_size(msg) >= 4)) {
-        packet p;
-        e = pop_incoming(&p, msg);
+    if (msg) e = pop_incoming(&p, msg);
+    if (e == e_linq_ok) {
+        if (!(p.version == 0)) e = pop_legacy(&p, msg);
         if (e == e_linq_ok) {
-            e = p.version == 0 ? process_incoming_packet(l, msg, &p)
-                               : process_incoming_packet_legacy(l, msg, &p);
+            switch (p.type) {
+                case heartbeat:
+                    if ((e = pop_heartbeat(&p, msg)) == e_linq_ok) {
+                        process_heartbeat(l, &p);
+                    }
+                    break;
+                case request: break;
+                case response:
+                    if ((e = pop_response(&p, msg)) == e_linq_ok)
+                        process_response(l, &p);
+                    break;
+                case alert:
+                    if ((e = pop_alert(&p, msg)) == e_linq_ok) {
+                        process_alert(l, &p);
+                    }
+                    break;
+            }
         }
     }
-    if (e) on_error(l, e_linq_protocol, "");
+    if (e) on_error(l, e, "");
     zmsg_destroy(&msg);
     return e;
 }
