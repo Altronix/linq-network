@@ -1,6 +1,8 @@
 #ifndef LINQ_H_
 #define LINQ_H_
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -28,6 +30,8 @@ extern "C"
     void linq_destroy(linq**);
     e_linq_error linq_listen(linq*, const char* ep);
     e_linq_error linq_poll(linq* l);
+    device** linq_device(linq*, const char*);
+    uint32_t linq_device_count(linq*);
 
 #ifdef __cplusplus
 }

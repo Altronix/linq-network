@@ -1,5 +1,7 @@
 #include "altronix/linq.h"
+#include "device.h"
 #include "helpers.h"
+#include "linq_internal.h"
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
 #include <czmq.h>
@@ -71,6 +73,37 @@ static void
 test_linq_receive_heartbeat_ok(void** context_p)
 {
     ((void)context_p);
+    bool pass = false;
+    linq* l = linq_create(&callbacks, (void*)&pass);
+    zmsg_t* hb0 = helpers_make_heartbeat("rid0", "serial", "product", "site");
+    zmsg_t* hb1 = helpers_make_heartbeat("rid1", "serial", "product", "site");
+
+    // Push some incoming heartbeats
+    czmq_spy_mesg_push_incoming(&hb0);
+    czmq_spy_mesg_push_incoming(&hb1);
+    czmq_spy_poll_push_incoming(true);
+
+    // Receive a heartbeat
+    linq_poll(l);
+    device** d = linq_device(l, "serial");
+    assert_non_null(d);
+    assert_int_equal(linq_device_count(l), 1);
+    assert_int_equal(device_router(*d)->sz, 4);
+    assert_memory_equal(device_router(*d)->id, "rid0", 4);
+    assert_string_equal(device_serial(*d), "serial");
+    assert_string_equal(device_product(*d), "product");
+
+    // Receive a second heartbeat , update router id and last seen
+    linq_poll(l);
+    assert_non_null(d);
+    assert_int_equal(linq_device_count(l), 1);
+    assert_int_equal(device_router(*d)->sz, 4);
+    assert_memory_equal(device_router(*d)->id, "rid1", 4);
+    assert_string_equal(device_serial(*d), "serial");
+    assert_string_equal(device_product(*d), "product");
+
+    linq_destroy(&l);
+    test_reset();
 }
 
 static void

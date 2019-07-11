@@ -1,3 +1,5 @@
+#include "device.h"
+#include "device_map.h"
 #include "linq_internal.h"
 
 #define SNPRINTFRAME(x, f) snprintf(x, sizeof(x), "%s", zframe_data(f))
@@ -7,6 +9,7 @@ typedef struct linq
 {
     void* context;
     zsock_t* sock;
+    device_map* devices;
     linq_callbacks* callbacks;
 } linq;
 
@@ -60,12 +63,20 @@ on_error(linq* l, e_linq_error e, const char* serial)
     }
 }
 
+static device**
+get_device(device_map* devices, const char* serial, router* router)
+{
+    device** d = device_map_get(devices, serial);
+    if (d) device_update_router(*d, router);
+    return d;
+}
+
 static e_linq_error
 pop_incoming(packet* p, zmsg_t* m)
 {
     zframe_t *rid, *ver, *typ, *sid;
     e_linq_error e = e_linq_protocol;
-    if (zmsg_size(m) == 4) {
+    if (zmsg_size(m) >= 4) {
         rid = zmsg_pop(m);
         ver = zmsg_pop(m);
         typ = zmsg_pop(m);
@@ -145,9 +156,16 @@ pop_alert(packet* p, zmsg_t* m)
 static e_linq_error
 process_heartbeat(linq* l, packet* hb)
 {
-    ((void)l);
-    ((void)hb);
-    return -1;
+    device** d = get_device(l->devices, hb->serial, &hb->router);
+    if (!d) {
+        device_map_insert(
+            l->devices,
+            &l->sock,
+            &hb->router,
+            hb->serial,
+            hb->heartbeat.product);
+    }
+    return e_linq_ok;
 }
 
 // Process an assumed response
@@ -206,6 +224,7 @@ linq_create(linq_callbacks* cb, void* context)
     linq* l = linq_malloc(sizeof(linq));
     if (l) {
         memset(l, 0, sizeof(linq));
+        l->devices = device_map_create();
         l->callbacks = cb;
         l->context = context;
     }
@@ -218,6 +237,7 @@ linq_destroy(linq** linq_p)
 {
     linq* l = *linq_p;
     *linq_p = NULL;
+    device_map_destroy(&l->devices);
     linq_free(l);
 }
 
@@ -240,4 +260,15 @@ linq_poll(linq* l)
     if (err < 0) return err;
     if (item.revents && ZMQ_POLLIN) { err = process_incoming(l); }
     return err;
+}
+device**
+linq_device(linq* l, const char* serial)
+{
+    return device_map_get(l->devices, serial);
+}
+
+uint32_t
+linq_device_count(linq* l)
+{
+    return device_map_size(l->devices);
 }

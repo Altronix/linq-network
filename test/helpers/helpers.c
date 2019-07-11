@@ -1,6 +1,31 @@
 #include "helpers.h"
 
 zmsg_t*
+helpers_make_heartbeat(
+    const char* rid,
+    const char* sid,
+    const char* pid,
+    const char* site_id)
+{
+    zmsg_t* m = helpers_create_message_mem(
+        6,
+        rid,            // router
+        strlen(rid),    //
+        "\x0",          // version
+        1,              //
+        "\x0",          // type
+        1,              //
+        sid,            // serial
+        strlen(sid),    //
+        pid,            // product
+        strlen(pid),    //
+        site_id,        // site id
+        strlen(site_id) //
+    );
+    return m;
+}
+
+zmsg_t*
 helpers_make_legacy_alert()
 {
     const char* alert = "{"

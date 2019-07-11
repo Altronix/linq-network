@@ -55,22 +55,8 @@ device_router(device* d)
     return &d->router;
 }
 
-int
-device_remove_serial(const char* serial)
+void
+device_update_router(device* d, router* rid)
 {
-    ((void)serial);
-    return 0;
-}
-
-int
-device_remove_product(const char* product)
-{
-    ((void)product);
-    return 0;
-}
-
-uint32_t
-device_count()
-{
-    return 0;
+    memcpy(&d->router, rid, sizeof(router));
 }

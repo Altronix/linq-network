@@ -19,6 +19,7 @@ extern "C"
     const char* device_serial(device* d);
     const char* device_product(device* d);
     const router* device_router(device* d);
+    void device_update_router(device* d, router* router);
 
 #ifdef __cplusplus
 }
