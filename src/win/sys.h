@@ -1,8 +1,7 @@
 #ifndef SYS_H
 #define SYS_H
-#endif
 
-#include "linq_internal.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -13,4 +12,5 @@ extern "C"
 
 #ifdef __cplusplus
 }
+#endif
 #endif

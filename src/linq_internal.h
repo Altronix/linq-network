@@ -2,11 +2,7 @@
 #define LINQ_INTERNAL_H_
 
 // System includes
-#ifdef _WIN32
-#include "sys_win.h"
-#else
-#include "sys_nix.h"
-#endif
+#include "sys.h"
 
 // Dependencies includes
 #include "czmq.h"

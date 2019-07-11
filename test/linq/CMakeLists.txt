@@ -16,7 +16,7 @@ string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_connect,")
 string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_send,")
 string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_recv")
 
-target_link_libraries(test-linq mock-czmq linq-c-test zmq czmq helpers cmocka)
+target_link_libraries(test-linq linq-c-test mock-czmq zmq czmq helpers cmocka)
 set_target_properties(test-linq PROPERTIES LINK_FLAGS ${wrap_flags})
 add_test(NAME test-linq COMMAND test-linq)
 install(TARGETS test-linq DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

@@ -1,5 +1,5 @@
-#ifndef SYS_NIX_H_
-#define SYS_NIX_H_
+#ifndef SYS_H
+#define SYS_H
 
 #include <stdint.h>
 
@@ -11,4 +11,14 @@
 #define linq_free(x) linq_free_fn(x)
 #define linq_assert(x) linq_assert_fn(x)
 
-#endif /* SYS_NIX_H_ */
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+    int64_t sys_tick();
+
+#ifdef __cplusplus
+}
+#endif
+#endif
