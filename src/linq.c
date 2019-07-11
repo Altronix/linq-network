@@ -23,10 +23,10 @@ typedef enum
 // Packet containing incoming "frames" from net
 typedef struct
 {
-    zframe_t* router;
+    uint8_t router[256];
+    char serial[64];
     version version;
     type type;
-    zframe_t* serial;
     union
     {
         struct heartbeat
@@ -58,32 +58,32 @@ on_error(linq* l, e_linq_error e, const char* serial)
     }
 }
 
-// Read a valid version frame
-static version
-pop_version(zmsg_t* msg)
+static e_linq_error
+pop_incoming(packet* p, zmsg_t* m)
 {
-    zframe_t* f = zmsg_pop(msg);
-    version v = zframe_size(f) == 1 ? zframe_data(f)[0] : -1;
-    zframe_destroy(&f);
-    return v;
-}
-
-// Read a valid type frame
-static type
-pop_type(zmsg_t* msg)
-{
-    zframe_t* f = zmsg_pop(msg);
-    type t = zframe_size(f) == 1 ? zframe_data(f)[0] : -1;
-    zframe_destroy(&f);
-    return t;
-}
-
-// Read and parse JSON
-static void
-pop_json(zmsg_t* msg)
-{
-    ((void)msg);
-    // TODO - add json lib
+    zframe_t *rid, *ver, *typ, *sid;
+    e_linq_error e;
+    rid = zmsg_pop(m);
+    ver = zmsg_pop(m);
+    typ = zmsg_pop(m);
+    sid = zmsg_pop(m);
+    if ((zframe_size(rid) <= sizeof(p->router)) && (zframe_size(ver) == 1) &&
+        (zframe_size(typ) == 1) && (zframe_size(sid) <= sizeof(p->serial))) {
+        memset(p->router, 0, sizeof(p->router));
+        memset(p->serial, 0, sizeof(p->serial));
+        memcpy(p->router, zframe_data(rid), zframe_size(rid));
+        memcpy(p->serial, zframe_data(sid), zframe_size(sid));
+        p->version = zframe_data(ver)[0];
+        p->type = zframe_data(typ)[0];
+        e = e_linq_ok;
+    } else {
+        e = e_linq_protocol;
+    }
+    zframe_destroy(&sid);
+    zframe_destroy(&rid);
+    zframe_destroy(&ver);
+    zframe_destroy(&typ);
+    return e;
 }
 
 // Process an assumed heartbeat
@@ -172,14 +172,11 @@ process_incoming(linq* l)
     zmsg_t* msg = zmsg_recv(l->sock);
     if ((msg && zmsg_size(msg) >= 4)) {
         packet p;
-        p.router = zmsg_pop(msg);
-        p.version = pop_version(msg);
-        p.type = pop_type(msg);
-        p.serial = zmsg_pop(msg);
-        e = p.version == 0 ? process_incoming_packet(l, msg, &p)
-                           : process_incoming_packet_legacy(l, msg, &p);
-        zframe_destroy(&p.router);
-        zframe_destroy(&p.serial);
+        e = pop_incoming(&p, msg);
+        if (e == e_linq_ok) {
+            e = p.version == 0 ? process_incoming_packet(l, msg, &p)
+                               : process_incoming_packet_legacy(l, msg, &p);
+        }
     }
     if (e) on_error(l, e_linq_protocol, "");
     zmsg_destroy(&msg);
