@@ -4,7 +4,6 @@
 #include "linq_internal.h"
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
-#include "sys.h"
 #include <czmq.h>
 
 #include <cmocka.h>
@@ -38,7 +37,16 @@ linq_on_error_fn(
     *((bool*)pass) = true;
 }
 
-linq_callbacks callbacks = { .err = linq_on_error_fn };
+static void
+linq_on_heartbeat_fn(void* pass, const char* serial, device** d)
+{
+    assert_string_equal(serial, expect_serial);
+    assert_string_equal(device_serial(*d), expect_serial);
+    *((bool*)pass) = true;
+}
+
+linq_callbacks callbacks = { .err = linq_on_error_fn,
+                             .hb = linq_on_heartbeat_fn };
 
 static void
 test_linq_create(void** context_p)
@@ -75,9 +83,10 @@ test_linq_receive_heartbeat_ok(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
+    const char* serial = expect_serial = "serial";
     linq* l = linq_create(&callbacks, (void*)&pass);
-    zmsg_t* hb0 = helpers_make_heartbeat("rid0", "serial", "product", "site");
-    zmsg_t* hb1 = helpers_make_heartbeat("rid1", "serial", "product", "site");
+    zmsg_t* hb0 = helpers_make_heartbeat("rid0", serial, "product", "site");
+    zmsg_t* hb1 = helpers_make_heartbeat("rid1", serial, "product", "site");
 
     // Push some incoming heartbeats
     czmq_spy_mesg_push_incoming(&hb0);
@@ -87,12 +96,12 @@ test_linq_receive_heartbeat_ok(void** context_p)
 
     // Receive a heartbeat
     linq_poll(l);
-    device** d = linq_device(l, "serial");
+    device** d = linq_device(l, serial);
     assert_non_null(d);
     assert_int_equal(linq_device_count(l), 1);
     assert_int_equal(device_router(*d)->sz, 4);
     assert_memory_equal(device_router(*d)->id, "rid0", 4);
-    assert_string_equal(device_serial(*d), "serial");
+    assert_string_equal(device_serial(*d), serial);
     assert_string_equal(device_product(*d), "product");
     assert_int_equal(device_uptime(*d), 0);
 
@@ -103,9 +112,11 @@ test_linq_receive_heartbeat_ok(void** context_p)
     assert_int_equal(linq_device_count(l), 1);
     assert_int_equal(device_router(*d)->sz, 4);
     assert_memory_equal(device_router(*d)->id, "rid1", 4);
-    assert_string_equal(device_serial(*d), "serial");
+    assert_string_equal(device_serial(*d), serial);
     assert_string_equal(device_product(*d), "product");
     assert_int_equal(device_uptime(*d), 100);
+
+    assert_true(pass);
 
     linq_destroy(&l);
     test_reset();
@@ -132,6 +143,18 @@ test_linq_receive_heartbeat_error_short(void** context_p)
     test_reset();
 }
 
+static void
+test_linq_receive_alert_ok(void** context_p)
+{
+    ((void)context_p);
+}
+
+static void
+test_linq_receive_alert_error_short(void** context_p)
+{
+    ((void)context_p);
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -140,9 +163,11 @@ main(int argc, char* argv[])
     int err;
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_linq_create),
+        cmocka_unit_test(test_linq_receive_protocol_error_short),
         cmocka_unit_test(test_linq_receive_heartbeat_ok),
         cmocka_unit_test(test_linq_receive_heartbeat_error_short),
-        cmocka_unit_test(test_linq_receive_protocol_error_short)
+        cmocka_unit_test(test_linq_receive_alert_ok),
+        cmocka_unit_test(test_linq_receive_alert_error_short),
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);

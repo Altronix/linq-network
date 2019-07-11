@@ -42,15 +42,15 @@ typedef struct
 
         struct alert
         {
-            zframe_t* product;
-            zframe_t* alert;
-            zframe_t* mail;
+            void* product;
+            void* alert;
+            void* mail;
         } alert;
 
         struct response
         {
-            zframe_t* error;
-            zframe_t* data;
+            int error;
+            void* data;
         } response;
     };
 } packet;
@@ -60,6 +60,14 @@ on_error(linq* l, e_linq_error e, const char* serial)
 {
     if (l->callbacks && l->callbacks->err) {
         l->callbacks->err(l->context, e, "", serial);
+    }
+}
+
+static void
+on_heartbeat(linq* l, device** d)
+{
+    if (l->callbacks && l->callbacks->hb) {
+        l->callbacks->hb(l->context, device_serial(*d), d);
     }
 }
 
@@ -161,13 +169,14 @@ process_heartbeat(linq* l, packet* hb)
 {
     device** d = device_resolve(l->devices, hb->serial, &hb->router);
     if (!d) {
-        device_map_insert(
+        d = device_map_insert(
             l->devices,
             &l->sock,
             &hb->router,
             hb->serial,
             hb->heartbeat.product);
     }
+    on_heartbeat(l, d);
     return e_linq_ok;
 }
 

@@ -77,7 +77,6 @@ flags = [
 '-I./test/linq',
 '-I./include',
 '-I./src',
-'-I./src/unix',
 '-I./src/mock'
 ]
 

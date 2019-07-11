@@ -10,6 +10,7 @@ file(MAKE_DIRECTORY ${deps_INSTALL_DIR}/include)
 include(cmake/libzmq.cmake)
 include(cmake/czmq.cmake)
 include(cmake/klib.cmake)
+include(cmake/jsmn.cmake)
 # set(deps_LIBRARIES czmq zmq ${CMAKE_THREAD_LIBS_INIT} rt m stdc++)
 # set(deps_TEST_LIBRARIES cmocka mock-czmq czmq zmq ${CMAKE_THREAD_LIBS_INIT} rt m stdc++)
 

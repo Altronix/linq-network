@@ -10,3 +10,6 @@
 [submodule "external/klib"]
 	path = external/klib
 	url = https://github.com/attractivechaos/klib
+[submodule "external/jsmn"]
+	path = external/jsmn
+	url = https://github.com/zserge/jsmn

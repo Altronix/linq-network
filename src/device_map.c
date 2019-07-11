@@ -31,7 +31,7 @@ device_map_destroy(device_map** d_p)
     linq_free(dmap);
 }
 
-void
+device**
 device_map_insert(
     device_map* dmap,
     zsock_t** sock_p,
@@ -44,6 +44,7 @@ device_map_insert(
     khiter_t k = kh_put(dev, dmap->h, device_serial(d), &ret);
     linq_assert(ret == 1); // If double insert we crash
     kh_val(dmap->h, k) = d;
+    return &kh_val(dmap->h, k);
 }
 
 uint32_t

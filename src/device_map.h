@@ -16,7 +16,7 @@ extern "C"
 
     device_map* device_map_create();
     void device_map_destroy(device_map**);
-    void device_map_insert(
+    device** device_map_insert(
         device_map*,
         zsock_t** sock_p,
         router* r,
