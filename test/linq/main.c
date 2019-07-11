@@ -4,6 +4,7 @@
 #include "linq_internal.h"
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
+#include "sys.h"
 #include <czmq.h>
 
 #include <cmocka.h>
@@ -82,6 +83,7 @@ test_linq_receive_heartbeat_ok(void** context_p)
     czmq_spy_mesg_push_incoming(&hb0);
     czmq_spy_mesg_push_incoming(&hb1);
     czmq_spy_poll_push_incoming(true);
+    spy_sys_set_tick(100);
 
     // Receive a heartbeat
     linq_poll(l);
@@ -92,8 +94,10 @@ test_linq_receive_heartbeat_ok(void** context_p)
     assert_memory_equal(device_router(*d)->id, "rid0", 4);
     assert_string_equal(device_serial(*d), "serial");
     assert_string_equal(device_product(*d), "product");
+    assert_int_equal(device_uptime(*d), 0);
 
     // Receive a second heartbeat , update router id and last seen
+    spy_sys_set_tick(200);
     linq_poll(l);
     assert_non_null(d);
     assert_int_equal(linq_device_count(l), 1);
@@ -101,6 +105,7 @@ test_linq_receive_heartbeat_ok(void** context_p)
     assert_memory_equal(device_router(*d)->id, "rid1", 4);
     assert_string_equal(device_serial(*d), "serial");
     assert_string_equal(device_product(*d), "product");
+    assert_int_equal(device_uptime(*d), 100);
 
     linq_destroy(&l);
     test_reset();

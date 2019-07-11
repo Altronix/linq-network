@@ -22,6 +22,7 @@ device_create(
     linq_assert(d);
     memset(d, 0, sizeof(device));
     d->sock_p = sock_p;
+    d->birth = d->last_seen = sys_tick();
     memcpy(&d->router, rid, sizeof(router));
     snprintf(d->serial, sizeof(d->serial), "%s", serial);
     snprintf(d->product, sizeof(d->product), "%s", product);
@@ -35,6 +36,12 @@ device_destroy(device** d_p)
     memset(d, 0, sizeof(device));
     *d_p = NULL;
     linq_free(d);
+}
+
+void
+device_heartbeat(device* d)
+{
+    d->last_seen = sys_tick();
 }
 
 const char*
@@ -60,3 +67,16 @@ device_update_router(device* d, router* rid)
 {
     memcpy(&d->router, rid, sizeof(router));
 }
+
+uint32_t
+device_last_seen(device* d)
+{
+    return d->last_seen;
+}
+
+uint32_t
+device_uptime(device* d)
+{
+    return d->last_seen - d->birth;
+}
+

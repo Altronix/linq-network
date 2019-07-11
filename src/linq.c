@@ -64,10 +64,13 @@ on_error(linq* l, e_linq_error e, const char* serial)
 }
 
 static device**
-get_device(device_map* devices, const char* serial, router* router)
+device_resolve(device_map* devices, const char* serial, router* router)
 {
     device** d = device_map_get(devices, serial);
-    if (d) device_update_router(*d, router);
+    if (d) {
+        device_heartbeat(*d);
+        device_update_router(*d, router);
+    }
     return d;
 }
 
@@ -156,7 +159,7 @@ pop_alert(packet* p, zmsg_t* m)
 static e_linq_error
 process_heartbeat(linq* l, packet* hb)
 {
-    device** d = get_device(l->devices, hb->serial, &hb->router);
+    device** d = device_resolve(l->devices, hb->serial, &hb->router);
     if (!d) {
         device_map_insert(
             l->devices,

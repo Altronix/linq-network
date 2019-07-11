@@ -76,7 +76,9 @@ flags = [
 '-I./test/helpers',
 '-I./test/linq',
 '-I./include',
-'-I./src'
+'-I./src',
+'-I./src/unix',
+'-I./src/mock'
 ]
 
 # Clang automatically sets the '-std=' flag to 'c++14' for MSVC 2015 or later,

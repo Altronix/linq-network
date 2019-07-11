@@ -4,7 +4,7 @@
 static int64_t tick = 0;
 
 void
-spy_sys_set(int64_t t)
+spy_sys_set_tick(int64_t t)
 {
     tick = t;
 }

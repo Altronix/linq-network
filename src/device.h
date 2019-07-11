@@ -20,6 +20,9 @@ extern "C"
     const char* device_product(device* d);
     const router* device_router(device* d);
     void device_update_router(device* d, router* router);
+    uint32_t device_last_seen(device* d);
+    uint32_t device_uptime(device* d);
+    void device_heartbeat(device* d);
 
 #ifdef __cplusplus
 }
