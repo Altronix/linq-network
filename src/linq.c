@@ -26,7 +26,7 @@ typedef enum
     alert = 3
 } type;
 
-// read incoming zmq frame and assert size is equal to expected
+// read incoming zmq frame and test size is equal to expected
 static zframe_t*
 pop_eq(zmsg_t* msg, uint32_t expect)
 {
@@ -39,7 +39,7 @@ pop_eq(zmsg_t* msg, uint32_t expect)
     }
 }
 
-// read incoming zmq frame and assert size is less than value
+// read incoming zmq frame and test size is less than value
 static zframe_t*
 pop_lt(zmsg_t* msg, uint32_t lt)
 {
@@ -52,7 +52,7 @@ pop_lt(zmsg_t* msg, uint32_t lt)
     }
 }
 
-// read incoming zmq frame and assert size is less than value
+// read incoming zmq frame and test size is less than value
 static zframe_t*
 pop_le(zmsg_t* msg, uint32_t le)
 {
@@ -63,6 +63,15 @@ pop_le(zmsg_t* msg, uint32_t le)
         zframe_destroy(&frame);
         return NULL;
     }
+}
+
+// read incoming zmq frame and test valid json
+static zframe_t*
+pop_json(zmsg_t* msg, int n, ...)
+{
+    ((void)msg);
+    ((void)n);
+    return NULL;
 }
 
 // when we detect an error call the error callback
@@ -177,6 +186,7 @@ process_packet(linq* l, zmsg_t** msg, zframe_t** frames)
     return e;
 }
 
+// read zmq messages
 static e_linq_error
 process_incoming(linq* l)
 {
@@ -232,7 +242,7 @@ linq_poll(linq* l)
     zmq_pollitem_t item = { zsock_resolve(l->sock), 0, ZMQ_POLLIN, 0 };
     err = zmq_poll(&item, 1, 1000);
     if (err < 0) return err;
-    if (item.revents && ZMQ_POLLIN) { err = process_incoming(l); }
+    if (item.revents && ZMQ_POLLIN) err = process_incoming(l);
     return err;
 }
 device**
