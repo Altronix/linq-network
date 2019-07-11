@@ -65,6 +65,7 @@ pop_le(zmsg_t* msg, uint32_t le)
     }
 }
 
+// when we detect an error call the error callback
 static void
 on_error(linq* l, e_linq_error e, const char* serial)
 {
@@ -73,6 +74,7 @@ on_error(linq* l, e_linq_error e, const char* serial)
     }
 }
 
+// when we receive a heartbeat call the heartbeat callback
 static void
 on_heartbeat(linq* l, device** d)
 {
@@ -81,6 +83,7 @@ on_heartbeat(linq* l, device** d)
     }
 }
 
+// find a device in our device map and update the router id
 static device**
 device_resolve(
     device_map* devices,
@@ -96,6 +99,7 @@ device_resolve(
     return d;
 }
 
+// check the zmq request frames are valid and process the request
 static e_linq_error
 process_request(linq* l, zframe_t** frames)
 {
@@ -105,6 +109,7 @@ process_request(linq* l, zframe_t** frames)
     return e;
 }
 
+// check the zmq response frames are valid and process the response
 static e_linq_error
 process_response(linq* l, zframe_t** frames)
 {
@@ -113,6 +118,8 @@ process_response(linq* l, zframe_t** frames)
     ((void)frames);
     return e;
 }
+
+// check the zmq alert frames are valid and process the alert
 static e_linq_error
 process_alert(linq* l, zframe_t** frames)
 {
@@ -122,7 +129,7 @@ process_alert(linq* l, zframe_t** frames)
     return e;
 }
 
-// Process an assumed heartbeat
+// check the zmq heartbeat frames are valid and process the heartbeat
 static e_linq_error
 process_heartbeat(linq* l, zmsg_t** msg, zframe_t** frames)
 {
@@ -149,6 +156,7 @@ process_heartbeat(linq* l, zmsg_t** msg, zframe_t** frames)
     return e;
 }
 
+// check the zmq header frames are valid and process the packet
 static e_linq_error
 process_packet(linq* l, zmsg_t** msg, zframe_t** frames)
 {
