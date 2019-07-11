@@ -245,12 +245,15 @@ linq_poll(linq* l)
     if (item.revents & ZMQ_POLLIN) err = process_incoming(l);
     return err;
 }
+
+// get a device from the device map
 device**
 linq_device(linq* l, const char* serial)
 {
     return device_map_get(l->devices, serial);
 }
 
+// return how many devices are connected to linq
 uint32_t
 linq_device_count(linq* l)
 {
