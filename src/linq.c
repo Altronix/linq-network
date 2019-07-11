@@ -63,7 +63,9 @@ static version
 pop_version(zmsg_t* msg)
 {
     zframe_t* f = zmsg_pop(msg);
-    return zframe_size(f) == 1 ? zframe_data(f)[0] : -1;
+    version v = zframe_size(f) == 1 ? zframe_data(f)[0] : -1;
+    zframe_destroy(&f);
+    return v;
 }
 
 // Read a valid type frame
@@ -71,7 +73,9 @@ static type
 pop_type(zmsg_t* msg)
 {
     zframe_t* f = zmsg_pop(msg);
-    return zframe_size(f) == 1 ? zframe_data(f)[0] : -1;
+    type t = zframe_size(f) == 1 ? zframe_data(f)[0] : -1;
+    zframe_destroy(&f);
+    return t;
 }
 
 // Read and parse JSON
@@ -120,6 +124,8 @@ process_incoming_packet(linq* l, zmsg_t* msg, packet* p)
                 p->heartbeat.product = zmsg_pop(msg);
                 p->heartbeat.site_id = zmsg_pop(msg);
                 e = process_heartbeat(l, p);
+                zframe_destroy(&p->heartbeat.product);
+                zframe_destroy(&p->heartbeat.site_id);
             }
             break;
         case request:
@@ -130,6 +136,8 @@ process_incoming_packet(linq* l, zmsg_t* msg, packet* p)
                 p->response.error = zmsg_pop(msg);
                 p->response.data = zmsg_pop(msg);
                 e = process_response(l, p);
+                zframe_destroy(&p->response.error);
+                zframe_destroy(&p->response.data);
             }
             break;
         case alert:
@@ -137,6 +145,9 @@ process_incoming_packet(linq* l, zmsg_t* msg, packet* p)
                 p->alert.product = zmsg_pop(msg);
                 p->alert.alert = zmsg_pop(msg);
                 p->alert.mail = zmsg_pop(msg);
+                zframe_destroy(&p->alert.product);
+                zframe_destroy(&p->alert.alert);
+                zframe_destroy(&p->alert.mail);
             }
             break;
     }
@@ -167,6 +178,8 @@ process_incoming(linq* l)
         p.serial = zmsg_pop(msg);
         e = p.version == 0 ? process_incoming_packet(l, msg, &p)
                            : process_incoming_packet_legacy(l, msg, &p);
+        zframe_destroy(&p.router);
+        zframe_destroy(&p.serial);
     }
     if (e) on_error(l, e_linq_protocol, "");
     zmsg_destroy(&msg);
