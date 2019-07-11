@@ -79,6 +79,20 @@ test_linq_receive_protocol_error_short(void** context_p)
 }
 
 static void
+test_linq_receive_protocol_error_serial(void** context_p)
+{
+    ((void)context_p);
+    // TODO the serial string is too big
+}
+
+static void
+test_linq_receive_protocol_error_router(void** context_p)
+{
+    ((void)context_p);
+    // TODO the serial string is too big
+}
+
+static void
 test_linq_receive_heartbeat_ok(void** context_p)
 {
     ((void)context_p);
@@ -86,7 +100,7 @@ test_linq_receive_heartbeat_ok(void** context_p)
     const char* serial = expect_serial = "serial";
     linq* l = linq_create(&callbacks, (void*)&pass);
     zmsg_t* hb0 = helpers_make_heartbeat("rid0", serial, "product", "site");
-    zmsg_t* hb1 = helpers_make_heartbeat("rid1", serial, "product", "site");
+    zmsg_t* hb1 = helpers_make_heartbeat("rid00", serial, "product", "site");
 
     // Push some incoming heartbeats
     czmq_spy_mesg_push_incoming(&hb0);
@@ -110,8 +124,8 @@ test_linq_receive_heartbeat_ok(void** context_p)
     linq_poll(l);
     assert_non_null(d);
     assert_int_equal(linq_device_count(l), 1);
-    assert_int_equal(device_router(*d)->sz, 4);
-    assert_memory_equal(device_router(*d)->id, "rid1", 4);
+    assert_int_equal(device_router(*d)->sz, 5);
+    assert_memory_equal(device_router(*d)->id, "rid00", 5);
     assert_string_equal(device_serial(*d), serial);
     assert_string_equal(device_product(*d), "product");
     assert_int_equal(device_uptime(*d), 100);
@@ -164,6 +178,8 @@ main(int argc, char* argv[])
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_linq_create),
         cmocka_unit_test(test_linq_receive_protocol_error_short),
+        cmocka_unit_test(test_linq_receive_protocol_error_serial),
+        cmocka_unit_test(test_linq_receive_protocol_error_router),
         cmocka_unit_test(test_linq_receive_heartbeat_ok),
         cmocka_unit_test(test_linq_receive_heartbeat_error_short),
         cmocka_unit_test(test_linq_receive_alert_ok),

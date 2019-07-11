@@ -24,7 +24,7 @@
 
 // Heartbeat IDX
 #define PACKET_HB_PID_IDX 4
-#define PACKET_HB_SID_IDX 5
+#define PACKET_HB_SITE_IDX 5
 
 // Alert IDX
 #define PACKET_ALERT_PID_IDX 4

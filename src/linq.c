@@ -26,6 +26,45 @@ typedef enum
     alert = 3
 } type;
 
+// read incoming zmq frame and assert size is equal to expected
+static zframe_t*
+pop_eq(zmsg_t* msg, uint32_t expect)
+{
+    zframe_t* frame = zmsg_pop(msg);
+    if (zframe_size(frame) == expect) {
+        return frame;
+    } else {
+        zframe_destroy(&frame);
+        return NULL;
+    }
+}
+
+// read incoming zmq frame and assert size is less than value
+static zframe_t*
+pop_lt(zmsg_t* msg, uint32_t lt)
+{
+    zframe_t* frame = zmsg_pop(msg);
+    if (zframe_size(frame) < lt) {
+        return frame;
+    } else {
+        zframe_destroy(&frame);
+        return NULL;
+    }
+}
+
+// read incoming zmq frame and assert size is less than value
+static zframe_t*
+pop_le(zmsg_t* msg, uint32_t le)
+{
+    zframe_t* frame = zmsg_pop(msg);
+    if (zframe_size(frame) <= le) {
+        return frame;
+    } else {
+        zframe_destroy(&frame);
+        return NULL;
+    }
+}
+
 static void
 on_error(linq* l, e_linq_error e, const char* serial)
 {
@@ -88,17 +127,21 @@ static e_linq_error
 process_heartbeat(linq* l, zmsg_t** msg, zframe_t** frames)
 {
     e_linq_error e = e_linq_protocol;
-    if (zmsg_size(*msg) == 2) {
-        zframe_t* product;
-        product = frames[PACKET_HB_PID_IDX] = zmsg_pop(*msg);
-        uint32_t rid_sz = zframe_size(frames[PACKET_RID_IDX]);
-        uint8_t* rid = zframe_data(frames[PACKET_RID_IDX]);
-        char *sid = (char*)zframe_data(frames[PACKET_SID_IDX]),
-             *pid = (char*)zframe_data(product);
-
+    uint32_t rid_sz = zframe_size(frames[PACKET_RID_IDX]);
+    uint8_t* rid = zframe_data(frames[PACKET_RID_IDX]);
+    char* sid = (char*)zframe_data(frames[PACKET_SID_IDX]);
+    if (zmsg_size(*msg) == 2 &&
+        (frames[PACKET_HB_PID_IDX] = pop_le(*msg, PID_LEN)) &&
+        (frames[PACKET_HB_SITE_IDX] = pop_le(*msg, SITE_LEN))) {
         device** d = device_resolve(l->devices, sid, rid, rid_sz);
         if (!d) {
-            d = device_map_insert(l->devices, &l->sock, rid, rid_sz, sid, pid);
+            d = device_map_insert(
+                l->devices,
+                &l->sock,
+                rid,
+                rid_sz,
+                sid,
+                (char*)zframe_data(frames[PACKET_HB_PID_IDX]));
         }
         on_heartbeat(l, d);
         e = e_linq_ok;
@@ -109,23 +152,14 @@ process_heartbeat(linq* l, zmsg_t** msg, zframe_t** frames)
 static e_linq_error
 process_packet(linq* l, zmsg_t** msg, zframe_t** frames)
 {
-    // TODO we can loop on zmsg_pop when our test helpers supports setting the
-    // more flag on incoming frames...
     e_linq_error e = e_linq_protocol;
-    zframe_t *rid, *ver, *typ, *sid;
     *msg = zmsg_recv(l->sock);
-    if (*msg && zmsg_size(*msg) >= 4) {
-        rid = frames[PACKET_RID_IDX] = zmsg_pop(*msg);
-        ver = frames[PACKET_VER_IDX] = zmsg_pop(*msg);
-        typ = frames[PACKET_TYP_IDX] = zmsg_pop(*msg);
-        sid = frames[PACKET_SID_IDX] = zmsg_pop(*msg);
-        if ((zframe_size(frames[PACKET_RID_IDX]) <= RID_LEN) &&
-            (zframe_size(frames[PACKET_VER_IDX]) == 1) &&
-            (zframe_size(frames[PACKET_TYP_IDX]) == 1) &&
-            (zframe_size(frames[PACKET_SID_IDX]) <= SID_LEN)) {
-            e = e_linq_ok;
-        }
-        switch ((type)zframe_data(typ)[0]) {
+    if (*msg && zmsg_size(*msg) >= 4 &&
+        (frames[PACKET_RID_IDX] = pop_le(*msg, RID_LEN)) &&
+        (frames[PACKET_VER_IDX] = pop_eq(*msg, 1)) &&
+        (frames[PACKET_TYP_IDX] = pop_eq(*msg, 1)) &&
+        (frames[PACKET_SID_IDX] = pop_le(*msg, SID_LEN))) {
+        switch ((type)zframe_data(frames[PACKET_TYP_IDX])[0]) {
             case heartbeat: e = process_heartbeat(l, msg, frames); break;
             case request: break;
             case response: break;
