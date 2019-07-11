@@ -14,7 +14,8 @@ typedef struct device
 device*
 device_create(
     zsock_t** sock_p,
-    router* rid,
+    const uint8_t* router,
+    uint32_t router_sz,
     const char* serial,
     const char* product)
 {
@@ -23,7 +24,7 @@ device_create(
     memset(d, 0, sizeof(device));
     d->sock_p = sock_p;
     d->birth = d->last_seen = sys_tick();
-    memcpy(&d->router, rid, sizeof(router));
+    device_update_router(d, router, router_sz);
     snprintf(d->serial, sizeof(d->serial), "%s", serial);
     snprintf(d->product, sizeof(d->product), "%s", product);
     return d;
@@ -63,9 +64,10 @@ device_router(device* d)
 }
 
 void
-device_update_router(device* d, router* rid)
+device_update_router(device* d, const uint8_t* rid, uint32_t sz)
 {
-    memcpy(&d->router, rid, sizeof(router));
+    memcpy(&d->router, rid, sz);
+    d->router.sz = sz;
 }
 
 uint32_t

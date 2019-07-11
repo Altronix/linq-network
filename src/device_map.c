@@ -35,12 +35,13 @@ device**
 device_map_insert(
     device_map* dmap,
     zsock_t** sock_p,
-    router* router,
+    uint8_t* router,
+    uint32_t router_sz,
     const char* serial,
     const char* product)
 {
     int ret = 0;
-    device* d = device_create(sock_p, router, serial, product);
+    device* d = device_create(sock_p, router, router_sz, serial, product);
     khiter_t k = kh_put(dev, dmap->h, device_serial(d), &ret);
     linq_assert(ret == 1); // If double insert we crash
     kh_val(dmap->h, k) = d;

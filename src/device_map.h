@@ -19,7 +19,8 @@ extern "C"
     device** device_map_insert(
         device_map*,
         zsock_t** sock_p,
-        router* r,
+        uint8_t* r,
+        uint32_t sz,
         const char* serial,
         const char* product);
     device** device_map_get(device_map* m, const char* serial);

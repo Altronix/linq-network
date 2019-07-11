@@ -10,10 +10,9 @@ static void
 test_device_map_create(void** context_p)
 {
     ((void)context_p);
-    router rid = { "rid", 3 };
     device_map* dm = device_map_create();
     assert_non_null(dm);
-    device_map_insert(dm, NULL, &rid, "test", "test");
+    device_map_insert(dm, NULL, (uint8_t*)"rid", 3, "test", "test");
     device_map_destroy(&dm);
     assert_null(dm);
 }
@@ -31,11 +30,11 @@ test_device_map_insert(void** context_p)
     zsock_t* sock = NULL;
 
     assert_int_equal(device_map_size(m), 0);
-    device_map_insert(m, &sock, &rid0, "serial0", "product0");
+    device_map_insert(m, &sock, (uint8_t*)"router0", 7, "serial0", "product0");
     assert_int_equal(device_map_size(m), 1);
-    device_map_insert(m, &sock, &rid1, "serial1", "product1");
+    device_map_insert(m, &sock, (uint8_t*)"router1", 7, "serial1", "product1");
     assert_int_equal(device_map_size(m), 2);
-    device_map_insert(m, &sock, &rid2, "serial2", "product2");
+    device_map_insert(m, &sock, (uint8_t*)"router2", 7, "serial2", "product2");
     assert_int_equal(device_map_size(m), 3);
 
     d = device_map_get(m, "does not exist");
