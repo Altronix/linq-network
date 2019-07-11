@@ -127,12 +127,12 @@ static e_linq_error
 process_heartbeat(linq* l, zmsg_t** msg, zframe_t** frames)
 {
     e_linq_error e = e_linq_protocol;
-    uint32_t rid_sz = zframe_size(frames[PACKET_RID_IDX]);
-    uint8_t* rid = zframe_data(frames[PACKET_RID_IDX]);
-    char* sid = (char*)zframe_data(frames[PACKET_SID_IDX]);
+    uint32_t rid_sz = zframe_size(frames[FRAME_RID_IDX]);
+    uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
+    char* sid = (char*)zframe_data(frames[FRAME_SID_IDX]);
     if (zmsg_size(*msg) == 2 &&
-        (frames[PACKET_HB_PID_IDX] = pop_le(*msg, PID_LEN)) &&
-        (frames[PACKET_HB_SITE_IDX] = pop_le(*msg, SITE_LEN))) {
+        (frames[FRAME_HB_PID_IDX] = pop_le(*msg, PID_LEN)) &&
+        (frames[FRAME_HB_SITE_IDX] = pop_le(*msg, SITE_LEN))) {
         device** d = device_resolve(l->devices, sid, rid, rid_sz);
         if (!d) {
             d = device_map_insert(
@@ -141,7 +141,7 @@ process_heartbeat(linq* l, zmsg_t** msg, zframe_t** frames)
                 rid,
                 rid_sz,
                 sid,
-                (char*)zframe_data(frames[PACKET_HB_PID_IDX]));
+                (char*)zframe_data(frames[FRAME_HB_PID_IDX]));
         }
         on_heartbeat(l, d);
         e = e_linq_ok;
@@ -155,11 +155,11 @@ process_packet(linq* l, zmsg_t** msg, zframe_t** frames)
     e_linq_error e = e_linq_protocol;
     *msg = zmsg_recv(l->sock);
     if (*msg && zmsg_size(*msg) >= 4 &&
-        (frames[PACKET_RID_IDX] = pop_le(*msg, RID_LEN)) &&
-        (frames[PACKET_VER_IDX] = pop_eq(*msg, 1)) &&
-        (frames[PACKET_TYP_IDX] = pop_eq(*msg, 1)) &&
-        (frames[PACKET_SID_IDX] = pop_le(*msg, SID_LEN))) {
-        switch ((type)zframe_data(frames[PACKET_TYP_IDX])[0]) {
+        (frames[FRAME_RID_IDX] = pop_le(*msg, RID_LEN)) &&
+        (frames[FRAME_VER_IDX] = pop_eq(*msg, 1)) &&
+        (frames[FRAME_TYP_IDX] = pop_eq(*msg, 1)) &&
+        (frames[FRAME_SID_IDX] = pop_le(*msg, SID_LEN))) {
+        switch ((type)zframe_data(frames[FRAME_TYP_IDX])[0]) {
             case heartbeat: e = process_heartbeat(l, msg, frames); break;
             case request: break;
             case response: break;
@@ -173,7 +173,7 @@ static e_linq_error
 process_incoming(linq* l)
 {
     int n = 0;
-    zframe_t* frames[PACKET_MAX];
+    zframe_t* frames[FRAME_MAX];
     memset(frames, 0, sizeof(frames));
     zmsg_t* msg;
     e_linq_error e = process_packet(l, &msg, frames);

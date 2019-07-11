@@ -16,24 +16,24 @@
 #define SITE_LEN 64
 
 // Basic packet index's
-#define PACKET_MAX 7
-#define PACKET_RID_IDX 0
-#define PACKET_VER_IDX 1
-#define PACKET_TYP_IDX 2
-#define PACKET_SID_IDX 3
+#define FRAME_MAX 7
+#define FRAME_RID_IDX 0
+#define FRAME_VER_IDX 1
+#define FRAME_TYP_IDX 2
+#define FRAME_SID_IDX 3
 
 // Heartbeat IDX
-#define PACKET_HB_PID_IDX 4
-#define PACKET_HB_SITE_IDX 5
+#define FRAME_HB_PID_IDX 4
+#define FRAME_HB_SITE_IDX 5
 
 // Alert IDX
-#define PACKET_ALERT_PID_IDX 4
-#define PACKET_ALERT_DAT_IDX 5
-#define PACKET_ALERT_DST_IDX 6
+#define FRAME_ALERT_PID_IDX 4
+#define FRAME_ALERT_DAT_IDX 5
+#define FRAME_ALERT_DST_IDX 6
 
 // Response IDX
-#define PACKET_RESP_ERR_IDX 4
-#define PACKET_RESP_DAT_IDX 5
+#define FRAME_RESP_ERR_IDX 4
+#define FRAME_RESP_DAT_IDX 5
 
 typedef struct
 {
