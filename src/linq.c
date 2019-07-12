@@ -115,6 +115,7 @@ pop_le(zmsg_t* msg, uint32_t le)
 static zframe_t*
 pop_alert(zmsg_t* msg, linq_alert* alert)
 {
+    memset(alert, 0, sizeof(linq_alert));
     int r, count;
     zframe_t* f = pop_le(msg, 1024);
     jsmntok_t t[30], *tokens = t;
@@ -144,6 +145,7 @@ pop_alert(zmsg_t* msg, linq_alert* alert)
 static zframe_t*
 pop_email(zmsg_t* msg, linq_email* emails)
 {
+    memset(emails, 0, sizeof(linq_email));
     int r, count;
     zframe_t* f = pop_le(msg, 1024);
     jsmntok_t t[30], *tokens = t;
@@ -188,18 +190,36 @@ on_heartbeat(linq* l, device** d)
     }
 }
 
-// find a device in our device map and update the router id
-static device**
-device_resolve(
-    device_map* devices,
-    const char* serial,
-    uint8_t* router_id,
-    uint32_t router_id_sz)
+// When we receive an alert, call the alert callback
+static void
+on_alert(linq* l, device** d, linq_alert* alert, linq_email* email)
 {
-    device** d = device_map_get(devices, serial);
+    if (l->callbacks && l->callbacks->alert) {
+        l->callbacks->alert(l->context, alert, email, d);
+    }
+}
+
+// find a device in our device map and update the router id. insert device if hb
+static device**
+device_resolve(linq* l, device_map* devices, zframe_t** frames, bool hb)
+{
+    uint32_t rid_sz = zframe_size(frames[FRAME_RID_IDX]);
+    uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
+    char* sid = (char*)zframe_data(frames[FRAME_SID_IDX]);
+    device** d = device_map_get(devices, sid);
     if (d) {
         device_heartbeat(*d);
-        device_update_router(*d, router_id, router_id_sz);
+        device_update_router(*d, rid, rid_sz);
+    } else {
+        if (hb && frames[FRAME_HB_PID_IDX]) {
+            d = device_map_insert(
+                l->devices,
+                &l->sock,
+                rid,
+                rid_sz,
+                sid,
+                (char*)zframe_data(frames[FRAME_HB_PID_IDX]));
+        }
     }
     return d;
 }
@@ -235,8 +255,11 @@ process_alert(linq* l, zmsg_t** msg, zframe_t** frames)
         (frames[FRAME_ALERT_PID_IDX] = pop_le(*msg, PID_LEN)) &&
         (frames[FRAME_ALERT_DAT_IDX] = pop_alert(*msg, &alert)) &&
         (frames[FRAME_ALERT_DST_IDX] = pop_email(*msg, &email))) {
-        ((void)l);
-        e = e_linq_ok; // TODO
+        device** d = device_resolve(l, l->devices, frames, false);
+        if (d) {
+            on_alert(l, d, &alert, &email);
+            e = e_linq_ok;
+        }
     }
 
     return e;
@@ -247,24 +270,14 @@ static e_linq_error
 process_heartbeat(linq* l, zmsg_t** msg, zframe_t** frames)
 {
     e_linq_error e = e_linq_protocol;
-    uint32_t rid_sz = zframe_size(frames[FRAME_RID_IDX]);
-    uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
-    char* sid = (char*)zframe_data(frames[FRAME_SID_IDX]);
     if (zmsg_size(*msg) == 2 &&
         (frames[FRAME_HB_PID_IDX] = pop_le(*msg, PID_LEN)) &&
         (frames[FRAME_HB_SITE_IDX] = pop_le(*msg, SITE_LEN))) {
-        device** d = device_resolve(l->devices, sid, rid, rid_sz);
-        if (!d) {
-            d = device_map_insert(
-                l->devices,
-                &l->sock,
-                rid,
-                rid_sz,
-                sid,
-                (char*)zframe_data(frames[FRAME_HB_PID_IDX]));
+        device** d = device_resolve(l, l->devices, frames, true);
+        if (d) {
+            on_heartbeat(l, d);
+            e = e_linq_ok;
         }
-        on_heartbeat(l, d);
-        e = e_linq_ok;
     }
     return e;
 }

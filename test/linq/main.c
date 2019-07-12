@@ -45,8 +45,26 @@ linq_on_heartbeat_fn(void* pass, const char* serial, device** d)
     *((bool*)pass) = true;
 }
 
+static void
+linq_on_alert_fn(void* pass, linq_alert* alert, linq_email* email, device** d)
+{
+    assert_string_equal(device_serial(*d), expect_serial);
+    assert_string_equal(alert->who, "TestUser");
+    assert_string_equal(alert->what, "TestAlert");
+    assert_string_equal(alert->where, "Altronix Site ID");
+    assert_string_equal(alert->when, "100");
+    assert_string_equal(alert->mesg, "Test Alert Message");
+    assert_string_equal(email->to0, "mail0@gmail.com");
+    assert_string_equal(email->to1, "mail1@gmail.com");
+    assert_string_equal(email->to2, "mail2@gmail.com");
+    assert_string_equal(email->to3, "mail3@gmail.com");
+    assert_string_equal(email->to4, "mail4@gmail.com");
+    *((bool*)pass) = true;
+}
+
 linq_callbacks callbacks = { .err = linq_on_error_fn,
-                             .hb = linq_on_heartbeat_fn };
+                             .hb = linq_on_heartbeat_fn,
+                             .alert = linq_on_alert_fn };
 
 static void
 test_linq_create(void** context_p)
@@ -173,7 +191,10 @@ test_linq_receive_alert_ok(void** context_p)
     czmq_spy_poll_push_incoming(true);
 
     linq_poll(l);
+    pass = false;
     linq_poll(l);
+
+    assert_true(pass);
 
     linq_destroy(&l);
     test_reset();

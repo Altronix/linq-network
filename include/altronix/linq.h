@@ -11,8 +11,6 @@ extern "C"
     typedef struct device device;
     typedef struct devices devices;
     typedef struct linq linq;
-    typedef void (*linq_error_fn)(void*, int, const char*, const char*);
-    typedef void (*linq_heartbeat_fn)(void*, const char*, device**);
 
     typedef enum
     {
@@ -39,12 +37,23 @@ extern "C"
         const char* to2;
         const char* to3;
         const char* to4;
+        const char* from;
+        const char* subject;
+        const char* user;
+        const char* password;
+        const char* server;
+        const char* port;
+        const char* device;
     } linq_email;
 
+    typedef void (*linq_error_fn)(void*, int, const char*, const char*);
+    typedef void (*linq_heartbeat_fn)(void*, const char*, device**);
+    typedef void (*linq_alert_fn)(void*, linq_alert*, linq_email*, device**);
     typedef struct linq_callbacks
     {
         linq_error_fn err;
         linq_heartbeat_fn hb;
+        linq_alert_fn alert;
     } linq_callbacks;
 
     linq* linq_create(linq_callbacks*, void*);
