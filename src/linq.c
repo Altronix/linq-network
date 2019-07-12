@@ -67,11 +67,26 @@ pop_le(zmsg_t* msg, uint32_t le)
 
 // read incoming zmq frame and test valid json
 static zframe_t*
-pop_json(zmsg_t* msg, int n, ...)
+pop_alert(zmsg_t* msg, linq_alert* alert)
 {
-    ((void)msg);
-    ((void)n);
-    return NULL;
+    int r;
+    jsmntok_t t[40];
+    jsmn_parser p;
+    zframe_t* f = pop_le(msg, 1024);
+    jsmn_init(&p);
+    r = jsmn_parse(&p, (char*)zframe_data(f), zframe_size(f), t, 40);
+    if (r >= 11) {
+        for (int i = 0; i < 11; i++) {
+            // TODO this loops through key/val
+            // first itter is the key, next is val ...etc.
+            if (t[i].type == JSMN_OBJECT || t[i].type == JSMN_ARRAY) continue;
+            zframe_data(f)[t[i].end + 1] = 0;
+            printf("%s\n", &zframe_data(f)[t[i].start]);
+        }
+    } else {
+        zframe_destroy(&f);
+    }
+    return f;
 }
 
 // when we detect an error call the error callback
@@ -130,11 +145,18 @@ process_response(linq* l, zframe_t** frames)
 
 // check the zmq alert frames are valid and process the alert
 static e_linq_error
-process_alert(linq* l, zframe_t** frames)
+process_alert(linq* l, zmsg_t** msg, zframe_t** frames)
 {
     e_linq_error e = e_linq_protocol;
-    ((void)l);
-    ((void)frames);
+    linq_alert alert;
+    if (zmsg_size(*msg) == 3 &&
+        (frames[FRAME_ALERT_PID_IDX] = pop_le(*msg, PID_LEN)) &&
+        (frames[FRAME_ALERT_DAT_IDX] = pop_alert(*msg, &alert))
+        /*(frames[FRAME_ALERT_DST_IDX] = pop_json(*msg)) */) {
+        ((void)l);
+        e = e_linq_ok; // TODO
+    }
+
     return e;
 }
 
@@ -180,7 +202,7 @@ process_packet(linq* l, zmsg_t** msg, zframe_t** frames)
             case heartbeat: e = process_heartbeat(l, msg, frames); break;
             case request: break;
             case response: break;
-            case alert: break;
+            case alert: e = process_alert(l, msg, frames); break;
         }
     }
     return e;

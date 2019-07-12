@@ -26,6 +26,51 @@ helpers_make_heartbeat(
 }
 
 zmsg_t*
+helpers_make_alert(const char* rid, const char* sid, const char* pid)
+{
+    const char* alert = "{"
+                        "\"who\":\"TestUser\", "
+                        "\"what\": \"TestAlert\","
+                        "\"siteId\": \"Altronix Site ID\","
+                        "\"when\": 100,"
+                        "\"mesg\": \"Test Alert Message\""
+                        "}";
+    const char* mail = "{"
+                       "\"to0\": \"mail@gmail.com\","
+                       "\"to1\": \"\","
+                       "\"to2\": \"\","
+                       "\"to3\": \"\","
+                       "\"to4\": \"\","
+                       "\"from\": \"info@altronix.com\","
+                       "\"subject\": \"LinQ Alert\","
+                       "\"user\": \"\","
+                       "\"password\": \"\","
+                       "\"server\": \"\","
+                       "\"port\": \"\","
+                       "\"device\": \"\""
+                       "}";
+
+    zmsg_t* m = helpers_create_message_mem(
+        7,
+        rid,           // router
+        strlen(rid),   //
+        "\x0",         // version
+        1,             //
+        "\x3",         // type
+        1,             //
+        sid,           // serial
+        strlen(sid),   //
+        pid,           // product
+        strlen(pid),   //
+        alert,         // alert
+        strlen(alert), //
+        mail,          // mail
+        strlen(mail)   //
+    );
+    return m;
+}
+
+zmsg_t*
 helpers_make_legacy_alert()
 {
     const char* alert = "{"

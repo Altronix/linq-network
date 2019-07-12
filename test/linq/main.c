@@ -161,6 +161,22 @@ static void
 test_linq_receive_alert_ok(void** context_p)
 {
     ((void)context_p);
+    bool pass = false;
+    const char* sid = expect_serial = "sid";
+    linq* l = linq_create(&callbacks, (void*)&pass);
+    zmsg_t* hb = helpers_make_heartbeat("rid", sid, "pid", "site");
+    zmsg_t* alert = helpers_make_alert("rid", sid, "pid");
+
+    // Push some incoming messages
+    czmq_spy_mesg_push_incoming(&hb);
+    czmq_spy_mesg_push_incoming(&alert);
+    czmq_spy_poll_push_incoming(true);
+
+    linq_poll(l);
+    linq_poll(l);
+
+    linq_destroy(&l);
+    test_reset();
 }
 
 static void
