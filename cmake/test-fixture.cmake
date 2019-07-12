@@ -37,45 +37,13 @@ set_property(TARGET wolfssl PROPERTY IMPORTED_LOCATION ${wolfssl_LIBRARY})
 set_property(TARGET wolfssl PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${wolfssl_INCLUDE_DIR})
 
 ### build linq-common ###
-ExternalProject_Add(linq_common_PROJECT
-	SOURCE_DIR ${linq_common_SOURCE_DIR}
-	PREFIX ${deps_INSTALL_DIR})
-ExternalProject_Get_Property(linq_common_PROJECT install_dir)
-
-ExternalProject_Add(atx-project
-	SOURCE_DIR ${linq_common_SOURCE_DIR}
-	UPDATE_COMMAND ""
-	LIST_SEPARATOR |
-	CMAKE_ARGS 
-		-DCMAKE_INSTALL_PREFIX=${deps_INSTALL_DIR} 
-		-DZMQ_BUILD_TESTS:BOOL=OFF 
-		-DBUILD_TESTS:BOOL=OFF 
-		-DBUILD_STATIC:BOOL=ON
-		-DBUILD_WOLFSSL:BOOL=OFF
-		-DBUILD_HTTP_PARSER:BOOL=OFF
-		-DCMAKE_BUILD_TYPE=Debug
-	)
-
-add_library(atx STATIC IMPORTED)
-add_library(osal STATIC IMPORTED)
-add_library(crypt STATIC IMPORTED)
-add_library(item STATIC IMPORTED)
-add_library(uzmtp STATIC IMPORTED)
-
-set_property(TARGET atx PROPERTY IMPORTED_LOCATION ${deps_INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}atx${CMAKE_STATIC_LIBRARY_SUFFIX})
-set_property(TARGET osal PROPERTY IMPORTED_LOCATION ${deps_INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}osal${CMAKE_STATIC_LIBRARY_SUFFIX})
-set_property(TARGET crypt PROPERTY IMPORTED_LOCATION ${deps_INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}crypt${CMAKE_STATIC_LIBRARY_SUFFIX})
-set_property(TARGET item PROPERTY IMPORTED_LOCATION ${deps_INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}item${CMAKE_STATIC_LIBRARY_SUFFIX})
-set_property(TARGET uzmtp PROPERTY IMPORTED_LOCATION ${deps_INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}uzmtp${CMAKE_STATIC_LIBRARY_SUFFIX})
-
-set_property(TARGET atx PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${deps_INSTALL_DIR}/include)
-set_property(TARGET osal PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${deps_INSTALL_DIR}/include)
-set_property(TARGET crypt PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${deps_INSTALL_DIR}/include)
-set_property(TARGET item PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${deps_INSTALL_DIR}/include)
-set_property(TARGET uzmtp PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${deps_INSTALL_DIR}/include)
-
-add_dependencies(atx atx-project)
-add_dependencies(osal atx-project)
-add_dependencies(crypt atx-project)
-add_dependencies(item atx-project)
-add_dependencies(uzmtp atx-project)
+add_definitions(-DCONFIG_LINUX_EMU)
+add_definitions(-DUSYS_CONFIG_UNIX)
+add_definitions(-DUZMTP_USE_TLS)
+add_subdirectory(${linq_common_SOURCE_DIR}/libcrypt/wolfssl)
+add_subdirectory(${linq_common_SOURCE_DIR}/libosal)
+add_subdirectory(${linq_common_SOURCE_DIR}/libuzmtp)
+add_subdirectory(${linq_common_SOURCE_DIR}/libitem)
+add_subdirectory(${linq_common_SOURCE_DIR}/libatx)
+add_subdirectory(${linq_common_SOURCE_DIR}/test/mocks)
+target_include_directories(atx PUBLIC ${linq_common_SOURCE_DIR}/libatx)
