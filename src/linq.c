@@ -26,6 +26,28 @@ typedef enum
     alert = 3
 } type;
 
+static uint32_t
+parse_token(zframe_t* f, jsmntok_t* t, char** ptr)
+{
+    uint32_t sz = t->end - t->start;
+    *ptr = (char*)&zframe_data(f)[t->start];
+    (*ptr)[sz] = 0;
+    return sz;
+}
+
+static uint32_t
+parse_tokens(
+    zframe_t* f,
+    uint32_t n_tokens,
+    jsmntok_t** tokens,
+    uint32_t n_tags,
+    ...)
+{
+    for (uint32_t i = 0; i < n_tokens; i++) {
+        //
+    }
+}
+
 // read incoming zmq frame and test size is equal to expected
 static zframe_t*
 pop_eq(zmsg_t* msg, uint32_t expect)
@@ -79,25 +101,25 @@ pop_alert(zmsg_t* msg, linq_alert* alert)
     if (r >= 11) {
         for (int i = 0; i < 11; i++) {
             if (t[i].type == JSMN_OBJECT || t[i].type == JSMN_ARRAY) continue;
-            if (tag) {
-                zframe_data(f)[t[i].end + 1] = 0;
-                int sz = t[i].end - t[i].start;
-                str = (char*)&zframe_data(f)[t[i].start];
-                str[sz] = 0;
-                printf("tag: %s\nval: %s\n", tag, str);
-                if (taglen == 4) {
-                    if (!memcmp(tag, "what", taglen)) {
-                    } else if (memcmp(tag, "when", taglen)) {
-                    } else if (memcmp(tag, "mesg", taglen)) {
+            if (!tag) {
+                taglen = parse_token(f, &t[i], &tag);
+            } else {
+                uint32_t sz = parse_token(f, &t[i], &str);
+                if (sz) {
+                    printf("tag: %s\nval: %s\n", tag, str);
+                    if (taglen == 3 && !memcmp(tag, "who", taglen)) {
+                        alert->who = str;
+                    } else if (taglen == 4 && !memcmp(tag, "what", taglen)) {
+                        alert->what = str;
+                    } else if (taglen == 6 && !memcmp(tag, "siteId", taglen)) {
+                        alert->where = str;
+                    } else if (taglen == 4 && !memcmp(tag, "when", taglen)) {
+                        alert->when = str;
+                    } else if (taglen == 4 && !memcmp(tag, "mesg", taglen)) {
+                        alert->mesg = str;
                     }
-                } else if (taglen == 3 && !memcmp(tag, "who", taglen)) {
-                } else if (taglen == 6 && !memcmp(tag, "siteId", taglen)) {
                 }
                 tag = NULL;
-            } else {
-                tag = (char*)&zframe_data(f)[t[i].start];
-                taglen = t[i].end - t[i].start;
-                tag[taglen] = 0;
             }
         }
     } else {
