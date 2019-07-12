@@ -26,6 +26,7 @@ typedef enum
     alert = 3
 } type;
 
+// parse a token from a json string inside a frame
 static uint32_t
 parse_token(zframe_t* f, jsmntok_t* t, char** ptr)
 {
@@ -35,7 +36,7 @@ parse_token(zframe_t* f, jsmntok_t* t, char** ptr)
     return sz;
 }
 
-// unholy footgun
+// unholy footgun (parse many tokens)
 static uint32_t
 parse_tokens(
     zframe_t* f,
