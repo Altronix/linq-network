@@ -28,44 +28,22 @@ helpers_make_heartbeat(
 zmsg_t*
 helpers_make_alert(const char* rid, const char* sid, const char* pid)
 {
-    const char* alert = "{"
-                        "\"who\":\"TestUser\", "
-                        "\"what\": \"TestAlert\","
-                        "\"siteId\": \"Altronix Site ID\","
-                        "\"when\": 100,"
-                        "\"mesg\": \"Test Alert Message\""
-                        "}";
-    const char* mail = "{"
-                       "\"to0\": \"mail0@gmail.com\","
-                       "\"to1\": \"mail1@gmail.com\","
-                       "\"to2\": \"mail2@gmail.com\","
-                       "\"to3\": \"mail3@gmail.com\","
-                       "\"to4\": \"mail4@gmail.com\","
-                       "\"from\": \"info@altronix.com\","
-                       "\"subject\": \"LinQ Alert\","
-                       "\"user\": \"\","
-                       "\"password\": \"\","
-                       "\"server\": \"\","
-                       "\"port\": \"\","
-                       "\"device\": \"\""
-                       "}";
-
     zmsg_t* m = helpers_create_message_mem(
         7,
-        rid,           // router
-        strlen(rid),   //
-        "\x0",         // version
-        1,             //
-        "\x3",         // type
-        1,             //
-        sid,           // serial
-        strlen(sid),   //
-        pid,           // product
-        strlen(pid),   //
-        alert,         // alert
-        strlen(alert), //
-        mail,          // mail
-        strlen(mail)   //
+        rid,                // router
+        strlen(rid),        //
+        "\x0",              // version
+        1,                  //
+        "\x3",              // type
+        1,                  //
+        sid,                // serial
+        strlen(sid),        //
+        pid,                // product
+        strlen(pid),        //
+        TEST_ALERT,         // alert
+        strlen(TEST_ALERT), //
+        TEST_EMAIL,         // mail
+        strlen(TEST_EMAIL)  //
     );
     return m;
 }
@@ -73,20 +51,8 @@ helpers_make_alert(const char* rid, const char* sid, const char* pid)
 zmsg_t*
 helpers_make_legacy_alert()
 {
-    const char* alert = "{"
-                        "\"meth\":\"POST\","
-                        "\"path\":\"home/exe/alert\","
-                        "\"post\":{"
-                        "\"who\":\"test-serial-id\","
-                        "\"what\":\"Power Supply 1\","
-                        "\"siteId\":\"Altronix Site ID\","
-                        "\"when\":12345678,"
-                        "\"name\":\"pOn\","
-                        "\"mesg\":\"Power Supply Turn On\""
-                        "}"
-                        "}";
-
-    return helpers_create_message_str(4, "rid", "sid", "typ", alert);
+    return helpers_create_message_str(
+        4, "rid", "sid", "typ", TEST_ALERT_LEGACY);
 }
 
 zmsg_t*

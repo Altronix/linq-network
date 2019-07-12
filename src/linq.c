@@ -340,6 +340,7 @@ linq_destroy(linq** linq_p)
     linq* l = *linq_p;
     *linq_p = NULL;
     device_map_destroy(&l->devices);
+    if (l->sock) zsock_destroy(&l->sock);
     linq_free(l);
 }
 
@@ -358,9 +359,9 @@ linq_poll(linq* l)
 {
     int err;
     zmq_pollitem_t item = { zsock_resolve(l->sock), 0, ZMQ_POLLIN, 0 };
-    err = zmq_poll(&item, 1, 1000);
+    err = zmq_poll(&item, 1, 5);
     if (err < 0) return err;
-    if (item.revents & ZMQ_POLLIN) err = process_incoming(l);
+    if (item.revents && ZMQ_POLLIN) err = process_incoming(l);
     return err;
 }
 
