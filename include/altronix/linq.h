@@ -32,6 +32,15 @@ extern "C"
         const char* email[5];
     } linq_alert;
 
+    typedef struct linq_email
+    {
+        const char* to0;
+        const char* to1;
+        const char* to2;
+        const char* to3;
+        const char* to4;
+    } linq_email;
+
     typedef struct linq_callbacks
     {
         linq_error_fn err;

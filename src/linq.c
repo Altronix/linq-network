@@ -35,17 +35,41 @@ parse_token(zframe_t* f, jsmntok_t* t, char** ptr)
     return sz;
 }
 
+// unholy footgun
 static uint32_t
 parse_tokens(
     zframe_t* f,
     uint32_t n_tokens,
-    jsmntok_t** tokens,
+    jsmntok_t** tokens_p,
     uint32_t n_tags,
     ...)
 {
+    char *tag = NULL, *cmp, **str;
+    uint32_t taglen = 0;
+    uint32_t count = 0;
+    jsmntok_t* t = *tokens_p;
     for (uint32_t i = 0; i < n_tokens; i++) {
-        //
+        if (t[i].type == JSMN_OBJECT || (t[i].type == JSMN_ARRAY)) continue;
+        if (!tag) {
+            taglen = parse_token(f, &t[i], &tag);
+        } else {
+            uint32_t c = n_tags << 1;
+            va_list list;
+            va_start(list, n_tags);
+            while (c >= 2) {
+                c -= 2;
+                cmp = va_arg(list, char*);
+                str = va_arg(list, char**);
+                if (taglen == strlen(cmp) && !memcmp(tag, cmp, taglen)) {
+                    parse_token(f, &t[i], str);
+                    count++;
+                }
+            }
+            va_end(list);
+            tag = NULL;
+        }
     }
+    return count;
 }
 
 // read incoming zmq frame and test size is equal to expected
@@ -91,37 +115,55 @@ pop_le(zmsg_t* msg, uint32_t le)
 static zframe_t*
 pop_alert(zmsg_t* msg, linq_alert* alert)
 {
-    int r, taglen = 0;
-    char *tag = NULL, *str;
-    jsmntok_t t[20];
-    jsmn_parser p;
+    int r, count;
     zframe_t* f = pop_le(msg, 1024);
+    jsmntok_t t[30], *tokens = t;
+    jsmn_parser p;
     jsmn_init(&p);
-    r = jsmn_parse(&p, (char*)zframe_data(f), zframe_size(f), t, 40);
+    r = jsmn_parse(&p, (char*)zframe_data(f), zframe_size(f), t, 30);
     if (r >= 11) {
-        for (int i = 0; i < 11; i++) {
-            if (t[i].type == JSMN_OBJECT || t[i].type == JSMN_ARRAY) continue;
-            if (!tag) {
-                taglen = parse_token(f, &t[i], &tag);
-            } else {
-                uint32_t sz = parse_token(f, &t[i], &str);
-                if (sz) {
-                    printf("tag: %s\nval: %s\n", tag, str);
-                    if (taglen == 3 && !memcmp(tag, "who", taglen)) {
-                        alert->who = str;
-                    } else if (taglen == 4 && !memcmp(tag, "what", taglen)) {
-                        alert->what = str;
-                    } else if (taglen == 6 && !memcmp(tag, "siteId", taglen)) {
-                        alert->where = str;
-                    } else if (taglen == 4 && !memcmp(tag, "when", taglen)) {
-                        alert->when = str;
-                    } else if (taglen == 4 && !memcmp(tag, "mesg", taglen)) {
-                        alert->mesg = str;
-                    }
-                }
-                tag = NULL;
-            }
-        }
+        // clang-format off
+        count = parse_tokens(
+            f,
+            r,
+            &tokens,
+            5,
+            "who",   &alert->who,
+            "what",  &alert->what,
+            "siteId",&alert->where,
+            "when",  &alert->when,
+            "mesg",  &alert->mesg);
+        // clang-format on
+        if (!(count == 5)) zframe_destroy(&f);
+    } else {
+        zframe_destroy(&f);
+    }
+    return f;
+}
+
+static zframe_t*
+pop_email(zmsg_t* msg, linq_email* emails)
+{
+    int r, count;
+    zframe_t* f = pop_le(msg, 1024);
+    jsmntok_t t[30], *tokens = t;
+    jsmn_parser p;
+    jsmn_init(&p);
+    r = jsmn_parse(&p, (char*)zframe_data(f), zframe_size(f), t, 30);
+    if (r >= 11) {
+        // clang-format off
+        count = parse_tokens(
+            f,
+            r,
+            &tokens,
+            5,
+            "to0", &emails->to0,
+            "to1", &emails->to1,
+            "to2", &emails->to2,
+            "to3", &emails->to3,
+            "to4", &emails->to4);
+        // clang-format on
+        if (!(count == 5)) zframe_destroy(&f);
     } else {
         zframe_destroy(&f);
     }
@@ -188,10 +230,11 @@ process_alert(linq* l, zmsg_t** msg, zframe_t** frames)
 {
     e_linq_error e = e_linq_protocol;
     linq_alert alert;
+    linq_email email;
     if (zmsg_size(*msg) == 3 &&
         (frames[FRAME_ALERT_PID_IDX] = pop_le(*msg, PID_LEN)) &&
-        (frames[FRAME_ALERT_DAT_IDX] = pop_alert(*msg, &alert))
-        /*(frames[FRAME_ALERT_DST_IDX] = pop_json(*msg)) */) {
+        (frames[FRAME_ALERT_DAT_IDX] = pop_alert(*msg, &alert)) &&
+        (frames[FRAME_ALERT_DST_IDX] = pop_email(*msg, &email))) {
         ((void)l);
         e = e_linq_ok; // TODO
     }
@@ -252,7 +295,7 @@ static e_linq_error
 process_incoming(linq* l)
 {
     int n = 0;
-    zframe_t* frames[FRAME_MAX];
+    zframe_t* frames[FRAME_MAX + 1];
     memset(frames, 0, sizeof(frames));
     zmsg_t* msg;
     e_linq_error e = process_packet(l, &msg, frames);
