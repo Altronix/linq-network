@@ -200,26 +200,35 @@ on_alert(linq* l, device** d, linq_alert* alert, linq_email* email)
     }
 }
 
+static int
+print_null_terminated(char* c, uint32_t sz, zframe_t* f)
+{
+    uint32_t fsz = zframe_size(f);
+    if (fsz + 1 <= sz) {
+        memcpy(c, zframe_data(f), fsz);
+        c[fsz] = 0;
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
 // find a device in our device map and update the router id. insert device if hb
 static device**
 device_resolve(linq* l, device_map* devices, zframe_t** frames, bool hb)
 {
     uint32_t rid_sz = zframe_size(frames[FRAME_RID_IDX]);
     uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
-    char* sid = (char*)zframe_data(frames[FRAME_SID_IDX]);
+    char sid[SID_LEN], pid[PID_LEN];
+    print_null_terminated(sid, SID_LEN, frames[FRAME_SID_IDX]);
+    print_null_terminated(pid, PID_LEN, frames[FRAME_HB_PID_IDX]);
     device** d = device_map_get(devices, sid);
     if (d) {
         device_heartbeat(*d);
         device_update_router(*d, rid, rid_sz);
     } else {
         if (hb && frames[FRAME_HB_PID_IDX]) {
-            d = device_map_insert(
-                l->devices,
-                &l->sock,
-                rid,
-                rid_sz,
-                sid,
-                (char*)zframe_data(frames[FRAME_HB_PID_IDX]));
+            d = device_map_insert(l->devices, &l->sock, rid, rid_sz, sid, pid);
         }
     }
     return d;
