@@ -13,3 +13,12 @@
 [submodule "external/jsmn"]
 	path = external/jsmn
 	url = https://github.com/zserge/jsmn
+[submodule "external/linq-common"]
+	path = external/linq-common
+	url = https://bitbucket.org/Altronix/linq-common
+[submodule "external/http_parser"]
+	path = external/http_parser
+	url = https://bitbucket.org/Altronix/http_parser
+[submodule "external/wolfssl"]
+	path = external/wolfssl
+	url = https://bitbucket.org/Altronix/wolfssl
