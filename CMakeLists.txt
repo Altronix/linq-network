@@ -13,6 +13,7 @@ include(cmake/klib.cmake)
 include(cmake/jsmn.cmake)
 
 add_subdirectory(src)
+add_subdirectory(bindings/cpp)
 
 IF(ENABLE_TESTING)
 	set(CMAKE_BUILD_TYPE Debug)
