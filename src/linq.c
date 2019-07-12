@@ -69,7 +69,8 @@ pop_le(zmsg_t* msg, uint32_t le)
 static zframe_t*
 pop_alert(zmsg_t* msg, linq_alert* alert)
 {
-    int r;
+    int r, taglen = 0;
+    char *tag = NULL, *str;
     jsmntok_t t[20];
     jsmn_parser p;
     zframe_t* f = pop_le(msg, 1024);
@@ -77,11 +78,27 @@ pop_alert(zmsg_t* msg, linq_alert* alert)
     r = jsmn_parse(&p, (char*)zframe_data(f), zframe_size(f), t, 40);
     if (r >= 11) {
         for (int i = 0; i < 11; i++) {
-            // TODO this loops through key/val
-            // first iter is the key, next is val ...etc.
             if (t[i].type == JSMN_OBJECT || t[i].type == JSMN_ARRAY) continue;
-            zframe_data(f)[t[i].end + 1] = 0;
-            printf("%s\n", &zframe_data(f)[t[i].start]);
+            if (tag) {
+                zframe_data(f)[t[i].end + 1] = 0;
+                int sz = t[i].end - t[i].start;
+                str = (char*)&zframe_data(f)[t[i].start];
+                str[sz] = 0;
+                printf("tag: %s\nval: %s\n", tag, str);
+                if (taglen == 4) {
+                    if (!memcmp(tag, "what", taglen)) {
+                    } else if (memcmp(tag, "when", taglen)) {
+                    } else if (memcmp(tag, "mesg", taglen)) {
+                    }
+                } else if (taglen == 3 && !memcmp(tag, "who", taglen)) {
+                } else if (taglen == 6 && !memcmp(tag, "siteId", taglen)) {
+                }
+                tag = NULL;
+            } else {
+                tag = (char*)&zframe_data(f)[t[i].start];
+                taglen = t[i].end - t[i].start;
+                tag[taglen] = 0;
+            }
         }
     } else {
         zframe_destroy(&f);
