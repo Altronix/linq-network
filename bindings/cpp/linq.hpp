@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "altroinx/linq.h"
+#include "altronix/linq.h"
 
 namespace altronix {
 
