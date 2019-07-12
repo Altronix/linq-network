@@ -70,7 +70,7 @@ static zframe_t*
 pop_alert(zmsg_t* msg, linq_alert* alert)
 {
     int r;
-    jsmntok_t t[40];
+    jsmntok_t t[20];
     jsmn_parser p;
     zframe_t* f = pop_le(msg, 1024);
     jsmn_init(&p);
@@ -78,7 +78,7 @@ pop_alert(zmsg_t* msg, linq_alert* alert)
     if (r >= 11) {
         for (int i = 0; i < 11; i++) {
             // TODO this loops through key/val
-            // first itter is the key, next is val ...etc.
+            // first iter is the key, next is val ...etc.
             if (t[i].type == JSMN_OBJECT || t[i].type == JSMN_ARRAY) continue;
             zframe_data(f)[t[i].end + 1] = 0;
             printf("%s\n", &zframe_data(f)[t[i].start]);
