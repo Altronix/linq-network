@@ -72,12 +72,10 @@ class Linq
 };
 
 void
-on_error_fn(void* ctx, e_linq_error e, const char* what, const char* serial)
+on_error_fn(void* context, e_linq_error e, const char* what, const char* serial)
 {
-    ((void)ctx);
-    ((void)e);
-    ((void)what);
-    ((void)serial);
+    Linq* l = (Linq*)context;
+    l->error_(e, what, serial);
 }
 
 void
@@ -88,12 +86,10 @@ on_heartbeat_fn(void* context, const char* serial, device** d)
 }
 
 void
-on_alert_fn(void* pass, linq_alert* alert, linq_email* email, device** d)
+on_alert_fn(void* context, linq_alert* alert, linq_email* email, device** d)
 {
-    ((void)pass);
-    ((void)alert);
-    ((void)email);
-    ((void)d);
+    Linq* l = (Linq*)context;
+    l->alert_(alert, email, d);
 }
 
 } // namespace altronix
