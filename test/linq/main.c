@@ -9,7 +9,7 @@
 #include <cmocka.h>
 #include <setjmp.h>
 
-static e_linq_error expect_error = e_linq_ok;
+static E_LINQ_ERROR expect_error = LINQ_ERROR_OK;
 static const char* empty = "";
 static const char* expect_what = "";
 static const char* expect_serial = "";
@@ -17,7 +17,7 @@ static const char* expect_serial = "";
 static void
 test_reset()
 {
-    expect_error = e_linq_ok;
+    expect_error = LINQ_ERROR_OK;
     expect_what = empty;
     expect_serial = empty;
     czmq_spy_mesg_reset();
@@ -27,7 +27,7 @@ test_reset()
 static void
 linq_on_error_fn(
     void* pass,
-    e_linq_error e,
+    E_LINQ_ERROR e,
     const char* what,
     const char* serial)
 {
@@ -38,7 +38,7 @@ linq_on_error_fn(
 }
 
 static void
-linq_on_heartbeat_fn(void* pass, const char* serial, device** d)
+linq_on_heartbeat_fn(void* pass, const char* serial, device_s** d)
 {
     assert_string_equal(serial, expect_serial);
     assert_string_equal(device_serial(*d), expect_serial);
@@ -46,7 +46,11 @@ linq_on_heartbeat_fn(void* pass, const char* serial, device** d)
 }
 
 static void
-linq_on_alert_fn(void* pass, linq_alert* alert, linq_email* email, device** d)
+linq_on_alert_fn(
+    void* pass,
+    linq_alert_s* alert,
+    linq_email_s* email,
+    device_s** d)
 {
     assert_string_equal(device_serial(*d), expect_serial);
     assert_string_equal(alert->who, "TestUser");
@@ -70,7 +74,7 @@ static void
 test_linq_create(void** context_p)
 {
     ((void)context_p);
-    linq* l = linq_create(NULL, NULL);
+    linq_s* l = linq_create(NULL, NULL);
     assert_non_null(l);
     linq_destroy(&l);
     assert_null(l);
@@ -81,10 +85,10 @@ test_linq_receive_protocol_error_short(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
-    linq* l = linq_create(&callbacks, (void*)&pass);
+    linq_s* l = linq_create(&callbacks, (void*)&pass);
     zmsg_t* m = helpers_create_message_str(2, "too", "short");
 
-    expect_error = e_linq_protocol;
+    expect_error = LINQ_ERROR_PROTOCOL;
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_push_incoming(true);
 
@@ -116,7 +120,7 @@ test_linq_receive_heartbeat_ok(void** context_p)
     ((void)context_p);
     bool pass = false;
     const char* serial = expect_serial = "serial";
-    linq* l = linq_create(&callbacks, (void*)&pass);
+    linq_s* l = linq_create(&callbacks, (void*)&pass);
     zmsg_t* hb0 = helpers_make_heartbeat("rid0", serial, "product", "site");
     zmsg_t* hb1 = helpers_make_heartbeat("rid00", serial, "product", "site");
 
@@ -128,7 +132,7 @@ test_linq_receive_heartbeat_ok(void** context_p)
 
     // Receive a heartbeat
     linq_poll(l);
-    device** d = linq_device(l, serial);
+    device_s** d = linq_device(l, serial);
     assert_non_null(d);
     assert_int_equal(linq_device_count(l), 1);
     assert_int_equal(device_router(*d)->sz, 4);
@@ -159,11 +163,11 @@ test_linq_receive_heartbeat_error_short(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
-    linq* l = linq_create(&callbacks, (void*)&pass);
+    linq_s* l = linq_create(&callbacks, (void*)&pass);
     zmsg_t* m = helpers_create_message_mem(
         4, "router", 6, "\x0", 1, "\x0", 1, "product", 7);
 
-    expect_error = e_linq_protocol;
+    expect_error = LINQ_ERROR_PROTOCOL;
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_push_incoming(true);
 
@@ -181,7 +185,7 @@ test_linq_receive_alert_ok(void** context_p)
     ((void)context_p);
     bool pass = false;
     const char* sid = expect_serial = "sid";
-    linq* l = linq_create(&callbacks, (void*)&pass);
+    linq_s* l = linq_create(&callbacks, (void*)&pass);
     zmsg_t* hb = helpers_make_heartbeat("rid", sid, "pid", "site");
     zmsg_t* alert = helpers_make_alert("rid", sid, "pid");
 

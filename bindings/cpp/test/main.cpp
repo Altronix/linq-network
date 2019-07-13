@@ -37,21 +37,22 @@ test_linq_alert(void** context_p)
     czmq_spy_mesg_push_incoming(&alert);
     czmq_spy_poll_push_incoming(true);
 
-    l.on_alert([&alert_pass](linq_alert* alert, linq_email* email, device**) {
-        // TODO wrap the Device class
-        // assert_string_equal(device_serial(*d), expect_serial);
-        assert_string_equal(alert->who, "TestUser");
-        assert_string_equal(alert->what, "TestAlert");
-        assert_string_equal(alert->where, "Altronix Site ID");
-        assert_string_equal(alert->when, "100");
-        assert_string_equal(alert->mesg, "Test Alert Message");
-        assert_string_equal(email->to0, "mail0@gmail.com");
-        assert_string_equal(email->to1, "mail1@gmail.com");
-        assert_string_equal(email->to2, "mail2@gmail.com");
-        assert_string_equal(email->to3, "mail3@gmail.com");
-        assert_string_equal(email->to4, "mail4@gmail.com");
-        alert_pass = true;
-    });
+    l.on_alert(
+        [&alert_pass](linq_alert_s* alert, linq_email_s* email, device_s**) {
+            // TODO wrap the Device class
+            // assert_string_equal(device_serial(*d), expect_serial);
+            assert_string_equal(alert->who, "TestUser");
+            assert_string_equal(alert->what, "TestAlert");
+            assert_string_equal(alert->where, "Altronix Site ID");
+            assert_string_equal(alert->when, "100");
+            assert_string_equal(alert->mesg, "Test Alert Message");
+            assert_string_equal(email->to0, "mail0@gmail.com");
+            assert_string_equal(email->to1, "mail1@gmail.com");
+            assert_string_equal(email->to2, "mail2@gmail.com");
+            assert_string_equal(email->to3, "mail3@gmail.com");
+            assert_string_equal(email->to4, "mail4@gmail.com");
+            alert_pass = true;
+        });
 
     // Read heartbeat and alert
     l.poll().poll();

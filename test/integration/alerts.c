@@ -11,7 +11,7 @@ static bool received_new_device = false;
 static bool received_alert = false;
 
 static void
-on_error(void* count, e_linq_error e, const char* what, const char* serial)
+on_error(void* count, E_LINQ_ERROR e, const char* what, const char* serial)
 {
     (*(int*)count)++;
     ((void)e);
@@ -21,7 +21,7 @@ on_error(void* count, e_linq_error e, const char* what, const char* serial)
 }
 
 static void
-on_alert(void* count, linq_alert* alert, linq_email* mail, device** d)
+on_alert(void* count, linq_alert_s* alert, linq_email_s* mail, device_s** d)
 {
     (*(uint32_t*)count)++;
     received_alert = true;
@@ -32,7 +32,7 @@ on_alert(void* count, linq_alert* alert, linq_email* mail, device** d)
 }
 
 static void
-on_heartbeat(void* count, const char* serial, device** d)
+on_heartbeat(void* count, const char* serial, device_s** d)
 {
     (*(uint32_t*)count)++;
     received_new_device = true;
@@ -56,7 +56,7 @@ main(int argc, char* argv[])
     fixture_context* fixture = fixture_create(32820);
     if (!fixture) return -1;
 
-    linq* linq = linq_create(&callbacks, &count);
+    linq_s* linq = linq_create(&callbacks, &count);
     err = linq_listen(linq, "tcp://127.0.0.1:32820");
     if (err) {
         printf("%s", "[S] Listen Failure!\n");
