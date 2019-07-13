@@ -37,7 +37,7 @@ test_linq_alert(void** context_p)
     czmq_spy_mesg_push_incoming(&alert);
     czmq_spy_poll_push_incoming(true);
 
-    l.on_alert([&alert_pass](linq_alert* alert, linq_email* email, device**) {
+    l.on_alert([&alert_pass](linq_alert* alert, linq_email* email, device_s**) {
         // TODO wrap the Device class
         // assert_string_equal(device_serial(*d), expect_serial);
         assert_string_equal(alert->who, "TestUser");

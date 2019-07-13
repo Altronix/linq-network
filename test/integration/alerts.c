@@ -21,7 +21,7 @@ on_error(void* count, E_LINQ_ERROR e, const char* what, const char* serial)
 }
 
 static void
-on_alert(void* count, linq_alert* alert, linq_email* mail, device** d)
+on_alert(void* count, linq_alert* alert, linq_email* mail, device_s** d)
 {
     (*(uint32_t*)count)++;
     received_alert = true;
@@ -32,7 +32,7 @@ on_alert(void* count, linq_alert* alert, linq_email* mail, device** d)
 }
 
 static void
-on_heartbeat(void* count, const char* serial, device** d)
+on_heartbeat(void* count, const char* serial, device_s** d)
 {
     (*(uint32_t*)count)++;
     received_new_device = true;

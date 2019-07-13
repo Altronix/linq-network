@@ -8,7 +8,7 @@ extern "C"
 {
 #endif
 
-    typedef struct device device;
+    typedef struct device_s device_s;
     typedef struct devices devices;
     typedef struct linq linq;
 
@@ -48,8 +48,8 @@ extern "C"
 
     typedef void (
         *linq_error_fn)(void*, E_LINQ_ERROR, const char*, const char*);
-    typedef void (*linq_heartbeat_fn)(void*, const char*, device**);
-    typedef void (*linq_alert_fn)(void*, linq_alert*, linq_email*, device**);
+    typedef void (*linq_heartbeat_fn)(void*, const char*, device_s**);
+    typedef void (*linq_alert_fn)(void*, linq_alert*, linq_email*, device_s**);
     typedef struct linq_callbacks
     {
         linq_error_fn err;
@@ -61,7 +61,7 @@ extern "C"
     void linq_destroy(linq**);
     E_LINQ_ERROR linq_listen(linq*, const char* ep);
     E_LINQ_ERROR linq_poll(linq* l);
-    device** linq_device(linq*, const char*);
+    device_s** linq_device(linq*, const char*);
     uint32_t linq_device_count(linq*);
 
 #ifdef __cplusplus

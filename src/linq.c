@@ -184,7 +184,7 @@ on_error(linq* l, E_LINQ_ERROR e, const char* serial)
 
 // when we receive a heartbeat call the heartbeat callback
 static void
-on_heartbeat(linq* l, device** d)
+on_heartbeat(linq* l, device_s** d)
 {
     if (l->callbacks && l->callbacks->hb) {
         l->callbacks->hb(l->context, device_serial(*d), d);
@@ -193,7 +193,7 @@ on_heartbeat(linq* l, device** d)
 
 // When we receive an alert, call the alert callback
 static void
-on_alert(linq* l, device** d, linq_alert* alert, linq_email* email)
+on_alert(linq* l, device_s** d, linq_alert* alert, linq_email* email)
 {
     if (l->callbacks && l->callbacks->alert) {
         l->callbacks->alert(l->context, alert, email, d);
@@ -214,7 +214,7 @@ print_null_terminated(char* c, uint32_t sz, zframe_t* f)
 }
 
 // find a device in our device map and update the router id. insert device if hb
-static device**
+static device_s**
 device_resolve(linq* l, device_map_s* devices, zframe_t** frames, bool hb)
 {
     uint32_t rid_sz = zframe_size(frames[FRAME_RID_IDX]);
@@ -222,7 +222,7 @@ device_resolve(linq* l, device_map_s* devices, zframe_t** frames, bool hb)
     char sid[SID_LEN], pid[PID_LEN];
     print_null_terminated(sid, SID_LEN, frames[FRAME_SID_IDX]);
     print_null_terminated(pid, PID_LEN, frames[FRAME_HB_PID_IDX]);
-    device** d = device_map_get(devices, sid);
+    device_s** d = device_map_get(devices, sid);
     if (d) {
         device_heartbeat(*d);
         device_update_router(*d, rid, rid_sz);
@@ -265,7 +265,7 @@ process_alert(linq* l, zmsg_t** msg, zframe_t** frames)
         (frames[FRAME_ALERT_PID_IDX] = pop_le(*msg, PID_LEN)) &&
         (frames[FRAME_ALERT_DAT_IDX] = pop_alert(*msg, &alert)) &&
         (frames[FRAME_ALERT_DST_IDX] = pop_email(*msg, &email))) {
-        device** d = device_resolve(l, l->devices, frames, false);
+        device_s** d = device_resolve(l, l->devices, frames, false);
         if (d) {
             on_alert(l, d, &alert, &email);
             e = LINQ_ERROR_OK;
@@ -283,7 +283,7 @@ process_heartbeat(linq* l, zmsg_t** msg, zframe_t** frames)
     if (zmsg_size(*msg) == 2 &&
         (frames[FRAME_HB_PID_IDX] = pop_le(*msg, PID_LEN)) &&
         (frames[FRAME_HB_SITE_IDX] = pop_le(*msg, SITE_LEN))) {
-        device** d = device_resolve(l, l->devices, frames, true);
+        device_s** d = device_resolve(l, l->devices, frames, true);
         if (d) {
             on_heartbeat(l, d);
             e = LINQ_ERROR_OK;
@@ -375,7 +375,7 @@ linq_poll(linq* l)
 }
 
 // get a device from the device map
-device**
+device_s**
 linq_device(linq* l, const char* serial)
 {
     return device_map_get(l->devices, serial);

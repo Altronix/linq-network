@@ -1,7 +1,7 @@
 #include "device_map.h"
 #include "device.h"
 
-KHASH_MAP_INIT_STR(dev, device*);
+KHASH_MAP_INIT_STR(dev, device_s*);
 
 typedef struct device_map_s
 {
@@ -23,7 +23,7 @@ device_map_destroy(device_map_s** d_p)
     *d_p = NULL;
     for (khint_t k = kh_begin(dmap->h); k != kh_end(dmap->h); ++k) {
         if (kh_exist(dmap->h, k)) {
-            device* d = kh_val(dmap->h, k);
+            device_s* d = kh_val(dmap->h, k);
             device_destroy(&d);
         }
     }
@@ -31,7 +31,7 @@ device_map_destroy(device_map_s** d_p)
     linq_free(dmap);
 }
 
-device**
+device_s**
 device_map_insert(
     device_map_s* dmap,
     zsock_t** sock_p,
@@ -41,7 +41,7 @@ device_map_insert(
     const char* product)
 {
     int ret = 0;
-    device* d = device_create(sock_p, router, router_sz, serial, product);
+    device_s* d = device_create(sock_p, router, router_sz, serial, product);
     khiter_t k = kh_put(dev, dmap->h, device_serial(d), &ret);
     linq_assert(ret == 1); // If double insert we crash
     kh_val(dmap->h, k) = d;
@@ -52,7 +52,7 @@ uint32_t
 device_map_remove(device_map_s* dmap, const char* serial)
 {
     khiter_t k;
-    device* d;
+    device_s* d;
     uint32_t count = 0;
     if (!((k = kh_get(dev, dmap->h, serial)) == kh_end(dmap->h))) {
         d = kh_val(dmap->h, k);
@@ -63,7 +63,7 @@ device_map_remove(device_map_s* dmap, const char* serial)
     return count;
 }
 
-device**
+device_s**
 device_map_get(device_map_s* dmap, const char* serial)
 {
     khiter_t k;

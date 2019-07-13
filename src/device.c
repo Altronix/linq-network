@@ -1,6 +1,6 @@
 #include "device.h"
 
-typedef struct device
+typedef struct device_s
 {
     zsock_t** sock_p;
     router router;
@@ -9,9 +9,9 @@ typedef struct device
     uint32_t birth;
     uint32_t uptime;
     uint32_t last_seen;
-} device;
+} device_s;
 
-device*
+device_s*
 device_create(
     zsock_t** sock_p,
     const uint8_t* router,
@@ -19,9 +19,9 @@ device_create(
     const char* serial,
     const char* product)
 {
-    device* d = linq_malloc(sizeof(device));
+    device_s* d = linq_malloc(sizeof(device_s));
     linq_assert(d);
-    memset(d, 0, sizeof(device));
+    memset(d, 0, sizeof(device_s));
     d->sock_p = sock_p;
     d->birth = d->last_seen = sys_tick();
     device_update_router(d, router, router_sz);
@@ -31,53 +31,53 @@ device_create(
 }
 
 void
-device_destroy(device** d_p)
+device_destroy(device_s** d_p)
 {
-    device* d = *d_p;
-    memset(d, 0, sizeof(device));
+    device_s* d = *d_p;
+    memset(d, 0, sizeof(device_s));
     *d_p = NULL;
     linq_free(d);
 }
 
 void
-device_heartbeat(device* d)
+device_heartbeat(device_s* d)
 {
     d->last_seen = sys_tick();
 }
 
 const char*
-device_serial(device* d)
+device_serial(device_s* d)
 {
     return d->serial;
 }
 
 const char*
-device_product(device* d)
+device_product(device_s* d)
 {
     return d->product;
 }
 
 const router*
-device_router(device* d)
+device_router(device_s* d)
 {
     return &d->router;
 }
 
 void
-device_update_router(device* d, const uint8_t* rid, uint32_t sz)
+device_update_router(device_s* d, const uint8_t* rid, uint32_t sz)
 {
     memcpy(&d->router, rid, sz);
     d->router.sz = sz;
 }
 
 uint32_t
-device_last_seen(device* d)
+device_last_seen(device_s* d)
 {
     return d->last_seen;
 }
 
 uint32_t
-device_uptime(device* d)
+device_uptime(device_s* d)
 {
     return d->last_seen - d->birth;
 }

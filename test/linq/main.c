@@ -38,7 +38,7 @@ linq_on_error_fn(
 }
 
 static void
-linq_on_heartbeat_fn(void* pass, const char* serial, device** d)
+linq_on_heartbeat_fn(void* pass, const char* serial, device_s** d)
 {
     assert_string_equal(serial, expect_serial);
     assert_string_equal(device_serial(*d), expect_serial);
@@ -46,7 +46,7 @@ linq_on_heartbeat_fn(void* pass, const char* serial, device** d)
 }
 
 static void
-linq_on_alert_fn(void* pass, linq_alert* alert, linq_email* email, device** d)
+linq_on_alert_fn(void* pass, linq_alert* alert, linq_email* email, device_s** d)
 {
     assert_string_equal(device_serial(*d), expect_serial);
     assert_string_equal(alert->who, "TestUser");
@@ -128,7 +128,7 @@ test_linq_receive_heartbeat_ok(void** context_p)
 
     // Receive a heartbeat
     linq_poll(l);
-    device** d = linq_device(l, serial);
+    device_s** d = linq_device(l, serial);
     assert_non_null(d);
     assert_int_equal(linq_device_count(l), 1);
     assert_int_equal(device_router(*d)->sz, 4);

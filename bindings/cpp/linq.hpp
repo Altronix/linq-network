@@ -10,8 +10,8 @@
 namespace altronix {
 
 void on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
-void on_heartbeat_fn(void*, const char*, device**);
-void on_alert_fn(void*, linq_alert*, linq_email*, device**);
+void on_heartbeat_fn(void*, const char*, device_s**);
+void on_alert_fn(void*, linq_alert*, linq_email*, device_s**);
 
 using namespace std::placeholders;
 
@@ -33,20 +33,20 @@ class Linq
     }
 
     // get a device context with serial number
-    device** device_get(const char* str) { return linq_device(linq_, str); }
+    device_s** device_get(const char* str) { return linq_device(linq_, str); }
 
     // get number of devices connected to linq
     uint32_t device_count() { return linq_device_count(linq_); }
 
     // call function fn on every heartbeat
-    Linq& on_heartbeat(std::function<void(const char*, device**)> fn)
+    Linq& on_heartbeat(std::function<void(const char*, device_s**)> fn)
     {
         heartbeat_ = std::bind(fn, _1, _2);
         return *this;
     }
 
     // call function fn on every alert
-    Linq& on_alert(std::function<void(linq_alert*, linq_email*, device**)> fn)
+    Linq& on_alert(std::function<void(linq_alert*, linq_email*, device_s**)> fn)
     {
         alert_ = std::bind(fn, _1, _2, _3);
         return *this;
@@ -61,12 +61,12 @@ class Linq
     }
 
     friend void on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
-    friend void on_heartbeat_fn(void*, const char*, device**);
-    friend void on_alert_fn(void*, linq_alert*, linq_email*, device**);
+    friend void on_heartbeat_fn(void*, const char*, device_s**);
+    friend void on_alert_fn(void*, linq_alert*, linq_email*, device_s**);
 
   private:
-    std::function<void(const char*, device**)> heartbeat_;
-    std::function<void(linq_alert*, linq_email*, device**)> alert_;
+    std::function<void(const char*, device_s**)> heartbeat_;
+    std::function<void(linq_alert*, linq_email*, device_s**)> alert_;
     std::function<void(E_LINQ_ERROR, const char*, const char*)> error_;
     linq* linq_;
     linq_callbacks callbacks_ = { .err = on_error_fn,
@@ -82,14 +82,14 @@ on_error_fn(void* context, E_LINQ_ERROR e, const char* what, const char* serial)
 }
 
 void
-on_heartbeat_fn(void* context, const char* serial, device** d)
+on_heartbeat_fn(void* context, const char* serial, device_s** d)
 {
     Linq* l = (Linq*)context;
     if (l->heartbeat_) l->heartbeat_(serial, d);
 }
 
 void
-on_alert_fn(void* context, linq_alert* alert, linq_email* email, device** d)
+on_alert_fn(void* context, linq_alert* alert, linq_email* email, device_s** d)
 {
     Linq* l = (Linq*)context;
     l->alert_(alert, email, d);
