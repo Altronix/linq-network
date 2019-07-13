@@ -20,11 +20,11 @@ typedef int8_t version;
 // Types of protocol messages
 typedef enum
 {
-    heartbeat = 0,
-    request = 1,
-    response = 2,
-    alert = 3
-} type;
+    TYPE_HEARTBEAT = 0,
+    TYPE_REQUEST = 1,
+    TYPE_RESPONSE = 2,
+    TYPE_ALERT = 3
+} E_TYPE;
 
 // parse a token from a json string inside a frame
 static uint32_t
@@ -303,11 +303,11 @@ process_packet(linq_s* l, zmsg_t** msg, zframe_t** frames)
         (frames[FRAME_VER_IDX] = pop_eq(*msg, 1)) &&
         (frames[FRAME_TYP_IDX] = pop_eq(*msg, 1)) &&
         (frames[FRAME_SID_IDX] = pop_le(*msg, SID_LEN))) {
-        switch ((type)zframe_data(frames[FRAME_TYP_IDX])[0]) {
-            case heartbeat: e = process_heartbeat(l, msg, frames); break;
-            case request: break;
-            case response: break;
-            case alert: e = process_alert(l, msg, frames); break;
+        switch ((E_TYPE)zframe_data(frames[FRAME_TYP_IDX])[0]) {
+            case TYPE_HEARTBEAT: e = process_heartbeat(l, msg, frames); break;
+            case TYPE_REQUEST: break;
+            case TYPE_RESPONSE: break;
+            case TYPE_ALERT: e = process_alert(l, msg, frames); break;
         }
     }
     return e;
