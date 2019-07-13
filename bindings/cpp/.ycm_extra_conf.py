@@ -63,9 +63,7 @@ flags = [
 
 # includes
 '-isystem',
-'/usr/include',
-'-isystem',
-'/usr/local/include',
+get_python_inc(),
 
 # includes 
 '-I../../external/czmq/include',
