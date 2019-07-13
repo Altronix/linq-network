@@ -39,6 +39,7 @@ test_request_insert(void** context_p)
     request_s* r0 = request_create("sid0", "0", "0", test_request_complete_fn);
     request_s* r1 = request_create("sid1", "1", "1", test_request_complete_fn);
     request_s* r2 = request_create("sid2", "2", "2", test_request_complete_fn);
+    request_s* no = NULL;
     request_list_s* requests = request_list_create();
     assert_int_equal(request_list_size(requests), 0);
 
@@ -67,6 +68,10 @@ test_request_insert(void** context_p)
     r2 = request_list_pop(requests);
     assert_non_null(r2);
     assert_string_equal(request_serial_get(r2), "sid2");
+    assert_int_equal(request_list_size(requests), 0);
+
+    no = request_list_pop(requests);
+    assert_null(no);
     assert_int_equal(request_list_size(requests), 0);
 
     request_destroy(&r0);
