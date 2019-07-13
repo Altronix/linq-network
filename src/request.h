@@ -27,10 +27,13 @@ extern "C"
         const char* json,
         uint32_t jlen,
         linq_request_complete_fn fn);
+    void request_destroy(request_s** r_p);
 
     request_list_s* request_list_create();
     void request_list_destroy(request_list_s** list_p);
     void request_list_push(request_list_s* list, request_s** r_p);
+    request_s* request_list_pop(request_list_s* list);
+    uint32_t request_list_size(request_list_s* list);
 
 #ifdef __cplusplus
 }
