@@ -10,6 +10,12 @@
 // project includes
 #include "altronix/linq.h"
 
+// [router, version, type, serial]
+// [router, version, type, serial, product, siteId]      = HEARTBEAT
+// [router, version, type, serial, product, alert, mail] = ALERT
+// [router, version, type, serial, path [, data] ]       = REQUEST
+// [router, version, type, serial, error, data]          = RESPONSE
+
 #define RID_LEN 256
 #define SID_LEN 64
 #define PID_LEN 64
@@ -31,9 +37,13 @@
 #define FRAME_ALERT_DAT_IDX 5
 #define FRAME_ALERT_DST_IDX 6
 
+// Request IDX
+#define FRAME_REQ_PATH_IDX 4
+#define FRAME_REQ_DATA_IDX 5
+
 // Response IDX
-#define FRAME_RESP_ERR_IDX 4
-#define FRAME_RESP_DAT_IDX 5
+#define FRAME_RES_ERR_IDX 4
+#define FRAME_RES_DAT_IDX 5
 
 typedef struct
 {

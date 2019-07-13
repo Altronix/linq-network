@@ -6,8 +6,7 @@
 typedef struct request_s
 {
     linq_request_complete_fn on_complete;
-    int n;
-    zframe_t* frames[];
+    zframe_t* frames[FRAME_REQ_DATA_IDX + 1];
 } request_s;
 
 void request_destroy(request_s** r_p);
@@ -15,7 +14,7 @@ void request_destroy(request_s** r_p);
 static inline void
 request_free_fn(request_s* r)
 {
-    request_destroy(&r);
+    if (r) request_destroy(&r);
 }
 
 #define REQUEST_FREE_FN(x) request_free_fn(x->data)
@@ -23,15 +22,59 @@ request_free_fn(request_s* r)
 KLIST_INIT(requests, request_s*, REQUEST_FREE_FN);
 
 request_s*
-request_create()
+request_create(
+    const char* serial,
+    const char* path,
+    const char* json,
+    linq_request_complete_fn on_complete)
 {
-    return NULL;
+    return request_create_mem(
+        serial,
+        strlen(serial),
+        path,
+        strlen(path),
+        json,
+        strlen(json),
+        on_complete);
+}
+
+request_s*
+request_create_mem(
+    const char* s,
+    uint32_t slen,
+    const char* p,
+    uint32_t plen,
+    const char* d,
+    uint32_t dlen,
+    linq_request_complete_fn fn)
+{
+    request_s* r = linq_malloc(sizeof(request_s));
+    if (r) {
+        memset(r, 0, sizeof(request_s));
+        r->on_complete = fn;
+        r->frames[FRAME_VER_IDX] = zframe_new("\0", 1);
+        r->frames[FRAME_TYP_IDX] = zframe_new("\1", 1);
+        r->frames[FRAME_SID_IDX] = zframe_new(s, slen);
+        r->frames[FRAME_REQ_PATH_IDX] = zframe_new(p, plen);
+        r->frames[FRAME_REQ_DATA_IDX] = d && dlen ? zframe_new(d, dlen) : NULL;
+        if (!(r->frames[FRAME_VER_IDX] && r->frames[FRAME_TYP_IDX] &&
+              r->frames[FRAME_SID_IDX] && r->frames[FRAME_REQ_PATH_IDX] &&
+              r->frames[FRAME_REQ_DATA_IDX])) {
+            request_destroy(&r);
+        }
+    }
+    return r;
 }
 
 void
 request_destroy(request_s** r_p)
 {
-    ((void)r_p);
+    request_s* r = *r_p;
+    *r_p = NULL;
+    for (uint32_t i = 0; i < (sizeof(r->frames) / sizeof(zframe_t*)); i++) {
+        if (r->frames[i]) zframe_destroy(&r->frames[i]);
+    }
+    linq_free(r);
 }
 
 typedef struct request_list_s
