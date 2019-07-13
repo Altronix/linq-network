@@ -26,7 +26,11 @@ class Linq
     e_linq_error listen(const char* str) { return linq_listen(linq_, str); }
 
     // process io
-    void poll() { linq_poll(linq_); }
+    Linq& poll()
+    {
+        linq_poll(linq_);
+        return *this;
+    }
 
     // get a device context with serial number
     device** device_get(const char* str) { return linq_device(linq_, str); }
