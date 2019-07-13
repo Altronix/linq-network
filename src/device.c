@@ -3,7 +3,7 @@
 typedef struct device_s
 {
     zsock_t** sock_p;
-    router router;
+    router_s router;
     char serial[64];
     char product[64];
     uint32_t birth;
@@ -57,7 +57,7 @@ device_product(device_s* d)
     return d->product;
 }
 
-const router*
+const router_s*
 device_router(device_s* d)
 {
     return &d->router;

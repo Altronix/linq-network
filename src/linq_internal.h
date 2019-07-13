@@ -39,7 +39,7 @@ typedef struct
 {
     uint8_t id[256];
     uint32_t sz;
-} router;
+} router_s;
 
 #ifdef __cplusplus
 extern "C"

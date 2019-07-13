@@ -24,9 +24,9 @@ test_device_map_insert(void** context_p)
 
     device_map_s* m = device_map_create();
     device_s** d;
-    router rid0 = { "router0", 7 };
-    router rid1 = { "router1", 7 };
-    router rid2 = { "router2", 7 };
+    router_s rid0 = { "router0", 7 };
+    router_s rid1 = { "router1", 7 };
+    router_s rid2 = { "router2", 7 };
     zsock_t* sock = NULL;
 
     assert_int_equal(device_map_size(m), 0);
