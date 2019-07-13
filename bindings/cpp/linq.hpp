@@ -11,7 +11,7 @@ namespace altronix {
 
 void on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
 void on_heartbeat_fn(void*, const char*, device_s**);
-void on_alert_fn(void*, linq_alert*, linq_email*, device_s**);
+void on_alert_fn(void*, linq_alert_s*, linq_email_s*, device_s**);
 
 using namespace std::placeholders;
 
@@ -46,7 +46,8 @@ class Linq
     }
 
     // call function fn on every alert
-    Linq& on_alert(std::function<void(linq_alert*, linq_email*, device_s**)> fn)
+    Linq& on_alert(
+        std::function<void(linq_alert_s*, linq_email_s*, device_s**)> fn)
     {
         alert_ = std::bind(fn, _1, _2, _3);
         return *this;
@@ -62,11 +63,11 @@ class Linq
 
     friend void on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
     friend void on_heartbeat_fn(void*, const char*, device_s**);
-    friend void on_alert_fn(void*, linq_alert*, linq_email*, device_s**);
+    friend void on_alert_fn(void*, linq_alert_s*, linq_email_s*, device_s**);
 
   private:
     std::function<void(const char*, device_s**)> heartbeat_;
-    std::function<void(linq_alert*, linq_email*, device_s**)> alert_;
+    std::function<void(linq_alert_s*, linq_email_s*, device_s**)> alert_;
     std::function<void(E_LINQ_ERROR, const char*, const char*)> error_;
     linq_s* linq_;
     linq_callbacks callbacks_ = { .err = on_error_fn,
@@ -89,7 +90,11 @@ on_heartbeat_fn(void* context, const char* serial, device_s** d)
 }
 
 void
-on_alert_fn(void* context, linq_alert* alert, linq_email* email, device_s** d)
+on_alert_fn(
+    void* context,
+    linq_alert_s* alert,
+    linq_email_s* email,
+    device_s** d)
 {
     Linq* l = (Linq*)context;
     l->alert_(alert, email, d);

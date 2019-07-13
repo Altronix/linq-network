@@ -114,9 +114,9 @@ pop_le(zmsg_t* msg, uint32_t le)
 
 // read incoming zmq frame and test valid json
 static zframe_t*
-pop_alert(zmsg_t* msg, linq_alert* alert)
+pop_alert(zmsg_t* msg, linq_alert_s* alert)
 {
-    memset(alert, 0, sizeof(linq_alert));
+    memset(alert, 0, sizeof(linq_alert_s));
     int r, count;
     zframe_t* f = pop_le(msg, 1024);
     jsmntok_t t[30], *tokens = t;
@@ -144,9 +144,9 @@ pop_alert(zmsg_t* msg, linq_alert* alert)
 }
 
 static zframe_t*
-pop_email(zmsg_t* msg, linq_email* emails)
+pop_email(zmsg_t* msg, linq_email_s* emails)
 {
-    memset(emails, 0, sizeof(linq_email));
+    memset(emails, 0, sizeof(linq_email_s));
     int r, count;
     zframe_t* f = pop_le(msg, 1024);
     jsmntok_t t[30], *tokens = t;
@@ -193,7 +193,7 @@ on_heartbeat(linq_s* l, device_s** d)
 
 // When we receive an alert, call the alert callback
 static void
-on_alert(linq_s* l, device_s** d, linq_alert* alert, linq_email* email)
+on_alert(linq_s* l, device_s** d, linq_alert_s* alert, linq_email_s* email)
 {
     if (l->callbacks && l->callbacks->alert) {
         l->callbacks->alert(l->context, alert, email, d);
@@ -259,8 +259,8 @@ static E_LINQ_ERROR
 process_alert(linq_s* l, zmsg_t** msg, zframe_t** frames)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
-    linq_alert alert;
-    linq_email email;
+    linq_alert_s alert;
+    linq_email_s email;
     if (zmsg_size(*msg) == 3 &&
         (frames[FRAME_ALERT_PID_IDX] = pop_le(*msg, PID_LEN)) &&
         (frames[FRAME_ALERT_DAT_IDX] = pop_alert(*msg, &alert)) &&

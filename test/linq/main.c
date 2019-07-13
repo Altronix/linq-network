@@ -46,7 +46,11 @@ linq_on_heartbeat_fn(void* pass, const char* serial, device_s** d)
 }
 
 static void
-linq_on_alert_fn(void* pass, linq_alert* alert, linq_email* email, device_s** d)
+linq_on_alert_fn(
+    void* pass,
+    linq_alert_s* alert,
+    linq_email_s* email,
+    device_s** d)
 {
     assert_string_equal(device_serial(*d), expect_serial);
     assert_string_equal(alert->who, "TestUser");

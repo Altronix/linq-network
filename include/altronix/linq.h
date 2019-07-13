@@ -20,7 +20,7 @@ extern "C"
         LINQ_ERROR_PROTOCOL = -3
     } E_LINQ_ERROR;
 
-    typedef struct linq_alert
+    typedef struct linq_alert_s
     {
         const char* who;
         const char* what;
@@ -28,9 +28,9 @@ extern "C"
         const char* when;
         const char* mesg;
         const char* email[5];
-    } linq_alert;
+    } linq_alert_s;
 
-    typedef struct linq_email
+    typedef struct linq_email_s
     {
         const char* to0;
         const char* to1;
@@ -44,12 +44,13 @@ extern "C"
         const char* server;
         const char* port;
         const char* device;
-    } linq_email;
+    } linq_email_s;
 
     typedef void (
         *linq_error_fn)(void*, E_LINQ_ERROR, const char*, const char*);
     typedef void (*linq_heartbeat_fn)(void*, const char*, device_s**);
-    typedef void (*linq_alert_fn)(void*, linq_alert*, linq_email*, device_s**);
+    typedef void (
+        *linq_alert_fn)(void*, linq_alert_s*, linq_email_s*, device_s**);
     typedef struct linq_callbacks
     {
         linq_error_fn err;

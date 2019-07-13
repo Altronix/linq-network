@@ -21,7 +21,7 @@ on_error(void* count, E_LINQ_ERROR e, const char* what, const char* serial)
 }
 
 static void
-on_alert(void* count, linq_alert* alert, linq_email* mail, device_s** d)
+on_alert(void* count, linq_alert_s* alert, linq_email_s* mail, device_s** d)
 {
     (*(uint32_t*)count)++;
     received_alert = true;
