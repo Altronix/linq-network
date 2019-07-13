@@ -46,7 +46,8 @@ extern "C"
         const char* device;
     } linq_email;
 
-    typedef void (*linq_error_fn)(void*, int, const char*, const char*);
+    typedef void (
+        *linq_error_fn)(void*, e_linq_error, const char*, const char*);
     typedef void (*linq_heartbeat_fn)(void*, const char*, device**);
     typedef void (*linq_alert_fn)(void*, linq_alert*, linq_email*, device**);
     typedef struct linq_callbacks
