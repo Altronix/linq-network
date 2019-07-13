@@ -9,7 +9,7 @@
 
 namespace altronix {
 
-void on_error_fn(void*, e_linq_error, const char*, const char*);
+void on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
 void on_heartbeat_fn(void*, const char*, device**);
 void on_alert_fn(void*, linq_alert*, linq_email*, device**);
 
@@ -23,7 +23,7 @@ class Linq
     ~Linq() { linq_destroy(&linq_); }
 
     // open up port for device conections
-    e_linq_error listen(const char* str) { return linq_listen(linq_, str); }
+    E_LINQ_ERROR listen(const char* str) { return linq_listen(linq_, str); }
 
     // process io
     Linq& poll()
@@ -54,20 +54,20 @@ class Linq
 
     // call function fn on every error
     Linq& on_error(
-        std::function<void(e_linq_error, const char*, const char*)> fn)
+        std::function<void(E_LINQ_ERROR, const char*, const char*)> fn)
     {
         error_ = std::bind(fn, _1, _2, _3);
         return *this;
     }
 
-    friend void on_error_fn(void*, e_linq_error, const char*, const char*);
+    friend void on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
     friend void on_heartbeat_fn(void*, const char*, device**);
     friend void on_alert_fn(void*, linq_alert*, linq_email*, device**);
 
   private:
     std::function<void(const char*, device**)> heartbeat_;
     std::function<void(linq_alert*, linq_email*, device**)> alert_;
-    std::function<void(e_linq_error, const char*, const char*)> error_;
+    std::function<void(E_LINQ_ERROR, const char*, const char*)> error_;
     linq* linq_;
     linq_callbacks callbacks_ = { .err = on_error_fn,
                                   .hb = on_heartbeat_fn,
@@ -75,7 +75,7 @@ class Linq
 };
 
 void
-on_error_fn(void* context, e_linq_error e, const char* what, const char* serial)
+on_error_fn(void* context, E_LINQ_ERROR e, const char* what, const char* serial)
 {
     Linq* l = (Linq*)context;
     l->error_(e, what, serial);

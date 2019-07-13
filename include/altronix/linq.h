@@ -14,11 +14,11 @@ extern "C"
 
     typedef enum
     {
-        e_linq_ok = 0,
-        e_linq_oom = -1,
-        e_linq_bad_args = -2,
-        e_linq_protocol = -3
-    } e_linq_error;
+        LINQ_ERROR_OK = 0,
+        LINQ_ERROR_OOM = -1,
+        LINQ_ERROR_BAD_ARGS = -2,
+        LINQ_ERROR_PROTOCOL = -3
+    } E_LINQ_ERROR;
 
     typedef struct linq_alert
     {
@@ -47,7 +47,7 @@ extern "C"
     } linq_email;
 
     typedef void (
-        *linq_error_fn)(void*, e_linq_error, const char*, const char*);
+        *linq_error_fn)(void*, E_LINQ_ERROR, const char*, const char*);
     typedef void (*linq_heartbeat_fn)(void*, const char*, device**);
     typedef void (*linq_alert_fn)(void*, linq_alert*, linq_email*, device**);
     typedef struct linq_callbacks
@@ -59,8 +59,8 @@ extern "C"
 
     linq* linq_create(linq_callbacks*, void*);
     void linq_destroy(linq**);
-    e_linq_error linq_listen(linq*, const char* ep);
-    e_linq_error linq_poll(linq* l);
+    E_LINQ_ERROR linq_listen(linq*, const char* ep);
+    E_LINQ_ERROR linq_poll(linq* l);
     device** linq_device(linq*, const char*);
     uint32_t linq_device_count(linq*);
 

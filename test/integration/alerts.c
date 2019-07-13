@@ -11,7 +11,7 @@ static bool received_new_device = false;
 static bool received_alert = false;
 
 static void
-on_error(void* count, e_linq_error e, const char* what, const char* serial)
+on_error(void* count, E_LINQ_ERROR e, const char* what, const char* serial)
 {
     (*(int*)count)++;
     ((void)e);

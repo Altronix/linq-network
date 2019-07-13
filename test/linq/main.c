@@ -9,7 +9,7 @@
 #include <cmocka.h>
 #include <setjmp.h>
 
-static e_linq_error expect_error = e_linq_ok;
+static E_LINQ_ERROR expect_error = LINQ_ERROR_OK;
 static const char* empty = "";
 static const char* expect_what = "";
 static const char* expect_serial = "";
@@ -17,7 +17,7 @@ static const char* expect_serial = "";
 static void
 test_reset()
 {
-    expect_error = e_linq_ok;
+    expect_error = LINQ_ERROR_OK;
     expect_what = empty;
     expect_serial = empty;
     czmq_spy_mesg_reset();
@@ -27,7 +27,7 @@ test_reset()
 static void
 linq_on_error_fn(
     void* pass,
-    e_linq_error e,
+    E_LINQ_ERROR e,
     const char* what,
     const char* serial)
 {
@@ -84,7 +84,7 @@ test_linq_receive_protocol_error_short(void** context_p)
     linq* l = linq_create(&callbacks, (void*)&pass);
     zmsg_t* m = helpers_create_message_str(2, "too", "short");
 
-    expect_error = e_linq_protocol;
+    expect_error = LINQ_ERROR_PROTOCOL;
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_push_incoming(true);
 
@@ -163,7 +163,7 @@ test_linq_receive_heartbeat_error_short(void** context_p)
     zmsg_t* m = helpers_create_message_mem(
         4, "router", 6, "\x0", 1, "\x0", 1, "product", 7);
 
-    expect_error = e_linq_protocol;
+    expect_error = LINQ_ERROR_PROTOCOL;
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_push_incoming(true);
 

@@ -175,7 +175,7 @@ pop_email(zmsg_t* msg, linq_email* emails)
 
 // when we detect an error call the error callback
 static void
-on_error(linq* l, e_linq_error e, const char* serial)
+on_error(linq* l, E_LINQ_ERROR e, const char* serial)
 {
     if (l->callbacks && l->callbacks->err) {
         l->callbacks->err(l->context, e, "", serial);
@@ -235,30 +235,30 @@ device_resolve(linq* l, device_map* devices, zframe_t** frames, bool hb)
 }
 
 // check the zmq request frames are valid and process the request
-static e_linq_error
+static E_LINQ_ERROR
 process_request(linq* l, zframe_t** frames)
 {
-    e_linq_error e = e_linq_protocol;
+    E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     ((void)l);
     ((void)frames);
     return e;
 }
 
 // check the zmq response frames are valid and process the response
-static e_linq_error
+static E_LINQ_ERROR
 process_response(linq* l, zframe_t** frames)
 {
-    e_linq_error e = e_linq_protocol;
+    E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     ((void)l);
     ((void)frames);
     return e;
 }
 
 // check the zmq alert frames are valid and process the alert
-static e_linq_error
+static E_LINQ_ERROR
 process_alert(linq* l, zmsg_t** msg, zframe_t** frames)
 {
-    e_linq_error e = e_linq_protocol;
+    E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     linq_alert alert;
     linq_email email;
     if (zmsg_size(*msg) == 3 &&
@@ -268,7 +268,7 @@ process_alert(linq* l, zmsg_t** msg, zframe_t** frames)
         device** d = device_resolve(l, l->devices, frames, false);
         if (d) {
             on_alert(l, d, &alert, &email);
-            e = e_linq_ok;
+            e = LINQ_ERROR_OK;
         }
     }
 
@@ -276,27 +276,27 @@ process_alert(linq* l, zmsg_t** msg, zframe_t** frames)
 }
 
 // check the zmq heartbeat frames are valid and process the heartbeat
-static e_linq_error
+static E_LINQ_ERROR
 process_heartbeat(linq* l, zmsg_t** msg, zframe_t** frames)
 {
-    e_linq_error e = e_linq_protocol;
+    E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     if (zmsg_size(*msg) == 2 &&
         (frames[FRAME_HB_PID_IDX] = pop_le(*msg, PID_LEN)) &&
         (frames[FRAME_HB_SITE_IDX] = pop_le(*msg, SITE_LEN))) {
         device** d = device_resolve(l, l->devices, frames, true);
         if (d) {
             on_heartbeat(l, d);
-            e = e_linq_ok;
+            e = LINQ_ERROR_OK;
         }
     }
     return e;
 }
 
 // check the zmq header frames are valid and process the packet
-static e_linq_error
+static E_LINQ_ERROR
 process_packet(linq* l, zmsg_t** msg, zframe_t** frames)
 {
-    e_linq_error e = e_linq_protocol;
+    E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     *msg = zmsg_recv(l->sock);
     if (*msg && zmsg_size(*msg) >= 4 &&
         (frames[FRAME_RID_IDX] = pop_le(*msg, RID_LEN)) &&
@@ -314,14 +314,14 @@ process_packet(linq* l, zmsg_t** msg, zframe_t** frames)
 }
 
 // read zmq messages
-static e_linq_error
+static E_LINQ_ERROR
 process_incoming(linq* l)
 {
     int n = 0;
     zframe_t* frames[FRAME_MAX + 1];
     memset(frames, 0, sizeof(frames));
     zmsg_t* msg;
-    e_linq_error e = process_packet(l, &msg, frames);
+    E_LINQ_ERROR e = process_packet(l, &msg, frames);
     if (e) on_error(l, e, "");
     zmsg_destroy(&msg);
     while (frames[n]) zframe_destroy(&frames[n++]);
@@ -354,16 +354,16 @@ linq_destroy(linq** linq_p)
 }
 
 // Listen for incoming device connections on "endpoint"
-e_linq_error
+E_LINQ_ERROR
 linq_listen(linq* l, const char* ep)
 {
-    if (l->sock) return e_linq_bad_args;
+    if (l->sock) return LINQ_ERROR_BAD_ARGS;
     l->sock = zsock_new_router(ep);
-    return l->sock ? e_linq_ok : e_linq_bad_args;
+    return l->sock ? LINQ_ERROR_OK : LINQ_ERROR_BAD_ARGS;
 }
 
 // poll network socket file handles
-e_linq_error
+E_LINQ_ERROR
 linq_poll(linq* l)
 {
     int err;
