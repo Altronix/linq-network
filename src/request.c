@@ -5,6 +5,7 @@
 
 typedef struct request_s
 {
+    linq_request_complete_fn on_complete;
     int n;
     zframe_t* frames[];
 } request_s;

@@ -11,6 +11,7 @@ extern "C"
 {
 #endif
 
+    typedef struct request_s request_s;
     typedef struct request_list_s request_list_s;
     request_list_s* request_list_create();
     void request_list_destroy(request_list_s** list_p);

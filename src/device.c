@@ -1,4 +1,5 @@
 #include "device.h"
+#include "request.h"
 
 typedef struct device_s
 {
@@ -39,12 +40,6 @@ device_destroy(device_s** d_p)
     linq_free(d);
 }
 
-void
-device_heartbeat(device_s* d)
-{
-    d->last_seen = sys_tick();
-}
-
 const char*
 device_serial(device_s* d)
 {
@@ -80,5 +75,46 @@ uint32_t
 device_uptime(device_s* d)
 {
     return d->last_seen - d->birth;
+}
+
+void
+device_heartbeat(device_s* d)
+{
+    d->last_seen = sys_tick();
+}
+
+void
+device_send(request_s* r)
+{
+    ((void)r);
+    // TODO
+}
+
+void
+device_send_delete(const char* path, linq_request_complete_fn fn)
+{
+    ((void)path);
+    ((void)fn);
+    // TODO
+}
+
+void
+device_send_get(const char* path, linq_request_complete_fn fn)
+{
+    ((void)path);
+    ((void)fn);
+    // TODO
+}
+
+void
+device_send_post(
+    const char* path,
+    const char* json,
+    linq_request_complete_fn fn)
+{
+    ((void)path);
+    ((void)json);
+    ((void)fn);
+    // TODO
 }
 

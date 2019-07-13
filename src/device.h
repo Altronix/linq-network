@@ -4,6 +4,7 @@
 // includes
 #include "czmq.h"
 #include "linq_internal.h"
+#include "request.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -24,6 +25,10 @@ extern "C"
     uint32_t device_last_seen(device_s* d);
     uint32_t device_uptime(device_s* d);
     void device_heartbeat(device_s* d);
+    void device_send(request_s*);
+    void device_send_delete(const char*, linq_request_complete_fn);
+    void device_send_get(const char*, linq_request_complete_fn);
+    void device_send_post(const char*, const char*, linq_request_complete_fn);
 
 #ifdef __cplusplus
 }

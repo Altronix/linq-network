@@ -29,9 +29,7 @@ main(int argc, char* argv[])
     ((void)argv);
     int err;
     const struct CMUnitTest tests[] = { cmocka_unit_test(test_request_create),
-                                        cmocka_unit_test(test_request_insert)
-
-    };
+                                        cmocka_unit_test(test_request_insert) };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
     return err;
