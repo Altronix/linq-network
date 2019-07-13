@@ -28,6 +28,8 @@ extern "C"
         uint32_t jlen,
         linq_request_complete_fn fn);
     void request_destroy(request_s** r_p);
+    void request_router_id_set(request_s*, uint8_t*, uint32_t);
+    const char* request_serial_get(request_s*);
 
     request_list_s* request_list_create();
     void request_list_destroy(request_list_s** list_p);

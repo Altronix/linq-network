@@ -15,7 +15,6 @@ static inline void
 request_free_fn(request_s* r)
 {
     ((void)r);
-    // if (r) request_destroy(&r);
 }
 
 #define REQUEST_FREE_FN(x) request_free_fn(x->data)
@@ -76,6 +75,19 @@ request_destroy(request_s** r_p)
         if (r->frames[i]) zframe_destroy(&r->frames[i]);
     }
     linq_free(r);
+}
+
+void
+request_router_id_set(request_s* r, uint8_t* rid, uint32_t rid_len)
+{
+    r->frames[FRAME_RID_IDX] = zframe_new(rid, rid_len);
+    linq_assert(r->frames[FRAME_RID_IDX]);
+}
+
+const char*
+request_serial_get(request_s* r)
+{
+    return (char*)zframe_data(r->frames[FRAME_SID_IDX]);
 }
 
 typedef struct request_list_s
