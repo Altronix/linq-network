@@ -64,7 +64,6 @@ class Linq
     std::function<void(const char*, device**)> heartbeat_;
     std::function<void(linq_alert*, linq_email*, device**)> alert_;
     std::function<void(e_linq_error, const char*, const char*)> error_;
-
     linq* linq_;
     linq_callbacks callbacks_ = { .err = on_error_fn,
                                   .hb = on_heartbeat_fn,
