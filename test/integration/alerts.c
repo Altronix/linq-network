@@ -56,7 +56,7 @@ main(int argc, char* argv[])
     fixture_context* fixture = fixture_create(32820);
     if (!fixture) return -1;
 
-    linq* linq = linq_create(&callbacks, &count);
+    linq_s* linq = linq_create(&callbacks, &count);
     err = linq_listen(linq, "tcp://127.0.0.1:32820");
     if (err) {
         printf("%s", "[S] Listen Failure!\n");

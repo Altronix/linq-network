@@ -70,7 +70,7 @@ static void
 test_linq_create(void** context_p)
 {
     ((void)context_p);
-    linq* l = linq_create(NULL, NULL);
+    linq_s* l = linq_create(NULL, NULL);
     assert_non_null(l);
     linq_destroy(&l);
     assert_null(l);
@@ -81,7 +81,7 @@ test_linq_receive_protocol_error_short(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
-    linq* l = linq_create(&callbacks, (void*)&pass);
+    linq_s* l = linq_create(&callbacks, (void*)&pass);
     zmsg_t* m = helpers_create_message_str(2, "too", "short");
 
     expect_error = LINQ_ERROR_PROTOCOL;
@@ -116,7 +116,7 @@ test_linq_receive_heartbeat_ok(void** context_p)
     ((void)context_p);
     bool pass = false;
     const char* serial = expect_serial = "serial";
-    linq* l = linq_create(&callbacks, (void*)&pass);
+    linq_s* l = linq_create(&callbacks, (void*)&pass);
     zmsg_t* hb0 = helpers_make_heartbeat("rid0", serial, "product", "site");
     zmsg_t* hb1 = helpers_make_heartbeat("rid00", serial, "product", "site");
 
@@ -159,7 +159,7 @@ test_linq_receive_heartbeat_error_short(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
-    linq* l = linq_create(&callbacks, (void*)&pass);
+    linq_s* l = linq_create(&callbacks, (void*)&pass);
     zmsg_t* m = helpers_create_message_mem(
         4, "router", 6, "\x0", 1, "\x0", 1, "product", 7);
 
@@ -181,7 +181,7 @@ test_linq_receive_alert_ok(void** context_p)
     ((void)context_p);
     bool pass = false;
     const char* sid = expect_serial = "sid";
-    linq* l = linq_create(&callbacks, (void*)&pass);
+    linq_s* l = linq_create(&callbacks, (void*)&pass);
     zmsg_t* hb = helpers_make_heartbeat("rid", sid, "pid", "site");
     zmsg_t* alert = helpers_make_alert("rid", sid, "pid");
 

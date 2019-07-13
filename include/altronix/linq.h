@@ -9,8 +9,8 @@ extern "C"
 #endif
 
     typedef struct device_s device_s;
-    typedef struct devices devices;
-    typedef struct linq linq;
+    typedef struct devices_s devices_s;
+    typedef struct linq_s linq_s;
 
     typedef enum
     {
@@ -57,12 +57,12 @@ extern "C"
         linq_alert_fn alert;
     } linq_callbacks;
 
-    linq* linq_create(linq_callbacks*, void*);
-    void linq_destroy(linq**);
-    E_LINQ_ERROR linq_listen(linq*, const char* ep);
-    E_LINQ_ERROR linq_poll(linq* l);
-    device_s** linq_device(linq*, const char*);
-    uint32_t linq_device_count(linq*);
+    linq_s* linq_create(linq_callbacks*, void*);
+    void linq_destroy(linq_s**);
+    E_LINQ_ERROR linq_listen(linq_s*, const char* ep);
+    E_LINQ_ERROR linq_poll(linq_s* l);
+    device_s** linq_device(linq_s*, const char*);
+    uint32_t linq_device_count(linq_s*);
 
 #ifdef __cplusplus
 }
