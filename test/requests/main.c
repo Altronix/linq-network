@@ -18,7 +18,10 @@ test_request_create(void** context_p)
 {
     ((void)context_p);
     request_s* request = request_create(
-        "sid", "/ATX/exe/save", "{\"save\":1}", test_request_complete_fn);
+        "sid",
+        "/ATX/network/zmtp/cloud/tls/enable",
+        "{\"enable\":1}",
+        test_request_complete_fn);
     request_list_s* requests = request_list_create();
     assert_non_null(requests);
     assert_non_null(request);
