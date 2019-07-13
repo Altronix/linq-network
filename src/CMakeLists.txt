@@ -2,14 +2,14 @@ set(sources
 	linq.c
 	device.c
 	device_map.c
-	device_request.c
+	request.c
 	jsmn.c)
 set(headers 
 	../include/altronix/linq.h
 	linq_internal.h
 	device.h
 	device_map.h
-	device_request.h)
+	request.h)
 
 set(linq_SOURCES ${sources})
 set(linq_HEADERS ${headers})
