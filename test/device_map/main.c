@@ -10,7 +10,7 @@ static void
 test_device_map_create(void** context_p)
 {
     ((void)context_p);
-    device_map* dm = device_map_create();
+    device_map_s* dm = device_map_create();
     assert_non_null(dm);
     device_map_insert(dm, NULL, (uint8_t*)"rid", 3, "test", "test");
     device_map_destroy(&dm);
@@ -22,7 +22,7 @@ test_device_map_insert(void** context_p)
 {
     ((void)context_p);
 
-    device_map* m = device_map_create();
+    device_map_s* m = device_map_create();
     device** d;
     router rid0 = { "router0", 7 };
     router rid1 = { "router1", 7 };

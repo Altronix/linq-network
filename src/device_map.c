@@ -3,23 +3,23 @@
 
 KHASH_MAP_INIT_STR(dev, device*);
 
-typedef struct device_map
+typedef struct device_map_s
 {
     kh_dev_t* h;
-} device_map;
+} device_map_s;
 
-device_map*
+device_map_s*
 device_map_create()
 {
-    device_map* d = linq_malloc(sizeof(device_map));
+    device_map_s* d = linq_malloc(sizeof(device_map_s));
     if (d) { d->h = kh_init(dev); }
     return d;
 }
 
 void
-device_map_destroy(device_map** d_p)
+device_map_destroy(device_map_s** d_p)
 {
-    device_map* dmap = *d_p;
+    device_map_s* dmap = *d_p;
     *d_p = NULL;
     for (khint_t k = kh_begin(dmap->h); k != kh_end(dmap->h); ++k) {
         if (kh_exist(dmap->h, k)) {
@@ -33,7 +33,7 @@ device_map_destroy(device_map** d_p)
 
 device**
 device_map_insert(
-    device_map* dmap,
+    device_map_s* dmap,
     zsock_t** sock_p,
     uint8_t* router,
     uint32_t router_sz,
@@ -49,7 +49,7 @@ device_map_insert(
 }
 
 uint32_t
-device_map_remove(device_map* dmap, const char* serial)
+device_map_remove(device_map_s* dmap, const char* serial)
 {
     khiter_t k;
     device* d;
@@ -64,7 +64,7 @@ device_map_remove(device_map* dmap, const char* serial)
 }
 
 device**
-device_map_get(device_map* dmap, const char* serial)
+device_map_get(device_map_s* dmap, const char* serial)
 {
     khiter_t k;
     return ((k = kh_get(dev, dmap->h, serial)) == kh_end(dmap->h))
@@ -73,7 +73,7 @@ device_map_get(device_map* dmap, const char* serial)
 }
 
 uint32_t
-device_map_size(device_map* map)
+device_map_size(device_map_s* map)
 {
     return kh_size(map->h);
 }

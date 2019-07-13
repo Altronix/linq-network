@@ -10,7 +10,7 @@ typedef struct linq
 {
     void* context;
     zsock_t* sock;
-    device_map* devices;
+    device_map_s* devices;
     linq_callbacks* callbacks;
 } linq;
 
@@ -215,7 +215,7 @@ print_null_terminated(char* c, uint32_t sz, zframe_t* f)
 
 // find a device in our device map and update the router id. insert device if hb
 static device**
-device_resolve(linq* l, device_map* devices, zframe_t** frames, bool hb)
+device_resolve(linq* l, device_map_s* devices, zframe_t** frames, bool hb)
 {
     uint32_t rid_sz = zframe_size(frames[FRAME_RID_IDX]);
     uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
