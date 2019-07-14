@@ -5,6 +5,22 @@
 #define JSMN_HEADER
 #include "jsmn/jsmn.h"
 
+#define exe_on_error(linq, error, serial)                                      \
+    do {                                                                       \
+        if (linq->callbacks && linq->callbacks->err)                           \
+            linq->callbacks->err(linq->context, error, "", serial);            \
+    } while (0)
+#define exe_on_heartbeat(linq, device_p)                                       \
+    do {                                                                       \
+        if (linq->callbacks && linq->callbacks->hb)                            \
+            linq->callbacks->hb(linq->context, device_serial(*device_p), d);   \
+    } while (0)
+#define exe_on_alert(linq, device_p, a, e)                                     \
+    do {                                                                       \
+        if (linq->callbacks && linq->callbacks->alert)                         \
+            linq->callbacks->alert(linq->context, a, e, device_p);             \
+    } while (0)
+
 // Main class
 typedef struct linq_s
 {
@@ -173,33 +189,7 @@ pop_email(zmsg_t* msg, linq_email_s* emails)
     return f;
 }
 
-// when we detect an error call the error callback
-static void
-on_error(linq_s* l, E_LINQ_ERROR e, const char* serial)
-{
-    if (l->callbacks && l->callbacks->err) {
-        l->callbacks->err(l->context, e, "", serial);
-    }
-}
-
-// when we receive a heartbeat call the heartbeat callback
-static void
-on_heartbeat(linq_s* l, device_s** d)
-{
-    if (l->callbacks && l->callbacks->hb) {
-        l->callbacks->hb(l->context, device_serial(*d), d);
-    }
-}
-
-// When we receive an alert, call the alert callback
-static void
-on_alert(linq_s* l, device_s** d, linq_alert_s* alert, linq_email_s* email)
-{
-    if (l->callbacks && l->callbacks->alert) {
-        l->callbacks->alert(l->context, alert, email, d);
-    }
-}
-
+// Write null terminated string into a frame data buffer
 static int
 print_null_terminated(char* c, uint32_t sz, zframe_t* f)
 {
@@ -267,7 +257,7 @@ process_alert(linq_s* l, zmsg_t** msg, zframe_t** frames)
         (frames[FRAME_ALERT_DST_IDX] = pop_email(*msg, &email))) {
         device_s** d = device_resolve(l, l->devices, frames, false);
         if (d) {
-            on_alert(l, d, &alert, &email);
+            exe_on_alert(l, d, &alert, &email);
             e = LINQ_ERROR_OK;
         }
     }
@@ -285,7 +275,7 @@ process_heartbeat(linq_s* l, zmsg_t** msg, zframe_t** frames)
         (frames[FRAME_HB_SITE_IDX] = pop_le(*msg, SITE_LEN))) {
         device_s** d = device_resolve(l, l->devices, frames, true);
         if (d) {
-            on_heartbeat(l, d);
+            exe_on_heartbeat(l, d);
             e = LINQ_ERROR_OK;
         }
     }
@@ -322,7 +312,7 @@ process_incoming(linq_s* l)
     memset(frames, 0, sizeof(frames));
     zmsg_t* msg;
     E_LINQ_ERROR e = process_packet(l, &msg, frames);
-    if (e) on_error(l, e, "");
+    if (e) exe_on_error(l, e, "");
     zmsg_destroy(&msg);
     while (frames[n]) zframe_destroy(&frames[n++]);
     return e;
