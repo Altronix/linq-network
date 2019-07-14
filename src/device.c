@@ -21,7 +21,7 @@ flush(device_s* d)
     request_s** r_p = &d->request_pending;
     *r_p = request_list_pop(d->requests);
     request_router_id_set(*r_p, d->router.id, d->router.sz);
-    if (request_send(d->request_pending, *d->sock_p) < 0) {
+    if (request_send(*r_p, *d->sock_p) < 0) {
         linq_request_complete_fn fn = request_on_complete_fn(*r_p);
         if (fn) fn(LINQ_ERROR_IO, NULL, &d);
         request_destroy(&d->request_pending);
