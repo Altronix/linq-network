@@ -40,6 +40,77 @@ test_device_create(void** context_p)
     assert_int_equal(device_request_pending_count(d), 5);
 
     device_destroy(&d);
+    assert_null(d);
+    test_reset();
+}
+
+static void
+test_device_send_get_no_prefix(void** context_p)
+{
+    ((void)context_p);
+    zsock_t* sock = NULL;
+    device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
+    zmsg_t* msg;
+    zframe_t *rid, *ver, *typ, *sid, *url;
+
+    device_send_get(d, "ATX/hardware", NULL);
+    msg = czmq_spy_mesg_pop_outgoing();
+    rid = zmsg_pop(msg);
+    ver = zmsg_pop(msg);
+    typ = zmsg_pop(msg);
+    sid = zmsg_pop(msg);
+    url = zmsg_pop(msg);
+    zmsg_destroy(&msg);
+
+    assert_string_equal(zframe_data(rid), "rid");
+    assert_string_equal(zframe_data(ver), "");
+    assert_string_equal(zframe_data(typ), "\x1");
+    assert_string_equal(zframe_data(sid), "sid");
+    assert_string_equal(zframe_data(url), "GET /ATX/hardware");
+    assert_int_equal(device_request_pending_count(d), 1);
+
+    zframe_destroy(&rid);
+    zframe_destroy(&ver);
+    zframe_destroy(&typ);
+    zframe_destroy(&sid);
+    zframe_destroy(&url);
+
+    device_destroy(&d);
+    test_reset();
+}
+
+static void
+test_device_send_get_with_prefix(void** context_p)
+{
+    ((void)context_p);
+    zsock_t* sock = NULL;
+    device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
+    zmsg_t* msg;
+    zframe_t *rid, *ver, *typ, *sid, *url;
+
+    device_send_get(d, "/ATX/hardware", NULL);
+    msg = czmq_spy_mesg_pop_outgoing();
+    rid = zmsg_pop(msg);
+    ver = zmsg_pop(msg);
+    typ = zmsg_pop(msg);
+    sid = zmsg_pop(msg);
+    url = zmsg_pop(msg);
+    zmsg_destroy(&msg);
+
+    assert_string_equal(zframe_data(rid), "rid");
+    assert_string_equal(zframe_data(ver), "");
+    assert_string_equal(zframe_data(typ), "\x1");
+    assert_string_equal(zframe_data(sid), "sid");
+    assert_string_equal(zframe_data(url), "GET /ATX/hardware");
+    assert_int_equal(device_request_pending_count(d), 1);
+
+    zframe_destroy(&rid);
+    zframe_destroy(&ver);
+    zframe_destroy(&typ);
+    zframe_destroy(&sid);
+    zframe_destroy(&url);
+
+    device_destroy(&d);
     test_reset();
 }
 
@@ -51,6 +122,8 @@ main(int argc, char* argv[])
     int err;
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_device_create),
+        cmocka_unit_test(test_device_send_get_no_prefix),
+        cmocka_unit_test(test_device_send_get_with_prefix),
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
