@@ -10,6 +10,7 @@ extern "C"
 
     typedef struct device_s device_s;
     typedef struct devices_s devices_s;
+    typedef struct request_s request_s;
     typedef struct linq_s linq_s;
 
     typedef enum
