@@ -23,23 +23,26 @@ KLIST_INIT(requests, request_s*, REQUEST_FREE_FN);
 
 request_s*
 request_create(
+    E_REQUEST_METHOD method,
     const char* serial,
     const char* path,
     const char* json,
     linq_request_complete_fn on_complete)
 {
     return request_create_mem(
+        method,
         serial,
         strlen(serial),
         path,
         strlen(path),
         json,
-        strlen(json),
+        json ? strlen(json) : 0,
         on_complete);
 }
 
 request_s*
 request_create_mem(
+    E_REQUEST_METHOD method,
     const char* s,
     uint32_t slen,
     const char* p,
@@ -48,6 +51,7 @@ request_create_mem(
     uint32_t dlen,
     linq_request_complete_fn fn)
 {
+    // TODO format path with method...
     request_s* r = linq_malloc(sizeof(request_s));
     if (r) {
         memset(r, 0, sizeof(request_s));

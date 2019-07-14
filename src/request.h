@@ -14,12 +14,21 @@ extern "C"
     typedef struct request_s request_s;
     typedef struct request_list_s request_list_s;
 
+    typedef enum E_REQUEST_METHOD
+    {
+        REQUEST_METHOD_GET,
+        REQUEST_METHOD_POST,
+        REQUEST_METHOD_DELETE
+    } E_REQUEST_METHOD;
+
     request_s* request_create(
+        E_REQUEST_METHOD method,
         const char* serial,
         const char* path,
         const char* json,
         linq_request_complete_fn fn);
     request_s* request_create_mem(
+        E_REQUEST_METHOD method,
         const char* serial,
         uint32_t slen,
         const char* path,

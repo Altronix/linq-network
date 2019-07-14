@@ -5,12 +5,20 @@ typedef struct device_s
 {
     zsock_t** sock_p;
     router_s router;
+    request_list_s* requests;
+    request_s* request_pending;
     char serial[64];
     char product[64];
     uint32_t birth;
     uint32_t uptime;
     uint32_t last_seen;
 } device_s;
+
+static void
+flush(device_s* d)
+{
+    ((void)d);
+}
 
 device_s*
 device_create(
@@ -24,6 +32,7 @@ device_create(
     linq_assert(d);
     memset(d, 0, sizeof(device_s));
     d->sock_p = sock_p;
+    d->requests = request_list_create();
     d->birth = d->last_seen = sys_tick();
     device_update_router(d, router, router_sz);
     snprintf(d->serial, sizeof(d->serial), "%s", serial);
@@ -35,6 +44,8 @@ void
 device_destroy(device_s** d_p)
 {
     device_s* d = *d_p;
+    request_list_destroy(&d->requests);
+    if (d->request_pending) request_destroy(&d->request_pending);
     memset(d, 0, sizeof(device_s));
     *d_p = NULL;
     linq_free(d);
@@ -84,34 +95,45 @@ device_heartbeat(device_s* d)
 }
 
 void
-device_send(request_s* r)
+device_send(device_s* d, request_s** r)
 {
-    ((void)r);
-    // TODO
+    request_list_push(d->requests, r);
+    if (!d->request_pending) flush(d);
 }
 
 void
-device_send_delete(const char* path, linq_request_complete_fn fn)
+device_send_delete(device_s* d, const char* path, linq_request_complete_fn fn)
 {
+    ((void)d);
     ((void)path);
     ((void)fn);
     // TODO
 }
 
 void
-device_send_get(const char* path, linq_request_complete_fn fn)
+device_send_get(device_s* d, const char* path, linq_request_complete_fn fn)
 {
-    ((void)path);
-    ((void)fn);
-    // TODO
+    request_s* r = request_create( //
+        REQUEST_METHOD_GET,
+        device_serial(d),
+        path,
+        NULL,
+        fn);
+    if (r) {
+        device_send(d, &r);
+    } else {
+        fn(LINQ_ERROR_OOM, NULL, &d);
+    }
 }
 
 void
 device_send_post(
+    device_s* d,
     const char* path,
     const char* json,
     linq_request_complete_fn fn)
 {
+    ((void)d);
     ((void)path);
     ((void)json);
     ((void)fn);
