@@ -40,6 +40,7 @@ test_device_create(void** context_p)
     assert_int_equal(device_request_pending_count(d), 5);
 
     device_destroy(&d);
+    test_reset();
 }
 
 int

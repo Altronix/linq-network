@@ -10,7 +10,6 @@ typedef struct request_s
     zframe_t* frames[FRAME_REQ_DATA_IDX + 1];
 } request_s;
 
-
 static zframe_t*
 write_path_to_frame(const char* method, const char* path, uint32_t path_len)
 {
@@ -145,10 +144,10 @@ request_send(request_s* r, zsock_t* sock)
     while (c < FRAME_REQ_DATA_IDX - 1) zmsg_prepend(msg, &r->frames[c++]);
     if (r->frames[c]) zmsg_prepend(msg, &r->frames[c]);
     r->sent_at = sys_tick();
-    err = 0;            // TODO wrap zmsg_send... zmsg_send(&msg, sock);
-    zmsg_destroy(&msg); // TODO wram zmsg_send...
+    // err = 0;            // TODO wrap zmsg_send... zmsg_send(&msg, sock);
+    // zmsg_destroy(&msg); // TODO wram zmsg_send...
+    err = zmsg_send(&msg, sock);
     if (err) zmsg_destroy(&msg);
     return err;
 }
-
 

@@ -89,5 +89,6 @@ __wrap_zmsg_send(zmsg_t** self_p, void* dest)
 {
     ((void)self_p);
     ((void)dest);
+    czmq_spy_mesg_push_outgoing(self_p);
     return 0;
 }
