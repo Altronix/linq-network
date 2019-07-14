@@ -21,6 +21,48 @@ request_free_fn(request_s* r)
 
 KLIST_INIT(requests, request_s*, REQUEST_FREE_FN);
 
+static zframe_t*
+path_to_frame(const char* method, const char* path, uint32_t path_len)
+{
+    zframe_t* frame;
+    bool has_prefix = true;
+    uint32_t sz = strlen(method) + path_len + (has_prefix ? 0 : 1);
+    if (!(*path == '/')) {
+        has_prefix = false;
+        sz++;
+    }
+    frame = zframe_new(NULL, sz);
+    if (frame) {
+        snprintf(
+            (char*)zframe_data(frame),
+            sz,
+            "%s %s%s",
+            method,
+            has_prefix ? "" : "/",
+            path);
+    }
+    return frame;
+}
+
+static zframe_t*
+method_to_frame(E_REQUEST_METHOD method, const char* path, uint32_t path_len)
+{
+    zframe_t* frame = NULL;
+
+    switch (method) {
+        case REQUEST_METHOD_GET:
+            frame = path_to_frame("GET ", path, path_len);
+            break;
+        case REQUEST_METHOD_POST:
+            frame = path_to_frame("POST ", path, path_len);
+            break;
+        case REQUEST_METHOD_DELETE:
+            frame = path_to_frame("DELETE ", path, path_len);
+            break;
+    }
+    return frame;
+}
+
 request_s*
 request_create(
     E_REQUEST_METHOD method,
@@ -51,7 +93,6 @@ request_create_mem(
     uint32_t dlen,
     linq_request_complete_fn fn)
 {
-    // TODO format path with method...
     request_s* r = linq_malloc(sizeof(request_s));
     if (r) {
         memset(r, 0, sizeof(request_s));
@@ -59,7 +100,7 @@ request_create_mem(
         r->frames[FRAME_VER_IDX] = zframe_new("\0", 1);
         r->frames[FRAME_TYP_IDX] = zframe_new("\1", 1);
         r->frames[FRAME_SID_IDX] = zframe_new(s, slen);
-        r->frames[FRAME_REQ_PATH_IDX] = zframe_new(p, plen);
+        r->frames[FRAME_REQ_PATH_IDX] = method_to_frame(method, p, plen);
         r->frames[FRAME_REQ_DATA_IDX] = d && dlen ? zframe_new(d, dlen) : NULL;
         if (!(r->frames[FRAME_VER_IDX] && r->frames[FRAME_TYP_IDX] &&
               r->frames[FRAME_SID_IDX] && r->frames[FRAME_REQ_PATH_IDX] &&
