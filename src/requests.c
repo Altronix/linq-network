@@ -13,33 +13,33 @@ request_free_fn(request_s* r)
 
 KLIST_INIT(requests, request_s*, REQUEST_FREE_FN);
 
-typedef struct request_list_s
+typedef struct requests_s
 {
     klist_t(requests) * list;
-} request_list_s;
+} requests_s;
 
 typedef struct kl_requests_t request_lists_s;
-request_list_s*
-request_list_create()
+requests_s*
+requests_create()
 {
-    request_list_s* requests = linq_malloc(sizeof(request_list_s));
+    requests_s* requests = linq_malloc(sizeof(requests_s));
     if (requests) {
-        memset(requests, 0, sizeof(request_list_s));
+        memset(requests, 0, sizeof(requests_s));
         requests->list = kl_init(requests);
     }
     return requests;
 }
 
 void
-request_list_destroy(request_list_s** list_p)
+requests_destroy(requests_s** list_p)
 {
     request_s* next;
-    request_list_s* requests = *list_p;
+    requests_s* requests = *list_p;
     *list_p = NULL;
-    next = request_list_pop(requests);
+    next = requests_pop(requests);
     while (next) {
         request_s* deleteme = next;
-        next = request_list_pop(requests);
+        next = requests_pop(requests);
         request_destroy(&deleteme);
     }
     kl_destroy(requests, requests->list);
@@ -47,7 +47,7 @@ request_list_destroy(request_list_s** list_p)
 }
 
 void
-request_list_push(request_list_s* list, request_s** r_p)
+requests_push(requests_s* list, request_s** r_p)
 {
     request_s* r = *r_p;
     *r_p = NULL;
@@ -55,7 +55,7 @@ request_list_push(request_list_s* list, request_s** r_p)
 }
 
 request_s*
-request_list_pop(request_list_s* list)
+requests_pop(requests_s* list)
 {
     request_s* r = NULL;
     kl_shift(requests, list->list, &r);
@@ -63,7 +63,7 @@ request_list_pop(request_list_s* list)
 }
 
 uint32_t
-request_list_size(request_list_s* requests)
+requests_size(requests_s* requests)
 {
     return requests->list->size;
 }

@@ -1,5 +1,5 @@
 #include "device.h"
-#include "request.h"
+#include "requests.h"
 #include <czmq.h>
 
 #include <cmocka.h>
@@ -23,13 +23,13 @@ test_request_create(void** context_p)
         "/ATX/network/zmtp/cloud/tls/enable",
         "{\"enable\":1}",
         on_request);
-    request_list_s* requests = request_list_create();
+    requests_s* requests = requests_create();
     assert_non_null(requests);
     assert_non_null(request);
 
-    request_list_push(requests, &request);
+    requests_push(requests, &request);
 
-    request_list_destroy(&requests);
+    requests_destroy(&requests);
     assert_null(requests);
 }
 
@@ -44,44 +44,44 @@ test_request_insert(void** context_p)
     request_s* r2 =
         request_create(REQUEST_METHOD_POST, "sid2", "2", "2", on_request);
     request_s* no = NULL;
-    request_list_s* requests = request_list_create();
-    assert_int_equal(request_list_size(requests), 0);
+    requests_s* requests = requests_create();
+    assert_int_equal(requests_size(requests), 0);
 
-    request_list_push(requests, &r0);
+    requests_push(requests, &r0);
     assert_null(r0);
-    assert_int_equal(request_list_size(requests), 1);
+    assert_int_equal(requests_size(requests), 1);
 
-    request_list_push(requests, &r1);
+    requests_push(requests, &r1);
     assert_null(r1);
-    assert_int_equal(request_list_size(requests), 2);
+    assert_int_equal(requests_size(requests), 2);
 
-    request_list_push(requests, &r2);
+    requests_push(requests, &r2);
     assert_null(r2);
-    assert_int_equal(request_list_size(requests), 3);
+    assert_int_equal(requests_size(requests), 3);
 
-    r0 = request_list_pop(requests);
+    r0 = requests_pop(requests);
     assert_non_null(r0);
     assert_string_equal(request_serial_get(r0), "sid0");
-    assert_int_equal(request_list_size(requests), 2);
+    assert_int_equal(requests_size(requests), 2);
 
-    r1 = request_list_pop(requests);
+    r1 = requests_pop(requests);
     assert_non_null(r1);
     assert_string_equal(request_serial_get(r1), "sid1");
-    assert_int_equal(request_list_size(requests), 1);
+    assert_int_equal(requests_size(requests), 1);
 
-    r2 = request_list_pop(requests);
+    r2 = requests_pop(requests);
     assert_non_null(r2);
     assert_string_equal(request_serial_get(r2), "sid2");
-    assert_int_equal(request_list_size(requests), 0);
+    assert_int_equal(requests_size(requests), 0);
 
-    no = request_list_pop(requests);
+    no = requests_pop(requests);
     assert_null(no);
-    assert_int_equal(request_list_size(requests), 0);
+    assert_int_equal(requests_size(requests), 0);
 
     request_destroy(&r0);
     request_destroy(&r1);
     request_destroy(&r2);
-    request_list_destroy(&requests);
+    requests_destroy(&requests);
 }
 
 int

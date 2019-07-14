@@ -11,13 +11,13 @@ extern "C"
 {
 #endif
 
-    typedef struct request_list_s request_list_s;
+    typedef struct requests_s requests_s;
 
-    request_list_s* request_list_create();
-    void request_list_destroy(request_list_s** list_p);
-    void request_list_push(request_list_s* list, request_s** r_p);
-    request_s* request_list_pop(request_list_s* list);
-    uint32_t request_list_size(request_list_s* list);
+    requests_s* requests_create();
+    void requests_destroy(requests_s** list_p);
+    void requests_push(requests_s* list, request_s** r_p);
+    request_s* requests_pop(requests_s* list);
+    uint32_t requests_size(requests_s* list);
 
 #ifdef __cplusplus
 }
