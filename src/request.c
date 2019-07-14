@@ -15,7 +15,7 @@ write_path_to_frame(const char* method, const char* path, uint32_t path_len)
 {
     zframe_t* frame;
     bool has_prefix = true;
-    uint32_t sz = strlen(method) + path_len + (has_prefix ? 0 : 1);
+    uint32_t sz = strlen(method) + path_len + (has_prefix ? 0 : 1) + 2;
     if (!(*path == '/')) {
         has_prefix = false;
         sz++;
@@ -40,13 +40,13 @@ path_to_frame(E_REQUEST_METHOD method, const char* path, uint32_t path_len)
 
     switch (method) {
         case REQUEST_METHOD_GET:
-            frame = write_path_to_frame("GET ", path, path_len);
+            frame = write_path_to_frame("GET", path, path_len);
             break;
         case REQUEST_METHOD_POST:
-            frame = write_path_to_frame("POST ", path, path_len);
+            frame = write_path_to_frame("POST", path, path_len);
             break;
         case REQUEST_METHOD_DELETE:
-            frame = write_path_to_frame("DELETE ", path, path_len);
+            frame = write_path_to_frame("DELETE", path, path_len);
             break;
     }
     return frame;
@@ -141,11 +141,9 @@ request_send(request_s* r, zsock_t* sock)
 {
     zmsg_t* msg = zmsg_new();
     int err, c = 0;
-    while (c < FRAME_REQ_DATA_IDX - 1) zmsg_prepend(msg, &r->frames[c++]);
-    if (r->frames[c]) zmsg_prepend(msg, &r->frames[c]);
+    while (c < FRAME_REQ_DATA_IDX) zmsg_append(msg, &r->frames[c++]);
+    if (r->frames[c]) zmsg_append(msg, &r->frames[c]);
     r->sent_at = sys_tick();
-    // err = 0;            // TODO wrap zmsg_send... zmsg_send(&msg, sock);
-    // zmsg_destroy(&msg); // TODO wram zmsg_send...
     err = zmsg_send(&msg, sock);
     if (err) zmsg_destroy(&msg);
     return err;
