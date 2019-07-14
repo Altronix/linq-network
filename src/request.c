@@ -152,13 +152,9 @@ int
 request_send(request_s* r, zsock_t* sock)
 {
     zmsg_t* msg = zmsg_new();
-    int err;
-    for (int i = 0; i < FRAME_REQ_DATA_IDX - 1; i++) {
-        zmsg_prepend(msg, &r->frames[i]);
-    }
-    if (r->frames[FRAME_REQ_DATA_IDX - 1]) {
-        zmsg_prepend(msg, &r->frames[FRAME_REQ_DATA_IDX - 1]);
-    }
+    int err, c = 0;
+    while (c < FRAME_REQ_DATA_IDX - 1) zmsg_prepend(msg, &r->frames[c++]);
+    if (r->frames[c]) zmsg_prepend(msg, &r->frames[c]);
     r->sent_at = sys_tick();
     err = 0;            // TODO wrap zmsg_send... zmsg_send(&msg, sock);
     zmsg_destroy(&msg); // TODO wram zmsg_send...
