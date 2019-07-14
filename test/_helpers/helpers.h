@@ -30,7 +30,7 @@
      "\"who\":\"TestUser\", "                                                  \
      "\"what\": \"TestAlert\","                                                \
      "\"siteId\": \"Altronix Site ID\","                                       \
-     "\"when\": 100,"                                                          \
+     "\"when\": 1,"                                                            \
      "\"mesg\": \"Test Alert Message\""                                        \
      "}")
 

@@ -22,7 +22,7 @@ request_free_fn(request_s* r)
 KLIST_INIT(requests, request_s*, REQUEST_FREE_FN);
 
 static zframe_t*
-path_to_frame(const char* method, const char* path, uint32_t path_len)
+write_path_to_frame(const char* method, const char* path, uint32_t path_len)
 {
     zframe_t* frame;
     bool has_prefix = true;
@@ -45,19 +45,19 @@ path_to_frame(const char* method, const char* path, uint32_t path_len)
 }
 
 static zframe_t*
-method_to_frame(E_REQUEST_METHOD method, const char* path, uint32_t path_len)
+path_to_frame(E_REQUEST_METHOD method, const char* path, uint32_t path_len)
 {
     zframe_t* frame = NULL;
 
     switch (method) {
         case REQUEST_METHOD_GET:
-            frame = path_to_frame("GET ", path, path_len);
+            frame = write_path_to_frame("GET ", path, path_len);
             break;
         case REQUEST_METHOD_POST:
-            frame = path_to_frame("POST ", path, path_len);
+            frame = write_path_to_frame("POST ", path, path_len);
             break;
         case REQUEST_METHOD_DELETE:
-            frame = path_to_frame("DELETE ", path, path_len);
+            frame = write_path_to_frame("DELETE ", path, path_len);
             break;
     }
     return frame;
@@ -100,7 +100,7 @@ request_create_mem(
         r->frames[FRAME_VER_IDX] = zframe_new("\0", 1);
         r->frames[FRAME_TYP_IDX] = zframe_new("\1", 1);
         r->frames[FRAME_SID_IDX] = zframe_new(s, slen);
-        r->frames[FRAME_REQ_PATH_IDX] = method_to_frame(method, p, plen);
+        r->frames[FRAME_REQ_PATH_IDX] = path_to_frame(method, p, plen);
         r->frames[FRAME_REQ_DATA_IDX] = d && dlen ? zframe_new(d, dlen) : NULL;
         if (!(r->frames[FRAME_VER_IDX] && r->frames[FRAME_TYP_IDX] &&
               r->frames[FRAME_SID_IDX] && r->frames[FRAME_REQ_PATH_IDX] &&

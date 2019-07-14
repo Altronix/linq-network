@@ -44,7 +44,7 @@ test_linq_alert(void** context_p)
             assert_string_equal(alert->who, "TestUser");
             assert_string_equal(alert->what, "TestAlert");
             assert_string_equal(alert->where, "Altronix Site ID");
-            assert_string_equal(alert->when, "100");
+            assert_string_equal(alert->when, "1");
             assert_string_equal(alert->mesg, "Test Alert Message");
             assert_string_equal(email->to0, "mail0@gmail.com");
             assert_string_equal(email->to1, "mail1@gmail.com");
