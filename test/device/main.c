@@ -28,8 +28,16 @@ static void
 test_device_create(void** context_p)
 {
     ((void)context_p);
-    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
+    zsock_t* sock = NULL;
+    device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
     assert_non_null(d);
+
+    device_send_get(d, "ATX", NULL);
+    device_send_get(d, "ATX", NULL);
+    device_send_get(d, "ATX", NULL);
+    device_send_get(d, "ATX", NULL);
+    device_send_post(d, "ATX", "{\"test\":1}", NULL);
+    assert_int_equal(device_request_pending_count(d), 5);
 
     device_destroy(&d);
 }

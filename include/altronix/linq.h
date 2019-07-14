@@ -17,7 +17,8 @@ extern "C"
         LINQ_ERROR_OK = 0,
         LINQ_ERROR_OOM = -1,
         LINQ_ERROR_BAD_ARGS = -2,
-        LINQ_ERROR_PROTOCOL = -3
+        LINQ_ERROR_PROTOCOL = -3,
+        LINQ_ERROR_IO = -4
     } E_LINQ_ERROR;
 
     typedef struct linq_alert_s

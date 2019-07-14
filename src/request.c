@@ -5,6 +5,7 @@
 
 typedef struct request_s
 {
+    uint32_t sent_at;
     linq_request_complete_fn on_complete;
     zframe_t* frames[FRAME_REQ_DATA_IDX + 1];
 } request_s;
@@ -104,7 +105,7 @@ request_create_mem(
         r->frames[FRAME_REQ_DATA_IDX] = d && dlen ? zframe_new(d, dlen) : NULL;
         if (!(r->frames[FRAME_VER_IDX] && r->frames[FRAME_TYP_IDX] &&
               r->frames[FRAME_SID_IDX] && r->frames[FRAME_REQ_PATH_IDX] &&
-              r->frames[FRAME_REQ_DATA_IDX])) {
+              ((d && r->frames[FRAME_REQ_DATA_IDX]) || !d))) {
             request_destroy(&r);
         }
     }
@@ -123,6 +124,12 @@ request_destroy(request_s** r_p)
 }
 
 void
+request_sent_at(request_s* r, uint32_t at)
+{
+    r->sent_at = at;
+}
+
+void
 request_router_id_set(request_s* r, uint8_t* rid, uint32_t rid_len)
 {
     r->frames[FRAME_RID_IDX] = zframe_new(rid, rid_len);
@@ -133,6 +140,30 @@ const char*
 request_serial_get(request_s* r)
 {
     return (char*)zframe_data(r->frames[FRAME_SID_IDX]);
+}
+
+linq_request_complete_fn
+request_on_complete_fn(request_s* r)
+{
+    return r->on_complete;
+}
+
+int
+request_send(request_s* r, zsock_t* sock)
+{
+    zmsg_t* msg = zmsg_new();
+    int err;
+    for (int i = 0; i < FRAME_REQ_DATA_IDX - 1; i++) {
+        zmsg_prepend(msg, &r->frames[i]);
+    }
+    if (r->frames[FRAME_REQ_DATA_IDX - 1]) {
+        zmsg_prepend(msg, &r->frames[FRAME_REQ_DATA_IDX - 1]);
+    }
+    r->sent_at = sys_tick();
+    err = 0;            // TODO wrap zmsg_send... zmsg_send(&msg, sock);
+    zmsg_destroy(&msg); // TODO wram zmsg_send...
+    if (err) zmsg_destroy(&msg);
+    return err;
 }
 
 typedef struct request_list_s

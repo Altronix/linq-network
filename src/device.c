@@ -17,7 +17,16 @@ typedef struct device_s
 static void
 flush(device_s* d)
 {
-    ((void)d);
+    linq_assert(d->request_pending == NULL);
+    request_s** r_p = &d->request_pending;
+    *r_p = request_list_pop(d->requests);
+    request_router_id_set(*r_p, d->router.id, d->router.sz);
+    if (request_send(d->request_pending, *d->sock_p) < 0) {
+        linq_request_complete_fn fn = request_on_complete_fn(*r_p);
+        if (fn) fn(LINQ_ERROR_IO, NULL, &d);
+        request_destroy(&d->request_pending);
+    } else {
+    }
 }
 
 device_s*
@@ -29,14 +38,15 @@ device_create(
     const char* product)
 {
     device_s* d = linq_malloc(sizeof(device_s));
-    linq_assert(d);
-    memset(d, 0, sizeof(device_s));
-    d->sock_p = sock_p;
-    d->requests = request_list_create();
-    d->birth = d->last_seen = sys_tick();
-    device_update_router(d, router, router_sz);
-    snprintf(d->serial, sizeof(d->serial), "%s", serial);
-    snprintf(d->product, sizeof(d->product), "%s", product);
+    if (d) {
+        memset(d, 0, sizeof(device_s));
+        d->sock_p = sock_p;
+        d->requests = request_list_create();
+        d->birth = d->last_seen = sys_tick();
+        device_update_router(d, router, router_sz);
+        snprintf(d->serial, sizeof(d->serial), "%s", serial);
+        snprintf(d->product, sizeof(d->product), "%s", product);
+    }
     return d;
 }
 
@@ -101,29 +111,32 @@ device_send(device_s* d, request_s** r)
     if (!d->request_pending) flush(d);
 }
 
+static void
+send_method(
+    device_s* d,
+    E_REQUEST_METHOD method,
+    const char* path,
+    const char* json,
+    linq_request_complete_fn fn)
+{
+    request_s* r = request_create(method, device_serial(d), path, json, fn);
+    if (r) {
+        device_send(d, &r);
+    } else {
+        if (fn) fn(LINQ_ERROR_OOM, NULL, &d);
+    }
+}
+
 void
 device_send_delete(device_s* d, const char* path, linq_request_complete_fn fn)
 {
-    ((void)d);
-    ((void)path);
-    ((void)fn);
-    // TODO
+    send_method(d, REQUEST_METHOD_DELETE, path, NULL, fn);
 }
 
 void
 device_send_get(device_s* d, const char* path, linq_request_complete_fn fn)
 {
-    request_s* r = request_create( //
-        REQUEST_METHOD_GET,
-        device_serial(d),
-        path,
-        NULL,
-        fn);
-    if (r) {
-        device_send(d, &r);
-    } else {
-        fn(LINQ_ERROR_OOM, NULL, &d);
-    }
+    send_method(d, REQUEST_METHOD_GET, path, NULL, fn);
 }
 
 void
@@ -133,10 +146,11 @@ device_send_post(
     const char* json,
     linq_request_complete_fn fn)
 {
-    ((void)d);
-    ((void)path);
-    ((void)json);
-    ((void)fn);
-    // TODO
+    send_method(d, REQUEST_METHOD_POST, path, json, fn);
 }
 
+uint32_t
+device_request_pending_count(device_s* d)
+{
+    return request_list_size(d->requests) + (d->request_pending ? 1 : 0);
+}
