@@ -161,30 +161,22 @@ test_device_send_post_with_prefix(void** context_p)
     zmsg_t* msg;
     zframe_t *rid, *ver, *typ, *sid, *url, *dat;
 
-    device_send_post(d, "/ATX/hardware", "{\"test\":1}", NULL);
+    device_send_post(d, "/ATX", "{\"test\":1}", NULL);
     msg = czmq_spy_mesg_pop_outgoing();
-    rid = zmsg_pop(msg);
-    ver = zmsg_pop(msg);
-    typ = zmsg_pop(msg);
-    sid = zmsg_pop(msg);
-    url = zmsg_pop(msg);
-    dat = zmsg_pop(msg);
-    zmsg_destroy(&msg);
-
-    assert_string_equal(zframe_data(rid), "rid");
-    assert_string_equal(zframe_data(ver), "\x0");
-    assert_string_equal(zframe_data(typ), "\x1");
-    assert_string_equal(zframe_data(sid), "sid");
-    assert_string_equal(zframe_data(url), "POST /ATX/hardware");
-    assert_string_equal(zframe_data(dat), "{\"test\":1}");
+    assert_string_equal(zframe_data((rid = zmsg_pop(msg))), "rid");
+    assert_string_equal(zframe_data((ver = zmsg_pop(msg))), "\x0");
+    assert_string_equal(zframe_data((typ = zmsg_pop(msg))), "\x1");
+    assert_string_equal(zframe_data((sid = zmsg_pop(msg))), "sid");
+    assert_string_equal(zframe_data((url = zmsg_pop(msg))), "POST /ATX");
+    assert_string_equal(zframe_data((dat = zmsg_pop(msg))), "{\"test\":1}");
     assert_int_equal(device_request_pending_count(d), 1);
-
     zframe_destroy(&rid);
     zframe_destroy(&ver);
     zframe_destroy(&typ);
     zframe_destroy(&sid);
     zframe_destroy(&url);
     zframe_destroy(&dat);
+    zmsg_destroy(&msg);
 
     device_destroy(&d);
     test_reset();
