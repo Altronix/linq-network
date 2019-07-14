@@ -4,7 +4,7 @@
 // includes
 #include "czmq.h"
 #include "linq_internal.h"
-#include "request.h"
+#include "requests.h"
 
 #ifdef __cplusplus
 extern "C"

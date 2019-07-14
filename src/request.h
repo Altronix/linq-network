@@ -2,7 +2,6 @@
 #define DEVICE_REQUEST_H_
 
 #include "czmq.h"
-#include "klib/klist.h"
 
 #include "linq_internal.h"
 
@@ -12,7 +11,6 @@ extern "C"
 #endif
 
     typedef struct request_s request_s;
-    typedef struct request_list_s request_list_s;
 
     typedef enum E_REQUEST_METHOD
     {
@@ -42,12 +40,6 @@ extern "C"
     const char* request_serial_get(request_s*);
     linq_request_complete_fn request_on_complete_fn(request_s* r);
     int request_send(request_s* r, zsock_t* sock);
-
-    request_list_s* request_list_create();
-    void request_list_destroy(request_list_s** list_p);
-    void request_list_push(request_list_s* list, request_s** r_p);
-    request_s* request_list_pop(request_list_s* list);
-    uint32_t request_list_size(request_list_s* list);
 
 #ifdef __cplusplus
 }
