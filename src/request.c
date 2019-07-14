@@ -141,7 +141,7 @@ request_send(request_s* r, zsock_t* sock)
 {
     zmsg_t* msg = zmsg_new();
     int err, c = 0;
-    while (c < FRAME_REQ_DATA_IDX - 1) zmsg_append(msg, &r->frames[c++]);
+    while (c < FRAME_REQ_DATA_IDX) zmsg_append(msg, &r->frames[c++]);
     if (r->frames[c]) zmsg_append(msg, &r->frames[c]);
     r->sent_at = sys_tick();
     err = zmsg_send(&msg, sock);
