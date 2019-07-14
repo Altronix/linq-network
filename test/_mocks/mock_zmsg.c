@@ -81,14 +81,15 @@ zmsg_t*
 __wrap_zmsg_recv(void* source)
 {
     ((void)source);
+    // TODO return spy error
     return czmq_spy_mesg_pop_incoming();
 }
 
 int
 __wrap_zmsg_send(zmsg_t** self_p, void* dest)
 {
-    ((void)self_p);
     ((void)dest);
     czmq_spy_mesg_push_outgoing(self_p);
+    // TODO return spy error
     return 0;
 }
