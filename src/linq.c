@@ -129,16 +129,6 @@ pop_le(zmsg_t* msg, uint32_t le)
     }
 }
 
-static zframe_t*
-pop_json(zmsg_t* msg, uint32_t le)
-{
-    zframe_t* frame = pop_le(msg, le);
-    if (!(zframe_data(frame)[zframe_size(frame) - 1] == 0)) {
-        zframe_destroy(&frame);
-    }
-    return frame;
-}
-
 // read incoming zmq frame and test valid json
 static zframe_t*
 pop_alert(zmsg_t* msg, linq_alert_s* alert)
@@ -253,10 +243,11 @@ process_response(linq_s* l, zmsg_t** msg, zframe_t** frames)
     zframe_t *err, *dat;
     if ((zmsg_size(*msg) == 2) &&
         (err = frames[FRAME_RES_ERR_IDX] = pop_eq(*msg, 1)) &&
-        (dat = frames[FRAME_RES_DAT_IDX] = pop_json(*msg, JSON_LEN))) {
+        (dat = frames[FRAME_RES_DAT_IDX] = pop_le(*msg, JSON_LEN))) {
         device_s** d = device_resolve(l, l->devices, frames, false);
         if (d) {
             device_recv(*d, zframe_data(err)[0], (const char*)zframe_data(dat));
+            e = LINQ_ERROR_OK;
         }
     }
     return e;
@@ -314,7 +305,7 @@ process_packet(linq_s* l, zmsg_t** msg, zframe_t** frames)
         switch ((E_TYPE)zframe_data(frames[FRAME_TYP_IDX])[0]) {
             case TYPE_HEARTBEAT: e = process_heartbeat(l, msg, frames); break;
             case TYPE_REQUEST: break;
-            case TYPE_RESPONSE: break;
+            case TYPE_RESPONSE: e = process_response(l, msg, frames); break;
             case TYPE_ALERT: e = process_alert(l, msg, frames); break;
         }
     }
@@ -395,3 +386,56 @@ linq_device_count(linq_s* l)
 {
     return device_map_size(l->devices);
 }
+
+E_LINQ_ERROR
+linq_device_send_get(
+    linq_s* linq,
+    const char* serial,
+    const char* path,
+    linq_request_complete_fn fn,
+    void* context)
+{
+    device_s** d = linq_device(linq, serial);
+    if (!d) return LINQ_ERROR_DEVICE_NOT_FOUND;
+    device_send_get(*d, path, fn, context);
+    return LINQ_ERROR_OK;
+}
+
+E_LINQ_ERROR
+linq_device_send_post(
+    linq_s* linq,
+    const char* serial,
+    const char* path,
+    const char* json,
+    linq_request_complete_fn fn,
+    void* context)
+{
+    device_s** d = linq_device(linq, serial);
+    if (!d) return LINQ_ERROR_DEVICE_NOT_FOUND;
+    device_send_post(*d, path, json, fn, context);
+    return LINQ_ERROR_OK;
+}
+
+E_LINQ_ERROR
+linq_device_send_delete(
+    linq_s* linq,
+    const char* serial,
+    const char* path,
+    linq_request_complete_fn fn,
+    void* context)
+{
+    device_s** d = linq_device(linq, serial);
+    if (!d) return LINQ_ERROR_DEVICE_NOT_FOUND;
+    device_send_delete(*d, path, fn, context);
+    return LINQ_ERROR_OK;
+}
+
+E_LINQ_ERROR
+linq_device_send(linq_s* linq, const char* serial, request_s* request)
+{
+    device_s** d = linq_device(linq, serial);
+    if (!d) return LINQ_ERROR_DEVICE_NOT_FOUND;
+    device_send(*d, &request);
+    return LINQ_ERROR_OK;
+}
+

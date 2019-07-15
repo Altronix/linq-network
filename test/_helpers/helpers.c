@@ -56,6 +56,30 @@ helpers_make_legacy_alert()
 }
 
 zmsg_t*
+helpers_make_response(
+    const char* rid,
+    const char* sid,
+    int err,
+    const char* data)
+{
+    zmsg_t* m = helpers_create_message_mem(
+        6,
+        rid,           // router
+        strlen(rid),   //
+        "\x0",         // version
+        1,             //
+        "\x2",         // type
+        1,             //
+        sid,           // serial
+        strlen(sid),   //
+        &err,          // error
+        1,             //
+        data,          // data
+        strlen(data)); //
+    return m;
+}
+
+zmsg_t*
 helpers_create_message_str(int n, ...)
 {
     va_list list;

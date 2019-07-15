@@ -210,6 +210,42 @@ test_linq_receive_alert_error_short(void** context_p)
     ((void)context_p);
 }
 
+static void
+on_response_ok(void* pass, int err, const char* data, device_s** d)
+{
+    *(bool*)pass = true;
+    assert_int_equal(err, 0);
+    assert_string_equal(data, "{\"test\":1}");
+    assert_string_equal(device_serial(*d), "serial");
+}
+
+static void
+test_linq_receive_response_ok(void** context_p)
+{
+    ((void)context_p);
+    bool pass = false;
+    const char* serial = expect_serial = "serial";
+    linq_s* l = linq_create(&callbacks, (void*)&pass);
+    zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
+    zmsg_t* r = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
+
+    czmq_spy_mesg_push_incoming(&hb);
+    czmq_spy_mesg_push_incoming(&r);
+    czmq_spy_poll_push_incoming(true);
+
+    // Receive heartbeat (add device to linq)
+    // Send a get request
+    // receive get response
+    // make sure callback is as expect
+    linq_poll(l);
+    linq_device_send_get(l, serial, "/ATX/test", on_response_ok, &pass);
+    linq_poll(l);
+    assert_true(pass);
+
+    linq_destroy(&l);
+    test_reset();
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -225,6 +261,7 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_receive_heartbeat_error_short),
         cmocka_unit_test(test_linq_receive_alert_ok),
         cmocka_unit_test(test_linq_receive_alert_error_short),
+        cmocka_unit_test(test_linq_receive_response_ok)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);

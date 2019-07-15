@@ -19,7 +19,8 @@ extern "C"
         LINQ_ERROR_OOM = -1,
         LINQ_ERROR_BAD_ARGS = -2,
         LINQ_ERROR_PROTOCOL = -3,
-        LINQ_ERROR_IO = -4
+        LINQ_ERROR_IO = -4,
+        LINQ_ERROR_DEVICE_NOT_FOUND = -5
     } E_LINQ_ERROR;
 
     typedef struct linq_alert_s
@@ -80,6 +81,27 @@ extern "C"
     E_LINQ_ERROR linq_poll(linq_s* l);
     device_s** linq_device(linq_s*, const char*);
     uint32_t linq_device_count(linq_s*);
+    E_LINQ_ERROR linq_device_send_get(
+        linq_s*,
+        const char*,
+        const char*,
+        linq_request_complete_fn,
+        void*);
+    E_LINQ_ERROR linq_device_send_post(
+        linq_s*,
+        const char*,
+        const char*,
+        const char*,
+        linq_request_complete_fn,
+        void*);
+    E_LINQ_ERROR linq_device_send_delete(
+        linq_s*,
+        const char*,
+        const char*,
+        linq_request_complete_fn,
+        void*);
+    E_LINQ_ERROR
+    linq_device_send(linq_s* linq, const char* serial, request_s* request);
 
 #ifdef __cplusplus
 }
