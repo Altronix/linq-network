@@ -246,6 +246,23 @@ test_linq_receive_response_ok(void** context_p)
     test_reset();
 }
 
+static void
+on_response_error_timeout(void* pass, int err, const char* data, device_s** d)
+{
+    ((void)pass);
+    ((void)err);
+    ((void)data);
+    ((void)d);
+    // TODO
+}
+
+static void
+test_linq_receive_response_error_timeout(void** context_p)
+{
+    ((void)context_p);
+    // TODO
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -261,7 +278,8 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_receive_heartbeat_error_short),
         cmocka_unit_test(test_linq_receive_alert_ok),
         cmocka_unit_test(test_linq_receive_alert_error_short),
-        cmocka_unit_test(test_linq_receive_response_ok)
+        cmocka_unit_test(test_linq_receive_response_ok),
+        cmocka_unit_test(test_linq_receive_response_error_timeout)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
