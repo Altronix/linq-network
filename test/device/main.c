@@ -269,7 +269,9 @@ test_device_response(void** context_p)
     zsock_t* sock = NULL;
     device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
     device_send_post(d, "/ATX/hardware", "{\"test\":1}", on_response, &pass);
-    // TODO - on_response needs a context...
+    // TODO - call device receive, expect callback to fire...
+    // TODO - also add this test from linq.c which will test the parsing
+    // of response...
 
     device_destroy(&d);
     test_reset();
