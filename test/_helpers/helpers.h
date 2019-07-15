@@ -68,6 +68,11 @@ extern "C"
     zmsg_t* helpers_make_legacy_alert();
     zmsg_t* helpers_create_message_mem(int n, ...);
     zmsg_t* helpers_create_message_str(int n, ...);
+    zmsg_t* helpers_make_response(
+        const char* rid,
+        const char* sid,
+        int err,
+        const char* data);
 
 #ifdef __cplusplus
 }
