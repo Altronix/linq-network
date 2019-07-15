@@ -32,11 +32,11 @@ test_device_create(void** context_p)
     device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
     assert_non_null(d);
 
-    device_send_get(d, "ATX", NULL);
-    device_send_get(d, "ATX", NULL);
-    device_send_get(d, "ATX", NULL);
-    device_send_get(d, "ATX", NULL);
-    device_send_post(d, "ATX", "{\"test\":1}", NULL);
+    device_send_get(d, "ATX", NULL, NULL);
+    device_send_get(d, "ATX", NULL, NULL);
+    device_send_get(d, "ATX", NULL, NULL);
+    device_send_get(d, "ATX", NULL, NULL);
+    device_send_post(d, "ATX", "{\"test\":1}", NULL, NULL);
     assert_int_equal(device_request_pending_count(d), 5);
 
     device_destroy(&d);
@@ -53,7 +53,7 @@ test_device_send_get_no_prefix(void** context_p)
     zmsg_t* msg;
     zframe_t *rid, *ver, *typ, *sid, *url;
 
-    device_send_get(d, "ATX/hardware", NULL);
+    device_send_get(d, "ATX/hardware", NULL, NULL);
     msg = czmq_spy_mesg_pop_outgoing();
     rid = zmsg_pop(msg);
     ver = zmsg_pop(msg);
@@ -88,7 +88,7 @@ test_device_send_get_with_prefix(void** context_p)
     zmsg_t* msg;
     zframe_t *rid, *ver, *typ, *sid, *url;
 
-    device_send_get(d, "/ATX/hardware", NULL);
+    device_send_get(d, "/ATX/hardware", NULL, NULL);
     msg = czmq_spy_mesg_pop_outgoing();
     rid = zmsg_pop(msg);
     ver = zmsg_pop(msg);
@@ -123,7 +123,7 @@ test_device_send_delete_no_prefix(void** context_p)
     zmsg_t* msg;
     zframe_t *rid, *ver, *typ, *sid, *url;
 
-    device_send_delete(d, "ATX/hardware", NULL);
+    device_send_delete(d, "ATX/hardware", NULL, NULL);
     msg = czmq_spy_mesg_pop_outgoing();
     rid = zmsg_pop(msg);
     ver = zmsg_pop(msg);
@@ -158,7 +158,7 @@ test_device_send_delete_with_prefix(void** context_p)
     zmsg_t* msg;
     zframe_t *rid, *ver, *typ, *sid, *url;
 
-    device_send_delete(d, "/ATX/hardware", NULL);
+    device_send_delete(d, "/ATX/hardware", NULL, NULL);
     msg = czmq_spy_mesg_pop_outgoing();
     rid = zmsg_pop(msg);
     ver = zmsg_pop(msg);
@@ -193,7 +193,7 @@ test_device_send_post_no_prefix(void** context_p)
     zmsg_t* msg;
     zframe_t *rid, *ver, *typ, *sid, *url, *dat;
 
-    device_send_post(d, "ATX/hardware", "{\"test\":1}", NULL);
+    device_send_post(d, "ATX/hardware", "{\"test\":1}", NULL, NULL);
     msg = czmq_spy_mesg_pop_outgoing();
     rid = zmsg_pop(msg);
     ver = zmsg_pop(msg);
@@ -231,7 +231,7 @@ test_device_send_post_with_prefix(void** context_p)
     zmsg_t* msg;
     zframe_t *rid, *ver, *typ, *sid, *url, *dat;
 
-    device_send_post(d, "/ATX", "{\"test\":1}", NULL);
+    device_send_post(d, "/ATX", "{\"test\":1}", NULL, NULL);
     msg = czmq_spy_mesg_pop_outgoing();
     assert_string_equal(zframe_data((rid = zmsg_pop(msg))), "rid");
     assert_string_equal(zframe_data((ver = zmsg_pop(msg))), "\x0");
@@ -264,9 +264,10 @@ static void
 test_device_response(void** context_p)
 {
     ((void)context_p);
+    bool* pass = false;
     zsock_t* sock = NULL;
     device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
-    device_send_post(d, "/ATX/hardware", "{\"test\":1}", on_response);
+    device_send_post(d, "/ATX/hardware", "{\"test\":1}", on_response, &pass);
     // TODO - on_response needs a context...
 }
 

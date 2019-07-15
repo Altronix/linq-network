@@ -6,6 +6,7 @@
 typedef struct request_s
 {
     uint32_t sent_at;
+    void* on_complete_context;
     linq_request_complete_fn on_complete;
     zframe_t* frames[FRAME_REQ_DATA_IDX + 1];
 } request_s;
@@ -58,7 +59,8 @@ request_create(
     const char* serial,
     const char* path,
     const char* json,
-    linq_request_complete_fn on_complete)
+    linq_request_complete_fn on_complete,
+    void* context)
 {
     return request_create_mem(
         method,
@@ -68,7 +70,8 @@ request_create(
         strlen(path),
         json,
         json ? strlen(json) : 0,
-        on_complete);
+        on_complete,
+        context);
 }
 
 request_s*
@@ -80,12 +83,14 @@ request_create_mem(
     uint32_t plen,
     const char* d,
     uint32_t dlen,
-    linq_request_complete_fn fn)
+    linq_request_complete_fn fn,
+    void* context)
 {
     request_s* r = linq_malloc(sizeof(request_s));
     if (r) {
         memset(r, 0, sizeof(request_s));
         r->on_complete = fn;
+        r->on_complete_context = context;
         r->frames[FRAME_VER_IDX] = zframe_new("\0", 1);
         r->frames[FRAME_TYP_IDX] = zframe_new("\1", 1);
         r->frames[FRAME_SID_IDX] = zframe_new(s, slen);

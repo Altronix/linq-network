@@ -117,9 +117,11 @@ send_method(
     E_REQUEST_METHOD method,
     const char* path,
     const char* json,
-    linq_request_complete_fn fn)
+    linq_request_complete_fn fn,
+    void* context)
 {
-    request_s* r = request_create(method, device_serial(d), path, json, fn);
+    request_s* r =
+        request_create(method, device_serial(d), path, json, fn, context);
     if (r) {
         device_send(d, &r);
     } else {
@@ -128,15 +130,23 @@ send_method(
 }
 
 void
-device_send_delete(device_s* d, const char* path, linq_request_complete_fn fn)
+device_send_delete(
+    device_s* d,
+    const char* path,
+    linq_request_complete_fn fn,
+    void* context)
 {
-    send_method(d, REQUEST_METHOD_DELETE, path, NULL, fn);
+    send_method(d, REQUEST_METHOD_DELETE, path, NULL, fn, context);
 }
 
 void
-device_send_get(device_s* d, const char* path, linq_request_complete_fn fn)
+device_send_get(
+    device_s* d,
+    const char* path,
+    linq_request_complete_fn fn,
+    void* context)
 {
-    send_method(d, REQUEST_METHOD_GET, path, NULL, fn);
+    send_method(d, REQUEST_METHOD_GET, path, NULL, fn, context);
 }
 
 void
@@ -144,9 +154,10 @@ device_send_post(
     device_s* d,
     const char* path,
     const char* json,
-    linq_request_complete_fn fn)
+    linq_request_complete_fn fn,
+    void* context)
 {
-    send_method(d, REQUEST_METHOD_POST, path, json, fn);
+    send_method(d, REQUEST_METHOD_POST, path, json, fn, context);
 }
 
 void
