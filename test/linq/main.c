@@ -224,20 +224,22 @@ test_linq_receive_response_ok(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
-    expect_serial = "serial";
+    const char* serial = expect_serial = "serial";
     linq_s* l = linq_create(&callbacks, (void*)&pass);
-    zmsg_t* hb = helpers_make_heartbeat("rid0", expect_serial, "pid", "sid");
-    zmsg_t* r = helpers_make_response("rid0", expect_serial, 0, "{\"test\":1}");
+    zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
+    zmsg_t* r = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
 
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_mesg_push_incoming(&r);
     czmq_spy_poll_push_incoming(true);
 
+    // Receive heartbeat (add device to linq)
+    // Send a get request
+    // receive get response
+    // make sure callback is as expect
     linq_poll(l);
-    device_s** d = linq_device(l, "serial");
-    device_send_get(*d, "/ATX/test", on_response_ok, &pass);
+    linq_device_send_get(l, serial, "/ATX/test", on_response_ok, &pass);
     linq_poll(l);
-
     assert_true(pass);
 
     linq_destroy(&l);

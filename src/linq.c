@@ -386,3 +386,56 @@ linq_device_count(linq_s* l)
 {
     return device_map_size(l->devices);
 }
+
+E_LINQ_ERROR
+linq_device_send_get(
+    linq_s* linq,
+    const char* serial,
+    const char* path,
+    linq_request_complete_fn fn,
+    void* context)
+{
+    device_s** d = linq_device(linq, serial);
+    if (!d) return LINQ_ERROR_DEVICE_NOT_FOUND;
+    device_send_get(*d, path, fn, context);
+    return LINQ_ERROR_OK;
+}
+
+E_LINQ_ERROR
+linq_device_send_post(
+    linq_s* linq,
+    const char* serial,
+    const char* path,
+    const char* json,
+    linq_request_complete_fn fn,
+    void* context)
+{
+    device_s** d = linq_device(linq, serial);
+    if (!d) return LINQ_ERROR_DEVICE_NOT_FOUND;
+    device_send_post(*d, path, json, fn, context);
+    return LINQ_ERROR_OK;
+}
+
+E_LINQ_ERROR
+linq_device_send_delete(
+    linq_s* linq,
+    const char* serial,
+    const char* path,
+    linq_request_complete_fn fn,
+    void* context)
+{
+    device_s** d = linq_device(linq, serial);
+    if (!d) return LINQ_ERROR_DEVICE_NOT_FOUND;
+    device_send_delete(*d, path, fn, context);
+    return LINQ_ERROR_OK;
+}
+
+E_LINQ_ERROR
+linq_device_send(linq_s* linq, const char* serial, request_s* request)
+{
+    device_s** d = linq_device(linq, serial);
+    if (!d) return LINQ_ERROR_DEVICE_NOT_FOUND;
+    device_send(*d, &request);
+    return LINQ_ERROR_OK;
+}
+
