@@ -49,6 +49,7 @@ extern "C"
     } linq_email_s;
 
     typedef void (*linq_request_complete_fn)(
+        void*,
         E_LINQ_ERROR e,
         const char* json,
         device_s**);

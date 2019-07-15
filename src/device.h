@@ -26,13 +26,17 @@ extern "C"
     uint32_t device_uptime(device_s* d);
     void device_heartbeat(device_s* d);
     void device_send(device_s*, request_s**);
-    void device_send_delete(device_s*, const char*, linq_request_complete_fn);
-    void device_send_get(device_s*, const char*, linq_request_complete_fn);
+    void
+    device_send_delete(device_s*, const char*, linq_request_complete_fn, void*);
+    void
+    device_send_get(device_s*, const char*, linq_request_complete_fn, void*);
     void device_send_post(
         device_s*,
         const char*,
         const char*,
-        linq_request_complete_fn);
+        linq_request_complete_fn,
+        void*);
+    void device_recv(device_s* d, int err, const char*);
     uint32_t device_request_pending_count(device_s* d);
 
 #ifdef __cplusplus

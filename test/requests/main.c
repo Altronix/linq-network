@@ -6,8 +6,9 @@
 #include <setjmp.h>
 
 static void
-on_request(E_LINQ_ERROR e, const char* json, device_s** d)
+on_request(void* context, E_LINQ_ERROR e, const char* json, device_s** d)
 {
+    ((void)context);
     ((void)e);
     ((void)json);
     ((void)d);
@@ -22,7 +23,8 @@ test_request_create(void** context_p)
         "sid",
         "/ATX/network/zmtp/cloud/tls/enable",
         "{\"enable\":1}",
-        on_request);
+        on_request,
+        NULL);
     requests_s* requests = requests_create();
     assert_non_null(requests);
     assert_non_null(request);
@@ -38,11 +40,11 @@ test_request_insert(void** context_p)
 {
     ((void)context_p);
     request_s* r0 =
-        request_create(REQUEST_METHOD_POST, "sid0", "0", "0", on_request);
+        request_create(REQUEST_METHOD_POST, "sid0", "0", "0", on_request, NULL);
     request_s* r1 =
-        request_create(REQUEST_METHOD_POST, "sid1", "1", "1", on_request);
+        request_create(REQUEST_METHOD_POST, "sid1", "1", "1", on_request, NULL);
     request_s* r2 =
-        request_create(REQUEST_METHOD_POST, "sid2", "2", "2", on_request);
+        request_create(REQUEST_METHOD_POST, "sid2", "2", "2", on_request, NULL);
     request_s* no = NULL;
     requests_s* requests = requests_create();
     assert_int_equal(requests_size(requests), 0);
