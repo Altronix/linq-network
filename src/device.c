@@ -20,6 +20,8 @@ typedef struct device_s
     uint32_t last_seen;
 } device_s;
 
+// Push another request onto socket...
+// TODO caller must check request is in queue... refactor check here(?)...
 static void
 flush(device_s* d)
 {
