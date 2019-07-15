@@ -3,14 +3,6 @@
 #include "klib/klist.h"
 #include "request.h"
 
-typedef struct request_s
-{
-    uint32_t sent_at;
-    void* on_complete_context;
-    linq_request_complete_fn on_complete;
-    zframe_t* frames[FRAME_REQ_DATA_IDX + 1];
-} request_s;
-
 static zframe_t*
 write_path_to_frame(const char* method, const char* path, uint32_t path_len)
 {
@@ -90,7 +82,7 @@ request_create_mem(
     if (r) {
         memset(r, 0, sizeof(request_s));
         r->on_complete = fn;
-        r->on_complete_context = context;
+        r->ctx = context;
         r->frames[FRAME_VER_IDX] = zframe_new("\0", 1);
         r->frames[FRAME_TYP_IDX] = zframe_new("\1", 1);
         r->frames[FRAME_SID_IDX] = zframe_new(s, slen);
@@ -133,12 +125,6 @@ const char*
 request_serial_get(request_s* r)
 {
     return (char*)zframe_data(r->frames[FRAME_SID_IDX]);
-}
-
-linq_request_complete_fn
-request_on_complete_fn(request_s* r)
-{
-    return r->on_complete;
 }
 
 int

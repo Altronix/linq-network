@@ -253,8 +253,9 @@ test_device_send_post_with_prefix(void** context_p)
 }
 
 static void
-on_response(E_LINQ_ERROR e, const char* json, device_s** d)
+on_response(void* context, E_LINQ_ERROR e, const char* json, device_s** d)
 {
+    ((void)context);
     ((void)e);
     ((void)json);
     ((void)d);
@@ -269,6 +270,9 @@ test_device_response(void** context_p)
     device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
     device_send_post(d, "/ATX/hardware", "{\"test\":1}", on_response, &pass);
     // TODO - on_response needs a context...
+
+    device_destroy(&d);
+    test_reset();
 }
 
 int

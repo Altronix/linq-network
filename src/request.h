@@ -10,7 +10,13 @@ extern "C"
 {
 #endif
 
-    typedef struct request_s request_s;
+    typedef struct request_s
+    {
+        uint32_t sent_at;
+        void* ctx;
+        linq_request_complete_fn on_complete;
+        zframe_t* frames[FRAME_REQ_DATA_IDX + 1];
+    } request_s;
 
     typedef enum E_REQUEST_METHOD
     {
@@ -40,7 +46,6 @@ extern "C"
     void request_sent_at(request_s* r, uint32_t at);
     void request_router_id_set(request_s*, uint8_t*, uint32_t);
     const char* request_serial_get(request_s*);
-    linq_request_complete_fn request_on_complete_fn(request_s* r);
     int request_send(request_s* r, zsock_t* sock);
 
 #ifdef __cplusplus

@@ -1,5 +1,11 @@
 #include "device.h"
+#include "request.h"
 #include "requests.h"
+
+#define exe_on_complete(rp, err, dat, dp)                                      \
+    do {                                                                       \
+        if ((*rp)->on_complete) (*rp)->on_complete((*rp)->ctx, err, dat, dp);  \
+    } while (0)
 
 typedef struct device_s
 {
@@ -22,8 +28,7 @@ flush(device_s* d)
     *r_p = requests_pop(d->requests);
     request_router_id_set(*r_p, d->router.id, d->router.sz);
     if (request_send(*r_p, *d->sock_p) < 0) {
-        linq_request_complete_fn fn = request_on_complete_fn(*r_p);
-        if (fn) fn(LINQ_ERROR_IO, NULL, &d);
+        exe_on_complete(r_p, LINQ_ERROR_IO, NULL, &d);
         request_destroy(r_p);
     } else {
     }
@@ -125,7 +130,7 @@ send_method(
     if (r) {
         device_send(d, &r);
     } else {
-        if (fn) fn(LINQ_ERROR_OOM, NULL, &d);
+        exe_on_complete(&r, LINQ_ERROR_OOM, NULL, &d);
     }
 }
 
@@ -165,11 +170,8 @@ device_recv(device_s* d, E_LINQ_ERROR err, const char* str)
 {
     char json[JSON_LEN + 1];
     request_s** r_p = &d->request_pending;
-    linq_request_complete_fn fn = request_on_complete_fn(*r_p);
-    if (fn) {
-        snprintf(json, sizeof(json), "%s", str);
-        fn(err, json, &d);
-    }
+    snprintf(json, sizeof(json), "%s", str);
+    exe_on_complete(r_p, err, json, &d);
     request_destroy(r_p);
     flush(d);
 }

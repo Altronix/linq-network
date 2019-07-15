@@ -6,8 +6,9 @@
 #include <setjmp.h>
 
 static void
-on_request(E_LINQ_ERROR e, const char* json, device_s** d)
+on_request(void* context, E_LINQ_ERROR e, const char* json, device_s** d)
 {
+    ((void)context);
     ((void)e);
     ((void)json);
     ((void)d);
