@@ -33,6 +33,7 @@ extern "C"
         const char*,
         const char*,
         linq_request_complete_fn);
+    void device_recv(device_s* d, int err, const char*);
     uint32_t device_request_pending_count(device_s* d);
 
 #ifdef __cplusplus

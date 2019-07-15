@@ -1,6 +1,7 @@
 #include "device.h"
 #include "device_map.h"
 #include "linq_internal.h"
+#include "request.h"
 
 #define JSMN_HEADER
 #include "jsmn/jsmn.h"
@@ -128,13 +129,23 @@ pop_le(zmsg_t* msg, uint32_t le)
     }
 }
 
+static zframe_t*
+pop_json(zmsg_t* msg, uint32_t le)
+{
+    zframe_t* frame = pop_le(msg, le);
+    if (!(zframe_data(frame)[zframe_size(frame) - 1] == 0)) {
+        zframe_destroy(&frame);
+    }
+    return frame;
+}
+
 // read incoming zmq frame and test valid json
 static zframe_t*
 pop_alert(zmsg_t* msg, linq_alert_s* alert)
 {
     memset(alert, 0, sizeof(linq_alert_s));
     int r, count;
-    zframe_t* f = pop_le(msg, 1024);
+    zframe_t* f = pop_le(msg, JSON_LEN);
     jsmntok_t t[30], *tokens = t;
     jsmn_parser p;
     jsmn_init(&p);
@@ -164,7 +175,7 @@ pop_email(zmsg_t* msg, linq_email_s* emails)
 {
     memset(emails, 0, sizeof(linq_email_s));
     int r, count;
-    zframe_t* f = pop_le(msg, 1024);
+    zframe_t* f = pop_le(msg, JSON_LEN);
     jsmntok_t t[30], *tokens = t;
     jsmn_parser p;
     jsmn_init(&p);
@@ -236,11 +247,18 @@ process_request(linq_s* l, zframe_t** frames)
 
 // check the zmq response frames are valid and process the response
 static E_LINQ_ERROR
-process_response(linq_s* l, zframe_t** frames)
+process_response(linq_s* l, zmsg_t** msg, zframe_t** frames)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
-    ((void)l);
-    ((void)frames);
+    zframe_t *err, *dat;
+    if ((zmsg_size(*msg) == 2) &&
+        (err = frames[FRAME_RES_ERR_IDX] = pop_eq(*msg, 1)) &&
+        (dat = frames[FRAME_RES_DAT_IDX] = pop_json(*msg, JSON_LEN))) {
+        device_s** d = device_resolve(l, l->devices, frames, false);
+        if (d) {
+            device_recv(*d, zframe_data(err)[0], (const char*)zframe_data(dat));
+        }
+    }
     return e;
 }
 

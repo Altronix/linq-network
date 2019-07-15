@@ -149,6 +149,20 @@ device_send_post(
     send_method(d, REQUEST_METHOD_POST, path, json, fn);
 }
 
+void
+device_recv(device_s* d, E_LINQ_ERROR err, const char* str)
+{
+    char json[JSON_LEN + 1];
+    request_s** r_p = &d->request_pending;
+    linq_request_complete_fn fn = request_on_complete_fn(*r_p);
+    if (fn) {
+        snprintf(json, sizeof(json), "%s", str);
+        fn(err, json, &d);
+    }
+    request_destroy(r_p);
+    flush(d);
+}
+
 uint32_t
 device_request_pending_count(device_s* d)
 {

@@ -20,6 +20,7 @@
 #define SID_LEN 64
 #define PID_LEN 64
 #define SITE_LEN 64
+#define JSON_LEN 1024
 
 // Basic packet index's
 #define FRAME_MAX 7
