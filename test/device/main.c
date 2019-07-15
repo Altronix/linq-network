@@ -255,10 +255,11 @@ test_device_send_post_with_prefix(void** context_p)
 static void
 on_response(void* context, E_LINQ_ERROR e, const char* json, device_s** d)
 {
-    ((void)context);
-    ((void)e);
-    ((void)json);
-    ((void)d);
+    bool* pass = context;
+    *pass = true;
+    assert_string_equal(json, "{\"test\":1}");
+    assert_string_equal("sid", device_serial(*d));
+    assert_int_equal(e, 0);
 }
 
 static void
@@ -269,9 +270,12 @@ test_device_response(void** context_p)
     zsock_t* sock = NULL;
     device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
     device_send_post(d, "/ATX/hardware", "{\"test\":1}", on_response, &pass);
-    // TODO - call device receive, expect callback to fire...
-    // TODO - also add this test from linq.c which will test the parsing
-    // of response...
+
+    // TODO - add similiar test from linq.c which will test the parsing
+    assert_int_equal(device_request_pending_count(d), 1);
+    device_recv(d, 0, "{\"test\":1}");
+    assert_int_equal(device_request_pending_count(d), 0);
+    assert_true(pass);
 
     device_destroy(&d);
     test_reset();

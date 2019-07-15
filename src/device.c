@@ -113,7 +113,7 @@ void
 device_send(device_s* d, request_s** r)
 {
     requests_push(d->requests, r);
-    if (!d->request_pending) flush(d);
+    if (!d->request_pending && requests_size(d->requests)) flush(d);
 }
 
 static void
@@ -173,7 +173,7 @@ device_recv(device_s* d, E_LINQ_ERROR err, const char* str)
     snprintf(json, sizeof(json), "%s", str);
     exe_on_complete(r_p, err, json, &d);
     request_destroy(r_p);
-    flush(d);
+    if (requests_size(d->requests)) flush(d);
 }
 
 uint32_t
