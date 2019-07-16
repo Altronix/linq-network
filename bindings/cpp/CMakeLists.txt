@@ -6,4 +6,5 @@ target_include_directories(linq-cpp-binding INTERFACE ./)
 install(TARGETS linq-cpp-binding
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
-	PUBLIC_HEADER DESTINATION include/altronix)
+	INCLUDES DESTINATION include/altronix
+	)
