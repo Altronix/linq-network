@@ -1,6 +1,6 @@
 set(sources 
 	linq.c
-	linq_subscribe.c
+	linq_ipc.c
 	device.c
 	device_map.c
 	request.c
@@ -9,7 +9,7 @@ set(sources
 set(headers 
 	../include/altronix/linq.h
 	linq_internal.h
-	linq_subscribe.h
+	linq_ipc.h
 	device.h
 	device_map.h
 	request.h
