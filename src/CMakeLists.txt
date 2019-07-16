@@ -13,6 +13,7 @@ set(headers
 	request.h
 	requests.h)
 
+set(linq_INSTALL_HEADERS ../include/altronix/linq.h)
 set(linq_SOURCES ${sources})
 set(linq_HEADERS ${headers})
 
@@ -34,3 +35,9 @@ target_link_libraries(linq-c-test linq-mock czmq zmq jsmn klib ${CMAKE_THREAD_LI
 target_include_directories(linq-c-test PUBLIC ../include)
 target_include_directories(linq-c-test PUBLIC ./)
 target_include_directories(linq-c-test PUBLIC ./mock)
+
+set_target_properties(linq-c PROPERTIES PUBLIC_HEADER "${linq_INSTALL_HEADERS}")
+install(TARGETS linq-c
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+	PUBLIC_HEADER DESTINATION include/altronix)
