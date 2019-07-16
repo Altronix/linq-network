@@ -1,17 +1,25 @@
 cmake_minimum_required(VERSION 3.11)
 project(linq-c)
 
+option(BUILD_DEPENDENCIES "Whether or not to build the tests" ON)
+set(LINQ_BUILD_DEPENDENCIES ${BUILD_DEPENDENCIES} CACHE BOOL "Build the external directory for linq-c")
 
 # dependency install
 include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 find_package(Threads)
 set(deps_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/install)
 file(MAKE_DIRECTORY ${deps_INSTALL_DIR}/include)
-include(cmake/libzmq.cmake)
-include(cmake/czmq.cmake)
-include(cmake/klib.cmake)
-include(cmake/jsmn.cmake)
-
+IF(LINQ_BUILD_DEPENDENCIES)
+	include(cmake/libzmq.cmake)
+	include(cmake/czmq.cmake)
+	include(cmake/klib.cmake)
+	include(cmake/jsmn.cmake)
+ELSE()
+	find_package(czmq)
+	find_package(libzmq)
+	find_package(klib)
+	find_package(jsmn)
+ENDIF()
 add_subdirectory(src)
 add_subdirectory(bindings/cpp)
 
