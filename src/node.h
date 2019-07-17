@@ -9,6 +9,9 @@ extern "C"
 {
 #endif
 
+    typedef struct node_s node_s;
+
+    node_s* node_connect(const char* ep);
 #ifdef __cplusplus
 }
 #endif
