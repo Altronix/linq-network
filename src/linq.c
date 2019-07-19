@@ -1,5 +1,5 @@
 #include "device.h"
-#include "device_map.h"
+#include "devices.h"
 #include "linq_internal.h"
 #include "request.h"
 
@@ -27,7 +27,7 @@ typedef struct linq_s
 {
     void* context;
     zsock_t* sock;
-    device_map_s* devices;
+    devices_s* devices;
     linq_callbacks* callbacks;
 } linq_s;
 
@@ -207,20 +207,20 @@ print_null_terminated(char* c, uint32_t sz, zframe_t* f)
 
 // find a device in our device map and update the router id. insert device if hb
 static device_s**
-device_resolve(linq_s* l, device_map_s* devices, zframe_t** frames, bool hb)
+device_resolve(linq_s* l, devices_s* devices, zframe_t** frames, bool hb)
 {
     uint32_t rid_sz = zframe_size(frames[FRAME_RID_IDX]);
     uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
     char sid[SID_LEN], pid[PID_LEN];
     print_null_terminated(sid, SID_LEN, frames[FRAME_SID_IDX]);
     print_null_terminated(pid, PID_LEN, frames[FRAME_HB_PID_IDX]);
-    device_s** d = device_map_get(devices, sid);
+    device_s** d = devices_get(devices, sid);
     if (d) {
         device_heartbeat(*d);
         device_update_router(*d, rid, rid_sz);
     } else {
         if (hb && frames[FRAME_HB_PID_IDX]) {
-            d = device_map_insert(l->devices, &l->sock, rid, rid_sz, sid, pid);
+            d = devices_insert(l->devices, &l->sock, rid, rid_sz, sid, pid);
         }
     }
     return d;
@@ -350,7 +350,7 @@ linq_create(linq_callbacks* cb, void* context)
     linq_s* l = linq_malloc(sizeof(linq_s));
     if (l) {
         memset(l, 0, sizeof(linq_s));
-        l->devices = device_map_create();
+        l->devices = devices_create();
         l->callbacks = cb;
         l->context = context;
     }
@@ -363,7 +363,7 @@ linq_destroy(linq_s** linq_p)
 {
     linq_s* l = *linq_p;
     *linq_p = NULL;
-    device_map_destroy(&l->devices);
+    devices_destroy(&l->devices);
     if (l->sock) zsock_destroy(&l->sock);
     linq_free(l);
 }
@@ -393,14 +393,14 @@ linq_poll(linq_s* l)
 device_s**
 linq_device(linq_s* l, const char* serial)
 {
-    return device_map_get(l->devices, serial);
+    return devices_get(l->devices, serial);
 }
 
 // return how many devices are connected to linq
 uint32_t
 linq_device_count(linq_s* l)
 {
-    return device_map_size(l->devices);
+    return devices_size(l->devices);
 }
 
 // send a get request to a device connected to us
