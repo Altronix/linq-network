@@ -387,6 +387,7 @@ linq_device_count(linq_s* l)
     return device_map_size(l->devices);
 }
 
+// send a get request to a device connected to us
 E_LINQ_ERROR
 linq_device_send_get(
     linq_s* linq,
@@ -401,6 +402,7 @@ linq_device_send_get(
     return LINQ_ERROR_OK;
 }
 
+// send a post request to a device connected to us
 E_LINQ_ERROR
 linq_device_send_post(
     linq_s* linq,
@@ -416,6 +418,7 @@ linq_device_send_post(
     return LINQ_ERROR_OK;
 }
 
+// send a delete request to a device connected to us
 E_LINQ_ERROR
 linq_device_send_delete(
     linq_s* linq,
@@ -430,6 +433,7 @@ linq_device_send_delete(
     return LINQ_ERROR_OK;
 }
 
+// send a request to a device connected to us
 E_LINQ_ERROR
 linq_device_send(linq_s* linq, const char* serial, request_s* request)
 {
