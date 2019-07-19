@@ -3,11 +3,8 @@
 typedef struct node_s
 {
     E_NODE_TYPE type;
-    union
-    {
-        zsock_t* sock;
-        zsock_t** ref;
-    } socket;
+    zsock_t* sock;
+    zsock_t** sock_p;
 } node_s;
 
 // Connect to a remote rep socket
@@ -18,8 +15,9 @@ node_connect(const char* ep)
     if (node) {
         memset(node, 0, sizeof(node_s));
         node->type = NODE_TYPE_CLIENT;
-        node->socket.sock = zsock_new_dealer(ep);
-        if (!node->socket.sock) {
+        node->sock_p = &node->sock;
+        node->sock = zsock_new_dealer(ep);
+        if (!node->sock) {
             linq_free(node);
             node = NULL;
         }
@@ -32,9 +30,6 @@ node_destroy(node_s** node_p)
 {
     node_s* node = *node_p;
     *node_p = NULL;
-    if (node->type == NODE_TYPE_CLIENT) {
-        zsock_destroy(&node->socket.sock);
-    } else {
-    }
+    if (node->sock) zsock_destroy(&node->sock);
     linq_free(node);
 }
