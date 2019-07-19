@@ -37,10 +37,11 @@ typedef int8_t version;
 // Types of protocol messages
 typedef enum
 {
-    TYPE_HEARTBEAT = 0,
-    TYPE_REQUEST = 1,
-    TYPE_RESPONSE = 2,
-    TYPE_ALERT = 3
+    TYPE_HEARTBEAT = FRAME_TYP_HEARTBEAT,
+    TYPE_REQUEST = FRAME_TYP_REQUEST,
+    TYPE_RESPONSE = FRAME_TYP_RESPONSE,
+    TYPE_ALERT = FRAME_TYP_ALERT,
+    TYPE_HELLO = FRAME_TYP_HELLO
 } E_TYPE;
 
 // parse a token from a json string inside a frame
@@ -227,12 +228,15 @@ device_resolve(linq_s* l, device_map_s* devices, zframe_t** frames, bool hb)
 
 // check the zmq request frames are valid and process the request
 static E_LINQ_ERROR
-process_request(linq_s* l, zframe_t** frames)
+process_request(linq_s* l, zmsg_t** msg, zframe_t** frames)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     ((void)l);
+    ((void)msg);
     ((void)frames);
     return e;
+    // TODO - if device exist, forward request to device and use callback to
+    // forward response... else send 404
 }
 
 // check the zmq response frames are valid and process the response
@@ -274,6 +278,17 @@ process_alert(linq_s* l, zmsg_t** msg, zframe_t** frames)
     return e;
 }
 
+// check the zmq hello message is valid and add a node if it does not exist
+static E_LINQ_ERROR
+process_hello(linq_s* l, zmsg_t** msg, zframe_t** frames)
+{
+    ((void)l);
+    ((void)msg);
+    ((void)frames);
+    E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
+    return e;
+}
+
 // check the zmq heartbeat frames are valid and process the heartbeat
 static E_LINQ_ERROR
 process_heartbeat(linq_s* l, zmsg_t** msg, zframe_t** frames)
@@ -304,9 +319,10 @@ process_packet(linq_s* l, zmsg_t** msg, zframe_t** frames)
         (frames[FRAME_SID_IDX] = pop_le(*msg, SID_LEN))) {
         switch ((E_TYPE)zframe_data(frames[FRAME_TYP_IDX])[0]) {
             case TYPE_HEARTBEAT: e = process_heartbeat(l, msg, frames); break;
-            case TYPE_REQUEST: break;
+            case TYPE_REQUEST: e = process_request(l, msg, frames); break;
             case TYPE_RESPONSE: e = process_response(l, msg, frames); break;
             case TYPE_ALERT: e = process_alert(l, msg, frames); break;
+            case TYPE_HELLO: e = process_hello(l, msg, frames); break;
         }
     }
     return e;

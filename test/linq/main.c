@@ -263,6 +263,13 @@ test_linq_receive_response_error_timeout(void** context_p)
     // TODO
 }
 
+static void
+test_linq_receive_hello(void** context_p)
+{
+    ((void)context_p);
+    // TODO make sure we add a node to our node map
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -279,7 +286,8 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_receive_alert_ok),
         cmocka_unit_test(test_linq_receive_alert_error_short),
         cmocka_unit_test(test_linq_receive_response_ok),
-        cmocka_unit_test(test_linq_receive_response_error_timeout)
+        cmocka_unit_test(test_linq_receive_response_error_timeout),
+        cmocka_unit_test(test_linq_receive_hello)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
