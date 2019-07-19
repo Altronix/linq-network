@@ -11,6 +11,12 @@ extern "C"
 
     typedef struct node_s node_s;
 
+    typedef enum
+    {
+        NODE_TYPE_SERVER = 0,
+        NODE_TYPE_CLIENT = 1
+    } E_NODE_TYPE;
+
     node_s* node_connect(const char* ep);
     void node_destroy(node_s**);
 #ifdef __cplusplus
