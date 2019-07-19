@@ -9,6 +9,11 @@ extern "C"
 {
 #endif
 
+    typedef struct nodes_s nodes_s;
+
+    nodes_s* nodes_create();
+    void nodes_destroy(nodes_s**);
+
 #ifdef __cplusplus
 }
 #endif

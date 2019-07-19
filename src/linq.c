@@ -1,6 +1,8 @@
 #include "device.h"
 #include "devices.h"
 #include "linq_internal.h"
+#include "node.h"
+#include "nodes.h"
 #include "request.h"
 
 #define JSMN_HEADER
@@ -28,6 +30,7 @@ typedef struct linq_s
     void* context;
     zsock_t* sock;
     devices_s* devices;
+    nodes_s* nodes;
     linq_callbacks* callbacks;
 } linq_s;
 
@@ -351,6 +354,7 @@ linq_create(linq_callbacks* cb, void* context)
     if (l) {
         memset(l, 0, sizeof(linq_s));
         l->devices = devices_create();
+        l->nodes = nodes_create();
         l->callbacks = cb;
         l->context = context;
     }
@@ -364,6 +368,7 @@ linq_destroy(linq_s** linq_p)
     linq_s* l = *linq_p;
     *linq_p = NULL;
     devices_destroy(&l->devices);
+    nodes_destroy(&l->nodes);
     if (l->sock) zsock_destroy(&l->sock);
     linq_free(l);
 }
