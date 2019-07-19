@@ -12,6 +12,7 @@ extern "C"
     typedef struct node_s node_s;
 
     node_s* node_connect(const char* ep);
+    void node_destroy(node_s**);
 #ifdef __cplusplus
 }
 #endif
