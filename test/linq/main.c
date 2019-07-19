@@ -90,7 +90,7 @@ test_linq_receive_protocol_error_short(void** context_p)
 
     expect_error = LINQ_ERROR_PROTOCOL;
     czmq_spy_mesg_push_incoming(&m);
-    czmq_spy_poll_push_incoming(true);
+    czmq_spy_poll_set_incoming((0x01));
 
     linq_poll(l);
 
@@ -127,7 +127,7 @@ test_linq_receive_heartbeat_ok(void** context_p)
     // Push some incoming heartbeats
     czmq_spy_mesg_push_incoming(&hb0);
     czmq_spy_mesg_push_incoming(&hb1);
-    czmq_spy_poll_push_incoming(true);
+    czmq_spy_poll_set_incoming((0x01));
     spy_sys_set_tick(100);
 
     // Receive a heartbeat
@@ -169,7 +169,7 @@ test_linq_receive_heartbeat_error_short(void** context_p)
 
     expect_error = LINQ_ERROR_PROTOCOL;
     czmq_spy_mesg_push_incoming(&m);
-    czmq_spy_poll_push_incoming(true);
+    czmq_spy_poll_set_incoming((0x01));
 
     linq_poll(l);
 
@@ -192,7 +192,7 @@ test_linq_receive_alert_ok(void** context_p)
     // Push some incoming messages
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_mesg_push_incoming(&alert);
-    czmq_spy_poll_push_incoming(true);
+    czmq_spy_poll_set_incoming((0x01));
 
     linq_poll(l);
     pass = false;
@@ -231,7 +231,7 @@ test_linq_receive_response_ok(void** context_p)
 
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_mesg_push_incoming(&r);
-    czmq_spy_poll_push_incoming(true);
+    czmq_spy_poll_set_incoming((0x01));
 
     // Receive heartbeat (add device to linq)
     // Send a get request

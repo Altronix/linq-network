@@ -1,29 +1,30 @@
 #include "mock_zpoll.h"
 #include "zmq.h"
 
-static bool incoming = false;
+static uint32_t incoming = 0;
 
 void
-czmq_spy_poll_push_incoming(bool i)
+czmq_spy_poll_set_incoming(uint32_t val)
 {
-    incoming = i;
+    incoming = val;
 }
 
 void
 czmq_spy_poll_reset()
 {
-    incoming = false;
+    incoming = 0;
 }
 
 int
 __wrap_zmq_poll(zmq_pollitem_t* items_, int nitems_, long timeout_)
 {
-    ((void)nitems_);
     ((void)timeout_);
-    if (incoming) {
-        items_->revents |= ZMQ_POLLIN;
-    } else {
-        items_->revents &= (~(ZMQ_POLLIN));
+    for (int i = 0; i < nitems_ && i < 32; i++) {
+        if (incoming & (0x01 << i)) {
+            items_[i].revents |= ZMQ_POLLIN;
+        } else {
+            items_[i].revents &= (~(ZMQ_POLLIN));
+        }
     }
     return 0;
 }

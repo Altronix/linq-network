@@ -35,7 +35,7 @@ test_linq_alert(void** context_p)
     // Push some incoming messages
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_mesg_push_incoming(&alert);
-    czmq_spy_poll_push_incoming(true);
+    czmq_spy_poll_set_incoming((0x01));
 
     l.on_alert(
         [&alert_pass](linq_alert_s* alert, linq_email_s* email, device_s**) {
