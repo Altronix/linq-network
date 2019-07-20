@@ -8,8 +8,8 @@ extern "C"
 {
 #endif
 
-    typedef struct device_s device_s;
-    typedef struct devices_s devices_s;
+    typedef struct node_s node_s;
+    typedef struct nodes_s nodes_s;
     typedef struct request_s request_s;
     typedef struct linq_s linq_s;
 
@@ -53,7 +53,7 @@ extern "C"
         void*,
         E_LINQ_ERROR e,
         const char* json,
-        device_s**);
+        node_s**);
     typedef void (*linq_error_fn)( //
         void*,
         E_LINQ_ERROR,
@@ -62,12 +62,12 @@ extern "C"
     typedef void (*linq_heartbeat_fn)( //
         void*,
         const char*,
-        device_s**);
+        node_s**);
     typedef void (*linq_alert_fn)( //
         void*,
         linq_alert_s*,
         linq_email_s*,
-        device_s**);
+        node_s**);
     typedef struct linq_callbacks
     {
         linq_error_fn err;
@@ -79,29 +79,29 @@ extern "C"
     void linq_destroy(linq_s**);
     E_LINQ_ERROR linq_listen(linq_s*, const char* ep);
     E_LINQ_ERROR linq_poll(linq_s* l);
-    device_s** linq_device(linq_s*, const char*);
-    uint32_t linq_device_count(linq_s*);
-    E_LINQ_ERROR linq_device_send_get(
+    node_s** linq_device(linq_s*, const char*);
+    uint32_t linq_node_count(linq_s*);
+    E_LINQ_ERROR linq_node_send_get(
         linq_s*,
         const char*,
         const char*,
         linq_request_complete_fn,
         void*);
-    E_LINQ_ERROR linq_device_send_post(
+    E_LINQ_ERROR linq_node_send_post(
         linq_s*,
         const char*,
         const char*,
         const char*,
         linq_request_complete_fn,
         void*);
-    E_LINQ_ERROR linq_device_send_delete(
+    E_LINQ_ERROR linq_node_send_delete(
         linq_s*,
         const char*,
         const char*,
         linq_request_complete_fn,
         void*);
     E_LINQ_ERROR
-    linq_device_send(linq_s* linq, const char* serial, request_s* request);
+    linq_node_send(linq_s* linq, const char* serial, request_s* request);
     uint32_t linq_node_count(linq_s* linq);
 
 #ifdef __cplusplus

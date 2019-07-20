@@ -1,10 +1,10 @@
 #--------------------------------------------------------------------------
-# Build test-node
+# Build test-device
 #--------------------------------------------------------------------------
 
 find_package(Threads)
 
-add_executable(test-node main.c)
+add_executable(test-device main.c)
 
 string(CONCAT wrap_flags "-Wl,")
 string(CONCAT wrap_flags ${wrap_flags} "--wrap=zmq_poll,")
@@ -16,7 +16,7 @@ string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_connect,")
 string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_send,")
 string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_recv")
 
-target_link_libraries(test-node linq-c-test zmq czmq helpers mock-czmq cmocka)
-set_target_properties(test-node PROPERTIES LINK_FLAGS ${wrap_flags})
-add_test(NAME test-node COMMAND test-node)
-install(TARGETS test-node DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+target_link_libraries(test-device linq-c-test mock-czmq zmq czmq helpers mock-czmq cmocka)
+set_target_properties(test-device PROPERTIES LINK_FLAGS ${wrap_flags})
+add_test(NAME test-device COMMAND test-device)
+install(TARGETS test-device DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

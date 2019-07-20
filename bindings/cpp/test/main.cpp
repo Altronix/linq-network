@@ -1,4 +1,4 @@
-#include "device.h"
+#include "node.h"
 #include "linq.hpp"
 
 extern "C"
@@ -38,9 +38,9 @@ test_linq_alert(void** context_p)
     czmq_spy_poll_set_incoming((0x01));
 
     l.on_alert(
-        [&alert_pass](linq_alert_s* alert, linq_email_s* email, device_s**) {
+        [&alert_pass](linq_alert_s* alert, linq_email_s* email, node_s**) {
             // TODO wrap the Device class
-            // assert_string_equal(device_serial(*d), expect_serial);
+            // assert_string_equal(node_serial(*d), expect_serial);
             assert_string_equal(alert->who, "TestUser");
             assert_string_equal(alert->what, "TestAlert");
             assert_string_equal(alert->where, "Altronix Site ID");

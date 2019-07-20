@@ -1,4 +1,4 @@
-#include "device.h"
+#include "node.h"
 #include "requests.h"
 #include <czmq.h>
 
@@ -6,7 +6,7 @@
 #include <setjmp.h>
 
 static void
-on_request(void* context, E_LINQ_ERROR e, const char* json, device_s** d)
+on_request(void* context, E_LINQ_ERROR e, const char* json, node_s** d)
 {
     ((void)context);
     ((void)e);

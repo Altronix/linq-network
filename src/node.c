@@ -1,56 +1,185 @@
 #include "node.h"
+#include "request.h"
+#include "requests.h"
+
+#define exe_on_complete(rp, err, dat, dp)                                      \
+    do {                                                                       \
+        if ((*rp)->on_complete) (*rp)->on_complete((*rp)->ctx, err, dat, dp);  \
+    } while (0)
 
 typedef struct node_s
 {
-    E_NODE_TYPE type;
-    router_s router;
-    zsock_t* sock;
     zsock_t** sock_p;
+    router_s router;
+    requests_s* requests;
+    request_s* request_pending;
+    char serial[64];
+    char product[64];
+    uint32_t birth;
+    uint32_t uptime;
+    uint32_t last_seen;
 } node_s;
 
-// Connect to a remote rep socket
-node_s*
-node_connect(const char* ep)
+// Push another request onto socket...
+// TODO caller must check request is in queue... refactor check here(?)...
+static void
+flush(node_s* d)
 {
-    node_s* node = linq_malloc(sizeof(node_s));
-    if (node) {
-        memset(node, 0, sizeof(node_s));
-        node->type = NODE_TYPE_CLIENT;
-        node->sock_p = &node->sock;
-        node->sock = zsock_new_dealer(ep);
-        if (!node->sock) {
-            linq_free(node);
-            node = NULL;
-        }
+    linq_assert(d->request_pending == NULL);
+    request_s** r_p = &d->request_pending;
+    *r_p = requests_pop(d->requests);
+    request_router_id_set(*r_p, d->router.id, d->router.sz);
+    if (request_send(*r_p, *d->sock_p) < 0) {
+        exe_on_complete(r_p, LINQ_ERROR_IO, NULL, &d);
+        request_destroy(r_p);
+    } else {
     }
-    return node;
 }
 
 node_s*
-node_recv(zsock_t** sock_p, uint8_t* router, uint32_t router_sz)
+node_create(
+    zsock_t** sock_p,
+    const uint8_t* router,
+    uint32_t router_sz,
+    const char* serial,
+    const char* product)
 {
-    node_s* node = linq_malloc(sizeof(node_s));
-    if (node) {
-        memset(node, 0, sizeof(node_s));
-        node->type = NODE_TYPE_SERVER;
-        node->sock_p = sock_p;
-        node_update_router(node, router, router_sz);
+    node_s* d = linq_malloc(sizeof(node_s));
+    if (d) {
+        memset(d, 0, sizeof(node_s));
+        d->sock_p = sock_p;
+        d->requests = requests_create();
+        d->birth = d->last_seen = sys_tick();
+        node_update_router(d, router, router_sz);
+        snprintf(d->serial, sizeof(d->serial), "%s", serial);
+        snprintf(d->product, sizeof(d->product), "%s", product);
     }
-    return node;
+    return d;
 }
 
 void
-node_update_router(node_s* node, uint8_t* router, uint32_t router_sz)
+node_destroy(node_s** d_p)
 {
-    memcpy(&node->router.id, router, router_sz);
-    node->router.sz = router_sz;
+    node_s* d = *d_p;
+    requests_destroy(&d->requests);
+    if (d->request_pending) request_destroy(&d->request_pending);
+    memset(d, 0, sizeof(node_s));
+    *d_p = NULL;
+    linq_free(d);
+}
+
+const char*
+node_serial(node_s* d)
+{
+    return d->serial;
+}
+
+const char*
+node_product(node_s* d)
+{
+    return d->product;
+}
+
+const router_s*
+node_router(node_s* d)
+{
+    return &d->router;
 }
 
 void
-node_destroy(node_s** node_p)
+node_update_router(node_s* d, const uint8_t* rid, uint32_t sz)
 {
-    node_s* node = *node_p;
-    *node_p = NULL;
-    if (node->sock) zsock_destroy(&node->sock);
-    linq_free(node);
+    memcpy(&d->router.id, rid, sz);
+    d->router.sz = sz;
+}
+
+uint32_t
+node_last_seen(node_s* d)
+{
+    return d->last_seen;
+}
+
+uint32_t
+node_uptime(node_s* d)
+{
+    return d->last_seen - d->birth;
+}
+
+void
+node_heartbeat(node_s* d)
+{
+    d->last_seen = sys_tick();
+}
+
+void
+node_send(node_s* d, request_s** r)
+{
+    requests_push(d->requests, r);
+    if (!d->request_pending && requests_size(d->requests)) flush(d);
+}
+
+static void
+send_method(
+    node_s* d,
+    E_REQUEST_METHOD method,
+    const char* path,
+    const char* json,
+    linq_request_complete_fn fn,
+    void* context)
+{
+    request_s* r =
+        request_create(method, node_serial(d), path, json, fn, context);
+    if (r) {
+        node_send(d, &r);
+    } else {
+        exe_on_complete(&r, LINQ_ERROR_OOM, NULL, &d);
+    }
+}
+
+void
+node_send_delete(
+    node_s* d,
+    const char* path,
+    linq_request_complete_fn fn,
+    void* context)
+{
+    send_method(d, REQUEST_METHOD_DELETE, path, NULL, fn, context);
+}
+
+void
+node_send_get(
+    node_s* d,
+    const char* path,
+    linq_request_complete_fn fn,
+    void* context)
+{
+    send_method(d, REQUEST_METHOD_GET, path, NULL, fn, context);
+}
+
+void
+node_send_post(
+    node_s* d,
+    const char* path,
+    const char* json,
+    linq_request_complete_fn fn,
+    void* context)
+{
+    send_method(d, REQUEST_METHOD_POST, path, json, fn, context);
+}
+
+void
+node_recv(node_s* d, E_LINQ_ERROR err, const char* str)
+{
+    char json[JSON_LEN + 1];
+    request_s** r_p = &d->request_pending;
+    snprintf(json, sizeof(json), "%s", str);
+    exe_on_complete(r_p, err, json, &d);
+    request_destroy(r_p);
+    if (requests_size(d->requests)) flush(d);
+}
+
+uint32_t
+node_request_pending_count(node_s* d)
+{
+    return requests_size(d->requests) + (d->request_pending ? 1 : 0);
 }
