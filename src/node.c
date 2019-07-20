@@ -52,7 +52,7 @@ node_create(
         d->birth = d->last_seen = sys_tick();
         node_update_router(d, router, router_sz);
         snprintf(d->serial, sizeof(d->serial), "%s", serial);
-        if (product) snprintf(d->product, sizeof(d->product), "%s", product);
+        snprintf(d->product, sizeof(d->product), "%s", product);
     }
     return d;
 }
