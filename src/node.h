@@ -17,8 +17,9 @@ extern "C"
         NODE_TYPE_CLIENT = 1
     } E_NODE_TYPE;
 
-    node_s* node_recv(zsock_t**);
+    node_s* node_recv(zsock_t**, uint8_t*, uint32_t);
     node_s* node_connect(const char* ep);
+    void node_update_router(node_s*, uint8_t*, uint32_t);
     void node_destroy(node_s**);
 #ifdef __cplusplus
 }

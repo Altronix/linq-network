@@ -3,6 +3,7 @@
 typedef struct node_s
 {
     E_NODE_TYPE type;
+    router_s router;
     zsock_t* sock;
     zsock_t** sock_p;
 } node_s;
@@ -26,15 +27,23 @@ node_connect(const char* ep)
 }
 
 node_s*
-node_recv(zsock_t** sock_p)
+node_recv(zsock_t** sock_p, uint8_t* router, uint32_t router_sz)
 {
     node_s* node = linq_malloc(sizeof(node_s));
     if (node) {
         memset(node, 0, sizeof(node_s));
         node->type = NODE_TYPE_SERVER;
         node->sock_p = sock_p;
+        node_update_router(node, router, router_sz);
     }
     return node;
+}
+
+void
+node_update_router(node_s* node, uint8_t* router, uint32_t router_sz)
+{
+    memcpy(&node->router.id, router, router_sz);
+    node->router.sz = router_sz;
 }
 
 void

@@ -89,7 +89,7 @@ device_router(device_s* d)
 void
 device_update_router(device_s* d, const uint8_t* rid, uint32_t sz)
 {
-    memcpy(&d->router, rid, sz);
+    memcpy(&d->router.id, rid, sz);
     d->router.sz = sz;
 }
 

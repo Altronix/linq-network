@@ -229,6 +229,25 @@ device_resolve(linq_s* l, devices_s* devices, zframe_t** frames, bool hb)
     return d;
 }
 
+static node_s**
+node_resolve(linq_s* l, nodes_s* nodes, zframe_t** frames, bool hello)
+{
+    uint32_t rid_sz = zframe_size(frames[FRAME_RID_IDX]);
+    uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
+    char sid[SID_LEN];
+    print_null_terminated(sid, SID_LEN, frames[FRAME_SID_IDX]);
+    node_s** node = nodes_get(nodes, sid);
+    if (node) {
+        node_update_router(*node, rid, rid_sz);
+    } else {
+        if (hello) {
+            node_s* node = node_recv(&l->sock, rid, rid_sz);
+            if (node) nodes_insert(l->nodes, sid, &node);
+        }
+    }
+    return node;
+}
+
 // check the zmq request frames are valid and process the request
 static E_LINQ_ERROR
 process_request(linq_s* l, zmsg_t** msg, zframe_t** frames)
@@ -289,10 +308,8 @@ process_hello(linq_s* l, zmsg_t** msg, zframe_t** frames)
     ((void)msg);
     ((void)frames);
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
-    char sid[SID_LEN];
-    print_null_terminated(sid, SID_LEN, frames[FRAME_SID_IDX]);
-    node_s* node = node_recv(&l->sock);
-    if (node) { nodes_insert(l->nodes, sid, &node); }
+    node_s** n = node_resolve(l, l->nodes, frames, true);
+    if (n) e = LINQ_ERROR_OK;
     return e;
 }
 

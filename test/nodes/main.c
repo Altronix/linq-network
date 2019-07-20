@@ -13,7 +13,7 @@ test_nodes_create(void** context_p)
     nodes_s* dm = nodes_create();
     assert_non_null(dm);
 
-    node_s* n = node_recv(NULL);
+    node_s* n = node_recv(NULL, NULL, 0);
     nodes_insert(dm, "test", &n);
 
     // TODO - add some nodes
@@ -28,8 +28,8 @@ test_nodes_insert(void** context_p)
     ((void)context_p);
 
     nodes_s* n = nodes_create();
-    node_s *n0 = node_recv(NULL), *n1 = node_recv(NULL), *n2 = node_recv(NULL),
-           **r0, **r1, **r2, **node;
+    node_s *n0 = node_recv(NULL, NULL, 0), *n1 = node_recv(NULL, NULL, 0),
+           *n2 = node_recv(NULL, NULL, 0), **r0, **r1, **r2, **node;
 
     assert_int_equal(nodes_size(n), 0);
 

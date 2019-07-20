@@ -281,6 +281,30 @@ test_linq_receive_hello(void** context_p)
     test_reset();
 }
 
+static void
+test_linq_receive_hello_double_id(void** context_p)
+{
+    ((void)context_p);
+    linq_s* l = linq_create(NULL, NULL);
+    zmsg_t* m0 = helpers_create_message_mem(
+        4, "router", 6, "\x0", 1, "\x4", 1, "node", 4);
+    zmsg_t* m1 = helpers_create_message_mem(
+        4, "router", 6, "\x0", 1, "\x4", 1, "node", 4);
+
+    czmq_spy_mesg_push_incoming(&m0);
+    czmq_spy_mesg_push_incoming(&m1);
+    czmq_spy_poll_set_incoming((0x01));
+
+    assert_int_equal(linq_node_count(l), 0);
+    linq_poll(l);
+    assert_int_equal(linq_node_count(l), 1);
+    linq_poll(l);
+    assert_int_equal(linq_node_count(l), 1);
+
+    linq_destroy(&l);
+    test_reset();
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -298,7 +322,8 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_receive_alert_error_short),
         cmocka_unit_test(test_linq_receive_response_ok),
         cmocka_unit_test(test_linq_receive_response_error_timeout),
-        cmocka_unit_test(test_linq_receive_hello)
+        cmocka_unit_test(test_linq_receive_hello),
+        cmocka_unit_test(test_linq_receive_hello_double_id)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
