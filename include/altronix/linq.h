@@ -80,7 +80,8 @@ extern "C"
     E_LINQ_ERROR linq_listen(linq_s*, const char* ep);
     E_LINQ_ERROR linq_poll(linq_s* l);
     node_s** linq_device(linq_s*, const char*);
-    uint32_t linq_node_count(linq_s*);
+    uint32_t linq_device_count(linq_s*);
+    uint32_t linq_server_count(linq_s* linq);
     E_LINQ_ERROR linq_node_send_get(
         linq_s*,
         const char*,
@@ -102,7 +103,6 @@ extern "C"
         void*);
     E_LINQ_ERROR
     linq_node_send(linq_s* linq, const char* serial, request_s* request);
-    uint32_t linq_node_count(linq_s* linq);
 
 #ifdef __cplusplus
 }

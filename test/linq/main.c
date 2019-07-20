@@ -134,7 +134,7 @@ test_linq_receive_heartbeat_ok(void** context_p)
     linq_poll(l);
     node_s** d = linq_device(l, serial);
     assert_non_null(d);
-    assert_int_equal(linq_node_count(l), 1);
+    assert_int_equal(linq_device_count(l), 1);
     assert_int_equal(node_router(*d)->sz, 4);
     assert_memory_equal(node_router(*d)->id, "rid0", 4);
     assert_string_equal(node_serial(*d), serial);
@@ -145,7 +145,7 @@ test_linq_receive_heartbeat_ok(void** context_p)
     spy_sys_set_tick(200);
     linq_poll(l);
     assert_non_null(d);
-    assert_int_equal(linq_node_count(l), 1);
+    assert_int_equal(linq_device_count(l), 1);
     assert_int_equal(node_router(*d)->sz, 5);
     assert_memory_equal(node_router(*d)->id, "rid00", 5);
     assert_string_equal(node_serial(*d), serial);
@@ -273,9 +273,9 @@ test_linq_receive_hello(void** context_p)
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
 
-    assert_int_equal(linq_node_count(l), 0);
+    assert_int_equal(linq_server_count(l), 0);
     linq_poll(l);
-    assert_int_equal(linq_node_count(l), 1);
+    assert_int_equal(linq_server_count(l), 1);
 
     linq_destroy(&l);
     test_reset();
@@ -295,11 +295,11 @@ test_linq_receive_hello_double_id(void** context_p)
     czmq_spy_mesg_push_incoming(&m1);
     czmq_spy_poll_set_incoming((0x01));
 
-    assert_int_equal(linq_node_count(l), 0);
+    assert_int_equal(linq_server_count(l), 0);
     linq_poll(l);
-    assert_int_equal(linq_node_count(l), 1);
+    assert_int_equal(linq_server_count(l), 1);
     linq_poll(l);
-    assert_int_equal(linq_node_count(l), 1);
+    assert_int_equal(linq_server_count(l), 1);
 
     linq_destroy(&l);
     test_reset();
@@ -322,8 +322,8 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_receive_alert_error_short),
         cmocka_unit_test(test_linq_receive_response_ok),
         cmocka_unit_test(test_linq_receive_response_error_timeout),
-        // cmocka_unit_test(test_linq_receive_hello),
-        // cmocka_unit_test(test_linq_receive_hello_double_id)
+        cmocka_unit_test(test_linq_receive_hello),
+        cmocka_unit_test(test_linq_receive_hello_double_id)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);

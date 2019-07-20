@@ -36,7 +36,7 @@ class Linq
     node_s** node_get(const char* str) { return linq_device(linq_, str); }
 
     // get number of devices connected to linq
-    uint32_t node_count() { return linq_node_count(linq_); }
+    uint32_t node_count() { return linq_device_count(linq_); }
 
     // call function fn on every heartbeat
     Linq& on_heartbeat(std::function<void(const char*, node_s**)> fn)

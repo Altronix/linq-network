@@ -28,7 +28,7 @@ typedef struct linq_s
     void* context;
     zsock_t* sock;
     nodes_s* devices;
-    nodes_s* nodes;
+    nodes_s* servers;
     linq_callbacks* callbacks;
 } linq_s;
 
@@ -208,21 +208,38 @@ print_null_terminated(char* c, uint32_t sz, zframe_t* f)
 
 // find a device in our device map and update the router id. insert device if hb
 static node_s**
-node_resolve(linq_s* l, nodes_s* devices, zframe_t** frames, bool hb)
+device_resolve(linq_s* l, nodes_s* map, zframe_t** frames, bool hb)
 {
     uint32_t rid_sz = zframe_size(frames[FRAME_RID_IDX]);
     uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
     char sid[SID_LEN], pid[PID_LEN];
     print_null_terminated(sid, SID_LEN, frames[FRAME_SID_IDX]);
     print_null_terminated(pid, PID_LEN, frames[FRAME_HB_PID_IDX]);
-    node_s** d = nodes_get(devices, sid);
+    node_s** d = nodes_get(map, sid);
     if (d) {
         node_heartbeat(*d);
         node_update_router(*d, rid, rid_sz);
     } else {
         if (hb && frames[FRAME_HB_PID_IDX]) {
-            d = nodes_insert(l->devices, &l->sock, rid, rid_sz, sid, pid);
+            d = nodes_insert(map, &l->sock, rid, rid_sz, sid, pid);
         }
+    }
+    return d;
+}
+
+// find a device in our device map and update the router id. insert device if hb
+static node_s**
+server_resolve(linq_s* l, nodes_s* map, zframe_t** frames, bool hello)
+{
+    uint32_t rid_sz = zframe_size(frames[FRAME_RID_IDX]);
+    uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
+    char sid[SID_LEN];
+    print_null_terminated(sid, SID_LEN, frames[FRAME_SID_IDX]);
+    node_s** d = nodes_get(map, sid);
+    if (d) {
+        node_update_router(*d, rid, rid_sz);
+    } else {
+        if (hello) d = nodes_insert(map, &l->sock, rid, rid_sz, sid, NULL);
     }
     return d;
 }
@@ -249,7 +266,7 @@ process_response(linq_s* l, zmsg_t** msg, zframe_t** frames)
     if ((zmsg_size(*msg) == 2) &&
         (err = frames[FRAME_RES_ERR_IDX] = pop_eq(*msg, 1)) &&
         (dat = frames[FRAME_RES_DAT_IDX] = pop_le(*msg, JSON_LEN))) {
-        node_s** d = node_resolve(l, l->devices, frames, false);
+        node_s** d = device_resolve(l, l->devices, frames, false);
         if (d) {
             node_recv(*d, zframe_data(err)[0], (const char*)zframe_data(dat));
             e = LINQ_ERROR_OK;
@@ -269,7 +286,7 @@ process_alert(linq_s* l, zmsg_t** msg, zframe_t** frames)
         (frames[FRAME_ALERT_PID_IDX] = pop_le(*msg, PID_LEN)) &&
         (frames[FRAME_ALERT_DAT_IDX] = pop_alert(*msg, &alert)) &&
         (frames[FRAME_ALERT_DST_IDX] = pop_email(*msg, &email))) {
-        node_s** d = node_resolve(l, l->devices, frames, false);
+        node_s** d = device_resolve(l, l->devices, frames, false);
         if (d) {
             exe_on_alert(l, d, &alert, &email);
             e = LINQ_ERROR_OK;
@@ -287,8 +304,8 @@ process_hello(linq_s* l, zmsg_t** msg, zframe_t** frames)
     ((void)msg);
     ((void)frames);
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
-    node_s** n = node_resolve(l, l->nodes, frames, true);
-    if (n) e = LINQ_ERROR_OK;
+    node_s** s = server_resolve(l, l->servers, frames, true);
+    if (s) e = LINQ_ERROR_OK;
     return e;
 }
 
@@ -300,7 +317,7 @@ process_heartbeat(linq_s* l, zmsg_t** msg, zframe_t** frames)
     if (zmsg_size(*msg) == 2 &&
         (frames[FRAME_HB_PID_IDX] = pop_le(*msg, PID_LEN)) &&
         (frames[FRAME_HB_SITE_IDX] = pop_le(*msg, SITE_LEN))) {
-        node_s** d = node_resolve(l, l->devices, frames, true);
+        node_s** d = device_resolve(l, l->devices, frames, true);
         if (d) {
             exe_on_heartbeat(l, d);
             e = LINQ_ERROR_OK;
@@ -354,7 +371,7 @@ linq_create(linq_callbacks* cb, void* context)
     if (l) {
         memset(l, 0, sizeof(linq_s));
         l->devices = nodes_create();
-        l->nodes = nodes_create();
+        l->servers = nodes_create();
         l->callbacks = cb;
         l->context = context;
     }
@@ -368,7 +385,7 @@ linq_destroy(linq_s** linq_p)
     linq_s* l = *linq_p;
     *linq_p = NULL;
     nodes_destroy(&l->devices);
-    nodes_destroy(&l->nodes);
+    nodes_destroy(&l->servers);
     if (l->sock) zsock_destroy(&l->sock);
     linq_free(l);
 }
@@ -403,9 +420,16 @@ linq_device(linq_s* l, const char* serial)
 
 // return how many devices are connected to linq
 uint32_t
-linq_node_count(linq_s* l)
+linq_device_count(linq_s* l)
 {
     return nodes_size(l->devices);
+}
+
+// return how many servers are connected to linq
+uint32_t
+linq_server_count(linq_s* l)
+{
+    return nodes_size(l->servers);
 }
 
 // send a get request to a device connected to us
