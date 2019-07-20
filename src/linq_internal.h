@@ -11,11 +11,11 @@
 #include "altronix/linq.h"
 
 // [router, version, type, serial]
-// [router, version, 0x00, serial, product, siteId]      = HEARTBEAT
-// [router, version, 0x01, serial, path [, data] ]       = REQUEST
-// [router, version, 0x02, serial, error, data]          = RESPONSE
-// [router, version, 0x03, serial, product, alert, mail] = ALERT
-// [router, version, 0x04, serial, ...]                  = HELLO
+// [router, version, 0x00, serial, type, siteId]      = HEARTBEAT
+// [router, version, 0x01, serial, path [, data] ]    = REQUEST
+// [router, version, 0x02, serial, error, data]       = RESPONSE
+// [router, version, 0x03, serial, type, alert, mail] = ALERT
+// [router, version, 0x04, serial, ...]               = HELLO
 
 #define RID_LEN 256
 #define SID_LEN 64

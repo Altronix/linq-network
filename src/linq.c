@@ -213,17 +213,17 @@ node_resolve(linq_s* l, nodes_s* map, zframe_t** frames, bool insert)
 {
     uint32_t rid_sz = zframe_size(frames[FRAME_RID_IDX]);
     uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
-    char sid[SID_LEN], pid[TID_LEN] = { 0 };
+    char sid[SID_LEN], tid[TID_LEN] = { 0 };
     print_null_terminated(sid, SID_LEN, frames[FRAME_SID_IDX]);
     if (frames[FRAME_HB_TID_IDX]) {
-        print_null_terminated(pid, TID_LEN, frames[FRAME_HB_TID_IDX]);
+        print_null_terminated(tid, TID_LEN, frames[FRAME_HB_TID_IDX]);
     }
     node_s** d = nodes_get(map, sid);
     if (d) {
         node_heartbeat(*d);
         node_update_router(*d, rid, rid_sz);
     } else {
-        if (insert) d = nodes_insert(map, &l->sock, rid, rid_sz, sid, pid);
+        if (insert) d = nodes_insert(map, &l->sock, rid, rid_sz, sid, tid);
     }
     return d;
 }
