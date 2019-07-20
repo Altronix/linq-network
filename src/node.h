@@ -16,10 +16,10 @@ extern "C"
         const uint8_t* router,
         uint32_t router_sz,
         const char* serial,
-        const char* product);
+        const char* type);
     void node_destroy(node_s** d_p);
     const char* node_serial(node_s* d);
-    const char* node_product(node_s* d);
+    const char* node_type(node_s* d);
     const router_s* node_router(node_s* d);
     void node_update_router(node_s* d, const uint8_t* rid, uint32_t sz);
     uint32_t node_last_seen(node_s* d);

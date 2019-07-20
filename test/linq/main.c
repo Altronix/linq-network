@@ -138,7 +138,7 @@ test_linq_receive_heartbeat_ok(void** context_p)
     assert_int_equal(node_router(*d)->sz, 4);
     assert_memory_equal(node_router(*d)->id, "rid0", 4);
     assert_string_equal(node_serial(*d), serial);
-    assert_string_equal(node_product(*d), "product");
+    assert_string_equal(node_type(*d), "product");
     assert_int_equal(node_uptime(*d), 0);
 
     // Receive a second heartbeat , update router id and last seen
@@ -149,7 +149,7 @@ test_linq_receive_heartbeat_ok(void** context_p)
     assert_int_equal(node_router(*d)->sz, 5);
     assert_memory_equal(node_router(*d)->id, "rid00", 5);
     assert_string_equal(node_serial(*d), serial);
-    assert_string_equal(node_product(*d), "product");
+    assert_string_equal(node_type(*d), "product");
     assert_int_equal(node_uptime(*d), 100);
 
     assert_true(pass);

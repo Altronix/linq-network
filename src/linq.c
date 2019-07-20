@@ -213,10 +213,10 @@ node_resolve(linq_s* l, nodes_s* map, zframe_t** frames, bool insert)
 {
     uint32_t rid_sz = zframe_size(frames[FRAME_RID_IDX]);
     uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
-    char sid[SID_LEN], pid[PID_LEN] = { 0 };
+    char sid[SID_LEN], pid[TID_LEN] = { 0 };
     print_null_terminated(sid, SID_LEN, frames[FRAME_SID_IDX]);
-    if (frames[FRAME_HB_PID_IDX]) {
-        print_null_terminated(pid, PID_LEN, frames[FRAME_HB_PID_IDX]);
+    if (frames[FRAME_HB_TID_IDX]) {
+        print_null_terminated(pid, TID_LEN, frames[FRAME_HB_TID_IDX]);
     }
     node_s** d = nodes_get(map, sid);
     if (d) {
@@ -267,7 +267,7 @@ process_alert(linq_s* l, zmsg_t** msg, zframe_t** frames)
     linq_alert_s alert;
     linq_email_s email;
     if (zmsg_size(*msg) == 3 &&
-        (frames[FRAME_ALERT_PID_IDX] = pop_le(*msg, PID_LEN)) &&
+        (frames[FRAME_ALERT_TID_IDX] = pop_le(*msg, TID_LEN)) &&
         (frames[FRAME_ALERT_DAT_IDX] = pop_alert(*msg, &alert)) &&
         (frames[FRAME_ALERT_DST_IDX] = pop_email(*msg, &email))) {
         node_s** d = node_resolve(l, l->devices, frames, false);
@@ -299,7 +299,7 @@ process_heartbeat(linq_s* l, zmsg_t** msg, zframe_t** frames)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     if (zmsg_size(*msg) == 2 &&
-        (frames[FRAME_HB_PID_IDX] = pop_le(*msg, PID_LEN)) &&
+        (frames[FRAME_HB_TID_IDX] = pop_le(*msg, TID_LEN)) &&
         (frames[FRAME_HB_SITE_IDX] = pop_le(*msg, SITE_LEN))) {
         node_s** d = node_resolve(l, l->devices, frames, true);
         if (d) {

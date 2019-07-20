@@ -14,7 +14,7 @@ typedef struct node_s
     requests_s* requests;
     request_s* request_pending;
     char serial[64];
-    char product[64];
+    char type[64];
     uint32_t birth;
     uint32_t uptime;
     uint32_t last_seen;
@@ -42,7 +42,7 @@ node_create(
     const uint8_t* router,
     uint32_t router_sz,
     const char* serial,
-    const char* product)
+    const char* type)
 {
     node_s* d = linq_malloc(sizeof(node_s));
     if (d) {
@@ -52,7 +52,7 @@ node_create(
         d->birth = d->last_seen = sys_tick();
         node_update_router(d, router, router_sz);
         snprintf(d->serial, sizeof(d->serial), "%s", serial);
-        snprintf(d->product, sizeof(d->product), "%s", product);
+        snprintf(d->type, sizeof(d->type), "%s", type);
     }
     return d;
 }
@@ -75,9 +75,9 @@ node_serial(node_s* d)
 }
 
 const char*
-node_product(node_s* d)
+node_type(node_s* d)
 {
-    return d->product;
+    return d->type;
 }
 
 const router_s*

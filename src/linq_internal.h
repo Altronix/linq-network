@@ -19,7 +19,7 @@
 
 #define RID_LEN 256
 #define SID_LEN 64
-#define PID_LEN 64
+#define TID_LEN 64
 #define SITE_LEN 64
 #define JSON_LEN 1024
 
@@ -37,11 +37,11 @@
 #define FRAME_SID_IDX 3
 
 // Heartbeat IDX
-#define FRAME_HB_PID_IDX 4
+#define FRAME_HB_TID_IDX 4
 #define FRAME_HB_SITE_IDX 5
 
 // Alert IDX
-#define FRAME_ALERT_PID_IDX 4
+#define FRAME_ALERT_TID_IDX 4
 #define FRAME_ALERT_DAT_IDX 5
 #define FRAME_ALERT_DST_IDX 6
 

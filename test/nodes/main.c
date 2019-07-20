@@ -1,6 +1,6 @@
+#include "helpers.h"
 #include "node.h"
 #include "nodes.h"
-#include "helpers.h"
 #include <czmq.h>
 
 #include <cmocka.h>
@@ -44,19 +44,19 @@ test_nodes_insert(void** context_p)
     assert_non_null(d);
     assert_memory_equal(node_router(*d), &rid0, sizeof(rid0));
     assert_string_equal(node_serial(*d), "serial0");
-    assert_string_equal(node_product(*d), "product0");
+    assert_string_equal(node_type(*d), "product0");
 
     d = nodes_get(m, "serial1");
     assert_non_null(d);
     assert_memory_equal(node_router(*d), &rid1, sizeof(rid1));
     assert_string_equal(node_serial(*d), "serial1");
-    assert_string_equal(node_product(*d), "product1");
+    assert_string_equal(node_type(*d), "product1");
 
     d = nodes_get(m, "serial2");
     assert_non_null(d);
     assert_memory_equal(node_router(*d), &rid2, sizeof(rid2));
     assert_string_equal(node_serial(*d), "serial2");
-    assert_string_equal(node_product(*d), "product2");
+    assert_string_equal(node_type(*d), "product2");
 
     nodes_remove(m, "does not exist");
     assert_int_equal(nodes_size(m), 3);
