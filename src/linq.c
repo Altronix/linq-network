@@ -223,7 +223,8 @@ node_resolve(linq_s* l, nodes_s* map, zframe_t** frames, bool insert)
         node_heartbeat(*d);
         node_update_router(*d, rid, rid_sz);
     } else {
-        if (insert) d = nodes_insert(map, &l->sock, rid, rid_sz, sid, tid);
+        node_s* node = node_create(&l->sock, rid, rid_sz, sid, tid);
+        if (insert) d = nodes_add(map, &node);
     }
     return d;
 }
