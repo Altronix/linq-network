@@ -267,7 +267,18 @@ static void
 test_linq_receive_hello(void** context_p)
 {
     ((void)context_p);
-    // TODO make sure we add a node to our node map
+    linq_s* l = linq_create(NULL, NULL);
+    zmsg_t* m = helpers_create_message_mem(
+        4, "router", 6, "\x0", 1, "\x4", 1, "node", 4);
+    czmq_spy_mesg_push_incoming(&m);
+    czmq_spy_poll_set_incoming((0x01));
+
+    assert_int_equal(linq_node_count(l), 0);
+    linq_poll(l);
+    assert_int_equal(linq_node_count(l), 1);
+
+    linq_destroy(&l);
+    test_reset();
 }
 
 int

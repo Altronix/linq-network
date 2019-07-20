@@ -31,3 +31,45 @@ nodes_destroy(nodes_s** nodes_p)
     kh_destroy(node, nodes->h);
     linq_free(nodes);
 }
+
+node_s**
+nodes_insert(nodes_s* nodes, const char* id, node_s** node_p)
+{
+    int ret;
+    node_s* n = *node_p;
+    *node_p = NULL;
+    khiter_t k = kh_put(node, nodes->h, id, &ret);
+    linq_assert(ret == 1);
+    kh_val(nodes->h, k) = n;
+    return &kh_val(nodes->h, k);
+}
+
+node_s**
+nodes_get(nodes_s* nodes, const char* id)
+{
+    khiter_t k;
+    return ((k = kh_get(node, nodes->h, id)) == kh_end(nodes->h))
+               ? NULL
+               : &kh_val(nodes->h, k);
+}
+
+uint32_t
+nodes_remove(nodes_s* nodes, const char* id)
+{
+    khiter_t k;
+    node_s* n;
+    uint32_t count = 0;
+    if (!((k = kh_get(node, nodes->h, id)) == kh_end(nodes->h))) {
+        n = kh_val(nodes->h, k);
+        kh_del(node, nodes->h, k);
+        node_destroy(&n);
+        count = 1;
+    }
+    return count;
+}
+
+uint32_t
+nodes_size(nodes_s* nodes)
+{
+    return kh_size(nodes->h);
+}

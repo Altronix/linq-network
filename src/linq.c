@@ -289,6 +289,10 @@ process_hello(linq_s* l, zmsg_t** msg, zframe_t** frames)
     ((void)msg);
     ((void)frames);
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
+    char sid[SID_LEN];
+    print_null_terminated(sid, SID_LEN, frames[FRAME_SID_IDX]);
+    node_s* node = node_recv(&l->sock);
+    if (node) { nodes_insert(l->nodes, sid, &node); }
     return e;
 }
 
@@ -464,3 +468,8 @@ linq_device_send(linq_s* linq, const char* serial, request_s* request)
     return LINQ_ERROR_OK;
 }
 
+uint32_t
+linq_node_count(linq_s* l)
+{
+    return nodes_size(l->nodes);
+}

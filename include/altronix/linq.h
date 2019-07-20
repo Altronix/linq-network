@@ -102,6 +102,7 @@ extern "C"
         void*);
     E_LINQ_ERROR
     linq_device_send(linq_s* linq, const char* serial, request_s* request);
+    uint32_t linq_node_count(linq_s* linq);
 
 #ifdef __cplusplus
 }

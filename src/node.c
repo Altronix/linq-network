@@ -25,6 +25,18 @@ node_connect(const char* ep)
     return node;
 }
 
+node_s*
+node_recv(zsock_t** sock_p)
+{
+    node_s* node = linq_malloc(sizeof(node_s));
+    if (node) {
+        memset(node, 0, sizeof(node_s));
+        node->type = NODE_TYPE_SERVER;
+        node->sock_p = sock_p;
+    }
+    return node;
+}
+
 void
 node_destroy(node_s** node_p)
 {

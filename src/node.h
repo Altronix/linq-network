@@ -17,6 +17,7 @@ extern "C"
         NODE_TYPE_CLIENT = 1
     } E_NODE_TYPE;
 
+    node_s* node_recv(zsock_t**);
     node_s* node_connect(const char* ep);
     void node_destroy(node_s**);
 #ifdef __cplusplus
