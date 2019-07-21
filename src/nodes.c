@@ -31,23 +31,6 @@ nodes_destroy(nodes_s** d_p)
     linq_free(dmap);
 }
 
-// node_s**
-// nodes_insert(
-//     nodes_s* dmap,
-//     zsock_t** sock_p,
-//     uint8_t* router,
-//     uint32_t router_sz,
-//     const char* serial,
-//     const char* product)
-// {
-//     int ret = 0;
-//     node_s* d = node_create(sock_p, router, router_sz, serial, product);
-//     khiter_t k = kh_put(node, dmap->h, node_serial(d), &ret);
-//     linq_assert(ret == 1); // If double insert we crash
-//     kh_val(dmap->h, k) = d;
-//     return &kh_val(dmap->h, k);
-// }
-
 node_s**
 nodes_add(nodes_s* nodes, node_s** node_p)
 {
