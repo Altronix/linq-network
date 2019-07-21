@@ -1,3 +1,11 @@
-add_executable(alert-integration-test alerts.c)
-target_link_libraries(alert-integration-test linq-c linq-common-fixture)
-add_test(NAME alert-integration-test COMMAND alert-integration-test)
+add_executable(integration-alert-test alerts.c)
+target_link_libraries(integration-alert-test linq-c linq-common-fixture)
+add_test(NAME integration-alert-test COMMAND integration-alert-test)
+
+add_executable(integration-broadcast-test broadcast.c)
+target_link_libraries(integration-broadcast-test linq-c linq-common-fixture)
+add_test(NAME integration-broadcast-test COMMAND integration-broadcast-test)
+
+add_executable(integration-forward-response-test forward_response.c)
+target_link_libraries(integration-forward-response-test linq-c linq-common-fixture)
+add_test(NAME integration-forward-response-test COMMAND integration-forward-response-test)

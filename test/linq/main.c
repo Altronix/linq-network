@@ -111,7 +111,7 @@ static void
 test_linq_receive_protocol_error_router(void** context_p)
 {
     ((void)context_p);
-    // TODO the serial string is too big
+    // TODO the router is too big
 }
 
 static void
@@ -305,6 +305,27 @@ test_linq_receive_hello_double_id(void** context_p)
     test_reset();
 }
 
+static void
+test_linq_broadcast_alert(void** context_p)
+{
+    ((void)context_p);
+    // TODO
+}
+
+static void
+test_linq_broadcast_heartbeat(void** context_p)
+{
+    ((void)context_p);
+    // TODO
+}
+
+static void
+test_linq_forward_response(void** context_p)
+{
+    ((void)context_p);
+    // TODO
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -323,7 +344,10 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_receive_response_ok),
         cmocka_unit_test(test_linq_receive_response_error_timeout),
         cmocka_unit_test(test_linq_receive_hello),
-        cmocka_unit_test(test_linq_receive_hello_double_id)
+        cmocka_unit_test(test_linq_receive_hello_double_id),
+        cmocka_unit_test(test_linq_broadcast_alert),
+        cmocka_unit_test(test_linq_broadcast_heartbeat),
+        cmocka_unit_test(test_linq_forward_response)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
