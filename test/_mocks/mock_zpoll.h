@@ -1,7 +1,7 @@
 #ifndef MOCK_ZPOLL_H_
 #define MOCK_ZPOLL_H_
 
-#include <stdbool.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -9,7 +9,7 @@ extern "C"
 #endif
 
     void czmq_spy_poll_reset(void);
-    void czmq_spy_poll_push_incoming(bool i);
+    void czmq_spy_poll_set_incoming(uint32_t i);
 
 #ifdef __cplusplus
 }

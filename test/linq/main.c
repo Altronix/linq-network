@@ -1,9 +1,9 @@
 #include "altronix/linq.h"
-#include "device.h"
 #include "helpers.h"
 #include "linq_internal.h"
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
+#include "node.h"
 #include <czmq.h>
 
 #include <cmocka.h>
@@ -38,10 +38,10 @@ linq_on_error_fn(
 }
 
 static void
-linq_on_heartbeat_fn(void* pass, const char* serial, device_s** d)
+linq_on_heartbeat_fn(void* pass, const char* serial, node_s** d)
 {
     assert_string_equal(serial, expect_serial);
-    assert_string_equal(device_serial(*d), expect_serial);
+    assert_string_equal(node_serial(*d), expect_serial);
     *((bool*)pass) = true;
 }
 
@@ -50,9 +50,9 @@ linq_on_alert_fn(
     void* pass,
     linq_alert_s* alert,
     linq_email_s* email,
-    device_s** d)
+    node_s** d)
 {
-    assert_string_equal(device_serial(*d), expect_serial);
+    assert_string_equal(node_serial(*d), expect_serial);
     assert_string_equal(alert->who, "TestUser");
     assert_string_equal(alert->what, "TestAlert");
     assert_string_equal(alert->where, "Altronix Site ID");
@@ -90,7 +90,7 @@ test_linq_receive_protocol_error_short(void** context_p)
 
     expect_error = LINQ_ERROR_PROTOCOL;
     czmq_spy_mesg_push_incoming(&m);
-    czmq_spy_poll_push_incoming(true);
+    czmq_spy_poll_set_incoming((0x01));
 
     linq_poll(l);
 
@@ -111,7 +111,7 @@ static void
 test_linq_receive_protocol_error_router(void** context_p)
 {
     ((void)context_p);
-    // TODO the serial string is too big
+    // TODO the router is too big
 }
 
 static void
@@ -127,30 +127,30 @@ test_linq_receive_heartbeat_ok(void** context_p)
     // Push some incoming heartbeats
     czmq_spy_mesg_push_incoming(&hb0);
     czmq_spy_mesg_push_incoming(&hb1);
-    czmq_spy_poll_push_incoming(true);
+    czmq_spy_poll_set_incoming((0x01));
     spy_sys_set_tick(100);
 
     // Receive a heartbeat
     linq_poll(l);
-    device_s** d = linq_device(l, serial);
+    node_s** d = linq_device(l, serial);
     assert_non_null(d);
     assert_int_equal(linq_device_count(l), 1);
-    assert_int_equal(device_router(*d)->sz, 4);
-    assert_memory_equal(device_router(*d)->id, "rid0", 4);
-    assert_string_equal(device_serial(*d), serial);
-    assert_string_equal(device_product(*d), "product");
-    assert_int_equal(device_uptime(*d), 0);
+    assert_int_equal(node_router(*d)->sz, 4);
+    assert_memory_equal(node_router(*d)->id, "rid0", 4);
+    assert_string_equal(node_serial(*d), serial);
+    assert_string_equal(node_type(*d), "product");
+    assert_int_equal(node_uptime(*d), 0);
 
     // Receive a second heartbeat , update router id and last seen
     spy_sys_set_tick(200);
     linq_poll(l);
     assert_non_null(d);
     assert_int_equal(linq_device_count(l), 1);
-    assert_int_equal(device_router(*d)->sz, 5);
-    assert_memory_equal(device_router(*d)->id, "rid00", 5);
-    assert_string_equal(device_serial(*d), serial);
-    assert_string_equal(device_product(*d), "product");
-    assert_int_equal(device_uptime(*d), 100);
+    assert_int_equal(node_router(*d)->sz, 5);
+    assert_memory_equal(node_router(*d)->id, "rid00", 5);
+    assert_string_equal(node_serial(*d), serial);
+    assert_string_equal(node_type(*d), "product");
+    assert_int_equal(node_uptime(*d), 100);
 
     assert_true(pass);
 
@@ -169,7 +169,7 @@ test_linq_receive_heartbeat_error_short(void** context_p)
 
     expect_error = LINQ_ERROR_PROTOCOL;
     czmq_spy_mesg_push_incoming(&m);
-    czmq_spy_poll_push_incoming(true);
+    czmq_spy_poll_set_incoming((0x01));
 
     linq_poll(l);
 
@@ -192,7 +192,7 @@ test_linq_receive_alert_ok(void** context_p)
     // Push some incoming messages
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_mesg_push_incoming(&alert);
-    czmq_spy_poll_push_incoming(true);
+    czmq_spy_poll_set_incoming((0x01));
 
     linq_poll(l);
     pass = false;
@@ -211,12 +211,12 @@ test_linq_receive_alert_error_short(void** context_p)
 }
 
 static void
-on_response_ok(void* pass, int err, const char* data, device_s** d)
+on_response_ok(void* pass, int err, const char* data, node_s** d)
 {
     *(bool*)pass = true;
     assert_int_equal(err, 0);
     assert_string_equal(data, "{\"test\":1}");
-    assert_string_equal(device_serial(*d), "serial");
+    assert_string_equal(node_serial(*d), "serial");
 }
 
 static void
@@ -231,14 +231,14 @@ test_linq_receive_response_ok(void** context_p)
 
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_mesg_push_incoming(&r);
-    czmq_spy_poll_push_incoming(true);
+    czmq_spy_poll_set_incoming((0x01));
 
     // Receive heartbeat (add device to linq)
     // Send a get request
     // receive get response
     // make sure callback is as expect
     linq_poll(l);
-    linq_device_send_get(l, serial, "/ATX/test", on_response_ok, &pass);
+    linq_node_send_get(l, serial, "/ATX/test", on_response_ok, &pass);
     linq_poll(l);
     assert_true(pass);
 
@@ -247,7 +247,7 @@ test_linq_receive_response_ok(void** context_p)
 }
 
 static void
-on_response_error_timeout(void* pass, int err, const char* data, device_s** d)
+on_response_error_timeout(void* pass, int err, const char* data, node_s** d)
 {
     ((void)pass);
     ((void)err);
@@ -258,6 +258,69 @@ on_response_error_timeout(void* pass, int err, const char* data, device_s** d)
 
 static void
 test_linq_receive_response_error_timeout(void** context_p)
+{
+    ((void)context_p);
+    // TODO
+}
+
+static void
+test_linq_receive_hello(void** context_p)
+{
+    ((void)context_p);
+    linq_s* l = linq_create(NULL, NULL);
+    zmsg_t* m = helpers_create_message_mem(
+        4, "router", 6, "\x0", 1, "\x4", 1, "node", 4);
+    czmq_spy_mesg_push_incoming(&m);
+    czmq_spy_poll_set_incoming((0x01));
+
+    assert_int_equal(linq_server_count(l), 0);
+    linq_poll(l);
+    assert_int_equal(linq_server_count(l), 1);
+
+    linq_destroy(&l);
+    test_reset();
+}
+
+static void
+test_linq_receive_hello_double_id(void** context_p)
+{
+    ((void)context_p);
+    linq_s* l = linq_create(NULL, NULL);
+    zmsg_t* m0 = helpers_create_message_mem(
+        4, "router", 6, "\x0", 1, "\x4", 1, "node", 4);
+    zmsg_t* m1 = helpers_create_message_mem(
+        4, "router", 6, "\x0", 1, "\x4", 1, "node", 4);
+
+    czmq_spy_mesg_push_incoming(&m0);
+    czmq_spy_mesg_push_incoming(&m1);
+    czmq_spy_poll_set_incoming((0x01));
+
+    assert_int_equal(linq_server_count(l), 0);
+    linq_poll(l);
+    assert_int_equal(linq_server_count(l), 1);
+    linq_poll(l);
+    assert_int_equal(linq_server_count(l), 1);
+
+    linq_destroy(&l);
+    test_reset();
+}
+
+static void
+test_linq_broadcast_alert(void** context_p)
+{
+    ((void)context_p);
+    // TODO
+}
+
+static void
+test_linq_broadcast_heartbeat(void** context_p)
+{
+    ((void)context_p);
+    // TODO
+}
+
+static void
+test_linq_forward_response(void** context_p)
 {
     ((void)context_p);
     // TODO
@@ -279,7 +342,12 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_receive_alert_ok),
         cmocka_unit_test(test_linq_receive_alert_error_short),
         cmocka_unit_test(test_linq_receive_response_ok),
-        cmocka_unit_test(test_linq_receive_response_error_timeout)
+        cmocka_unit_test(test_linq_receive_response_error_timeout),
+        cmocka_unit_test(test_linq_receive_hello),
+        cmocka_unit_test(test_linq_receive_hello_double_id),
+        cmocka_unit_test(test_linq_broadcast_alert),
+        cmocka_unit_test(test_linq_broadcast_heartbeat),
+        cmocka_unit_test(test_linq_forward_response)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);

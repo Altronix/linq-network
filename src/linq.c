@@ -1,6 +1,6 @@
-#include "device.h"
-#include "device_map.h"
 #include "linq_internal.h"
+#include "node.h"
+#include "nodes.h"
 #include "request.h"
 
 #define JSMN_HEADER
@@ -11,15 +11,15 @@
         if (linq->callbacks && linq->callbacks->err)                           \
             linq->callbacks->err(linq->context, error, "", serial);            \
     } while (0)
-#define exe_on_heartbeat(linq, device_p)                                       \
+#define exe_on_heartbeat(linq, node_p)                                         \
     do {                                                                       \
         if (linq->callbacks && linq->callbacks->hb)                            \
-            linq->callbacks->hb(linq->context, device_serial(*device_p), d);   \
+            linq->callbacks->hb(linq->context, node_serial(*node_p), d);       \
     } while (0)
-#define exe_on_alert(linq, device_p, a, e)                                     \
+#define exe_on_alert(linq, node_p, a, e)                                       \
     do {                                                                       \
         if (linq->callbacks && linq->callbacks->alert)                         \
-            linq->callbacks->alert(linq->context, a, e, device_p);             \
+            linq->callbacks->alert(linq->context, a, e, node_p);               \
     } while (0)
 
 // Main class
@@ -27,7 +27,8 @@ typedef struct linq_s
 {
     void* context;
     zsock_t* sock;
-    device_map_s* devices;
+    nodes_s* devices;
+    nodes_s* servers;
     linq_callbacks* callbacks;
 } linq_s;
 
@@ -37,10 +38,11 @@ typedef int8_t version;
 // Types of protocol messages
 typedef enum
 {
-    TYPE_HEARTBEAT = 0,
-    TYPE_REQUEST = 1,
-    TYPE_RESPONSE = 2,
-    TYPE_ALERT = 3
+    TYPE_HEARTBEAT = FRAME_TYP_HEARTBEAT,
+    TYPE_REQUEST = FRAME_TYP_REQUEST,
+    TYPE_RESPONSE = FRAME_TYP_RESPONSE,
+    TYPE_ALERT = FRAME_TYP_ALERT,
+    TYPE_HELLO = FRAME_TYP_HELLO
 } E_TYPE;
 
 // parse a token from a json string inside a frame
@@ -205,34 +207,39 @@ print_null_terminated(char* c, uint32_t sz, zframe_t* f)
 }
 
 // find a device in our device map and update the router id. insert device if hb
-static device_s**
-device_resolve(linq_s* l, device_map_s* devices, zframe_t** frames, bool hb)
+
+static node_s**
+node_resolve(linq_s* l, nodes_s* map, zframe_t** frames, bool insert)
 {
     uint32_t rid_sz = zframe_size(frames[FRAME_RID_IDX]);
     uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
-    char sid[SID_LEN], pid[PID_LEN];
+    char sid[SID_LEN], tid[TID_LEN] = { 0 };
     print_null_terminated(sid, SID_LEN, frames[FRAME_SID_IDX]);
-    print_null_terminated(pid, PID_LEN, frames[FRAME_HB_PID_IDX]);
-    device_s** d = device_map_get(devices, sid);
+    if (frames[FRAME_HB_TID_IDX]) {
+        print_null_terminated(tid, TID_LEN, frames[FRAME_HB_TID_IDX]);
+    }
+    node_s** d = nodes_get(map, sid);
     if (d) {
-        device_heartbeat(*d);
-        device_update_router(*d, rid, rid_sz);
+        node_heartbeat(*d);
+        node_update_router(*d, rid, rid_sz);
     } else {
-        if (hb && frames[FRAME_HB_PID_IDX]) {
-            d = device_map_insert(l->devices, &l->sock, rid, rid_sz, sid, pid);
-        }
+        node_s* node = node_create(&l->sock, rid, rid_sz, sid, tid);
+        if (insert) d = nodes_add(map, &node);
     }
     return d;
 }
 
 // check the zmq request frames are valid and process the request
 static E_LINQ_ERROR
-process_request(linq_s* l, zframe_t** frames)
+process_request(linq_s* l, zmsg_t** msg, zframe_t** frames)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     ((void)l);
+    ((void)msg);
     ((void)frames);
     return e;
+    // TODO - if device exist, forward request to device and use callback to
+    // forward response... else send 404
 }
 
 // check the zmq response frames are valid and process the response
@@ -244,9 +251,9 @@ process_response(linq_s* l, zmsg_t** msg, zframe_t** frames)
     if ((zmsg_size(*msg) == 2) &&
         (err = frames[FRAME_RES_ERR_IDX] = pop_eq(*msg, 1)) &&
         (dat = frames[FRAME_RES_DAT_IDX] = pop_le(*msg, JSON_LEN))) {
-        device_s** d = device_resolve(l, l->devices, frames, false);
+        node_s** d = node_resolve(l, l->devices, frames, false);
         if (d) {
-            device_recv(*d, zframe_data(err)[0], (const char*)zframe_data(dat));
+            node_recv(*d, zframe_data(err)[0], (const char*)zframe_data(dat));
             e = LINQ_ERROR_OK;
         }
     }
@@ -261,10 +268,10 @@ process_alert(linq_s* l, zmsg_t** msg, zframe_t** frames)
     linq_alert_s alert;
     linq_email_s email;
     if (zmsg_size(*msg) == 3 &&
-        (frames[FRAME_ALERT_PID_IDX] = pop_le(*msg, PID_LEN)) &&
+        (frames[FRAME_ALERT_TID_IDX] = pop_le(*msg, TID_LEN)) &&
         (frames[FRAME_ALERT_DAT_IDX] = pop_alert(*msg, &alert)) &&
         (frames[FRAME_ALERT_DST_IDX] = pop_email(*msg, &email))) {
-        device_s** d = device_resolve(l, l->devices, frames, false);
+        node_s** d = node_resolve(l, l->devices, frames, false);
         if (d) {
             exe_on_alert(l, d, &alert, &email);
             e = LINQ_ERROR_OK;
@@ -274,15 +281,28 @@ process_alert(linq_s* l, zmsg_t** msg, zframe_t** frames)
     return e;
 }
 
+// check the zmq hello message is valid and add a node if it does not exist
+static E_LINQ_ERROR
+process_hello(linq_s* l, zmsg_t** msg, zframe_t** frames)
+{
+    ((void)l);
+    ((void)msg);
+    ((void)frames);
+    E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
+    node_s** s = node_resolve(l, l->servers, frames, true);
+    if (s) e = LINQ_ERROR_OK;
+    return e;
+}
+
 // check the zmq heartbeat frames are valid and process the heartbeat
 static E_LINQ_ERROR
 process_heartbeat(linq_s* l, zmsg_t** msg, zframe_t** frames)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     if (zmsg_size(*msg) == 2 &&
-        (frames[FRAME_HB_PID_IDX] = pop_le(*msg, PID_LEN)) &&
+        (frames[FRAME_HB_TID_IDX] = pop_le(*msg, TID_LEN)) &&
         (frames[FRAME_HB_SITE_IDX] = pop_le(*msg, SITE_LEN))) {
-        device_s** d = device_resolve(l, l->devices, frames, true);
+        node_s** d = node_resolve(l, l->devices, frames, true);
         if (d) {
             exe_on_heartbeat(l, d);
             e = LINQ_ERROR_OK;
@@ -304,9 +324,10 @@ process_packet(linq_s* l, zmsg_t** msg, zframe_t** frames)
         (frames[FRAME_SID_IDX] = pop_le(*msg, SID_LEN))) {
         switch ((E_TYPE)zframe_data(frames[FRAME_TYP_IDX])[0]) {
             case TYPE_HEARTBEAT: e = process_heartbeat(l, msg, frames); break;
-            case TYPE_REQUEST: break;
+            case TYPE_REQUEST: e = process_request(l, msg, frames); break;
             case TYPE_RESPONSE: e = process_response(l, msg, frames); break;
             case TYPE_ALERT: e = process_alert(l, msg, frames); break;
+            case TYPE_HELLO: e = process_hello(l, msg, frames); break;
         }
     }
     return e;
@@ -334,7 +355,8 @@ linq_create(linq_callbacks* cb, void* context)
     linq_s* l = linq_malloc(sizeof(linq_s));
     if (l) {
         memset(l, 0, sizeof(linq_s));
-        l->devices = device_map_create();
+        l->devices = nodes_create();
+        l->servers = nodes_create();
         l->callbacks = cb;
         l->context = context;
     }
@@ -347,7 +369,8 @@ linq_destroy(linq_s** linq_p)
 {
     linq_s* l = *linq_p;
     *linq_p = NULL;
-    device_map_destroy(&l->devices);
+    nodes_destroy(&l->devices);
+    nodes_destroy(&l->servers);
     if (l->sock) zsock_destroy(&l->sock);
     linq_free(l);
 }
@@ -374,35 +397,44 @@ linq_poll(linq_s* l)
 }
 
 // get a device from the device map
-device_s**
+node_s**
 linq_device(linq_s* l, const char* serial)
 {
-    return device_map_get(l->devices, serial);
+    return nodes_get(l->devices, serial);
 }
 
 // return how many devices are connected to linq
 uint32_t
 linq_device_count(linq_s* l)
 {
-    return device_map_size(l->devices);
+    return nodes_size(l->devices);
 }
 
+// return how many servers are connected to linq
+uint32_t
+linq_server_count(linq_s* l)
+{
+    return nodes_size(l->servers);
+}
+
+// send a get request to a device connected to us
 E_LINQ_ERROR
-linq_device_send_get(
+linq_node_send_get(
     linq_s* linq,
     const char* serial,
     const char* path,
     linq_request_complete_fn fn,
     void* context)
 {
-    device_s** d = linq_device(linq, serial);
+    node_s** d = linq_device(linq, serial);
     if (!d) return LINQ_ERROR_DEVICE_NOT_FOUND;
-    device_send_get(*d, path, fn, context);
+    node_send_get(*d, path, fn, context);
     return LINQ_ERROR_OK;
 }
 
+// send a post request to a device connected to us
 E_LINQ_ERROR
-linq_device_send_post(
+linq_node_send_post(
     linq_s* linq,
     const char* serial,
     const char* path,
@@ -410,32 +442,33 @@ linq_device_send_post(
     linq_request_complete_fn fn,
     void* context)
 {
-    device_s** d = linq_device(linq, serial);
+    node_s** d = linq_device(linq, serial);
     if (!d) return LINQ_ERROR_DEVICE_NOT_FOUND;
-    device_send_post(*d, path, json, fn, context);
+    node_send_post(*d, path, json, fn, context);
     return LINQ_ERROR_OK;
 }
 
+// send a delete request to a device connected to us
 E_LINQ_ERROR
-linq_device_send_delete(
+linq_node_send_delete(
     linq_s* linq,
     const char* serial,
     const char* path,
     linq_request_complete_fn fn,
     void* context)
 {
-    device_s** d = linq_device(linq, serial);
+    node_s** d = linq_device(linq, serial);
     if (!d) return LINQ_ERROR_DEVICE_NOT_FOUND;
-    device_send_delete(*d, path, fn, context);
+    node_send_delete(*d, path, fn, context);
     return LINQ_ERROR_OK;
 }
 
+// send a request to a device connected to us
 E_LINQ_ERROR
-linq_device_send(linq_s* linq, const char* serial, request_s* request)
+linq_node_send(linq_s* linq, const char* serial, request_s* request)
 {
-    device_s** d = linq_device(linq, serial);
+    node_s** d = linq_device(linq, serial);
     if (!d) return LINQ_ERROR_DEVICE_NOT_FOUND;
-    device_send(*d, &request);
+    node_send(*d, &request);
     return LINQ_ERROR_OK;
 }
-

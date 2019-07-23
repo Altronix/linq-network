@@ -11,16 +11,23 @@
 #include "altronix/linq.h"
 
 // [router, version, type, serial]
-// [router, version, type, serial, product, siteId]      = HEARTBEAT
-// [router, version, type, serial, product, alert, mail] = ALERT
-// [router, version, type, serial, path [, data] ]       = REQUEST
-// [router, version, type, serial, error, data]          = RESPONSE
+// [router, version, 0x00, serial, type, siteId]      = HEARTBEAT
+// [router, version, 0x01, serial, path [, data] ]    = REQUEST
+// [router, version, 0x02, serial, error, data]       = RESPONSE
+// [router, version, 0x03, serial, type, alert, mail] = ALERT
+// [router, version, 0x04, serial, ...]               = HELLO
 
 #define RID_LEN 256
 #define SID_LEN 64
-#define PID_LEN 64
+#define TID_LEN 64
 #define SITE_LEN 64
 #define JSON_LEN 1024
+
+#define FRAME_TYP_HEARTBEAT (0x00)
+#define FRAME_TYP_REQUEST (0x01)
+#define FRAME_TYP_RESPONSE (0x02)
+#define FRAME_TYP_ALERT (0x03)
+#define FRAME_TYP_HELLO (0x04)
 
 // Basic packet index's
 #define FRAME_MAX 7
@@ -30,11 +37,11 @@
 #define FRAME_SID_IDX 3
 
 // Heartbeat IDX
-#define FRAME_HB_PID_IDX 4
+#define FRAME_HB_TID_IDX 4
 #define FRAME_HB_SITE_IDX 5
 
 // Alert IDX
-#define FRAME_ALERT_PID_IDX 4
+#define FRAME_ALERT_TID_IDX 4
 #define FRAME_ALERT_DAT_IDX 5
 #define FRAME_ALERT_DST_IDX 6
 
