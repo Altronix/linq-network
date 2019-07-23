@@ -42,6 +42,7 @@ nodes_add(nodes_s* nodes, node_s** node_p)
     kh_val(nodes->h, k) = node;
     return &kh_val(nodes->h, k);
 }
+
 uint32_t
 nodes_remove(nodes_s* dmap, const char* serial)
 {
