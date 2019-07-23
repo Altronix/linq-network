@@ -104,14 +104,48 @@ static void
 test_linq_receive_protocol_error_serial(void** context_p)
 {
     ((void)context_p);
-    // TODO the serial string is too big
+    bool pass = false;
+    char sid[SID_LEN + 1];
+    memset(sid, SID_LEN + 1, 'A');
+    linq_s* l = linq_create(&callbacks, &pass);
+    zmsg_t* m = helpers_create_message_mem(
+        6, "rid", 3, "\x0", 1, "\x0", 1, sid, SID_LEN + 1, "pid", 3, "site", 4);
+
+    czmq_spy_mesg_push_incoming(&m);
+    czmq_spy_poll_set_incoming((0x01));
+
+    expect_error = LINQ_ERROR_PROTOCOL;
+
+    linq_poll(l);
+
+    assert_true(pass);
+
+    linq_destroy(&l);
+    test_reset();
 }
 
 static void
 test_linq_receive_protocol_error_router(void** context_p)
 {
     ((void)context_p);
-    // TODO the router is too big
+    bool pass = false;
+    char rid[RID_LEN + 1];
+    memset(rid, SID_LEN + 1, 'A');
+    linq_s* l = linq_create(&callbacks, &pass);
+    zmsg_t* m = helpers_create_message_mem(
+        6, rid, RID_LEN + 1, "\x0", 1, "\x0", 1, "sid", 3, "pid", 3, "site", 4);
+
+    czmq_spy_mesg_push_incoming(&m);
+    czmq_spy_poll_set_incoming((0x01));
+
+    expect_error = LINQ_ERROR_PROTOCOL;
+
+    linq_poll(l);
+
+    assert_true(pass);
+
+    linq_destroy(&l);
+    test_reset();
 }
 
 static void
