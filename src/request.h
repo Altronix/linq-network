@@ -12,6 +12,7 @@ extern "C"
 
     typedef struct request_s
     {
+        router_s forward;
         uint32_t sent_at;
         void* ctx;
         linq_request_complete_fn on_complete;
@@ -41,6 +42,12 @@ extern "C"
         const char* json,
         uint32_t jlen,
         linq_request_complete_fn fn,
+        void*);
+    request_s* request_create_from_frames(
+        zframe_t* serial,
+        zframe_t* path,
+        zframe_t* data,
+        linq_request_complete_fn,
         void*);
     void request_destroy(request_s** r_p);
     uint32_t request_sent_at(request_s* r);

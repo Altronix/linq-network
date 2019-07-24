@@ -71,6 +71,11 @@ extern "C"
         const char* sid,
         int err,
         const char* data);
+    zmsg_t* helpers_make_request(
+        const char* rid,
+        const char* sid,
+        const char* path,
+        const char* data);
     zmsg_t* helpers_make_hello(const char* router, const char* node);
     zmsg_t* helpers_create_message_mem(int n, ...);
     zmsg_t* helpers_create_message_str(int n, ...);

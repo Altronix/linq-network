@@ -208,7 +208,6 @@ print_null_terminated(char* c, uint32_t sz, zframe_t* f)
     }
 }
 
-// find a device in our device map and update the router id. insert device if hb
 static node_s**
 node_resolve(linq_s* l, nodes_s* map, zframe_t** frames, bool insert)
 {
@@ -235,7 +234,37 @@ static void
 foreach_node_forward_message(void* ctx, node_s** n)
 {
     frames_s* frames = ctx;
-    node_send_frames(*n, frames);
+    node_send_forward(*n, frames);
+}
+
+// A device has responded to a request from a node on linq->servers. Forward
+// the response to the node @ linq->servers
+static void
+on_forward_request_response(
+    void* ctx,
+    E_LINQ_ERROR error,
+    const char* json,
+    node_s** device)
+{
+    // TODO - context should include destination router and linq_s*
+    // (Note this doesn't crash because we mock zsock_send()...)
+    request_s* r = ctx;
+    node_send_frames(
+        NULL,                         // TODO need socket
+        6,                            //
+        r->forward.id,                // router
+        r->forward.sz,                //
+        "\x0",                        // version
+        1,                            //
+        "\x2",                        // type
+        1,                            //
+        node_serial(*device),         // serial
+        strlen(node_serial(*device)), //
+        error,                        // error
+        1,                            //
+        json,                         // data
+        strlen(json)                  //
+    );
 }
 
 // check the zmq request frames are valid and process the request
@@ -243,15 +272,36 @@ static E_LINQ_ERROR
 process_request(linq_s* l, zmsg_t** msg, zframe_t** frames)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
+    zframe_t *path = NULL, *data = NULL;
+    request_s* r;
     ((void)l);
-    ((void)msg);
-    ((void)frames);
+    if ((zmsg_size(*msg) >= 1) &&
+        (path = frames[FRAME_REQ_PATH_IDX] = pop_le(*msg, 128))) {
+        if (zmsg_size(*msg) == 1) {
+            data = frames[FRAME_REQ_DATA_IDX] = pop_le(*msg, JSON_LEN);
+        }
+        node_s** d = node_resolve(l, l->devices, frames, false);
+        if (d) {
+            r = request_create_from_frames(
+                frames[FRAME_SID_IDX],
+                path,
+                data,
+                on_forward_request_response,
+                NULL);
+            if (r) {
+                r->ctx = r;
+                r->forward.sz = zframe_size(frames[FRAME_RID_IDX]);
+                memcpy(
+                    r->forward.id,
+                    zframe_data(frames[FRAME_RID_IDX]),
+                    r->forward.sz);
+                node_send(*d, &r);
+            }
+        } else {
+            // TODO send 404 response (device not here)
+        }
+    }
     return e;
-    // TODO - if device exist, forward request to device and use callback to
-    // forward response... else send 404
-    // To forward request - create a new request with frames and stick onto
-    // device queue. On callback for request we forward response to a server
-    // node for where the request came.
 }
 
 // check the zmq response frames are valid and process the response

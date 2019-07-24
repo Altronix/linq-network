@@ -491,14 +491,24 @@ test_linq_forward_request(void** context_p)
 {
     ((void)context_p);
     linq_s* l = linq_create(NULL, NULL);
-    zmsg_t* hb = helpers_make_heartbeat("rid0", "sid", "pid", "site");
+    zmsg_t *hb, *hello, *request, *response;
+    hb = helpers_make_heartbeat("router-d", "device123", "pid", "site");
+    hello = helpers_make_hello("router-c", "client123");
+    request = helpers_make_request("router-c", "device123", "GET /hello", NULL);
+    response = helpers_make_response("router-d", "device123", 0, "world");
 
-    czmq_spy_mesg_push_incoming(&hb);
-    // TODO push hello (from client 123)
-    // TODO push request (from client 123)
-    // TODO push response (from device)
-    // TODO readback outgoing response to the hello router (to client 123)
+    czmq_spy_mesg_push_incoming(&hb);       // device heartbeat
+    czmq_spy_mesg_push_incoming(&hello);    // remote client hello
+    czmq_spy_mesg_push_incoming(&request);  // remote client request
+    czmq_spy_mesg_push_incoming(&response); // device response
     czmq_spy_poll_set_incoming((0x01));
+
+    linq_poll(l);
+    linq_poll(l);
+    linq_poll(l);
+    linq_poll(l);
+
+    // TODO readback outgoing response to the hello router (to client 123)
 
     linq_destroy(&l);
     test_reset();
