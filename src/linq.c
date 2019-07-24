@@ -47,10 +47,10 @@ typedef enum
 
 // parse a token from a json string inside a frame
 static uint32_t
-parse_token(zframe_t* f, jsmntok_t* t, char** ptr)
+parse_token(char* data, jsmntok_t* t, char** ptr)
 {
     uint32_t sz = t->end - t->start;
-    *ptr = (char*)&zframe_data(f)[t->start];
+    *ptr = &data[t->start];
     (*ptr)[sz] = 0;
     return sz;
 }
@@ -58,7 +58,7 @@ parse_token(zframe_t* f, jsmntok_t* t, char** ptr)
 // unholy footgun (parse many tokens)
 static uint32_t
 parse_tokens(
-    zframe_t* f,
+    char* data,
     uint32_t n_tokens,
     jsmntok_t** tokens_p,
     uint32_t n_tags,
@@ -71,7 +71,7 @@ parse_tokens(
     for (uint32_t i = 0; i < n_tokens; i++) {
         if (t[i].type == JSMN_OBJECT || (t[i].type == JSMN_ARRAY)) continue;
         if (!tag) {
-            taglen = parse_token(f, &t[i], &tag);
+            taglen = parse_token(data, &t[i], &tag);
         } else {
             uint32_t c = n_tags << 1;
             va_list list;
@@ -81,7 +81,7 @@ parse_tokens(
                 cmp = va_arg(list, char*);
                 str = va_arg(list, char**);
                 if (taglen == strlen(cmp) && !memcmp(tag, cmp, taglen)) {
-                    parse_token(f, &t[i], str);
+                    parse_token(data, &t[i], str);
                     count++;
                 }
             }
@@ -136,26 +136,33 @@ static zframe_t*
 pop_alert(zmsg_t* msg, linq_alert_s* alert)
 {
     memset(alert, 0, sizeof(linq_alert_s));
-    int r, count;
+    int r, count, sz;
     zframe_t* f = pop_le(msg, JSON_LEN);
-    jsmntok_t t[30], *tokens = t;
-    jsmn_parser p;
-    jsmn_init(&p);
-    r = jsmn_parse(&p, (char*)zframe_data(f), zframe_size(f), t, 30);
-    if (r >= 11) {
-        // clang-format off
-        count = parse_tokens(
-            f,
-            r,
-            &tokens,
-            5,
-            "who",   &alert->who,
-            "what",  &alert->what,
-            "siteId",&alert->where,
-            "when",  &alert->when,
-            "mesg",  &alert->mesg);
-        // clang-format on
-        if (!(count == 5)) zframe_destroy(&f);
+    sz = zframe_size(f);
+    alert->data = linq_malloc(sz);
+    if (alert->data) {
+        memcpy(alert->data, zframe_data(f), sz);
+        jsmntok_t t[30], *tokens = t;
+        jsmn_parser p;
+        jsmn_init(&p);
+        r = jsmn_parse(&p, alert->data, sz, t, 30);
+        if (r >= 11) {
+            // clang-format off
+            count = parse_tokens(
+                alert->data,
+                r,
+                &tokens,
+                5,
+                "who",   &alert->who,
+                "what",  &alert->what,
+                "siteId",&alert->where,
+                "when",  &alert->when,
+                "mesg",  &alert->mesg);
+            // clang-format on
+            if (!(count == 5)) zframe_destroy(&f);
+        } else {
+            zframe_destroy(&f);
+        }
     } else {
         zframe_destroy(&f);
     }
@@ -166,28 +173,33 @@ static zframe_t*
 pop_email(zmsg_t* msg, linq_email_s* emails)
 {
     memset(emails, 0, sizeof(linq_email_s));
-    int r, count;
+    int r, count, sz;
     zframe_t* f = pop_le(msg, JSON_LEN);
-    jsmntok_t t[30], *tokens = t;
-    jsmn_parser p;
-    jsmn_init(&p);
-    r = jsmn_parse(&p, (char*)zframe_data(f), zframe_size(f), t, 30);
-    if (r >= 11) {
-        // clang-format off
-        count = parse_tokens(
-            f,
-            r,
-            &tokens,
-            5,
-            "to0", &emails->to0,
-            "to1", &emails->to1,
-            "to2", &emails->to2,
-            "to3", &emails->to3,
-            "to4", &emails->to4);
-        // clang-format on
-        if (!(count == 5)) zframe_destroy(&f);
-    } else {
-        zframe_destroy(&f);
+    sz = zframe_size(f);
+    emails->data = linq_malloc(sz);
+    if (emails->data) {
+        memcpy(emails->data, zframe_data(f), sz);
+        jsmntok_t t[30], *tokens = t;
+        jsmn_parser p;
+        jsmn_init(&p);
+        r = jsmn_parse(&p, emails->data, sz, t, 30);
+        if (r >= 11) {
+            // clang-format off
+            count = parse_tokens(
+                emails->data,
+                r,
+                &tokens,
+                5,
+                "to0", &emails->to0,
+                "to1", &emails->to1,
+                "to2", &emails->to2,
+                "to3", &emails->to3,
+                "to4", &emails->to4);
+            // clang-format on
+            if (!(count == 5)) zframe_destroy(&f);
+        } else {
+            zframe_destroy(&f);
+        }
     }
     return f;
 }
@@ -292,6 +304,8 @@ process_alert(linq_s* l, zmsg_t** msg, zframe_t** frames)
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     linq_alert_s alert;
     linq_email_s email;
+    memset(&alert, 0, sizeof(alert));
+    memset(&email, 0, sizeof(email));
     if (zmsg_size(*msg) == 3 &&
         (frames[FRAME_ALERT_TID_IDX] = pop_le(*msg, TID_LEN)) &&
         (frames[FRAME_ALERT_DAT_IDX] = pop_alert(*msg, &alert)) &&
@@ -304,6 +318,8 @@ process_alert(linq_s* l, zmsg_t** msg, zframe_t** frames)
             e = LINQ_ERROR_OK;
         }
     }
+    if (alert.data) linq_free(alert.data);
+    if (email.data) linq_free(email.data);
 
     return e;
 }

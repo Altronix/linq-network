@@ -459,7 +459,7 @@ test_linq_broadcast_alert(void** context_p)
 
     // outgoing should have a heartbeat with client router
     for (int i = 0; i < 2; i++) {
-        zframe_t *rid, *ver, *typ, *sid, *pid, *alert, *mail;
+        zframe_t *rid, *ver, *typ, *sid, *pid, *alert, *email;
         outgoing = czmq_spy_mesg_pop_outgoing();
         assert_non_null(outgoing);
         rid = zmsg_pop(outgoing);
@@ -468,15 +468,14 @@ test_linq_broadcast_alert(void** context_p)
         sid = zmsg_pop(outgoing);
         pid = zmsg_pop(outgoing);
         alert = zmsg_pop(outgoing);
-        mail = zmsg_pop(outgoing);
+        email = zmsg_pop(outgoing);
         assert_memory_equal(zframe_data(rid), "client-router", 13);
         assert_memory_equal(zframe_data(ver), "\x0", 1);
         assert_memory_equal(zframe_data(typ), "\x3", 1);
         assert_memory_equal(zframe_data(sid), "sid", 3);
         assert_memory_equal(zframe_data(pid), "pid", 3);
-        // TODO - we mutate the frames and break forwarding...
-        // Fix json parser to not mutate frame...
-        // assert_memory_equal(zframe_data(loc), "site", 4);
+        assert_memory_equal(zframe_data(alert), TEST_ALERT, strlen(TEST_ALERT));
+        assert_memory_equal(zframe_data(email), TEST_EMAIL, strlen(TEST_EMAIL));
         zmsg_destroy(&outgoing);
         zframe_destroy(&rid);
         zframe_destroy(&ver);
@@ -484,8 +483,7 @@ test_linq_broadcast_alert(void** context_p)
         zframe_destroy(&sid);
         zframe_destroy(&pid);
         zframe_destroy(&alert);
-        zframe_destroy(&mail);
-        // zframe_destroy(&loc);
+        zframe_destroy(&email);
     }
 
     outgoing = czmq_spy_mesg_pop_outgoing();

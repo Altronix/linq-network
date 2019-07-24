@@ -32,6 +32,7 @@ extern "C"
         const char* when;
         const char* mesg;
         const char* email[5];
+        char* data;
     } linq_alert_s;
 
     typedef struct linq_email_s
@@ -48,6 +49,7 @@ extern "C"
         const char* server;
         const char* port;
         const char* device;
+        char* data;
     } linq_email_s;
 
     typedef void (*linq_request_complete_fn)(
