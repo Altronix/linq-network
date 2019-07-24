@@ -18,7 +18,6 @@ extern "C"
         const char* serial,
         const char* type);
     void node_destroy(node_s** d_p);
-    zsock_t** node_socket(node_s*);
     const char* node_serial(node_s* d);
     const char* node_type(node_s* d);
     const router_s* node_router(node_s* d);
