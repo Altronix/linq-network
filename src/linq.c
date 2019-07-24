@@ -207,7 +207,6 @@ print_null_terminated(char* c, uint32_t sz, zframe_t* f)
 }
 
 // find a device in our device map and update the router id. insert device if hb
-
 static node_s**
 node_resolve(linq_s* l, nodes_s* map, zframe_t** frames, bool insert)
 {
@@ -404,10 +403,14 @@ linq_poll(linq_s* l)
 {
     int err;
     zmq_pollitem_t item = { zsock_resolve(l->sock), 0, ZMQ_POLLIN, 0 };
-    err = zmq_poll(&item, 1, 5);
-    if (err < 0) return err;
-    if (item.revents && ZMQ_POLLIN) err = process_incoming(l);
 
+    // Process sockets
+    err = zmq_poll(&item, 1, 5);
+    if (!(err < 0)) {
+        if (item.revents && ZMQ_POLLIN) err = process_incoming(l);
+    }
+
+    // Loop through devices
     nodes_foreach(l->devices, foreach_node_check_request_timeout, l);
 
     return err;
