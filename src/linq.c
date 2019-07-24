@@ -234,7 +234,8 @@ node_resolve(linq_s* l, nodes_s* map, zframe_t** frames, bool insert)
 static void
 foreach_node_forward_message(void* ctx, node_s** n)
 {
-    node_send_frames(*n, ctx);
+    frames_s* frames = ctx;
+    node_send_frames(*n, frames);
 }
 
 // check the zmq request frames are valid and process the request
