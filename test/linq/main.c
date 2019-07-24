@@ -383,9 +383,9 @@ test_linq_broadcast_heartbeat(void** context_p)
     linq_s* l = linq_create(NULL, NULL);
     zmsg_t* hb = helpers_make_heartbeat("rid0", "serial", "product", "site");
     zmsg_t* m0 = helpers_create_message_mem(
-        4, "client-router", 13, "\x0", 1, "\x4", 1, "node", 4);
+        4, "client-router", 13, "\x0", 1, "\x4", 1, "node0", 5);
     zmsg_t* m1 = helpers_create_message_mem(
-        4, "client-router", 13, "\x0", 1, "\x4", 1, "node", 4);
+        4, "client-router", 13, "\x0", 1, "\x4", 1, "node1", 5);
     zmsg_t* outgoing;
 
     // Client sends hello to server, device sends heartbeat to server
@@ -399,7 +399,7 @@ test_linq_broadcast_heartbeat(void** context_p)
     linq_poll(l); // receive heartbeat
 
     // outgoing should have a heartbeat with client router
-    for (int i = 0; i < 1; i++) {
+    for (int i = 0; i < 2; i++) {
         zframe_t *rid, *ver, *typ, *sid, *pid, *loc;
         outgoing = czmq_spy_mesg_pop_outgoing();
         assert_non_null(outgoing);
@@ -435,7 +435,64 @@ static void
 test_linq_broadcast_alert(void** context_p)
 {
     ((void)context_p);
-    // TODO
+
+    linq_s* l = linq_create(NULL, NULL);
+    zmsg_t* hb = helpers_make_heartbeat("rid0", "sid", "pid", "site");
+    zmsg_t* alert = helpers_make_alert("rid", "sid", "pid");
+    zmsg_t* m0 = helpers_create_message_mem(
+        4, "client-router", 13, "\x0", 1, "\x4", 1, "node0", 5);
+    zmsg_t* m1 = helpers_create_message_mem(
+        4, "client-router", 13, "\x0", 1, "\x4", 1, "node1", 5);
+    zmsg_t* outgoing;
+
+    // Client sends hello to server, device sends heartbeat to server
+    czmq_spy_mesg_push_incoming(&hb);
+    czmq_spy_mesg_push_incoming(&m0);
+    czmq_spy_mesg_push_incoming(&m1);
+    czmq_spy_mesg_push_incoming(&alert);
+    czmq_spy_poll_set_incoming((0x01));
+
+    linq_poll(l); // receive heartbeat
+    linq_poll(l); // receive hello
+    linq_poll(l); // recieve hello
+    linq_poll(l); // receive alert
+
+    // outgoing should have a heartbeat with client router
+    for (int i = 0; i < 2; i++) {
+        zframe_t *rid, *ver, *typ, *sid, *pid, *alert, *mail;
+        outgoing = czmq_spy_mesg_pop_outgoing();
+        assert_non_null(outgoing);
+        rid = zmsg_pop(outgoing);
+        ver = zmsg_pop(outgoing);
+        typ = zmsg_pop(outgoing);
+        sid = zmsg_pop(outgoing);
+        pid = zmsg_pop(outgoing);
+        alert = zmsg_pop(outgoing);
+        mail = zmsg_pop(outgoing);
+        assert_memory_equal(zframe_data(rid), "client-router", 13);
+        assert_memory_equal(zframe_data(ver), "\x0", 1);
+        assert_memory_equal(zframe_data(typ), "\x3", 1);
+        assert_memory_equal(zframe_data(sid), "sid", 3);
+        assert_memory_equal(zframe_data(pid), "pid", 3);
+        // TODO - we mutate the frames and break forwarding...
+        // Fix json parser to not mutate frame...
+        // assert_memory_equal(zframe_data(loc), "site", 4);
+        zmsg_destroy(&outgoing);
+        zframe_destroy(&rid);
+        zframe_destroy(&ver);
+        zframe_destroy(&typ);
+        zframe_destroy(&sid);
+        zframe_destroy(&pid);
+        zframe_destroy(&alert);
+        zframe_destroy(&mail);
+        // zframe_destroy(&loc);
+    }
+
+    outgoing = czmq_spy_mesg_pop_outgoing();
+    assert_null(outgoing);
+
+    linq_destroy(&l);
+    test_reset();
 }
 
 static void
