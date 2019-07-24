@@ -21,7 +21,7 @@ extern "C"
         LINQ_ERROR_PROTOCOL = -3,
         LINQ_ERROR_IO = -4,
         LINQ_ERROR_DEVICE_NOT_FOUND = -5,
-        LINQ_ERROR_TIMEOUT = -6
+        LINQ_ERROR_TIMEOUT = -6,
     } E_LINQ_ERROR;
 
     typedef struct linq_alert_s

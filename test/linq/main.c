@@ -283,18 +283,54 @@ test_linq_receive_response_ok(void** context_p)
 static void
 on_response_error_timeout(void* pass, int err, const char* data, node_s** d)
 {
-    ((void)pass);
-    ((void)err);
-    ((void)data);
     ((void)d);
-    // TODO
+    *((bool*)pass) = true;
+    assert_int_equal(err, LINQ_ERROR_TIMEOUT);
+    assert_string_equal(data, "{\"error\":\"timeout\"}");
 }
 
 static void
 test_linq_receive_response_error_timeout(void** context_p)
 {
     ((void)context_p);
-    // TODO
+
+    bool pass = false, response_pass = false;
+    const char* serial = expect_serial = "serial";
+    linq_s* l = linq_create(&callbacks, &pass);
+    node_s** n;
+    zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
+    zmsg_t* r = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
+
+    czmq_spy_mesg_push_incoming(&hb);
+    czmq_spy_poll_set_incoming((0x01));
+
+    // Receive a new device @t=0
+    spy_sys_set_tick(0);
+    linq_poll(l);
+    n = linq_device(l, serial);
+    node_send_get(*n, "/ATX/test", on_response_error_timeout, &response_pass);
+    assert_int_equal(node_request_pending_count(*n), 1);
+
+    // Still waiting for response @t=9999
+    spy_sys_set_tick(9999);
+    czmq_spy_poll_set_incoming((0x00));
+    linq_poll(l);
+    assert_false(response_pass);
+    assert_int_equal(node_request_pending_count(*n), 1);
+
+    // Timeout callback happens @t=10000
+    spy_sys_set_tick(10000);
+    linq_poll(l);
+    assert_true(response_pass);
+    assert_int_equal(node_request_pending_count(*n), 0);
+
+    // Response is resolved but there is no more request pending
+    czmq_spy_poll_set_incoming((0x01));
+    czmq_spy_mesg_push_incoming(&r);
+    linq_poll(l);
+
+    linq_destroy(&l);
+    test_reset();
 }
 
 static void

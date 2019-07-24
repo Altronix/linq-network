@@ -251,11 +251,13 @@ process_response(linq_s* l, zmsg_t** msg, zframe_t** frames)
     if ((zmsg_size(*msg) == 2) &&
         (err = frames[FRAME_RES_ERR_IDX] = pop_eq(*msg, 1)) &&
         (dat = frames[FRAME_RES_DAT_IDX] = pop_le(*msg, JSON_LEN))) {
+        e = LINQ_ERROR_OK;
         node_s** d = node_resolve(l, l->devices, frames, false);
         if (d) {
-            node_resolve_request(
-                *d, zframe_data(err)[0], (const char*)zframe_data(dat));
-            e = LINQ_ERROR_OK;
+            if (node_request_pending(*d)) {
+                node_resolve_request(
+                    *d, zframe_data(err)[0], (const char*)zframe_data(dat));
+            }
         }
     }
     return e;
