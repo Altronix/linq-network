@@ -32,6 +32,13 @@ typedef struct linq_s
     linq_callbacks* callbacks;
 } linq_s;
 
+// helpful struct for maintaining frames
+typedef struct
+{
+    uint32_t n;
+    zframe_t** frames;
+} frames_s;
+
 // A version on the wire is a byte
 typedef int8_t version;
 
@@ -230,27 +237,30 @@ node_resolve(linq_s* l, nodes_s* map, zframe_t** frames, bool insert)
     return d;
 }
 
-typedef struct
-{
-    int n;
-    zframe_t** frames;
-} forward_frames_s;
-
 // Broadcast x frames to each node (router frame is added per each node)
 static void
 foreach_node_forward_message(void* ctx, node_s** n)
 {
+    uint32_t count = 0;
     const router_s* r = node_router(*n);
-    forward_frames_s* forward = ctx;
+    frames_s* forward = ctx;
     zmsg_t* msg = zmsg_new();
-    zframe_t* router = zframe_new(r->id, r->sz);
-    zmsg_append(msg, &router);
-    for (int i = 0; i < forward->n; i++) {
-        zframe_t* frame = zframe_dup(forward->frames[i]);
-        zmsg_append(msg, &frame);
+    if (msg) {
+        zframe_t* router = zframe_new(r->id, r->sz);
+        if (router) {
+            zmsg_append(msg, &router);
+            for (uint32_t i = 0; i < forward->n; i++) {
+                zframe_t* frame = zframe_dup(forward->frames[i]);
+                if (!frame) break;
+                count++;
+                zmsg_append(msg, &frame);
+            }
+            if (count == forward->n) {
+                int err = zmsg_send(&msg, *node_socket(*n));
+                if (err) zmsg_destroy(&msg);
+            }
+        }
     }
-    int err = zmsg_send(&msg, *node_socket(*n));
-    if (err) zmsg_destroy(&msg);
 }
 
 // check the zmq request frames are valid and process the request
@@ -305,7 +315,7 @@ process_alert(linq_s* l, zmsg_t** msg, zframe_t** frames)
         (frames[FRAME_ALERT_DAT_IDX] = pop_alert(*msg, &alert)) &&
         (frames[FRAME_ALERT_DST_IDX] = pop_email(*msg, &email))) {
         node_s** d = node_resolve(l, l->devices, frames, false);
-        forward_frames_s forward = { 6, &frames[1] };
+        frames_s forward = { 6, &frames[1] };
         if (d) {
             nodes_foreach(l->servers, foreach_node_forward_message, &forward);
             exe_on_alert(l, d, &alert, &email);
@@ -338,7 +348,7 @@ process_heartbeat(linq_s* l, zmsg_t** msg, zframe_t** frames)
         (frames[FRAME_HB_TID_IDX] = pop_le(*msg, TID_LEN)) &&
         (frames[FRAME_HB_SITE_IDX] = pop_le(*msg, SITE_LEN))) {
         node_s** d = node_resolve(l, l->devices, frames, true);
-        forward_frames_s forward = { 5, &frames[1] };
+        frames_s forward = { 5, &frames[1] };
         if (d) {
             nodes_foreach(l->servers, foreach_node_forward_message, &forward);
             exe_on_heartbeat(l, d);
