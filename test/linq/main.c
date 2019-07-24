@@ -494,10 +494,10 @@ test_linq_forward_request(void** context_p)
     zmsg_t* hb = helpers_make_heartbeat("rid0", "sid", "pid", "site");
 
     czmq_spy_mesg_push_incoming(&hb);
-    // TODO push hello
-    // TODO push request
-    // TODO push response
-    // TODO readback outgoing response to the hello router
+    // TODO push hello (from client 123)
+    // TODO push request (from client 123)
+    // TODO push response (from device)
+    // TODO readback outgoing response to the hello router (to client 123)
     czmq_spy_poll_set_incoming((0x01));
 
     linq_destroy(&l);
