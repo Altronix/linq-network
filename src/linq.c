@@ -249,6 +249,9 @@ process_request(linq_s* l, zmsg_t** msg, zframe_t** frames)
     return e;
     // TODO - if device exist, forward request to device and use callback to
     // forward response... else send 404
+    // To forward request - create a new request with frames and stick onto
+    // device queue. On callback for request we forward response to a server
+    // node for where the request came.
 }
 
 // check the zmq response frames are valid and process the response

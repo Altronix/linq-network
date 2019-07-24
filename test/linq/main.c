@@ -490,16 +490,18 @@ static void
 test_linq_forward_request(void** context_p)
 {
     ((void)context_p);
-    // TODO
     linq_s* l = linq_create(NULL, NULL);
     zmsg_t* hb = helpers_make_heartbeat("rid0", "sid", "pid", "site");
-}
 
-static void
-test_linq_forward_response(void** context_p)
-{
-    ((void)context_p);
-    // TODO
+    czmq_spy_mesg_push_incoming(&hb);
+    // TODO push hello
+    // TODO push request
+    // TODO push response
+    // TODO readback outgoing response to the hello router
+    czmq_spy_poll_set_incoming((0x01));
+
+    linq_destroy(&l);
+    test_reset();
 }
 
 int
@@ -523,8 +525,7 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_receive_hello_double_id),
         cmocka_unit_test(test_linq_broadcast_heartbeat),
         cmocka_unit_test(test_linq_broadcast_alert),
-        cmocka_unit_test(test_linq_forward_request),
-        cmocka_unit_test(test_linq_forward_response)
+        cmocka_unit_test(test_linq_forward_request)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
