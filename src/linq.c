@@ -32,13 +32,6 @@ typedef struct linq_s
     linq_callbacks* callbacks;
 } linq_s;
 
-// helpful struct for maintaining frames
-typedef struct
-{
-    uint32_t n;
-    zframe_t** frames;
-} frames_s;
-
 // A version on the wire is a byte
 typedef int8_t version;
 
@@ -241,26 +234,7 @@ node_resolve(linq_s* l, nodes_s* map, zframe_t** frames, bool insert)
 static void
 foreach_node_forward_message(void* ctx, node_s** n)
 {
-    uint32_t count = 0;
-    const router_s* r = node_router(*n);
-    frames_s* forward = ctx;
-    zmsg_t* msg = zmsg_new();
-    if (msg) {
-        zframe_t* router = zframe_new(r->id, r->sz);
-        if (router) {
-            zmsg_append(msg, &router);
-            for (uint32_t i = 0; i < forward->n; i++) {
-                zframe_t* frame = zframe_dup(forward->frames[i]);
-                if (!frame) break;
-                count++;
-                zmsg_append(msg, &frame);
-            }
-            if (count == forward->n) {
-                int err = zmsg_send(&msg, *node_socket(*n));
-                if (err) zmsg_destroy(&msg);
-            }
-        }
-    }
+    node_send_frames(*n, ctx);
 }
 
 // check the zmq request frames are valid and process the request

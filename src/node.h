@@ -29,6 +29,7 @@ extern "C"
     void node_send(node_s*, request_s**);
     void
     node_send_delete(node_s*, const char*, linq_request_complete_fn, void*);
+    void node_send_frames(node_s* d, frames_s* forward);
     void node_send_get(node_s*, const char*, linq_request_complete_fn, void*);
     void node_send_post(
         node_s*,

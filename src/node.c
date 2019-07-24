@@ -118,6 +118,29 @@ node_heartbeat(node_s* d)
 }
 
 void
+node_send_frames(node_s* d, frames_s* forward)
+{
+    uint32_t count = 0;
+    zmsg_t* msg = zmsg_new();
+    if (msg) {
+        zframe_t* router = zframe_new(d->router.id, d->router.sz);
+        if (router) {
+            zmsg_append(msg, &router);
+            for (uint32_t i = 0; i < forward->n; i++) {
+                zframe_t* frame = zframe_dup(forward->frames[i]);
+                if (!frame) break;
+                count++;
+                zmsg_append(msg, &frame);
+            }
+            if (count == forward->n) {
+                int err = zmsg_send(&msg, *d->sock_p);
+                if (err) zmsg_destroy(&msg);
+            }
+        }
+    }
+}
+
+void
 node_send(node_s* d, request_s** r)
 {
     requests_push(d->requests, r);
