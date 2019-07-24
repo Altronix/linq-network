@@ -253,7 +253,8 @@ process_response(linq_s* l, zmsg_t** msg, zframe_t** frames)
         (dat = frames[FRAME_RES_DAT_IDX] = pop_le(*msg, JSON_LEN))) {
         node_s** d = node_resolve(l, l->devices, frames, false);
         if (d) {
-            node_recv(*d, zframe_data(err)[0], (const char*)zframe_data(dat));
+            node_resolve_request(
+                *d, zframe_data(err)[0], (const char*)zframe_data(dat));
             e = LINQ_ERROR_OK;
         }
     }
@@ -384,6 +385,17 @@ linq_listen(linq_s* l, const char* ep)
     return l->sock ? LINQ_ERROR_OK : LINQ_ERROR_BAD_ARGS;
 }
 
+// loop through each node and resolve any requests that have timed out
+static void
+foreach_node_check_request_timeout(void* ctx, node_s** n)
+{
+    ((void)ctx);
+    request_s* r = node_request_pending(*n);
+    if (r && request_sent_at(r) + 10000 <= sys_tick()) {
+        node_resolve_request(*n, LINQ_ERROR_TIMEOUT, "{\"error\":\"timeout\"}");
+    }
+}
+
 // poll network socket file handles
 E_LINQ_ERROR
 linq_poll(linq_s* l)
@@ -393,6 +405,9 @@ linq_poll(linq_s* l)
     err = zmq_poll(&item, 1, 5);
     if (err < 0) return err;
     if (item.revents && ZMQ_POLLIN) err = process_incoming(l);
+
+    nodes_foreach(l->devices, foreach_node_check_request_timeout, l);
+
     return err;
 }
 

@@ -72,3 +72,11 @@ nodes_size(nodes_s* map)
 {
     return kh_size(map->h);
 }
+
+void
+nodes_foreach(nodes_s* n, nodes_foreach_fn fn, void* ctx)
+{
+    for (khiter_t k = kh_begin(n->h); k != kh_end(n->h); ++k) {
+        if (kh_exist(n->h, k)) fn(ctx, &kh_val(n->h, k));
+    }
+}

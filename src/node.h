@@ -35,7 +35,8 @@ extern "C"
         const char*,
         linq_request_complete_fn,
         void*);
-    void node_recv(node_s* d, int err, const char*);
+    void node_resolve_request(node_s* d, int err, const char*);
+    request_s* node_request_pending(node_s* n);
     uint32_t node_request_pending_count(node_s* d);
 
 #ifdef __cplusplus

@@ -13,20 +13,15 @@ extern "C"
 #endif
 
     typedef struct nodes_s nodes_s;
+    typedef void (*nodes_foreach_fn)(void*, node_s**);
 
     nodes_s* nodes_create();
     void nodes_destroy(nodes_s**);
-    // node_s** nodes_insert(
-    //     nodes_s*,
-    //     zsock_t** sock_p,
-    //     uint8_t* r,
-    //     uint32_t sz,
-    //     const char* serial,
-    //     const char* product);
     node_s** nodes_add(nodes_s* nodes, node_s** node);
     node_s** nodes_get(nodes_s* m, const char* serial);
     uint32_t nodes_remove(nodes_s* dmap, const char* serial);
     uint32_t nodes_size(nodes_s* map);
+    void nodes_foreach(nodes_s* n, nodes_foreach_fn fn, void* ctx);
 
 #ifdef __cplusplus
 }
