@@ -80,6 +80,13 @@ helpers_make_response(
 }
 
 zmsg_t*
+helpers_make_hello(const char* router, const char* node)
+{
+    return helpers_create_message_mem(
+        4, router, strlen(router), "\x0", 1, "\x4", 1, node, strlen(node));
+}
+
+zmsg_t*
 helpers_create_message_str(int n, ...)
 {
     va_list list;
