@@ -249,7 +249,7 @@ on_forward_request_response(
     // TODO - context should include destination router and linq_s*
     // (Note this doesn't crash because we mock zsock_send()...)
     request_s* r = ctx;
-    node_send_frames(
+    linq_socket_send_frames(
         NULL,                         // TODO need socket
         6,                            //
         r->forward.id,                // router
@@ -565,3 +565,28 @@ linq_node_send(linq_s* linq, const char* serial, request_s* request)
     node_send(*d, &request);
     return LINQ_ERROR_OK;
 }
+
+void
+linq_socket_send_frames(void* sock, uint32_t n, ...)
+{
+    zmsg_t* msg = zmsg_new();
+    int err = -1;
+    uint32_t count = 0;
+    if (msg) {
+        va_list list;
+        va_start(list, n);
+        for (uint32_t i = 0; i < n; i++) {
+            uint8_t* arg = va_arg(list, uint8_t*);
+            size_t sz = va_arg(list, size_t);
+            zframe_t* f = zframe_new(arg, sz);
+            if (f) {
+                count++;
+                zmsg_append(msg, &f);
+            }
+        }
+        va_end(list);
+        if (count == n) err = zmsg_send(&msg, sock);
+        if (err) zmsg_destroy(&msg);
+    }
+}
+

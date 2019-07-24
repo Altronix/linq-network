@@ -135,30 +135,6 @@ node_send_forward(node_s* d, frames_s* forward)
 }
 
 void
-node_send_frames(zsock_t* sock, uint32_t n, ...)
-{
-    zmsg_t* msg = zmsg_new();
-    int err = -1;
-    uint32_t count = 0;
-    if (msg) {
-        va_list list;
-        va_start(list, n);
-        for (uint32_t i = 0; i < n; i++) {
-            uint8_t* arg = va_arg(list, uint8_t*);
-            size_t sz = va_arg(list, size_t);
-            zframe_t* f = zframe_new(arg, sz);
-            if (f) {
-                count++;
-                zmsg_append(msg, &f);
-            }
-        }
-        va_end(list);
-        if (count == n) err = zmsg_send(&msg, sock);
-        if (err) zmsg_destroy(&msg);
-    }
-}
-
-void
 node_send(node_s* d, request_s** r)
 {
     requests_push(d->requests, r);
