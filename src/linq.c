@@ -135,34 +135,28 @@ pop_le(zmsg_t* msg, uint32_t le)
 static zframe_t*
 pop_alert(zmsg_t* msg, linq_alert_s* alert)
 {
-    memset(alert, 0, sizeof(linq_alert_s));
     int r, count, sz;
     zframe_t* f = pop_le(msg, JSON_LEN);
     sz = zframe_size(f);
-    alert->data = linq_malloc(sz);
-    if (alert->data) {
-        memcpy(alert->data, zframe_data(f), sz);
-        jsmntok_t t[30], *tokens = t;
-        jsmn_parser p;
-        jsmn_init(&p);
-        r = jsmn_parse(&p, alert->data, sz, t, 30);
-        if (r >= 11) {
-            // clang-format off
-            count = parse_tokens(
-                alert->data,
-                r,
-                &tokens,
-                5,
-                "who",   &alert->who,
-                "what",  &alert->what,
-                "siteId",&alert->where,
-                "when",  &alert->when,
-                "mesg",  &alert->mesg);
-            // clang-format on
-            if (!(count == 5)) zframe_destroy(&f);
-        } else {
-            zframe_destroy(&f);
-        }
+    memcpy(alert->data, zframe_data(f), sz);
+    jsmntok_t t[30], *tokens = t;
+    jsmn_parser p;
+    jsmn_init(&p);
+    r = jsmn_parse(&p, alert->data, sz, t, 30);
+    if (r >= 11) {
+        // clang-format off
+        count = parse_tokens(
+            alert->data,
+            r,
+            &tokens,
+            5,
+            "who",   &alert->who,
+            "what",  &alert->what,
+            "siteId",&alert->where,
+            "when",  &alert->when,
+            "mesg",  &alert->mesg);
+        // clang-format on
+        if (!(count == 5)) zframe_destroy(&f);
     } else {
         zframe_destroy(&f);
     }
@@ -172,34 +166,30 @@ pop_alert(zmsg_t* msg, linq_alert_s* alert)
 static zframe_t*
 pop_email(zmsg_t* msg, linq_email_s* emails)
 {
-    memset(emails, 0, sizeof(linq_email_s));
     int r, count, sz;
     zframe_t* f = pop_le(msg, JSON_LEN);
     sz = zframe_size(f);
-    emails->data = linq_malloc(sz);
-    if (emails->data) {
-        memcpy(emails->data, zframe_data(f), sz);
-        jsmntok_t t[30], *tokens = t;
-        jsmn_parser p;
-        jsmn_init(&p);
-        r = jsmn_parse(&p, emails->data, sz, t, 30);
-        if (r >= 11) {
-            // clang-format off
-            count = parse_tokens(
-                emails->data,
-                r,
-                &tokens,
-                5,
-                "to0", &emails->to0,
-                "to1", &emails->to1,
-                "to2", &emails->to2,
-                "to3", &emails->to3,
-                "to4", &emails->to4);
-            // clang-format on
-            if (!(count == 5)) zframe_destroy(&f);
-        } else {
-            zframe_destroy(&f);
-        }
+    memcpy(emails->data, zframe_data(f), sz);
+    jsmntok_t t[30], *tokens = t;
+    jsmn_parser p;
+    jsmn_init(&p);
+    r = jsmn_parse(&p, emails->data, sz, t, 30);
+    if (r >= 11) {
+        // clang-format off
+        count = parse_tokens(
+            emails->data,
+            r,
+            &tokens,
+            5,
+            "to0", &emails->to0,
+            "to1", &emails->to1,
+            "to2", &emails->to2,
+            "to3", &emails->to3,
+            "to4", &emails->to4);
+        // clang-format on
+        if (!(count == 5)) zframe_destroy(&f);
+    } else {
+        zframe_destroy(&f);
     }
     return f;
 }
@@ -302,10 +292,14 @@ static E_LINQ_ERROR
 process_alert(linq_s* l, zmsg_t** msg, zframe_t** frames)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
+    char alert_data[JSON_LEN];
+    char email_data[JSON_LEN];
     linq_alert_s alert;
     linq_email_s email;
     memset(&alert, 0, sizeof(alert));
     memset(&email, 0, sizeof(email));
+    alert.data = alert_data;
+    email.data = email_data;
     if (zmsg_size(*msg) == 3 &&
         (frames[FRAME_ALERT_TID_IDX] = pop_le(*msg, TID_LEN)) &&
         (frames[FRAME_ALERT_DAT_IDX] = pop_alert(*msg, &alert)) &&
@@ -318,8 +312,6 @@ process_alert(linq_s* l, zmsg_t** msg, zframe_t** frames)
             e = LINQ_ERROR_OK;
         }
     }
-    if (alert.data) linq_free(alert.data);
-    if (email.data) linq_free(email.data);
 
     return e;
 }
