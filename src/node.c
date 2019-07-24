@@ -68,6 +68,12 @@ node_destroy(node_s** d_p)
     linq_free(d);
 }
 
+zsock_t**
+node_socket(node_s* n)
+{
+    return n->sock_p;
+}
+
 const char*
 node_serial(node_s* d)
 {

@@ -296,6 +296,25 @@ process_hello(linq_s* l, zmsg_t** msg, zframe_t** frames)
     return e;
 }
 
+static void
+foreach_node_forward_heartbeat(void* ctx, node_s** n)
+{
+    // TODO refactor
+    // Request send should accept a flag to send immediately or to use queue
+    // Request create should accept arbitrary frames and types of messages
+    const router_s* r = node_router(*n);
+    zframe_t** frames = ctx;
+    zmsg_t* msg = zmsg_new();
+    zframe_t* router = zframe_new(r->id, r->sz);
+    zmsg_append(msg, &router);
+    for (int i = 1; i < 6; i++) {
+        zframe_t* frame = zframe_dup(frames[i]);
+        zmsg_append(msg, &frame);
+    }
+    int err = zmsg_send(&msg, *node_socket(*n));
+    if (err) zmsg_destroy(&msg);
+}
+
 // check the zmq heartbeat frames are valid and process the heartbeat
 static E_LINQ_ERROR
 process_heartbeat(linq_s* l, zmsg_t** msg, zframe_t** frames)
@@ -306,6 +325,7 @@ process_heartbeat(linq_s* l, zmsg_t** msg, zframe_t** frames)
         (frames[FRAME_HB_SITE_IDX] = pop_le(*msg, SITE_LEN))) {
         node_s** d = node_resolve(l, l->devices, frames, true);
         if (d) {
+            nodes_foreach(l->servers, foreach_node_forward_heartbeat, frames);
             exe_on_heartbeat(l, d);
             e = LINQ_ERROR_OK;
         }
