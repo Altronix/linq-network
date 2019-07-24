@@ -445,7 +445,7 @@ test_linq_broadcast_alert(void** context_p)
         4, "client-router", 13, "\x0", 1, "\x4", 1, "node1", 5);
     zmsg_t* outgoing;
 
-    // Client sends hello to server, device sends heartbeat to server
+    // device sends heartbeat to server, two clients connect, device sends alert
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_mesg_push_incoming(&m0);
     czmq_spy_mesg_push_incoming(&m1);
