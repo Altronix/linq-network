@@ -43,7 +43,7 @@ extern "C"
         linq_request_complete_fn fn,
         void*);
     void request_destroy(request_s** r_p);
-    void request_sent_at(request_s* r, uint32_t at);
+    uint32_t request_sent_at(request_s* r);
     void request_router_id_set(request_s*, uint8_t*, uint32_t);
     const char* request_serial_get(request_s*);
     int request_send(request_s* r, zsock_t* sock);

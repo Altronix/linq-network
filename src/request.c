@@ -108,10 +108,10 @@ request_destroy(request_s** r_p)
     linq_free(r);
 }
 
-void
-request_sent_at(request_s* r, uint32_t at)
+uint32_t
+request_sent_at(request_s* r)
 {
-    r->sent_at = at;
+    return r->sent_at;
 }
 
 void

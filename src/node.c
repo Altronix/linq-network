@@ -68,6 +68,12 @@ node_destroy(node_s** d_p)
     linq_free(d);
 }
 
+zsock_t**
+node_socket(node_s* n)
+{
+    return n->sock_p;
+}
+
 const char*
 node_serial(node_s* d)
 {
@@ -168,7 +174,7 @@ node_send_post(
 }
 
 void
-node_recv(node_s* d, E_LINQ_ERROR err, const char* str)
+node_resolve_request(node_s* d, E_LINQ_ERROR err, const char* str)
 {
     char json[JSON_LEN + 1];
     request_s** r_p = &d->request_pending;
@@ -176,6 +182,12 @@ node_recv(node_s* d, E_LINQ_ERROR err, const char* str)
     exe_on_complete(r_p, err, json, &d);
     request_destroy(r_p);
     if (requests_size(d->requests)) flush(d);
+}
+
+request_s*
+node_request_pending(node_s* n)
+{
+    return n->request_pending;
 }
 
 uint32_t

@@ -1,9 +1,9 @@
 #include "altronix/linq.h"
-#include "node.h"
 #include "helpers.h"
 #include "linq_internal.h"
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
+#include "node.h"
 #include <czmq.h>
 
 #include <cmocka.h>
@@ -273,7 +273,7 @@ test_node_response(void** context_p)
 
     // TODO - add similiar test from linq.c which will test the parsing
     assert_int_equal(node_request_pending_count(d), 1);
-    node_recv(d, 0, "{\"test\":1}");
+    node_resolve_request(d, 0, "{\"test\":1}");
     assert_int_equal(node_request_pending_count(d), 0);
     assert_true(pass);
 

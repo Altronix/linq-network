@@ -42,6 +42,7 @@ nodes_add(nodes_s* nodes, node_s** node_p)
     kh_val(nodes->h, k) = node;
     return &kh_val(nodes->h, k);
 }
+
 uint32_t
 nodes_remove(nodes_s* dmap, const char* serial)
 {
@@ -70,4 +71,12 @@ uint32_t
 nodes_size(nodes_s* map)
 {
     return kh_size(map->h);
+}
+
+void
+nodes_foreach(nodes_s* n, nodes_foreach_fn fn, void* ctx)
+{
+    for (khiter_t k = kh_begin(n->h); k != kh_end(n->h); ++k) {
+        if (kh_exist(n->h, k)) fn(ctx, &kh_val(n->h, k));
+    }
 }

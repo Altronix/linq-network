@@ -47,10 +47,10 @@ typedef enum
 
 // parse a token from a json string inside a frame
 static uint32_t
-parse_token(zframe_t* f, jsmntok_t* t, char** ptr)
+parse_token(char* data, jsmntok_t* t, char** ptr)
 {
     uint32_t sz = t->end - t->start;
-    *ptr = (char*)&zframe_data(f)[t->start];
+    *ptr = &data[t->start];
     (*ptr)[sz] = 0;
     return sz;
 }
@@ -58,7 +58,7 @@ parse_token(zframe_t* f, jsmntok_t* t, char** ptr)
 // unholy footgun (parse many tokens)
 static uint32_t
 parse_tokens(
-    zframe_t* f,
+    char* data,
     uint32_t n_tokens,
     jsmntok_t** tokens_p,
     uint32_t n_tags,
@@ -71,7 +71,7 @@ parse_tokens(
     for (uint32_t i = 0; i < n_tokens; i++) {
         if (t[i].type == JSMN_OBJECT || (t[i].type == JSMN_ARRAY)) continue;
         if (!tag) {
-            taglen = parse_token(f, &t[i], &tag);
+            taglen = parse_token(data, &t[i], &tag);
         } else {
             uint32_t c = n_tags << 1;
             va_list list;
@@ -81,7 +81,7 @@ parse_tokens(
                 cmp = va_arg(list, char*);
                 str = va_arg(list, char**);
                 if (taglen == strlen(cmp) && !memcmp(tag, cmp, taglen)) {
-                    parse_token(f, &t[i], str);
+                    parse_token(data, &t[i], str);
                     count++;
                 }
             }
@@ -136,26 +136,33 @@ static zframe_t*
 pop_alert(zmsg_t* msg, linq_alert_s* alert)
 {
     memset(alert, 0, sizeof(linq_alert_s));
-    int r, count;
+    int r, count, sz;
     zframe_t* f = pop_le(msg, JSON_LEN);
-    jsmntok_t t[30], *tokens = t;
-    jsmn_parser p;
-    jsmn_init(&p);
-    r = jsmn_parse(&p, (char*)zframe_data(f), zframe_size(f), t, 30);
-    if (r >= 11) {
-        // clang-format off
-        count = parse_tokens(
-            f,
-            r,
-            &tokens,
-            5,
-            "who",   &alert->who,
-            "what",  &alert->what,
-            "siteId",&alert->where,
-            "when",  &alert->when,
-            "mesg",  &alert->mesg);
-        // clang-format on
-        if (!(count == 5)) zframe_destroy(&f);
+    sz = zframe_size(f);
+    alert->data = linq_malloc(sz);
+    if (alert->data) {
+        memcpy(alert->data, zframe_data(f), sz);
+        jsmntok_t t[30], *tokens = t;
+        jsmn_parser p;
+        jsmn_init(&p);
+        r = jsmn_parse(&p, alert->data, sz, t, 30);
+        if (r >= 11) {
+            // clang-format off
+            count = parse_tokens(
+                alert->data,
+                r,
+                &tokens,
+                5,
+                "who",   &alert->who,
+                "what",  &alert->what,
+                "siteId",&alert->where,
+                "when",  &alert->when,
+                "mesg",  &alert->mesg);
+            // clang-format on
+            if (!(count == 5)) zframe_destroy(&f);
+        } else {
+            zframe_destroy(&f);
+        }
     } else {
         zframe_destroy(&f);
     }
@@ -166,28 +173,33 @@ static zframe_t*
 pop_email(zmsg_t* msg, linq_email_s* emails)
 {
     memset(emails, 0, sizeof(linq_email_s));
-    int r, count;
+    int r, count, sz;
     zframe_t* f = pop_le(msg, JSON_LEN);
-    jsmntok_t t[30], *tokens = t;
-    jsmn_parser p;
-    jsmn_init(&p);
-    r = jsmn_parse(&p, (char*)zframe_data(f), zframe_size(f), t, 30);
-    if (r >= 11) {
-        // clang-format off
-        count = parse_tokens(
-            f,
-            r,
-            &tokens,
-            5,
-            "to0", &emails->to0,
-            "to1", &emails->to1,
-            "to2", &emails->to2,
-            "to3", &emails->to3,
-            "to4", &emails->to4);
-        // clang-format on
-        if (!(count == 5)) zframe_destroy(&f);
-    } else {
-        zframe_destroy(&f);
+    sz = zframe_size(f);
+    emails->data = linq_malloc(sz);
+    if (emails->data) {
+        memcpy(emails->data, zframe_data(f), sz);
+        jsmntok_t t[30], *tokens = t;
+        jsmn_parser p;
+        jsmn_init(&p);
+        r = jsmn_parse(&p, emails->data, sz, t, 30);
+        if (r >= 11) {
+            // clang-format off
+            count = parse_tokens(
+                emails->data,
+                r,
+                &tokens,
+                5,
+                "to0", &emails->to0,
+                "to1", &emails->to1,
+                "to2", &emails->to2,
+                "to3", &emails->to3,
+                "to4", &emails->to4);
+            // clang-format on
+            if (!(count == 5)) zframe_destroy(&f);
+        } else {
+            zframe_destroy(&f);
+        }
     }
     return f;
 }
@@ -207,7 +219,6 @@ print_null_terminated(char* c, uint32_t sz, zframe_t* f)
 }
 
 // find a device in our device map and update the router id. insert device if hb
-
 static node_s**
 node_resolve(linq_s* l, nodes_s* map, zframe_t** frames, bool insert)
 {
@@ -227,6 +238,29 @@ node_resolve(linq_s* l, nodes_s* map, zframe_t** frames, bool insert)
         if (insert) d = nodes_add(map, &node);
     }
     return d;
+}
+
+typedef struct
+{
+    int n;
+    zframe_t** frames;
+} forward_frames_s;
+
+// Broadcast x frames to each node (router frame is added per each node)
+static void
+foreach_node_forward_message(void* ctx, node_s** n)
+{
+    const router_s* r = node_router(*n);
+    forward_frames_s* forward = ctx;
+    zmsg_t* msg = zmsg_new();
+    zframe_t* router = zframe_new(r->id, r->sz);
+    zmsg_append(msg, &router);
+    for (int i = 0; i < forward->n; i++) {
+        zframe_t* frame = zframe_dup(forward->frames[i]);
+        zmsg_append(msg, &frame);
+    }
+    int err = zmsg_send(&msg, *node_socket(*n));
+    if (err) zmsg_destroy(&msg);
 }
 
 // check the zmq request frames are valid and process the request
@@ -251,10 +285,13 @@ process_response(linq_s* l, zmsg_t** msg, zframe_t** frames)
     if ((zmsg_size(*msg) == 2) &&
         (err = frames[FRAME_RES_ERR_IDX] = pop_eq(*msg, 1)) &&
         (dat = frames[FRAME_RES_DAT_IDX] = pop_le(*msg, JSON_LEN))) {
+        e = LINQ_ERROR_OK;
         node_s** d = node_resolve(l, l->devices, frames, false);
         if (d) {
-            node_recv(*d, zframe_data(err)[0], (const char*)zframe_data(dat));
-            e = LINQ_ERROR_OK;
+            if (node_request_pending(*d)) {
+                node_resolve_request(
+                    *d, zframe_data(err)[0], (const char*)zframe_data(dat));
+            }
         }
     }
     return e;
@@ -267,16 +304,22 @@ process_alert(linq_s* l, zmsg_t** msg, zframe_t** frames)
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     linq_alert_s alert;
     linq_email_s email;
+    memset(&alert, 0, sizeof(alert));
+    memset(&email, 0, sizeof(email));
     if (zmsg_size(*msg) == 3 &&
         (frames[FRAME_ALERT_TID_IDX] = pop_le(*msg, TID_LEN)) &&
         (frames[FRAME_ALERT_DAT_IDX] = pop_alert(*msg, &alert)) &&
         (frames[FRAME_ALERT_DST_IDX] = pop_email(*msg, &email))) {
         node_s** d = node_resolve(l, l->devices, frames, false);
+        forward_frames_s forward = { 6, &frames[1] };
         if (d) {
+            nodes_foreach(l->servers, foreach_node_forward_message, &forward);
             exe_on_alert(l, d, &alert, &email);
             e = LINQ_ERROR_OK;
         }
     }
+    if (alert.data) linq_free(alert.data);
+    if (email.data) linq_free(email.data);
 
     return e;
 }
@@ -303,7 +346,9 @@ process_heartbeat(linq_s* l, zmsg_t** msg, zframe_t** frames)
         (frames[FRAME_HB_TID_IDX] = pop_le(*msg, TID_LEN)) &&
         (frames[FRAME_HB_SITE_IDX] = pop_le(*msg, SITE_LEN))) {
         node_s** d = node_resolve(l, l->devices, frames, true);
+        forward_frames_s forward = { 5, &frames[1] };
         if (d) {
+            nodes_foreach(l->servers, foreach_node_forward_message, &forward);
             exe_on_heartbeat(l, d);
             e = LINQ_ERROR_OK;
         }
@@ -384,15 +429,33 @@ linq_listen(linq_s* l, const char* ep)
     return l->sock ? LINQ_ERROR_OK : LINQ_ERROR_BAD_ARGS;
 }
 
+// loop through each node and resolve any requests that have timed out
+static void
+foreach_node_check_request_timeout(void* ctx, node_s** n)
+{
+    ((void)ctx);
+    request_s* r = node_request_pending(*n);
+    if (r && request_sent_at(r) + 10000 <= sys_tick()) {
+        node_resolve_request(*n, LINQ_ERROR_TIMEOUT, "{\"error\":\"timeout\"}");
+    }
+}
+
 // poll network socket file handles
 E_LINQ_ERROR
 linq_poll(linq_s* l)
 {
     int err;
     zmq_pollitem_t item = { zsock_resolve(l->sock), 0, ZMQ_POLLIN, 0 };
+
+    // Process sockets
     err = zmq_poll(&item, 1, 5);
-    if (err < 0) return err;
-    if (item.revents && ZMQ_POLLIN) err = process_incoming(l);
+    if (!(err < 0)) {
+        if (item.revents && ZMQ_POLLIN) err = process_incoming(l);
+    }
+
+    // Loop through devices
+    nodes_foreach(l->devices, foreach_node_check_request_timeout, l);
+
     return err;
 }
 

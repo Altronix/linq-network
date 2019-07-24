@@ -20,7 +20,8 @@ extern "C"
         LINQ_ERROR_BAD_ARGS = -2,
         LINQ_ERROR_PROTOCOL = -3,
         LINQ_ERROR_IO = -4,
-        LINQ_ERROR_DEVICE_NOT_FOUND = -5
+        LINQ_ERROR_DEVICE_NOT_FOUND = -5,
+        LINQ_ERROR_TIMEOUT = -6,
     } E_LINQ_ERROR;
 
     typedef struct linq_alert_s
@@ -31,6 +32,7 @@ extern "C"
         const char* when;
         const char* mesg;
         const char* email[5];
+        char* data;
     } linq_alert_s;
 
     typedef struct linq_email_s
@@ -47,6 +49,7 @@ extern "C"
         const char* server;
         const char* port;
         const char* device;
+        char* data;
     } linq_email_s;
 
     typedef void (*linq_request_complete_fn)(

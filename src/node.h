@@ -18,6 +18,7 @@ extern "C"
         const char* serial,
         const char* type);
     void node_destroy(node_s** d_p);
+    zsock_t** node_socket(node_s*);
     const char* node_serial(node_s* d);
     const char* node_type(node_s* d);
     const router_s* node_router(node_s* d);
@@ -35,7 +36,8 @@ extern "C"
         const char*,
         linq_request_complete_fn,
         void*);
-    void node_recv(node_s* d, int err, const char*);
+    void node_resolve_request(node_s* d, int err, const char*);
+    request_s* node_request_pending(node_s* n);
     uint32_t node_request_pending_count(node_s* d);
 
 #ifdef __cplusplus

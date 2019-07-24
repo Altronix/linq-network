@@ -104,14 +104,48 @@ static void
 test_linq_receive_protocol_error_serial(void** context_p)
 {
     ((void)context_p);
-    // TODO the serial string is too big
+    bool pass = false;
+    char sid[SID_LEN + 1];
+    memset(sid, SID_LEN + 1, 'A');
+    linq_s* l = linq_create(&callbacks, &pass);
+    zmsg_t* m = helpers_create_message_mem(
+        6, "rid", 3, "\x0", 1, "\x0", 1, sid, SID_LEN + 1, "pid", 3, "site", 4);
+
+    czmq_spy_mesg_push_incoming(&m);
+    czmq_spy_poll_set_incoming((0x01));
+
+    expect_error = LINQ_ERROR_PROTOCOL;
+
+    linq_poll(l);
+
+    assert_true(pass);
+
+    linq_destroy(&l);
+    test_reset();
 }
 
 static void
 test_linq_receive_protocol_error_router(void** context_p)
 {
     ((void)context_p);
-    // TODO the router is too big
+    bool pass = false;
+    char rid[RID_LEN + 1];
+    memset(rid, SID_LEN + 1, 'A');
+    linq_s* l = linq_create(&callbacks, &pass);
+    zmsg_t* m = helpers_create_message_mem(
+        6, rid, RID_LEN + 1, "\x0", 1, "\x0", 1, "sid", 3, "pid", 3, "site", 4);
+
+    czmq_spy_mesg_push_incoming(&m);
+    czmq_spy_poll_set_incoming((0x01));
+
+    expect_error = LINQ_ERROR_PROTOCOL;
+
+    linq_poll(l);
+
+    assert_true(pass);
+
+    linq_destroy(&l);
+    test_reset();
 }
 
 static void
@@ -249,18 +283,54 @@ test_linq_receive_response_ok(void** context_p)
 static void
 on_response_error_timeout(void* pass, int err, const char* data, node_s** d)
 {
-    ((void)pass);
-    ((void)err);
-    ((void)data);
     ((void)d);
-    // TODO
+    *((bool*)pass) = true;
+    assert_int_equal(err, LINQ_ERROR_TIMEOUT);
+    assert_string_equal(data, "{\"error\":\"timeout\"}");
 }
 
 static void
 test_linq_receive_response_error_timeout(void** context_p)
 {
     ((void)context_p);
-    // TODO
+
+    bool pass = false, response_pass = false;
+    const char* serial = expect_serial = "serial";
+    linq_s* l = linq_create(&callbacks, &pass);
+    node_s** n;
+    zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
+    zmsg_t* r = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
+
+    czmq_spy_mesg_push_incoming(&hb);
+    czmq_spy_poll_set_incoming((0x01));
+
+    // Receive a new device @t=0
+    spy_sys_set_tick(0);
+    linq_poll(l);
+    n = linq_device(l, serial);
+    node_send_get(*n, "/ATX/test", on_response_error_timeout, &response_pass);
+    assert_int_equal(node_request_pending_count(*n), 1);
+
+    // Still waiting for response @t=9999
+    spy_sys_set_tick(9999);
+    czmq_spy_poll_set_incoming((0x00));
+    linq_poll(l);
+    assert_false(response_pass);
+    assert_int_equal(node_request_pending_count(*n), 1);
+
+    // Timeout callback happens @t=10000
+    spy_sys_set_tick(10000);
+    linq_poll(l);
+    assert_true(response_pass);
+    assert_int_equal(node_request_pending_count(*n), 0);
+
+    // Response is resolved but there is no more request pending
+    czmq_spy_poll_set_incoming((0x01));
+    czmq_spy_mesg_push_incoming(&r);
+    linq_poll(l);
+
+    linq_destroy(&l);
+    test_reset();
 }
 
 static void
@@ -306,17 +376,121 @@ test_linq_receive_hello_double_id(void** context_p)
 }
 
 static void
-test_linq_broadcast_alert(void** context_p)
-{
-    ((void)context_p);
-    // TODO
-}
-
-static void
 test_linq_broadcast_heartbeat(void** context_p)
 {
     ((void)context_p);
-    // TODO
+
+    linq_s* l = linq_create(NULL, NULL);
+    zmsg_t* hb = helpers_make_heartbeat("rid0", "serial", "product", "site");
+    zmsg_t* m0 = helpers_create_message_mem(
+        4, "client-router", 13, "\x0", 1, "\x4", 1, "node0", 5);
+    zmsg_t* m1 = helpers_create_message_mem(
+        4, "client-router", 13, "\x0", 1, "\x4", 1, "node1", 5);
+    zmsg_t* outgoing;
+
+    // Client sends hello to server, device sends heartbeat to server
+    czmq_spy_mesg_push_incoming(&m0);
+    czmq_spy_mesg_push_incoming(&m1);
+    czmq_spy_mesg_push_incoming(&hb);
+    czmq_spy_poll_set_incoming((0x01));
+
+    linq_poll(l); // receive hello
+    linq_poll(l); // recieve hello
+    linq_poll(l); // receive heartbeat
+
+    // outgoing should have a heartbeat with client router
+    for (int i = 0; i < 2; i++) {
+        zframe_t *rid, *ver, *typ, *sid, *pid, *loc;
+        outgoing = czmq_spy_mesg_pop_outgoing();
+        assert_non_null(outgoing);
+        rid = zmsg_pop(outgoing);
+        ver = zmsg_pop(outgoing);
+        typ = zmsg_pop(outgoing);
+        sid = zmsg_pop(outgoing);
+        pid = zmsg_pop(outgoing);
+        loc = zmsg_pop(outgoing);
+        assert_memory_equal(zframe_data(rid), "client-router", 13);
+        assert_memory_equal(zframe_data(ver), "\x0", 1);
+        assert_memory_equal(zframe_data(typ), "\x0", 1);
+        assert_memory_equal(zframe_data(sid), "serial", 6);
+        assert_memory_equal(zframe_data(pid), "product", 6);
+        assert_memory_equal(zframe_data(loc), "site", 4);
+        zmsg_destroy(&outgoing);
+        zframe_destroy(&rid);
+        zframe_destroy(&ver);
+        zframe_destroy(&typ);
+        zframe_destroy(&sid);
+        zframe_destroy(&pid);
+        zframe_destroy(&loc);
+    }
+
+    outgoing = czmq_spy_mesg_pop_outgoing();
+    assert_null(outgoing);
+
+    linq_destroy(&l);
+    test_reset();
+}
+
+static void
+test_linq_broadcast_alert(void** context_p)
+{
+    ((void)context_p);
+
+    linq_s* l = linq_create(NULL, NULL);
+    zmsg_t* hb = helpers_make_heartbeat("rid0", "sid", "pid", "site");
+    zmsg_t* alert = helpers_make_alert("rid", "sid", "pid");
+    zmsg_t* m0 = helpers_create_message_mem(
+        4, "client-router", 13, "\x0", 1, "\x4", 1, "node0", 5);
+    zmsg_t* m1 = helpers_create_message_mem(
+        4, "client-router", 13, "\x0", 1, "\x4", 1, "node1", 5);
+    zmsg_t* outgoing;
+
+    // Client sends hello to server, device sends heartbeat to server
+    czmq_spy_mesg_push_incoming(&hb);
+    czmq_spy_mesg_push_incoming(&m0);
+    czmq_spy_mesg_push_incoming(&m1);
+    czmq_spy_mesg_push_incoming(&alert);
+    czmq_spy_poll_set_incoming((0x01));
+
+    linq_poll(l); // receive heartbeat
+    linq_poll(l); // receive hello
+    linq_poll(l); // recieve hello
+    linq_poll(l); // receive alert
+
+    // outgoing should have a heartbeat with client router
+    for (int i = 0; i < 2; i++) {
+        zframe_t *rid, *ver, *typ, *sid, *pid, *alert, *email;
+        outgoing = czmq_spy_mesg_pop_outgoing();
+        assert_non_null(outgoing);
+        rid = zmsg_pop(outgoing);
+        ver = zmsg_pop(outgoing);
+        typ = zmsg_pop(outgoing);
+        sid = zmsg_pop(outgoing);
+        pid = zmsg_pop(outgoing);
+        alert = zmsg_pop(outgoing);
+        email = zmsg_pop(outgoing);
+        assert_memory_equal(zframe_data(rid), "client-router", 13);
+        assert_memory_equal(zframe_data(ver), "\x0", 1);
+        assert_memory_equal(zframe_data(typ), "\x3", 1);
+        assert_memory_equal(zframe_data(sid), "sid", 3);
+        assert_memory_equal(zframe_data(pid), "pid", 3);
+        assert_memory_equal(zframe_data(alert), TEST_ALERT, strlen(TEST_ALERT));
+        assert_memory_equal(zframe_data(email), TEST_EMAIL, strlen(TEST_EMAIL));
+        zmsg_destroy(&outgoing);
+        zframe_destroy(&rid);
+        zframe_destroy(&ver);
+        zframe_destroy(&typ);
+        zframe_destroy(&sid);
+        zframe_destroy(&pid);
+        zframe_destroy(&alert);
+        zframe_destroy(&email);
+    }
+
+    outgoing = czmq_spy_mesg_pop_outgoing();
+    assert_null(outgoing);
+
+    linq_destroy(&l);
+    test_reset();
 }
 
 static void
@@ -345,8 +519,8 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_receive_response_error_timeout),
         cmocka_unit_test(test_linq_receive_hello),
         cmocka_unit_test(test_linq_receive_hello_double_id),
-        cmocka_unit_test(test_linq_broadcast_alert),
         cmocka_unit_test(test_linq_broadcast_heartbeat),
+        cmocka_unit_test(test_linq_broadcast_alert),
         cmocka_unit_test(test_linq_forward_response)
     };
 
