@@ -18,7 +18,6 @@ typedef struct requests_s
     klist_t(requests) * list;
 } requests_s;
 
-typedef struct kl_requests_t request_lists_s;
 requests_s*
 requests_create()
 {
@@ -33,10 +32,9 @@ requests_create()
 void
 requests_destroy(requests_s** list_p)
 {
-    request_s* next;
     requests_s* requests = *list_p;
     *list_p = NULL;
-    next = requests_pop(requests);
+    request_s* next = requests_pop(requests);
     while (next) {
         request_s* deleteme = next;
         next = requests_pop(requests);

@@ -7,6 +7,7 @@ set(sources
 	jsmn.c)
 set(headers 
 	../include/altronix/linq.h
+	containers.h
 	linq_internal.h
 	node.h
 	nodes.h
