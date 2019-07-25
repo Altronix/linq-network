@@ -80,6 +80,48 @@ helpers_make_response(
 }
 
 zmsg_t*
+helpers_make_request(
+    const char* rid,
+    const char* sid,
+    const char* path,
+    const char* data)
+{
+    return data ? helpers_create_message_mem(
+                      6,
+                      rid,
+                      strlen(rid),
+                      "\x0",
+                      1,
+                      "\x1",
+                      1,
+                      sid,
+                      strlen(sid),
+                      path,
+                      strlen(path),
+                      data,
+                      strlen(data))
+                : helpers_create_message_mem(
+                      5,
+                      rid,
+                      strlen(rid),
+                      "\x0",
+                      1,
+                      "\x1",
+                      1,
+                      sid,
+                      strlen(sid),
+                      path,
+                      strlen(path));
+}
+
+zmsg_t*
+helpers_make_hello(const char* router, const char* node)
+{
+    return helpers_create_message_mem(
+        4, router, strlen(router), "\x0", 1, "\x4", 1, node, strlen(node));
+}
+
+zmsg_t*
 helpers_create_message_str(int n, ...)
 {
     va_list list;

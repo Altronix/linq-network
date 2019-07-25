@@ -4,7 +4,6 @@
 // includes
 #include "czmq.h"
 #include "linq_internal.h"
-#include "requests.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -18,7 +17,6 @@ extern "C"
         const char* serial,
         const char* type);
     void node_destroy(node_s** d_p);
-    zsock_t** node_socket(node_s*);
     const char* node_serial(node_s* d);
     const char* node_type(node_s* d);
     const router_s* node_router(node_s* d);
@@ -29,6 +27,7 @@ extern "C"
     void node_send(node_s*, request_s**);
     void
     node_send_delete(node_s*, const char*, linq_request_complete_fn, void*);
+    void node_send_forward(node_s* d, frames_s* forward);
     void node_send_get(node_s*, const char*, linq_request_complete_fn, void*);
     void node_send_post(
         node_s*,

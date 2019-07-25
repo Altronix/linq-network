@@ -66,13 +66,19 @@ extern "C"
         const char* site_id);
     zmsg_t* helpers_make_alert(const char*, const char*, const char*);
     zmsg_t* helpers_make_legacy_alert();
-    zmsg_t* helpers_create_message_mem(int n, ...);
-    zmsg_t* helpers_create_message_str(int n, ...);
     zmsg_t* helpers_make_response(
         const char* rid,
         const char* sid,
         int err,
         const char* data);
+    zmsg_t* helpers_make_request(
+        const char* rid,
+        const char* sid,
+        const char* path,
+        const char* data);
+    zmsg_t* helpers_make_hello(const char* router, const char* node);
+    zmsg_t* helpers_create_message_mem(int n, ...);
+    zmsg_t* helpers_create_message_str(int n, ...);
 
 #ifdef __cplusplus
 }
