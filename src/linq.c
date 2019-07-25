@@ -6,8 +6,6 @@
 #define JSMN_HEADER
 #include "jsmn/jsmn.h"
 
-HASH_INIT(devices, device_s, device_destroy);
-
 #define exe_on_error(linq, error, serial)                                      \
     do {                                                                       \
         if (linq->callbacks && linq->callbacks->err)                           \
@@ -23,6 +21,8 @@ HASH_INIT(devices, device_s, device_destroy);
         if (linq->callbacks && linq->callbacks->alert)                         \
             linq->callbacks->alert(linq->context, a, e, device_p);             \
     } while (0)
+
+HASH_INIT(devices, device_s, device_destroy);
 
 // Main class
 typedef struct linq_s
