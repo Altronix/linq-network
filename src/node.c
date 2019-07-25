@@ -1,6 +1,8 @@
 #include "node.h"
+#include "containers.h"
 #include "request.h"
-#include "requests.h"
+
+LIST_INIT(requests, request_s, request_destroy);
 
 #define exe_on_complete(rp, err, dat, dp)                                      \
     do {                                                                       \
@@ -11,7 +13,7 @@ typedef struct node_s
 {
     zsock_t** sock_p;
     router_s router;
-    requests_s* requests;
+    list_requests_s* requests;
     request_s* request_pending;
     char serial[64];
     char type[64];
@@ -27,7 +29,7 @@ flush(node_s* d)
 {
     linq_assert(d->request_pending == NULL);
     request_s** r_p = &d->request_pending;
-    *r_p = requests_pop(d->requests);
+    *r_p = list_requests_pop(d->requests);
     request_router_id_set(*r_p, d->router.id, d->router.sz);
     if (request_send(*r_p, *d->sock_p) < 0) {
         exe_on_complete(r_p, LINQ_ERROR_IO, NULL, &d);
@@ -48,7 +50,7 @@ node_create(
     if (d) {
         memset(d, 0, sizeof(node_s));
         d->sock_p = sock_p;
-        d->requests = requests_create();
+        d->requests = list_requests_create();
         d->birth = d->last_seen = sys_tick();
         node_update_router(d, router, router_sz);
         snprintf(d->serial, sizeof(d->serial), "%s", serial);
@@ -61,7 +63,7 @@ void
 node_destroy(node_s** d_p)
 {
     node_s* d = *d_p;
-    requests_destroy(&d->requests);
+    list_requests_destroy(&d->requests);
     if (d->request_pending) request_destroy(&d->request_pending);
     memset(d, 0, sizeof(node_s));
     *d_p = NULL;
@@ -137,8 +139,8 @@ node_send_forward(node_s* d, frames_s* forward)
 void
 node_send(node_s* d, request_s** r)
 {
-    requests_push(d->requests, r);
-    if (!d->request_pending && requests_size(d->requests)) flush(d);
+    list_requests_push(d->requests, r);
+    if (!d->request_pending && list_requests_size(d->requests)) flush(d);
 }
 
 static void
@@ -198,7 +200,7 @@ node_resolve_request(node_s* d, E_LINQ_ERROR err, const char* str)
     snprintf(json, sizeof(json), "%s", str);
     exe_on_complete(r_p, err, json, &d);
     request_destroy(r_p);
-    if (requests_size(d->requests)) flush(d);
+    if (list_requests_size(d->requests)) flush(d);
 }
 
 request_s*
@@ -210,5 +212,5 @@ node_request_pending(node_s* n)
 uint32_t
 node_request_pending_count(node_s* d)
 {
-    return requests_size(d->requests) + (d->request_pending ? 1 : 0);
+    return list_requests_size(d->requests) + (d->request_pending ? 1 : 0);
 }

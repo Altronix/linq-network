@@ -6,11 +6,12 @@
 #include "klib/khash.h"
 #include "klib/klist.h"
 
-static inline void
-__list_free_fn(void* ctx)
+#ifdef __cplusplus
+extern "C"
 {
-    ((void)ctx);
-}
+#endif
+
+    static inline void __list_free_fn(void* ctx) { ((void)ctx); }
 #define FREE_FN(x) __list_free_fn(x->data)
 
 #define LIST_INIT(tag, type, list_free_fn)                                     \
@@ -53,5 +54,7 @@ __list_free_fn(void* ctx)
     }                                                                          \
                                                                                \
     uint32_t list_##tag##_size(list_##tag##_s* l) { return l->size; }
-
+#ifdef __cplusplus
+}
+#endif
 #endif

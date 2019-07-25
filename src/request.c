@@ -1,6 +1,6 @@
 #include "czmq.h"
 
-#include "klib/klist.h"
+#include "containers.h"
 #include "request.h"
 
 static zframe_t*

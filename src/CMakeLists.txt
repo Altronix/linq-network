@@ -3,7 +3,6 @@ set(sources
 	node.c
 	nodes.c
 	request.c
-	requests.c
 	jsmn.c)
 set(headers 
 	../include/altronix/linq.h
@@ -11,8 +10,7 @@ set(headers
 	linq_internal.h
 	node.h
 	nodes.h
-	request.h
-	requests.h)
+	request.h)
 
 set(linq_INSTALL_HEADERS ../include/altronix/linq.h)
 set(linq_SOURCES ${sources})
