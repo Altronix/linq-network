@@ -22,15 +22,15 @@
             linq->callbacks->alert(linq->context, a, e, device_p);             \
     } while (0)
 
-HASH_INIT(devices, device_s, device_destroy);
+MAP_INIT(devices, device_s, device_destroy);
 
 // Main class
 typedef struct linq_s
 {
     void* context;
     zsock_t* sock;
-    hash_devices_s* devices;
-    hash_devices_s* servers;
+    map_devices_s* devices;
+    map_devices_s* servers;
     linq_callbacks* callbacks;
 } linq_s;
 
@@ -261,7 +261,7 @@ print_null_terminated(char* c, uint32_t sz, zframe_t* f)
 }
 
 static device_s**
-node_resolve(linq_s* l, hash_devices_s* map, zframe_t** frames, bool insert)
+node_resolve(linq_s* l, map_devices_s* map, zframe_t** frames, bool insert)
 {
     uint32_t rid_sz = zframe_size(frames[FRAME_RID_IDX]);
     uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
@@ -270,13 +270,13 @@ node_resolve(linq_s* l, hash_devices_s* map, zframe_t** frames, bool insert)
     if (frames[FRAME_HB_TID_IDX]) {
         print_null_terminated(tid, TID_LEN, frames[FRAME_HB_TID_IDX]);
     }
-    device_s** d = hash_devices_get(map, sid);
+    device_s** d = map_devices_get(map, sid);
     if (d) {
         device_heartbeat(*d);
         device_update_router(*d, rid, rid_sz);
     } else {
         device_s* node = device_create(&l->sock, rid, rid_sz, sid, tid);
-        if (insert) d = hash_devices_add(map, device_serial(node), &node);
+        if (insert) d = map_devices_add(map, device_serial(node), &node);
     }
     return d;
 }
@@ -396,10 +396,9 @@ process_alert(linq_s* l, zmsg_t** msg, zframe_t** frames)
         (frames[FRAME_ALERT_DAT_IDX] = pop_alert(*msg, &alert)) &&
         (frames[FRAME_ALERT_DST_IDX] = pop_email(*msg, &email))) {
         device_s** d = node_resolve(l, l->devices, frames, false);
-        frames_s forward = { 6, &frames[1] };
+        frames_s f = { 6, &frames[1] };
         if (d) {
-            hash_devices_s* nodes = l->servers;
-            hash_devices_foreach(nodes, foreach_node_forward_message, &forward);
+            map_devices_foreach(l->servers, foreach_node_forward_message, &f);
             exe_on_alert(l, d, &alert, &email);
             e = LINQ_ERROR_OK;
         }
@@ -430,10 +429,9 @@ process_heartbeat(linq_s* l, zmsg_t** msg, zframe_t** frames)
         (frames[FRAME_HB_TID_IDX] = pop_le(*msg, TID_LEN)) &&
         (frames[FRAME_HB_SITE_IDX] = pop_le(*msg, SITE_LEN))) {
         device_s** d = node_resolve(l, l->devices, frames, true);
-        frames_s forward = { 5, &frames[1] };
+        frames_s f = { 5, &frames[1] };
         if (d) {
-            hash_devices_s* nodes = l->servers;
-            hash_devices_foreach(nodes, foreach_node_forward_message, &forward);
+            map_devices_foreach(l->servers, foreach_node_forward_message, &f);
             exe_on_heartbeat(l, d);
             e = LINQ_ERROR_OK;
         }
@@ -485,8 +483,8 @@ linq_create(linq_callbacks* cb, void* context)
     linq_s* l = linq_malloc(sizeof(linq_s));
     if (l) {
         memset(l, 0, sizeof(linq_s));
-        l->devices = hash_devices_create();
-        l->servers = hash_devices_create();
+        l->devices = map_devices_create();
+        l->servers = map_devices_create();
         l->callbacks = cb;
         l->context = context;
     }
@@ -499,8 +497,8 @@ linq_destroy(linq_s** linq_p)
 {
     linq_s* l = *linq_p;
     *linq_p = NULL;
-    hash_devices_destroy(&l->devices);
-    hash_devices_destroy(&l->servers);
+    map_devices_destroy(&l->devices);
+    map_devices_destroy(&l->servers);
     if (l->sock) zsock_destroy(&l->sock);
     linq_free(l);
 }
@@ -540,7 +538,7 @@ linq_poll(linq_s* l)
     }
 
     // Loop through devices
-    hash_devices_foreach(l->devices, foreach_node_check_request_timeout, l);
+    map_devices_foreach(l->devices, foreach_node_check_request_timeout, l);
 
     return err;
 }
@@ -549,21 +547,21 @@ linq_poll(linq_s* l)
 device_s**
 linq_device(linq_s* l, const char* serial)
 {
-    return hash_devices_get(l->devices, serial);
+    return map_devices_get(l->devices, serial);
 }
 
 // return how many devices are connected to linq
 uint32_t
 linq_device_count(linq_s* l)
 {
-    return hash_devices_size(l->devices);
+    return map_devices_size(l->devices);
 }
 
 // return how many servers are connected to linq
 uint32_t
 linq_server_count(linq_s* l)
 {
-    return hash_devices_size(l->servers);
+    return map_devices_size(l->servers);
 }
 
 // send a get request to a device connected to us
