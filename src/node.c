@@ -88,6 +88,12 @@ node_router(node_s* d)
     return &d->router;
 }
 
+zsock_t**
+node_socket(node_s* d)
+{
+    return d->sock_p;
+}
+
 void
 node_update_router(node_s* d, const uint8_t* rid, uint32_t sz)
 {
@@ -111,29 +117,6 @@ void
 node_heartbeat(node_s* d)
 {
     d->last_seen = sys_tick();
-}
-
-void
-node_send_forward(node_s* d, frames_s* forward)
-{
-    uint32_t count = 0;
-    zmsg_t* msg = zmsg_new();
-    if (msg) {
-        zframe_t* router = zframe_new(d->router.id, d->router.sz);
-        if (router) {
-            zmsg_append(msg, &router);
-            for (uint32_t i = 0; i < forward->n; i++) {
-                zframe_t* frame = zframe_dup(forward->frames[i]);
-                if (!frame) break;
-                count++;
-                zmsg_append(msg, &frame);
-            }
-            if (count == forward->n) {
-                int err = zmsg_send(&msg, *d->sock_p);
-                if (err) zmsg_destroy(&msg);
-            }
-        }
-    }
 }
 
 void
@@ -193,7 +176,7 @@ node_send_post(
 }
 
 void
-node_resolve_request(node_s* d, E_LINQ_ERROR err, const char* str)
+node_request_resolve(node_s* d, E_LINQ_ERROR err, const char* str)
 {
     char json[JSON_LEN + 1];
     request_s** r_p = &d->request_pending;

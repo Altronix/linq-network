@@ -47,6 +47,56 @@ typedef enum
     TYPE_HELLO = FRAME_TYP_HELLO
 } E_TYPE;
 
+// Send frames with an array of frames
+static void
+send_frames(node_s* server, uint32_t n, zframe_t** frames)
+{
+    uint32_t count = 0;
+    const router_s* rid = node_router(server);
+    zmsg_t* msg = zmsg_new();
+    if (msg) {
+        zframe_t* router = zframe_new(rid->id, rid->sz);
+        if (router) {
+            zmsg_append(msg, &router);
+            for (uint32_t i = 0; i < n; i++) {
+                zframe_t* frame = zframe_dup(frames[i]);
+                if (!frame) break;
+                count++;
+                zmsg_append(msg, &frame);
+            }
+            if (count == n) {
+                int err = zmsg_send(&msg, *node_socket(server));
+                if (err) zmsg_destroy(&msg);
+            }
+        }
+    }
+}
+
+// send frames from variadic
+void
+send_frames_n(void* sock, uint32_t n, ...)
+{
+    zmsg_t* msg = zmsg_new();
+    int err = -1;
+    uint32_t count = 0;
+    if (msg) {
+        va_list list;
+        va_start(list, n);
+        for (uint32_t i = 0; i < n; i++) {
+            uint8_t* arg = va_arg(list, uint8_t*);
+            size_t sz = va_arg(list, size_t);
+            zframe_t* f = zframe_new(arg, sz);
+            if (f) {
+                count++;
+                zmsg_append(msg, &f);
+            }
+        }
+        va_end(list);
+        if (count == n) err = zmsg_send(&msg, sock);
+        if (err) zmsg_destroy(&msg);
+    }
+}
+
 // parse a token from a json string inside a frame
 static uint32_t
 parse_token(char* data, jsmntok_t* t, char** ptr)
@@ -236,7 +286,7 @@ static void
 foreach_node_forward_message(void* ctx, node_s** n)
 {
     frames_s* frames = ctx;
-    node_send_forward(*n, frames);
+    send_frames(*n, frames->n, frames->frames);
 }
 
 // A device has responded to a request from a node on linq->servers. Forward
@@ -251,7 +301,7 @@ on_forward_request_response(
     // TODO - context should include destination router and linq_s*
     // (Note this doesn't crash because we mock zsock_send()...)
     request_s* r = ctx;
-    linq_socket_send_frames(
+    send_frames_n(
         NULL,                         // TODO need socket
         6,                            //
         r->forward.id,                // router
@@ -319,7 +369,7 @@ process_response(linq_s* l, zmsg_t** msg, zframe_t** frames)
         node_s** d = node_resolve(l, l->devices, frames, false);
         if (d) {
             if (node_request_pending(*d)) {
-                node_resolve_request(
+                node_request_resolve(
                     *d, zframe_data(err)[0], (const char*)zframe_data(dat));
             }
         }
@@ -347,8 +397,8 @@ process_alert(linq_s* l, zmsg_t** msg, zframe_t** frames)
         node_s** d = node_resolve(l, l->devices, frames, false);
         frames_s forward = { 6, &frames[1] };
         if (d) {
-            hash_nodes_foreach(
-                l->servers, foreach_node_forward_message, &forward);
+            hash_nodes_s* nodes = l->servers;
+            hash_nodes_foreach(nodes, foreach_node_forward_message, &forward);
             exe_on_alert(l, d, &alert, &email);
             e = LINQ_ERROR_OK;
         }
@@ -381,8 +431,8 @@ process_heartbeat(linq_s* l, zmsg_t** msg, zframe_t** frames)
         node_s** d = node_resolve(l, l->devices, frames, true);
         frames_s forward = { 5, &frames[1] };
         if (d) {
-            hash_nodes_foreach(
-                l->servers, foreach_node_forward_message, &forward);
+            hash_nodes_s* nodes = l->servers;
+            hash_nodes_foreach(nodes, foreach_node_forward_message, &forward);
             exe_on_heartbeat(l, d);
             e = LINQ_ERROR_OK;
         }
@@ -470,7 +520,7 @@ foreach_node_check_request_timeout(void* ctx, node_s** n)
     ((void)ctx);
     request_s* r = node_request_pending(*n);
     if (r && request_sent_at(r) + 10000 <= sys_tick()) {
-        node_resolve_request(*n, LINQ_ERROR_TIMEOUT, "{\"error\":\"timeout\"}");
+        node_request_resolve(*n, LINQ_ERROR_TIMEOUT, "{\"error\":\"timeout\"}");
     }
 }
 
@@ -568,29 +618,5 @@ linq_node_send(linq_s* linq, const char* serial, request_s* request)
     if (!d) return LINQ_ERROR_DEVICE_NOT_FOUND;
     node_send(*d, &request);
     return LINQ_ERROR_OK;
-}
-
-void
-linq_socket_send_frames(void* sock, uint32_t n, ...)
-{
-    zmsg_t* msg = zmsg_new();
-    int err = -1;
-    uint32_t count = 0;
-    if (msg) {
-        va_list list;
-        va_start(list, n);
-        for (uint32_t i = 0; i < n; i++) {
-            uint8_t* arg = va_arg(list, uint8_t*);
-            size_t sz = va_arg(list, size_t);
-            zframe_t* f = zframe_new(arg, sz);
-            if (f) {
-                count++;
-                zmsg_append(msg, &f);
-            }
-        }
-        va_end(list);
-        if (count == n) err = zmsg_send(&msg, sock);
-        if (err) zmsg_destroy(&msg);
-    }
 }
 

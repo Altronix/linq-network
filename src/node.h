@@ -20,6 +20,7 @@ extern "C"
     const char* node_serial(node_s* d);
     const char* node_type(node_s* d);
     const router_s* node_router(node_s* d);
+    zsock_t** node_socket(node_s* d);
     void node_update_router(node_s* d, const uint8_t* rid, uint32_t sz);
     uint32_t node_last_seen(node_s* d);
     uint32_t node_uptime(node_s* d);
@@ -27,7 +28,6 @@ extern "C"
     void node_send(node_s*, request_s**);
     void
     node_send_delete(node_s*, const char*, linq_request_complete_fn, void*);
-    void node_send_forward(node_s* d, frames_s* forward);
     void node_send_get(node_s*, const char*, linq_request_complete_fn, void*);
     void node_send_post(
         node_s*,
@@ -35,7 +35,7 @@ extern "C"
         const char*,
         linq_request_complete_fn,
         void*);
-    void node_resolve_request(node_s* d, int err, const char*);
+    void node_request_resolve(node_s* d, int err, const char*);
     request_s* node_request_pending(node_s* n);
     uint32_t node_request_pending_count(node_s* d);
 
