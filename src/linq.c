@@ -1,10 +1,12 @@
+#include "containers.h"
 #include "linq_internal.h"
 #include "node.h"
-#include "nodes.h"
 #include "request.h"
 
 #define JSMN_HEADER
 #include "jsmn/jsmn.h"
+
+HASH_INIT(nodes, node_s, node_destroy);
 
 #define exe_on_error(linq, error, serial)                                      \
     do {                                                                       \
@@ -27,8 +29,8 @@ typedef struct linq_s
 {
     void* context;
     zsock_t* sock;
-    nodes_s* devices;
-    nodes_s* servers;
+    hash_nodes_s* devices;
+    hash_nodes_s* servers;
     linq_callbacks* callbacks;
 } linq_s;
 
@@ -208,9 +210,8 @@ print_null_terminated(char* c, uint32_t sz, zframe_t* f)
     }
 }
 
-// find a device in our device map and update the router id. insert device if hb
 static node_s**
-node_resolve(linq_s* l, nodes_s* map, zframe_t** frames, bool insert)
+node_resolve(linq_s* l, hash_nodes_s* map, zframe_t** frames, bool insert)
 {
     uint32_t rid_sz = zframe_size(frames[FRAME_RID_IDX]);
     uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
@@ -219,38 +220,53 @@ node_resolve(linq_s* l, nodes_s* map, zframe_t** frames, bool insert)
     if (frames[FRAME_HB_TID_IDX]) {
         print_null_terminated(tid, TID_LEN, frames[FRAME_HB_TID_IDX]);
     }
-    node_s** d = nodes_get(map, sid);
+    node_s** d = hash_nodes_get(map, sid);
     if (d) {
         node_heartbeat(*d);
         node_update_router(*d, rid, rid_sz);
     } else {
         node_s* node = node_create(&l->sock, rid, rid_sz, sid, tid);
-        if (insert) d = nodes_add(map, &node);
+        if (insert) d = hash_nodes_add(map, node_serial(node), &node);
     }
     return d;
 }
-
-typedef struct
-{
-    int n;
-    zframe_t** frames;
-} forward_frames_s;
 
 // Broadcast x frames to each node (router frame is added per each node)
 static void
 foreach_node_forward_message(void* ctx, node_s** n)
 {
-    const router_s* r = node_router(*n);
-    forward_frames_s* forward = ctx;
-    zmsg_t* msg = zmsg_new();
-    zframe_t* router = zframe_new(r->id, r->sz);
-    zmsg_append(msg, &router);
-    for (int i = 0; i < forward->n; i++) {
-        zframe_t* frame = zframe_dup(forward->frames[i]);
-        zmsg_append(msg, &frame);
-    }
-    int err = zmsg_send(&msg, *node_socket(*n));
-    if (err) zmsg_destroy(&msg);
+    frames_s* frames = ctx;
+    node_send_forward(*n, frames);
+}
+
+// A device has responded to a request from a node on linq->servers. Forward
+// the response to the node @ linq->servers
+static void
+on_forward_request_response(
+    void* ctx,
+    E_LINQ_ERROR error,
+    const char* json,
+    node_s** device)
+{
+    // TODO - context should include destination router and linq_s*
+    // (Note this doesn't crash because we mock zsock_send()...)
+    request_s* r = ctx;
+    linq_socket_send_frames(
+        NULL,                         // TODO need socket
+        6,                            //
+        r->forward.id,                // router
+        r->forward.sz,                //
+        "\x0",                        // version
+        1,                            //
+        "\x2",                        // type
+        1,                            //
+        node_serial(*device),         // serial
+        strlen(node_serial(*device)), //
+        error,                        // error
+        1,                            //
+        json,                         // data
+        strlen(json)                  //
+    );
 }
 
 // check the zmq request frames are valid and process the request
@@ -258,12 +274,36 @@ static E_LINQ_ERROR
 process_request(linq_s* l, zmsg_t** msg, zframe_t** frames)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
+    zframe_t *path = NULL, *data = NULL;
+    request_s* r;
     ((void)l);
-    ((void)msg);
-    ((void)frames);
+    if ((zmsg_size(*msg) >= 1) &&
+        (path = frames[FRAME_REQ_PATH_IDX] = pop_le(*msg, 128))) {
+        if (zmsg_size(*msg) == 1) {
+            data = frames[FRAME_REQ_DATA_IDX] = pop_le(*msg, JSON_LEN);
+        }
+        node_s** d = node_resolve(l, l->devices, frames, false);
+        if (d) {
+            r = request_create_from_frames(
+                frames[FRAME_SID_IDX],
+                path,
+                data,
+                on_forward_request_response,
+                NULL);
+            if (r) {
+                r->ctx = r;
+                r->forward.sz = zframe_size(frames[FRAME_RID_IDX]);
+                memcpy(
+                    r->forward.id,
+                    zframe_data(frames[FRAME_RID_IDX]),
+                    r->forward.sz);
+                node_send(*d, &r);
+            }
+        } else {
+            // TODO send 404 response (device not here)
+        }
+    }
     return e;
-    // TODO - if device exist, forward request to device and use callback to
-    // forward response... else send 404
 }
 
 // check the zmq response frames are valid and process the response
@@ -305,9 +345,10 @@ process_alert(linq_s* l, zmsg_t** msg, zframe_t** frames)
         (frames[FRAME_ALERT_DAT_IDX] = pop_alert(*msg, &alert)) &&
         (frames[FRAME_ALERT_DST_IDX] = pop_email(*msg, &email))) {
         node_s** d = node_resolve(l, l->devices, frames, false);
-        forward_frames_s forward = { 6, &frames[1] };
+        frames_s forward = { 6, &frames[1] };
         if (d) {
-            nodes_foreach(l->servers, foreach_node_forward_message, &forward);
+            hash_nodes_foreach(
+                l->servers, foreach_node_forward_message, &forward);
             exe_on_alert(l, d, &alert, &email);
             e = LINQ_ERROR_OK;
         }
@@ -338,9 +379,10 @@ process_heartbeat(linq_s* l, zmsg_t** msg, zframe_t** frames)
         (frames[FRAME_HB_TID_IDX] = pop_le(*msg, TID_LEN)) &&
         (frames[FRAME_HB_SITE_IDX] = pop_le(*msg, SITE_LEN))) {
         node_s** d = node_resolve(l, l->devices, frames, true);
-        forward_frames_s forward = { 5, &frames[1] };
+        frames_s forward = { 5, &frames[1] };
         if (d) {
-            nodes_foreach(l->servers, foreach_node_forward_message, &forward);
+            hash_nodes_foreach(
+                l->servers, foreach_node_forward_message, &forward);
             exe_on_heartbeat(l, d);
             e = LINQ_ERROR_OK;
         }
@@ -392,8 +434,8 @@ linq_create(linq_callbacks* cb, void* context)
     linq_s* l = linq_malloc(sizeof(linq_s));
     if (l) {
         memset(l, 0, sizeof(linq_s));
-        l->devices = nodes_create();
-        l->servers = nodes_create();
+        l->devices = hash_nodes_create();
+        l->servers = hash_nodes_create();
         l->callbacks = cb;
         l->context = context;
     }
@@ -406,8 +448,8 @@ linq_destroy(linq_s** linq_p)
 {
     linq_s* l = *linq_p;
     *linq_p = NULL;
-    nodes_destroy(&l->devices);
-    nodes_destroy(&l->servers);
+    hash_nodes_destroy(&l->devices);
+    hash_nodes_destroy(&l->servers);
     if (l->sock) zsock_destroy(&l->sock);
     linq_free(l);
 }
@@ -446,7 +488,7 @@ linq_poll(linq_s* l)
     }
 
     // Loop through devices
-    nodes_foreach(l->devices, foreach_node_check_request_timeout, l);
+    hash_nodes_foreach(l->devices, foreach_node_check_request_timeout, l);
 
     return err;
 }
@@ -455,21 +497,21 @@ linq_poll(linq_s* l)
 node_s**
 linq_device(linq_s* l, const char* serial)
 {
-    return nodes_get(l->devices, serial);
+    return hash_nodes_get(l->devices, serial);
 }
 
 // return how many devices are connected to linq
 uint32_t
 linq_device_count(linq_s* l)
 {
-    return nodes_size(l->devices);
+    return hash_nodes_size(l->devices);
 }
 
 // return how many servers are connected to linq
 uint32_t
 linq_server_count(linq_s* l)
 {
-    return nodes_size(l->servers);
+    return hash_nodes_size(l->servers);
 }
 
 // send a get request to a device connected to us
@@ -527,3 +569,28 @@ linq_node_send(linq_s* linq, const char* serial, request_s* request)
     node_send(*d, &request);
     return LINQ_ERROR_OK;
 }
+
+void
+linq_socket_send_frames(void* sock, uint32_t n, ...)
+{
+    zmsg_t* msg = zmsg_new();
+    int err = -1;
+    uint32_t count = 0;
+    if (msg) {
+        va_list list;
+        va_start(list, n);
+        for (uint32_t i = 0; i < n; i++) {
+            uint8_t* arg = va_arg(list, uint8_t*);
+            size_t sz = va_arg(list, size_t);
+            zframe_t* f = zframe_new(arg, sz);
+            if (f) {
+                count++;
+                zmsg_append(msg, &f);
+            }
+        }
+        va_end(list);
+        if (count == n) err = zmsg_send(&msg, sock);
+        if (err) zmsg_destroy(&msg);
+    }
+}
+

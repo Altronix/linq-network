@@ -59,6 +59,13 @@ typedef struct
     uint32_t sz;
 } router_s;
 
+// helpful struct for maintaining frames
+typedef struct
+{
+    uint32_t n;
+    zframe_t** frames;
+} frames_s;
+
 #ifdef __cplusplus
 extern "C"
 {

@@ -1,6 +1,6 @@
 #include "czmq.h"
 
-#include "klib/klist.h"
+#include "containers.h"
 #include "request.h"
 
 static zframe_t*
@@ -91,6 +91,33 @@ request_create_mem(
         if (!(r->frames[FRAME_VER_IDX] && r->frames[FRAME_TYP_IDX] &&
               r->frames[FRAME_SID_IDX] && r->frames[FRAME_REQ_PATH_IDX] &&
               ((d && r->frames[FRAME_REQ_DATA_IDX]) || !d))) {
+            request_destroy(&r);
+        }
+    }
+    return r;
+}
+
+request_s*
+request_create_from_frames(
+    zframe_t* serial,
+    zframe_t* path,
+    zframe_t* data,
+    linq_request_complete_fn fn,
+    void* ctx)
+{
+    request_s* r = linq_malloc(sizeof(request_s));
+    if (r) {
+        memset(r, 0, sizeof(request_s));
+        r->on_complete = fn;
+        r->ctx = ctx;
+        r->frames[FRAME_VER_IDX] = zframe_new("\0", 1);
+        r->frames[FRAME_TYP_IDX] = zframe_new("\1", 1);
+        r->frames[FRAME_SID_IDX] = zframe_dup(serial);
+        r->frames[FRAME_REQ_PATH_IDX] = zframe_dup(path);
+        if (data) r->frames[FRAME_REQ_DATA_IDX] = zframe_dup(data);
+        if (!(r->frames[FRAME_VER_IDX] && r->frames[FRAME_TYP_IDX] &&
+              r->frames[FRAME_SID_IDX] && r->frames[FRAME_REQ_PATH_IDX] &&
+              ((data && r->frames[FRAME_REQ_DATA_IDX]) || !data))) {
             request_destroy(&r);
         }
     }

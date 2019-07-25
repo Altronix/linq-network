@@ -338,8 +338,7 @@ test_linq_receive_hello(void** context_p)
 {
     ((void)context_p);
     linq_s* l = linq_create(NULL, NULL);
-    zmsg_t* m = helpers_create_message_mem(
-        4, "router", 6, "\x0", 1, "\x4", 1, "node", 4);
+    zmsg_t* m = helpers_make_hello("router", "node");
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
 
@@ -356,10 +355,8 @@ test_linq_receive_hello_double_id(void** context_p)
 {
     ((void)context_p);
     linq_s* l = linq_create(NULL, NULL);
-    zmsg_t* m0 = helpers_create_message_mem(
-        4, "router", 6, "\x0", 1, "\x4", 1, "node", 4);
-    zmsg_t* m1 = helpers_create_message_mem(
-        4, "router", 6, "\x0", 1, "\x4", 1, "node", 4);
+    zmsg_t* m0 = helpers_make_hello("router", "node");
+    zmsg_t* m1 = helpers_make_hello("router", "node");
 
     czmq_spy_mesg_push_incoming(&m0);
     czmq_spy_mesg_push_incoming(&m1);
@@ -382,10 +379,8 @@ test_linq_broadcast_heartbeat(void** context_p)
 
     linq_s* l = linq_create(NULL, NULL);
     zmsg_t* hb = helpers_make_heartbeat("rid0", "serial", "product", "site");
-    zmsg_t* m0 = helpers_create_message_mem(
-        4, "client-router", 13, "\x0", 1, "\x4", 1, "node0", 5);
-    zmsg_t* m1 = helpers_create_message_mem(
-        4, "client-router", 13, "\x0", 1, "\x4", 1, "node1", 5);
+    zmsg_t* m0 = helpers_make_hello("client-router", "node0");
+    zmsg_t* m1 = helpers_make_hello("client-router", "node1");
     zmsg_t* outgoing;
 
     // Client sends hello to server, device sends heartbeat to server
@@ -439,10 +434,8 @@ test_linq_broadcast_alert(void** context_p)
     linq_s* l = linq_create(NULL, NULL);
     zmsg_t* hb = helpers_make_heartbeat("rid0", "sid", "pid", "site");
     zmsg_t* alert = helpers_make_alert("rid", "sid", "pid");
-    zmsg_t* m0 = helpers_create_message_mem(
-        4, "client-router", 13, "\x0", 1, "\x4", 1, "node0", 5);
-    zmsg_t* m1 = helpers_create_message_mem(
-        4, "client-router", 13, "\x0", 1, "\x4", 1, "node1", 5);
+    zmsg_t* m0 = helpers_make_hello("client-router", "node0");
+    zmsg_t* m1 = helpers_make_hello("client-router", "node1");
     zmsg_t* outgoing;
 
     // device sends heartbeat to server, two clients connect, device sends alert
@@ -494,10 +487,31 @@ test_linq_broadcast_alert(void** context_p)
 }
 
 static void
-test_linq_forward_response(void** context_p)
+test_linq_forward_request(void** context_p)
 {
     ((void)context_p);
-    // TODO
+    linq_s* l = linq_create(NULL, NULL);
+    zmsg_t *hb, *hello, *request, *response;
+    hb = helpers_make_heartbeat("router-d", "device123", "pid", "site");
+    hello = helpers_make_hello("router-c", "client123");
+    request = helpers_make_request("router-c", "device123", "GET /hello", NULL);
+    response = helpers_make_response("router-d", "device123", 0, "world");
+
+    czmq_spy_mesg_push_incoming(&hb);       // device heartbeat
+    czmq_spy_mesg_push_incoming(&hello);    // remote client hello
+    czmq_spy_mesg_push_incoming(&request);  // remote client request
+    czmq_spy_mesg_push_incoming(&response); // device response
+    czmq_spy_poll_set_incoming((0x01));
+
+    linq_poll(l);
+    linq_poll(l);
+    linq_poll(l);
+    linq_poll(l);
+
+    // TODO readback outgoing response to the hello router (to client 123)
+
+    linq_destroy(&l);
+    test_reset();
 }
 
 int
@@ -521,7 +535,7 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_receive_hello_double_id),
         cmocka_unit_test(test_linq_broadcast_heartbeat),
         cmocka_unit_test(test_linq_broadcast_alert),
-        cmocka_unit_test(test_linq_forward_response)
+        cmocka_unit_test(test_linq_forward_request)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
