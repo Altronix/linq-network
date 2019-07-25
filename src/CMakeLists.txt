@@ -1,7 +1,6 @@
 set(sources 
 	linq.c
 	node.c
-	nodes.c
 	request.c
 	jsmn.c)
 set(headers 
@@ -9,7 +8,6 @@ set(headers
 	containers.h
 	linq_internal.h
 	node.h
-	nodes.h
 	request.h)
 
 set(linq_INSTALL_HEADERS ../include/altronix/linq.h)

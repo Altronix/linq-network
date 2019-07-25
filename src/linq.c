@@ -1,10 +1,12 @@
+#include "containers.h"
 #include "linq_internal.h"
 #include "node.h"
-#include "nodes.h"
 #include "request.h"
 
 #define JSMN_HEADER
 #include "jsmn/jsmn.h"
+
+HASH_INIT(nodes, node_s, node_destroy);
 
 #define exe_on_error(linq, error, serial)                                      \
     do {                                                                       \
@@ -27,8 +29,8 @@ typedef struct linq_s
 {
     void* context;
     zsock_t* sock;
-    nodes_s* devices;
-    nodes_s* servers;
+    hash_nodes_s* devices;
+    hash_nodes_s* servers;
     linq_callbacks* callbacks;
 } linq_s;
 
@@ -209,7 +211,7 @@ print_null_terminated(char* c, uint32_t sz, zframe_t* f)
 }
 
 static node_s**
-node_resolve(linq_s* l, nodes_s* map, zframe_t** frames, bool insert)
+node_resolve(linq_s* l, hash_nodes_s* map, zframe_t** frames, bool insert)
 {
     uint32_t rid_sz = zframe_size(frames[FRAME_RID_IDX]);
     uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
@@ -218,13 +220,13 @@ node_resolve(linq_s* l, nodes_s* map, zframe_t** frames, bool insert)
     if (frames[FRAME_HB_TID_IDX]) {
         print_null_terminated(tid, TID_LEN, frames[FRAME_HB_TID_IDX]);
     }
-    node_s** d = nodes_get(map, sid);
+    node_s** d = hash_nodes_get(map, sid);
     if (d) {
         node_heartbeat(*d);
         node_update_router(*d, rid, rid_sz);
     } else {
         node_s* node = node_create(&l->sock, rid, rid_sz, sid, tid);
-        if (insert) d = nodes_add(map, &node);
+        if (insert) d = hash_nodes_add(map, node_serial(node), &node);
     }
     return d;
 }
@@ -345,7 +347,8 @@ process_alert(linq_s* l, zmsg_t** msg, zframe_t** frames)
         node_s** d = node_resolve(l, l->devices, frames, false);
         frames_s forward = { 6, &frames[1] };
         if (d) {
-            nodes_foreach(l->servers, foreach_node_forward_message, &forward);
+            hash_nodes_foreach(
+                l->servers, foreach_node_forward_message, &forward);
             exe_on_alert(l, d, &alert, &email);
             e = LINQ_ERROR_OK;
         }
@@ -378,7 +381,8 @@ process_heartbeat(linq_s* l, zmsg_t** msg, zframe_t** frames)
         node_s** d = node_resolve(l, l->devices, frames, true);
         frames_s forward = { 5, &frames[1] };
         if (d) {
-            nodes_foreach(l->servers, foreach_node_forward_message, &forward);
+            hash_nodes_foreach(
+                l->servers, foreach_node_forward_message, &forward);
             exe_on_heartbeat(l, d);
             e = LINQ_ERROR_OK;
         }
@@ -430,8 +434,8 @@ linq_create(linq_callbacks* cb, void* context)
     linq_s* l = linq_malloc(sizeof(linq_s));
     if (l) {
         memset(l, 0, sizeof(linq_s));
-        l->devices = nodes_create();
-        l->servers = nodes_create();
+        l->devices = hash_nodes_create();
+        l->servers = hash_nodes_create();
         l->callbacks = cb;
         l->context = context;
     }
@@ -444,8 +448,8 @@ linq_destroy(linq_s** linq_p)
 {
     linq_s* l = *linq_p;
     *linq_p = NULL;
-    nodes_destroy(&l->devices);
-    nodes_destroy(&l->servers);
+    hash_nodes_destroy(&l->devices);
+    hash_nodes_destroy(&l->servers);
     if (l->sock) zsock_destroy(&l->sock);
     linq_free(l);
 }
@@ -484,7 +488,7 @@ linq_poll(linq_s* l)
     }
 
     // Loop through devices
-    nodes_foreach(l->devices, foreach_node_check_request_timeout, l);
+    hash_nodes_foreach(l->devices, foreach_node_check_request_timeout, l);
 
     return err;
 }
@@ -493,21 +497,21 @@ linq_poll(linq_s* l)
 node_s**
 linq_device(linq_s* l, const char* serial)
 {
-    return nodes_get(l->devices, serial);
+    return hash_nodes_get(l->devices, serial);
 }
 
 // return how many devices are connected to linq
 uint32_t
 linq_device_count(linq_s* l)
 {
-    return nodes_size(l->devices);
+    return hash_nodes_size(l->devices);
 }
 
 // return how many servers are connected to linq
 uint32_t
 linq_server_count(linq_s* l)
 {
-    return nodes_size(l->servers);
+    return hash_nodes_size(l->servers);
 }
 
 // send a get request to a device connected to us
