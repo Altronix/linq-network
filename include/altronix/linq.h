@@ -9,7 +9,7 @@ extern "C"
 #endif
 
     typedef struct device_s device_s;
-    typedef struct request_s request_s;
+    typedef struct device_request_s device_request_s;
     typedef struct linq_s linq_s;
 
     typedef enum
@@ -104,7 +104,10 @@ extern "C"
         linq_request_complete_fn,
         void*);
     E_LINQ_ERROR
-    linq_device_send(linq_s* linq, const char* serial, request_s* request);
+    linq_device_send(
+        linq_s* linq,
+        const char* serial,
+        device_request_s* request);
     void linq_socket_send_frames(void*, uint32_t n, ...);
 
 #ifdef __cplusplus

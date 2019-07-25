@@ -1,12 +1,12 @@
 #include "containers.h"
 #include "device.h"
-#include "request.h"
+#include "device_request.h"
 #include <czmq.h>
 
 #include <cmocka.h>
 #include <setjmp.h>
 
-LIST_INIT(requests, request_s, request_destroy);
+LIST_INIT(requests, device_request_s, device_request_destroy);
 
 static void
 on_request(void* context, E_LINQ_ERROR e, const char* json, device_s** d)
@@ -21,7 +21,7 @@ static void
 test_request_create(void** context_p)
 {
     ((void)context_p);
-    request_s* request = request_create(
+    device_request_s* request = device_request_create(
         REQUEST_METHOD_POST,
         "sid",
         "/ATX/network/zmtp/cloud/tls/enable",
@@ -42,13 +42,13 @@ static void
 test_request_insert(void** context_p)
 {
     ((void)context_p);
-    request_s* r0 =
-        request_create(REQUEST_METHOD_POST, "sid0", "0", "0", on_request, NULL);
-    request_s* r1 =
-        request_create(REQUEST_METHOD_POST, "sid1", "1", "1", on_request, NULL);
-    request_s* r2 =
-        request_create(REQUEST_METHOD_POST, "sid2", "2", "2", on_request, NULL);
-    request_s* no = NULL;
+    device_request_s* r0 = device_request_create(
+        REQUEST_METHOD_POST, "sid0", "0", "0", on_request, NULL);
+    device_request_s* r1 = device_request_create(
+        REQUEST_METHOD_POST, "sid1", "1", "1", on_request, NULL);
+    device_request_s* r2 = device_request_create(
+        REQUEST_METHOD_POST, "sid2", "2", "2", on_request, NULL);
+    device_request_s* no = NULL;
     list_requests_s* requests = list_requests_create();
     assert_int_equal(list_requests_size(requests), 0);
 
@@ -66,26 +66,26 @@ test_request_insert(void** context_p)
 
     r0 = list_requests_pop(requests);
     assert_non_null(r0);
-    assert_string_equal(request_serial_get(r0), "sid0");
+    assert_string_equal(device_request_serial_get(r0), "sid0");
     assert_int_equal(list_requests_size(requests), 2);
 
     r1 = list_requests_pop(requests);
     assert_non_null(r1);
-    assert_string_equal(request_serial_get(r1), "sid1");
+    assert_string_equal(device_request_serial_get(r1), "sid1");
     assert_int_equal(list_requests_size(requests), 1);
 
     r2 = list_requests_pop(requests);
     assert_non_null(r2);
-    assert_string_equal(request_serial_get(r2), "sid2");
+    assert_string_equal(device_request_serial_get(r2), "sid2");
     assert_int_equal(list_requests_size(requests), 0);
 
     no = list_requests_pop(requests);
     assert_null(no);
     assert_int_equal(list_requests_size(requests), 0);
 
-    request_destroy(&r0);
-    request_destroy(&r1);
-    request_destroy(&r2);
+    device_request_destroy(&r0);
+    device_request_destroy(&r1);
+    device_request_destroy(&r2);
     list_requests_destroy(&requests);
 }
 

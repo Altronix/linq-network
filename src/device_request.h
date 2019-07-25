@@ -10,14 +10,14 @@ extern "C"
 {
 #endif
 
-    typedef struct request_s
+    typedef struct device_request_s
     {
         router_s forward;
         uint32_t sent_at;
         void* ctx;
         linq_request_complete_fn on_complete;
         zframe_t* frames[FRAME_REQ_DATA_IDX + 1];
-    } request_s;
+    } device_request_s;
 
     typedef enum E_REQUEST_METHOD
     {
@@ -26,14 +26,14 @@ extern "C"
         REQUEST_METHOD_DELETE
     } E_REQUEST_METHOD;
 
-    request_s* request_create(
+    device_request_s* device_request_create(
         E_REQUEST_METHOD method,
         const char* serial,
         const char* path,
         const char* json,
         linq_request_complete_fn fn,
         void*);
-    request_s* request_create_mem(
+    device_request_s* device_request_create_mem(
         E_REQUEST_METHOD method,
         const char* serial,
         uint32_t slen,
@@ -43,17 +43,17 @@ extern "C"
         uint32_t jlen,
         linq_request_complete_fn fn,
         void*);
-    request_s* request_create_from_frames(
+    device_request_s* device_request_create_from_frames(
         zframe_t* serial,
         zframe_t* path,
         zframe_t* data,
         linq_request_complete_fn,
         void*);
-    void request_destroy(request_s** r_p);
-    uint32_t request_sent_at(request_s* r);
-    void request_router_id_set(request_s*, uint8_t*, uint32_t);
-    const char* request_serial_get(request_s*);
-    int request_send(request_s* r, zsock_t* sock);
+    void device_request_destroy(device_request_s** r_p);
+    uint32_t device_request_sent_at(device_request_s* r);
+    void device_request_router_id_set(device_request_s*, uint8_t*, uint32_t);
+    const char* device_request_serial_get(device_request_s*);
+    int device_request_send(device_request_s* r, zsock_t* sock);
 
 #ifdef __cplusplus
 }

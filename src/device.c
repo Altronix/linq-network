@@ -1,8 +1,8 @@
 #include "device.h"
 #include "containers.h"
-#include "request.h"
+#include "device_request.h"
 
-LIST_INIT(requests, request_s, request_destroy);
+LIST_INIT(requests, device_request_s, device_request_destroy);
 
 #define exe_on_complete(rp, err, dat, dp)                                      \
     do {                                                                       \
@@ -14,7 +14,7 @@ typedef struct device_s
     zsock_t** sock_p;
     router_s router;
     list_requests_s* requests;
-    request_s* request_pending;
+    device_request_s* request_pending;
     char serial[64];
     char type[64];
     uint32_t birth;
@@ -28,12 +28,12 @@ static void
 flush(device_s* d)
 {
     linq_assert(d->request_pending == NULL);
-    request_s** r_p = &d->request_pending;
+    device_request_s** r_p = &d->request_pending;
     *r_p = list_requests_pop(d->requests);
-    request_router_id_set(*r_p, d->router.id, d->router.sz);
-    if (request_send(*r_p, *d->sock_p) < 0) {
+    device_request_router_id_set(*r_p, d->router.id, d->router.sz);
+    if (device_request_send(*r_p, *d->sock_p) < 0) {
         exe_on_complete(r_p, LINQ_ERROR_IO, NULL, &d);
-        request_destroy(r_p);
+        device_request_destroy(r_p);
     } else {
     }
 }
@@ -64,7 +64,7 @@ device_destroy(device_s** d_p)
 {
     device_s* d = *d_p;
     list_requests_destroy(&d->requests);
-    if (d->request_pending) request_destroy(&d->request_pending);
+    if (d->request_pending) device_request_destroy(&d->request_pending);
     memset(d, 0, sizeof(device_s));
     *d_p = NULL;
     linq_free(d);
@@ -120,7 +120,7 @@ device_heartbeat(device_s* d)
 }
 
 void
-device_send(device_s* d, request_s** r)
+device_send(device_s* d, device_request_s** r)
 {
     list_requests_push(d->requests, r);
     if (!d->request_pending && list_requests_size(d->requests)) flush(d);
@@ -135,8 +135,8 @@ send_method(
     linq_request_complete_fn fn,
     void* context)
 {
-    request_s* r =
-        request_create(method, device_serial(d), path, json, fn, context);
+    device_request_s* r = device_request_create(
+        method, device_serial(d), path, json, fn, context);
     if (r) {
         device_send(d, &r);
     } else {
@@ -179,14 +179,14 @@ void
 device_request_resolve(device_s* d, E_LINQ_ERROR err, const char* str)
 {
     char json[JSON_LEN + 1];
-    request_s** r_p = &d->request_pending;
+    device_request_s** r_p = &d->request_pending;
     snprintf(json, sizeof(json), "%s", str);
     exe_on_complete(r_p, err, json, &d);
-    request_destroy(r_p);
+    device_request_destroy(r_p);
     if (list_requests_size(d->requests)) flush(d);
 }
 
-request_s*
+device_request_s*
 device_request_pending(device_s* n)
 {
     return n->request_pending;
