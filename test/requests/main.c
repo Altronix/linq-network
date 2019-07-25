@@ -1,5 +1,5 @@
 #include "containers.h"
-#include "node.h"
+#include "device.h"
 #include "request.h"
 #include <czmq.h>
 
@@ -9,7 +9,7 @@
 LIST_INIT(requests, request_s, request_destroy);
 
 static void
-on_request(void* context, E_LINQ_ERROR e, const char* json, node_s** d)
+on_request(void* context, E_LINQ_ERROR e, const char* json, device_s** d)
 {
     ((void)context);
     ((void)e);

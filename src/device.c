@@ -1,4 +1,4 @@
-#include "node.h"
+#include "device.h"
 #include "containers.h"
 #include "request.h"
 
@@ -9,7 +9,7 @@ LIST_INIT(requests, request_s, request_destroy);
         if ((*rp)->on_complete) (*rp)->on_complete((*rp)->ctx, err, dat, dp);  \
     } while (0)
 
-typedef struct node_s
+typedef struct device_s
 {
     zsock_t** sock_p;
     router_s router;
@@ -20,12 +20,12 @@ typedef struct node_s
     uint32_t birth;
     uint32_t uptime;
     uint32_t last_seen;
-} node_s;
+} device_s;
 
 // Push another request onto socket...
 // TODO caller must check request is in queue... refactor check here(?)...
 static void
-flush(node_s* d)
+flush(device_s* d)
 {
     linq_assert(d->request_pending == NULL);
     request_s** r_p = &d->request_pending;
@@ -38,21 +38,21 @@ flush(node_s* d)
     }
 }
 
-node_s*
-node_create(
+device_s*
+device_create(
     zsock_t** sock_p,
     const uint8_t* router,
     uint32_t router_sz,
     const char* serial,
     const char* type)
 {
-    node_s* d = linq_malloc(sizeof(node_s));
+    device_s* d = linq_malloc(sizeof(device_s));
     if (d) {
-        memset(d, 0, sizeof(node_s));
+        memset(d, 0, sizeof(device_s));
         d->sock_p = sock_p;
         d->requests = list_requests_create();
         d->birth = d->last_seen = sys_tick();
-        node_update_router(d, router, router_sz);
+        device_update_router(d, router, router_sz);
         snprintf(d->serial, sizeof(d->serial), "%s", serial);
         snprintf(d->type, sizeof(d->type), "%s", type);
     }
@@ -60,67 +60,67 @@ node_create(
 }
 
 void
-node_destroy(node_s** d_p)
+device_destroy(device_s** d_p)
 {
-    node_s* d = *d_p;
+    device_s* d = *d_p;
     list_requests_destroy(&d->requests);
     if (d->request_pending) request_destroy(&d->request_pending);
-    memset(d, 0, sizeof(node_s));
+    memset(d, 0, sizeof(device_s));
     *d_p = NULL;
     linq_free(d);
 }
 
 const char*
-node_serial(node_s* d)
+device_serial(device_s* d)
 {
     return d->serial;
 }
 
 const char*
-node_type(node_s* d)
+device_type(device_s* d)
 {
     return d->type;
 }
 
 const router_s*
-node_router(node_s* d)
+device_router(device_s* d)
 {
     return &d->router;
 }
 
 zsock_t**
-node_socket(node_s* d)
+device_socket(device_s* d)
 {
     return d->sock_p;
 }
 
 void
-node_update_router(node_s* d, const uint8_t* rid, uint32_t sz)
+device_update_router(device_s* d, const uint8_t* rid, uint32_t sz)
 {
     memcpy(&d->router.id, rid, sz);
     d->router.sz = sz;
 }
 
 uint32_t
-node_last_seen(node_s* d)
+device_last_seen(device_s* d)
 {
     return d->last_seen;
 }
 
 uint32_t
-node_uptime(node_s* d)
+device_uptime(device_s* d)
 {
     return d->last_seen - d->birth;
 }
 
 void
-node_heartbeat(node_s* d)
+device_heartbeat(device_s* d)
 {
     d->last_seen = sys_tick();
 }
 
 void
-node_send(node_s* d, request_s** r)
+device_send(device_s* d, request_s** r)
 {
     list_requests_push(d->requests, r);
     if (!d->request_pending && list_requests_size(d->requests)) flush(d);
@@ -128,7 +128,7 @@ node_send(node_s* d, request_s** r)
 
 static void
 send_method(
-    node_s* d,
+    device_s* d,
     E_REQUEST_METHOD method,
     const char* path,
     const char* json,
@@ -136,17 +136,17 @@ send_method(
     void* context)
 {
     request_s* r =
-        request_create(method, node_serial(d), path, json, fn, context);
+        request_create(method, device_serial(d), path, json, fn, context);
     if (r) {
-        node_send(d, &r);
+        device_send(d, &r);
     } else {
         exe_on_complete(&r, LINQ_ERROR_OOM, NULL, &d);
     }
 }
 
 void
-node_send_delete(
-    node_s* d,
+device_send_delete(
+    device_s* d,
     const char* path,
     linq_request_complete_fn fn,
     void* context)
@@ -155,8 +155,8 @@ node_send_delete(
 }
 
 void
-node_send_get(
-    node_s* d,
+device_send_get(
+    device_s* d,
     const char* path,
     linq_request_complete_fn fn,
     void* context)
@@ -165,8 +165,8 @@ node_send_get(
 }
 
 void
-node_send_post(
-    node_s* d,
+device_send_post(
+    device_s* d,
     const char* path,
     const char* json,
     linq_request_complete_fn fn,
@@ -176,7 +176,7 @@ node_send_post(
 }
 
 void
-node_request_resolve(node_s* d, E_LINQ_ERROR err, const char* str)
+device_request_resolve(device_s* d, E_LINQ_ERROR err, const char* str)
 {
     char json[JSON_LEN + 1];
     request_s** r_p = &d->request_pending;
@@ -187,13 +187,13 @@ node_request_resolve(node_s* d, E_LINQ_ERROR err, const char* str)
 }
 
 request_s*
-node_request_pending(node_s* n)
+device_request_pending(device_s* n)
 {
     return n->request_pending;
 }
 
 uint32_t
-node_request_pending_count(node_s* d)
+device_request_pending_count(device_s* d)
 {
     return list_requests_size(d->requests) + (d->request_pending ? 1 : 0);
 }
