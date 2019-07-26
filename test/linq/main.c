@@ -342,9 +342,9 @@ test_linq_receive_hello(void** context_p)
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
 
-    assert_int_equal(linq_server_count(l), 0);
+    assert_int_equal(linq_nodes_count(l), 0);
     linq_poll(l);
-    assert_int_equal(linq_server_count(l), 1);
+    assert_int_equal(linq_nodes_count(l), 1);
 
     linq_destroy(&l);
     test_reset();
@@ -362,11 +362,11 @@ test_linq_receive_hello_double_id(void** context_p)
     czmq_spy_mesg_push_incoming(&m1);
     czmq_spy_poll_set_incoming((0x01));
 
-    assert_int_equal(linq_server_count(l), 0);
+    assert_int_equal(linq_nodes_count(l), 0);
     linq_poll(l);
-    assert_int_equal(linq_server_count(l), 1);
+    assert_int_equal(linq_nodes_count(l), 1);
     linq_poll(l);
-    assert_int_equal(linq_server_count(l), 1);
+    assert_int_equal(linq_nodes_count(l), 1);
 
     linq_destroy(&l);
     test_reset();

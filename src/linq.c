@@ -2,6 +2,7 @@
 #include "device.h"
 #include "device_request.h"
 #include "linq_internal.h"
+#include "node.h"
 
 #define JSMN_HEADER
 #include "jsmn/jsmn.h"
@@ -23,6 +24,7 @@
     } while (0)
 
 MAP_INIT(devices, device_s, device_destroy);
+MAP_INIT(nodes, node_s, node_destroy);
 
 // Main class
 typedef struct linq_s
@@ -30,7 +32,7 @@ typedef struct linq_s
     void* context;
     zsock_t* sock;
     map_devices_s* devices;
-    map_devices_s* servers;
+    map_nodes_s* nodes;
     linq_callbacks* callbacks;
 } linq_s;
 
@@ -261,7 +263,7 @@ print_null_terminated(char* c, uint32_t sz, zframe_t* f)
 }
 
 static device_s**
-node_resolve(linq_s* l, map_devices_s* map, zframe_t** frames, bool insert)
+device_resolve(linq_s* l, map_devices_s* map, zframe_t** frames, bool insert)
 {
     uint32_t rid_sz = zframe_size(frames[FRAME_RID_IDX]);
     uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
@@ -281,16 +283,37 @@ node_resolve(linq_s* l, map_devices_s* map, zframe_t** frames, bool insert)
     return d;
 }
 
-// Broadcast x frames to each node (router frame is added per each node)
-static void
-foreach_node_forward_message(void* ctx, device_s** n)
+static node_s**
+node_resolve(linq_s* l, map_nodes_s* map, zframe_t** frames, bool insert)
 {
-    frames_s* frames = ctx;
-    send_frames(*n, frames->n, frames->frames);
+
+    uint32_t rid_sz = zframe_size(frames[FRAME_RID_IDX]);
+    uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
+    char sid[SID_LEN], tid[TID_LEN] = { 0 };
+    print_null_terminated(sid, SID_LEN, frames[FRAME_SID_IDX]);
+    if (frames[FRAME_HB_TID_IDX]) {
+        print_null_terminated(tid, TID_LEN, frames[FRAME_HB_TID_IDX]);
+    }
+    node_s** d = map_nodes_get(map, sid);
+    if (d) {
+        node_update_router(*d, rid, rid_sz);
+    } else {
+        node_s* node = node_create(&l->sock, rid, rid_sz, sid);
+        if (insert) d = map_nodes_add(map, node_serial(node), &node);
+    }
+    return d;
 }
 
-// A device has responded to a request from a node on linq->servers. Forward
-// the response to the node @ linq->servers
+// Broadcast x frames to each node (router frame is added per each node)
+static void
+foreach_node_forward_message(void* ctx, node_s** n)
+{
+    frames_s* frames = ctx;
+    node_send_frames(*n, frames->n, frames->frames);
+}
+
+// A device has responded to a request from a node on linq->nodes. Forward
+// the response to the node @ linq->nodes
 static void
 on_forward_device_request_response(
     void* ctx,
@@ -332,7 +355,7 @@ process_request(linq_s* l, zmsg_t** msg, zframe_t** frames)
         if (zmsg_size(*msg) == 1) {
             data = frames[FRAME_REQ_DATA_IDX] = pop_le(*msg, JSON_LEN);
         }
-        device_s** d = node_resolve(l, l->devices, frames, false);
+        device_s** d = device_resolve(l, l->devices, frames, false);
         if (d) {
             // TODO - this is being refactored
             r = device_request_create_from_frames(
@@ -367,7 +390,7 @@ process_response(linq_s* l, zmsg_t** msg, zframe_t** frames)
         (err = frames[FRAME_RES_ERR_IDX] = pop_eq(*msg, 1)) &&
         (dat = frames[FRAME_RES_DAT_IDX] = pop_le(*msg, JSON_LEN))) {
         e = LINQ_ERROR_OK;
-        device_s** d = node_resolve(l, l->devices, frames, false);
+        device_s** d = device_resolve(l, l->devices, frames, false);
         if (d) {
             if (device_request_pending(*d)) {
                 device_request_resolve(
@@ -395,10 +418,10 @@ process_alert(linq_s* l, zmsg_t** msg, zframe_t** frames)
         (frames[FRAME_ALERT_TID_IDX] = pop_le(*msg, TID_LEN)) &&
         (frames[FRAME_ALERT_DAT_IDX] = pop_alert(*msg, &alert)) &&
         (frames[FRAME_ALERT_DST_IDX] = pop_email(*msg, &email))) {
-        device_s** d = node_resolve(l, l->devices, frames, false);
+        device_s** d = device_resolve(l, l->devices, frames, false);
         frames_s f = { 6, &frames[1] };
         if (d) {
-            map_devices_foreach(l->servers, foreach_node_forward_message, &f);
+            map_nodes_foreach(l->nodes, foreach_node_forward_message, &f);
             exe_on_alert(l, d, &alert, &email);
             e = LINQ_ERROR_OK;
         }
@@ -415,7 +438,7 @@ process_hello(linq_s* l, zmsg_t** msg, zframe_t** frames)
     ((void)msg);
     ((void)frames);
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
-    device_s** s = node_resolve(l, l->servers, frames, true);
+    node_s** s = node_resolve(l, l->nodes, frames, true);
     if (s) e = LINQ_ERROR_OK;
     return e;
 }
@@ -428,10 +451,10 @@ process_heartbeat(linq_s* l, zmsg_t** msg, zframe_t** frames)
     if (zmsg_size(*msg) == 2 &&
         (frames[FRAME_HB_TID_IDX] = pop_le(*msg, TID_LEN)) &&
         (frames[FRAME_HB_SITE_IDX] = pop_le(*msg, SITE_LEN))) {
-        device_s** d = node_resolve(l, l->devices, frames, true);
+        device_s** d = device_resolve(l, l->devices, frames, true);
         frames_s f = { 5, &frames[1] };
         if (d) {
-            map_devices_foreach(l->servers, foreach_node_forward_message, &f);
+            map_nodes_foreach(l->nodes, foreach_node_forward_message, &f);
             exe_on_heartbeat(l, d);
             e = LINQ_ERROR_OK;
         }
@@ -484,7 +507,7 @@ linq_create(linq_callbacks* cb, void* context)
     if (l) {
         memset(l, 0, sizeof(linq_s));
         l->devices = map_devices_create();
-        l->servers = map_devices_create();
+        l->nodes = map_nodes_create();
         l->callbacks = cb;
         l->context = context;
     }
@@ -498,7 +521,7 @@ linq_destroy(linq_s** linq_p)
     linq_s* l = *linq_p;
     *linq_p = NULL;
     map_devices_destroy(&l->devices);
-    map_devices_destroy(&l->servers);
+    map_nodes_destroy(&l->nodes);
     if (l->sock) zsock_destroy(&l->sock);
     linq_free(l);
 }
@@ -557,11 +580,11 @@ linq_device_count(linq_s* l)
     return map_devices_size(l->devices);
 }
 
-// return how many servers are connected to linq
+// return how many nodes are connected to linq
 uint32_t
-linq_server_count(linq_s* l)
+linq_nodes_count(linq_s* l)
 {
-    return map_devices_size(l->servers);
+    return map_nodes_size(l->nodes);
 }
 
 // send a get request to a device connected to us

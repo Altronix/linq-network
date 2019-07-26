@@ -15,8 +15,8 @@ typedef struct device_s
     router_s router;
     list_requests_s* requests;
     device_request_s* request_pending;
-    char serial[64];
-    char type[64];
+    char serial[SID_LEN];
+    char type[TID_LEN];
     uint32_t birth;
     uint32_t uptime;
     uint32_t last_seen;

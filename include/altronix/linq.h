@@ -83,7 +83,7 @@ extern "C"
     E_LINQ_ERROR linq_poll(linq_s* l);
     device_s** linq_device(linq_s*, const char*);
     uint32_t linq_device_count(linq_s*);
-    uint32_t linq_server_count(linq_s* linq);
+    uint32_t linq_nodes_count(linq_s* linq);
     E_LINQ_ERROR linq_device_send_get(
         linq_s*,
         const char*,
