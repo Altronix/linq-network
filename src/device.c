@@ -81,7 +81,7 @@ path_to_frame(E_REQUEST_METHOD method, const char* path, uint32_t path_len)
 }
 
 static request_s*
-request_create_mem(
+request_alloc_mem(
     E_REQUEST_METHOD method,
     const char* s,
     uint32_t slen,
@@ -112,7 +112,7 @@ request_create_mem(
 }
 
 static request_s*
-request_create(
+request_alloc(
     E_REQUEST_METHOD method,
     const char* serial,
     const char* path,
@@ -120,7 +120,7 @@ request_create(
     linq_request_complete_fn on_complete,
     void* context)
 {
-    return request_create_mem(
+    return request_alloc_mem(
         method,
         serial,
         strlen(serial),
@@ -130,33 +130,6 @@ request_create(
         json ? strlen(json) : 0,
         on_complete,
         context);
-}
-
-static request_s*
-request_create_from_frames(
-    zframe_t* serial,
-    zframe_t* path,
-    zframe_t* data,
-    linq_request_complete_fn fn,
-    void* ctx)
-{
-    request_s* r = linq_malloc(sizeof(request_s));
-    if (r) {
-        memset(r, 0, sizeof(request_s));
-        r->on_complete = fn;
-        r->ctx = ctx;
-        r->frames[FRAME_VER_IDX] = zframe_new("\0", 1);
-        r->frames[FRAME_TYP_IDX] = zframe_new("\1", 1);
-        r->frames[FRAME_SID_IDX] = zframe_dup(serial);
-        r->frames[FRAME_REQ_PATH_IDX] = zframe_dup(path);
-        if (data) r->frames[FRAME_REQ_DATA_IDX] = zframe_dup(data);
-        if (!(r->frames[FRAME_VER_IDX] && r->frames[FRAME_TYP_IDX] &&
-              r->frames[FRAME_SID_IDX] && r->frames[FRAME_REQ_PATH_IDX] &&
-              ((data && r->frames[FRAME_REQ_DATA_IDX]) || !data))) {
-            request_destroy(&r);
-        }
-    }
-    return r;
 }
 
 static void
@@ -310,7 +283,7 @@ send_method(
     void* context)
 {
     request_s* r =
-        request_create(method, device_serial(d), path, json, fn, context);
+        request_alloc(method, device_serial(d), path, json, fn, context);
     if (r) {
         device_send(d, &r);
     } else {
