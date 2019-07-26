@@ -103,8 +103,6 @@ extern "C"
         const char*,
         linq_request_complete_fn,
         void*);
-    E_LINQ_ERROR
-    linq_device_send(linq_s* linq, const char* serial, request_s* request);
     void linq_socket_send_frames(void*, uint32_t n, ...);
 
 #ifdef __cplusplus

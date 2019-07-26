@@ -11,6 +11,7 @@ LIST_INIT(requests, request_s, request_destroy);
 
 typedef enum E_REQUEST_METHOD
 {
+    REQUEST_METHOD_RAW = 0,
     REQUEST_METHOD_GET,
     REQUEST_METHOD_POST,
     REQUEST_METHOD_DELETE
@@ -67,6 +68,7 @@ path_to_frame(E_REQUEST_METHOD method, const char* path, uint32_t path_len)
     zframe_t* frame = NULL;
 
     switch (method) {
+        case REQUEST_METHOD_RAW: frame = zframe_new(path, path_len); break;
         case REQUEST_METHOD_GET:
             frame = write_path_to_frame("GET", path, path_len);
             break;
@@ -266,13 +268,6 @@ device_heartbeat(device_s* d)
     d->last_seen = sys_tick();
 }
 
-void
-device_send(device_s* d, request_s** r)
-{
-    list_requests_push(d->requests, r);
-    if (!d->request_pending && list_requests_size(d->requests)) flush(d);
-}
-
 static void
 send_method(
     device_s* d,
@@ -285,7 +280,8 @@ send_method(
     request_s* r =
         request_alloc(method, device_serial(d), path, json, fn, context);
     if (r) {
-        device_send(d, &r);
+        list_requests_push(d->requests, &r);
+        if (!d->request_pending && list_requests_size(d->requests)) flush(d);
     } else {
         exe_on_complete(&r, LINQ_ERROR_OOM, NULL, &d);
     }
@@ -320,6 +316,17 @@ device_send_post(
     void* context)
 {
     send_method(d, REQUEST_METHOD_POST, path, json, fn, context);
+}
+
+void
+device_send(
+    device_s* d,
+    const char* path,
+    const char* json,
+    linq_request_complete_fn fn,
+    void* context)
+{
+    send_method(d, REQUEST_METHOD_RAW, path, json, fn, context);
 }
 
 uint32_t

@@ -49,54 +49,54 @@ typedef enum
 } E_TYPE;
 
 // Send frames with an array of frames
-static void
-send_frames(device_s* server, uint32_t n, zframe_t** frames)
-{
-    uint32_t count = 0;
-    const router_s* rid = device_router(server);
-    zmsg_t* msg = zmsg_new();
-    if (msg) {
-        zframe_t* router = zframe_new(rid->id, rid->sz);
-        if (router) {
-            zmsg_append(msg, &router);
-            for (uint32_t i = 0; i < n; i++) {
-                zframe_t* frame = zframe_dup(frames[i]);
-                if (!frame) break;
-                count++;
-                zmsg_append(msg, &frame);
-            }
-            if (count == n) {
-                int err = zmsg_send(&msg, *device_socket(server));
-                if (err) zmsg_destroy(&msg);
-            }
-        }
-    }
-}
-
-// send frames from variadic
-void
-send_frames_n(void* sock, uint32_t n, ...)
-{
-    zmsg_t* msg = zmsg_new();
-    int err = -1;
-    uint32_t count = 0;
-    if (msg) {
-        va_list list;
-        va_start(list, n);
-        for (uint32_t i = 0; i < n; i++) {
-            uint8_t* arg = va_arg(list, uint8_t*);
-            size_t sz = va_arg(list, size_t);
-            zframe_t* f = zframe_new(arg, sz);
-            if (f) {
-                count++;
-                zmsg_append(msg, &f);
-            }
-        }
-        va_end(list);
-        if (count == n) err = zmsg_send(&msg, sock);
-        if (err) zmsg_destroy(&msg);
-    }
-}
+// static void
+// send_frames(device_s* server, uint32_t n, zframe_t** frames)
+// {
+//     uint32_t count = 0;
+//     const router_s* rid = device_router(server);
+//     zmsg_t* msg = zmsg_new();
+//     if (msg) {
+//         zframe_t* router = zframe_new(rid->id, rid->sz);
+//         if (router) {
+//             zmsg_append(msg, &router);
+//             for (uint32_t i = 0; i < n; i++) {
+//                 zframe_t* frame = zframe_dup(frames[i]);
+//                 if (!frame) break;
+//                 count++;
+//                 zmsg_append(msg, &frame);
+//             }
+//             if (count == n) {
+//                 int err = zmsg_send(&msg, *device_socket(server));
+//                 if (err) zmsg_destroy(&msg);
+//             }
+//         }
+//     }
+// }
+//
+// // send frames from variadic
+// void
+// send_frames_n(void* sock, uint32_t n, ...)
+// {
+//     zmsg_t* msg = zmsg_new();
+//     int err = -1;
+//     uint32_t count = 0;
+//     if (msg) {
+//         va_list list;
+//         va_start(list, n);
+//         for (uint32_t i = 0; i < n; i++) {
+//             uint8_t* arg = va_arg(list, uint8_t*);
+//             size_t sz = va_arg(list, size_t);
+//             zframe_t* f = zframe_new(arg, sz);
+//             if (f) {
+//                 count++;
+//                 zmsg_append(msg, &f);
+//             }
+//         }
+//         va_end(list);
+//         if (count == n) err = zmsg_send(&msg, sock);
+//         if (err) zmsg_destroy(&msg);
+//     }
+// }
 
 // parse a token from a json string inside a frame
 static uint32_t
@@ -276,8 +276,10 @@ device_resolve(linq_s* l, map_devices_s* map, zframe_t** frames, bool insert)
         device_heartbeat(*d);
         device_update_router(*d, rid, rid_sz);
     } else {
-        device_s* node = device_create(&l->sock, rid, rid_sz, sid, tid);
-        if (insert) d = map_devices_add(map, device_serial(node), &node);
+        if (insert) {
+            device_s* node = device_create(&l->sock, rid, rid_sz, sid, tid);
+            if (node) d = map_devices_add(map, device_serial(node), &node);
+        }
     }
     return d;
 }
@@ -297,8 +299,10 @@ node_resolve(linq_s* l, map_nodes_s* map, zframe_t** frames, bool insert)
     if (d) {
         node_update_router(*d, rid, rid_sz);
     } else {
-        node_s* node = node_create(&l->sock, rid, rid_sz, sid);
-        if (insert) d = map_nodes_add(map, node_serial(node), &node);
+        if (insert) {
+            node_s* node = node_create(&l->sock, rid, rid_sz, sid);
+            if (node) d = map_nodes_add(map, node_serial(node), &node);
+        }
     }
     return d;
 }
@@ -314,7 +318,7 @@ foreach_node_forward_message(void* ctx, node_s** n)
 // A device has responded to a request from a node on linq->nodes. Forward
 // the response to the node @ linq->nodes
 static void
-on_forward_device_request_response(
+on_device_response(
     void* ctx,
     E_LINQ_ERROR error,
     const char* json,
@@ -349,31 +353,22 @@ process_request(linq_s* l, zmsg_t** msg, zframe_t** frames)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     zframe_t *path = NULL, *data = NULL;
-    request_s* r;
-    ((void)l);
     if ((zmsg_size(*msg) >= 1) &&
         (path = frames[FRAME_REQ_PATH_IDX] = pop_le(*msg, 128))) {
         if (zmsg_size(*msg) == 1) {
             data = frames[FRAME_REQ_DATA_IDX] = pop_le(*msg, JSON_LEN);
         }
+        // TODO - resolve the node where the key is encodeing of the router
+        node_s** n = node_resolve(l, l->nodes, frames, false);
         device_s** d = device_resolve(l, l->devices, frames, false);
-        if (d) {
-            // TODO - this is being refactored
-            // r = device_request_create_from_frames(
-            //     frames[FRAME_SID_IDX],
-            //     path,
-            //     data,
-            //     on_forward_device_request_response,
-            //     NULL);
-            // if (r) {
-            //     r->ctx = r;
-            //     r->forward.sz = zframe_size(frames[FRAME_RID_IDX]);
-            //     memcpy(
-            //         r->forward.id,
-            //         zframe_data(frames[FRAME_RID_IDX]),
-            //         r->forward.sz);
-            //     device_send(*d, &r);
-            // }
+        if (n && d) {
+            // TODO replace NULL with a context to track the return
+            device_send(
+                *d,
+                (const char*)zframe_data(path),
+                data ? (const char*)zframe_data(data) : NULL,
+                on_device_response,
+                NULL);
         } else {
             // TODO send 404 response (device not here)
         }
@@ -633,14 +628,3 @@ linq_device_send_delete(
     device_send_delete(*d, path, fn, context);
     return LINQ_ERROR_OK;
 }
-
-// send a request to a device connected to us
-E_LINQ_ERROR
-linq_device_send(linq_s* linq, const char* serial, request_s* request)
-{
-    device_s** d = linq_device(linq, serial);
-    if (!d) return LINQ_ERROR_DEVICE_NOT_FOUND;
-    device_send(*d, &request);
-    return LINQ_ERROR_OK;
-}
-
