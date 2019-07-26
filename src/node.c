@@ -74,23 +74,27 @@ node_send_frames(node_s* node, uint32_t n, zframe_t** frames)
 void
 node_send_frames_n(node_s* node, uint32_t n, ...)
 {
-    zmsg_t* msg = zmsg_new();
     int err = -1;
     uint32_t count = 0;
+    zmsg_t* msg = zmsg_new();
     if (msg) {
-        va_list list;
-        va_start(list, n);
-        for (uint32_t i = 0; i < n; i++) {
-            uint8_t* arg = va_arg(list, uint8_t*);
-            size_t sz = va_arg(list, size_t);
-            zframe_t* f = zframe_new(arg, sz);
-            if (f) {
-                count++;
-                zmsg_append(msg, &f);
+        zframe_t* router = zframe_new(node->router.id, node->router.sz);
+        if (router) {
+            zmsg_append(msg, &router);
+            va_list list;
+            va_start(list, n);
+            for (uint32_t i = 0; i < n; i++) {
+                uint8_t* arg = va_arg(list, uint8_t*);
+                size_t sz = va_arg(list, size_t);
+                zframe_t* f = zframe_new(arg, sz);
+                if (f) {
+                    count++;
+                    zmsg_append(msg, &f);
+                }
             }
+            va_end(list);
+            if (count == n) err = zmsg_send(&msg, *node->sock_p);
         }
-        va_end(list);
-        if (count == n) err = zmsg_send(&msg, *node->sock_p);
         if (err) zmsg_destroy(&msg);
     }
 }

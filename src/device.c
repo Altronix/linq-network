@@ -6,6 +6,8 @@
         if ((*rp)->on_complete) (*rp)->on_complete((*rp)->ctx, err, dat, dp);  \
     } while (0)
 
+typedef struct request_s request_s;
+
 static void request_destroy(request_s** r_p);
 LIST_INIT(requests, request_s, request_destroy);
 
@@ -346,10 +348,10 @@ device_request_resolve(device_s* d, E_LINQ_ERROR err, const char* str)
     if (list_requests_size(d->requests)) flush(d);
 }
 
-request_s*
+bool
 device_request_pending(device_s* n)
 {
-    return n->request_pending;
+    return n->request_pending ? true : false;
 }
 
 uint32_t

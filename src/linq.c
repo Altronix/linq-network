@@ -273,15 +273,10 @@ on_device_response(
     const char* json,
     device_s** device)
 {
-    // TODO - context should include destination router and linq_s*
-    // (Note this doesn't crash because we mock zsock_send()...)
-    /*
-    device_request_s* r = ctx;
-    send_frames_n(
-        NULL,                           // TODO need socket
-        6,                              //
-        r->forward.id,                  // router
-        r->forward.sz,                  //
+    node_s** node = ctx;
+    node_send_frames_n(
+        *node,
+        5,
         "\x0",                          // version
         1,                              //
         "\x2",                          // type
@@ -293,7 +288,6 @@ on_device_response(
         json,                           // data
         strlen(json)                    //
     );
-    */
 }
 
 // check the zmq request frames are valid and process the request
@@ -310,13 +304,12 @@ process_request(linq_s* l, zmsg_t** msg, zframe_t** frames)
         node_s** n = node_resolve(l, l->nodes, frames, false);
         device_s** d = device_resolve(l, l->devices, frames, false);
         if (n && d) {
-            // TODO replace NULL with a context to track the return
             device_send(
                 *d,
                 (const char*)zframe_data(path),
                 data ? (const char*)zframe_data(data) : NULL,
                 on_device_response,
-                NULL);
+                n);
         } else {
             // TODO send 404 response (device not here)
         }

@@ -10,8 +10,6 @@ extern "C"
 {
 #endif
 
-    typedef struct request_s request_s;
-
     device_s* device_create(
         zsock_t** sock_p,
         const uint8_t* router,
@@ -45,7 +43,7 @@ extern "C"
         void* context);
     uint32_t device_request_sent_at(device_s* d);
     void device_request_resolve(device_s* d, int err, const char*);
-    request_s* device_request_pending(device_s* n);
+    bool device_request_pending(device_s* n);
     uint32_t device_request_pending_count(device_s* d);
 
 #ifdef __cplusplus

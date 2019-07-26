@@ -9,7 +9,6 @@ extern "C"
 #endif
 
     typedef struct device_s device_s;
-    typedef struct request_s request_s;
     typedef struct linq_s linq_s;
 
     typedef enum
