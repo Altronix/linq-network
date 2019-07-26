@@ -49,56 +49,6 @@ typedef enum
     TYPE_HELLO = FRAME_TYP_HELLO
 } E_TYPE;
 
-// Send frames with an array of frames
-// static void
-// send_frames(device_s* server, uint32_t n, zframe_t** frames)
-// {
-//     uint32_t count = 0;
-//     const router_s* rid = device_router(server);
-//     zmsg_t* msg = zmsg_new();
-//     if (msg) {
-//         zframe_t* router = zframe_new(rid->id, rid->sz);
-//         if (router) {
-//             zmsg_append(msg, &router);
-//             for (uint32_t i = 0; i < n; i++) {
-//                 zframe_t* frame = zframe_dup(frames[i]);
-//                 if (!frame) break;
-//                 count++;
-//                 zmsg_append(msg, &frame);
-//             }
-//             if (count == n) {
-//                 int err = zmsg_send(&msg, *device_socket(server));
-//                 if (err) zmsg_destroy(&msg);
-//             }
-//         }
-//     }
-// }
-//
-// // send frames from variadic
-// void
-// send_frames_n(void* sock, uint32_t n, ...)
-// {
-//     zmsg_t* msg = zmsg_new();
-//     int err = -1;
-//     uint32_t count = 0;
-//     if (msg) {
-//         va_list list;
-//         va_start(list, n);
-//         for (uint32_t i = 0; i < n; i++) {
-//             uint8_t* arg = va_arg(list, uint8_t*);
-//             size_t sz = va_arg(list, size_t);
-//             zframe_t* f = zframe_new(arg, sz);
-//             if (f) {
-//                 count++;
-//                 zmsg_append(msg, &f);
-//             }
-//         }
-//         va_end(list);
-//         if (count == n) err = zmsg_send(&msg, sock);
-//         if (err) zmsg_destroy(&msg);
-//     }
-// }
-
 // parse a token from a json string inside a frame
 static uint32_t
 parse_token(char* data, jsmntok_t* t, char** ptr)
@@ -262,6 +212,7 @@ print_null_terminated(char* c, uint32_t sz, zframe_t* f)
     }
 }
 
+// A device is resolved by the serial number frame
 static device_s**
 device_resolve(linq_s* l, map_devices_s* map, zframe_t** frames, bool insert)
 {
@@ -283,6 +234,7 @@ device_resolve(linq_s* l, map_devices_s* map, zframe_t** frames, bool insert)
     return d;
 }
 
+// Node is resolved by grabing object with base64_encoded key of the router id
 static node_s**
 node_resolve(linq_s* l, map_nodes_s* map, zframe_t** frames, bool insert)
 {
@@ -355,7 +307,6 @@ process_request(linq_s* l, zmsg_t** msg, zframe_t** frames)
         if (zmsg_size(*msg) == 1) {
             data = frames[FRAME_REQ_DATA_IDX] = pop_le(*msg, JSON_LEN);
         }
-        // TODO - resolve the node where the key is encodeing of the router
         node_s** n = node_resolve(l, l->nodes, frames, false);
         device_s** d = device_resolve(l, l->devices, frames, false);
         if (n && d) {
