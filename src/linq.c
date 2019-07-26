@@ -1,6 +1,5 @@
 #include "containers.h"
 #include "device.h"
-#include "device_request.h"
 #include "linq_internal.h"
 #include "node.h"
 
@@ -323,6 +322,7 @@ on_forward_device_request_response(
 {
     // TODO - context should include destination router and linq_s*
     // (Note this doesn't crash because we mock zsock_send()...)
+    /*
     device_request_s* r = ctx;
     send_frames_n(
         NULL,                           // TODO need socket
@@ -340,6 +340,7 @@ on_forward_device_request_response(
         json,                           // data
         strlen(json)                    //
     );
+    */
 }
 
 // check the zmq request frames are valid and process the request
@@ -348,7 +349,7 @@ process_request(linq_s* l, zmsg_t** msg, zframe_t** frames)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     zframe_t *path = NULL, *data = NULL;
-    device_request_s* r;
+    request_s* r;
     ((void)l);
     if ((zmsg_size(*msg) >= 1) &&
         (path = frames[FRAME_REQ_PATH_IDX] = pop_le(*msg, 128))) {
@@ -358,21 +359,21 @@ process_request(linq_s* l, zmsg_t** msg, zframe_t** frames)
         device_s** d = device_resolve(l, l->devices, frames, false);
         if (d) {
             // TODO - this is being refactored
-            r = device_request_create_from_frames(
-                frames[FRAME_SID_IDX],
-                path,
-                data,
-                on_forward_device_request_response,
-                NULL);
-            if (r) {
-                r->ctx = r;
-                r->forward.sz = zframe_size(frames[FRAME_RID_IDX]);
-                memcpy(
-                    r->forward.id,
-                    zframe_data(frames[FRAME_RID_IDX]),
-                    r->forward.sz);
-                device_send(*d, &r);
-            }
+            // r = device_request_create_from_frames(
+            //     frames[FRAME_SID_IDX],
+            //     path,
+            //     data,
+            //     on_forward_device_request_response,
+            //     NULL);
+            // if (r) {
+            //     r->ctx = r;
+            //     r->forward.sz = zframe_size(frames[FRAME_RID_IDX]);
+            //     memcpy(
+            //         r->forward.id,
+            //         zframe_data(frames[FRAME_RID_IDX]),
+            //         r->forward.sz);
+            //     device_send(*d, &r);
+            // }
         } else {
             // TODO send 404 response (device not here)
         }
@@ -540,8 +541,8 @@ static void
 foreach_node_check_request_timeout(void* ctx, device_s** n)
 {
     ((void)ctx);
-    device_request_s* r = device_request_pending(*n);
-    if (r && device_request_sent_at(r) + 10000 <= sys_tick()) {
+    if (device_request_pending(*n) &&
+        device_request_sent_at(*n) + 10000 <= sys_tick()) {
         device_request_resolve(
             *n, LINQ_ERROR_TIMEOUT, "{\"error\":\"timeout\"}");
     }
@@ -635,7 +636,7 @@ linq_device_send_delete(
 
 // send a request to a device connected to us
 E_LINQ_ERROR
-linq_device_send(linq_s* linq, const char* serial, device_request_s* request)
+linq_device_send(linq_s* linq, const char* serial, request_s* request)
 {
     device_s** d = linq_device(linq, serial);
     if (!d) return LINQ_ERROR_DEVICE_NOT_FOUND;

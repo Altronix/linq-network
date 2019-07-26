@@ -1,20 +1,36 @@
 #include "device.h"
 #include "containers.h"
-#include "device_request.h"
-
-LIST_INIT(requests, device_request_s, device_request_destroy);
 
 #define exe_on_complete(rp, err, dat, dp)                                      \
     do {                                                                       \
         if ((*rp)->on_complete) (*rp)->on_complete((*rp)->ctx, err, dat, dp);  \
     } while (0)
 
+void request_destroy(request_s** r_p);
+LIST_INIT(requests, request_s, request_destroy);
+
+typedef enum E_REQUEST_METHOD
+{
+    REQUEST_METHOD_GET,
+    REQUEST_METHOD_POST,
+    REQUEST_METHOD_DELETE
+} E_REQUEST_METHOD;
+
+typedef struct request_s
+{
+    router_s forward;
+    uint32_t sent_at;
+    void* ctx;
+    linq_request_complete_fn on_complete;
+    zframe_t* frames[FRAME_REQ_DATA_IDX + 1];
+} request_s;
+
 typedef struct device_s
 {
     zsock_t** sock_p;
     router_s router;
     list_requests_s* requests;
-    device_request_s* request_pending;
+    request_s* request_pending;
     char serial[SID_LEN];
     char type[TID_LEN];
     uint32_t birth;
@@ -22,18 +38,176 @@ typedef struct device_s
     uint32_t last_seen;
 } device_s;
 
+static zframe_t*
+write_path_to_frame(const char* method, const char* path, uint32_t path_len)
+{
+    zframe_t* frame;
+    bool has_prefix = true;
+    uint32_t sz = strlen(method) + path_len + (has_prefix ? 0 : 1) + 2;
+    if (!(*path == '/')) {
+        has_prefix = false;
+        sz++;
+    }
+    frame = zframe_new(NULL, sz);
+    if (frame) {
+        snprintf(
+            (char*)zframe_data(frame),
+            sz,
+            "%s %s%s",
+            method,
+            has_prefix ? "" : "/",
+            path);
+    }
+    return frame;
+}
+
+static zframe_t*
+path_to_frame(E_REQUEST_METHOD method, const char* path, uint32_t path_len)
+{
+    zframe_t* frame = NULL;
+
+    switch (method) {
+        case REQUEST_METHOD_GET:
+            frame = write_path_to_frame("GET", path, path_len);
+            break;
+        case REQUEST_METHOD_POST:
+            frame = write_path_to_frame("POST", path, path_len);
+            break;
+        case REQUEST_METHOD_DELETE:
+            frame = write_path_to_frame("DELETE", path, path_len);
+            break;
+    }
+    return frame;
+}
+
+request_s*
+request_create_mem(
+    E_REQUEST_METHOD method,
+    const char* s,
+    uint32_t slen,
+    const char* p,
+    uint32_t plen,
+    const char* d,
+    uint32_t dlen,
+    linq_request_complete_fn fn,
+    void* context)
+{
+    request_s* r = linq_malloc(sizeof(request_s));
+    if (r) {
+        memset(r, 0, sizeof(request_s));
+        r->on_complete = fn;
+        r->ctx = context;
+        r->frames[FRAME_VER_IDX] = zframe_new("\0", 1);
+        r->frames[FRAME_TYP_IDX] = zframe_new("\1", 1);
+        r->frames[FRAME_SID_IDX] = zframe_new(s, slen);
+        r->frames[FRAME_REQ_PATH_IDX] = path_to_frame(method, p, plen);
+        r->frames[FRAME_REQ_DATA_IDX] = d && dlen ? zframe_new(d, dlen) : NULL;
+        if (!(r->frames[FRAME_VER_IDX] && r->frames[FRAME_TYP_IDX] &&
+              r->frames[FRAME_SID_IDX] && r->frames[FRAME_REQ_PATH_IDX] &&
+              ((d && r->frames[FRAME_REQ_DATA_IDX]) || !d))) {
+            request_destroy(&r);
+        }
+    }
+    return r;
+}
+
+request_s*
+request_create(
+    E_REQUEST_METHOD method,
+    const char* serial,
+    const char* path,
+    const char* json,
+    linq_request_complete_fn on_complete,
+    void* context)
+{
+    return request_create_mem(
+        method,
+        serial,
+        strlen(serial),
+        path,
+        strlen(path),
+        json,
+        json ? strlen(json) : 0,
+        on_complete,
+        context);
+}
+
+request_s*
+request_create_from_frames(
+    zframe_t* serial,
+    zframe_t* path,
+    zframe_t* data,
+    linq_request_complete_fn fn,
+    void* ctx)
+{
+    request_s* r = linq_malloc(sizeof(request_s));
+    if (r) {
+        memset(r, 0, sizeof(request_s));
+        r->on_complete = fn;
+        r->ctx = ctx;
+        r->frames[FRAME_VER_IDX] = zframe_new("\0", 1);
+        r->frames[FRAME_TYP_IDX] = zframe_new("\1", 1);
+        r->frames[FRAME_SID_IDX] = zframe_dup(serial);
+        r->frames[FRAME_REQ_PATH_IDX] = zframe_dup(path);
+        if (data) r->frames[FRAME_REQ_DATA_IDX] = zframe_dup(data);
+        if (!(r->frames[FRAME_VER_IDX] && r->frames[FRAME_TYP_IDX] &&
+              r->frames[FRAME_SID_IDX] && r->frames[FRAME_REQ_PATH_IDX] &&
+              ((data && r->frames[FRAME_REQ_DATA_IDX]) || !data))) {
+            request_destroy(&r);
+        }
+    }
+    return r;
+}
+
+void
+request_destroy(request_s** r_p)
+{
+    request_s* r = *r_p;
+    *r_p = NULL;
+    for (uint32_t i = 0; i < (sizeof(r->frames) / sizeof(zframe_t*)); i++) {
+        if (r->frames[i]) zframe_destroy(&r->frames[i]);
+    }
+    linq_free(r);
+}
+
+void
+request_router_id_set(request_s* r, uint8_t* rid, uint32_t rid_len)
+{
+    r->frames[FRAME_RID_IDX] = zframe_new(rid, rid_len);
+    linq_assert(r->frames[FRAME_RID_IDX]);
+}
+
+const char*
+request_serial_get(request_s* r)
+{
+    return (char*)zframe_data(r->frames[FRAME_SID_IDX]);
+}
+
+int
+request_send(request_s* r, zsock_t* sock)
+{
+    zmsg_t* msg = zmsg_new();
+    int err, c = 0;
+    while (c < FRAME_REQ_DATA_IDX) zmsg_append(msg, &r->frames[c++]);
+    if (r->frames[c]) zmsg_append(msg, &r->frames[c]);
+    r->sent_at = sys_tick();
+    err = zmsg_send(&msg, sock);
+    if (err) zmsg_destroy(&msg);
+    return err;
+}
+
 // Push another request onto socket...
 // TODO caller must check request is in queue... refactor check here(?)...
 static void
 flush(device_s* d)
 {
     linq_assert(d->request_pending == NULL);
-    device_request_s** r_p = &d->request_pending;
+    request_s** r_p = &d->request_pending;
     *r_p = list_requests_pop(d->requests);
-    device_request_router_id_set(*r_p, d->router.id, d->router.sz);
-    if (device_request_send(*r_p, *d->sock_p) < 0) {
+    request_router_id_set(*r_p, d->router.id, d->router.sz);
+    if (request_send(*r_p, *d->sock_p) < 0) {
         exe_on_complete(r_p, LINQ_ERROR_IO, NULL, &d);
-        device_request_destroy(r_p);
+        request_destroy(r_p);
     } else {
     }
 }
@@ -64,7 +238,7 @@ device_destroy(device_s** d_p)
 {
     device_s* d = *d_p;
     list_requests_destroy(&d->requests);
-    if (d->request_pending) device_request_destroy(&d->request_pending);
+    if (d->request_pending) request_destroy(&d->request_pending);
     memset(d, 0, sizeof(device_s));
     *d_p = NULL;
     linq_free(d);
@@ -120,7 +294,7 @@ device_heartbeat(device_s* d)
 }
 
 void
-device_send(device_s* d, device_request_s** r)
+device_send(device_s* d, request_s** r)
 {
     list_requests_push(d->requests, r);
     if (!d->request_pending && list_requests_size(d->requests)) flush(d);
@@ -135,8 +309,8 @@ send_method(
     linq_request_complete_fn fn,
     void* context)
 {
-    device_request_s* r = device_request_create(
-        method, device_serial(d), path, json, fn, context);
+    request_s* r =
+        request_create(method, device_serial(d), path, json, fn, context);
     if (r) {
         device_send(d, &r);
     } else {
@@ -175,18 +349,24 @@ device_send_post(
     send_method(d, REQUEST_METHOD_POST, path, json, fn, context);
 }
 
+uint32_t
+device_request_sent_at(device_s* r)
+{
+    return r->request_pending ? r->request_pending->sent_at : 0;
+}
+
 void
 device_request_resolve(device_s* d, E_LINQ_ERROR err, const char* str)
 {
     char json[JSON_LEN + 1];
-    device_request_s** r_p = &d->request_pending;
+    request_s** r_p = &d->request_pending;
     snprintf(json, sizeof(json), "%s", str);
     exe_on_complete(r_p, err, json, &d);
-    device_request_destroy(r_p);
+    request_destroy(r_p);
     if (list_requests_size(d->requests)) flush(d);
 }
 
-device_request_s*
+request_s*
 device_request_pending(device_s* n)
 {
     return n->request_pending;
