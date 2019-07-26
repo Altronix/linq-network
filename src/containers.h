@@ -55,29 +55,29 @@ extern "C"
                                                                                \
     uint32_t list_##tag##_size(list_##tag##_s* l) { return l->size; }
 
-#define HASH_INIT(tag, type, hash_free_fn)                                     \
+#define MAP_INIT(tag, type, map_free_fn)                                       \
     KHASH_MAP_INIT_STR(tag, type*)                                             \
                                                                                \
-    typedef struct kh_##tag##_s hash_##tag##_s;                                \
-    typedef void (*hash_##tag##_foreach_fn)(void*, type**);                    \
+    typedef struct kh_##tag##_s map_##tag##_s;                                 \
+    typedef void (*map_##tag##_foreach_fn)(void*, type**);                     \
                                                                                \
-    hash_##tag##_s* hash_##tag##_create() { return kh_init_##tag(); }          \
+    map_##tag##_s* map_##tag##_create() { return kh_init_##tag(); }            \
                                                                                \
-    void hash_##tag##_destroy(hash_##tag##_s** hash_p)                         \
+    void map_##tag##_destroy(map_##tag##_s** map_p)                            \
     {                                                                          \
-        hash_##tag##_s* hash = *hash_p;                                        \
-        *hash_p = NULL;                                                        \
+        map_##tag##_s* hash = *map_p;                                          \
+        *map_p = NULL;                                                         \
         for (khint_t k = kh_begin(hash); k != kh_end(hash); ++k) {             \
             if (kh_exist(hash, k)) {                                           \
                 type* d = kh_val(hash, k);                                     \
-                hash_free_fn(&d);                                              \
+                map_free_fn(&d);                                               \
             }                                                                  \
         }                                                                      \
         kh_destroy_##tag(hash);                                                \
     }                                                                          \
                                                                                \
-    type** hash_##tag##_add(                                                   \
-        hash_##tag##_s* nodes, const char* key, type** node_p)                 \
+    type** map_##tag##_add(                                                    \
+        map_##tag##_s* nodes, const char* key, type** node_p)                  \
     {                                                                          \
         int ret = 0;                                                           \
         type* node = *node_p;                                                  \
@@ -88,7 +88,7 @@ extern "C"
         return &kh_val(nodes, k);                                              \
     }                                                                          \
                                                                                \
-    uint32_t hash_##tag##_remove(hash_##tag##_s* nodes, const char* serial)    \
+    uint32_t map_##tag##_remove(map_##tag##_s* nodes, const char* serial)      \
     {                                                                          \
         khiter_t k;                                                            \
         type* d;                                                               \
@@ -96,13 +96,13 @@ extern "C"
         if (!((k = kh_get_##tag(nodes, serial)) == kh_end(nodes))) {           \
             d = kh_val(nodes, k);                                              \
             kh_del_##tag(nodes, k);                                            \
-            hash_free_fn(&d);                                                  \
+            map_free_fn(&d);                                                   \
             count = 1;                                                         \
         }                                                                      \
         return count;                                                          \
     }                                                                          \
                                                                                \
-    type** hash_##tag##_get(hash_##tag##_s* hash, const char* serial)          \
+    type** map_##tag##_get(map_##tag##_s* hash, const char* serial)            \
     {                                                                          \
         khiter_t k;                                                            \
         return ((k = kh_get_##tag(hash, serial)) == kh_end(hash))              \
@@ -110,10 +110,10 @@ extern "C"
                    : &kh_val(hash, k);                                         \
     }                                                                          \
                                                                                \
-    uint32_t hash_##tag##_size(hash_##tag##_s* hash) { return kh_size(hash); } \
+    uint32_t map_##tag##_size(map_##tag##_s* hash) { return kh_size(hash); }   \
                                                                                \
-    void hash_##tag##_foreach(                                                 \
-        hash_##tag##_s* hash, hash_##tag##_foreach_fn fn, void* ctx)           \
+    void map_##tag##_foreach(                                                  \
+        map_##tag##_s* hash, map_##tag##_foreach_fn fn, void* ctx)             \
     {                                                                          \
         for (khiter_t k = kh_begin(hash); k != kh_end(hash); ++k) {            \
             if (kh_exist(hash, k)) fn(ctx, &kh_val(hash, k));                  \
