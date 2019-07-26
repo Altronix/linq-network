@@ -1,10 +1,12 @@
 set(sources 
+	base64.c
 	linq.c
 	device.c
 	node.c
 	jsmn.c)
 set(headers 
 	../include/altronix/linq.h
+	base64.h
 	containers.h
 	linq_internal.h
 	device.h

@@ -1,3 +1,4 @@
+#include "base64.h"
 #include "containers.h"
 #include "device.h"
 #include "linq_internal.h"
@@ -268,9 +269,7 @@ device_resolve(linq_s* l, map_devices_s* map, zframe_t** frames, bool insert)
     uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
     char sid[SID_LEN], tid[TID_LEN] = { 0 };
     print_null_terminated(sid, SID_LEN, frames[FRAME_SID_IDX]);
-    if (frames[FRAME_HB_TID_IDX]) {
-        print_null_terminated(tid, TID_LEN, frames[FRAME_HB_TID_IDX]);
-    }
+    print_null_terminated(tid, TID_LEN, frames[FRAME_HB_TID_IDX]);
     device_s** d = map_devices_get(map, sid);
     if (d) {
         device_heartbeat(*d);
@@ -288,19 +287,17 @@ static node_s**
 node_resolve(linq_s* l, map_nodes_s* map, zframe_t** frames, bool insert)
 {
 
-    uint32_t rid_sz = zframe_size(frames[FRAME_RID_IDX]);
+    uint32_t rid_len = zframe_size(frames[FRAME_RID_IDX]);
     uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
-    char sid[SID_LEN], tid[TID_LEN] = { 0 };
-    print_null_terminated(sid, SID_LEN, frames[FRAME_SID_IDX]);
-    if (frames[FRAME_HB_TID_IDX]) {
-        print_null_terminated(tid, TID_LEN, frames[FRAME_HB_TID_IDX]);
-    }
+    char sid[B64_RID_LEN];
+    size_t sid_len = sizeof(sid);
+    b64_encode((uchar*)sid, &sid_len, (uchar*)rid, rid_len);
     node_s** d = map_nodes_get(map, sid);
     if (d) {
-        node_update_router(*d, rid, rid_sz);
+        node_update_router(*d, rid, rid_len);
     } else {
         if (insert) {
-            node_s* node = node_create(&l->sock, rid, rid_sz, sid);
+            node_s* node = node_create(&l->sock, rid, rid_len, sid);
             if (node) d = map_nodes_add(map, node_serial(node), &node);
         }
     }

@@ -379,8 +379,8 @@ test_linq_broadcast_heartbeat(void** context_p)
 
     linq_s* l = linq_create(NULL, NULL);
     zmsg_t* hb = helpers_make_heartbeat("rid0", "serial", "product", "site");
-    zmsg_t* m0 = helpers_make_hello("client-router", "node0");
-    zmsg_t* m1 = helpers_make_hello("client-router", "node1");
+    zmsg_t* m0 = helpers_make_hello("client-router0", "node0");
+    zmsg_t* m1 = helpers_make_hello("client-router1", "node1");
     zmsg_t* outgoing;
 
     // Client sends hello to server, device sends heartbeat to server
@@ -434,8 +434,8 @@ test_linq_broadcast_alert(void** context_p)
     linq_s* l = linq_create(NULL, NULL);
     zmsg_t* hb = helpers_make_heartbeat("rid0", "sid", "pid", "site");
     zmsg_t* alert = helpers_make_alert("rid", "sid", "pid");
-    zmsg_t* m0 = helpers_make_hello("client-router", "node0");
-    zmsg_t* m1 = helpers_make_hello("client-router", "node1");
+    zmsg_t* m0 = helpers_make_hello("client-router0", "node0");
+    zmsg_t* m1 = helpers_make_hello("client-router1", "node1");
     zmsg_t* outgoing;
 
     // device sends heartbeat to server, two clients connect, device sends alert
