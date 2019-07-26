@@ -11,13 +11,16 @@
 #include "altronix/linq.h"
 
 // [router, version, type, serial]
-// [router, version, 0x00, serial, type, siteId]      = HEARTBEAT
-// [router, version, 0x01, serial, path [, data] ]    = REQUEST
-// [router, version, 0x02, serial, error, data]       = RESPONSE
-// [router, version, 0x03, serial, type, alert, mail] = ALERT
-// [router, version, 0x04, serial, ...]               = HELLO
+// [router, version, 0x00, serial, type, siteId]         = HEARTBEAT
+// [router, version, 0x01, serial, path [, data] ]       = REQUEST
+// [router, version, 0x02, serial, error, data]          = RESPONSE
+// [router, version, 0x03, serial, type, alert, mail]    = ALERT
+// [router, version, 0x04, serial, ...]                  = HELLO
+
+#define B64_LEN(x) ((4 / 3) * (x + 2))
 
 #define RID_LEN 256
+#define B64_RID_LEN (B64_LEN(RID_LEN) + 1)
 #define SID_LEN 64
 #define TID_LEN 64
 #define SITE_LEN 64
@@ -65,6 +68,8 @@ typedef struct
     uint32_t n;
     zframe_t** frames;
 } frames_s;
+
+typedef unsigned char uchar;
 
 #ifdef __cplusplus
 extern "C"
