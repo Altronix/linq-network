@@ -25,6 +25,7 @@
 
 MAP_INIT(devices, device_s, device_destroy);
 MAP_INIT(nodes, node_s, node_destroy);
+device_s** linq_device_from_frame(linq_s* l, zframe_t* frame);
 
 // Main class
 typedef struct linq_s
@@ -302,7 +303,7 @@ process_request(linq_s* l, zmsg_t** msg, zframe_t** frames)
             data = frames[FRAME_REQ_DATA_IDX] = pop_le(*msg, JSON_LEN);
         }
         node_s** n = node_resolve(l, l->nodes, frames, false);
-        device_s** d = device_resolve(l, l->devices, frames, false);
+        device_s** d = linq_device_from_frame(l, frames[FRAME_SID_IDX]);
         if (n && d) {
             device_send(
                 *d,
@@ -501,6 +502,14 @@ linq_poll(linq_s* l)
     map_devices_foreach(l->devices, foreach_node_check_request_timeout, l);
 
     return err;
+}
+
+device_s**
+linq_device_from_frame(linq_s* l, zframe_t* frame)
+{
+    char sid[SID_LEN];
+    print_null_terminated(sid, SID_LEN, frame);
+    return linq_device(l, sid);
 }
 
 // get a device from the device map

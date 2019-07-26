@@ -491,7 +491,8 @@ test_linq_forward_request(void** context_p)
 {
     ((void)context_p);
     linq_s* l = linq_create(NULL, NULL);
-    zmsg_t *hb, *hello, *request, *response;
+    zmsg_t *hb, *hello, *request, *response, *outgoing;
+    zframe_t *rid, *ver, *typ, *sid, *url, *err, *dat;
     hb = helpers_make_heartbeat("router-d", "device123", "pid", "site");
     hello = helpers_make_hello("router-c", "client123");
     request = helpers_make_request("router-c", "device123", "GET /hello", NULL);
@@ -508,7 +509,51 @@ test_linq_forward_request(void** context_p)
     linq_poll(l);
     linq_poll(l);
 
-    // TODO readback outgoing response to the hello router (to client 123)
+    // First outgoing message is to the device
+    outgoing = czmq_spy_mesg_pop_outgoing();
+    assert_non_null(outgoing);
+    assert_int_equal(zmsg_size(outgoing), 5);
+    rid = zmsg_pop(outgoing);
+    ver = zmsg_pop(outgoing);
+    typ = zmsg_pop(outgoing);
+    sid = zmsg_pop(outgoing);
+    url = zmsg_pop(outgoing);
+
+    assert_memory_equal(zframe_data(rid), "router-d", 8);
+    assert_memory_equal(zframe_data(ver), "\x0", 1);
+    assert_memory_equal(zframe_data(typ), "\x1", 1);
+    assert_memory_equal(zframe_data(sid), "device123", 9);
+    assert_memory_equal(zframe_data(url), "GET /hello", 10);
+    zframe_destroy(&rid);
+    zframe_destroy(&ver);
+    zframe_destroy(&typ);
+    zframe_destroy(&sid);
+    zframe_destroy(&url);
+    zmsg_destroy(&outgoing);
+
+    // Second outgoing message is the response back to the remote client
+    outgoing = czmq_spy_mesg_pop_outgoing();
+    assert_non_null(outgoing);
+    assert_int_equal(zmsg_size(outgoing), 6);
+    rid = zmsg_pop(outgoing);
+    ver = zmsg_pop(outgoing);
+    typ = zmsg_pop(outgoing);
+    sid = zmsg_pop(outgoing);
+    err = zmsg_pop(outgoing);
+    dat = zmsg_pop(outgoing);
+    assert_memory_equal(zframe_data(rid), "router-c", 8);
+    assert_memory_equal(zframe_data(ver), "\x0", 1);
+    assert_memory_equal(zframe_data(typ), "\x2", 1);
+    assert_memory_equal(zframe_data(sid), "device123", 9);
+    assert_memory_equal(zframe_data(err), "\x0", 1);
+    assert_memory_equal(zframe_data(dat), "world", 5);
+    zframe_destroy(&rid);
+    zframe_destroy(&ver);
+    zframe_destroy(&typ);
+    zframe_destroy(&sid);
+    zframe_destroy(&err);
+    zframe_destroy(&dat);
+    zmsg_destroy(&outgoing);
 
     linq_destroy(&l);
     test_reset();
