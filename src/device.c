@@ -6,7 +6,7 @@
         if ((*rp)->on_complete) (*rp)->on_complete((*rp)->ctx, err, dat, dp);  \
     } while (0)
 
-void request_destroy(request_s** r_p);
+static void request_destroy(request_s** r_p);
 LIST_INIT(requests, request_s, request_destroy);
 
 typedef enum E_REQUEST_METHOD
@@ -80,7 +80,7 @@ path_to_frame(E_REQUEST_METHOD method, const char* path, uint32_t path_len)
     return frame;
 }
 
-request_s*
+static request_s*
 request_create_mem(
     E_REQUEST_METHOD method,
     const char* s,
@@ -111,7 +111,7 @@ request_create_mem(
     return r;
 }
 
-request_s*
+static request_s*
 request_create(
     E_REQUEST_METHOD method,
     const char* serial,
@@ -132,7 +132,7 @@ request_create(
         context);
 }
 
-request_s*
+static request_s*
 request_create_from_frames(
     zframe_t* serial,
     zframe_t* path,
@@ -159,7 +159,7 @@ request_create_from_frames(
     return r;
 }
 
-void
+static void
 request_destroy(request_s** r_p)
 {
     request_s* r = *r_p;
@@ -170,20 +170,20 @@ request_destroy(request_s** r_p)
     linq_free(r);
 }
 
-void
+static void
 request_router_id_set(request_s* r, uint8_t* rid, uint32_t rid_len)
 {
     r->frames[FRAME_RID_IDX] = zframe_new(rid, rid_len);
     linq_assert(r->frames[FRAME_RID_IDX]);
 }
 
-const char*
+static const char*
 request_serial_get(request_s* r)
 {
     return (char*)zframe_data(r->frames[FRAME_SID_IDX]);
 }
 
-int
+static int
 request_send(request_s* r, zsock_t* sock)
 {
     zmsg_t* msg = zmsg_new();
