@@ -35,15 +35,16 @@ __wrap_zsock_recv(void* self, const char* picture, ...)
 void*
 __wrap_zsock_resolve(void* self)
 {
-    ((void)self);
-    return NULL;
+    return self;
 }
 
 zsock_t*
 __wrap_zsock_new_router(const char* endpoints)
 {
     ((void)endpoints);
-    return malloc(1);
+    char* mem = malloc(100);
+    memset(mem, 0, 100);
+    return (zsock_t*)mem;
 }
 zsock_t*
 __wrap_zsock_new_router_checked(
@@ -59,8 +60,7 @@ __wrap_zsock_new_router_checked(
 zsock_t*
 __wrap_zsock_new_dealer(const char* endpoints)
 {
-    ((void)endpoints);
-    return malloc(1);
+    return __wrap_zsock_new_router(endpoints);
 }
 
 zsock_t*
