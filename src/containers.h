@@ -23,6 +23,7 @@ extern "C"
     type* list_##tag##_pop(kl_##tag##_t*);                                     \
                                                                                \
     typedef kl_##tag##_t list_##tag##_s;                                       \
+    typedef kl1_##tag tag##_item_s;                                            \
                                                                                \
     list_##tag##_s* list_##tag##_create() { return kl_init_##tag(); }          \
                                                                                \

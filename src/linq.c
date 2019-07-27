@@ -25,13 +25,14 @@
 
 MAP_INIT(devices, device_s, device_destroy);
 MAP_INIT(nodes, node_s, node_destroy);
+LIST_INIT(sockets, zsock_t, zsock_destroy);
 device_s** linq_device_from_frame(linq_s* l, zframe_t* frame);
 
 // Main class
 typedef struct linq_s
 {
     void* context;
-    zsock_t* sock;
+    list_sockets_s* sockets;
     map_devices_s* devices;
     map_nodes_s* nodes;
     linq_callbacks* callbacks;
@@ -215,7 +216,11 @@ print_null_terminated(char* c, uint32_t sz, zframe_t* f)
 
 // A device is resolved by the serial number frame
 static device_s**
-device_resolve(linq_s* l, map_devices_s* map, zframe_t** frames, bool insert)
+device_resolve(
+    zsock_t* sock,
+    map_devices_s* map,
+    zframe_t** frames,
+    bool insert)
 {
     uint32_t rid_sz = zframe_size(frames[FRAME_RID_IDX]);
     uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
@@ -228,7 +233,7 @@ device_resolve(linq_s* l, map_devices_s* map, zframe_t** frames, bool insert)
         device_update_router(*d, rid, rid_sz);
     } else {
         if (insert) {
-            device_s* node = device_create(&l->sock, rid, rid_sz, sid, tid);
+            device_s* node = device_create(&sock, rid, rid_sz, sid, tid);
             if (node) d = map_devices_add(map, device_serial(node), &node);
         }
     }
@@ -237,9 +242,8 @@ device_resolve(linq_s* l, map_devices_s* map, zframe_t** frames, bool insert)
 
 // Node is resolved by grabing object with base64_encoded key of the router id
 static node_s**
-node_resolve(linq_s* l, map_nodes_s* map, zframe_t** frames, bool insert)
+node_resolve(zsock_t* sock, map_nodes_s* map, zframe_t** frames, bool insert)
 {
-
     uint32_t rid_len = zframe_size(frames[FRAME_RID_IDX]);
     uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
     char sid[B64_RID_LEN];
@@ -250,7 +254,7 @@ node_resolve(linq_s* l, map_nodes_s* map, zframe_t** frames, bool insert)
         node_update_router(*d, rid, rid_len);
     } else {
         if (insert) {
-            node_s* node = node_create(&l->sock, rid, rid_len, sid);
+            node_s* node = node_create(&sock, rid, rid_len, sid);
             if (node) d = map_nodes_add(map, node_serial(node), &node);
         }
     }
@@ -293,7 +297,7 @@ on_device_response(
 
 // check the zmq request frames are valid and process the request
 static E_LINQ_ERROR
-process_request(linq_s* l, zmsg_t** msg, zframe_t** frames)
+process_request(linq_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     zframe_t *path = NULL, *data = NULL;
@@ -302,7 +306,7 @@ process_request(linq_s* l, zmsg_t** msg, zframe_t** frames)
         if (zmsg_size(*msg) == 1) {
             data = frames[FRAME_REQ_DATA_IDX] = pop_le(*msg, JSON_LEN);
         }
-        node_s** n = node_resolve(l, l->nodes, frames, false);
+        node_s** n = node_resolve(sock, l->nodes, frames, false);
         device_s** d = linq_device_from_frame(l, frames[FRAME_SID_IDX]);
         if (n && d) {
             device_send(
@@ -320,7 +324,7 @@ process_request(linq_s* l, zmsg_t** msg, zframe_t** frames)
 
 // check the zmq response frames are valid and process the response
 static E_LINQ_ERROR
-process_response(linq_s* l, zmsg_t** msg, zframe_t** frames)
+process_response(linq_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     zframe_t *err, *dat;
@@ -328,7 +332,7 @@ process_response(linq_s* l, zmsg_t** msg, zframe_t** frames)
         (err = frames[FRAME_RES_ERR_IDX] = pop_eq(*msg, 1)) &&
         (dat = frames[FRAME_RES_DAT_IDX] = pop_le(*msg, JSON_LEN))) {
         e = LINQ_ERROR_OK;
-        device_s** d = device_resolve(l, l->devices, frames, false);
+        device_s** d = device_resolve(sock, l->devices, frames, false);
         if (d) {
             if (device_request_pending(*d)) {
                 device_request_resolve(
@@ -341,7 +345,7 @@ process_response(linq_s* l, zmsg_t** msg, zframe_t** frames)
 
 // check the zmq alert frames are valid and process the alert
 static E_LINQ_ERROR
-process_alert(linq_s* l, zmsg_t** msg, zframe_t** frames)
+process_alert(linq_s* l, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     char alert_data[JSON_LEN];
@@ -356,7 +360,7 @@ process_alert(linq_s* l, zmsg_t** msg, zframe_t** frames)
         (frames[FRAME_ALERT_TID_IDX] = pop_le(*msg, TID_LEN)) &&
         (frames[FRAME_ALERT_DAT_IDX] = pop_alert(*msg, &alert)) &&
         (frames[FRAME_ALERT_DST_IDX] = pop_email(*msg, &email))) {
-        device_s** d = device_resolve(l, l->devices, frames, false);
+        device_s** d = device_resolve(socket, l->devices, frames, false);
         frames_s f = { 6, &frames[1] };
         if (d) {
             map_nodes_foreach(l->nodes, foreach_node_forward_message, &f);
@@ -370,26 +374,27 @@ process_alert(linq_s* l, zmsg_t** msg, zframe_t** frames)
 
 // check the zmq hello message is valid and add a node if it does not exist
 static E_LINQ_ERROR
-process_hello(linq_s* l, zmsg_t** msg, zframe_t** frames)
+process_hello(linq_s* l, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
 {
     ((void)l);
     ((void)msg);
+    ((void)socket);
     ((void)frames);
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
-    node_s** s = node_resolve(l, l->nodes, frames, true);
+    node_s** s = node_resolve(socket, l->nodes, frames, true);
     if (s) e = LINQ_ERROR_OK;
     return e;
 }
 
 // check the zmq heartbeat frames are valid and process the heartbeat
 static E_LINQ_ERROR
-process_heartbeat(linq_s* l, zmsg_t** msg, zframe_t** frames)
+process_heartbeat(linq_s* l, zsock_t* s, zmsg_t** msg, zframe_t** frames)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     if (zmsg_size(*msg) == 2 &&
         (frames[FRAME_HB_TID_IDX] = pop_le(*msg, TID_LEN)) &&
         (frames[FRAME_HB_SITE_IDX] = pop_le(*msg, SITE_LEN))) {
-        device_s** d = device_resolve(l, l->devices, frames, true);
+        device_s** d = device_resolve(s, l->devices, frames, true);
         frames_s f = { 5, &frames[1] };
         if (d) {
             map_nodes_foreach(l->nodes, foreach_node_forward_message, &f);
@@ -402,21 +407,21 @@ process_heartbeat(linq_s* l, zmsg_t** msg, zframe_t** frames)
 
 // check the zmq header frames are valid and process the packet
 static E_LINQ_ERROR
-process_packet(linq_s* l, zmsg_t** msg, zframe_t** frames)
+process_packet(linq_s* l, zsock_t* s, zmsg_t** msg, zframe_t** f)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
-    *msg = zmsg_recv(l->sock);
+    *msg = zmsg_recv(s);
     if (*msg && zmsg_size(*msg) >= 4 &&
-        (frames[FRAME_RID_IDX] = pop_le(*msg, RID_LEN)) &&
-        (frames[FRAME_VER_IDX] = pop_eq(*msg, 1)) &&
-        (frames[FRAME_TYP_IDX] = pop_eq(*msg, 1)) &&
-        (frames[FRAME_SID_IDX] = pop_le(*msg, SID_LEN))) {
-        switch ((E_TYPE)zframe_data(frames[FRAME_TYP_IDX])[0]) {
-            case TYPE_HEARTBEAT: e = process_heartbeat(l, msg, frames); break;
-            case TYPE_REQUEST: e = process_request(l, msg, frames); break;
-            case TYPE_RESPONSE: e = process_response(l, msg, frames); break;
-            case TYPE_ALERT: e = process_alert(l, msg, frames); break;
-            case TYPE_HELLO: e = process_hello(l, msg, frames); break;
+        (f[FRAME_RID_IDX] = pop_le(*msg, RID_LEN)) &&
+        (f[FRAME_VER_IDX] = pop_eq(*msg, 1)) &&
+        (f[FRAME_TYP_IDX] = pop_eq(*msg, 1)) &&
+        (f[FRAME_SID_IDX] = pop_le(*msg, SID_LEN))) {
+        switch ((E_TYPE)zframe_data(f[FRAME_TYP_IDX])[0]) {
+            case TYPE_HEARTBEAT: e = process_heartbeat(l, s, msg, f); break;
+            case TYPE_REQUEST: e = process_request(l, s, msg, f); break;
+            case TYPE_RESPONSE: e = process_response(l, s, msg, f); break;
+            case TYPE_ALERT: e = process_alert(l, s, msg, f); break;
+            case TYPE_HELLO: e = process_hello(l, s, msg, f); break;
         }
     }
     return e;
@@ -424,13 +429,13 @@ process_packet(linq_s* l, zmsg_t** msg, zframe_t** frames)
 
 // read zmq messages
 static E_LINQ_ERROR
-process_incoming(linq_s* l)
+process_incoming(linq_s* l, zsock_t* socket)
 {
     int n = 0;
     zframe_t* frames[FRAME_MAX + 1];
     memset(frames, 0, sizeof(frames));
     zmsg_t* msg;
-    E_LINQ_ERROR e = process_packet(l, &msg, frames);
+    E_LINQ_ERROR e = process_packet(l, socket, &msg, frames);
     if (e) exe_on_error(l, e, "");
     zmsg_destroy(&msg);
     while (frames[n]) zframe_destroy(&frames[n++]);
@@ -446,6 +451,7 @@ linq_create(linq_callbacks* cb, void* context)
         memset(l, 0, sizeof(linq_s));
         l->devices = map_devices_create();
         l->nodes = map_nodes_create();
+        l->sockets = list_sockets_create();
         l->callbacks = cb;
         l->context = context;
     }
@@ -460,7 +466,8 @@ linq_destroy(linq_s** linq_p)
     *linq_p = NULL;
     map_devices_destroy(&l->devices);
     map_nodes_destroy(&l->nodes);
-    if (l->sock) zsock_destroy(&l->sock);
+    list_sockets_destroy(&l->sockets);
+    // if (l->sock) zsock_destroy(&l->sock);
     linq_free(l);
 }
 
@@ -468,9 +475,13 @@ linq_destroy(linq_s** linq_p)
 E_LINQ_ERROR
 linq_listen(linq_s* l, const char* ep)
 {
-    if (l->sock) return LINQ_ERROR_BAD_ARGS;
-    l->sock = zsock_new_router(ep);
-    return l->sock ? LINQ_ERROR_OK : LINQ_ERROR_BAD_ARGS;
+    zsock_t* socket = zsock_new_router(ep);
+    if (socket) {
+        list_sockets_push(l->sockets, &socket);
+        return LINQ_ERROR_OK;
+    } else {
+        return LINQ_ERROR_BAD_ARGS;
+    }
 }
 
 // loop through each node and resolve any requests that have timed out
@@ -489,13 +500,25 @@ foreach_node_check_request_timeout(void* ctx, device_s** n)
 E_LINQ_ERROR
 linq_poll(linq_s* l)
 {
-    int err;
-    zmq_pollitem_t item = { zsock_resolve(l->sock), 0, ZMQ_POLLIN, 0 };
+    int err, n = 0;
+    zmq_pollitem_t items[MAX_CONNECTIONS];
+    memset(items, 0, sizeof(items));
+
+    list_sockets_s* ss = l->sockets;
+    for (sockets_item_s* s = ss->head; s != ss->tail; s = s->next) {
+        items[n].socket = zsock_resolve(s->data);
+        items[n].events = ZMQ_POLLIN;
+    }
+    n = 0;
 
     // Process sockets
-    err = zmq_poll(&item, 1, 5);
+    err = zmq_poll(items, list_sockets_size(ss), 5);
     if (!(err < 0)) {
-        if (item.revents && ZMQ_POLLIN) err = process_incoming(l);
+        for (sockets_item_s* s = ss->head; s != ss->tail; s = s->next) {
+            if (items[n++].revents && ZMQ_POLLIN) {
+                err = process_incoming(l, s->data);
+            }
+        }
     }
 
     // Loop through devices

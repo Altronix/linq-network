@@ -56,6 +56,9 @@
 #define FRAME_RES_ERR_IDX 4
 #define FRAME_RES_DAT_IDX 5
 
+// Maximum sockets
+#define MAX_CONNECTIONS 10
+
 typedef struct
 {
     uint8_t id[256];
