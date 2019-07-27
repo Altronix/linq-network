@@ -92,7 +92,7 @@ test_linq_receive_protocol_error_short(void** context_p)
     czmq_spy_poll_set_incoming((0x01));
 
     linq_s* l = linq_create(&callbacks, (void*)&pass);
-    linq_listen(l, "tcp://*:12345");
+    linq_listen(l, "tcp://*:32820");
     linq_poll(l);
 
     assert_true(pass);
@@ -117,7 +117,7 @@ test_linq_receive_protocol_error_serial(void** context_p)
     expect_error = LINQ_ERROR_PROTOCOL;
 
     linq_s* l = linq_create(&callbacks, &pass);
-    linq_listen(l, "tcp://*:12345");
+    linq_listen(l, "tcp://*:32820");
     linq_poll(l);
 
     assert_true(pass);
@@ -142,7 +142,7 @@ test_linq_receive_protocol_error_router(void** context_p)
     expect_error = LINQ_ERROR_PROTOCOL;
 
     linq_s* l = linq_create(&callbacks, &pass);
-    linq_listen(l, "tcp://*:12345");
+    linq_listen(l, "tcp://*:32820");
     linq_poll(l);
 
     assert_true(pass);
@@ -168,7 +168,7 @@ test_linq_receive_heartbeat_ok(void** context_p)
 
     // Receive a heartbeat
     linq_s* l = linq_create(&callbacks, (void*)&pass);
-    linq_listen(l, "tcp://*:12345");
+    linq_listen(l, "tcp://*:32820");
     linq_poll(l);
     device_s** d = linq_device(l, serial);
     assert_non_null(d);
@@ -209,7 +209,7 @@ test_linq_receive_heartbeat_error_short(void** context_p)
     czmq_spy_poll_set_incoming((0x01));
 
     linq_s* l = linq_create(&callbacks, (void*)&pass);
-    linq_listen(l, "tcp://*:12345");
+    linq_listen(l, "tcp://*:32820");
     linq_poll(l);
 
     assert_true(pass);
@@ -233,7 +233,7 @@ test_linq_receive_alert_ok(void** context_p)
     czmq_spy_poll_set_incoming((0x01));
 
     linq_s* l = linq_create(&callbacks, (void*)&pass);
-    linq_listen(l, "tcp://*:12345");
+    linq_listen(l, "tcp://*:32820");
     linq_poll(l);
     pass = false;
     linq_poll(l);
@@ -277,7 +277,7 @@ test_linq_receive_response_ok(void** context_p)
     // receive get response
     // make sure callback is as expect
     linq_s* l = linq_create(&callbacks, (void*)&pass);
-    linq_listen(l, "tcp://*:12345");
+    linq_listen(l, "tcp://*:32820");
     linq_poll(l);
     linq_device_send_get(l, serial, "/ATX/test", on_response_ok, &pass);
     linq_poll(l);
@@ -313,7 +313,7 @@ test_linq_receive_response_error_timeout(void** context_p)
     // Receive a new device @t=0
     spy_sys_set_tick(0);
     linq_s* l = linq_create(&callbacks, &pass);
-    linq_listen(l, "tcp://*:12345");
+    linq_listen(l, "tcp://*:32820");
     linq_poll(l);
     n = linq_device(l, serial);
     device_send_get(*n, "/ATX/test", on_response_error_timeout, &response_pass);
@@ -349,7 +349,7 @@ test_linq_receive_hello(void** context_p)
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
     linq_s* l = linq_create(NULL, NULL);
-    linq_listen(l, "tcp://*:12345");
+    linq_listen(l, "tcp://*:32820");
 
     assert_int_equal(linq_nodes_count(l), 0);
     linq_poll(l);
@@ -371,7 +371,7 @@ test_linq_receive_hello_double_id(void** context_p)
     czmq_spy_poll_set_incoming((0x01));
 
     linq_s* l = linq_create(NULL, NULL);
-    linq_listen(l, "tcp://*:12345");
+    linq_listen(l, "tcp://*:32820");
     assert_int_equal(linq_nodes_count(l), 0);
     linq_poll(l);
     assert_int_equal(linq_nodes_count(l), 1);
@@ -399,7 +399,7 @@ test_linq_broadcast_heartbeat(void** context_p)
     czmq_spy_poll_set_incoming((0x01));
 
     linq_s* l = linq_create(NULL, NULL);
-    linq_listen(l, "tcp://*:12345");
+    linq_listen(l, "tcp://*:32820");
     linq_poll(l); // receive hello
     linq_poll(l); // recieve hello
     linq_poll(l); // receive heartbeat
@@ -456,7 +456,7 @@ test_linq_broadcast_alert(void** context_p)
     czmq_spy_poll_set_incoming((0x01));
 
     linq_s* l = linq_create(NULL, NULL);
-    linq_listen(l, "tcp://*:12345");
+    linq_listen(l, "tcp://*:32820");
     linq_poll(l); // receive heartbeat
     linq_poll(l); // receive hello
     linq_poll(l); // recieve hello
@@ -516,7 +516,7 @@ test_linq_forward_request(void** context_p)
     czmq_spy_poll_set_incoming((0x01));
 
     linq_s* l = linq_create(NULL, NULL);
-    linq_listen(l, "tcp://*:12345");
+    linq_listen(l, "tcp://*:32820");
     linq_poll(l);
     linq_poll(l);
     linq_poll(l);
