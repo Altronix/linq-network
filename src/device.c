@@ -44,24 +44,15 @@ typedef struct device_s
 static zframe_t*
 write_path_to_frame(const char* method, const char* path, uint32_t path_len)
 {
-    zframe_t* frame;
-    bool has_prefix = true;
-    uint32_t sz = strlen(method) + path_len + (has_prefix ? 0 : 1) + 2;
-    if (!(*path == '/')) {
-        has_prefix = false;
+    uint32_t sz = strlen(method) + path_len + 2;
+    char url[128];
+    if (*path == '/') {
+        snprintf(url, sizeof(url), "%s %s", method, path);
+    } else {
         sz++;
+        snprintf(url, sizeof(url), "%s /%s", method, path);
     }
-    frame = zframe_new(NULL, sz);
-    if (frame) {
-        snprintf(
-            (char*)zframe_data(frame),
-            sz,
-            "%s %s%s",
-            method,
-            has_prefix ? "" : "/",
-            path);
-    }
-    return frame;
+    return zframe_new(url, sz);
 }
 
 static zframe_t*
