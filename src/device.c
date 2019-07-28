@@ -44,13 +44,13 @@ typedef struct device_s
 static zframe_t*
 write_path_to_frame(const char* method, const char* path, uint32_t path_len)
 {
-    uint32_t sz = strlen(method) + path_len + 2;
+    ((void)path_len);
+    uint32_t sz;
     char url[128];
     if (*path == '/') {
-        snprintf(url, sizeof(url), "%s %s", method, path);
+        sz = snprintf(url, sizeof(url), "%s %s", method, path);
     } else {
-        sz++;
-        snprintf(url, sizeof(url), "%s /%s", method, path);
+        sz = snprintf(url, sizeof(url), "%s /%s", method, path);
     }
     return zframe_new(url, sz);
 }
