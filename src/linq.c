@@ -223,15 +223,19 @@ device_resolve(
     zframe_t** frames,
     bool insert)
 {
-    uint32_t rid_sz = zframe_size(frames[FRAME_RID_IDX]);
-    uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
+    uint32_t rid_sz = 0;
+    uint8_t* rid = NULL;
+    if (frames[FRAME_RID_IDX]) {
+        rid_sz = zframe_size(frames[FRAME_RID_IDX]);
+        rid = zframe_data(frames[FRAME_RID_IDX]);
+    }
     char sid[SID_LEN], tid[TID_LEN] = { 0 };
     print_null_terminated(sid, SID_LEN, frames[FRAME_SID_IDX]);
     print_null_terminated(tid, TID_LEN, frames[FRAME_HB_TID_IDX]);
     device_s** d = map_devices_get(map, sid);
     if (d) {
         device_heartbeat(*d);
-        device_update_router(*d, rid, rid_sz);
+        if (rid) device_update_router(*d, rid, rid_sz);
     } else {
         if (insert) {
             device_s* node = device_create(sock, rid, rid_sz, sid, tid);
@@ -245,14 +249,18 @@ device_resolve(
 static node_s**
 node_resolve(zsock_t* sock, map_nodes_s* map, zframe_t** frames, bool insert)
 {
-    uint32_t rid_len = zframe_size(frames[FRAME_RID_IDX]);
-    uint8_t* rid = zframe_data(frames[FRAME_RID_IDX]);
+    uint32_t rid_len = 0;
+    uint8_t* rid = NULL;
+    if (frames[FRAME_RID_IDX]) {
+        rid_len = zframe_size(frames[FRAME_RID_IDX]);
+        rid = zframe_data(frames[FRAME_RID_IDX]);
+    }
     char sid[B64_RID_LEN];
     size_t sid_len = sizeof(sid);
     b64_encode((uchar*)sid, &sid_len, (uchar*)rid, rid_len);
     node_s** d = map_nodes_get(map, sid);
     if (d) {
-        node_update_router(*d, rid, rid_len);
+        if (rid) node_update_router(*d, rid, rid_len);
     } else {
         if (insert) {
             node_s* node = node_create(sock, rid, rid_len, sid);
@@ -398,6 +406,9 @@ process_heartbeat(linq_s* l, zsock_t* s, zmsg_t** msg, zframe_t** frames)
         device_s** d = device_resolve(s, l->devices, frames, true);
         frames_s f = { 5, &frames[1] };
         if (d) {
+            // TODO - this re broadcasting something that was broadcast to us
+            // and causes infinite spamming loop. need new protocol item for
+            // adding a device
             map_nodes_foreach(l->nodes, foreach_node_forward_message, &f);
             exe_on_heartbeat(l, d);
             e = LINQ_ERROR_OK;

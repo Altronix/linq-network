@@ -97,8 +97,8 @@ main(int argc, char* argv[])
         return -1;
     }
 
-    /*
-    // TODO device wasn't desigend for an optional router..
+    // TODO - broadcasting is spamming eachother. Need to create a seperate
+    // command ADD DEVICE (vs heartbeat that comes from a product)
     while (!(received_new_device && received_alert)) {
         fixture_poll(fixture);
         err = linq_poll(server);
@@ -106,7 +106,6 @@ main(int argc, char* argv[])
         err = linq_poll(client);
         if (err) break;
     }
-    */
 
     fixture_destroy(&fixture);
     linq_destroy(&server);
