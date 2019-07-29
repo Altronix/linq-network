@@ -407,28 +407,35 @@ process_heartbeat(linq_s* l, zsock_t* s, zmsg_t** msg, zframe_t** frames)
 
 // check the zmq header frames are valid and process the packet
 static E_LINQ_ERROR
-process_packet(linq_s* l, zsock_t* s, zmsg_t** msg, zframe_t** f)
+process_packet(linq_s* l, zsock_t* s)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
-    *msg = zmsg_recv(s);
+    int n = 0;
+    zframe_t* f[FRAME_MAX + 1];
+    zmsg_t* msg = zmsg_recv(s);
+    memset(f, 0, sizeof(f));
 
-    if (*msg && zmsg_size(*msg) >= 4 &&
-        (f[FRAME_RID_IDX] = pop_le(*msg, RID_LEN)) &&
-        (f[FRAME_VER_IDX] = pop_eq(*msg, 1)) &&
-        (f[FRAME_TYP_IDX] = pop_eq(*msg, 1)) &&
-        (f[FRAME_SID_IDX] = pop_le(*msg, SID_LEN))) {
+    if (msg && zmsg_size(msg) >= 4 &&
+        (f[FRAME_RID_IDX] = pop_le(msg, RID_LEN)) &&
+        (f[FRAME_VER_IDX] = pop_eq(msg, 1)) &&
+        (f[FRAME_TYP_IDX] = pop_eq(msg, 1)) &&
+        (f[FRAME_SID_IDX] = pop_le(msg, SID_LEN))) {
         switch ((E_TYPE)zframe_data(f[FRAME_TYP_IDX])[0]) {
-            case TYPE_HEARTBEAT: e = process_heartbeat(l, s, msg, f); break;
-            case TYPE_REQUEST: e = process_request(l, s, msg, f); break;
-            case TYPE_RESPONSE: e = process_response(l, s, msg, f); break;
-            case TYPE_ALERT: e = process_alert(l, s, msg, f); break;
-            case TYPE_HELLO: e = process_hello(l, s, msg, f); break;
+            case TYPE_HEARTBEAT: e = process_heartbeat(l, s, &msg, f); break;
+            case TYPE_REQUEST: e = process_request(l, s, &msg, f); break;
+            case TYPE_RESPONSE: e = process_response(l, s, &msg, f); break;
+            case TYPE_ALERT: e = process_alert(l, s, &msg, f); break;
+            case TYPE_HELLO: e = process_hello(l, s, &msg, f); break;
         }
     }
+    if (e) exe_on_error(l, e, "");
+    zmsg_destroy(&msg);
+    while (f[n]) zframe_destroy(&f[n++]);
     return e;
 }
 
 // read zmq messages
+/*
 static E_LINQ_ERROR
 process_incoming(linq_s* l, zsock_t* socket)
 {
@@ -442,6 +449,7 @@ process_incoming(linq_s* l, zsock_t* socket)
     while (frames[n]) zframe_destroy(&frames[n++]);
     return e;
 }
+*/
 
 // Create main context for the caller
 linq_s*
@@ -517,7 +525,7 @@ linq_poll(linq_s* l)
     if (!(err < 0)) {
         for (sockets_item_s* s = ss->head; s != ss->tail; s = s->next) {
             if (items[n++].revents && ZMQ_POLLIN) {
-                err = process_incoming(l, s->data);
+                err = process_packet(l, s->data);
             }
         }
     }
