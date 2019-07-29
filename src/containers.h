@@ -40,6 +40,11 @@ extern "C"
         kl_destroy_##tag(list);                                                \
     }                                                                          \
                                                                                \
+    type* list_##tag##_front(list_##tag##_s* list)                             \
+    {                                                                          \
+        return list->head->data;                                               \
+    }                                                                          \
+                                                                               \
     void list_##tag##_push(list_##tag##_s* list, type** r_p)                   \
     {                                                                          \
         type* r = *r_p;                                                        \

@@ -63,6 +63,13 @@ optional_prepend_router(node_s* node, zmsg_t* msg)
 }
 
 void
+node_send_hello(node_s* node)
+{
+    const char* sid = node_serial(node);
+    node_send_frames_n(node, 3, "\x0", 1, "\x4", 1, sid, strlen(sid));
+}
+
+void
 node_send_frames(node_s* node, uint32_t n, zframe_t** frames)
 {
 

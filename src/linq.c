@@ -483,9 +483,18 @@ linq_listen(linq_s* l, const char* ep)
 E_LINQ_ERROR
 linq_connect(linq_s* l, const char* ep)
 {
-    // TODO
-
-    return LINQ_ERROR_OK;
+    E_LINQ_ERROR e = LINQ_ERROR_BAD_ARGS;
+    zsock_t* socket = zsock_new_dealer(ep);
+    if (socket) {
+        list_sockets_push(l->dealers, &socket);
+        node_s* n = node_create(list_sockets_front(l->dealers), NULL, 0, NULL);
+        if (n) {
+            node_send_hello(n);
+            map_nodes_add(l->nodes, ep, &n);
+            return LINQ_ERROR_OK;
+        }
+    }
+    return e;
 }
 
 // loop through each node and resolve any requests that have timed out

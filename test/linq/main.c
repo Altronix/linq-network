@@ -572,6 +572,37 @@ test_linq_forward_request(void** context_p)
     test_reset();
 }
 
+static void
+test_linq_connect(void** context_p)
+{
+    ((void)context_p);
+    int err;
+
+    linq_s* linq = linq_create(NULL, NULL);
+
+    err = linq_connect(linq, "ipc:///filex");
+    assert_int_equal(LINQ_ERROR_OK, err);
+
+    zmsg_t* outgoing = czmq_spy_mesg_pop_outgoing();
+    assert_non_null(outgoing);
+    assert_int_equal(zmsg_size(outgoing), 3);
+    zframe_t* ver = zmsg_pop(outgoing);
+    zframe_t* typ = zmsg_pop(outgoing);
+    zframe_t* sid = zmsg_pop(outgoing);
+
+    assert_memory_equal(zframe_data(ver), "\x0", 1);
+    assert_memory_equal(zframe_data(typ), "\x4", 1);
+    assert_int_equal(zframe_size(sid), 0);
+
+    zframe_destroy(&ver);
+    zframe_destroy(&typ);
+    zframe_destroy(&sid);
+    zmsg_destroy(&outgoing);
+
+    linq_destroy(&linq);
+    test_reset();
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -593,7 +624,8 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_receive_hello_double_id),
         cmocka_unit_test(test_linq_broadcast_heartbeat),
         cmocka_unit_test(test_linq_broadcast_alert),
-        cmocka_unit_test(test_linq_forward_request)
+        cmocka_unit_test(test_linq_forward_request),
+        cmocka_unit_test(test_linq_connect)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);

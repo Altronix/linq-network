@@ -19,6 +19,7 @@ extern "C"
     void node_destroy(node_s**);
     void node_update_router(node_s*, const uint8_t*, uint32_t);
     const char* node_serial(node_s*);
+    void node_send_hello(node_s* node);
     void node_send_frames(node_s* node, uint32_t n, zframe_t** frames);
     void node_send_frames_n(node_s* node, uint32_t n, ...);
 
