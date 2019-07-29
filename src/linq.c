@@ -407,7 +407,7 @@ process_heartbeat(linq_s* l, zsock_t* s, zmsg_t** msg, zframe_t** frames)
 
 // check the zmq header frames are valid and process the packet
 static E_LINQ_ERROR
-process_packet(linq_s* l, zsock_t* s, bool is_router)
+process_packet(linq_s* l, zsock_t* s, bool router)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     int n = 0;
@@ -415,8 +415,9 @@ process_packet(linq_s* l, zsock_t* s, bool is_router)
     zmsg_t* msg = zmsg_recv(s);
     memset(f, 0, sizeof(f));
 
-    if (msg && zmsg_size(msg) >= 4 &&
-        (f[FRAME_RID_IDX] = pop_le(msg, RID_LEN)) &&
+    f[FRAME_RID_IDX] = router ? pop_le(msg, RID_LEN) : NULL;
+
+    if (msg && zmsg_size(msg) >= 3 && (!router || (router && f[0])) &&
         (f[FRAME_VER_IDX] = pop_eq(msg, 1)) &&
         (f[FRAME_TYP_IDX] = pop_eq(msg, 1)) &&
         (f[FRAME_SID_IDX] = pop_le(msg, SID_LEN))) {
