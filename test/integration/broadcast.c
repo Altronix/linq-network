@@ -79,7 +79,7 @@ main(int argc, char* argv[])
         return -1;
     }
 
-    // TODO - linq_listen(server, "ipc://server");
+    linq_listen(server, "ipc:///tmp/broadcast");
     if (err) {
         printf("%s", "[S] Listen Failure!\n");
         fixture_destroy(&fixture);
@@ -88,9 +88,9 @@ main(int argc, char* argv[])
         return -1;
     }
 
-    // TODO - linq_connect(client, "ipc://server");
+    linq_connect(client, "ipc:///tmp/broadcast");
     if (err) {
-        printf("%s", "[S] Listen Failure!\n");
+        printf("%s", "[S] Connect Failure!\n");
         fixture_destroy(&fixture);
         linq_destroy(&server);
         linq_destroy(&client);
@@ -98,7 +98,7 @@ main(int argc, char* argv[])
     }
 
     /*
-    // TODO
+    // TODO device wasn't desigend for an optional router..
     while (!(received_new_device && received_alert)) {
         fixture_poll(fixture);
         err = linq_poll(server);

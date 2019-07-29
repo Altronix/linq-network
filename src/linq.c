@@ -480,6 +480,7 @@ linq_listen(linq_s* l, const char* ep)
     }
 }
 
+// connect to a remote linq and send hello frames
 E_LINQ_ERROR
 linq_connect(linq_s* l, const char* ep)
 {
@@ -519,6 +520,7 @@ poll_sockets(linq_s* l, list_sockets_s* ss, bool is_router)
     for (sockets_item_s* s = ss->head; s != ss->tail; s = s->next) {
         items[n].socket = zsock_resolve(s->data);
         items[n].events = ZMQ_POLLIN;
+        n++;
     }
     n = 0;
 
