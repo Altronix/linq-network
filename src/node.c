@@ -19,8 +19,8 @@ node_create(
     if (node) {
         memset(node, 0, sizeof(node_s));
         node->sock = s;
-        node_update_router(node, router, router_sz);
-        snprintf(node->serial, sizeof(node->serial), "%s", sid);
+        if (router_sz) node_update_router(node, router, router_sz);
+        if (sid) snprintf(node->serial, sizeof(node->serial), "%s", sid);
     }
     return node;
 }
