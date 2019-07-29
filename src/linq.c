@@ -407,7 +407,7 @@ process_heartbeat(linq_s* l, zsock_t* s, zmsg_t** msg, zframe_t** frames)
 
 // check the zmq header frames are valid and process the packet
 static E_LINQ_ERROR
-process_packet(linq_s* l, zsock_t* s)
+process_packet(linq_s* l, zsock_t* s, bool is_router)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     int n = 0;
@@ -433,23 +433,6 @@ process_packet(linq_s* l, zsock_t* s)
     while (f[n]) zframe_destroy(&f[n++]);
     return e;
 }
-
-// read zmq messages
-/*
-static E_LINQ_ERROR
-process_incoming(linq_s* l, zsock_t* socket)
-{
-    int n = 0;
-    zframe_t* frames[FRAME_MAX + 1];
-    memset(frames, 0, sizeof(frames));
-    zmsg_t* msg;
-    E_LINQ_ERROR e = process_packet(l, socket, &msg, frames);
-    if (e) exe_on_error(l, e, "");
-    zmsg_destroy(&msg);
-    while (frames[n]) zframe_destroy(&frames[n++]);
-    return e;
-}
-*/
 
 // Create main context for the caller
 linq_s*
@@ -505,15 +488,13 @@ foreach_node_check_request_timeout(void* ctx, device_s** n)
     }
 }
 
-// poll network socket file handles
-E_LINQ_ERROR
-linq_poll(linq_s* l)
+static E_LINQ_ERROR
+poll_sockets(linq_s* l, list_sockets_s* ss, bool is_router)
 {
     int err, n = 0;
     zmq_pollitem_t items[MAX_CONNECTIONS];
     memset(items, 0, sizeof(items));
 
-    list_sockets_s* ss = l->sockets;
     for (sockets_item_s* s = ss->head; s != ss->tail; s = s->next) {
         items[n].socket = zsock_resolve(s->data);
         items[n].events = ZMQ_POLLIN;
@@ -525,10 +506,19 @@ linq_poll(linq_s* l)
     if (!(err < 0)) {
         for (sockets_item_s* s = ss->head; s != ss->tail; s = s->next) {
             if (items[n++].revents && ZMQ_POLLIN) {
-                err = process_packet(l, s->data);
+                err = process_packet(l, s->data, is_router);
             }
         }
     }
+
+    return err;
+}
+
+// poll network socket file handles
+E_LINQ_ERROR
+linq_poll(linq_s* l)
+{
+    int err = poll_sockets(l, l->sockets, true);
 
     // Loop through devices
     map_devices_foreach(l->devices, foreach_node_check_request_timeout, l);
