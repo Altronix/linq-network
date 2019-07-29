@@ -107,16 +107,3 @@ __wrap_zsock_destroy_checked(
     ((void)line_nbr);
     return __wrap_zsock_destroy(self_p);
 }
-
-const char*
-__wrap_zsock_type_str(zsock_t* sock)
-{
-    return ((mock_zsock_s*)sock)->dummy;
-}
-
-const char*
-__wrap_zsys_type_str(zsock_t* sock)
-{
-    return ((mock_zsock_s*)sock)->dummy;
-}
-

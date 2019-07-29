@@ -19,8 +19,6 @@ string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_destroy_checked,")
 string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_bind,")
 string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_resolve,")
 string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_connect,")
-string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_type_str,")
-string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsys_type_str,")
 string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_send,")
 string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_recv")
 

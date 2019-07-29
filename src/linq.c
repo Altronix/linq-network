@@ -233,7 +233,7 @@ device_resolve(
         device_update_router(*d, rid, rid_sz);
     } else {
         if (insert) {
-            device_s* node = device_create(&sock, rid, rid_sz, sid, tid);
+            device_s* node = device_create(sock, rid, rid_sz, sid, tid);
             if (node) d = map_devices_add(map, device_serial(node), &node);
         }
     }
@@ -411,6 +411,7 @@ process_packet(linq_s* l, zsock_t* s, zmsg_t** msg, zframe_t** f)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     *msg = zmsg_recv(s);
+
     if (*msg && zmsg_size(*msg) >= 4 &&
         (f[FRAME_RID_IDX] = pop_le(*msg, RID_LEN)) &&
         (f[FRAME_VER_IDX] = pop_eq(*msg, 1)) &&
