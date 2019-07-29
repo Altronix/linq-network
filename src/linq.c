@@ -32,7 +32,8 @@ device_s** linq_device_from_frame(linq_s* l, zframe_t* frame);
 typedef struct linq_s
 {
     void* context;
-    list_sockets_s* sockets;
+    list_sockets_s* routers;
+    list_sockets_s* dealers;
     map_devices_s* devices;
     map_nodes_s* nodes;
     linq_callbacks* callbacks;
@@ -444,7 +445,8 @@ linq_create(linq_callbacks* cb, void* context)
         memset(l, 0, sizeof(linq_s));
         l->devices = map_devices_create();
         l->nodes = map_nodes_create();
-        l->sockets = list_sockets_create();
+        l->routers = list_sockets_create();
+        l->dealers = list_sockets_create();
         l->callbacks = cb;
         l->context = context;
     }
@@ -459,7 +461,8 @@ linq_destroy(linq_s** linq_p)
     *linq_p = NULL;
     map_devices_destroy(&l->devices);
     map_nodes_destroy(&l->nodes);
-    list_sockets_destroy(&l->sockets);
+    list_sockets_destroy(&l->routers);
+    list_sockets_destroy(&l->dealers);
     // if (l->sock) zsock_destroy(&l->sock);
     linq_free(l);
 }
@@ -470,7 +473,7 @@ linq_listen(linq_s* l, const char* ep)
 {
     zsock_t* socket = zsock_new_router(ep);
     if (socket) {
-        list_sockets_push(l->sockets, &socket);
+        list_sockets_push(l->routers, &socket);
         return LINQ_ERROR_OK;
     } else {
         return LINQ_ERROR_BAD_ARGS;
@@ -519,12 +522,15 @@ poll_sockets(linq_s* l, list_sockets_s* ss, bool is_router)
 E_LINQ_ERROR
 linq_poll(linq_s* l)
 {
-    int err = poll_sockets(l, l->sockets, true);
+    int e;
+
+    // Poll sockets
+    e = poll_sockets(l, l->routers, true) | poll_sockets(l, l->dealers, false);
 
     // Loop through devices
     map_devices_foreach(l->devices, foreach_node_check_request_timeout, l);
 
-    return err;
+    return e;
 }
 
 device_s**
