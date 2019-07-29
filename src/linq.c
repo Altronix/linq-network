@@ -480,6 +480,14 @@ linq_listen(linq_s* l, const char* ep)
     }
 }
 
+E_LINQ_ERROR
+linq_connect(linq_s* l, const char* ep)
+{
+    // TODO
+
+    return LINQ_ERROR_OK;
+}
+
 // loop through each node and resolve any requests that have timed out
 static void
 foreach_node_check_request_timeout(void* ctx, device_s** n)

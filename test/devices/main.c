@@ -27,13 +27,12 @@ test_nodes_add(void** context_p)
 
     map_nodes_s* m = map_nodes_create();
     device_s** d;
-    zsock_t* sock = NULL;
     router_s rid0 = { "rid0", 4 };
     router_s rid1 = { "rid1", 4 };
     router_s rid2 = { "rid2", 4 };
-    device_s *n0 = device_create(&sock, (uint8_t*)"rid0", 4, "sid0", "pid0"),
-             *n1 = device_create(&sock, (uint8_t*)"rid1", 4, "sid1", "pid1"),
-             *n2 = device_create(&sock, (uint8_t*)"rid2", 4, "sid2", "pid2");
+    device_s *n0 = device_create(NULL, (uint8_t*)"rid0", 4, "sid0", "pid0"),
+             *n1 = device_create(NULL, (uint8_t*)"rid1", 4, "sid1", "pid1"),
+             *n2 = device_create(NULL, (uint8_t*)"rid2", 4, "sid2", "pid2");
 
     assert_int_equal(map_nodes_size(m), 0);
     map_nodes_add(m, device_serial(n0), &n0);
