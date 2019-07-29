@@ -1,5 +1,10 @@
 #include "mock_zsock.h"
 
+typedef struct mock_zsock_s
+{
+    char dummy[100];
+} mock_zsock_s;
+
 int
 __wrap_zsock_bind(zsock_t* self, const char* format, ...)
 {
@@ -42,10 +47,14 @@ zsock_t*
 __wrap_zsock_new_router(const char* endpoints)
 {
     ((void)endpoints);
-    char* mem = malloc(100);
-    memset(mem, 0, 100);
-    return (zsock_t*)mem;
+    mock_zsock_s* s = malloc(sizeof(mock_zsock_s));
+    if (s) {
+        memset(s, 0, sizeof(mock_zsock_s));
+        snprintf(s->dummy, sizeof(s->dummy), "%s", "ROUTER");
+    }
+    return (zsock_t*)s;
 }
+
 zsock_t*
 __wrap_zsock_new_router_checked(
     const char* endpoints,
@@ -60,7 +69,13 @@ __wrap_zsock_new_router_checked(
 zsock_t*
 __wrap_zsock_new_dealer(const char* endpoints)
 {
-    return __wrap_zsock_new_router(endpoints);
+    ((void)endpoints);
+    mock_zsock_s* s = malloc(sizeof(mock_zsock_s));
+    if (s) {
+        memset(s, 0, sizeof(mock_zsock_s));
+        snprintf(s->dummy, sizeof(s->dummy), "%s", "DEALER");
+    }
+    return (zsock_t*)s;
 }
 
 zsock_t*
@@ -92,3 +107,16 @@ __wrap_zsock_destroy_checked(
     ((void)line_nbr);
     return __wrap_zsock_destroy(self_p);
 }
+
+const char*
+__wrap_zsock_type_str(zsock_t* sock)
+{
+    return ((mock_zsock_s*)sock)->dummy;
+}
+
+const char*
+__wrap_zsys_type_str(zsock_t* sock)
+{
+    return ((mock_zsock_s*)sock)->dummy;
+}
+

@@ -47,26 +47,38 @@ node_serial(node_s* node)
     return node->serial;
 }
 
+static int
+optional_prepend_router(node_s* node, zmsg_t* msg)
+{
+    if (node->router.sz) {
+        zframe_t* router = zframe_new(node->router.id, node->router.sz);
+        if (router) {
+            zmsg_prepend(msg, &router);
+        } else {
+            zmsg_destroy(&msg);
+            return -1;
+        }
+    }
+    return 0;
+}
+
 void
 node_send_frames(node_s* node, uint32_t n, zframe_t** frames)
 {
 
     uint32_t count = 0;
     zmsg_t* msg = zmsg_new();
+
     if (msg) {
-        zframe_t* router = zframe_new(node->router.id, node->router.sz);
-        if (router) {
-            zmsg_append(msg, &router);
-            for (uint32_t i = 0; i < n; i++) {
-                zframe_t* frame = zframe_dup(frames[i]);
-                if (!frame) break;
-                count++;
-                zmsg_append(msg, &frame);
-            }
-            if (count == n) {
-                int err = zmsg_send(&msg, node->sock);
-                if (err) zmsg_destroy(&msg);
-            }
+        for (uint32_t i = 0; i < n; i++) {
+            zframe_t* frame = zframe_dup(frames[i]);
+            if (!frame) break;
+            count++;
+            zmsg_append(msg, &frame);
+        }
+        if (!(count == n && !optional_prepend_router(node, msg) &&
+              !zmsg_send(&msg, node->sock))) {
+            zmsg_destroy(&msg);
         }
     }
 }
@@ -74,27 +86,26 @@ node_send_frames(node_s* node, uint32_t n, zframe_t** frames)
 void
 node_send_frames_n(node_s* node, uint32_t n, ...)
 {
-    int err = -1;
     uint32_t count = 0;
     zmsg_t* msg = zmsg_new();
+
     if (msg) {
-        zframe_t* router = zframe_new(node->router.id, node->router.sz);
-        if (router) {
-            zmsg_append(msg, &router);
-            va_list list;
-            va_start(list, n);
-            for (uint32_t i = 0; i < n; i++) {
-                uint8_t* arg = va_arg(list, uint8_t*);
-                size_t sz = va_arg(list, size_t);
-                zframe_t* f = zframe_new(arg, sz);
-                if (f) {
-                    count++;
-                    zmsg_append(msg, &f);
-                }
+        va_list list;
+        va_start(list, n);
+        for (uint32_t i = 0; i < n; i++) {
+            uint8_t* arg = va_arg(list, uint8_t*);
+            size_t sz = va_arg(list, size_t);
+            zframe_t* f = zframe_new(arg, sz);
+            if (f) {
+                count++;
+                zmsg_append(msg, &f);
             }
-            va_end(list);
-            if (count == n) err = zmsg_send(&msg, node->sock);
         }
-        if (err) zmsg_destroy(&msg);
+        va_end(list);
+
+        if (!(count == n && !optional_prepend_router(node, msg) &&
+              !zmsg_send(&msg, node->sock))) {
+            zmsg_destroy(&msg);
+        }
     }
 }
