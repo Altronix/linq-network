@@ -254,7 +254,7 @@ node_resolve(zsock_t* sock, map_nodes_s* map, zframe_t** frames, bool insert)
         node_update_router(*d, rid, rid_len);
     } else {
         if (insert) {
-            node_s* node = node_create(&sock, rid, rid_len, sid);
+            node_s* node = node_create(sock, rid, rid_len, sid);
             if (node) d = map_nodes_add(map, node_serial(node), &node);
         }
     }

@@ -30,7 +30,7 @@ typedef struct request_s
 
 typedef struct device_s
 {
-    zsock_t** sock_p;
+    zsock_t* sock;
     router_s router;
     list_requests_s* requests;
     request_s* request_pending;
@@ -173,7 +173,7 @@ flush(device_s* d)
     request_s** r_p = &d->request_pending;
     *r_p = list_requests_pop(d->requests);
     request_router_id_set(*r_p, d->router.id, d->router.sz);
-    if (request_send(*r_p, *d->sock_p) < 0) {
+    if (request_send(*r_p, d->sock) < 0) {
         exe_on_complete(r_p, LINQ_ERROR_IO, NULL, &d);
         request_destroy(r_p);
     } else {
@@ -182,7 +182,7 @@ flush(device_s* d)
 
 device_s*
 device_create(
-    zsock_t** sock_p,
+    zsock_t* sock,
     const uint8_t* router,
     uint32_t router_sz,
     const char* serial,
@@ -191,7 +191,7 @@ device_create(
     device_s* d = linq_malloc(sizeof(device_s));
     if (d) {
         memset(d, 0, sizeof(device_s));
-        d->sock_p = sock_p;
+        d->sock = sock;
         d->requests = list_requests_create();
         d->birth = d->last_seen = sys_tick();
         device_update_router(d, router, router_sz);
@@ -230,10 +230,10 @@ device_router(device_s* d)
     return &d->router;
 }
 
-zsock_t**
+zsock_t*
 device_socket(device_s* d)
 {
-    return d->sock_p;
+    return d->sock;
 }
 
 void

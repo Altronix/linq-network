@@ -3,14 +3,14 @@
 
 typedef struct node_s
 {
-    zsock_t** sock_p;
+    zsock_t* sock;
     router_s router;
     char serial[SID_LEN];
 } node_s;
 
 node_s*
 node_create(
-    zsock_t** s,
+    zsock_t* s,
     const uint8_t* router,
     uint32_t router_sz,
     const char* sid)
@@ -18,7 +18,7 @@ node_create(
     node_s* node = linq_malloc(sizeof(node_s));
     if (node) {
         memset(node, 0, sizeof(node_s));
-        node->sock_p = s;
+        node->sock = s;
         node_update_router(node, router, router_sz);
         snprintf(node->serial, sizeof(node->serial), "%s", sid);
     }
@@ -64,7 +64,7 @@ node_send_frames(node_s* node, uint32_t n, zframe_t** frames)
                 zmsg_append(msg, &frame);
             }
             if (count == n) {
-                int err = zmsg_send(&msg, *node->sock_p);
+                int err = zmsg_send(&msg, node->sock);
                 if (err) zmsg_destroy(&msg);
             }
         }
@@ -93,7 +93,7 @@ node_send_frames_n(node_s* node, uint32_t n, ...)
                 }
             }
             va_end(list);
-            if (count == n) err = zmsg_send(&msg, *node->sock_p);
+            if (count == n) err = zmsg_send(&msg, node->sock);
         }
         if (err) zmsg_destroy(&msg);
     }

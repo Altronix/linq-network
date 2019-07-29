@@ -28,8 +28,7 @@ static void
 test_device_create(void** context_p)
 {
     ((void)context_p);
-    zsock_t* sock = NULL;
-    device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
+    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     assert_non_null(d);
 
     device_send_get(d, "ATX", NULL, NULL);
@@ -48,8 +47,7 @@ static void
 test_device_send_get_no_prefix(void** context_p)
 {
     ((void)context_p);
-    zsock_t* sock = NULL;
-    device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
+    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     zmsg_t* msg;
     zframe_t *rid, *ver, *typ, *sid, *url;
 
@@ -83,8 +81,7 @@ static void
 test_device_send_get_with_prefix(void** context_p)
 {
     ((void)context_p);
-    zsock_t* sock = NULL;
-    device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
+    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     zmsg_t* msg;
     zframe_t *rid, *ver, *typ, *sid, *url;
 
@@ -118,8 +115,7 @@ static void
 test_device_send_delete_no_prefix(void** context_p)
 {
     ((void)context_p);
-    zsock_t* sock = NULL;
-    device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
+    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     zmsg_t* msg;
     zframe_t *rid, *ver, *typ, *sid, *url;
 
@@ -153,8 +149,7 @@ static void
 test_device_send_delete_with_prefix(void** context_p)
 {
     ((void)context_p);
-    zsock_t* sock = NULL;
-    device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
+    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     zmsg_t* msg;
     zframe_t *rid, *ver, *typ, *sid, *url;
 
@@ -188,8 +183,7 @@ static void
 test_device_send_post_no_prefix(void** context_p)
 {
     ((void)context_p);
-    zsock_t* sock = NULL;
-    device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
+    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     zmsg_t* msg;
     zframe_t *rid, *ver, *typ, *sid, *url, *dat;
 
@@ -226,8 +220,7 @@ static void
 test_device_send_post_with_prefix(void** context_p)
 {
     ((void)context_p);
-    zsock_t* sock = NULL;
-    device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
+    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     zmsg_t* msg;
     zframe_t *rid, *ver, *typ, *sid, *url, *dat;
 
@@ -267,8 +260,7 @@ test_device_response(void** context_p)
 {
     ((void)context_p);
     bool* pass = false;
-    zsock_t* sock = NULL;
-    device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
+    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     device_send_post(d, "/ATX/hardware", "{\"test\":1}", on_response, &pass);
 
     // TODO - add similiar test from linq.c which will test the parsing

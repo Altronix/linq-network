@@ -12,7 +12,7 @@ extern "C"
     typedef struct node_s node_s;
 
     node_s* node_create(
-        zsock_t**,
+        zsock_t*,
         const uint8_t* router,
         uint32_t router_sz,
         const char*);
