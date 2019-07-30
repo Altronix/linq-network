@@ -1,4 +1,12 @@
 #include "helpers.h"
+#include "linq_internal.h"
+
+static char frame_ver_0 = FRAME_VER_0;
+static char frame_typ_heartbeat = FRAME_TYP_HEARTBEAT;
+static char frame_typ_request = FRAME_TYP_REQUEST;
+static char frame_typ_response = FRAME_TYP_RESPONSE;
+static char frame_typ_alert = FRAME_TYP_ALERT;
+static char frame_typ_hello = FRAME_TYP_HELLO;
 
 zmsg_t*
 helpers_make_heartbeat(
@@ -9,18 +17,18 @@ helpers_make_heartbeat(
 {
     zmsg_t* m = helpers_create_message_mem(
         6,
-        rid,            // router
-        strlen(rid),    //
-        "\x0",          // version
-        1,              //
-        "\x0",          // type
-        1,              //
-        sid,            // serial
-        strlen(sid),    //
-        pid,            // product
-        strlen(pid),    //
-        site_id,        // site id
-        strlen(site_id) //
+        rid,                  // router
+        strlen(rid),          //
+        &frame_ver_0,         // version
+        1,                    //
+        &frame_typ_heartbeat, // type
+        1,                    //
+        sid,                  // serial
+        strlen(sid),          //
+        pid,                  // product
+        strlen(pid),          //
+        site_id,              // site id
+        strlen(site_id)       //
     );
     return m;
 }
@@ -32,9 +40,9 @@ helpers_make_alert(const char* rid, const char* sid, const char* pid)
         7,
         rid,                // router
         strlen(rid),        //
-        "\x0",              // version
+        &frame_ver_0,       // version
         1,                  //
-        "\x3",              // type
+        &frame_typ_alert,   // type
         1,                  //
         sid,                // serial
         strlen(sid),        //
@@ -64,18 +72,18 @@ helpers_make_response(
 {
     zmsg_t* m = helpers_create_message_mem(
         6,
-        rid,           // router
-        strlen(rid),   //
-        "\x0",         // version
-        1,             //
-        "\x2",         // type
-        1,             //
-        sid,           // serial
-        strlen(sid),   //
-        &err,          // error
-        1,             //
-        data,          // data
-        strlen(data)); //
+        rid,                 // router
+        strlen(rid),         //
+        &frame_ver_0,        // version
+        1,                   //
+        &frame_typ_response, // type
+        1,                   //
+        sid,                 // serial
+        strlen(sid),         //
+        &err,                // error
+        1,                   //
+        data,                // data
+        strlen(data));       //
     return m;
 }
 
@@ -90,9 +98,9 @@ helpers_make_request(
                       6,
                       rid,
                       strlen(rid),
-                      "\x0",
+                      &frame_ver_0,
                       1,
-                      "\x1",
+                      &frame_typ_request,
                       1,
                       sid,
                       strlen(sid),
@@ -104,9 +112,9 @@ helpers_make_request(
                       5,
                       rid,
                       strlen(rid),
-                      "\x0",
+                      &frame_ver_0,
                       1,
-                      "\x1",
+                      &frame_typ_request,
                       1,
                       sid,
                       strlen(sid),
@@ -118,7 +126,15 @@ zmsg_t*
 helpers_make_hello(const char* router, const char* node)
 {
     return helpers_create_message_mem(
-        4, router, strlen(router), "\x0", 1, "\x4", 1, node, strlen(node));
+        4,
+        router,
+        strlen(router),
+        &frame_ver_0,
+        1,
+        &frame_typ_hello,
+        1,
+        node,
+        strlen(node));
 }
 
 zmsg_t*

@@ -27,11 +27,12 @@
 #define SITE_LEN 64
 #define JSON_LEN 1024
 
-#define FRAME_TYP_HEARTBEAT (0x00)
-#define FRAME_TYP_REQUEST (0x01)
-#define FRAME_TYP_RESPONSE (0x02)
-#define FRAME_TYP_ALERT (0x03)
-#define FRAME_TYP_HELLO (0x04)
+#define FRAME_VER_0 ('\x0')
+#define FRAME_TYP_HEARTBEAT ('\x0')
+#define FRAME_TYP_REQUEST ('\x1')
+#define FRAME_TYP_RESPONSE ('\x2')
+#define FRAME_TYP_ALERT ('\x3')
+#define FRAME_TYP_HELLO ('\x4')
 
 // Basic packet index's
 #define FRAME_MAX 7
