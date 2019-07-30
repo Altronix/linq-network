@@ -9,9 +9,7 @@ helpers_make_heartbeat(
     const char* site_id)
 {
     zmsg_t* m = helpers_create_message_mem(
-        6,
-        rid,                    // router
-        strlen(rid),            //
+        5,
         &g_frame_ver_0,         // version
         1,                      //
         &g_frame_typ_heartbeat, // type
@@ -23,6 +21,10 @@ helpers_make_heartbeat(
         site_id,                // site id
         strlen(site_id)         //
     );
+    if (rid) {
+        zframe_t* r = zframe_new(rid, strlen(rid));
+        zmsg_prepend(m, &r);
+    }
     return m;
 }
 
@@ -30,9 +32,7 @@ zmsg_t*
 helpers_make_alert(const char* rid, const char* sid, const char* pid)
 {
     zmsg_t* m = helpers_create_message_mem(
-        7,
-        rid,                // router
-        strlen(rid),        //
+        6,
         &g_frame_ver_0,     // version
         1,                  //
         &g_frame_typ_alert, // type
@@ -46,6 +46,10 @@ helpers_make_alert(const char* rid, const char* sid, const char* pid)
         TEST_EMAIL,         // mail
         strlen(TEST_EMAIL)  //
     );
+    if (rid) {
+        zframe_t* r = zframe_new(rid, strlen(rid));
+        zmsg_prepend(m, &r);
+    }
     return m;
 }
 
@@ -64,9 +68,7 @@ helpers_make_response(
     const char* data)
 {
     zmsg_t* m = helpers_create_message_mem(
-        6,
-        rid,                   // router
-        strlen(rid),           //
+        5,
         &g_frame_ver_0,        // version
         1,                     //
         &g_frame_typ_response, // type
@@ -77,6 +79,10 @@ helpers_make_response(
         1,                     //
         data,                  // data
         strlen(data));         //
+    if (rid) {
+        zframe_t* r = zframe_new(rid, strlen(rid));
+        zmsg_prepend(m, &r);
+    }
     return m;
 }
 
@@ -87,32 +93,33 @@ helpers_make_request(
     const char* path,
     const char* data)
 {
-    return data ? helpers_create_message_mem(
-                      6,
-                      rid,
-                      strlen(rid),
-                      &g_frame_ver_0,
-                      1,
-                      &g_frame_typ_request,
-                      1,
-                      sid,
-                      strlen(sid),
-                      path,
-                      strlen(path),
-                      data,
-                      strlen(data))
-                : helpers_create_message_mem(
-                      5,
-                      rid,
-                      strlen(rid),
-                      &g_frame_ver_0,
-                      1,
-                      &g_frame_typ_request,
-                      1,
-                      sid,
-                      strlen(sid),
-                      path,
-                      strlen(path));
+    zmsg_t* m = data ? helpers_create_message_mem(
+                           5,
+                           &g_frame_ver_0,
+                           1,
+                           &g_frame_typ_request,
+                           1,
+                           sid,
+                           strlen(sid),
+                           path,
+                           strlen(path),
+                           data,
+                           strlen(data))
+                     : helpers_create_message_mem(
+                           4,
+                           &g_frame_ver_0,
+                           1,
+                           &g_frame_typ_request,
+                           1,
+                           sid,
+                           strlen(sid),
+                           path,
+                           strlen(path));
+    if (rid) {
+        zframe_t* r = zframe_new(rid, strlen(rid));
+        zmsg_prepend(m, &r);
+    }
+    return m;
 }
 
 zmsg_t*

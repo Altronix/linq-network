@@ -383,6 +383,20 @@ test_linq_receive_hello_double_id(void** context_p)
 }
 
 static void
+test_linq_broadcast_heartbeat_receive(void** context_p)
+{
+    ((void)context_p);
+    zmsg_t* hb = helpers_make_heartbeat(NULL, "serial", "product", "site");
+    linq_s* linq = linq_create(NULL, NULL);
+    czmq_spy_mesg_push_incoming(&hb);
+
+    // TODO - this heartbeat comes from a dealer socket
+
+    linq_destroy(&linq);
+    test_reset();
+}
+
+static void
 test_linq_broadcast_heartbeat(void** context_p)
 {
     ((void)context_p);
@@ -623,6 +637,7 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_receive_hello),
         cmocka_unit_test(test_linq_receive_hello_double_id),
         cmocka_unit_test(test_linq_broadcast_heartbeat),
+        cmocka_unit_test(test_linq_broadcast_heartbeat_receive),
         cmocka_unit_test(test_linq_broadcast_alert),
         cmocka_unit_test(test_linq_forward_request),
         cmocka_unit_test(test_linq_connect)

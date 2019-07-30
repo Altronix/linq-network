@@ -566,10 +566,8 @@ poll_sockets(linq_s* l, list_sockets_s* ss, bool is_router)
 E_LINQ_ERROR
 linq_poll(linq_s* l)
 {
-    int e;
-
-    // Poll sockets
-    e = poll_sockets(l, l->routers, true) | poll_sockets(l, l->dealers, false);
+    int e = poll_sockets(l, l->routers, true);
+    if (!e) e = poll_sockets(l, l->dealers, false);
 
     // Loop through devices
     map_devices_foreach(l->devices, foreach_node_check_request_timeout, l);
