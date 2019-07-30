@@ -36,6 +36,7 @@
 
 #define TEST_EMAIL                                                             \
     ("{"                                                                       \
+     "\"test\":{},"                                                            \
      "\"to0\": \"mail0@gmail.com\","                                           \
      "\"to1\": \"mail1@gmail.com\","                                           \
      "\"to2\": \"mail2@gmail.com\","                                           \
