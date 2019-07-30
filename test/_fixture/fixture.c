@@ -10,7 +10,7 @@ typedef struct
 } fixture_context;
 
 fixture_context*
-fixture_create(uint32_t port)
+fixture_create(const char* sid, uint32_t port)
 {
     fixture_context* f = malloc(sizeof(fixture_context));
     if (!f) return f;
@@ -25,8 +25,7 @@ fixture_create(uint32_t port)
     }
 
     // Create the atxclient context
-    f->client =
-        atxclient_create(f->netw, &f->api, "serial", "product");
+    f->client = atxclient_create(f->netw, &f->api, sid, "product");
     if (!f->client) {
         unet_destroy(&f->netw);
         free(f);
@@ -34,6 +33,7 @@ fixture_create(uint32_t port)
     }
 
     // Create API root
+    f->api.links = NULL;
     f->api.doc = item_create_root("ATX");
     if (!f->api.doc) {
         atxclient_destroy(&f->client);
@@ -80,7 +80,7 @@ fixture_poll(fixture_context* f)
             if (!hb_sent) {
                 err = atxclient_heartbeat(f->client);
                 if (!err) {
-                    printf("[C] heartbeat sent\n");
+                    printf("[D] heartbeat sent\n");
                     hb_sent = 1;
                 }
             }
@@ -92,7 +92,7 @@ fixture_poll(fixture_context* f)
                     TEST_EMAIL,
                     TEST_EMAIL_LEN);
                 if (!err) {
-                    printf("[C] alert sent\n");
+                    printf("[D] alert sent\n");
                     alert_sent = 1;
                 }
             }
@@ -101,9 +101,9 @@ fixture_poll(fixture_context* f)
         // Connect to test fixture
         err = atxclient_connect(f->client, "127.0.0.1", f->port);
         if (err) {
-            printf("[C] Connect error\n");
+            printf("[D] Connect error\n");
         } else {
-            printf("[C] Connected\n");
+            printf("[D] Connected\n");
         }
     }
 }

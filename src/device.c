@@ -30,7 +30,7 @@ typedef struct request_s
 
 typedef struct device_s
 {
-    zsock_t** sock_p;
+    zsock_t* sock;
     router_s router;
     list_requests_s* requests;
     request_s* request_pending;
@@ -44,24 +44,15 @@ typedef struct device_s
 static zframe_t*
 write_path_to_frame(const char* method, const char* path, uint32_t path_len)
 {
-    zframe_t* frame;
-    bool has_prefix = true;
-    uint32_t sz = strlen(method) + path_len + (has_prefix ? 0 : 1) + 2;
-    if (!(*path == '/')) {
-        has_prefix = false;
-        sz++;
+    ((void)path_len);
+    uint32_t sz;
+    char url[128];
+    if (*path == '/') {
+        sz = snprintf(url, sizeof(url), "%s %s", method, path);
+    } else {
+        sz = snprintf(url, sizeof(url), "%s /%s", method, path);
     }
-    frame = zframe_new(NULL, sz);
-    if (frame) {
-        snprintf(
-            (char*)zframe_data(frame),
-            sz,
-            "%s %s%s",
-            method,
-            has_prefix ? "" : "/",
-            path);
-    }
-    return frame;
+    return zframe_new(url, sz);
 }
 
 static zframe_t*
@@ -86,9 +77,8 @@ path_to_frame(E_REQUEST_METHOD method, const char* path, uint32_t path_len)
 
 static request_s*
 request_alloc_mem(
+    device_s* device,
     E_REQUEST_METHOD method,
-    const char* s,
-    uint32_t slen,
     const char* p,
     uint32_t plen,
     const char* d,
@@ -96,6 +86,9 @@ request_alloc_mem(
     linq_request_complete_fn fn,
     void* context)
 {
+    bool hop = device_hops(device);
+    const char* s = device_serial(device);
+    uint32_t slen = strlen(s);
     request_s* r = linq_malloc(sizeof(request_s));
     if (r) {
         memset(r, 0, sizeof(request_s));
@@ -103,12 +96,12 @@ request_alloc_mem(
         r->ctx = context;
         r->frames[FRAME_VER_IDX] = zframe_new("\0", 1);
         r->frames[FRAME_TYP_IDX] = zframe_new("\1", 1);
-        r->frames[FRAME_SID_IDX] = zframe_new(s, slen);
+        r->frames[FRAME_SID_IDX] = hop ? zframe_new(s, slen) : NULL;
         r->frames[FRAME_REQ_PATH_IDX] = path_to_frame(method, p, plen);
         r->frames[FRAME_REQ_DATA_IDX] = d && dlen ? zframe_new(d, dlen) : NULL;
         if (!(r->frames[FRAME_VER_IDX] && r->frames[FRAME_TYP_IDX] &&
-              r->frames[FRAME_SID_IDX] && r->frames[FRAME_REQ_PATH_IDX] &&
-              ((d && r->frames[FRAME_REQ_DATA_IDX]) || !d))) {
+              ((d && r->frames[FRAME_REQ_DATA_IDX]) || !d) &&
+              ((hop && r->frames[FRAME_SID_IDX]) || !hop))) {
             request_destroy(&r);
         }
     }
@@ -117,17 +110,16 @@ request_alloc_mem(
 
 static request_s*
 request_alloc(
+    device_s* device,
     E_REQUEST_METHOD method,
-    const char* serial,
     const char* path,
     const char* json,
     linq_request_complete_fn on_complete,
     void* context)
 {
     return request_alloc_mem(
+        device,
         method,
-        serial,
-        strlen(serial),
         path,
         strlen(path),
         json,
@@ -164,8 +156,11 @@ static int
 request_send(request_s* r, zsock_t* sock)
 {
     zmsg_t* msg = zmsg_new();
-    int err, c = 0;
-    while (c < FRAME_REQ_DATA_IDX) zmsg_append(msg, &r->frames[c++]);
+    int err, c = r->frames[FRAME_RID_IDX] ? 0 : 1;
+    while (c < FRAME_REQ_DATA_IDX) {
+        if (r->frames[c]) zmsg_append(msg, &r->frames[c]);
+        c++;
+    }
     if (r->frames[c]) zmsg_append(msg, &r->frames[c]);
     r->sent_at = sys_tick();
     err = zmsg_send(&msg, sock);
@@ -181,8 +176,8 @@ flush(device_s* d)
     linq_assert(d->request_pending == NULL);
     request_s** r_p = &d->request_pending;
     *r_p = list_requests_pop(d->requests);
-    request_router_id_set(*r_p, d->router.id, d->router.sz);
-    if (request_send(*r_p, *d->sock_p) < 0) {
+    if (d->router.sz) request_router_id_set(*r_p, d->router.id, d->router.sz);
+    if (request_send(*r_p, d->sock) < 0) {
         exe_on_complete(r_p, LINQ_ERROR_IO, NULL, &d);
         request_destroy(r_p);
     } else {
@@ -191,7 +186,7 @@ flush(device_s* d)
 
 device_s*
 device_create(
-    zsock_t** sock_p,
+    zsock_t* sock,
     const uint8_t* router,
     uint32_t router_sz,
     const char* serial,
@@ -200,10 +195,10 @@ device_create(
     device_s* d = linq_malloc(sizeof(device_s));
     if (d) {
         memset(d, 0, sizeof(device_s));
-        d->sock_p = sock_p;
+        d->sock = sock;
         d->requests = list_requests_create();
         d->birth = d->last_seen = sys_tick();
-        device_update_router(d, router, router_sz);
+        if (router) device_update_router(d, router, router_sz);
         snprintf(d->serial, sizeof(d->serial), "%s", serial);
         snprintf(d->type, sizeof(d->type), "%s", type);
     }
@@ -239,10 +234,28 @@ device_router(device_s* d)
     return &d->router;
 }
 
-zsock_t**
+bool
+device_no_hops(device_s* d)
+{
+    // Note that if a device has a router, than that means the device connected
+    // to our listener directly (therefore no hops). This is opposed to a
+    // device who we discovered via broadcasting heartbeats from remote nodes
+    return device_router(d)->sz ? true : false;
+}
+
+bool
+device_hops(device_s* d)
+{
+    // Note that if a device has a router, than that means the device connected
+    // to our listener directly (therefore no hops). This is opposed to a
+    // device who we discovered via broadcasting heartbeats from remote nodes
+    return !device_no_hops(d);
+}
+
+zsock_t*
 device_socket(device_s* d)
 {
-    return d->sock_p;
+    return d->sock;
 }
 
 void
@@ -279,8 +292,7 @@ send_method(
     linq_request_complete_fn fn,
     void* context)
 {
-    request_s* r =
-        request_alloc(method, device_serial(d), path, json, fn, context);
+    request_s* r = request_alloc(d, method, path, json, fn, context);
     if (r) {
         list_requests_push(d->requests, &r);
         if (!d->request_pending && list_requests_size(d->requests)) flush(d);

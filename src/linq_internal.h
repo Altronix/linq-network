@@ -26,11 +26,12 @@
 #define SITE_LEN 64
 #define JSON_LEN 1024
 
-#define FRAME_TYP_HEARTBEAT (0x00)
-#define FRAME_TYP_REQUEST (0x01)
-#define FRAME_TYP_RESPONSE (0x02)
-#define FRAME_TYP_ALERT (0x03)
-#define FRAME_TYP_HELLO (0x04)
+#define FRAME_VER_0 ('\x0')
+#define FRAME_TYP_HEARTBEAT ('\x0')
+#define FRAME_TYP_REQUEST ('\x1')
+#define FRAME_TYP_RESPONSE ('\x2')
+#define FRAME_TYP_ALERT ('\x3')
+#define FRAME_TYP_HELLO ('\x4')
 
 // Basic packet index's
 #define FRAME_MAX 7
@@ -56,25 +57,34 @@
 #define FRAME_RES_ERR_IDX 4
 #define FRAME_RES_DAT_IDX 5
 
-typedef struct
-{
-    uint8_t id[256];
-    uint32_t sz;
-} router_s;
-
-// helpful struct for maintaining frames
-typedef struct
-{
-    uint32_t n;
-    zframe_t** frames;
-} frames_s;
-
-typedef unsigned char uchar;
+// Maximum sockets
+#define MAX_CONNECTIONS 10
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+    typedef struct
+    {
+        uint8_t id[256];
+        uint32_t sz;
+    } router_s;
+
+    // helpful struct for maintaining frames
+    typedef struct
+    {
+        uint32_t n;
+        zframe_t** frames;
+    } frames_s;
+
+    typedef unsigned char uchar;
+
+    extern char g_frame_ver_0;
+    extern char g_frame_typ_heartbeat;
+    extern char g_frame_typ_request;
+    extern char g_frame_typ_response;
+    extern char g_frame_typ_alert;
+    extern char g_frame_typ_hello;
 
 #ifdef __cplusplus
 }

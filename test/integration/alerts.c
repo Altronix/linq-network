@@ -53,7 +53,7 @@ main(int argc, char* argv[])
 
     uint32_t count = 0;
     int err = 0;
-    fixture_context* fixture = fixture_create(32820);
+    fixture_context* fixture = fixture_create("serial", 32820);
     if (!fixture) return -1;
 
     linq_s* linq = linq_create(&callbacks, &count);

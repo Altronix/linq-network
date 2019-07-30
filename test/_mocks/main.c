@@ -70,6 +70,20 @@ test_mock_push_outgoing(void** context_p)
     zmsg_destroy(&a);
 }
 
+static void
+test_mock_zsock(void** context_p)
+{
+    ((void)context_p);
+    zsock_t* d = zsock_new_dealer("");
+    zsock_t* r = zsock_new_router("");
+    assert_non_null(d);
+    assert_non_null(r);
+    zsock_destroy(&d);
+    zsock_destroy(&r);
+    assert_null(d);
+    assert_null(r);
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -78,7 +92,8 @@ main(int argc, char* argv[])
     int err;
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_mock_push_incoming),
-        cmocka_unit_test(test_mock_push_outgoing)
+        cmocka_unit_test(test_mock_push_outgoing),
+        cmocka_unit_test(test_mock_zsock)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
