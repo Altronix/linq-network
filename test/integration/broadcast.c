@@ -54,7 +54,7 @@ main(int argc, char* argv[])
 
     err = 0; // TODO
 
-    fixture_context* fixture = fixture_create(32820);
+    fixture_context* fixture = fixture_create("serial", 32820);
     if (!fixture) return -1;
 
     linq_s* server = linq_create(NULL, NULL);

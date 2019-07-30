@@ -10,7 +10,7 @@ typedef struct
 } fixture_context;
 
 fixture_context*
-fixture_create(uint32_t port)
+fixture_create(const char* sid, uint32_t port)
 {
     fixture_context* f = malloc(sizeof(fixture_context));
     if (!f) return f;
@@ -25,7 +25,7 @@ fixture_create(uint32_t port)
     }
 
     // Create the atxclient context
-    f->client = atxclient_create(f->netw, &f->api, "serial", "product");
+    f->client = atxclient_create(f->netw, &f->api, sid, "product");
     if (!f->client) {
         unet_destroy(&f->netw);
         free(f);

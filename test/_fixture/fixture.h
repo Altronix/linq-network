@@ -9,7 +9,7 @@ extern "C"
 #endif
 
     typedef struct fixture_context fixture_context;
-    fixture_context* fixture_create(uint32_t port);
+    fixture_context* fixture_create(const char* sid, uint32_t port);
     void fixture_poll(fixture_context* f);
     void fixture_destroy(fixture_context**);
 

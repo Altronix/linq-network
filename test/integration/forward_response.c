@@ -60,7 +60,7 @@ main(int argc, char* argv[])
 
     err = 0; // TODO
 
-    fixture_context* fixture = fixture_create(32820);
+    fixture_context* fixture = fixture_create("dummy", 32820);
     if (!fixture) return -1;
 
     linq_s* server = linq_create(NULL, NULL);
@@ -114,7 +114,7 @@ main(int argc, char* argv[])
         if (!request_sent && linq_device_count(client)) {
             printf("%s", "[C] Request Sent!");
             linq_device_send_get(
-                client, "serial", "/ATX/hello", on_request_complete, &pass);
+                client, "dummy", "/ATX/hello", on_request_complete, &pass);
             request_sent = true;
         }
     }
