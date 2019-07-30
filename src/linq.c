@@ -433,13 +433,16 @@ static E_LINQ_ERROR
 process_packet(linq_s* l, zsock_t* s, bool router)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
-    int total_frames = 0;
+    int total_frames = 0, start = 1;
     zframe_t* f[FRAME_MAX];
     memset(f, 0, sizeof(f));
     zmsg_t* msg = zmsg_recv(s);
     total_frames = zmsg_size(msg);
 
-    f[FRAME_RID_IDX] = router ? (msg ? pop_le(msg, RID_LEN) : NULL) : NULL;
+    if (router) {
+        f[FRAME_RID_IDX] = pop_le(msg, RID_LEN);
+        start = FRAME_RID_IDX;
+    }
 
     if (msg && zmsg_size(msg) >= 3 && (!router || (router && f[0])) &&
         (f[FRAME_VER_IDX] = pop_eq(msg, 1)) &&
@@ -456,7 +459,8 @@ process_packet(linq_s* l, zsock_t* s, bool router)
     if (e) exe_on_error(l, e, "");
     zmsg_destroy(&msg);
     for (int i = 0; i < total_frames; i++) {
-        if (f[i]) zframe_destroy(&f[i]);
+        if (f[start]) zframe_destroy(&f[start]);
+        start++;
     }
     return e;
 }

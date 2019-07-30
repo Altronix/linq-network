@@ -388,9 +388,13 @@ test_linq_broadcast_heartbeat_receive(void** context_p)
     ((void)context_p);
     zmsg_t* hb = helpers_make_heartbeat(NULL, "serial", "product", "site");
     linq_s* linq = linq_create(NULL, NULL);
-    czmq_spy_mesg_push_incoming(&hb);
+
+    linq_connect(linq, "ipc:///123");
 
     // TODO - this heartbeat comes from a dealer socket
+    czmq_spy_mesg_push_incoming(&hb);
+    czmq_spy_poll_set_incoming((0x01));
+    linq_poll(linq);
 
     linq_destroy(&linq);
     test_reset();
