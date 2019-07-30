@@ -25,8 +25,7 @@ fixture_create(uint32_t port)
     }
 
     // Create the atxclient context
-    f->client =
-        atxclient_create(f->netw, &f->api, "serial", "product");
+    f->client = atxclient_create(f->netw, &f->api, "serial", "product");
     if (!f->client) {
         unet_destroy(&f->netw);
         free(f);
@@ -34,6 +33,7 @@ fixture_create(uint32_t port)
     }
 
     // Create API root
+    f->api.links = NULL;
     f->api.doc = item_create_root("ATX");
     if (!f->api.doc) {
         atxclient_destroy(&f->client);
