@@ -77,9 +77,7 @@ path_to_frame(E_REQUEST_METHOD method, const char* path, uint32_t path_len)
 
 static request_s*
 request_alloc_mem(
-    const char* s,
-    uint32_t slen,
-    bool hop,
+    device_s* device,
     E_REQUEST_METHOD method,
     const char* p,
     uint32_t plen,
@@ -88,6 +86,9 @@ request_alloc_mem(
     linq_request_complete_fn fn,
     void* context)
 {
+    bool hop = device_hops(device);
+    const char* s = device_serial(device);
+    uint32_t slen = strlen(s);
     request_s* r = linq_malloc(sizeof(request_s));
     if (r) {
         memset(r, 0, sizeof(request_s));
@@ -109,8 +110,7 @@ request_alloc_mem(
 
 static request_s*
 request_alloc(
-    const char* serial,
-    bool hop,
+    device_s* device,
     E_REQUEST_METHOD method,
     const char* path,
     const char* json,
@@ -118,9 +118,7 @@ request_alloc(
     void* context)
 {
     return request_alloc_mem(
-        serial,
-        strlen(serial),
-        hop,
+        device,
         method,
         path,
         strlen(path),
@@ -294,8 +292,7 @@ send_method(
     linq_request_complete_fn fn,
     void* context)
 {
-    request_s* r = request_alloc(
-        device_serial(d), device_hops(d), method, path, json, fn, context);
+    request_s* r = request_alloc(d, method, path, json, fn, context);
     if (r) {
         list_requests_push(d->requests, &r);
         if (!d->request_pending && list_requests_size(d->requests)) flush(d);
