@@ -82,7 +82,10 @@ parse_tokens(
     uint32_t count = 0;
     jsmntok_t* t = *tokens_p;
     for (uint32_t i = 0; i < n_tokens; i++) {
-        if (t[i].type == JSMN_OBJECT || (t[i].type == JSMN_ARRAY)) continue;
+        if (t[i].type == JSMN_OBJECT || (t[i].type == JSMN_ARRAY)) {
+            tag = NULL;
+            continue;
+        }
         if (!tag) {
             taglen = parse_token(data, &t[i], &tag);
         } else {
