@@ -56,7 +56,8 @@ test_linq_alert(void** context_p)
         });
 
     // Read heartbeat and alert
-    l.poll().poll();
+    l.poll();
+    l.poll();
     assert_true(alert_pass);
 }
 
