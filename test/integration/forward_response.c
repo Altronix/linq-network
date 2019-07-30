@@ -50,7 +50,6 @@ on_request_complete(void* pass, E_LINQ_ERROR e, const char* json, device_s** d)
         *((bool*)pass) = true;
         printf("%s", "[C] received response");
     } else {
-        *((bool*)pass) = true; // TODO remove me
         printf("%s", "[C] received response error!");
     }
 }
