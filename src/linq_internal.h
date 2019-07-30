@@ -61,25 +61,31 @@
 // Maximum sockets
 #define MAX_CONNECTIONS 10
 
-typedef struct
-{
-    uint8_t id[256];
-    uint32_t sz;
-} router_s;
-
-// helpful struct for maintaining frames
-typedef struct
-{
-    uint32_t n;
-    zframe_t** frames;
-} frames_s;
-
-typedef unsigned char uchar;
-
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+    typedef struct
+    {
+        uint8_t id[256];
+        uint32_t sz;
+    } router_s;
+
+    // helpful struct for maintaining frames
+    typedef struct
+    {
+        uint32_t n;
+        zframe_t** frames;
+    } frames_s;
+
+    typedef unsigned char uchar;
+
+    extern char g_frame_ver_0;
+    extern char g_frame_typ_heartbeat;
+    extern char g_frame_typ_request;
+    extern char g_frame_typ_response;
+    extern char g_frame_typ_alert;
+    extern char g_frame_typ_hello;
 
 #ifdef __cplusplus
 }

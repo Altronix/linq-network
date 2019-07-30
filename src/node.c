@@ -66,7 +66,8 @@ void
 node_send_hello(node_s* node)
 {
     const char* sid = node_serial(node);
-    node_send_frames_n(node, 3, "\x0", 1, "\x4", 1, sid, strlen(sid));
+    node_send_frames_n(
+        node, 3, &g_frame_ver_0, 1, &g_frame_typ_hello, 1, sid, strlen(sid));
 }
 
 void

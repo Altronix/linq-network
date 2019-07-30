@@ -23,6 +23,12 @@
             linq->callbacks->alert(linq->context, a, e, device_p);             \
     } while (0)
 
+char g_frame_ver_0 = FRAME_VER_0;
+char g_frame_typ_heartbeat = FRAME_TYP_HEARTBEAT;
+char g_frame_typ_request = FRAME_TYP_REQUEST;
+char g_frame_typ_response = FRAME_TYP_RESPONSE;
+char g_frame_typ_alert = FRAME_TYP_ALERT;
+char g_frame_typ_hello = FRAME_TYP_HELLO;
 MAP_INIT(devices, device_s, device_destroy);
 MAP_INIT(nodes, node_s, node_destroy);
 LIST_INIT(sockets, zsock_t, zsock_destroy);
@@ -291,9 +297,9 @@ on_device_response(
     node_send_frames_n(
         *node,
         5,
-        "\x0",                          // version
+        &g_frame_ver_0,                 // version
         1,                              //
-        "\x2",                          // type
+        &g_frame_typ_response,          // type
         1,                              //
         device_serial(*device),         // serial
         strlen(device_serial(*device)), //
