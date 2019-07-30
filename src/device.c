@@ -230,6 +230,15 @@ device_router(device_s* d)
     return &d->router;
 }
 
+bool
+device_no_hops(device_s* d)
+{
+    // Note that if a device has a router, than that means the device connected
+    // to our listener directly (therefore no hops). This is opposed to a
+    // device who we discovered via broadcasting heartbeats from remote nodes
+    return device_router(d)->sz ? true : false;
+}
+
 zsock_t*
 device_socket(device_s* d)
 {

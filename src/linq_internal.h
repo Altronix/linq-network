@@ -16,7 +16,6 @@
 // [router, version, 0x02, serial, error, data]          = RESPONSE
 // [router, version, 0x03, serial, type, alert, mail]    = ALERT
 // [router, version, 0x04, serial, ...]                  = HELLO
-// [router, version, 0x05, serial, type, siteId]         = BROADCAST NEW DEVICE
 
 #define B64_LEN(x) ((4 / 3) * (x + 2))
 

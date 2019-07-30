@@ -378,7 +378,11 @@ process_alert(linq_s* l, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
         device_s** d = device_resolve(socket, l->devices, frames, false);
         frames_s f = { 6, &frames[1] };
         if (d) {
-            map_nodes_foreach(l->nodes, foreach_node_forward_message, &f);
+            if (device_no_hops(*d)) {
+                // We only broadcast when the device is directly connected
+                // otherwize, nodes would rebroadcast to eachother infinite
+                map_nodes_foreach(l->nodes, foreach_node_forward_message, &f);
+            }
             exe_on_alert(l, d, &alert, &email);
             e = LINQ_ERROR_OK;
         }
@@ -412,10 +416,11 @@ process_heartbeat(linq_s* l, zsock_t* s, zmsg_t** msg, zframe_t** frames)
         device_s** d = device_resolve(s, l->devices, frames, true);
         frames_s f = { 5, &frames[1] };
         if (d) {
-            // TODO - this re broadcasting something that was broadcast to us
-            // and causes infinite spamming loop. need new protocol item for
-            // adding a device
-            map_nodes_foreach(l->nodes, foreach_node_forward_message, &f);
+            if (device_no_hops(*d)) {
+                // We only broadcast when the device is directly connected
+                // otherwize, nodes would rebroadcast to eachother infinite
+                map_nodes_foreach(l->nodes, foreach_node_forward_message, &f);
+            }
             exe_on_heartbeat(l, d);
             e = LINQ_ERROR_OK;
         }
