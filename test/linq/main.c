@@ -591,6 +591,47 @@ test_linq_forward_request(void** context_p)
 }
 
 static void
+test_linq_forward_client_request(void** context_p)
+{
+    ((void)context_p);
+    zframe_t *ver, *typ, *sid, *url;
+    zmsg_t* hb = helpers_make_heartbeat(NULL, "device123", "pid", "site");
+    zmsg_t* outgoing = NULL;
+
+    czmq_spy_mesg_push_incoming(&hb);
+    czmq_spy_poll_set_incoming(0x01);
+
+    linq_s* l = linq_create(NULL, NULL);
+    linq_connect(l, "ipc:///test");
+
+    linq_poll(l); // add a device
+
+    linq_device_send_get(l, "device123", "/ATX/hello", NULL, NULL);
+    outgoing = czmq_spy_mesg_pop_outgoing();
+    assert_non_null(outgoing);
+    zmsg_destroy(&outgoing); // delete outgoing hello frames
+    outgoing = czmq_spy_mesg_pop_outgoing();
+    assert_non_null(outgoing);
+    assert_int_equal(zmsg_size(outgoing), 4);
+    ver = zmsg_pop(outgoing);
+    typ = zmsg_pop(outgoing);
+    sid = zmsg_pop(outgoing);
+    url = zmsg_pop(outgoing);
+    assert_memory_equal(zframe_data(ver), &g_frame_ver_0, 1);
+    assert_memory_equal(zframe_data(typ), &g_frame_typ_request, 1);
+    assert_memory_equal(zframe_data(sid), "device123", 9);
+    assert_memory_equal(zframe_data(url), "GET /ATX/hello", 14);
+
+    zframe_destroy(&ver);
+    zframe_destroy(&typ);
+    zframe_destroy(&sid);
+    zframe_destroy(&url);
+    zmsg_destroy(&outgoing);
+    linq_destroy(&l);
+    test_reset();
+}
+
+static void
 test_linq_connect(void** context_p)
 {
     ((void)context_p);
@@ -644,6 +685,7 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_broadcast_heartbeat_receive),
         cmocka_unit_test(test_linq_broadcast_alert),
         cmocka_unit_test(test_linq_forward_request),
+        cmocka_unit_test(test_linq_forward_client_request),
         cmocka_unit_test(test_linq_connect)
     };
 
