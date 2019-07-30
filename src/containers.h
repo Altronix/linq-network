@@ -23,6 +23,7 @@ extern "C"
     type* list_##tag##_pop(kl_##tag##_t*);                                     \
                                                                                \
     typedef kl_##tag##_t list_##tag##_s;                                       \
+    typedef kl1_##tag tag##_item_s;                                            \
                                                                                \
     list_##tag##_s* list_##tag##_create() { return kl_init_##tag(); }          \
                                                                                \
@@ -37,6 +38,11 @@ extern "C"
             list_free_fn(&deleteme);                                           \
         }                                                                      \
         kl_destroy_##tag(list);                                                \
+    }                                                                          \
+                                                                               \
+    type* list_##tag##_front(list_##tag##_s* list)                             \
+    {                                                                          \
+        return list->head->data;                                               \
     }                                                                          \
                                                                                \
     void list_##tag##_push(list_##tag##_s* list, type** r_p)                   \

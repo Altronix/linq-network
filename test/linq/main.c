@@ -85,13 +85,14 @@ test_linq_receive_protocol_error_short(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
-    linq_s* l = linq_create(&callbacks, (void*)&pass);
     zmsg_t* m = helpers_create_message_str(2, "too", "short");
 
     expect_error = LINQ_ERROR_PROTOCOL;
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
 
+    linq_s* l = linq_create(&callbacks, (void*)&pass);
+    linq_listen(l, "tcp://*:32820");
     linq_poll(l);
 
     assert_true(pass);
@@ -107,7 +108,6 @@ test_linq_receive_protocol_error_serial(void** context_p)
     bool pass = false;
     char sid[SID_LEN + 1];
     memset(sid, SID_LEN + 1, 'A');
-    linq_s* l = linq_create(&callbacks, &pass);
     zmsg_t* m = helpers_create_message_mem(
         6, "rid", 3, "\x0", 1, "\x0", 1, sid, SID_LEN + 1, "pid", 3, "site", 4);
 
@@ -116,6 +116,8 @@ test_linq_receive_protocol_error_serial(void** context_p)
 
     expect_error = LINQ_ERROR_PROTOCOL;
 
+    linq_s* l = linq_create(&callbacks, &pass);
+    linq_listen(l, "tcp://*:32820");
     linq_poll(l);
 
     assert_true(pass);
@@ -131,7 +133,6 @@ test_linq_receive_protocol_error_router(void** context_p)
     bool pass = false;
     char rid[RID_LEN + 1];
     memset(rid, SID_LEN + 1, 'A');
-    linq_s* l = linq_create(&callbacks, &pass);
     zmsg_t* m = helpers_create_message_mem(
         6, rid, RID_LEN + 1, "\x0", 1, "\x0", 1, "sid", 3, "pid", 3, "site", 4);
 
@@ -140,6 +141,8 @@ test_linq_receive_protocol_error_router(void** context_p)
 
     expect_error = LINQ_ERROR_PROTOCOL;
 
+    linq_s* l = linq_create(&callbacks, &pass);
+    linq_listen(l, "tcp://*:32820");
     linq_poll(l);
 
     assert_true(pass);
@@ -154,7 +157,6 @@ test_linq_receive_heartbeat_ok(void** context_p)
     ((void)context_p);
     bool pass = false;
     const char* serial = expect_serial = "serial";
-    linq_s* l = linq_create(&callbacks, (void*)&pass);
     zmsg_t* hb0 = helpers_make_heartbeat("rid0", serial, "product", "site");
     zmsg_t* hb1 = helpers_make_heartbeat("rid00", serial, "product", "site");
 
@@ -165,6 +167,8 @@ test_linq_receive_heartbeat_ok(void** context_p)
     spy_sys_set_tick(100);
 
     // Receive a heartbeat
+    linq_s* l = linq_create(&callbacks, (void*)&pass);
+    linq_listen(l, "tcp://*:32820");
     linq_poll(l);
     device_s** d = linq_device(l, serial);
     assert_non_null(d);
@@ -197,7 +201,6 @@ test_linq_receive_heartbeat_error_short(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
-    linq_s* l = linq_create(&callbacks, (void*)&pass);
     zmsg_t* m = helpers_create_message_mem(
         4, "router", 6, "\x0", 1, "\x0", 1, "product", 7);
 
@@ -205,6 +208,8 @@ test_linq_receive_heartbeat_error_short(void** context_p)
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
 
+    linq_s* l = linq_create(&callbacks, (void*)&pass);
+    linq_listen(l, "tcp://*:32820");
     linq_poll(l);
 
     assert_true(pass);
@@ -219,7 +224,6 @@ test_linq_receive_alert_ok(void** context_p)
     ((void)context_p);
     bool pass = false;
     const char* sid = expect_serial = "sid";
-    linq_s* l = linq_create(&callbacks, (void*)&pass);
     zmsg_t* hb = helpers_make_heartbeat("rid", sid, "pid", "site");
     zmsg_t* alert = helpers_make_alert("rid", sid, "pid");
 
@@ -228,6 +232,8 @@ test_linq_receive_alert_ok(void** context_p)
     czmq_spy_mesg_push_incoming(&alert);
     czmq_spy_poll_set_incoming((0x01));
 
+    linq_s* l = linq_create(&callbacks, (void*)&pass);
+    linq_listen(l, "tcp://*:32820");
     linq_poll(l);
     pass = false;
     linq_poll(l);
@@ -259,7 +265,6 @@ test_linq_receive_response_ok(void** context_p)
     ((void)context_p);
     bool pass = false;
     const char* serial = expect_serial = "serial";
-    linq_s* l = linq_create(&callbacks, (void*)&pass);
     zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
     zmsg_t* r = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
 
@@ -271,6 +276,8 @@ test_linq_receive_response_ok(void** context_p)
     // Send a get request
     // receive get response
     // make sure callback is as expect
+    linq_s* l = linq_create(&callbacks, (void*)&pass);
+    linq_listen(l, "tcp://*:32820");
     linq_poll(l);
     linq_device_send_get(l, serial, "/ATX/test", on_response_ok, &pass);
     linq_poll(l);
@@ -296,8 +303,7 @@ test_linq_receive_response_error_timeout(void** context_p)
 
     bool pass = false, response_pass = false;
     const char* serial = expect_serial = "serial";
-    linq_s* l = linq_create(&callbacks, &pass);
-    device_s** n;
+    device_s** d;
     zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
     zmsg_t* r = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
 
@@ -306,23 +312,25 @@ test_linq_receive_response_error_timeout(void** context_p)
 
     // Receive a new device @t=0
     spy_sys_set_tick(0);
+    linq_s* l = linq_create(&callbacks, &pass);
+    linq_listen(l, "tcp://*:32820");
     linq_poll(l);
-    n = linq_device(l, serial);
-    device_send_get(*n, "/ATX/test", on_response_error_timeout, &response_pass);
-    assert_int_equal(device_request_pending_count(*n), 1);
+    d = linq_device(l, serial);
+    device_send_get(*d, "/ATX/test", on_response_error_timeout, &response_pass);
+    assert_int_equal(device_request_pending_count(*d), 1);
 
     // Still waiting for response @t=9999
     spy_sys_set_tick(9999);
     czmq_spy_poll_set_incoming((0x00));
     linq_poll(l);
     assert_false(response_pass);
-    assert_int_equal(device_request_pending_count(*n), 1);
+    assert_int_equal(device_request_pending_count(*d), 1);
 
     // Timeout callback happens @t=10000
     spy_sys_set_tick(10000);
     linq_poll(l);
     assert_true(response_pass);
-    assert_int_equal(device_request_pending_count(*n), 0);
+    assert_int_equal(device_request_pending_count(*d), 0);
 
     // Response is resolved but there is no more request pending
     czmq_spy_poll_set_incoming((0x01));
@@ -337,10 +345,11 @@ static void
 test_linq_receive_hello(void** context_p)
 {
     ((void)context_p);
-    linq_s* l = linq_create(NULL, NULL);
     zmsg_t* m = helpers_make_hello("router", "node");
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
+    linq_s* l = linq_create(NULL, NULL);
+    linq_listen(l, "tcp://*:32820");
 
     assert_int_equal(linq_nodes_count(l), 0);
     linq_poll(l);
@@ -354,7 +363,6 @@ static void
 test_linq_receive_hello_double_id(void** context_p)
 {
     ((void)context_p);
-    linq_s* l = linq_create(NULL, NULL);
     zmsg_t* m0 = helpers_make_hello("router", "node");
     zmsg_t* m1 = helpers_make_hello("router", "node");
 
@@ -362,6 +370,8 @@ test_linq_receive_hello_double_id(void** context_p)
     czmq_spy_mesg_push_incoming(&m1);
     czmq_spy_poll_set_incoming((0x01));
 
+    linq_s* l = linq_create(NULL, NULL);
+    linq_listen(l, "tcp://*:32820");
     assert_int_equal(linq_nodes_count(l), 0);
     linq_poll(l);
     assert_int_equal(linq_nodes_count(l), 1);
@@ -373,11 +383,28 @@ test_linq_receive_hello_double_id(void** context_p)
 }
 
 static void
+test_linq_broadcast_heartbeat_receive(void** context_p)
+{
+    ((void)context_p);
+    zmsg_t* hb = helpers_make_heartbeat(NULL, "serial", "product", "site");
+    linq_s* linq = linq_create(NULL, NULL);
+
+    linq_connect(linq, "ipc:///123");
+
+    // TODO - this heartbeat comes from a dealer socket
+    czmq_spy_mesg_push_incoming(&hb);
+    czmq_spy_poll_set_incoming((0x01));
+    linq_poll(linq);
+
+    linq_destroy(&linq);
+    test_reset();
+}
+
+static void
 test_linq_broadcast_heartbeat(void** context_p)
 {
     ((void)context_p);
 
-    linq_s* l = linq_create(NULL, NULL);
     zmsg_t* hb = helpers_make_heartbeat("rid0", "serial", "product", "site");
     zmsg_t* m0 = helpers_make_hello("client-router0", "node0");
     zmsg_t* m1 = helpers_make_hello("client-router1", "node1");
@@ -389,6 +416,8 @@ test_linq_broadcast_heartbeat(void** context_p)
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
 
+    linq_s* l = linq_create(NULL, NULL);
+    linq_listen(l, "tcp://*:32820");
     linq_poll(l); // receive hello
     linq_poll(l); // recieve hello
     linq_poll(l); // receive heartbeat
@@ -431,7 +460,6 @@ test_linq_broadcast_alert(void** context_p)
 {
     ((void)context_p);
 
-    linq_s* l = linq_create(NULL, NULL);
     zmsg_t* hb = helpers_make_heartbeat("rid0", "sid", "pid", "site");
     zmsg_t* alert = helpers_make_alert("rid", "sid", "pid");
     zmsg_t* m0 = helpers_make_hello("client-router0", "node0");
@@ -445,6 +473,8 @@ test_linq_broadcast_alert(void** context_p)
     czmq_spy_mesg_push_incoming(&alert);
     czmq_spy_poll_set_incoming((0x01));
 
+    linq_s* l = linq_create(NULL, NULL);
+    linq_listen(l, "tcp://*:32820");
     linq_poll(l); // receive heartbeat
     linq_poll(l); // receive hello
     linq_poll(l); // recieve hello
@@ -490,7 +520,6 @@ static void
 test_linq_forward_request(void** context_p)
 {
     ((void)context_p);
-    linq_s* l = linq_create(NULL, NULL);
     zmsg_t *hb, *hello, *request, *response, *outgoing;
     zframe_t *rid, *ver, *typ, *sid, *url, *err, *dat;
     hb = helpers_make_heartbeat("router-d", "device123", "pid", "site");
@@ -504,6 +533,8 @@ test_linq_forward_request(void** context_p)
     czmq_spy_mesg_push_incoming(&response); // device response
     czmq_spy_poll_set_incoming((0x01));
 
+    linq_s* l = linq_create(NULL, NULL);
+    linq_listen(l, "tcp://*:32820");
     linq_poll(l);
     linq_poll(l);
     linq_poll(l);
@@ -512,22 +543,19 @@ test_linq_forward_request(void** context_p)
     // First outgoing message is to the device
     outgoing = czmq_spy_mesg_pop_outgoing();
     assert_non_null(outgoing);
-    assert_int_equal(zmsg_size(outgoing), 5);
+    assert_int_equal(zmsg_size(outgoing), 4);
     rid = zmsg_pop(outgoing);
     ver = zmsg_pop(outgoing);
     typ = zmsg_pop(outgoing);
-    sid = zmsg_pop(outgoing);
     url = zmsg_pop(outgoing);
 
     assert_memory_equal(zframe_data(rid), "router-d", 8);
     assert_memory_equal(zframe_data(ver), "\x0", 1);
     assert_memory_equal(zframe_data(typ), "\x1", 1);
-    assert_memory_equal(zframe_data(sid), "device123", 9);
     assert_memory_equal(zframe_data(url), "GET /hello", 10);
     zframe_destroy(&rid);
     zframe_destroy(&ver);
     zframe_destroy(&typ);
-    zframe_destroy(&sid);
     zframe_destroy(&url);
     zmsg_destroy(&outgoing);
 
@@ -559,6 +587,78 @@ test_linq_forward_request(void** context_p)
     test_reset();
 }
 
+static void
+test_linq_forward_client_request(void** context_p)
+{
+    ((void)context_p);
+    zframe_t *ver, *typ, *sid, *url;
+    zmsg_t* hb = helpers_make_heartbeat(NULL, "device123", "pid", "site");
+    zmsg_t* outgoing = NULL;
+
+    czmq_spy_mesg_push_incoming(&hb);
+    czmq_spy_poll_set_incoming(0x01);
+
+    linq_s* l = linq_create(NULL, NULL);
+    linq_connect(l, "ipc:///test");
+
+    linq_poll(l); // add a device
+
+    linq_device_send_get(l, "device123", "/ATX/hello", NULL, NULL);
+    outgoing = czmq_spy_mesg_pop_outgoing();
+    assert_non_null(outgoing);
+    zmsg_destroy(&outgoing); // delete outgoing hello frames
+    outgoing = czmq_spy_mesg_pop_outgoing();
+    assert_non_null(outgoing);
+    assert_int_equal(zmsg_size(outgoing), 4);
+    ver = zmsg_pop(outgoing);
+    typ = zmsg_pop(outgoing);
+    sid = zmsg_pop(outgoing);
+    url = zmsg_pop(outgoing);
+    assert_memory_equal(zframe_data(ver), &g_frame_ver_0, 1);
+    assert_memory_equal(zframe_data(typ), &g_frame_typ_request, 1);
+    assert_memory_equal(zframe_data(sid), "device123", 9);
+    assert_memory_equal(zframe_data(url), "GET /ATX/hello", 14);
+
+    zframe_destroy(&ver);
+    zframe_destroy(&typ);
+    zframe_destroy(&sid);
+    zframe_destroy(&url);
+    zmsg_destroy(&outgoing);
+    linq_destroy(&l);
+    test_reset();
+}
+
+static void
+test_linq_connect(void** context_p)
+{
+    ((void)context_p);
+    int err;
+
+    linq_s* linq = linq_create(NULL, NULL);
+
+    err = linq_connect(linq, "ipc:///filex");
+    assert_int_equal(LINQ_ERROR_OK, err);
+
+    zmsg_t* outgoing = czmq_spy_mesg_pop_outgoing();
+    assert_non_null(outgoing);
+    assert_int_equal(zmsg_size(outgoing), 3);
+    zframe_t* ver = zmsg_pop(outgoing);
+    zframe_t* typ = zmsg_pop(outgoing);
+    zframe_t* sid = zmsg_pop(outgoing);
+
+    assert_memory_equal(zframe_data(ver), "\x0", 1);
+    assert_memory_equal(zframe_data(typ), "\x4", 1);
+    assert_int_equal(zframe_size(sid), 0);
+
+    zframe_destroy(&ver);
+    zframe_destroy(&typ);
+    zframe_destroy(&sid);
+    zmsg_destroy(&outgoing);
+
+    linq_destroy(&linq);
+    test_reset();
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -579,8 +679,11 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_receive_hello),
         cmocka_unit_test(test_linq_receive_hello_double_id),
         cmocka_unit_test(test_linq_broadcast_heartbeat),
+        cmocka_unit_test(test_linq_broadcast_heartbeat_receive),
         cmocka_unit_test(test_linq_broadcast_alert),
-        cmocka_unit_test(test_linq_forward_request)
+        cmocka_unit_test(test_linq_forward_request),
+        cmocka_unit_test(test_linq_forward_client_request),
+        cmocka_unit_test(test_linq_connect)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);

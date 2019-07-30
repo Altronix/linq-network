@@ -28,8 +28,7 @@ static void
 test_device_create(void** context_p)
 {
     ((void)context_p);
-    zsock_t* sock = NULL;
-    device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
+    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     assert_non_null(d);
 
     device_send_get(d, "ATX", NULL, NULL);
@@ -48,31 +47,27 @@ static void
 test_device_send_get_no_prefix(void** context_p)
 {
     ((void)context_p);
-    zsock_t* sock = NULL;
-    device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
+    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     zmsg_t* msg;
-    zframe_t *rid, *ver, *typ, *sid, *url;
+    zframe_t *rid, *ver, *typ, *url;
 
     device_send_get(d, "ATX/hardware", NULL, NULL);
     msg = czmq_spy_mesg_pop_outgoing();
     rid = zmsg_pop(msg);
     ver = zmsg_pop(msg);
     typ = zmsg_pop(msg);
-    sid = zmsg_pop(msg);
     url = zmsg_pop(msg);
     zmsg_destroy(&msg);
 
     assert_string_equal(zframe_data(rid), "rid");
     assert_string_equal(zframe_data(ver), "\x0");
     assert_string_equal(zframe_data(typ), "\x1");
-    assert_string_equal(zframe_data(sid), "sid");
     assert_string_equal(zframe_data(url), "GET /ATX/hardware");
     assert_int_equal(device_request_pending_count(d), 1);
 
     zframe_destroy(&rid);
     zframe_destroy(&ver);
     zframe_destroy(&typ);
-    zframe_destroy(&sid);
     zframe_destroy(&url);
 
     device_destroy(&d);
@@ -83,31 +78,27 @@ static void
 test_device_send_get_with_prefix(void** context_p)
 {
     ((void)context_p);
-    zsock_t* sock = NULL;
-    device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
+    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     zmsg_t* msg;
-    zframe_t *rid, *ver, *typ, *sid, *url;
+    zframe_t *rid, *ver, *typ, *url;
 
     device_send_get(d, "/ATX/hardware", NULL, NULL);
     msg = czmq_spy_mesg_pop_outgoing();
     rid = zmsg_pop(msg);
     ver = zmsg_pop(msg);
     typ = zmsg_pop(msg);
-    sid = zmsg_pop(msg);
     url = zmsg_pop(msg);
     zmsg_destroy(&msg);
 
     assert_string_equal(zframe_data(rid), "rid");
     assert_string_equal(zframe_data(ver), "\x0");
     assert_string_equal(zframe_data(typ), "\x1");
-    assert_string_equal(zframe_data(sid), "sid");
     assert_string_equal(zframe_data(url), "GET /ATX/hardware");
     assert_int_equal(device_request_pending_count(d), 1);
 
     zframe_destroy(&rid);
     zframe_destroy(&ver);
     zframe_destroy(&typ);
-    zframe_destroy(&sid);
     zframe_destroy(&url);
 
     device_destroy(&d);
@@ -118,31 +109,27 @@ static void
 test_device_send_delete_no_prefix(void** context_p)
 {
     ((void)context_p);
-    zsock_t* sock = NULL;
-    device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
+    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     zmsg_t* msg;
-    zframe_t *rid, *ver, *typ, *sid, *url;
+    zframe_t *rid, *ver, *typ, *url;
 
     device_send_delete(d, "ATX/hardware", NULL, NULL);
     msg = czmq_spy_mesg_pop_outgoing();
     rid = zmsg_pop(msg);
     ver = zmsg_pop(msg);
     typ = zmsg_pop(msg);
-    sid = zmsg_pop(msg);
     url = zmsg_pop(msg);
     zmsg_destroy(&msg);
 
     assert_string_equal(zframe_data(rid), "rid");
     assert_string_equal(zframe_data(ver), "\x0");
     assert_string_equal(zframe_data(typ), "\x1");
-    assert_string_equal(zframe_data(sid), "sid");
     assert_string_equal(zframe_data(url), "DELETE /ATX/hardware");
     assert_int_equal(device_request_pending_count(d), 1);
 
     zframe_destroy(&rid);
     zframe_destroy(&ver);
     zframe_destroy(&typ);
-    zframe_destroy(&sid);
     zframe_destroy(&url);
 
     device_destroy(&d);
@@ -153,31 +140,27 @@ static void
 test_device_send_delete_with_prefix(void** context_p)
 {
     ((void)context_p);
-    zsock_t* sock = NULL;
-    device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
+    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     zmsg_t* msg;
-    zframe_t *rid, *ver, *typ, *sid, *url;
+    zframe_t *rid, *ver, *typ, *url;
 
     device_send_delete(d, "/ATX/hardware", NULL, NULL);
     msg = czmq_spy_mesg_pop_outgoing();
     rid = zmsg_pop(msg);
     ver = zmsg_pop(msg);
     typ = zmsg_pop(msg);
-    sid = zmsg_pop(msg);
     url = zmsg_pop(msg);
     zmsg_destroy(&msg);
 
     assert_string_equal(zframe_data(rid), "rid");
     assert_string_equal(zframe_data(ver), "\x0");
     assert_string_equal(zframe_data(typ), "\x1");
-    assert_string_equal(zframe_data(sid), "sid");
     assert_string_equal(zframe_data(url), "DELETE /ATX/hardware");
     assert_int_equal(device_request_pending_count(d), 1);
 
     zframe_destroy(&rid);
     zframe_destroy(&ver);
     zframe_destroy(&typ);
-    zframe_destroy(&sid);
     zframe_destroy(&url);
 
     device_destroy(&d);
@@ -188,17 +171,15 @@ static void
 test_device_send_post_no_prefix(void** context_p)
 {
     ((void)context_p);
-    zsock_t* sock = NULL;
-    device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
+    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     zmsg_t* msg;
-    zframe_t *rid, *ver, *typ, *sid, *url, *dat;
+    zframe_t *rid, *ver, *typ, *url, *dat;
 
     device_send_post(d, "ATX/hardware", "{\"test\":1}", NULL, NULL);
     msg = czmq_spy_mesg_pop_outgoing();
     rid = zmsg_pop(msg);
     ver = zmsg_pop(msg);
     typ = zmsg_pop(msg);
-    sid = zmsg_pop(msg);
     url = zmsg_pop(msg);
     dat = zmsg_pop(msg);
     zmsg_destroy(&msg);
@@ -206,7 +187,6 @@ test_device_send_post_no_prefix(void** context_p)
     assert_string_equal(zframe_data(rid), "rid");
     assert_string_equal(zframe_data(ver), "\x0");
     assert_string_equal(zframe_data(typ), "\x1");
-    assert_string_equal(zframe_data(sid), "sid");
     assert_string_equal(zframe_data(url), "POST /ATX/hardware");
     assert_string_equal(zframe_data(dat), "{\"test\":1}");
     assert_int_equal(device_request_pending_count(d), 1);
@@ -214,7 +194,6 @@ test_device_send_post_no_prefix(void** context_p)
     zframe_destroy(&rid);
     zframe_destroy(&ver);
     zframe_destroy(&typ);
-    zframe_destroy(&sid);
     zframe_destroy(&url);
     zframe_destroy(&dat);
 
@@ -226,24 +205,21 @@ static void
 test_device_send_post_with_prefix(void** context_p)
 {
     ((void)context_p);
-    zsock_t* sock = NULL;
-    device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
+    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     zmsg_t* msg;
-    zframe_t *rid, *ver, *typ, *sid, *url, *dat;
+    zframe_t *rid, *ver, *typ, *url, *dat;
 
     device_send_post(d, "/ATX", "{\"test\":1}", NULL, NULL);
     msg = czmq_spy_mesg_pop_outgoing();
     assert_string_equal(zframe_data((rid = zmsg_pop(msg))), "rid");
     assert_string_equal(zframe_data((ver = zmsg_pop(msg))), "\x0");
     assert_string_equal(zframe_data((typ = zmsg_pop(msg))), "\x1");
-    assert_string_equal(zframe_data((sid = zmsg_pop(msg))), "sid");
     assert_string_equal(zframe_data((url = zmsg_pop(msg))), "POST /ATX");
     assert_string_equal(zframe_data((dat = zmsg_pop(msg))), "{\"test\":1}");
     assert_int_equal(device_request_pending_count(d), 1);
     zframe_destroy(&rid);
     zframe_destroy(&ver);
     zframe_destroy(&typ);
-    zframe_destroy(&sid);
     zframe_destroy(&url);
     zframe_destroy(&dat);
     zmsg_destroy(&msg);
@@ -267,8 +243,7 @@ test_device_response(void** context_p)
 {
     ((void)context_p);
     bool* pass = false;
-    zsock_t* sock = NULL;
-    device_s* d = device_create(&sock, (uint8_t*)"rid", 3, "sid", "pid");
+    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     device_send_post(d, "/ATX/hardware", "{\"test\":1}", on_response, &pass);
 
     // TODO - add similiar test from linq.c which will test the parsing
@@ -276,6 +251,191 @@ test_device_response(void** context_p)
     device_request_resolve(d, 0, "{\"test\":1}");
     assert_int_equal(device_request_pending_count(d), 0);
     assert_true(pass);
+
+    device_destroy(&d);
+    test_reset();
+}
+
+static void
+test_device_send_hop_get_no_prefix(void** context_p)
+{
+    ((void)context_p);
+    device_s* d = device_create(NULL, NULL, 3, "sid", "pid");
+    zmsg_t* msg;
+    zframe_t *ver, *typ, *sid, *url;
+
+    device_send_get(d, "ATX/hardware", NULL, NULL);
+    msg = czmq_spy_mesg_pop_outgoing();
+    ver = zmsg_pop(msg);
+    typ = zmsg_pop(msg);
+    sid = zmsg_pop(msg);
+    url = zmsg_pop(msg);
+    zmsg_destroy(&msg);
+
+    assert_string_equal(zframe_data(ver), "\x0");
+    assert_string_equal(zframe_data(typ), "\x1");
+    assert_string_equal(zframe_data(sid), "sid");
+    assert_string_equal(zframe_data(url), "GET /ATX/hardware");
+    assert_int_equal(device_request_pending_count(d), 1);
+
+    zframe_destroy(&ver);
+    zframe_destroy(&typ);
+    zframe_destroy(&sid);
+    zframe_destroy(&url);
+
+    device_destroy(&d);
+    test_reset();
+}
+
+static void
+test_device_send_hop_get_with_prefix(void** context_p)
+{
+    ((void)context_p);
+    device_s* d = device_create(NULL, NULL, 3, "sid", "pid");
+    zmsg_t* msg;
+    zframe_t *sid, *ver, *typ, *url;
+
+    device_send_get(d, "/ATX/hardware", NULL, NULL);
+    msg = czmq_spy_mesg_pop_outgoing();
+    ver = zmsg_pop(msg);
+    typ = zmsg_pop(msg);
+    sid = zmsg_pop(msg);
+    url = zmsg_pop(msg);
+    zmsg_destroy(&msg);
+
+    assert_string_equal(zframe_data(ver), "\x0");
+    assert_string_equal(zframe_data(typ), "\x1");
+    assert_string_equal(zframe_data(sid), "sid");
+    assert_string_equal(zframe_data(url), "GET /ATX/hardware");
+    assert_int_equal(device_request_pending_count(d), 1);
+
+    zframe_destroy(&ver);
+    zframe_destroy(&typ);
+    zframe_destroy(&sid);
+    zframe_destroy(&url);
+
+    device_destroy(&d);
+    test_reset();
+}
+
+static void
+test_device_send_hop_delete_no_prefix(void** context_p)
+{
+    ((void)context_p);
+    device_s* d = device_create(NULL, NULL, 3, "sid", "pid");
+    zmsg_t* msg;
+    zframe_t *ver, *typ, *sid, *url;
+
+    device_send_delete(d, "ATX/hardware", NULL, NULL);
+    msg = czmq_spy_mesg_pop_outgoing();
+    ver = zmsg_pop(msg);
+    typ = zmsg_pop(msg);
+    sid = zmsg_pop(msg);
+    url = zmsg_pop(msg);
+    zmsg_destroy(&msg);
+
+    assert_string_equal(zframe_data(ver), "\x0");
+    assert_string_equal(zframe_data(typ), "\x1");
+    assert_string_equal(zframe_data(sid), "sid");
+    assert_string_equal(zframe_data(url), "DELETE /ATX/hardware");
+    assert_int_equal(device_request_pending_count(d), 1);
+
+    zframe_destroy(&ver);
+    zframe_destroy(&typ);
+    zframe_destroy(&sid);
+    zframe_destroy(&url);
+
+    device_destroy(&d);
+    test_reset();
+}
+
+static void
+test_device_send_hop_delete_with_prefix(void** context_p)
+{
+    ((void)context_p);
+    device_s* d = device_create(NULL, NULL, 3, "sid", "pid");
+    zmsg_t* msg;
+    zframe_t *ver, *typ, *sid, *url;
+
+    device_send_delete(d, "/ATX/hardware", NULL, NULL);
+    msg = czmq_spy_mesg_pop_outgoing();
+    ver = zmsg_pop(msg);
+    typ = zmsg_pop(msg);
+    sid = zmsg_pop(msg);
+    url = zmsg_pop(msg);
+    zmsg_destroy(&msg);
+
+    assert_string_equal(zframe_data(ver), "\x0");
+    assert_string_equal(zframe_data(typ), "\x1");
+    assert_string_equal(zframe_data(sid), "sid");
+    assert_string_equal(zframe_data(url), "DELETE /ATX/hardware");
+    assert_int_equal(device_request_pending_count(d), 1);
+
+    zframe_destroy(&ver);
+    zframe_destroy(&typ);
+    zframe_destroy(&sid);
+    zframe_destroy(&url);
+
+    device_destroy(&d);
+    test_reset();
+}
+
+static void
+test_device_send_hop_post_no_prefix(void** context_p)
+{
+    ((void)context_p);
+    device_s* d = device_create(NULL, NULL, 3, "sid", "pid");
+    zmsg_t* msg;
+    zframe_t *ver, *typ, *sid, *url, *dat;
+
+    device_send_post(d, "ATX/hardware", "{\"test\":1}", NULL, NULL);
+    msg = czmq_spy_mesg_pop_outgoing();
+    ver = zmsg_pop(msg);
+    typ = zmsg_pop(msg);
+    sid = zmsg_pop(msg);
+    url = zmsg_pop(msg);
+    dat = zmsg_pop(msg);
+    zmsg_destroy(&msg);
+
+    assert_string_equal(zframe_data(ver), "\x0");
+    assert_string_equal(zframe_data(typ), "\x1");
+    assert_string_equal(zframe_data(sid), "sid");
+    assert_string_equal(zframe_data(url), "POST /ATX/hardware");
+    assert_string_equal(zframe_data(dat), "{\"test\":1}");
+    assert_int_equal(device_request_pending_count(d), 1);
+
+    zframe_destroy(&ver);
+    zframe_destroy(&typ);
+    zframe_destroy(&sid);
+    zframe_destroy(&url);
+    zframe_destroy(&dat);
+
+    device_destroy(&d);
+    test_reset();
+}
+
+static void
+test_device_send_hop_post_with_prefix(void** context_p)
+{
+    ((void)context_p);
+    device_s* d = device_create(NULL, NULL, 3, "sid", "pid");
+    zmsg_t* msg;
+    zframe_t *ver, *typ, *sid, *url, *dat;
+
+    device_send_post(d, "/ATX", "{\"test\":1}", NULL, NULL);
+    msg = czmq_spy_mesg_pop_outgoing();
+    assert_string_equal(zframe_data((ver = zmsg_pop(msg))), "\x0");
+    assert_string_equal(zframe_data((typ = zmsg_pop(msg))), "\x1");
+    assert_string_equal(zframe_data((sid = zmsg_pop(msg))), "sid");
+    assert_string_equal(zframe_data((url = zmsg_pop(msg))), "POST /ATX");
+    assert_string_equal(zframe_data((dat = zmsg_pop(msg))), "{\"test\":1}");
+    assert_int_equal(device_request_pending_count(d), 1);
+    zframe_destroy(&ver);
+    zframe_destroy(&typ);
+    zframe_destroy(&sid);
+    zframe_destroy(&url);
+    zframe_destroy(&dat);
+    zmsg_destroy(&msg);
 
     device_destroy(&d);
     test_reset();
@@ -295,6 +455,12 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_device_send_delete_with_prefix),
         cmocka_unit_test(test_device_send_post_no_prefix),
         cmocka_unit_test(test_device_send_post_with_prefix),
+        cmocka_unit_test(test_device_send_hop_get_no_prefix),
+        cmocka_unit_test(test_device_send_hop_get_with_prefix),
+        cmocka_unit_test(test_device_send_hop_delete_no_prefix),
+        cmocka_unit_test(test_device_send_hop_delete_with_prefix),
+        cmocka_unit_test(test_device_send_hop_post_no_prefix),
+        cmocka_unit_test(test_device_send_hop_post_with_prefix),
         cmocka_unit_test(test_device_response),
     };
 
