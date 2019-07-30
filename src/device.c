@@ -172,7 +172,7 @@ flush(device_s* d)
     linq_assert(d->request_pending == NULL);
     request_s** r_p = &d->request_pending;
     *r_p = list_requests_pop(d->requests);
-    request_router_id_set(*r_p, d->router.id, d->router.sz);
+    if (d->router.sz) request_router_id_set(*r_p, d->router.id, d->router.sz);
     if (request_send(*r_p, d->sock) < 0) {
         exe_on_complete(r_p, LINQ_ERROR_IO, NULL, &d);
         request_destroy(r_p);

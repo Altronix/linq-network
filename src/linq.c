@@ -303,7 +303,7 @@ on_device_response(
         1,                              //
         device_serial(*device),         // serial
         strlen(device_serial(*device)), //
-        error,                          // error
+        &error,                         // error
         1,                              //
         json,                           // data
         strlen(json)                    //
@@ -316,6 +316,7 @@ process_request(linq_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     zframe_t *path = NULL, *data = NULL;
+    char url[128] = { 0 }, json[JSON_LEN] = { 0 };
     if ((zmsg_size(*msg) >= 1) &&
         (path = frames[FRAME_REQ_PATH_IDX] = pop_le(*msg, 128))) {
         if (zmsg_size(*msg) == 1) {
@@ -324,12 +325,10 @@ process_request(linq_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
         node_s** n = node_resolve(sock, l->nodes, frames, false);
         device_s** d = linq_device_from_frame(l, frames[FRAME_SID_IDX]);
         if (n && d) {
-            device_send(
-                *d,
-                (const char*)zframe_data(path),
-                data ? (const char*)zframe_data(data) : NULL,
-                on_device_response,
-                n);
+            print_null_terminated(url, sizeof(url), path);
+            if (data) print_null_terminated(json, sizeof(json), data);
+            device_send(*d, url, data ? json : NULL, on_device_response, n);
+            e = LINQ_ERROR_OK;
         } else {
             // TODO send 404 response (device not here)
         }
@@ -343,15 +342,16 @@ process_response(linq_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     zframe_t *err, *dat;
+    char json[JSON_LEN] = { 0 };
     if ((zmsg_size(*msg) == 2) &&
         (err = frames[FRAME_RES_ERR_IDX] = pop_eq(*msg, 1)) &&
         (dat = frames[FRAME_RES_DAT_IDX] = pop_le(*msg, JSON_LEN))) {
         e = LINQ_ERROR_OK;
         device_s** d = device_resolve(sock, l->devices, frames, false);
         if (d) {
+            print_null_terminated(json, sizeof(json), dat);
             if (device_request_pending(*d)) {
-                device_request_resolve(
-                    *d, zframe_data(err)[0], (const char*)zframe_data(dat));
+                device_request_resolve(*d, zframe_data(err)[0], json);
             }
         }
     }

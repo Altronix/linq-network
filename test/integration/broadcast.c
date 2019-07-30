@@ -17,7 +17,7 @@ on_error(void* count, E_LINQ_ERROR e, const char* what, const char* serial)
     ((void)e);
     ((void)what);
     ((void)serial);
-    printf("%s", "[S] Received Error");
+    printf("%s", "[C] Received Error");
 }
 
 static void
@@ -28,7 +28,7 @@ on_alert(void* count, linq_alert_s* alert, linq_email_s* mail, device_s** d)
     ((void)alert);
     ((void)mail);
     ((void)d);
-    printf("%s", "[S] Received alert\n");
+    printf("%s", "[C] Received alert\n");
 }
 
 static void
@@ -38,7 +38,7 @@ on_heartbeat(void* count, const char* serial, device_s** d)
     received_new_device = true;
     ((void)serial);
     ((void)d);
-    printf("%s", "[S] Received new device\n");
+    printf("%s", "[C] Received new device\n");
 }
 
 linq_callbacks callbacks = { .err = on_error,
@@ -90,15 +90,13 @@ main(int argc, char* argv[])
 
     linq_connect(client, "ipc:///tmp/broadcast");
     if (err) {
-        printf("%s", "[S] Connect Failure!\n");
+        printf("%s", "[C] Connect Failure!\n");
         fixture_destroy(&fixture);
         linq_destroy(&server);
         linq_destroy(&client);
         return -1;
     }
 
-    // TODO - broadcasting is spamming eachother. Need to create a seperate
-    // command ADD DEVICE (vs heartbeat that comes from a product)
     while (!(received_new_device && received_alert)) {
         fixture_poll(fixture);
         err = linq_poll(server);
@@ -106,6 +104,8 @@ main(int argc, char* argv[])
         err = linq_poll(client);
         if (err) break;
     }
+
+    err = received_new_device && received_alert ? 0 : -1;
 
     fixture_destroy(&fixture);
     linq_destroy(&server);

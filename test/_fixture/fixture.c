@@ -80,7 +80,7 @@ fixture_poll(fixture_context* f)
             if (!hb_sent) {
                 err = atxclient_heartbeat(f->client);
                 if (!err) {
-                    printf("[C] heartbeat sent\n");
+                    printf("[D] heartbeat sent\n");
                     hb_sent = 1;
                 }
             }
@@ -92,7 +92,7 @@ fixture_poll(fixture_context* f)
                     TEST_EMAIL,
                     TEST_EMAIL_LEN);
                 if (!err) {
-                    printf("[C] alert sent\n");
+                    printf("[D] alert sent\n");
                     alert_sent = 1;
                 }
             }
@@ -101,9 +101,9 @@ fixture_poll(fixture_context* f)
         // Connect to test fixture
         err = atxclient_connect(f->client, "127.0.0.1", f->port);
         if (err) {
-            printf("[C] Connect error\n");
+            printf("[D] Connect error\n");
         } else {
-            printf("[C] Connected\n");
+            printf("[D] Connected\n");
         }
     }
 }
