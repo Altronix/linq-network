@@ -7,11 +7,13 @@
 
 #include "altronix/linq.h"
 
+namespace altronix {
+
+class Device;
+
 static void on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
 static void on_heartbeat_fn(void*, const char*, device_s**);
 static void on_alert_fn(void*, linq_alert_s*, linq_email_s*, device_s**);
-
-namespace altronix {
 
 using namespace std::placeholders;
 
@@ -51,7 +53,7 @@ class Linq
     uint32_t device_count() { return linq_device_count(linq_); }
 
     // call function fn on every heartbeat
-    Linq& on_heartbeat(std::function<void(const char*, device_s**)> fn)
+    Linq& on_heartbeat(std::function<void(const char*, Device&)> fn)
     {
         heartbeat_ = std::bind(fn, _1, _2);
         return *this;
@@ -59,7 +61,7 @@ class Linq
 
     // call function fn on every alert
     Linq& on_alert(
-        std::function<void(linq_alert_s*, linq_email_s*, device_s**)> fn)
+        std::function<void(linq_alert_s*, linq_email_s*, Device&)> fn)
     {
         alert_ = std::bind(fn, _1, _2, _3);
         return *this;
@@ -73,21 +75,19 @@ class Linq
         return *this;
     }
 
-    friend void ::on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
-    friend void ::on_heartbeat_fn(void*, const char*, device_s**);
-    friend void ::on_alert_fn(void*, linq_alert_s*, linq_email_s*, device_s**);
+    friend void on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
+    friend void on_heartbeat_fn(void*, const char*, device_s**);
+    friend void on_alert_fn(void*, linq_alert_s*, linq_email_s*, device_s**);
 
   private:
-    std::function<void(const char*, device_s**)> heartbeat_;
-    std::function<void(linq_alert_s*, linq_email_s*, device_s**)> alert_;
+    std::function<void(const char*, Device&)> heartbeat_;
+    std::function<void(linq_alert_s*, linq_email_s*, Device&)> alert_;
     std::function<void(E_LINQ_ERROR, const char*, const char*)> error_;
     linq_s* linq_;
-    linq_callbacks callbacks_ = { .err = ::on_error_fn,
-                                  .hb = ::on_heartbeat_fn,
-                                  .alert = ::on_alert_fn };
+    linq_callbacks callbacks_ = { .err = on_error_fn,
+                                  .hb = on_heartbeat_fn,
+                                  .alert = on_alert_fn };
 };
-
-} // namespace altronix
 
 static void
 on_error_fn(void* context, E_LINQ_ERROR e, const char* what, const char* serial)
@@ -100,7 +100,8 @@ static void
 on_heartbeat_fn(void* context, const char* serial, device_s** d)
 {
     altronix::Linq* l = (altronix::Linq*)context;
-    if (l->heartbeat_) l->heartbeat_(serial, d);
+    Device device{ *d };
+    if (l->heartbeat_) l->heartbeat_(serial, device);
 }
 
 static void
@@ -111,7 +112,9 @@ on_alert_fn(
     device_s** d)
 {
     altronix::Linq* l = (altronix::Linq*)context;
-    l->alert_(alert, email, d);
+    Device device{ *d };
+    l->alert_(alert, email, device);
 }
 
+} // namespace altronix
 #endif /* LINQ_HPP_ */

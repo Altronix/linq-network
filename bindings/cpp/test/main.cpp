@@ -67,9 +67,9 @@ test_linq_alert(void** context_p)
 
     l.listen("tcp://*:32820");
     l.on_alert(
-        [&alert_pass](linq_alert_s* alert, linq_email_s* email, device_s**) {
-            // TODO wrap the Device class
-            // assert_string_equal(device_serial(*d), expect_serial);
+        [&alert_pass](
+            linq_alert_s* alert, linq_email_s* email, altronix::Device& d) {
+            assert_string_equal(d.serial(), "serial");
             assert_string_equal(alert->who, "TestUser");
             assert_string_equal(alert->what, "TestAlert");
             assert_string_equal(alert->where, "Altronix Site ID");
