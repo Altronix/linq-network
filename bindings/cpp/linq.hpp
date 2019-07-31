@@ -15,6 +15,18 @@ namespace altronix {
 
 using namespace std::placeholders;
 
+class Device
+{
+  public:
+    Device(device_s* d)
+        : device_{ d } {};
+
+    const char* serial() { return device_serial(device_); }
+
+  private:
+    device_s* device_;
+};
+
 class Linq
 {
   public:
@@ -29,7 +41,11 @@ class Linq
     E_LINQ_ERROR poll() { return linq_poll(linq_); }
 
     // get a device context with serial number
-    device_s** device_get(const char* str) { return linq_device(linq_, str); }
+    std::shared_ptr<Device> device_get(const char* str)
+    {
+        device_s** d = linq_device(linq_, str);
+        return d ? std::make_shared<Device>(*d) : nullptr;
+    }
 
     // get number of devices connected to linq
     uint32_t device_count() { return linq_device_count(linq_); }

@@ -15,11 +15,39 @@ extern "C"
 }
 
 static void
+test_reset()
+{
+    czmq_spy_mesg_reset();
+    czmq_spy_poll_reset();
+}
+
+static void
 test_linq_create(void** context_p)
 {
     ((void)context_p);
     altronix::Linq l;
     ((void)l);
+}
+
+static void
+test_linq_device(void** context_p)
+{
+    ((void)context_p);
+    altronix::Linq l;
+
+    zmsg_t* hb = helpers_make_heartbeat("rid", "serial", "pid", "site");
+    czmq_spy_mesg_push_incoming(&hb);
+    czmq_spy_poll_set_incoming((0x01));
+
+    l.listen("tcp://*:32999");
+    l.poll();
+
+    std::shared_ptr<altronix::Device> d = l.device_get("serial");
+    bool pass = d ? true : false;
+    assert_true(pass);
+    assert_string_equal(d->serial(), "serial");
+
+    test_reset();
 }
 
 static void
@@ -59,6 +87,8 @@ test_linq_alert(void** context_p)
     l.poll();
     l.poll();
     assert_true(alert_pass);
+
+    test_reset();
 }
 
 int
@@ -67,7 +97,8 @@ main(int argc, char* argv[])
     ((void)argc);
     ((void)argv);
     int err;
-    const struct CMUnitTest tests[] = { cmocka_unit_test(test_linq_create),
+    const struct CMUnitTest tests[] = { cmocka_unit_test(test_linq_device),
+                                        cmocka_unit_test(test_linq_create),
                                         cmocka_unit_test(test_linq_alert) };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
