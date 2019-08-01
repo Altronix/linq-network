@@ -17,61 +17,58 @@ extern "C"
 #define LIST_INIT(tag, type, list_free_fn)                                     \
     KLIST_INIT(tag, type*, FREE_FN)                                            \
                                                                                \
-    kl_##tag##_t* list_##tag##_create();                                       \
-    void list_##tag##_destroy(kl_##tag##_t**);                                 \
-    void list_##tag##_push(kl_##tag##_t*, type**);                             \
-    type* list_##tag##_pop(kl_##tag##_t*);                                     \
+    kl_##tag##_t* tag##_list_create();                                         \
+    void tag##_list_destroy(kl_##tag##_t**);                                   \
+    void tag##_list_push(kl_##tag##_t*, type**);                               \
+    type* tag##_list_pop(kl_##tag##_t*);                                       \
                                                                                \
-    typedef kl_##tag##_t list_##tag##_s;                                       \
+    typedef kl_##tag##_t tag##_list_s;                                         \
     typedef kl1_##tag tag##_item_s;                                            \
                                                                                \
-    list_##tag##_s* list_##tag##_create() { return kl_init_##tag(); }          \
+    tag##_list_s* tag##_list_create() { return kl_init_##tag(); }              \
                                                                                \
-    void list_##tag##_destroy(list_##tag##_s** list_p)                         \
+    void tag##_list_destroy(tag##_list_s** list_p)                             \
     {                                                                          \
-        list_##tag##_s* list = *list_p;                                        \
+        tag##_list_s* list = *list_p;                                          \
         *list_p = NULL;                                                        \
-        type* next = list_##tag##_pop(list);                                   \
+        type* next = tag##_list_pop(list);                                     \
         while (next) {                                                         \
             type* deleteme = next;                                             \
-            next = list_##tag##_pop(list);                                     \
+            next = tag##_list_pop(list);                                       \
             list_free_fn(&deleteme);                                           \
         }                                                                      \
         kl_destroy_##tag(list);                                                \
     }                                                                          \
                                                                                \
-    type* list_##tag##_front(list_##tag##_s* list)                             \
-    {                                                                          \
-        return list->head->data;                                               \
-    }                                                                          \
+    type* tag##_list_front(tag##_list_s* list) { return list->head->data; }    \
                                                                                \
-    void list_##tag##_push(list_##tag##_s* list, type** r_p)                   \
+    void tag##_list_push(tag##_list_s* list, type** r_p)                       \
     {                                                                          \
         type* r = *r_p;                                                        \
         *r_p = NULL;                                                           \
         *kl_pushp_##tag(list) = r;                                             \
     }                                                                          \
                                                                                \
-    type* list_##tag##_pop(list_##tag##_s* l)                                  \
+    type* tag##_list_pop(tag##_list_s* l)                                      \
     {                                                                          \
         type* ret = NULL;                                                      \
         kl_shift_##tag(l, &ret);                                               \
         return ret;                                                            \
     }                                                                          \
                                                                                \
-    uint32_t list_##tag##_size(list_##tag##_s* l) { return l->size; }
+    uint32_t tag##_list_size(tag##_list_s* l) { return l->size; }
 
 #define MAP_INIT(tag, type, map_free_fn)                                       \
     KHASH_MAP_INIT_STR(tag, type*)                                             \
                                                                                \
-    typedef struct kh_##tag##_s map_##tag##_s;                                 \
-    typedef void (*map_##tag##_foreach_fn)(void*, type**);                     \
+    typedef struct kh_##tag##_s tag##_map_s;                                   \
+    typedef void (*tag##_map_foreach_fn)(void*, type**);                       \
                                                                                \
-    map_##tag##_s* map_##tag##_create() { return kh_init_##tag(); }            \
+    tag##_map_s* tag##_map_create() { return kh_init_##tag(); }                \
                                                                                \
-    void map_##tag##_destroy(map_##tag##_s** map_p)                            \
+    void tag##_map_destroy(tag##_map_s** map_p)                                \
     {                                                                          \
-        map_##tag##_s* hash = *map_p;                                          \
+        tag##_map_s* hash = *map_p;                                            \
         *map_p = NULL;                                                         \
         for (khint_t k = kh_begin(hash); k != kh_end(hash); ++k) {             \
             if (kh_exist(hash, k)) {                                           \
@@ -82,8 +79,7 @@ extern "C"
         kh_destroy_##tag(hash);                                                \
     }                                                                          \
                                                                                \
-    type** map_##tag##_add(                                                    \
-        map_##tag##_s* nodes, const char* key, type** node_p)                  \
+    type** tag##_map_add(tag##_map_s* nodes, const char* key, type** node_p)   \
     {                                                                          \
         int ret = 0;                                                           \
         type* node = *node_p;                                                  \
@@ -94,7 +90,7 @@ extern "C"
         return &kh_val(nodes, k);                                              \
     }                                                                          \
                                                                                \
-    uint32_t map_##tag##_remove(map_##tag##_s* nodes, const char* serial)      \
+    uint32_t tag##_map_remove(tag##_map_s* nodes, const char* serial)          \
     {                                                                          \
         khiter_t k;                                                            \
         type* d;                                                               \
@@ -108,7 +104,7 @@ extern "C"
         return count;                                                          \
     }                                                                          \
                                                                                \
-    type** map_##tag##_get(map_##tag##_s* hash, const char* serial)            \
+    type** tag##_map_get(tag##_map_s* hash, const char* serial)                \
     {                                                                          \
         khiter_t k;                                                            \
         return ((k = kh_get_##tag(hash, serial)) == kh_end(hash))              \
@@ -116,10 +112,10 @@ extern "C"
                    : &kh_val(hash, k);                                         \
     }                                                                          \
                                                                                \
-    uint32_t map_##tag##_size(map_##tag##_s* hash) { return kh_size(hash); }   \
+    uint32_t tag##_map_size(tag##_map_s* hash) { return kh_size(hash); }       \
                                                                                \
-    void map_##tag##_foreach(                                                  \
-        map_##tag##_s* hash, map_##tag##_foreach_fn fn, void* ctx)             \
+    void tag##_map_foreach(                                                    \
+        tag##_map_s* hash, tag##_map_foreach_fn fn, void* ctx)                 \
     {                                                                          \
         for (khiter_t k = kh_begin(hash); k != kh_end(hash); ++k) {            \
             if (kh_exist(hash, k)) fn(ctx, &kh_val(hash, k));                  \

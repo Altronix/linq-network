@@ -29,19 +29,19 @@ char g_frame_typ_request = FRAME_TYP_REQUEST;
 char g_frame_typ_response = FRAME_TYP_RESPONSE;
 char g_frame_typ_alert = FRAME_TYP_ALERT;
 char g_frame_typ_hello = FRAME_TYP_HELLO;
-MAP_INIT(devices, device_s, device_destroy);
-MAP_INIT(nodes, node_s, node_destroy);
-LIST_INIT(sockets, zsock_t, zsock_destroy);
+MAP_INIT(device, device_s, device_destroy);
+MAP_INIT(node, node_s, node_destroy);
+LIST_INIT(socket, zsock_t, zsock_destroy);
 device_s** linq_device_from_frame(linq_s* l, zframe_t* frame);
 
 // Main class
 typedef struct linq_s
 {
     void* context;
-    list_sockets_s* routers;
-    list_sockets_s* dealers;
-    map_devices_s* devices;
-    map_nodes_s* nodes;
+    socket_list_s* routers;
+    socket_list_s* dealers;
+    device_map_s* devices;
+    node_map_s* nodes;
     linq_callbacks* callbacks;
 } linq_s;
 
@@ -226,11 +226,7 @@ print_null_terminated(char* c, uint32_t sz, zframe_t* f)
 
 // A device is resolved by the serial number frame
 static device_s**
-device_resolve(
-    zsock_t* sock,
-    map_devices_s* map,
-    zframe_t** frames,
-    bool insert)
+device_resolve(zsock_t* sock, device_map_s* map, zframe_t** frames, bool insert)
 {
     uint32_t rid_sz = 0;
     uint8_t* rid = NULL;
@@ -241,14 +237,14 @@ device_resolve(
     char sid[SID_LEN], tid[TID_LEN] = { 0 };
     print_null_terminated(sid, SID_LEN, frames[FRAME_SID_IDX]);
     print_null_terminated(tid, TID_LEN, frames[FRAME_HB_TID_IDX]);
-    device_s** d = map_devices_get(map, sid);
+    device_s** d = device_map_get(map, sid);
     if (d) {
         device_heartbeat(*d);
         if (rid) device_update_router(*d, rid, rid_sz);
     } else {
         if (insert) {
             device_s* node = device_create(sock, rid, rid_sz, sid, tid);
-            if (node) d = map_devices_add(map, device_serial(node), &node);
+            if (node) d = device_map_add(map, device_serial(node), &node);
         }
     }
     return d;
@@ -256,7 +252,7 @@ device_resolve(
 
 // Node is resolved by grabing object with base64_encoded key of the router id
 static node_s**
-node_resolve(zsock_t* sock, map_nodes_s* map, zframe_t** frames, bool insert)
+node_resolve(zsock_t* sock, node_map_s* map, zframe_t** frames, bool insert)
 {
     uint32_t rid_len = 0;
     uint8_t* rid = NULL;
@@ -267,13 +263,13 @@ node_resolve(zsock_t* sock, map_nodes_s* map, zframe_t** frames, bool insert)
     char sid[B64_RID_LEN];
     size_t sid_len = sizeof(sid);
     b64_encode((uchar*)sid, &sid_len, (uchar*)rid, rid_len);
-    node_s** d = map_nodes_get(map, sid);
+    node_s** d = node_map_get(map, sid);
     if (d) {
         if (rid) node_update_router(*d, rid, rid_len);
     } else {
         if (insert) {
             node_s* node = node_create(sock, rid, rid_len, sid);
-            if (node) d = map_nodes_add(map, node_serial(node), &node);
+            if (node) d = node_map_add(map, node_serial(node), &node);
         }
     }
     return d;
@@ -384,7 +380,7 @@ process_alert(linq_s* l, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
             if (device_no_hops(*d)) {
                 // We only broadcast when the device is directly connected
                 // otherwize, nodes would rebroadcast to eachother infinite
-                map_nodes_foreach(l->nodes, foreach_node_forward_message, &f);
+                node_map_foreach(l->nodes, foreach_node_forward_message, &f);
             }
             exe_on_alert(l, d, &alert, &email);
             e = LINQ_ERROR_OK;
@@ -422,7 +418,7 @@ process_heartbeat(linq_s* l, zsock_t* s, zmsg_t** msg, zframe_t** frames)
             if (device_no_hops(*d)) {
                 // We only broadcast when the device is directly connected
                 // otherwize, nodes would rebroadcast to eachother infinite
-                map_nodes_foreach(l->nodes, foreach_node_forward_message, &f);
+                node_map_foreach(l->nodes, foreach_node_forward_message, &f);
             }
             exe_on_heartbeat(l, d);
             e = LINQ_ERROR_OK;
@@ -475,10 +471,10 @@ linq_create(linq_callbacks* cb, void* context)
     linq_s* l = linq_malloc(sizeof(linq_s));
     if (l) {
         memset(l, 0, sizeof(linq_s));
-        l->devices = map_devices_create();
-        l->nodes = map_nodes_create();
-        l->routers = list_sockets_create();
-        l->dealers = list_sockets_create();
+        l->devices = device_map_create();
+        l->nodes = node_map_create();
+        l->routers = socket_list_create();
+        l->dealers = socket_list_create();
         l->callbacks = cb;
         l->context = context;
     }
@@ -491,10 +487,10 @@ linq_destroy(linq_s** linq_p)
 {
     linq_s* l = *linq_p;
     *linq_p = NULL;
-    map_devices_destroy(&l->devices);
-    map_nodes_destroy(&l->nodes);
-    list_sockets_destroy(&l->routers);
-    list_sockets_destroy(&l->dealers);
+    device_map_destroy(&l->devices);
+    node_map_destroy(&l->nodes);
+    socket_list_destroy(&l->routers);
+    socket_list_destroy(&l->dealers);
     // if (l->sock) zsock_destroy(&l->sock);
     linq_free(l);
 }
@@ -505,7 +501,7 @@ linq_listen(linq_s* l, const char* ep)
 {
     zsock_t* socket = zsock_new_router(ep);
     if (socket) {
-        list_sockets_push(l->routers, &socket);
+        socket_list_push(l->routers, &socket);
         return LINQ_ERROR_OK;
     } else {
         return LINQ_ERROR_BAD_ARGS;
@@ -519,11 +515,11 @@ linq_connect(linq_s* l, const char* ep)
     E_LINQ_ERROR e = LINQ_ERROR_BAD_ARGS;
     zsock_t* socket = zsock_new_dealer(ep);
     if (socket) {
-        list_sockets_push(l->dealers, &socket);
-        node_s* n = node_create(list_sockets_front(l->dealers), NULL, 0, NULL);
+        socket_list_push(l->dealers, &socket);
+        node_s* n = node_create(socket_list_front(l->dealers), NULL, 0, NULL);
         if (n) {
             node_send_hello(n);
-            map_nodes_add(l->nodes, ep, &n);
+            node_map_add(l->nodes, ep, &n);
             return LINQ_ERROR_OK;
         }
     }
@@ -543,13 +539,13 @@ foreach_node_check_request_timeout(void* ctx, device_s** n)
 }
 
 static E_LINQ_ERROR
-poll_sockets(linq_s* l, list_sockets_s* ss, bool is_router)
+poll_sockets(linq_s* l, socket_list_s* ss, bool is_router)
 {
     int err, n = 0;
     zmq_pollitem_t items[MAX_CONNECTIONS];
     memset(items, 0, sizeof(items));
 
-    for (sockets_item_s* s = ss->head; s != ss->tail; s = s->next) {
+    for (socket_item_s* s = ss->head; s != ss->tail; s = s->next) {
         items[n].socket = zsock_resolve(s->data);
         items[n].events = ZMQ_POLLIN;
         n++;
@@ -557,9 +553,9 @@ poll_sockets(linq_s* l, list_sockets_s* ss, bool is_router)
     n = 0;
 
     // Process sockets
-    err = zmq_poll(items, list_sockets_size(ss), 5);
+    err = zmq_poll(items, socket_list_size(ss), 5);
     if (!(err < 0)) {
-        for (sockets_item_s* s = ss->head; s != ss->tail; s = s->next) {
+        for (socket_item_s* s = ss->head; s != ss->tail; s = s->next) {
             if (items[n++].revents && ZMQ_POLLIN) {
                 err = process_packet(l, s->data, is_router);
             }
@@ -577,7 +573,7 @@ linq_poll(linq_s* l)
     if (!e) e = poll_sockets(l, l->dealers, false);
 
     // Loop through devices
-    map_devices_foreach(l->devices, foreach_node_check_request_timeout, l);
+    device_map_foreach(l->devices, foreach_node_check_request_timeout, l);
 
     return e;
 }
@@ -594,21 +590,21 @@ linq_device_from_frame(linq_s* l, zframe_t* frame)
 device_s**
 linq_device(linq_s* l, const char* serial)
 {
-    return map_devices_get(l->devices, serial);
+    return device_map_get(l->devices, serial);
 }
 
 // return how many devices are connected to linq
 uint32_t
 linq_device_count(linq_s* l)
 {
-    return map_devices_size(l->devices);
+    return device_map_size(l->devices);
 }
 
 // return how many nodes are connected to linq
 uint32_t
 linq_nodes_count(linq_s* l)
 {
-    return map_nodes_size(l->nodes);
+    return node_map_size(l->nodes);
 }
 
 // send a get request to a device connected to us

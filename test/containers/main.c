@@ -31,38 +31,38 @@ car_free(car** p)
     linq_free(c);
 }
 
-LIST_INIT(items, item, item_free);
+LIST_INIT(item, item, item_free);
 LIST_INIT(cars, car, car_free);
 
-MAP_INIT(items, item, item_free);
-MAP_INIT(cars, car, car_free);
+MAP_INIT(item, item, item_free);
+MAP_INIT(car, car, car_free);
 
 static void
 test_container_list_create(void** context_p)
 {
     ((void)context_p);
-    list_items_s* list = list_items_create();
+    item_list_s* list = item_list_create();
     item* item0 = linq_malloc(sizeof(item));
     item* item1 = linq_malloc(sizeof(item));
     item* item2 = linq_malloc(sizeof(item));
 
-    list_items_push(list, &item0);
+    item_list_push(list, &item0);
     assert_null(item0);
 
-    list_items_push(list, &item1);
+    item_list_push(list, &item1);
     assert_null(item1);
 
-    list_items_push(list, &item2);
+    item_list_push(list, &item2);
     assert_null(item2);
 
-    assert_int_equal(3, list_items_size(list));
+    assert_int_equal(3, item_list_size(list));
 
-    item0 = list_items_pop(list);
+    item0 = item_list_pop(list);
 
-    assert_int_equal(2, list_items_size(list));
+    assert_int_equal(2, item_list_size(list));
     linq_free(item0);
 
-    list_items_destroy(&list);
+    item_list_destroy(&list);
     assert_null(list);
 }
 
@@ -70,30 +70,30 @@ static void
 test_container_map_create(void** context_p)
 {
     ((void)context_p);
-    map_items_s* hash = map_items_create();
+    item_map_s* hash = item_map_create();
     item* item0 = linq_malloc(sizeof(item));
     item* item1 = linq_malloc(sizeof(item));
     item* item2 = linq_malloc(sizeof(item));
 
     assert_non_null(hash);
 
-    map_items_add(hash, "item0", &item0);
+    item_map_add(hash, "item0", &item0);
     assert_null(item0);
-    assert_int_equal(1, map_items_size(hash));
+    assert_int_equal(1, item_map_size(hash));
 
-    map_items_add(hash, "item1", &item1);
+    item_map_add(hash, "item1", &item1);
     assert_null(item1);
-    assert_int_equal(2, map_items_size(hash));
+    assert_int_equal(2, item_map_size(hash));
 
-    map_items_add(hash, "item2", &item2);
+    item_map_add(hash, "item2", &item2);
     assert_null(item2);
-    assert_int_equal(3, map_items_size(hash));
+    assert_int_equal(3, item_map_size(hash));
 
-    map_items_remove(hash, "item0");
+    item_map_remove(hash, "item0");
 
-    assert_int_equal(2, map_items_size(hash));
+    assert_int_equal(2, item_map_size(hash));
 
-    map_items_destroy(&hash);
+    item_map_destroy(&hash);
     assert_null(hash);
 }
 

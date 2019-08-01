@@ -6,17 +6,17 @@
 #include <cmocka.h>
 #include <setjmp.h>
 
-MAP_INIT(nodes, device_s, device_destroy);
+MAP_INIT(node, device_s, device_destroy);
 
 static void
 test_nodes_create(void** context_p)
 {
     ((void)context_p);
-    map_nodes_s* dm = map_nodes_create();
+    node_map_s* dm = node_map_create();
     device_s* node = device_create(NULL, (uint8_t*)"rid", 4, "sid", "pid");
     assert_non_null(dm);
-    map_nodes_add(dm, device_serial(node), &node);
-    map_nodes_destroy(&dm);
+    node_map_add(dm, device_serial(node), &node);
+    node_map_destroy(&dm);
     assert_null(dm);
 }
 
@@ -25,7 +25,7 @@ test_nodes_add(void** context_p)
 {
     ((void)context_p);
 
-    map_nodes_s* m = map_nodes_create();
+    node_map_s* m = node_map_create();
     device_s** d;
     router_s rid0 = { "rid0", 4 };
     router_s rid1 = { "rid1", 4 };
@@ -34,45 +34,45 @@ test_nodes_add(void** context_p)
              *n1 = device_create(NULL, (uint8_t*)"rid1", 4, "sid1", "pid1"),
              *n2 = device_create(NULL, (uint8_t*)"rid2", 4, "sid2", "pid2");
 
-    assert_int_equal(map_nodes_size(m), 0);
-    map_nodes_add(m, device_serial(n0), &n0);
-    assert_int_equal(map_nodes_size(m), 1);
-    map_nodes_add(m, device_serial(n1), &n1);
-    assert_int_equal(map_nodes_size(m), 2);
-    map_nodes_add(m, device_serial(n2), &n2);
-    assert_int_equal(map_nodes_size(m), 3);
+    assert_int_equal(node_map_size(m), 0);
+    node_map_add(m, device_serial(n0), &n0);
+    assert_int_equal(node_map_size(m), 1);
+    node_map_add(m, device_serial(n1), &n1);
+    assert_int_equal(node_map_size(m), 2);
+    node_map_add(m, device_serial(n2), &n2);
+    assert_int_equal(node_map_size(m), 3);
 
-    d = map_nodes_get(m, "does not exist");
+    d = node_map_get(m, "does not exist");
     assert_null(d);
 
-    d = map_nodes_get(m, "sid0");
+    d = node_map_get(m, "sid0");
     assert_non_null(d);
     assert_memory_equal(device_router(*d), &rid0, sizeof(rid0));
     assert_string_equal(device_serial(*d), "sid0");
     assert_string_equal(device_type(*d), "pid0");
 
-    d = map_nodes_get(m, "sid1");
+    d = node_map_get(m, "sid1");
     assert_non_null(d);
     assert_memory_equal(device_router(*d), &rid1, sizeof(rid1));
     assert_string_equal(device_serial(*d), "sid1");
     assert_string_equal(device_type(*d), "pid1");
 
-    d = map_nodes_get(m, "sid2");
+    d = node_map_get(m, "sid2");
     assert_non_null(d);
     assert_memory_equal(device_router(*d), &rid2, sizeof(rid2));
     assert_string_equal(device_serial(*d), "sid2");
     assert_string_equal(device_type(*d), "pid2");
 
-    map_nodes_remove(m, "does not exist");
-    assert_int_equal(map_nodes_size(m), 3);
-    map_nodes_remove(m, "sid0");
-    assert_int_equal(map_nodes_size(m), 2);
-    map_nodes_remove(m, "sid1");
-    assert_int_equal(map_nodes_size(m), 1);
-    map_nodes_remove(m, "sid2");
-    assert_int_equal(map_nodes_size(m), 0);
+    node_map_remove(m, "does not exist");
+    assert_int_equal(node_map_size(m), 3);
+    node_map_remove(m, "sid0");
+    assert_int_equal(node_map_size(m), 2);
+    node_map_remove(m, "sid1");
+    assert_int_equal(node_map_size(m), 1);
+    node_map_remove(m, "sid2");
+    assert_int_equal(node_map_size(m), 0);
 
-    map_nodes_destroy(&m);
+    node_map_destroy(&m);
 }
 
 int

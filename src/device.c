@@ -9,7 +9,7 @@
 typedef struct request_s request_s;
 
 static void request_destroy(request_s** r_p);
-LIST_INIT(requests, request_s, request_destroy);
+LIST_INIT(request, request_s, request_destroy);
 
 typedef enum E_REQUEST_METHOD
 {
@@ -32,7 +32,7 @@ typedef struct device_s
 {
     zsock_t* sock;
     router_s router;
-    list_requests_s* requests;
+    request_list_s* requests;
     request_s* request_pending;
     char serial[SID_LEN];
     char type[TID_LEN];
@@ -175,7 +175,7 @@ flush(device_s* d)
 {
     linq_assert(d->request_pending == NULL);
     request_s** r_p = &d->request_pending;
-    *r_p = list_requests_pop(d->requests);
+    *r_p = request_list_pop(d->requests);
     if (d->router.sz) request_router_id_set(*r_p, d->router.id, d->router.sz);
     if (request_send(*r_p, d->sock) < 0) {
         exe_on_complete(r_p, LINQ_ERROR_IO, NULL, &d);
@@ -196,7 +196,7 @@ device_create(
     if (d) {
         memset(d, 0, sizeof(device_s));
         d->sock = sock;
-        d->requests = list_requests_create();
+        d->requests = request_list_create();
         d->birth = d->last_seen = sys_tick();
         if (router) device_update_router(d, router, router_sz);
         snprintf(d->serial, sizeof(d->serial), "%s", serial);
@@ -209,7 +209,7 @@ void
 device_destroy(device_s** d_p)
 {
     device_s* d = *d_p;
-    list_requests_destroy(&d->requests);
+    request_list_destroy(&d->requests);
     if (d->request_pending) request_destroy(&d->request_pending);
     memset(d, 0, sizeof(device_s));
     *d_p = NULL;
@@ -294,8 +294,8 @@ send_method(
 {
     request_s* r = request_alloc(d, method, path, json, fn, context);
     if (r) {
-        list_requests_push(d->requests, &r);
-        if (!d->request_pending && list_requests_size(d->requests)) flush(d);
+        request_list_push(d->requests, &r);
+        if (!d->request_pending && request_list_size(d->requests)) flush(d);
     } else {
         exe_on_complete(&r, LINQ_ERROR_OOM, NULL, &d);
     }
@@ -357,7 +357,7 @@ device_request_resolve(device_s* d, E_LINQ_ERROR err, const char* str)
     snprintf(json, sizeof(json), "%s", str);
     exe_on_complete(r_p, err, json, &d);
     request_destroy(r_p);
-    if (list_requests_size(d->requests)) flush(d);
+    if (request_list_size(d->requests)) flush(d);
 }
 
 bool
@@ -369,5 +369,5 @@ device_request_pending(device_s* n)
 uint32_t
 device_request_pending_count(device_s* d)
 {
-    return list_requests_size(d->requests) + (d->request_pending ? 1 : 0);
+    return request_list_size(d->requests) + (d->request_pending ? 1 : 0);
 }
