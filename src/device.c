@@ -252,12 +252,6 @@ device_hops(device_s* d)
     return !device_no_hops(d);
 }
 
-zsock_t*
-device_socket(device_s* d)
-{
-    return d->sock;
-}
-
 void
 device_update_router(device_s* d, const uint8_t* rid, uint32_t sz)
 {
