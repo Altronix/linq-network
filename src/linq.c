@@ -31,15 +31,15 @@ char g_frame_typ_alert = FRAME_TYP_ALERT;
 char g_frame_typ_hello = FRAME_TYP_HELLO;
 MAP_INIT(device, device_s, device_destroy);
 MAP_INIT(node, node_s, node_destroy);
-LIST_INIT(socket, zsock_t, zsock_destroy);
+MAP_INIT(socket, zsock_t, zsock_destroy);
 device_s** linq_device_from_frame(linq_s* l, zframe_t* frame);
 
 // Main class
 typedef struct linq_s
 {
     void* context;
-    socket_list_s* routers;
-    socket_list_s* dealers;
+    socket_map_s* routers;
+    socket_map_s* dealers;
     device_map_s* devices;
     node_map_s* nodes;
     linq_callbacks* callbacks;
@@ -473,8 +473,8 @@ linq_create(linq_callbacks* cb, void* context)
         memset(l, 0, sizeof(linq_s));
         l->devices = device_map_create();
         l->nodes = node_map_create();
-        l->routers = socket_list_create();
-        l->dealers = socket_list_create();
+        l->routers = socket_map_create();
+        l->dealers = socket_map_create();
         l->callbacks = cb;
         l->context = context;
     }
@@ -489,8 +489,8 @@ linq_destroy(linq_s** linq_p)
     *linq_p = NULL;
     device_map_destroy(&l->devices);
     node_map_destroy(&l->nodes);
-    socket_list_destroy(&l->routers);
-    socket_list_destroy(&l->dealers);
+    socket_map_destroy(&l->routers);
+    socket_map_destroy(&l->dealers);
     // if (l->sock) zsock_destroy(&l->sock);
     linq_free(l);
 }
@@ -501,7 +501,7 @@ linq_listen(linq_s* l, const char* ep)
 {
     zsock_t* socket = zsock_new_router(ep);
     if (socket) {
-        socket_list_push(l->routers, &socket);
+        socket_map_add(l->routers, ep, &socket);
         return LINQ_ERROR_OK;
     } else {
         return LINQ_ERROR_BAD_ARGS;
@@ -515,8 +515,8 @@ linq_connect(linq_s* l, const char* ep)
     E_LINQ_ERROR e = LINQ_ERROR_BAD_ARGS;
     zsock_t* socket = zsock_new_dealer(ep);
     if (socket) {
-        socket_list_push(l->dealers, &socket);
-        node_s* n = node_create(socket_list_front(l->dealers), NULL, 0, NULL);
+        socket_map_add(l->dealers, ep, &socket);
+        node_s* n = node_create(*socket_map_get(l->dealers, ep), NULL, 0, NULL);
         if (n) {
             node_send_hello(n);
             node_map_add(l->nodes, ep, &n);
@@ -539,25 +539,29 @@ foreach_node_check_request_timeout(void* ctx, device_s** n)
 }
 
 static E_LINQ_ERROR
-poll_sockets(linq_s* l, socket_list_s* ss, bool is_router)
+poll_sockets(linq_s* l, socket_map_s* h, bool is_router)
 {
     int err, n = 0;
     zmq_pollitem_t items[MAX_CONNECTIONS];
     memset(items, 0, sizeof(items));
 
-    for (socket_item_s* s = ss->head; s != ss->tail; s = s->next) {
-        items[n].socket = zsock_resolve(s->data);
+    for (khiter_t k = kh_begin(h); k != kh_end(h); ++k) {
+        if (!kh_exist(h, k)) continue;
+        zsock_t* sock = kh_val(h, k);
+        items[n].socket = zsock_resolve(sock);
         items[n].events = ZMQ_POLLIN;
         n++;
     }
     n = 0;
 
     // Process sockets
-    err = zmq_poll(items, socket_list_size(ss), 5);
+    err = zmq_poll(items, socket_map_size(h), 5);
     if (!(err < 0)) {
-        for (socket_item_s* s = ss->head; s != ss->tail; s = s->next) {
+        for (khiter_t k = kh_begin(h); k != kh_end(h); ++k) {
+            if (!kh_exist(h, k)) continue;
+            zsock_t* sock = kh_val(h, k);
             if (items[n++].revents && ZMQ_POLLIN) {
-                err = process_packet(l, s->data, is_router);
+                err = process_packet(l, sock, is_router);
             }
         }
     }
