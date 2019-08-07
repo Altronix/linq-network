@@ -52,17 +52,18 @@ main(int argc, char* argv[])
     ((void)argv);
 
     uint32_t count = 0;
-    int err = 0;
+    int err;
+    linq_socket s = 0;
     fixture_context* fixture = fixture_create("serial", 32820);
     if (!fixture) return -1;
 
     linq_s* linq = linq_create(&callbacks, &count);
-    err = linq_listen(linq, "tcp://127.0.0.1:32820");
-    if (err) {
+    s = linq_listen(linq, "tcp://127.0.0.1:32820");
+    if (s == LINQ_ERROR_SOCKET) {
         printf("%s", "[S] Listen Failure!\n");
         fixture_destroy(&fixture);
         linq_destroy(&linq);
-        return err;
+        return -1;
     }
 
     while (!(received_new_device && received_alert)) {

@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#define LINQ_ERROR_SOCKET 0xFFFFFFFF
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -10,6 +12,7 @@ extern "C"
 
     typedef struct device_s device_s;
     typedef struct linq_s linq_s;
+    typedef uint32_t linq_socket;
 
     typedef enum
     {
@@ -79,8 +82,8 @@ extern "C"
     // Linq API
     linq_s* linq_create(linq_callbacks*, void*);
     void linq_destroy(linq_s**);
-    E_LINQ_ERROR linq_listen(linq_s*, const char* ep);
-    E_LINQ_ERROR linq_connect(linq_s* l, const char* ep);
+    linq_socket linq_listen(linq_s*, const char* ep);
+    linq_socket linq_connect(linq_s* l, const char* ep);
     E_LINQ_ERROR linq_shutdown(linq_s*, const char* ep);
     E_LINQ_ERROR linq_disconnect(linq_s*, const char* ep);
     E_LINQ_ERROR linq_poll(linq_s* l);

@@ -37,7 +37,7 @@ class Linq
     ~Linq() { linq_destroy(&linq_); }
 
     // open up port for device conections
-    E_LINQ_ERROR listen(const char* str) { return linq_listen(linq_, str); }
+    linq_socket listen(const char* str) { return linq_listen(linq_, str); }
 
     // process io
     E_LINQ_ERROR poll() { return linq_poll(linq_); }

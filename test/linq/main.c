@@ -632,12 +632,12 @@ static void
 test_linq_connect(void** context_p)
 {
     ((void)context_p);
-    int err;
+    linq_socket s;
 
     linq_s* linq = linq_create(NULL, NULL);
 
-    err = linq_connect(linq, "ipc:///filex");
-    assert_int_equal(LINQ_ERROR_OK, err);
+    s = linq_connect(linq, "ipc:///filex");
+    assert_true(!(LINQ_ERROR_OK == s));
 
     zmsg_t* outgoing = czmq_spy_mesg_pop_outgoing();
     assert_non_null(outgoing);

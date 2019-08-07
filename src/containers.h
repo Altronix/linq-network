@@ -112,6 +112,17 @@ extern "C"
                    : &kh_val(hash, k);                                         \
     }                                                                          \
                                                                                \
+    type** tag##_map_resolve(tag##_map_s* hash, khiter_t k)                    \
+    {                                                                          \
+        return &kh_val(hash, k);                                               \
+    }                                                                          \
+                                                                               \
+    khiter_t tag##_map_key(tag##_map_s* hash, const char* serial)              \
+    {                                                                          \
+        khiter_t k;                                                            \
+        return ((k = kh_get_##tag(hash, serial)) == kh_end(hash)) ? 0 : k;     \
+    }                                                                          \
+                                                                               \
     uint32_t tag##_map_size(tag##_map_s* hash) { return kh_size(hash); }       \
                                                                                \
     void tag##_map_foreach(                                                    \

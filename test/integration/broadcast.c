@@ -50,6 +50,7 @@ main(int argc, char* argv[])
 {
     ((void)argc);
     ((void)argv);
+    linq_socket s;
     int err = -1, count = 0;
 
     err = 0; // TODO
@@ -70,8 +71,8 @@ main(int argc, char* argv[])
         return -1;
     }
 
-    err = linq_listen(server, "tcp://127.0.0.1:32820");
-    if (err) {
+    s = linq_listen(server, "tcp://127.0.0.1:32820");
+    if (s == LINQ_ERROR_SOCKET) {
         printf("%s", "[S] Listen Failure!\n");
         fixture_destroy(&fixture);
         linq_destroy(&server);
@@ -79,8 +80,8 @@ main(int argc, char* argv[])
         return -1;
     }
 
-    linq_listen(server, "ipc:///tmp/broadcast");
-    if (err) {
+    s = linq_listen(server, "ipc:///tmp/broadcast");
+    if (s == LINQ_ERROR_SOCKET) {
         printf("%s", "[S] Listen Failure!\n");
         fixture_destroy(&fixture);
         linq_destroy(&server);
@@ -88,8 +89,8 @@ main(int argc, char* argv[])
         return -1;
     }
 
-    linq_connect(client, "ipc:///tmp/broadcast");
-    if (err) {
+    s = linq_connect(client, "ipc:///tmp/broadcast");
+    if (s == LINQ_ERROR_SOCKET) {
         printf("%s", "[C] Connect Failure!\n");
         fixture_destroy(&fixture);
         linq_destroy(&server);

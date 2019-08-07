@@ -495,18 +495,34 @@ linq_destroy(linq_s** linq_p)
 }
 
 // Listen for incoming device connections on "endpoint"
-E_LINQ_ERROR
+linq_socket
 linq_listen(linq_s* l, const char* ep)
 {
     zsock_t* socket = zsock_new_router(ep);
     if (socket) {
         socket_map_add(l->routers, ep, &socket);
-        return LINQ_ERROR_OK;
+        return socket_map_key(l->routers, ep);
     } else {
-        return LINQ_ERROR_BAD_ARGS;
+        return LINQ_ERROR_SOCKET;
     }
 }
 
+// connect to a remote linq and send hello frames
+linq_socket
+linq_connect(linq_s* l, const char* ep)
+{
+    zsock_t* socket = zsock_new_dealer(ep);
+    if (socket) {
+        socket_map_add(l->dealers, ep, &socket);
+        node_s* n = node_create(*socket_map_get(l->dealers, ep), NULL, 0, NULL);
+        if (n) {
+            node_send_hello(n);
+            node_map_add(l->nodes, ep, &n);
+        }
+        return socket_map_key(l->dealers, ep);
+    }
+    return LINQ_ERROR_SOCKET;
+}
 static void
 remove_devices(zsock_t** s, device_map_s* devices)
 {
@@ -545,24 +561,6 @@ linq_disconnect(linq_s* l, const char* ep)
     } else {
         return LINQ_ERROR_BAD_ARGS;
     }
-}
-
-// connect to a remote linq and send hello frames
-E_LINQ_ERROR
-linq_connect(linq_s* l, const char* ep)
-{
-    E_LINQ_ERROR e = LINQ_ERROR_BAD_ARGS;
-    zsock_t* socket = zsock_new_dealer(ep);
-    if (socket) {
-        socket_map_add(l->dealers, ep, &socket);
-        node_s* n = node_create(*socket_map_get(l->dealers, ep), NULL, 0, NULL);
-        if (n) {
-            node_send_hello(n);
-            node_map_add(l->nodes, ep, &n);
-            return LINQ_ERROR_OK;
-        }
-    }
-    return e;
 }
 
 // loop through each node and resolve any requests that have timed out
