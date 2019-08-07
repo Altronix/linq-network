@@ -698,12 +698,6 @@ test_linq_shutdown(void** context_p)
     linq_disconnect(linq, "tcp://55.66.77.88:8888");
     assert_int_equal(linq_device_count(linq), 0);
 
-    // TODO
-    // listen on two ports.
-    // send heartbeat on each port
-    // shutdown one port
-    // verify device from that port is removed
-
     linq_destroy(&linq);
     test_reset();
 }
