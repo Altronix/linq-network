@@ -648,7 +648,8 @@ test_linq_connect(void** context_p)
 
     assert_memory_equal(zframe_data(ver), "\x0", 1);
     assert_memory_equal(zframe_data(typ), "\x4", 1);
-    assert_int_equal(zframe_size(sid), 0);
+    assert_int_equal(zframe_size(sid), 12);
+    assert_memory_equal(zframe_data(sid), "ipc:///filex", 12);
 
     zframe_destroy(&ver);
     zframe_destroy(&typ);
@@ -695,8 +696,10 @@ test_linq_shutdown(void** context_p)
     assert_int_equal(linq_device_count(linq), 4);
     linq_disconnect(linq, c0);
     assert_int_equal(linq_device_count(linq), 2);
+    assert_int_equal(linq_nodes_count(linq), 1);
     linq_disconnect(linq, c1);
     assert_int_equal(linq_device_count(linq), 0);
+    assert_int_equal(linq_nodes_count(linq), 0);
 
     linq_destroy(&linq);
     test_reset();

@@ -514,7 +514,7 @@ linq_connect(linq_s* l, const char* ep)
     zsock_t* socket = zsock_new_dealer(ep);
     if (socket) {
         socket_map_add(l->dealers, ep, &socket);
-        node_s* n = node_create(*socket_map_get(l->dealers, ep), NULL, 0, NULL);
+        node_s* n = node_create(*socket_map_get(l->dealers, ep), NULL, 0, ep);
         if (n) {
             node_send_hello(n);
             node_map_add(l->nodes, ep, &n);
@@ -523,6 +523,7 @@ linq_connect(linq_s* l, const char* ep)
     }
     return LINQ_ERROR_SOCKET;
 }
+
 static void
 remove_devices(zsock_t** s, device_map_s* devices)
 {
@@ -534,6 +535,18 @@ remove_devices(zsock_t** s, device_map_s* devices)
         if (eq == socket->sock) {
             device_map_remove(devices, device_serial(*device));
         }
+    }
+}
+
+static void
+remove_nodes(zsock_t** s, node_map_s* nodes)
+{
+    zsock_t* eq = *s;
+    for (khiter_t k = kh_begin(nodes); k != kh_end(nodes); ++k) {
+        if (!kh_exist(nodes, k)) continue;
+        node_s** node = &kh_val(nodes, k);
+        linq_socket_s* socket = ((linq_socket_s*)(*node));
+        if (eq == socket->sock) { node_map_remove(nodes, node_serial(*node)); }
     }
 }
 
@@ -556,6 +569,7 @@ linq_disconnect(linq_s* l, linq_socket handle)
     zsock_t** s = socket_map_resolve(l->dealers, handle);
     if (s) {
         remove_devices(s, l->devices);
+        remove_nodes(s, l->nodes);
         socket_map_remove_iter(l->dealers, handle);
         return LINQ_ERROR_OK;
     } else {
