@@ -659,6 +659,55 @@ test_linq_connect(void** context_p)
     test_reset();
 }
 
+static void
+test_linq_shutdown(void** context_p)
+{
+    ((void)context_p);
+    linq_s* linq = linq_create(NULL, NULL);
+    linq_listen(linq, "tcp://1.2.3.4:8080");
+    linq_listen(linq, "tcp://5.6.7.8:8080");
+    linq_connect(linq, "tcp://11.22.33.44:8888");
+    linq_connect(linq, "tcp://55.66.77.88:8888");
+    zmsg_t* hb0 = helpers_make_heartbeat("r0", "dev1", "pid", "site");
+    zmsg_t* hb1 = helpers_make_heartbeat("r1", "dev2", "pid", "site");
+    zmsg_t* hb2 = helpers_make_heartbeat(NULL, "dev3", "pid", "site");
+    zmsg_t* hb3 = helpers_make_heartbeat(NULL, "dev4", "pid", "site");
+    zmsg_t* hb4 = helpers_make_heartbeat("r5", "dev5", "pid", "site");
+    zmsg_t* hb5 = helpers_make_heartbeat("r6", "dev6", "pid", "site");
+    zmsg_t* hb6 = helpers_make_heartbeat(NULL, "dev7", "pid", "site");
+    zmsg_t* hb7 = helpers_make_heartbeat(NULL, "dev8", "pid", "site");
+
+    czmq_spy_mesg_push_incoming(&hb0);
+    czmq_spy_mesg_push_incoming(&hb1);
+    czmq_spy_mesg_push_incoming(&hb2);
+    czmq_spy_mesg_push_incoming(&hb3);
+    czmq_spy_mesg_push_incoming(&hb4);
+    czmq_spy_mesg_push_incoming(&hb5);
+    czmq_spy_mesg_push_incoming(&hb6);
+    czmq_spy_mesg_push_incoming(&hb7);
+    czmq_spy_poll_set_incoming((0x03));
+    linq_poll(linq);
+    linq_poll(linq);
+    assert_int_equal(linq_device_count(linq), 8);
+    linq_shutdown(linq, "tcp://1.2.3.4:8080");
+    assert_int_equal(linq_device_count(linq), 6);
+    linq_shutdown(linq, "tcp://5.6.7.8:8080");
+    assert_int_equal(linq_device_count(linq), 4);
+    linq_disconnect(linq, "tcp://11.22.33.44:8888");
+    assert_int_equal(linq_device_count(linq), 2);
+    linq_disconnect(linq, "tcp://55.66.77.88:8888");
+    assert_int_equal(linq_device_count(linq), 0);
+
+    // TODO
+    // listen on two ports.
+    // send heartbeat on each port
+    // shutdown one port
+    // verify device from that port is removed
+
+    linq_destroy(&linq);
+    test_reset();
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -683,7 +732,8 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_broadcast_alert),
         cmocka_unit_test(test_linq_forward_request),
         cmocka_unit_test(test_linq_forward_client_request),
-        cmocka_unit_test(test_linq_connect)
+        cmocka_unit_test(test_linq_connect),
+        cmocka_unit_test(test_linq_shutdown)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);

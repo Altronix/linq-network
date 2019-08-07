@@ -70,6 +70,11 @@ extern "C"
         uint32_t sz;
     } router_s;
 
+    typedef struct
+    {
+        zsock_t* sock;
+    } linq_socket_s;
+
     // helpful struct for maintaining frames
     typedef struct
     {

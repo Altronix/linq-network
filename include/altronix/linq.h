@@ -81,6 +81,8 @@ extern "C"
     void linq_destroy(linq_s**);
     E_LINQ_ERROR linq_listen(linq_s*, const char* ep);
     E_LINQ_ERROR linq_connect(linq_s* l, const char* ep);
+    E_LINQ_ERROR linq_shutdown(linq_s*, const char* ep);
+    E_LINQ_ERROR linq_disconnect(linq_s*, const char* ep);
     E_LINQ_ERROR linq_poll(linq_s* l);
     device_s** linq_device(linq_s*, const char*);
     uint32_t linq_device_count(linq_s*);

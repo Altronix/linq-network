@@ -491,7 +491,6 @@ linq_destroy(linq_s** linq_p)
     node_map_destroy(&l->nodes);
     socket_map_destroy(&l->routers);
     socket_map_destroy(&l->dealers);
-    // if (l->sock) zsock_destroy(&l->sock);
     linq_free(l);
 }
 
@@ -502,6 +501,46 @@ linq_listen(linq_s* l, const char* ep)
     zsock_t* socket = zsock_new_router(ep);
     if (socket) {
         socket_map_add(l->routers, ep, &socket);
+        return LINQ_ERROR_OK;
+    } else {
+        return LINQ_ERROR_BAD_ARGS;
+    }
+}
+
+static void
+remove_devices(zsock_t** s, device_map_s* devices)
+{
+    zsock_t* eq = *s;
+    for (khiter_t k = kh_begin(devices); k != kh_end(devices); ++k) {
+        if (!kh_exist(devices, k)) continue;
+        device_s** device = &kh_val(devices, k);
+        linq_socket_s* socket = ((linq_socket_s*)(*device));
+        if (eq == socket->sock) {
+            device_map_remove(devices, device_serial(*device));
+        }
+    }
+}
+
+E_LINQ_ERROR
+linq_shutdown(linq_s* l, const char* ep)
+{
+    zsock_t** s = socket_map_get(l->routers, ep);
+    if (s) {
+        remove_devices(s, l->devices);
+        socket_map_remove(l->routers, ep);
+        return LINQ_ERROR_OK;
+    } else {
+        return LINQ_ERROR_BAD_ARGS;
+    }
+}
+
+E_LINQ_ERROR
+linq_disconnect(linq_s* l, const char* ep)
+{
+    zsock_t** s = socket_map_get(l->dealers, ep);
+    if (s) {
+        remove_devices(s, l->devices);
+        socket_map_remove(l->dealers, ep);
         return LINQ_ERROR_OK;
     } else {
         return LINQ_ERROR_BAD_ARGS;

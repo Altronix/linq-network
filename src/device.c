@@ -28,9 +28,10 @@ typedef struct request_s
     zframe_t* frames[FRAME_REQ_DATA_IDX + 1];
 } request_s;
 
+// main class struct (extends linq_socket_s)
 typedef struct device_s
 {
-    zsock_t* sock;
+    zsock_t* sock; // linq_socket_s expects zsock_t* to be first
     router_s router;
     request_list_s* requests;
     request_s* request_pending;

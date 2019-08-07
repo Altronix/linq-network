@@ -1,9 +1,10 @@
 #include "node.h"
 #include "containers.h"
 
+// main class struct (extends linq_socket_s)
 typedef struct node_s
 {
-    zsock_t* sock;
+    zsock_t* sock; // linq_socket_s expects zsock_t to be first
     router_s router;
     char serial[SID_LEN];
 } node_s;
