@@ -39,6 +39,15 @@ class Linq
     // open up port for device conections
     linq_socket listen(const char* str) { return linq_listen(linq_, str); }
 
+    // connect to a remote linq node
+    linq_socket connect(const char* str) { return linq_connect(linq_, str); }
+
+    // shutdown a listener
+    void shutdown(linq_socket s) { linq_shutdown(linq_, s); }
+
+    // close connection to a remote node
+    void disconnect(linq_socket s) { linq_disconnect(linq_, s); }
+
     // process io
     E_LINQ_ERROR poll() { return linq_poll(linq_); }
 
