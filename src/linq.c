@@ -538,12 +538,12 @@ remove_devices(zsock_t** s, device_map_s* devices)
 }
 
 E_LINQ_ERROR
-linq_shutdown(linq_s* l, const char* ep)
+linq_shutdown(linq_s* l, linq_socket handle)
 {
-    zsock_t** s = socket_map_get(l->routers, ep);
+    zsock_t** s = socket_map_resolve(l->routers, handle);
     if (s) {
         remove_devices(s, l->devices);
-        socket_map_remove(l->routers, ep);
+        socket_map_remove_iter(l->routers, handle);
         return LINQ_ERROR_OK;
     } else {
         return LINQ_ERROR_BAD_ARGS;
@@ -551,12 +551,12 @@ linq_shutdown(linq_s* l, const char* ep)
 }
 
 E_LINQ_ERROR
-linq_disconnect(linq_s* l, const char* ep)
+linq_disconnect(linq_s* l, linq_socket handle)
 {
-    zsock_t** s = socket_map_get(l->dealers, ep);
+    zsock_t** s = socket_map_resolve(l->dealers, handle);
     if (s) {
         remove_devices(s, l->devices);
-        socket_map_remove(l->dealers, ep);
+        socket_map_remove_iter(l->dealers, handle);
         return LINQ_ERROR_OK;
     } else {
         return LINQ_ERROR_BAD_ARGS;

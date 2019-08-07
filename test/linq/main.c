@@ -664,10 +664,10 @@ test_linq_shutdown(void** context_p)
 {
     ((void)context_p);
     linq_s* linq = linq_create(NULL, NULL);
-    linq_listen(linq, "tcp://1.2.3.4:8080");
-    linq_listen(linq, "tcp://5.6.7.8:8080");
-    linq_connect(linq, "tcp://11.22.33.44:8888");
-    linq_connect(linq, "tcp://55.66.77.88:8888");
+    linq_socket l0 = linq_listen(linq, "tcp://1.2.3.4:8080");
+    linq_socket l1 = linq_listen(linq, "tcp://5.6.7.8:8080");
+    linq_socket c0 = linq_connect(linq, "tcp://11.22.33.44:8888");
+    linq_socket c1 = linq_connect(linq, "tcp://55.66.77.88:8888");
     zmsg_t* hb0 = helpers_make_heartbeat("r0", "dev1", "pid", "site");
     zmsg_t* hb1 = helpers_make_heartbeat("r1", "dev2", "pid", "site");
     zmsg_t* hb2 = helpers_make_heartbeat(NULL, "dev3", "pid", "site");
@@ -689,13 +689,13 @@ test_linq_shutdown(void** context_p)
     linq_poll(linq);
     linq_poll(linq);
     assert_int_equal(linq_device_count(linq), 8);
-    linq_shutdown(linq, "tcp://1.2.3.4:8080");
+    linq_shutdown(linq, l0);
     assert_int_equal(linq_device_count(linq), 6);
-    linq_shutdown(linq, "tcp://5.6.7.8:8080");
+    linq_shutdown(linq, l1);
     assert_int_equal(linq_device_count(linq), 4);
-    linq_disconnect(linq, "tcp://11.22.33.44:8888");
+    linq_disconnect(linq, c0);
     assert_int_equal(linq_device_count(linq), 2);
-    linq_disconnect(linq, "tcp://55.66.77.88:8888");
+    linq_disconnect(linq, c1);
     assert_int_equal(linq_device_count(linq), 0);
 
     linq_destroy(&linq);

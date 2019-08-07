@@ -90,18 +90,20 @@ extern "C"
         return &kh_val(nodes, k);                                              \
     }                                                                          \
                                                                                \
-    uint32_t tag##_map_remove(tag##_map_s* nodes, const char* serial)          \
+    void tag##_map_remove_iter(tag##_map_s* nodes, khiter_t k)                 \
+    {                                                                          \
+        type* d = kh_val(nodes, k);                                            \
+        kh_del_##tag(nodes, k);                                                \
+        map_free_fn(&d);                                                       \
+    }                                                                          \
+                                                                               \
+    void tag##_map_remove(tag##_map_s* nodes, const char* serial)              \
     {                                                                          \
         khiter_t k;                                                            \
         type* d;                                                               \
-        uint32_t count = 0;                                                    \
         if (!((k = kh_get_##tag(nodes, serial)) == kh_end(nodes))) {           \
-            d = kh_val(nodes, k);                                              \
-            kh_del_##tag(nodes, k);                                            \
-            map_free_fn(&d);                                                   \
-            count = 1;                                                         \
+            tag##_map_remove_iter(nodes, k);                                   \
         }                                                                      \
-        return count;                                                          \
     }                                                                          \
                                                                                \
     type** tag##_map_get(tag##_map_s* hash, const char* serial)                \
