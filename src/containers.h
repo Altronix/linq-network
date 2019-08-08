@@ -85,7 +85,7 @@ extern "C"
         type* node = *node_p;                                                  \
         *node_p = NULL;                                                        \
         khiter_t k = kh_put_##tag(nodes, key, &ret);                           \
-        linq_assert(ret == 1);                                                 \
+        linq_assert(ret >= 0);                                                 \
         kh_val(nodes, k) = node;                                               \
         return &kh_val(nodes, k);                                              \
     }                                                                          \
@@ -100,7 +100,6 @@ extern "C"
     void tag##_map_remove(tag##_map_s* nodes, const char* serial)              \
     {                                                                          \
         khiter_t k;                                                            \
-        type* d;                                                               \
         if (!((k = kh_get_##tag(nodes, serial)) == kh_end(nodes))) {           \
             tag##_map_remove_iter(nodes, k);                                   \
         }                                                                      \
