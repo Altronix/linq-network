@@ -3,6 +3,5 @@
 int64_t
 sys_tick()
 {
-    // TODO
-    return -1;
+    return 0;
 }
