@@ -32,7 +32,12 @@ class Device
 class Linq
 {
   public:
-    Linq() { linq_ = linq_create(&callbacks_, this); }
+    Linq() { 
+        linq_ = linq_create(&callbacks_, this); 
+	callbacks_.err = on_error_fn;
+	callbacks_.hb = on_heartbeat_fn;
+	callbacks_.alert = on_alert_fn;
+    }
 
     ~Linq() { linq_destroy(&linq_); }
 
@@ -93,9 +98,7 @@ class Linq
     std::function<void(linq_alert_s*, linq_email_s*, Device&)> alert_;
     std::function<void(E_LINQ_ERROR, const char*, const char*)> error_;
     linq_s* linq_;
-    linq_callbacks callbacks_ = { .err = on_error_fn,
-                                  .hb = on_heartbeat_fn,
-                                  .alert = on_alert_fn };
+    linq_callbacks callbacks_ = {};
 };
 
 static void
