@@ -10,7 +10,14 @@ string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_connect,")
 string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_send,")
 string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_recv")
 
-target_link_libraries(binding-linq-cpp-test linq-cpp-binding linq-c-test mock-czmq zmq czmq helpers cmocka)
+target_link_libraries(binding-linq-cpp-test
+                      linq-cpp-binding
+                      linq-c-test
+                      mock-czmq
+                      zmq
+                      czmq
+                      helpers
+                      cmocka)
 set_target_properties(binding-linq-cpp-test PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(binding-linq-cpp-test PROPERTIES LINK_FLAGS ${wrap_flags})
 add_test(NAME binding-linq-cpp-test COMMAND binding-linq-cpp-test)
