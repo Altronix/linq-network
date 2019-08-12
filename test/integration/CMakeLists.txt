@@ -7,5 +7,7 @@ target_link_libraries(integration-broadcast-test linq-c linq-common-fixture)
 add_test(NAME integration-broadcast-test COMMAND integration-broadcast-test)
 
 add_executable(integration-forward-response-test forward_response.c)
-target_link_libraries(integration-forward-response-test linq-c linq-common-fixture)
-add_test(NAME integration-forward-response-test COMMAND integration-forward-response-test)
+target_link_libraries(integration-forward-response-test linq-c
+                      linq-common-fixture)
+add_test(NAME integration-forward-response-test
+         COMMAND integration-forward-response-test)
