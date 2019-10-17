@@ -5,8 +5,12 @@ use std::env;
 use std::path::PathBuf;
 
 fn main() {
-    // Build linq-c
-    cmake::build("../../../");
+    // Build linq-c TODO build static
+    let dst = cmake::build("../../../");
+
+    // Add compiler flags
+    println!("cargo:rustc-link-search=native={}", dst.display());
+    println!("cargo:rustc-link-lib=static=linq-c");
 
     // Generate bindings
     let bindings = bindgen::Builder::default()
