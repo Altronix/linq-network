@@ -9,7 +9,7 @@ fn main() {
     let dst = cmake::build("../../../");
 
     // Add compiler flags
-    println!("cargo:rustc-link-search=native={}", dst.display());
+    println!("cargo:rustc-link-search=native={}/lib", dst.display());
     println!("cargo:rustc-link-lib=static=linq-c");
 
     // Generate bindings
