@@ -8,9 +8,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-
+    fn linq_allocators() {
         unsafe {
             let mut l = linq_create(std::ptr::null_mut(), std::ptr::null_mut());
             linq_destroy(&mut l);
