@@ -7,10 +7,19 @@ use std::path::PathBuf;
 fn main() {
     // Build linq TODO build static
     let dst = cmake::build("../../../");
+    let out = dst.display();
 
     // Add compiler flags
-    println!("cargo:rustc-link-search=native={}/lib", dst.display());
+    println!("cargo:rustc-link-search=native={}/lib", out);
+    println!("cargo:rustc-link-search=native={}/build/install/lib", out);
+    println!("cargo:rustc-link-search=native={}/build/install/lib64", out);
     println!("cargo:rustc-link-lib=static=linq");
+    println!("cargo:rustc-link-lib=static=zmq");
+    println!("cargo:rustc-link-lib=static=czmq");
+    println!("cargo:rustc-link-lib=uuid");
+    println!("cargo:rustc-link-lib=stdc++");
+    println!("cargo:rustc-link-lib=m");
+    println!("cargo:rustc-link-lib=rt");
 
     // Generate bindings
     let bindings = bindgen::Builder::default()

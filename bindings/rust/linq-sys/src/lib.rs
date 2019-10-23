@@ -12,7 +12,8 @@ mod tests {
         assert_eq!(2 + 2, 4);
 
         unsafe {
-            let l = linq_create(std::ptr::null_mut(), std::ptr::null_mut());
+            let mut l = linq_create(std::ptr::null_mut(), std::ptr::null_mut());
+            linq_destroy(&mut l);
         }
     }
 }

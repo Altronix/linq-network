@@ -1,3 +1,5 @@
+extern crate linq_sys;
+
 #[cfg(test)]
 mod tests {
     #[test]
