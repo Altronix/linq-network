@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.11)
-project(linq-c)
+project(linq)
 
 option(BUILD_DEPENDENCIES "Whether or not to build the tests" ON)
 set(LINQ_BUILD_DEPENDENCIES
     ${BUILD_DEPENDENCIES}
-    CACHE BOOL "Build the external directory for linq-c")
+    CACHE BOOL "Build the external directory for linq")
 
 # dependency install
 include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)

@@ -24,12 +24,12 @@ set(linq_mock_SOURCES ./mock/sys.c)
 set(linq_mock_HEADERS ./mock/sys.h)
 
 if(NOT MSVC)
-  add_library(linq-c
+  add_library(linq
               ${linq_SOURCES}
               ${linq_unix_SOURCES}
               ${linq_HEADERS}
               ${linq_unix_HEADERS})
-  target_link_libraries(linq-c
+  target_link_libraries(linq
                         czmq
                         zmq
                         jsmn
@@ -39,18 +39,18 @@ if(NOT MSVC)
                         m
                         stdc++
                         uuid)
-  target_include_directories(linq-c PUBLIC ../include)
-  target_include_directories(linq-c PUBLIC ./unix)
+  target_include_directories(linq PUBLIC ../include)
+  target_include_directories(linq PUBLIC ./unix)
 else()
   add_definitions(-DCZMQ_STATIC)
   add_definitions(-DZMQ_STATIC)
   set(win-libs iphlpapi wldap32)
-  add_library(linq-c
+  add_library(linq
               ${linq_SOURCES}
               ${linq_win_SOURCES}
               ${linq_HEADERS}
               ${linq_win_HEADERS})
-  target_link_libraries(linq-c
+  target_link_libraries(linq
                         czmq
                         libzmq
                         jsmn
@@ -59,18 +59,18 @@ else()
                         ${CMAKE_THREAD_LIBS_INIT}
                         uuid
                         Rpcrt4)
-  target_include_directories(linq-c PUBLIC ../include)
-  target_include_directories(linq-c PUBLIC ./win)
+  target_include_directories(linq PUBLIC ../include)
+  target_include_directories(linq PUBLIC ./win)
 endif()
 
 if(ENABLE_TESTING)
   set(CMAKE_BUILD_TYPE Debug)
-  add_library(linq-c-test
+  add_library(linq-test
               ${linq_SOURCES}
               ${linq_mock_SOURCES}
               ${linq_HEADERS}
               ${linq_mock_HEADERS})
-  target_link_libraries(linq-c-test
+  target_link_libraries(linq-test
                         czmq
                         zmq
                         jsmn
@@ -80,13 +80,13 @@ if(ENABLE_TESTING)
                         m
                         stdc++
                         uuid)
-  target_include_directories(linq-c-test PUBLIC ../include)
-  target_include_directories(linq-c-test PUBLIC ./)
-  target_include_directories(linq-c-test PUBLIC ./mock)
+  target_include_directories(linq-test PUBLIC ../include)
+  target_include_directories(linq-test PUBLIC ./)
+  target_include_directories(linq-test PUBLIC ./mock)
 endif()
 
-set_target_properties(linq-c PROPERTIES PUBLIC_HEADER "${linq_INSTALL_HEADERS}")
-install(TARGETS linq-c
+set_target_properties(linq PROPERTIES PUBLIC_HEADER "${linq_INSTALL_HEADERS}")
+install(TARGETS linq
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
         PUBLIC_HEADER DESTINATION include/altronix)

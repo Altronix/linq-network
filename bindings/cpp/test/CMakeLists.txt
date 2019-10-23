@@ -12,7 +12,7 @@ string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_recv")
 
 target_link_libraries(binding-linq-cpp-test
                       linq-cpp-binding
-                      linq-c-test
+                      linq-test
                       mock-czmq
                       zmq
                       czmq

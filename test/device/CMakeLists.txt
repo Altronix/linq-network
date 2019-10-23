@@ -23,7 +23,7 @@ string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_send,")
 string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_recv")
 
 target_link_libraries(test-device
-                      linq-c-test
+                      linq-test
                       mock-czmq
                       zmq
                       czmq

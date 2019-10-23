@@ -1,6 +1,6 @@
 add_library(helpers helpers.c helpers.h)
 target_link_libraries(helpers
-                      linq-c-test
+                      linq-test
                       czmq
                       zmq
                       cmocka)
