@@ -80,8 +80,9 @@ extern "C"
     } linq_callbacks;
 
     // Linq API
-    linq_s* linq_create(linq_callbacks*, void*);
+    linq_s* linq_create(const linq_callbacks*, void*);
     void linq_destroy(linq_s**);
+    void linq_context_set(linq_s* linq, void* ctx);
     linq_socket linq_listen(linq_s*, const char* ep);
     linq_socket linq_connect(linq_s* l, const char* ep);
     E_LINQ_ERROR linq_shutdown(linq_s*, linq_socket);

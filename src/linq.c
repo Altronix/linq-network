@@ -42,7 +42,7 @@ typedef struct linq_s
     socket_map_s* dealers;
     device_map_s* devices;
     node_map_s* nodes;
-    linq_callbacks* callbacks;
+    const linq_callbacks* callbacks;
 } linq_s;
 
 // A version on the wire is a byte
@@ -466,7 +466,7 @@ process_packet(linq_s* l, zsock_t* s, bool router)
 
 // Create main context for the caller
 linq_s*
-linq_create(linq_callbacks* cb, void* context)
+linq_create(const linq_callbacks* cb, void* context)
 {
     linq_s* l = linq_malloc(sizeof(linq_s));
     if (l) {
@@ -492,6 +492,12 @@ linq_destroy(linq_s** linq_p)
     socket_map_destroy(&l->routers);
     socket_map_destroy(&l->dealers);
     linq_free(l);
+}
+
+void
+linq_context_set(linq_s* linq, void* ctx)
+{
+    linq->context = ctx;
 }
 
 // Listen for incoming device connections on "endpoint"
