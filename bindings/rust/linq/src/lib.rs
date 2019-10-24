@@ -10,9 +10,9 @@ pub type AlertFunction = fn(&mut Linq);
 
 pub struct Linq {
     ctx: *mut linq_sys::linq_s,
-    OnHeartbeat: std::option::Option<HeartbeatFunction>,
-    OnError: std::option::Option<ErrorFunction>,
-    OnAlert: std::option::Option<AlertFunction>,
+    on_heartbeat: std::option::Option<HeartbeatFunction>,
+    on_error: std::option::Option<ErrorFunction>,
+    on_alert: std::option::Option<AlertFunction>,
 }
 
 impl Linq {
@@ -22,9 +22,9 @@ impl Linq {
             let ctx = linq_create(&CALLBACKS as *const _, std::ptr::null_mut());
             let mut l = Linq {
                 ctx,
-                OnHeartbeat: None,
-                OnAlert: None,
-                OnError: None,
+                on_heartbeat: None,
+                on_alert: None,
+                on_error: None,
             };
             let data: *mut c_void = &mut l as *mut Linq as *mut c_void;
             linq_sys::linq_context_set(l.ctx, data);
@@ -102,7 +102,7 @@ extern "C" fn on_error(
     _arg4: *const raw::c_char,
 ) -> () {
     let l: &mut Linq = unsafe { &mut *(ctx as *mut Linq) };
-    l.OnError.unwrap()(l);
+    l.on_error.unwrap()(l);
 }
 
 extern "C" fn on_heartbeat(
@@ -111,7 +111,7 @@ extern "C" fn on_heartbeat(
     _arg3: *mut *mut linq_sys::device_s,
 ) -> () {
     let l: &mut Linq = unsafe { &mut *(ctx as *mut Linq) };
-    l.OnHeartbeat.unwrap()(l);
+    l.on_heartbeat.unwrap()(l);
 }
 
 extern "C" fn on_alert(
@@ -121,7 +121,7 @@ extern "C" fn on_alert(
     _arg4: *mut *mut linq_sys::device_s,
 ) -> () {
     let l: &mut Linq = unsafe { &mut *(ctx as *mut Linq) };
-    l.OnError.unwrap()(l);
+    l.on_alert.unwrap()(l);
 }
 
 static CALLBACKS: linq_callbacks = linq_callbacks {
