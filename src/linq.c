@@ -437,6 +437,7 @@ process_packet(linq_s* l, zsock_t* s, bool router)
     memset(f, 0, sizeof(f));
     zmsg_t* msg = zmsg_recv(s);
     total_frames = zmsg_size(msg);
+    if (total_frames > FRAME_MAX) total_frames = FRAME_MAX;
 
     if (router) {
         f[FRAME_RID_IDX] = pop_le(msg, RID_LEN);
