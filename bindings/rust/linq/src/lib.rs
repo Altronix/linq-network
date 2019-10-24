@@ -5,8 +5,8 @@ use linq_sys::linq_create;
 use std::os::raw;
 
 pub type HeartbeatFunction = fn(&mut Linq, sid: &str);
-pub type ErrorFunction = fn(&mut Linq, linq_sys::E_LINQ_ERROR, sid: &str);
 pub type AlertFunction = fn(&mut Linq, sid: &str);
+pub type ErrorFunction = fn(&mut Linq, linq_sys::E_LINQ_ERROR, sid: &str);
 
 pub struct Linq {
     ctx: *mut linq_sys::linq_s,
@@ -69,6 +69,19 @@ impl Linq {
             let e = linq_sys::linq_poll(self.ctx);
             e
         }
+    }
+
+    pub fn on_heartbeat(&self, f: HeartbeatFunction) -> &Linq {
+        // self.on_heartbeat = Some(f);
+        self
+    }
+
+    pub fn on_alert(&self, f: AlertFunction) -> &Linq {
+        self
+    }
+
+    pub fn on_error(&self, f: ErrorFunction) -> &Linq {
+        self
     }
 
     // TODO
