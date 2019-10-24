@@ -71,16 +71,18 @@ impl Linq {
         }
     }
 
-    pub fn on_heartbeat(&self, f: HeartbeatFunction) -> &Linq {
-        // self.on_heartbeat = Some(f);
+    pub fn on_heartbeat(&mut self, f: HeartbeatFunction) -> &Linq {
+        self.on_heartbeat = Some(f);
         self
     }
 
-    pub fn on_alert(&self, f: AlertFunction) -> &Linq {
+    pub fn on_alert(&mut self, f: AlertFunction) -> &Linq {
+        self.on_alert = Some(f);
         self
     }
 
-    pub fn on_error(&self, f: ErrorFunction) -> &Linq {
+    pub fn on_error(&mut self, f: ErrorFunction) -> &Linq {
+        self.on_error = Some(f);
         self
     }
 
