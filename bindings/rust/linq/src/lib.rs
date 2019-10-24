@@ -4,9 +4,9 @@ use linq_sys::linq_callbacks;
 use linq_sys::linq_create;
 use std::os::raw;
 
-pub type HeartbeatFunction = fn(&mut Linq);
-pub type ErrorFunction = fn(&mut Linq);
-pub type AlertFunction = fn(&mut Linq);
+pub type HeartbeatFunction = fn(&mut Linq, sid: &str);
+pub type ErrorFunction = fn(&mut Linq, linq_sys::E_LINQ_ERROR, sid: &str);
+pub type AlertFunction = fn(&mut Linq, sid: &str);
 
 pub struct Linq {
     ctx: *mut linq_sys::linq_s,
@@ -33,7 +33,8 @@ impl Linq {
     }
 
     pub fn listen(&self, s: &str) -> linq_sys::linq_socket {
-        let ep = std::ffi::CString::new(s).unwrap().as_ptr();
+        let cstr = std::ffi::CString::new(s).unwrap();
+        let ep = cstr.as_ptr();
         unsafe {
             let socket = linq_sys::linq_listen(self.ctx, ep);
             socket
@@ -41,7 +42,8 @@ impl Linq {
     }
 
     pub fn connect(&self, s: &str) -> linq_sys::linq_socket {
-        let ep = std::ffi::CString::new(s).unwrap().as_ptr();
+        let cstr = std::ffi::CString::new(s).unwrap();
+        let ep = cstr.as_ptr();
         unsafe {
             let socket = linq_sys::linq_connect(self.ctx, ep);
             socket
@@ -97,31 +99,34 @@ impl Drop for Linq {
 
 extern "C" fn on_error(
     ctx: *mut raw::c_void,
-    _arg2: linq_sys::E_LINQ_ERROR,
+    error: linq_sys::E_LINQ_ERROR,
     _arg3: *const raw::c_char,
-    _arg4: *const raw::c_char,
+    serial: *const raw::c_char,
 ) -> () {
     let l: &mut Linq = unsafe { &mut *(ctx as *mut Linq) };
-    l.on_error.unwrap()(l);
+    let cstr = unsafe { std::ffi::CStr::from_ptr(serial) };
+    l.on_error.unwrap()(l, error, cstr.to_str().expect("to_str() fail!"));
 }
 
 extern "C" fn on_heartbeat(
     ctx: *mut raw::c_void,
-    _arg2: *const raw::c_char,
+    serial: *const raw::c_char,
     _arg3: *mut *mut linq_sys::device_s,
 ) -> () {
     let l: &mut Linq = unsafe { &mut *(ctx as *mut Linq) };
-    l.on_heartbeat.unwrap()(l);
+    let cstr = unsafe { std::ffi::CStr::from_ptr(serial) };
+    l.on_heartbeat.unwrap()(l, cstr.to_str().expect("to_str() fail!"));
 }
 
 extern "C" fn on_alert(
     ctx: *mut raw::c_void,
     _arg2: *mut linq_sys::linq_alert_s,
     _arg3: *mut linq_sys::linq_email_s,
-    _arg4: *mut *mut linq_sys::device_s,
+    device: *mut *mut linq_sys::device_s,
 ) -> () {
     let l: &mut Linq = unsafe { &mut *(ctx as *mut Linq) };
-    l.on_alert.unwrap()(l);
+    let cstr = unsafe { std::ffi::CStr::from_ptr(linq_sys::device_serial(*device)) };
+    l.on_alert.unwrap()(l, cstr.to_str().expect("to_str() fail!"));
 }
 
 static CALLBACKS: linq_callbacks = linq_callbacks {
