@@ -3,6 +3,7 @@ extern crate linq_sys;
 use linq_sys::linq_callbacks;
 use linq_sys::linq_create;
 use std::os::raw;
+use std::os::raw::c_void;
 
 pub type HeartbeatFunction = fn(&mut Linq, sid: &str);
 pub type AlertFunction = fn(&mut Linq, sid: &str);
@@ -17,18 +18,12 @@ pub struct Linq {
 
 impl Linq {
     pub fn new() -> Linq {
-        use std::os::raw::c_void;
-        unsafe {
-            let ctx = linq_create(&CALLBACKS as *const _, std::ptr::null_mut());
-            let mut l = Linq {
-                ctx,
-                on_heartbeat: None,
-                on_alert: None,
-                on_error: None,
-            };
-            let data: *mut c_void = &mut l as *mut Linq as *mut c_void;
-            linq_sys::linq_context_set(l.ctx, data);
-            l
+        let ctx = unsafe { linq_create(&CALLBACKS as *const _, std::ptr::null_mut()) };
+        Linq {
+            ctx,
+            on_heartbeat: None,
+            on_alert: None,
+            on_error: None,
         }
     }
 
@@ -51,43 +46,43 @@ impl Linq {
     }
 
     pub fn shutdown(&self, socket: linq_sys::linq_socket) -> linq_sys::E_LINQ_ERROR {
-        unsafe {
-            let e = linq_sys::linq_shutdown(self.ctx, socket);
-            e
-        }
+        let e = unsafe { linq_sys::linq_shutdown(self.ctx, socket) };
+        e
     }
 
     pub fn disconnect(&self, socket: linq_sys::linq_socket) -> linq_sys::E_LINQ_ERROR {
-        unsafe {
-            let e = linq_sys::linq_disconnect(self.ctx, socket);
-            e
-        }
+        let e = unsafe { linq_sys::linq_disconnect(self.ctx, socket) };
+        e
     }
 
     pub fn poll(&self) -> linq_sys::E_LINQ_ERROR {
-        unsafe {
-            let e = linq_sys::linq_poll(self.ctx);
-            e
-        }
+        let e = unsafe { linq_sys::linq_poll(self.ctx) };
+        e
     }
 
     pub fn on_heartbeat(&mut self, f: HeartbeatFunction) -> &Linq {
+        // TODO we don't have to set context three times (use caller to set context?)
+        let data: *mut c_void = self as *mut Linq as *mut c_void;
+        unsafe { linq_sys::linq_context_set(self.ctx, data) };
         self.on_heartbeat = Some(f);
         self
     }
 
     pub fn on_alert(&mut self, f: AlertFunction) -> &Linq {
+        // TODO we don't have to set context three times (use caller to set context?)
+        let data: *mut c_void = self as *mut Linq as *mut c_void;
+        unsafe { linq_sys::linq_context_set(self.ctx, data) };
         self.on_alert = Some(f);
         self
     }
 
     pub fn on_error(&mut self, f: ErrorFunction) -> &Linq {
+        // TODO we don't have to set context three times (use caller to set context?)
+        let data: *mut c_void = self as *mut Linq as *mut c_void;
+        unsafe { linq_sys::linq_context_set(self.ctx, data) };
         self.on_error = Some(f);
         self
     }
-
-    // TODO
-    // pub fn device(&self, s: &str) -> std::option::Option<Device> {}
 
     pub fn device_count(&self) -> &Linq {
         unsafe {
