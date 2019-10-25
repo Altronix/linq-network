@@ -1,18 +1,9 @@
 extern crate ctrlc;
 extern crate linq;
 
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
-
 static PORT: u32 = 33455;
 
 fn main() {
-    // Setup Signal Handler
-    let running = Arc::new(AtomicBool::new(true));
-    let r = running.clone();
-    ctrlc::set_handler(move || r.store(false, Ordering::SeqCst))
-        .expect("Error setting ctrlc handler");
-
     // Setup Linq
     let mut linq = linq::Linq::new();
     let socket = linq.listen(PORT);
@@ -24,7 +15,7 @@ fn main() {
         .on_error(|_l, e, _sid| println!("[ERROR] {}", e));
 
     // Main Loop
-    while running.load(Ordering::SeqCst) {
+    while linq::running() {
         if !(linq.poll(200) == 0) {}
     }
 

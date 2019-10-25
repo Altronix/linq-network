@@ -130,6 +130,9 @@ extern "C"
         linq_request_complete_fn fn,
         void* context);
     const char* device_serial(device_s* d);
+
+    // Sys API
+    bool sys_running();
 #ifdef __cplusplus
 }
 #endif

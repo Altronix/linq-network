@@ -3,7 +3,8 @@ set(sources
     linq.c
     device.c
     node.c
-    jsmn.c)
+    jsmn.c
+    sys.c)
 set(headers
     ../include/altronix/linq.h
     base64.h

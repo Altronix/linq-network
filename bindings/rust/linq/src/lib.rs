@@ -9,6 +9,11 @@ pub type HeartbeatFunction = fn(&mut Linq, sid: &str);
 pub type AlertFunction = fn(&mut Linq, sid: &str);
 pub type ErrorFunction = fn(&mut Linq, linq_sys::E_LINQ_ERROR, sid: &str);
 
+pub fn running() -> bool {
+    let r = unsafe { linq_sys::sys_running() };
+    r
+}
+
 pub struct Linq {
     ctx: *mut linq_sys::linq_s,
     on_heartbeat: std::option::Option<HeartbeatFunction>,
