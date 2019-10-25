@@ -40,7 +40,7 @@ test_linq_device(void** context_p)
     czmq_spy_poll_set_incoming((0x01));
 
     l.listen("tcp://*:32999");
-    l.poll();
+    l.poll(5);
 
     std::shared_ptr<altronix::Device> d = l.device_get("serial");
     bool pass = d ? true : false;
@@ -84,8 +84,8 @@ test_linq_alert(void** context_p)
         });
 
     // Read heartbeat and alert
-    l.poll();
-    l.poll();
+    l.poll(5);
+    l.poll(5);
     assert_true(alert_pass);
 
     test_reset();

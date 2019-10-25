@@ -111,9 +111,9 @@ main(int argc, char* argv[])
     bool request_sent = false;
     while (!(pass)) {
         fixture_poll(fixture);
-        err = linq_poll(server);
+        err = linq_poll(server, 5);
         if (err) break;
-        err = linq_poll(client);
+        err = linq_poll(client, 5);
         if (err) break;
 
         if (!request_sent && linq_device_count(client)) {

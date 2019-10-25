@@ -32,11 +32,12 @@ class Device
 class Linq
 {
   public:
-    Linq() { 
-        linq_ = linq_create(&callbacks_, this); 
-	callbacks_.err = on_error_fn;
-	callbacks_.hb = on_heartbeat_fn;
-	callbacks_.alert = on_alert_fn;
+    Linq()
+    {
+        linq_ = linq_create(&callbacks_, this);
+        callbacks_.err = on_error_fn;
+        callbacks_.hb = on_heartbeat_fn;
+        callbacks_.alert = on_alert_fn;
     }
 
     ~Linq() { linq_destroy(&linq_); }
@@ -54,7 +55,7 @@ class Linq
     void disconnect(linq_socket s) { linq_disconnect(linq_, s); }
 
     // process io
-    E_LINQ_ERROR poll() { return linq_poll(linq_); }
+    E_LINQ_ERROR poll(uint32_t ms) { return linq_poll(linq_, ms); }
 
     // get a device context with serial number
     std::shared_ptr<Device> device_get(const char* str)

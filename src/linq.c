@@ -465,6 +465,12 @@ process_packet(linq_s* l, zsock_t* s, bool router)
     return e;
 }
 
+bool
+linq_running()
+{
+    return !zsys_interrupted;
+}
+
 // Create main context for the caller
 linq_s*
 linq_create(const linq_callbacks* cb, void* context)

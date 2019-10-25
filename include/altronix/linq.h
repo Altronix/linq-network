@@ -1,6 +1,7 @@
 #ifndef LINQ_H_
 #define LINQ_H_
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #define LINQ_ERROR_SOCKET 0xFFFFFFFF
@@ -80,6 +81,7 @@ extern "C"
     } linq_callbacks;
 
     // Linq API
+    bool linq_running();
     linq_s* linq_create(const linq_callbacks*, void*);
     void linq_destroy(linq_s**);
     void linq_context_set(linq_s* linq, void* ctx);

@@ -68,7 +68,7 @@ main(int argc, char* argv[])
 
     while (!(received_new_device && received_alert)) {
         fixture_poll(fixture);
-        err = linq_poll(linq);
+        err = linq_poll(linq, 5);
         if (err) break;
     }
 

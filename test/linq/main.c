@@ -93,7 +93,7 @@ test_linq_receive_protocol_error_short(void** context_p)
 
     linq_s* l = linq_create(&callbacks, (void*)&pass);
     linq_listen(l, "tcp://*:32820");
-    linq_poll(l);
+    linq_poll(l, 5);
 
     assert_true(pass);
 
@@ -118,7 +118,7 @@ test_linq_receive_protocol_error_serial(void** context_p)
 
     linq_s* l = linq_create(&callbacks, &pass);
     linq_listen(l, "tcp://*:32820");
-    linq_poll(l);
+    linq_poll(l, 5);
 
     assert_true(pass);
 
@@ -143,7 +143,7 @@ test_linq_receive_protocol_error_router(void** context_p)
 
     linq_s* l = linq_create(&callbacks, &pass);
     linq_listen(l, "tcp://*:32820");
-    linq_poll(l);
+    linq_poll(l, 5);
 
     assert_true(pass);
 
@@ -169,7 +169,7 @@ test_linq_receive_heartbeat_ok(void** context_p)
     // Receive a heartbeat
     linq_s* l = linq_create(&callbacks, (void*)&pass);
     linq_listen(l, "tcp://*:32820");
-    linq_poll(l);
+    linq_poll(l, 5);
     device_s** d = linq_device(l, serial);
     assert_non_null(d);
     assert_int_equal(linq_device_count(l), 1);
@@ -181,7 +181,7 @@ test_linq_receive_heartbeat_ok(void** context_p)
 
     // Receive a second heartbeat , update router id and last seen
     spy_sys_set_tick(200);
-    linq_poll(l);
+    linq_poll(l, 5);
     assert_non_null(d);
     assert_int_equal(linq_device_count(l), 1);
     assert_int_equal(device_router(*d)->sz, 5);
@@ -210,7 +210,7 @@ test_linq_receive_heartbeat_error_short(void** context_p)
 
     linq_s* l = linq_create(&callbacks, (void*)&pass);
     linq_listen(l, "tcp://*:32820");
-    linq_poll(l);
+    linq_poll(l, 5);
 
     assert_true(pass);
 
@@ -234,9 +234,9 @@ test_linq_receive_alert_ok(void** context_p)
 
     linq_s* l = linq_create(&callbacks, (void*)&pass);
     linq_listen(l, "tcp://*:32820");
-    linq_poll(l);
+    linq_poll(l, 5);
     pass = false;
-    linq_poll(l);
+    linq_poll(l, 5);
 
     assert_true(pass);
 
@@ -278,9 +278,9 @@ test_linq_receive_response_ok(void** context_p)
     // make sure callback is as expect
     linq_s* l = linq_create(&callbacks, (void*)&pass);
     linq_listen(l, "tcp://*:32820");
-    linq_poll(l);
+    linq_poll(l, 5);
     linq_device_send_get(l, serial, "/ATX/test", on_response_ok, &pass);
-    linq_poll(l);
+    linq_poll(l, 5);
     assert_true(pass);
 
     linq_destroy(&l);
@@ -314,7 +314,7 @@ test_linq_receive_response_error_timeout(void** context_p)
     spy_sys_set_tick(0);
     linq_s* l = linq_create(&callbacks, &pass);
     linq_listen(l, "tcp://*:32820");
-    linq_poll(l);
+    linq_poll(l, 5);
     d = linq_device(l, serial);
     device_send_get(*d, "/ATX/test", on_response_error_timeout, &response_pass);
     assert_int_equal(device_request_pending_count(*d), 1);
@@ -322,20 +322,20 @@ test_linq_receive_response_error_timeout(void** context_p)
     // Still waiting for response @t=9999
     spy_sys_set_tick(9999);
     czmq_spy_poll_set_incoming((0x00));
-    linq_poll(l);
+    linq_poll(l, 5);
     assert_false(response_pass);
     assert_int_equal(device_request_pending_count(*d), 1);
 
     // Timeout callback happens @t=10000
     spy_sys_set_tick(10000);
-    linq_poll(l);
+    linq_poll(l, 5);
     assert_true(response_pass);
     assert_int_equal(device_request_pending_count(*d), 0);
 
     // Response is resolved but there is no more request pending
     czmq_spy_poll_set_incoming((0x01));
     czmq_spy_mesg_push_incoming(&r);
-    linq_poll(l);
+    linq_poll(l, 5);
 
     linq_destroy(&l);
     test_reset();
@@ -352,7 +352,7 @@ test_linq_receive_hello(void** context_p)
     linq_listen(l, "tcp://*:32820");
 
     assert_int_equal(linq_nodes_count(l), 0);
-    linq_poll(l);
+    linq_poll(l, 5);
     assert_int_equal(linq_nodes_count(l), 1);
 
     linq_destroy(&l);
@@ -373,9 +373,9 @@ test_linq_receive_hello_double_id(void** context_p)
     linq_s* l = linq_create(NULL, NULL);
     linq_listen(l, "tcp://*:32820");
     assert_int_equal(linq_nodes_count(l), 0);
-    linq_poll(l);
+    linq_poll(l, 5);
     assert_int_equal(linq_nodes_count(l), 1);
-    linq_poll(l);
+    linq_poll(l, 5);
     assert_int_equal(linq_nodes_count(l), 1);
 
     linq_destroy(&l);
@@ -394,7 +394,7 @@ test_linq_broadcast_heartbeat_receive(void** context_p)
     // TODO - this heartbeat comes from a dealer socket
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
-    linq_poll(linq);
+    linq_poll(linq, 5);
 
     linq_destroy(&linq);
     test_reset();
@@ -418,9 +418,9 @@ test_linq_broadcast_heartbeat(void** context_p)
 
     linq_s* l = linq_create(NULL, NULL);
     linq_listen(l, "tcp://*:32820");
-    linq_poll(l); // receive hello
-    linq_poll(l); // recieve hello
-    linq_poll(l); // receive heartbeat
+    linq_poll(l, 5); // receive hello
+    linq_poll(l, 5); // recieve hello
+    linq_poll(l, 5); // receive heartbeat
 
     // outgoing should have a heartbeat with client router
     for (int i = 0; i < 2; i++) {
@@ -475,10 +475,10 @@ test_linq_broadcast_alert(void** context_p)
 
     linq_s* l = linq_create(NULL, NULL);
     linq_listen(l, "tcp://*:32820");
-    linq_poll(l); // receive heartbeat
-    linq_poll(l); // receive hello
-    linq_poll(l); // recieve hello
-    linq_poll(l); // receive alert
+    linq_poll(l, 5); // receive heartbeat
+    linq_poll(l, 5); // receive hello
+    linq_poll(l, 5); // recieve hello
+    linq_poll(l, 5); // receive alert
 
     // outgoing should have a heartbeat with client router
     for (int i = 0; i < 2; i++) {
@@ -535,10 +535,10 @@ test_linq_forward_request(void** context_p)
 
     linq_s* l = linq_create(NULL, NULL);
     linq_listen(l, "tcp://*:32820");
-    linq_poll(l);
-    linq_poll(l);
-    linq_poll(l);
-    linq_poll(l);
+    linq_poll(l, 5);
+    linq_poll(l, 5);
+    linq_poll(l, 5);
+    linq_poll(l, 5);
 
     // First outgoing message is to the device
     outgoing = czmq_spy_mesg_pop_outgoing();
@@ -601,7 +601,7 @@ test_linq_forward_client_request(void** context_p)
     linq_s* l = linq_create(NULL, NULL);
     linq_connect(l, "ipc:///test");
 
-    linq_poll(l); // add a device
+    linq_poll(l, 5); // add a device
 
     linq_device_send_get(l, "device123", "/ATX/hello", NULL, NULL);
     outgoing = czmq_spy_mesg_pop_outgoing();
@@ -687,8 +687,8 @@ test_linq_shutdown(void** context_p)
     czmq_spy_mesg_push_incoming(&hb6);
     czmq_spy_mesg_push_incoming(&hb7);
     czmq_spy_poll_set_incoming((0x03));
-    linq_poll(linq);
-    linq_poll(linq);
+    linq_poll(linq, 5);
+    linq_poll(linq, 5);
     assert_int_equal(linq_device_count(linq), 8);
     linq_shutdown(linq, l0);
     assert_int_equal(linq_device_count(linq), 6);

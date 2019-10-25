@@ -100,9 +100,9 @@ main(int argc, char* argv[])
 
     while (!(received_new_device && received_alert)) {
         fixture_poll(fixture);
-        err = linq_poll(server);
+        err = linq_poll(server, 5);
         if (err) break;
-        err = linq_poll(client);
+        err = linq_poll(client, 5);
         if (err) break;
     }
 
