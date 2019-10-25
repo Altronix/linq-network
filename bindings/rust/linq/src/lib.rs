@@ -27,7 +27,17 @@ impl Linq {
         }
     }
 
-    pub fn listen(&self, s: &str) -> linq_sys::linq_socket {
+    pub fn listen(&self, port: u32) -> linq_sys::linq_socket {
+        self.listen_tcp(port)
+    }
+
+    pub fn listen_tcp(&self, port: u32) -> linq_sys::linq_socket {
+        let mut ep = "tcp://*:".to_owned();
+        ep.push_str(port.to_string().as_ref());
+        self.listen_ep(ep.as_ref())
+    }
+
+    pub fn listen_ep(&self, s: &str) -> linq_sys::linq_socket {
         let cstr = std::ffi::CString::new(s).unwrap();
         let ep = cstr.as_ptr();
         unsafe {
@@ -55,12 +65,12 @@ impl Linq {
         e
     }
 
-    pub fn poll(&self) -> linq_sys::E_LINQ_ERROR {
-        let e = unsafe { linq_sys::linq_poll(self.ctx) };
+    pub fn poll(&self, ms: u32) -> linq_sys::E_LINQ_ERROR {
+        let e = unsafe { linq_sys::linq_poll(self.ctx, ms) };
         e
     }
 
-    pub fn on_heartbeat(&mut self, f: HeartbeatFunction) -> &Linq {
+    pub fn on_heartbeat(&mut self, f: HeartbeatFunction) -> &mut Linq {
         // TODO we don't have to set context three times (use caller to set context?)
         let data: *mut c_void = self as *mut Linq as *mut c_void;
         unsafe { linq_sys::linq_context_set(self.ctx, data) };
@@ -68,7 +78,7 @@ impl Linq {
         self
     }
 
-    pub fn on_alert(&mut self, f: AlertFunction) -> &Linq {
+    pub fn on_alert(&mut self, f: AlertFunction) -> &mut Linq {
         // TODO we don't have to set context three times (use caller to set context?)
         let data: *mut c_void = self as *mut Linq as *mut c_void;
         unsafe { linq_sys::linq_context_set(self.ctx, data) };
@@ -76,7 +86,7 @@ impl Linq {
         self
     }
 
-    pub fn on_error(&mut self, f: ErrorFunction) -> &Linq {
+    pub fn on_error(&mut self, f: ErrorFunction) -> &mut Linq {
         // TODO we don't have to set context three times (use caller to set context?)
         let data: *mut c_void = self as *mut Linq as *mut c_void;
         unsafe { linq_sys::linq_context_set(self.ctx, data) };

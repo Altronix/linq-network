@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 linq = { path = "../linq" }
+ctrlc = "3.1.3"

@@ -597,7 +597,7 @@ foreach_node_check_request_timeout(void* ctx, device_s** n)
 }
 
 static E_LINQ_ERROR
-poll_sockets(linq_s* l, socket_map_s* h, bool is_router)
+poll_sockets(linq_s* l, socket_map_s* h, bool is_router, uint32_t ms)
 {
     int err, n = 0;
     zmq_pollitem_t items[MAX_CONNECTIONS];
@@ -613,7 +613,7 @@ poll_sockets(linq_s* l, socket_map_s* h, bool is_router)
     n = 0;
 
     // Process sockets
-    err = zmq_poll(items, socket_map_size(h), 5);
+    err = zmq_poll(items, socket_map_size(h), ms);
     if (!(err < 0)) {
         for (khiter_t k = kh_begin(h); k != kh_end(h); ++k) {
             if (!kh_exist(h, k)) continue;
@@ -629,10 +629,10 @@ poll_sockets(linq_s* l, socket_map_s* h, bool is_router)
 
 // poll network socket file handles
 E_LINQ_ERROR
-linq_poll(linq_s* l)
+linq_poll(linq_s* l, uint32_t ms)
 {
-    int e = poll_sockets(l, l->routers, true);
-    if (!e) e = poll_sockets(l, l->dealers, false);
+    int e = poll_sockets(l, l->routers, true, ms);
+    if (!e) e = poll_sockets(l, l->dealers, false, ms);
 
     // Loop through devices
     device_map_foreach(l->devices, foreach_node_check_request_timeout, l);
