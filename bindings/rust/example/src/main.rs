@@ -1,4 +1,3 @@
-extern crate ctrlc;
 extern crate linq;
 
 static PORT: u32 = 33455;
