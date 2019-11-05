@@ -110,11 +110,10 @@ impl Linq {
         self
     }
 
-    pub fn send<F>(&self, r: Request, sid: &str, cb: F)
+    pub fn send<F>(&self, r: Request, sid: &str, cb: F) -> &Linq
     where
         F: 'static + Fn(linq_sys::E_LINQ_ERROR, &str),
     {
-        // TODO leaking until we figure out how to recover this from c interface
         let cb: Box<Box<dyn Fn(linq_sys::E_LINQ_ERROR, &str)>> = Box::new(Box::new(cb));
         match r {
             Request::Get(path) => unsafe {
@@ -146,6 +145,7 @@ impl Linq {
                 );
             },
         }
+        self
     }
     pub fn device_count(&self) -> &Linq {
         unsafe {
