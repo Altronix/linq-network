@@ -11,13 +11,10 @@ fn main() {
     // Setup Callbacks with lamda or static function
     linq.on_heartbeat(move |l, sid| {
         println!("[HEARTBEAT] {}", sid);
-        l.send(
-            linq::Request::Get("/ATX/about".to_string()),
-            sid,
-            |e, json| {
-                println!("[RESPONSE] {}, {}", e, json);
-            },
-        );
+        let r = linq::Request::Get("/ATX/about".to_string());
+        l.send(r, sid, |e, json| {
+            println!("[RESPONSE] {}, {}", e, json);
+        });
     })
     .on_alert(on_alert)
     .on_error(|_l, e, _sid| println!("[ERROR] {}", e));
