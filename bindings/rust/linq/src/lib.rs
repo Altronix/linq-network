@@ -7,9 +7,6 @@ use std::os::raw;
 use std::os::raw::c_char;
 use std::os::raw::c_void;
 
-pub type HeartbeatFunction = fn(&mut Linq, sid: &str);
-pub type AlertFunction = fn(&mut Linq, sid: &str);
-pub type ErrorFunction = fn(&mut Linq, linq_sys::E_LINQ_ERROR, sid: &str);
 pub type ResponseFunction = fn(linq_sys::E_LINQ_ERROR, &str);
 
 pub enum Request {
@@ -24,10 +21,9 @@ pub fn running() -> bool {
 
 pub struct Linq {
     ctx: *mut linq_sys::linq_s,
-    on_heartbeat: Option<HeartbeatFunction>,
-    on_error: Option<ErrorFunction>,
-    on_alert: Option<AlertFunction>,
-    on_test: Option<Box<dyn Fn(&Linq, &str)>>,
+    on_heartbeat: Option<Box<dyn Fn(&Linq, &str)>>,
+    on_error: Option<Box<dyn Fn(&Linq, linq_sys::E_LINQ_ERROR, &str)>>,
+    on_alert: Option<Box<dyn Fn(&Linq, &str)>>,
 }
 
 impl Linq {
@@ -38,7 +34,6 @@ impl Linq {
             on_heartbeat: None,
             on_alert: None,
             on_error: None,
-            on_test: None,
         }
     }
 
@@ -82,42 +77,40 @@ impl Linq {
         unsafe { linq_sys::linq_poll(self.ctx, ms) }
     }
 
-    pub fn on_heartbeat(&mut self, f: HeartbeatFunction) -> &mut Linq {
-        // TODO we don't have to set context three times (use caller to set context?)
-        let data: *mut c_void = self as *mut Linq as *mut c_void;
-        unsafe { linq_sys::linq_context_set(self.ctx, data) };
-        self.on_heartbeat = Some(f);
-        self
-    }
-
-    pub fn on_alert(&mut self, f: AlertFunction) -> &mut Linq {
-        // TODO we don't have to set context three times (use caller to set context?)
-        let data: *mut c_void = self as *mut Linq as *mut c_void;
-        unsafe { linq_sys::linq_context_set(self.ctx, data) };
-        self.on_alert = Some(f);
-        self
-    }
-
-    pub fn on_error(&mut self, f: ErrorFunction) -> &mut Linq {
-        // TODO we don't have to set context three times (use caller to set context?)
-        let data: *mut c_void = self as *mut Linq as *mut c_void;
-        unsafe { linq_sys::linq_context_set(self.ctx, data) };
-        self.on_error = Some(f);
-        self
-    }
-
-    pub fn on_test<F>(&mut self, f: F) -> &mut Linq
+    pub fn on_heartbeat<F>(&mut self, f: F) -> &mut Linq
     where
         F: 'static + Fn(&Linq, &str),
     {
         // TODO we don't have to set context three times (use caller to set context?)
         let data: *mut c_void = self as *mut Linq as *mut c_void;
         unsafe { linq_sys::linq_context_set(self.ctx, data) };
-        self.on_test = Some(Box::new(f));
+        self.on_heartbeat = Some(Box::new(f));
         self
     }
 
-    pub fn send(&mut self, r: Request, sid: &str, cb: ResponseFunction) {
+    pub fn on_alert<F>(&mut self, f: F) -> &mut Linq
+    where
+        F: 'static + Fn(&Linq, &str),
+    {
+        // TODO we don't have to set context three times (use caller to set context?)
+        let data: *mut c_void = self as *mut Linq as *mut c_void;
+        unsafe { linq_sys::linq_context_set(self.ctx, data) };
+        self.on_alert = Some(Box::new(f));
+        self
+    }
+
+    pub fn on_error<F>(&mut self, f: F) -> &mut Linq
+    where
+        F: 'static + Fn(&Linq, linq_sys::E_LINQ_ERROR, &str),
+    {
+        // TODO we don't have to set context three times (use caller to set context?)
+        let data: *mut c_void = self as *mut Linq as *mut c_void;
+        unsafe { linq_sys::linq_context_set(self.ctx, data) };
+        self.on_error = Some(Box::new(f));
+        self
+    }
+
+    pub fn send(&self, r: Request, sid: &str, cb: ResponseFunction) {
         let cb: *mut c_void = cb as *mut ResponseFunction as *mut c_void;
         match r {
             Request::Get(path) => unsafe {
@@ -182,7 +175,7 @@ extern "C" fn on_error(
 ) -> () {
     let l: &mut Linq = unsafe { &mut *(ctx as *mut Linq) };
     let cstr = unsafe { std::ffi::CStr::from_ptr(serial) };
-    l.on_error.unwrap()(l, error, cstr.to_str().expect("to_str() fail!"));
+    l.on_error.as_ref().unwrap()(l, error, cstr.to_str().expect("to_str() fail!"));
 }
 
 extern "C" fn on_heartbeat(
@@ -192,7 +185,7 @@ extern "C" fn on_heartbeat(
 ) -> () {
     let l: &mut Linq = unsafe { &mut *(ctx as *mut Linq) };
     let cstr = unsafe { std::ffi::CStr::from_ptr(serial) };
-    l.on_heartbeat.unwrap()(l, cstr.to_str().expect("to_str() fail!"));
+    l.on_heartbeat.as_ref().unwrap()(l, cstr.to_str().expect("to_str() fail!"));
 }
 
 extern "C" fn on_alert(
@@ -203,7 +196,7 @@ extern "C" fn on_alert(
 ) -> () {
     let l: &mut Linq = unsafe { &mut *(ctx as *mut Linq) };
     let cstr = unsafe { std::ffi::CStr::from_ptr(linq_sys::device_serial(*device)) };
-    l.on_alert.unwrap()(l, cstr.to_str().expect("to_str() fail!"));
+    l.on_alert.as_ref().unwrap()(l, cstr.to_str().expect("to_str() fail!"));
 }
 
 extern "C" fn on_response(

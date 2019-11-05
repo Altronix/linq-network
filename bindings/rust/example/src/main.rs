@@ -9,9 +9,18 @@ fn main() {
     println!("Listening on port {}", PORT);
 
     // Setup Callbacks with lamda or static function
-    linq.on_heartbeat(on_heartbeat)
-        .on_alert(|_l, sid| println!("[ALERT] {}", sid))
-        .on_error(|_l, e, _sid| println!("[ERROR] {}", e));
+    linq.on_heartbeat(move |l, sid| {
+        println!("[HEARTBEAT] {}", sid);
+        l.send(
+            linq::Request::Get("/ATX/about".to_string()),
+            sid,
+            |e, json| {
+                println!("[RESPONSE] {}, {}", e, json);
+            },
+        );
+    })
+    .on_alert(on_alert)
+    .on_error(|_l, e, _sid| println!("[ERROR] {}", e));
 
     // Main Loop
     while linq::running() {
@@ -24,6 +33,6 @@ fn main() {
 }
 
 // Example alert callback with a static method
-fn on_heartbeat(_l: &mut linq::Linq, sid: &str) {
+fn on_alert(_l: &linq::Linq, sid: &str) {
     println!("[HEARTBEAT] {}", sid);
 }
