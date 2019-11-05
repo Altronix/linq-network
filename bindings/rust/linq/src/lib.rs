@@ -110,8 +110,12 @@ impl Linq {
         self
     }
 
-    pub fn send(&self, r: Request, sid: &str, cb: ResponseFunction) {
-        let cb: *mut c_void = cb as *mut ResponseFunction as *mut c_void;
+    pub fn send<F>(&self, r: Request, sid: &str, cb: F)
+    where
+        F: 'static + Fn(linq_sys::E_LINQ_ERROR, &str),
+    {
+        // TODO leaking until we figure out how to recover this from c interface
+        let cb: Box<Box<dyn Fn(linq_sys::E_LINQ_ERROR, &str)>> = Box::new(Box::new(cb));
         match r {
             Request::Get(path) => unsafe {
                 linq_sys::linq_device_send_get(
@@ -119,7 +123,7 @@ impl Linq {
                     std::ffi::CString::new(sid).unwrap().as_ptr(),
                     std::ffi::CString::new(path).unwrap().as_ptr(),
                     Some(on_response),
-                    cb,
+                    Box::into_raw(cb) as *mut _,
                 );
             },
             Request::Post(path, data) => unsafe {
@@ -129,7 +133,7 @@ impl Linq {
                     std::ffi::CString::new(path).unwrap().as_ptr(),
                     std::ffi::CString::new(data).unwrap().as_ptr(),
                     Some(on_response),
-                    cb,
+                    Box::into_raw(cb) as *mut _,
                 );
             },
             Request::Delete(path) => unsafe {
@@ -138,12 +142,11 @@ impl Linq {
                     std::ffi::CString::new(sid).unwrap().as_ptr(),
                     std::ffi::CString::new(path).unwrap().as_ptr(),
                     Some(on_response),
-                    cb,
+                    Box::into_raw(cb) as *mut _,
                 );
             },
         }
     }
-
     pub fn device_count(&self) -> &Linq {
         unsafe {
             linq_sys::linq_device_count(self.ctx);
@@ -205,9 +208,11 @@ extern "C" fn on_response(
     json: *const c_char,
     _d: *mut *mut linq_sys::device_s,
 ) -> () {
-    let cb: &mut ResponseFunction = unsafe { &mut *(ctx as *mut ResponseFunction) };
+    let cb: Box<Box<dyn Fn(linq_sys::E_LINQ_ERROR, &str)>> =
+        unsafe { Box::from_raw(ctx as *mut _) };
     let json = unsafe { std::ffi::CStr::from_ptr(json) };
     cb(e, json.to_str().expect("to_str() fail!"));
+    drop(cb);
 }
 
 static CALLBACKS: linq_callbacks = linq_callbacks {
