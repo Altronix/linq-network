@@ -30,5 +30,5 @@ fn main() {
 
 // Example alert callback with a static method
 fn on_alert(_l: &linq::Linq, sid: &str) {
-    println!("[HEARTBEAT] {}", sid);
+    println!("[ALERT] {}", sid);
 }
