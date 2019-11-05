@@ -9,10 +9,10 @@ use std::os::raw::c_void;
 
 pub type ResponseFunction = fn(linq_sys::E_LINQ_ERROR, &str);
 
-pub enum Request {
-    Get(String),
-    Post(String, String),
-    Delete(String),
+pub enum Request<'a> {
+    Get(&'a str),
+    Post(&'a str, &'a str),
+    Delete(&'a str),
 }
 
 pub fn running() -> bool {

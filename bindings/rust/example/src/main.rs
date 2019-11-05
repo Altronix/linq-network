@@ -11,8 +11,7 @@ fn main() {
     // Setup Callbacks with lamda or static function
     linq.on_heartbeat(move |l, sid| {
         println!("[HEARTBEAT] {}", sid);
-        let r = linq::Request::Get("/ATX/about".to_string());
-        l.send(r, sid, |e, json| {
+        l.send(linq::Request::Get("/ATX/about"), sid, |e, json| {
             println!("[RESPONSE] {}, {}", e, json);
         });
     })
