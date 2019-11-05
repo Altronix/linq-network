@@ -116,8 +116,8 @@ impl Linq {
             Request::Get(path) => unsafe {
                 linq_sys::linq_device_send_get(
                     self.ctx,
-                    std::ffi::CString::new(path).unwrap().as_ptr(),
                     std::ffi::CString::new(sid).unwrap().as_ptr(),
+                    std::ffi::CString::new(path).unwrap().as_ptr(),
                     Some(on_response),
                     cb,
                 );
@@ -125,8 +125,8 @@ impl Linq {
             Request::Post(path, data) => unsafe {
                 linq_sys::linq_device_send_post(
                     self.ctx,
-                    std::ffi::CString::new(path).unwrap().as_ptr(),
                     std::ffi::CString::new(sid).unwrap().as_ptr(),
+                    std::ffi::CString::new(path).unwrap().as_ptr(),
                     std::ffi::CString::new(data).unwrap().as_ptr(),
                     Some(on_response),
                     cb,
@@ -135,8 +135,8 @@ impl Linq {
             Request::Delete(path) => unsafe {
                 linq_sys::linq_device_send_delete(
                     self.ctx,
-                    std::ffi::CString::new(path).unwrap().as_ptr(),
                     std::ffi::CString::new(sid).unwrap().as_ptr(),
+                    std::ffi::CString::new(path).unwrap().as_ptr(),
                     Some(on_response),
                     cb,
                 );
