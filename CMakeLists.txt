@@ -23,6 +23,7 @@ else()
   find_package(jsmn)
 endif()
 add_subdirectory(src)
+add_subdirectory(examples/server)
 add_subdirectory(bindings/cpp)
 
 if(ENABLE_TESTING)

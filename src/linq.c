@@ -477,7 +477,7 @@ linq_create(const linq_callbacks* cb, void* context)
         l->routers = socket_map_create();
         l->dealers = socket_map_create();
         l->callbacks = cb;
-        l->context = context;
+        l->context = context ? context : l;
     }
     return l;
 }
