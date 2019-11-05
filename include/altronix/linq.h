@@ -89,24 +89,24 @@ extern "C"
     E_LINQ_ERROR linq_shutdown(linq_s*, linq_socket);
     E_LINQ_ERROR linq_disconnect(linq_s*, linq_socket);
     E_LINQ_ERROR linq_poll(linq_s* l, uint32_t ms);
-    device_s** linq_device(linq_s*, const char*);
-    uint32_t linq_device_count(linq_s*);
-    uint32_t linq_nodes_count(linq_s* linq);
+    device_s** linq_device(const linq_s*, const char*);
+    uint32_t linq_device_count(const linq_s*);
+    uint32_t linq_nodes_count(const linq_s* linq);
     E_LINQ_ERROR linq_device_send_get(
-        linq_s*,
+        const linq_s*,
         const char*,
         const char*,
         linq_request_complete_fn,
         void*);
     E_LINQ_ERROR linq_device_send_post(
-        linq_s*,
+        const linq_s*,
         const char*,
         const char*,
         const char*,
         linq_request_complete_fn,
         void*);
     E_LINQ_ERROR linq_device_send_delete(
-        linq_s*,
+        const linq_s*,
         const char*,
         const char*,
         linq_request_complete_fn,

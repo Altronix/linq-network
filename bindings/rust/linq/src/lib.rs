@@ -3,15 +3,22 @@ extern crate linq_sys;
 use linq_sys::linq_callbacks;
 use linq_sys::linq_create;
 use std::os::raw;
+use std::os::raw::c_char;
 use std::os::raw::c_void;
 
 pub type HeartbeatFunction = fn(&mut Linq, sid: &str);
 pub type AlertFunction = fn(&mut Linq, sid: &str);
 pub type ErrorFunction = fn(&mut Linq, linq_sys::E_LINQ_ERROR, sid: &str);
+pub type ResponseFunction = fn(linq_sys::E_LINQ_ERROR, &str);
+
+pub enum Request {
+    Get(String),
+    Post(String, String),
+    Delete(String),
+}
 
 pub fn running() -> bool {
-    let r = unsafe { linq_sys::sys_running() };
-    r
+    unsafe { linq_sys::sys_running() }
 }
 
 pub struct Linq {
@@ -61,18 +68,15 @@ impl Linq {
     }
 
     pub fn shutdown(&self, socket: linq_sys::linq_socket) -> linq_sys::E_LINQ_ERROR {
-        let e = unsafe { linq_sys::linq_shutdown(self.ctx, socket) };
-        e
+        unsafe { linq_sys::linq_shutdown(self.ctx, socket) }
     }
 
     pub fn disconnect(&self, socket: linq_sys::linq_socket) -> linq_sys::E_LINQ_ERROR {
-        let e = unsafe { linq_sys::linq_disconnect(self.ctx, socket) };
-        e
+        unsafe { linq_sys::linq_disconnect(self.ctx, socket) }
     }
 
     pub fn poll(&self, ms: u32) -> linq_sys::E_LINQ_ERROR {
-        let e = unsafe { linq_sys::linq_poll(self.ctx, ms) };
-        e
+        unsafe { linq_sys::linq_poll(self.ctx, ms) }
     }
 
     pub fn on_heartbeat(&mut self, f: HeartbeatFunction) -> &mut Linq {
@@ -97,6 +101,40 @@ impl Linq {
         unsafe { linq_sys::linq_context_set(self.ctx, data) };
         self.on_error = Some(f);
         self
+    }
+
+    pub fn send(&mut self, r: Request, sid: &str, cb: ResponseFunction) {
+        let cb: *mut c_void = cb as *mut ResponseFunction as *mut c_void;
+        match r {
+            Request::Get(path) => unsafe {
+                linq_sys::linq_device_send_get(
+                    self.ctx,
+                    std::ffi::CString::new(path).unwrap().as_ptr(),
+                    std::ffi::CString::new(sid).unwrap().as_ptr(),
+                    Some(on_response),
+                    cb,
+                );
+            },
+            Request::Post(path, data) => unsafe {
+                linq_sys::linq_device_send_post(
+                    self.ctx,
+                    std::ffi::CString::new(path).unwrap().as_ptr(),
+                    std::ffi::CString::new(sid).unwrap().as_ptr(),
+                    std::ffi::CString::new(data).unwrap().as_ptr(),
+                    Some(on_response),
+                    cb,
+                );
+            },
+            Request::Delete(path) => unsafe {
+                linq_sys::linq_device_send_delete(
+                    self.ctx,
+                    std::ffi::CString::new(path).unwrap().as_ptr(),
+                    std::ffi::CString::new(sid).unwrap().as_ptr(),
+                    Some(on_response),
+                    cb,
+                );
+            },
+        }
     }
 
     pub fn device_count(&self) -> &Linq {
@@ -152,6 +190,17 @@ extern "C" fn on_alert(
     let l: &mut Linq = unsafe { &mut *(ctx as *mut Linq) };
     let cstr = unsafe { std::ffi::CStr::from_ptr(linq_sys::device_serial(*device)) };
     l.on_alert.unwrap()(l, cstr.to_str().expect("to_str() fail!"));
+}
+
+extern "C" fn on_response(
+    ctx: *mut c_void,
+    e: linq_sys::E_LINQ_ERROR,
+    json: *const c_char,
+    _d: *mut *mut linq_sys::device_s,
+) -> () {
+    let cb: &mut ResponseFunction = unsafe { &mut *(ctx as *mut ResponseFunction) };
+    let json = unsafe { std::ffi::CStr::from_ptr(json) };
+    cb(e, json.to_str().expect("to_str() fail!"));
 }
 
 static CALLBACKS: linq_callbacks = linq_callbacks {

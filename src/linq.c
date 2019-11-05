@@ -650,21 +650,21 @@ linq_device_from_frame(linq_s* l, zframe_t* frame)
 
 // get a device from the device map
 device_s**
-linq_device(linq_s* l, const char* serial)
+linq_device(const linq_s* l, const char* serial)
 {
     return device_map_get(l->devices, serial);
 }
 
 // return how many devices are connected to linq
 uint32_t
-linq_device_count(linq_s* l)
+linq_device_count(const linq_s* l)
 {
     return device_map_size(l->devices);
 }
 
 // return how many nodes are connected to linq
 uint32_t
-linq_nodes_count(linq_s* l)
+linq_nodes_count(const linq_s* l)
 {
     return node_map_size(l->nodes);
 }
@@ -672,7 +672,7 @@ linq_nodes_count(linq_s* l)
 // send a get request to a device connected to us
 E_LINQ_ERROR
 linq_device_send_get(
-    linq_s* linq,
+    const linq_s* linq,
     const char* serial,
     const char* path,
     linq_request_complete_fn fn,
@@ -687,7 +687,7 @@ linq_device_send_get(
 // send a post request to a device connected to us
 E_LINQ_ERROR
 linq_device_send_post(
-    linq_s* linq,
+    const linq_s* linq,
     const char* serial,
     const char* path,
     const char* json,
@@ -703,7 +703,7 @@ linq_device_send_post(
 // send a delete request to a device connected to us
 E_LINQ_ERROR
 linq_device_send_delete(
-    linq_s* linq,
+    const linq_s* linq,
     const char* serial,
     const char* path,
     linq_request_complete_fn fn,
