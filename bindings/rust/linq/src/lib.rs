@@ -2,6 +2,7 @@ extern crate linq_sys;
 
 use linq_sys::linq_callbacks;
 use linq_sys::linq_create;
+use std::option::Option;
 use std::os::raw;
 use std::os::raw::c_char;
 use std::os::raw::c_void;
@@ -23,9 +24,9 @@ pub fn running() -> bool {
 
 pub struct Linq {
     ctx: *mut linq_sys::linq_s,
-    on_heartbeat: std::option::Option<HeartbeatFunction>,
-    on_error: std::option::Option<ErrorFunction>,
-    on_alert: std::option::Option<AlertFunction>,
+    on_heartbeat: Option<HeartbeatFunction>,
+    on_error: Option<ErrorFunction>,
+    on_alert: Option<AlertFunction>,
 }
 
 impl Linq {
