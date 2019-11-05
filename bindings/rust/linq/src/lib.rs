@@ -27,6 +27,7 @@ pub struct Linq {
     on_heartbeat: Option<HeartbeatFunction>,
     on_error: Option<ErrorFunction>,
     on_alert: Option<AlertFunction>,
+    on_test: Option<Box<dyn Fn(&Linq, &str)>>,
 }
 
 impl Linq {
@@ -37,6 +38,7 @@ impl Linq {
             on_heartbeat: None,
             on_alert: None,
             on_error: None,
+            on_test: None,
         }
     }
 
@@ -101,6 +103,17 @@ impl Linq {
         let data: *mut c_void = self as *mut Linq as *mut c_void;
         unsafe { linq_sys::linq_context_set(self.ctx, data) };
         self.on_error = Some(f);
+        self
+    }
+
+    pub fn on_test<F>(&mut self, f: F) -> &mut Linq
+    where
+        F: 'static + Fn(&Linq, &str),
+    {
+        // TODO we don't have to set context three times (use caller to set context?)
+        let data: *mut c_void = self as *mut Linq as *mut c_void;
+        unsafe { linq_sys::linq_context_set(self.ctx, data) };
+        self.on_test = Some(Box::new(f));
         self
     }
 
