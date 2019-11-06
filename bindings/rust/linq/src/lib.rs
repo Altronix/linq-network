@@ -3,8 +3,6 @@
 pub mod linq;
 pub use linq::*;
 
-use std::os::raw::c_void;
-
 enum Socket {
     Server(linq_sys::linq_socket),
     Client(linq_sys::linq_socket),
@@ -25,7 +23,10 @@ pub struct LinqHandle {
 
 impl LinqHandle {
     pub fn new() -> LinqHandle {
-        let ctx: Box<LinqContext> = Box::new(LinqContext::new());
+        let mut ctx: Box<LinqContext> = Box::new(LinqContext::new());
+        unsafe {
+            linq_sys::linq_context_set(ctx.as_ref().ctx, &mut *ctx as *mut LinqContext as *mut _)
+        };
         LinqHandle {
             ctx,
             sockets: std::collections::HashMap::new(),

@@ -38,12 +38,6 @@ impl LinqContext {
         }
     }
 
-    pub fn context_set<T>(self, ctx: &mut T) -> Self {
-        let data: *mut c_void = ctx as *mut T as *mut c_void;
-        unsafe { linq_sys::linq_context_set(self.ctx, data) };
-        self
-    }
-
     pub fn send<F>(&self, r: Request, sid: &str, cb: F) -> &LinqContext
     where
         F: 'static + Fn(linq_sys::E_LINQ_ERROR, &str),

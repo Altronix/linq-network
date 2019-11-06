@@ -12,13 +12,8 @@ fn main() {
             //     println!("[RESPONSE] {}, {}", e, json);
             // });
         })
-        .on_alert(on_alert)
+        .on_alert(|_l, sid| println!("[ALERT] {}", sid))
         .on_error(|_l, e, _sid| println!("[ERROR] {}", e))
         .start();
     println!("Listening on port {}", PORT);
-}
-
-// Example alert callback with a static method
-fn on_alert(_l: &linq::Linq, sid: &str) {
-    println!("[ALERT] {}", sid);
 }
