@@ -38,17 +38,46 @@ impl LinqContext {
         }
     }
 
+    pub fn listen(&self, s: &str) -> linq_sys::linq_socket {
+        let cstr = std::ffi::CString::new(s).unwrap();
+        let ep = cstr.as_ptr();
+        unsafe { linq_sys::linq_listen(self.ctx, ep) }
+    }
+
+    pub fn connect(&self, s: &str) -> linq_sys::linq_socket {
+        let cstr = std::ffi::CString::new(s).unwrap();
+        let ep = cstr.as_ptr();
+        unsafe { linq_sys::linq_connect(self.ctx, ep) }
+    }
+
+    pub fn shutdown(&self, s: linq_sys::linq_socket) -> () {
+        unsafe {
+            linq_sys::linq_shutdown(self.ctx, s);
+        }
+    }
+
+    pub fn disconnect(&self, s: linq_sys::linq_socket) -> () {
+        unsafe {
+            linq_sys::linq_shutdown(self.ctx, s);
+        }
+    }
+
+    pub fn poll(&self, ms: u32) -> linq_sys::E_LINQ_ERROR {
+        unsafe { linq_sys::linq_poll(self.ctx, ms) }
+    }
+
     pub fn send<F>(&self, r: Request, sid: &str, cb: F) -> &LinqContext
     where
         F: 'static + Fn(linq_sys::E_LINQ_ERROR, &str),
     {
+        use std::ffi::CString;
         let cb: Box<Box<dyn Fn(linq_sys::E_LINQ_ERROR, &str)>> = Box::new(Box::new(cb));
         match r {
             Request::Get(path) => unsafe {
                 linq_sys::linq_device_send_get(
                     self.ctx,
-                    std::ffi::CString::new(sid).unwrap().as_ptr(),
-                    std::ffi::CString::new(path).unwrap().as_ptr(),
+                    CString::new(sid).unwrap().as_ptr(),
+                    CString::new(path).unwrap().as_ptr(),
                     Some(on_response),
                     Box::into_raw(cb) as *mut _,
                 );
@@ -56,9 +85,9 @@ impl LinqContext {
             Request::Post(path, data) => unsafe {
                 linq_sys::linq_device_send_post(
                     self.ctx,
-                    std::ffi::CString::new(sid).unwrap().as_ptr(),
-                    std::ffi::CString::new(path).unwrap().as_ptr(),
-                    std::ffi::CString::new(data).unwrap().as_ptr(),
+                    CString::new(sid).unwrap().as_ptr(),
+                    CString::new(path).unwrap().as_ptr(),
+                    CString::new(data).unwrap().as_ptr(),
                     Some(on_response),
                     Box::into_raw(cb) as *mut _,
                 );
@@ -66,8 +95,8 @@ impl LinqContext {
             Request::Delete(path) => unsafe {
                 linq_sys::linq_device_send_delete(
                     self.ctx,
-                    std::ffi::CString::new(sid).unwrap().as_ptr(),
-                    std::ffi::CString::new(path).unwrap().as_ptr(),
+                    CString::new(sid).unwrap().as_ptr(),
+                    CString::new(path).unwrap().as_ptr(),
                     Some(on_response),
                     Box::into_raw(cb) as *mut _,
                 );

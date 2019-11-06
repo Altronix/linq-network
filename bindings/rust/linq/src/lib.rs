@@ -50,37 +50,30 @@ impl LinqHandle {
     }
 
     pub fn listen_ep(mut self, s: &str) -> Self {
-        let cstr = std::ffi::CString::new(s).unwrap();
-        let ep = cstr.as_ptr();
-        let socket = unsafe { linq_sys::linq_listen(self.ctx.as_ref().ctx, ep) };
+        let socket = self.ctx.as_ref().listen(s);
         self.sockets.insert(s.to_string(), Socket::Server(socket));
         self
     }
 
     pub fn connect(&mut self, s: &str) -> &mut LinqHandle {
-        let cstr = std::ffi::CString::new(s).unwrap();
-        let ep = cstr.as_ptr();
-        let socket = unsafe { linq_sys::linq_connect(self.ctx.as_ref().ctx, ep) };
+        let socket = self.ctx.as_ref().connect(s);
         self.sockets.insert(s.to_string(), Socket::Client(socket));
         self
     }
 
     pub fn shutdown(&mut self, s: &str) -> &mut LinqHandle {
         match self.sockets.get(s).unwrap() {
-            Socket::Server(s) => unsafe {
-                linq_sys::linq_shutdown(self.ctx.as_ref().ctx, *s);
-            },
-            Socket::Client(s) => unsafe {
-                linq_sys::linq_shutdown(self.ctx.as_ref().ctx, *s);
-            },
+            Socket::Server(s) => self.ctx.as_ref().shutdown(*s),
+            Socket::Client(s) => self.ctx.as_ref().disconnect(*s),
         }
         self
     }
 
     pub fn poll(&self, ms: u32) -> linq_sys::E_LINQ_ERROR {
-        unsafe { linq_sys::linq_poll(self.ctx.as_ref().ctx, ms) }
+        self.ctx.as_ref().poll(ms)
     }
 
+    // TODO combine on_* methods into register function with enum param
     pub fn on_heartbeat<F>(mut self, f: F) -> Self
     where
         F: 'static + Fn(&LinqContext, &str),
