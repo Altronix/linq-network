@@ -24,12 +24,84 @@ enum Socket {
     Client(linq_sys::linq_socket),
 }
 
-struct LinqContext {
+pub struct LinqContext {
     ctx: *mut linq_sys::linq_s,
     on_heartbeat: Option<Box<dyn Fn(&LinqHandle, &str)>>,
     on_error: Option<Box<dyn Fn(&LinqHandle, linq_sys::E_LINQ_ERROR, &str)>>,
     on_alert: Option<Box<dyn Fn(&LinqHandle, &str)>>,
 }
+
+impl LinqContext {
+    pub fn new() -> LinqContext {
+        LinqContext {
+            ctx: unsafe { linq_create(&CALLBACKS as *const _, std::ptr::null_mut()) },
+            on_heartbeat: None,
+            on_alert: None,
+            on_error: None,
+        }
+    }
+
+    pub fn send<F>(&self, r: Request, sid: &str, cb: F) -> &LinqContext
+    where
+        F: 'static + Fn(linq_sys::E_LINQ_ERROR, &str),
+    {
+        let cb: Box<Box<dyn Fn(linq_sys::E_LINQ_ERROR, &str)>> = Box::new(Box::new(cb));
+        match r {
+            Request::Get(path) => unsafe {
+                linq_sys::linq_device_send_get(
+                    self.ctx,
+                    std::ffi::CString::new(sid).unwrap().as_ptr(),
+                    std::ffi::CString::new(path).unwrap().as_ptr(),
+                    Some(on_response),
+                    Box::into_raw(cb) as *mut _,
+                );
+            },
+            Request::Post(path, data) => unsafe {
+                linq_sys::linq_device_send_post(
+                    self.ctx,
+                    std::ffi::CString::new(sid).unwrap().as_ptr(),
+                    std::ffi::CString::new(path).unwrap().as_ptr(),
+                    std::ffi::CString::new(data).unwrap().as_ptr(),
+                    Some(on_response),
+                    Box::into_raw(cb) as *mut _,
+                );
+            },
+            Request::Delete(path) => unsafe {
+                linq_sys::linq_device_send_delete(
+                    self.ctx,
+                    std::ffi::CString::new(sid).unwrap().as_ptr(),
+                    std::ffi::CString::new(path).unwrap().as_ptr(),
+                    Some(on_response),
+                    Box::into_raw(cb) as *mut _,
+                );
+            },
+        }
+        self
+    }
+    pub fn device_count(&self) -> &LinqContext {
+        unsafe {
+            linq_sys::linq_device_count(self.ctx);
+        }
+        self
+    }
+
+    pub fn node_count(&self) -> &LinqContext {
+        unsafe {
+            linq_sys::linq_nodes_count(self.ctx);
+        }
+        self
+    }
+}
+
+impl Drop for LinqContext {
+    fn drop(&mut self) {
+        unsafe {
+            linq_sys::linq_destroy(&mut self.ctx);
+        }
+    }
+}
+
+unsafe impl Send for LinqContext {}
 
 pub struct LinqHandle {
     ctx: Box<LinqContext>,
@@ -38,14 +110,8 @@ pub struct LinqHandle {
 
 impl LinqHandle {
     pub fn new() -> LinqHandle {
-        let c_ctx = unsafe { linq_create(&CALLBACKS as *const _, std::ptr::null_mut()) };
         LinqHandle {
-            ctx: Box::new(LinqContext {
-                ctx: c_ctx,
-                on_heartbeat: None,
-                on_alert: None,
-                on_error: None,
-            }),
+            ctx: Box::new(LinqContext::new()),
             sockets: std::collections::HashMap::new(),
         }
     }
@@ -127,68 +193,7 @@ impl LinqHandle {
         self.ctx.as_mut().on_error = Some(Box::new(f));
         self
     }
-
-    pub fn send<F>(&self, r: Request, sid: &str, cb: F) -> &LinqHandle
-    where
-        F: 'static + Fn(linq_sys::E_LINQ_ERROR, &str),
-    {
-        let cb: Box<Box<dyn Fn(linq_sys::E_LINQ_ERROR, &str)>> = Box::new(Box::new(cb));
-        match r {
-            Request::Get(path) => unsafe {
-                linq_sys::linq_device_send_get(
-                    self.ctx.as_ref().ctx,
-                    std::ffi::CString::new(sid).unwrap().as_ptr(),
-                    std::ffi::CString::new(path).unwrap().as_ptr(),
-                    Some(on_response),
-                    Box::into_raw(cb) as *mut _,
-                );
-            },
-            Request::Post(path, data) => unsafe {
-                linq_sys::linq_device_send_post(
-                    self.ctx.as_ref().ctx,
-                    std::ffi::CString::new(sid).unwrap().as_ptr(),
-                    std::ffi::CString::new(path).unwrap().as_ptr(),
-                    std::ffi::CString::new(data).unwrap().as_ptr(),
-                    Some(on_response),
-                    Box::into_raw(cb) as *mut _,
-                );
-            },
-            Request::Delete(path) => unsafe {
-                linq_sys::linq_device_send_delete(
-                    self.ctx.as_ref().ctx,
-                    std::ffi::CString::new(sid).unwrap().as_ptr(),
-                    std::ffi::CString::new(path).unwrap().as_ptr(),
-                    Some(on_response),
-                    Box::into_raw(cb) as *mut _,
-                );
-            },
-        }
-        self
-    }
-    pub fn device_count(&self) -> &LinqHandle {
-        unsafe {
-            linq_sys::linq_device_count(self.ctx.as_ref().ctx);
-        }
-        self
-    }
-
-    pub fn node_count(&self) -> &LinqHandle {
-        unsafe {
-            linq_sys::linq_nodes_count(self.ctx.as_ref().ctx);
-        }
-        self
-    }
 }
-
-impl Drop for LinqHandle {
-    fn drop(&mut self) {
-        unsafe {
-            linq_sys::linq_destroy(&mut self.ctx.as_mut().ctx);
-        }
-    }
-}
-
-unsafe impl Send for LinqHandle {}
 
 extern "C" fn on_error(
     ctx: *mut raw::c_void,

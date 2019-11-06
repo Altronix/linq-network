@@ -10,3 +10,4 @@ pub fn running() -> bool {
 pub fn init() -> LinqHandle {
     linq::LinqHandle::new()
 }
+
