@@ -4,6 +4,7 @@ static PORT: u32 = 33455;
 
 fn main() {
     // Setup Linq
+    println!("Listening on port {}", PORT);
     linq::init()
         .listen(PORT)
         .on_heartbeat(move |l, sid| {
@@ -15,5 +16,4 @@ fn main() {
         .on_alert(|_l, sid| println!("[ALERT] {}", sid))
         .on_error(|_l, e, _sid| println!("[ERROR] {}", e))
         .start();
-    println!("Listening on port {}", PORT);
 }
