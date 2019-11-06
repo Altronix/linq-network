@@ -1,30 +1,27 @@
 extern crate linq;
 
-use std::sync::{Arc, Mutex};
-use std::thread;
 static PORT: u32 = 33455;
 
 fn main() {
     // Setup Linq
-    let mut linq = linq::init();
-    linq.listen(PORT);
-    println!("Listening on port {}", PORT);
-
-    let linq = Arc::new(Mutex::new(linq));
-    {
-        let mut linq = linq.lock().unwrap();
-
-        // Setup Callbacks with lamda or static function
-        linq.on_heartbeat(move |l, sid| {
+    let linq = linq::init()
+        .listen(PORT)
+        .on_heartbeat(move |_l, sid| {
             println!("[HEARTBEAT] {}", sid);
-            l.send(linq::Request::Get("/ATX/about"), sid, |e, json| {
-                println!("[RESPONSE] {}, {}", e, json);
-            });
+            // l.send(linq::Request::Get("/ATX/about"), sid, |e, json| {
+            //     println!("[RESPONSE] {}, {}", e, json);
+            // });
         })
         .on_alert(on_alert)
         .on_error(|_l, e, _sid| println!("[ERROR] {}", e));
+    println!("Listening on port {}", PORT);
+
+    while linq::running() {
+        linq.poll(200);
     }
 
+    /*
+    let linq = Arc::new(Mutex::new(&linq));
     let linq_thread;
     {
         let l = Arc::clone(&linq);
@@ -40,6 +37,7 @@ fn main() {
 
     // Clean Up
     linq_thread.join().unwrap();
+    */
 }
 
 // Example alert callback with a static method

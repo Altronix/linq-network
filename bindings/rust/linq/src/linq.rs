@@ -44,17 +44,17 @@ impl Linq {
         }
     }
 
-    pub fn listen(&mut self, port: u32) -> &mut Linq {
+    pub fn listen(self, port: u32) -> Self {
         self.listen_tcp(port)
     }
 
-    pub fn listen_tcp(&mut self, port: u32) -> &mut Linq {
+    pub fn listen_tcp(self, port: u32) -> Self {
         let mut ep = "tcp://*:".to_owned();
         ep.push_str(port.to_string().as_ref());
         self.listen_ep(ep.as_ref())
     }
 
-    pub fn listen_ep(&mut self, s: &str) -> &mut Linq {
+    pub fn listen_ep(mut self, s: &str) -> Self {
         let cstr = std::ffi::CString::new(s).unwrap();
         let ep = cstr.as_ptr();
         let socket = unsafe { linq_sys::linq_listen(self.ctx, ep) };
@@ -86,35 +86,32 @@ impl Linq {
         unsafe { linq_sys::linq_poll(self.ctx, ms) }
     }
 
-    pub fn on_heartbeat<F>(&mut self, f: F) -> &mut Linq
+    pub fn context_set<T>(self, ctx: &mut T) -> Self {
+        let data: *mut c_void = ctx as *mut T as *mut c_void;
+        unsafe { linq_sys::linq_context_set(self.ctx, data) };
+        self
+    }
+
+    pub fn on_heartbeat<F>(mut self, f: F) -> Self
     where
         F: 'static + Fn(&Linq, &str),
     {
-        // TODO we don't have to set context three times (use caller to set context?)
-        let data: *mut c_void = self as *mut Linq as *mut c_void;
-        unsafe { linq_sys::linq_context_set(self.ctx, data) };
         self.on_heartbeat = Some(Box::new(f));
         self
     }
 
-    pub fn on_alert<F>(&mut self, f: F) -> &mut Linq
+    pub fn on_alert<F>(mut self, f: F) -> Self
     where
         F: 'static + Fn(&Linq, &str),
     {
-        // TODO we don't have to set context three times (use caller to set context?)
-        let data: *mut c_void = self as *mut Linq as *mut c_void;
-        unsafe { linq_sys::linq_context_set(self.ctx, data) };
         self.on_alert = Some(Box::new(f));
         self
     }
 
-    pub fn on_error<F>(&mut self, f: F) -> &mut Linq
+    pub fn on_error<F>(mut self, f: F) -> Self
     where
         F: 'static + Fn(&Linq, linq_sys::E_LINQ_ERROR, &str),
     {
-        // TODO we don't have to set context three times (use caller to set context?)
-        let data: *mut c_void = self as *mut Linq as *mut c_void;
-        unsafe { linq_sys::linq_context_set(self.ctx, data) };
         self.on_error = Some(Box::new(f));
         self
     }
