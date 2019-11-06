@@ -632,6 +632,7 @@ poll_sockets(linq_s* l, socket_map_s* h, bool is_router, uint32_t ms)
 E_LINQ_ERROR
 linq_poll(linq_s* l, uint32_t ms)
 {
+    // TODO poll both sockets as once and accept blocking poll
     int e = poll_sockets(l, l->routers, true, ms);
     if (!e) e = poll_sockets(l, l->dealers, false, ms);
 
