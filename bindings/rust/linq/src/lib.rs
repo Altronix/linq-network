@@ -170,6 +170,8 @@ impl Drop for Linq {
     }
 }
 
+unsafe impl Send for Linq {}
+
 extern "C" fn on_error(
     ctx: *mut raw::c_void,
     error: linq_sys::E_LINQ_ERROR,
