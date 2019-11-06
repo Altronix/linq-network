@@ -19,9 +19,14 @@ pub enum Alert {
     Error(Box<dyn Fn(&Linq, &str)>),
 }
 
+enum Socket {
+    Server(linq_sys::linq_socket),
+    Client(linq_sys::linq_socket),
+}
+
 pub struct Linq {
     ctx: *mut linq_sys::linq_s,
-    // alerts: std::vec::Vec<Alert>,
+    sockets: std::collections::HashMap<String, Socket>,
     on_heartbeat: Option<Box<dyn Fn(&Linq, &str)>>,
     on_error: Option<Box<dyn Fn(&Linq, linq_sys::E_LINQ_ERROR, &str)>>,
     on_alert: Option<Box<dyn Fn(&Linq, &str)>>,
@@ -32,47 +37,49 @@ impl Linq {
         let ctx = unsafe { linq_create(&CALLBACKS as *const _, std::ptr::null_mut()) };
         Linq {
             ctx,
-            // alerts: std::vec![],
+            sockets: std::collections::HashMap::new(),
             on_heartbeat: None,
             on_alert: None,
             on_error: None,
         }
     }
 
-    pub fn listen(&self, port: u32) -> linq_sys::linq_socket {
+    pub fn listen(&mut self, port: u32) -> &mut Linq {
         self.listen_tcp(port)
     }
 
-    pub fn listen_tcp(&self, port: u32) -> linq_sys::linq_socket {
+    pub fn listen_tcp(&mut self, port: u32) -> &mut Linq {
         let mut ep = "tcp://*:".to_owned();
         ep.push_str(port.to_string().as_ref());
         self.listen_ep(ep.as_ref())
     }
 
-    pub fn listen_ep(&self, s: &str) -> linq_sys::linq_socket {
+    pub fn listen_ep(&mut self, s: &str) -> &mut Linq {
         let cstr = std::ffi::CString::new(s).unwrap();
         let ep = cstr.as_ptr();
-        unsafe {
-            let socket = linq_sys::linq_listen(self.ctx, ep);
-            socket
-        }
+        let socket = unsafe { linq_sys::linq_listen(self.ctx, ep) };
+        self.sockets.insert(s.to_string(), Socket::Server(socket));
+        self
     }
 
-    pub fn connect(&self, s: &str) -> linq_sys::linq_socket {
+    pub fn connect(&mut self, s: &str) -> &mut Linq {
         let cstr = std::ffi::CString::new(s).unwrap();
         let ep = cstr.as_ptr();
-        unsafe {
-            let socket = linq_sys::linq_connect(self.ctx, ep);
-            socket
+        let socket = unsafe { linq_sys::linq_connect(self.ctx, ep) };
+        self.sockets.insert(s.to_string(), Socket::Client(socket));
+        self
+    }
+
+    pub fn shutdown(&mut self, s: &str) -> &mut Linq {
+        match self.sockets.get(s).unwrap() {
+            Socket::Server(s) => unsafe {
+                linq_sys::linq_shutdown(self.ctx, *s);
+            },
+            Socket::Client(s) => unsafe {
+                linq_sys::linq_shutdown(self.ctx, *s);
+            },
         }
-    }
-
-    pub fn shutdown(&self, socket: linq_sys::linq_socket) -> linq_sys::E_LINQ_ERROR {
-        unsafe { linq_sys::linq_shutdown(self.ctx, socket) }
-    }
-
-    pub fn disconnect(&self, socket: linq_sys::linq_socket) -> linq_sys::E_LINQ_ERROR {
-        unsafe { linq_sys::linq_disconnect(self.ctx, socket) }
+        self
     }
 
     pub fn poll(&self, ms: u32) -> linq_sys::E_LINQ_ERROR {

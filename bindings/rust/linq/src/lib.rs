@@ -7,6 +7,6 @@ pub fn running() -> bool {
     unsafe { linq_sys::sys_running() }
 }
 
-pub fn init() -> linq::Linq {
+pub fn init() -> Linq {
     linq::Linq::new()
 }

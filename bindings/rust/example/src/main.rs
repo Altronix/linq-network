@@ -6,8 +6,8 @@ static PORT: u32 = 33455;
 
 fn main() {
     // Setup Linq
-    let linq = linq::init();
-    let socket = linq.listen(PORT);
+    let mut linq = linq::init();
+    linq.listen(PORT);
     println!("Listening on port {}", PORT);
 
     let linq = Arc::new(Mutex::new(linq));
@@ -33,7 +33,6 @@ fn main() {
                 let l = l.lock().unwrap();
                 if !(l.poll(200) == 0) {}
             }
-            l.lock().unwrap().shutdown(socket);
             println!("GOOD BYE");
         });
         // Main Loop
