@@ -6,7 +6,7 @@ static PORT: u32 = 33455;
 
 fn main() {
     // Setup Linq
-    let linq = linq::Linq::new();
+    let linq = linq::init();
     let socket = linq.listen(PORT);
     println!("Listening on port {}", PORT);
 
