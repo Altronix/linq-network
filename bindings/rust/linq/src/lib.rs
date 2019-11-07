@@ -25,7 +25,7 @@ impl LinqHandle {
     pub fn new() -> LinqHandle {
         let mut ctx = Box::new(LinqContext::new());
         unsafe {
-            linq_sys::linq_context_set(ctx.as_ref().ctx, &mut *ctx as *mut LinqContext as *mut _)
+            linq_sys::linq_context_set(ctx.as_ref().c_ctx, &mut *ctx as *mut LinqContext as *mut _)
         };
         LinqHandle {
             ctx,
