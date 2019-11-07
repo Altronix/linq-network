@@ -14,11 +14,11 @@ pub fn running() -> bool {
     unsafe { linq_sys::sys_running() }
 }
 
-pub fn init() -> LinqHandle {
-    LinqHandle::new()
+pub fn init() -> LinqConnection {
+    LinqConnection::new()
 }
 
-pub fn task(linq: Arc<Mutex<LinqHandle>>) -> () {
+pub fn task(linq: Arc<Mutex<LinqConnection>>) -> () {
     while running() {
         // TODO we are locking to long.
         let linq = linq.lock().unwrap();
@@ -26,18 +26,18 @@ pub fn task(linq: Arc<Mutex<LinqHandle>>) -> () {
     }
 }
 
-pub struct LinqHandle {
-    ctx: Box<LinqContext>,
+pub struct LinqConnection {
+    pub ctx: Box<LinqContext>,
     sockets: HashMap<String, Socket>,
 }
 
-impl LinqHandle {
-    pub fn new() -> LinqHandle {
+impl LinqConnection {
+    pub fn new() -> LinqConnection {
         let mut ctx = Box::new(LinqContext::new());
         unsafe {
             linq_sys::linq_context_set(ctx.as_ref().c_ctx, &mut *ctx as *mut LinqContext as *mut _)
         };
-        LinqHandle {
+        LinqConnection {
             ctx,
             sockets: HashMap::new(),
         }
@@ -61,7 +61,7 @@ impl LinqHandle {
         self
     }
 
-    pub fn shutdown(&mut self, s: &str) -> &mut LinqHandle {
+    pub fn shutdown(&mut self, s: &str) -> &mut LinqConnection {
         match self.sockets.get(s).unwrap() {
             Socket::Server(s) => self.ctx.as_ref().shutdown(*s),
             Socket::Client(s) => self.ctx.as_ref().disconnect(*s),

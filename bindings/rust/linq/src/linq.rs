@@ -153,11 +153,8 @@ impl LinqContext {
         }
         self
     }
-    pub fn device_count(&self) -> &LinqContext {
-        unsafe {
-            linq_sys::linq_device_count(self.c_ctx);
-        }
-        self
+    pub fn device_count(&self) -> u32 {
+        unsafe { linq_sys::linq_device_count(self.c_ctx) }
     }
 
     pub fn node_count(&self) -> &LinqContext {
@@ -177,6 +174,7 @@ impl Drop for LinqContext {
 }
 
 unsafe impl Send for LinqContext {}
+unsafe impl Sync for LinqContext {}
 
 extern "C" fn on_error(
     linq: *mut raw::c_void,
