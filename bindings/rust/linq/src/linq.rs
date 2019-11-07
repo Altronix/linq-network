@@ -12,18 +12,13 @@ pub enum Request {
     Delete(&'static str),
 }
 
-pub enum Socket {
-    Server(linq_sys::linq_socket),
-    Client(linq_sys::linq_socket),
-}
-
 pub enum Endpoint {
     Tcp(u32),
     Ipc(&'static str),
 }
 
 impl Endpoint {
-    pub fn to_str(self) -> String {
+    pub fn to_str(&self) -> String {
         match self {
             Endpoint::Tcp(p) => {
                 let mut ep = "tcp://*:".to_owned();
@@ -38,9 +33,9 @@ impl Endpoint {
         }
     }
 
-    // pub fn to_c_str(self) -> Self {
-    //     self.to_str()
-    // }
+    pub fn to_c_str(&self) -> std::ffi::CString {
+        std::ffi::CString::new(self.to_str()).unwrap()
+    }
 }
 
 pub struct Event {
@@ -96,29 +91,12 @@ impl LinqContext {
         self
     }
 
-    pub fn listen(&self, ep: Endpoint) -> linq_sys::linq_socket {
-        match ep {
-            Endpoint::Tcp(p) => {
-                let mut ep = "tcp://*:".to_owned();
-                ep.push_str(p.to_string().as_ref());
-                let ep = std::ffi::CString::new(ep).unwrap();
-                let ep = ep.as_ptr();
-                unsafe { linq_sys::linq_listen(self.c_ctx, ep) }
-            }
-            Endpoint::Ipc(s) => {
-                let mut ep = "ipc://".to_owned();
-                ep.push_str(s);
-                let ep = std::ffi::CString::new(ep).unwrap();
-                let ep = ep.as_ptr();
-                unsafe { linq_sys::linq_listen(self.c_ctx, ep) }
-            }
-        }
+    pub fn listen(&self, ep: &Endpoint) -> linq_sys::linq_socket {
+        unsafe { linq_sys::linq_listen(self.c_ctx, ep.to_c_str().as_ptr()) }
     }
 
-    pub fn connect(&self, s: &str) -> linq_sys::linq_socket {
-        let cstr = std::ffi::CString::new(s).unwrap();
-        let ep = cstr.as_ptr();
-        unsafe { linq_sys::linq_connect(self.c_ctx, ep) }
+    pub fn connect(&self, ep: &Endpoint) -> linq_sys::linq_socket {
+        unsafe { linq_sys::linq_connect(self.c_ctx, ep.to_c_str().as_ptr()) }
     }
 
     pub fn shutdown(&self, s: linq_sys::linq_socket) -> () {

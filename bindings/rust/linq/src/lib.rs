@@ -3,6 +3,11 @@
 pub mod linq;
 pub use linq::*;
 
+pub enum Socket {
+    Server(linq_sys::linq_socket),
+    Client(linq_sys::linq_socket),
+}
+
 pub fn running() -> bool {
     unsafe { linq_sys::sys_running() }
 }
@@ -34,27 +39,15 @@ impl LinqHandle {
         }
     }
 
-    pub fn listen(self, ep: Endpoint) -> Self {
-        // self.listen_tcp(port)
-        self.ctx.listen(ep);
+    pub fn listen(mut self, ep: Endpoint) -> Self {
+        let socket = self.ctx.listen(&ep);
+        self.sockets.insert(ep.to_str(), Socket::Server(socket));
         self
     }
 
-    // pub fn listen_tcp(self, port: u32) -> Self {
-    //     let mut ep = "tcp://*:".to_owned();
-    //     ep.push_str(port.to_string().as_ref());
-    //     self.listen_ep(ep.as_ref())
-    // }
-
-    // pub fn listen_ep(mut self, s: &str) -> Self {
-    //     let socket = self.ctx.as_ref().listen(s);
-    //     self.sockets.insert(s.to_string(), Socket::Server(socket));
-    //     self
-    // }
-
-    pub fn connect(&mut self, s: &str) -> &mut LinqHandle {
-        let socket = self.ctx.as_ref().connect(s);
-        self.sockets.insert(s.to_string(), Socket::Client(socket));
+    pub fn connect(mut self, ep: Endpoint) -> Self {
+        let socket = self.ctx.connect(&ep);
+        self.sockets.insert(ep.to_str(), Socket::Client(socket));
         self
     }
 
