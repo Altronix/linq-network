@@ -16,6 +16,6 @@ fn main() {
         .register(linq::Event::on_error(|_l, e, _sid| {
             println!("[ERROR] {}", e)
         }))
-        .listen(PORT)
+        .listen(linq::Endpoint::Tcp(PORT))
         .start();
 }
