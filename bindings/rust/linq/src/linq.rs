@@ -13,14 +13,44 @@ pub enum Request {
     Delete(&'static str),
 }
 
-pub enum Alert {
+pub struct Event {
+    kind: EventKind,
+}
+
+impl Event {
+    pub fn on_heartbeat<F>(f: F) -> Event
+    where
+        F: 'static + Fn(&LinqContext, &str),
+    {
+        let kind = EventKind::Heartbeat(Box::new(f));
+        Event { kind }
+    }
+    pub fn on_alert<F>(f: F) -> Self
+    where
+        F: 'static + Fn(&LinqContext, &str),
+    {
+        let kind = EventKind::Alert(Box::new(f));
+        Event { kind }
+    }
+
+    pub fn on_error<F>(f: F) -> Self
+    where
+        F: 'static + Fn(&LinqContext, linq_sys::E_LINQ_ERROR, &str),
+    {
+        let kind = EventKind::Error(Box::new(f));
+        Event { kind }
+    }
+}
+
+pub enum EventKind {
     Heartbeat(Box<dyn Fn(&LinqContext, &str)>),
-    Alert(Box<dyn Fn(&LinqContext, linq_sys::E_LINQ_ERROR, &str)>),
-    Error(Box<dyn Fn(&LinqContext, &str)>),
+    Alert(Box<dyn Fn(&LinqContext, &str)>),
+    Error(Box<dyn Fn(&LinqContext, linq_sys::E_LINQ_ERROR, &str)>),
 }
 
 pub struct LinqContext {
     pub c_ctx: *mut linq_sys::linq_s,
+    event_handlers: std::vec::Vec<Event>,
     pub on_heartbeat: Option<Box<dyn Fn(&LinqContext, &str)>>,
     pub on_error: Option<Box<dyn Fn(&LinqContext, linq_sys::E_LINQ_ERROR, &str)>>,
     pub on_alert: Option<Box<dyn Fn(&LinqContext, &str)>>,
@@ -30,10 +60,16 @@ impl LinqContext {
     pub fn new() -> LinqContext {
         LinqContext {
             c_ctx: unsafe { linq_create(&CALLBACKS as *const _, std::ptr::null_mut()) },
+            event_handlers: std::vec![],
             on_heartbeat: None,
             on_alert: None,
             on_error: None,
         }
+    }
+
+    pub fn register(&mut self, e: Event) -> &mut Self {
+        self.event_handlers.push(e);
+        self
     }
 
     pub fn listen(&self, s: &str) -> linq_sys::linq_socket {
@@ -145,7 +181,14 @@ extern "C" fn on_heartbeat(
 ) -> () {
     let l: &mut LinqContext = unsafe { &mut *(linq as *mut LinqContext) };
     let cstr = unsafe { std::ffi::CStr::from_ptr(serial) };
-    l.on_heartbeat.as_ref().unwrap()(l, cstr.to_str().expect("to_str() fail!"));
+    let cstr = cstr.to_str().expect("to_str() fail!");
+    l.on_heartbeat.as_ref().unwrap()(l, cstr);
+    for e in l.event_handlers.iter() {
+        match &e.kind {
+            EventKind::Heartbeat(f) => f(l, cstr),
+            _ => (),
+        }
+    }
 }
 
 extern "C" fn on_alert(
