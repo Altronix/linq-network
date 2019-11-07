@@ -2,6 +2,7 @@
 
 pub mod linq;
 pub use linq::*;
+use std::collections::HashMap;
 
 pub enum Socket {
     Server(linq_sys::linq_socket),
@@ -18,7 +19,7 @@ pub fn init() -> LinqHandle {
 
 pub struct LinqHandle {
     ctx: Box<LinqContext>,
-    sockets: std::collections::HashMap<String, Socket>,
+    sockets: HashMap<String, Socket>,
 }
 
 impl LinqHandle {
@@ -29,7 +30,7 @@ impl LinqHandle {
         };
         LinqHandle {
             ctx,
-            sockets: std::collections::HashMap::new(),
+            sockets: HashMap::new(),
         }
     }
 
