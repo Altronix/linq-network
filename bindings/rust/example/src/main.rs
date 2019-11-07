@@ -25,8 +25,7 @@ fn main() {
             .listen(linq::Endpoint::Tcp(PORT)),
     ));
 
-    let linq = Arc::clone(&l);
-    let t = std::thread::spawn(move || linq::task(linq));
+    let t = std::thread::spawn(move || linq::task(Arc::clone(&l)));
 
     t.join().unwrap();
 }
