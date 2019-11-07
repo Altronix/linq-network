@@ -3,6 +3,7 @@
 pub mod linq;
 pub use linq::*;
 use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 
 pub enum Socket {
     Server(linq_sys::linq_socket),
@@ -15,6 +16,14 @@ pub fn running() -> bool {
 
 pub fn init() -> LinqHandle {
     LinqHandle::new()
+}
+
+pub fn task(linq: Arc<Mutex<LinqHandle>>) -> () {
+    while running() {
+        // TODO we are locking to long.
+        let linq = linq.lock().unwrap();
+        linq.poll(200);
+    }
 }
 
 pub struct LinqHandle {

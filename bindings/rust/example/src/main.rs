@@ -26,12 +26,7 @@ fn main() {
     ));
 
     let linq = Arc::clone(&l);
-    let t = std::thread::spawn(move || {
-        while linq::running() {
-            let linq = linq.lock().unwrap();
-            linq.poll(200);
-        }
-    });
+    let t = std::thread::spawn(move || linq::task(linq));
 
     t.join().unwrap();
 }
