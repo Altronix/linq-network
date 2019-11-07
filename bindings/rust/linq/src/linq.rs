@@ -2,7 +2,6 @@ extern crate linq_sys;
 
 use linq_sys::linq_callbacks;
 use linq_sys::linq_create;
-use std::option::Option;
 use std::os::raw;
 use std::os::raw::c_char;
 use std::os::raw::c_void;
@@ -51,9 +50,6 @@ pub enum EventKind {
 pub struct LinqContext {
     pub c_ctx: *mut linq_sys::linq_s,
     event_handlers: std::vec::Vec<Event>,
-    pub on_heartbeat: Option<Box<dyn Fn(&LinqContext, &str)>>,
-    pub on_error: Option<Box<dyn Fn(&LinqContext, linq_sys::E_LINQ_ERROR, &str)>>,
-    pub on_alert: Option<Box<dyn Fn(&LinqContext, &str)>>,
 }
 
 impl LinqContext {
@@ -61,9 +57,6 @@ impl LinqContext {
         LinqContext {
             c_ctx: unsafe { linq_create(&CALLBACKS as *const _, std::ptr::null_mut()) },
             event_handlers: std::vec![],
-            on_heartbeat: None,
-            on_alert: None,
-            on_error: None,
         }
     }
 
@@ -171,7 +164,13 @@ extern "C" fn on_error(
 ) -> () {
     let l: &mut LinqContext = unsafe { &mut *(linq as *mut LinqContext) };
     let cstr = unsafe { std::ffi::CStr::from_ptr(serial) };
-    l.on_error.as_ref().unwrap()(l, error, cstr.to_str().expect("to_str() fail!"));
+    let cstr = cstr.to_str().expect("to_str() fail!");
+    for e in l.event_handlers.iter() {
+        match &e.kind {
+            EventKind::Error(f) => f(l, error, cstr),
+            _ => (),
+        }
+    }
 }
 
 extern "C" fn on_heartbeat(
@@ -198,7 +197,13 @@ extern "C" fn on_alert(
 ) -> () {
     let l: &mut LinqContext = unsafe { &mut *(linq as *mut LinqContext) };
     let cstr = unsafe { std::ffi::CStr::from_ptr(linq_sys::device_serial(*device)) };
-    l.on_alert.as_ref().unwrap()(l, cstr.to_str().expect("to_str() fail!"));
+    let cstr = cstr.to_str().expect("to_str() fail!");
+    for e in l.event_handlers.iter() {
+        match &e.kind {
+            EventKind::Alert(f) => f(l, cstr),
+            _ => (),
+        }
+    }
 }
 
 extern "C" fn on_response(
