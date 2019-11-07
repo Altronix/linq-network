@@ -73,33 +73,8 @@ impl LinqHandle {
         self.ctx.as_ref().poll(ms)
     }
 
-    // TODO combine on_* methods into register function with enum param
     pub fn register(mut self, e: Event) -> Self {
         self.ctx.register(e);
-        self
-    }
-
-    pub fn on_heartbeat<F>(mut self, f: F) -> Self
-    where
-        F: 'static + Fn(&LinqContext, &str),
-    {
-        self.ctx.as_mut().on_heartbeat = Some(Box::new(f));
-        self
-    }
-
-    pub fn on_alert<F>(mut self, f: F) -> Self
-    where
-        F: 'static + Fn(&LinqContext, &str),
-    {
-        self.ctx.as_mut().on_alert = Some(Box::new(f));
-        self
-    }
-
-    pub fn on_error<F>(mut self, f: F) -> Self
-    where
-        F: 'static + Fn(&LinqContext, linq_sys::E_LINQ_ERROR, &str),
-    {
-        self.ctx.as_mut().on_error = Some(Box::new(f));
         self
     }
 }

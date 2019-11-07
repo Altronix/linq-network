@@ -182,7 +182,6 @@ extern "C" fn on_heartbeat(
     let l: &mut LinqContext = unsafe { &mut *(linq as *mut LinqContext) };
     let cstr = unsafe { std::ffi::CStr::from_ptr(serial) };
     let cstr = cstr.to_str().expect("to_str() fail!");
-    l.on_heartbeat.as_ref().unwrap()(l, cstr);
     for e in l.event_handlers.iter() {
         match &e.kind {
             EventKind::Heartbeat(f) => f(l, cstr),
