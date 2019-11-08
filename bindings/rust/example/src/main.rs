@@ -45,20 +45,20 @@ fn main() {
             .listen(Endpoint::Tcp(PORT)),
     ));
 
-    let linq_spawn = Arc::clone(&linq);
-    let rocket_spawn = Arc::clone(&linq);
+    // Start Linq thread and share Linq state with rocket
+    let rocket_linq = Arc::clone(&linq);
     let t = std::thread::spawn(move || {
         while linq::running() {
             thread::sleep(Duration::from_millis(50));
-            let linq_spawn = linq_spawn.lock().unwrap();
-            linq_spawn.poll(1);
+            let linq = linq.lock().unwrap();
+            linq.poll(1);
         }
     });
 
-    // TODO figure out close properly
+    // Launch Rocket // TODO fix shutdown
     rocket::ignite()
         .mount("/", routes![linq_route, hello_route])
-        .manage(rocket_spawn)
+        .manage(rocket_linq)
         .launch();
 
     t.join().unwrap();
