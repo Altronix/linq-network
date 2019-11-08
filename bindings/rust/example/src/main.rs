@@ -9,6 +9,8 @@ extern crate linq;
 use linq::{Endpoint, Event, Linq, Request};
 use rocket::State;
 use std::sync::{Arc, Mutex};
+use std::thread;
+use std::time::Duration;
 
 static PORT: u32 = 33455;
 
@@ -47,6 +49,7 @@ fn main() {
     let rocket_spawn = Arc::clone(&linq);
     let t = std::thread::spawn(move || {
         while linq::running() {
+            thread::sleep(Duration::from_millis(50));
             let linq_spawn = linq_spawn.lock().unwrap();
             linq_spawn.poll(1);
         }
