@@ -597,49 +597,59 @@ foreach_node_check_request_timeout(void* ctx, device_s** n)
     }
 }
 
-static E_LINQ_ERROR
-poll_sockets(linq_s* l, socket_map_s* h, bool is_router, uint32_t ms)
+static void
+populate_sockets(socket_map_s* h, zmq_pollitem_t** ptr_p)
 {
-    int err, n = 0;
-    zmq_pollitem_t items[MAX_CONNECTIONS];
-    memset(items, 0, sizeof(items));
-
+    zmq_pollitem_t* ptr = *ptr_p;
     for (khiter_t k = kh_begin(h); k != kh_end(h); ++k) {
         if (!kh_exist(h, k)) continue;
         zsock_t* sock = kh_val(h, k);
-        items[n].socket = zsock_resolve(sock);
-        items[n].events = ZMQ_POLLIN;
-        n++;
+        ptr->socket = zsock_resolve(sock);
+        ptr->events = ZMQ_POLLIN;
+        ptr++;
     }
-    n = 0;
-
-    // Process sockets
-    err = zmq_poll(items, socket_map_size(h), ms);
-    if (!(err < 0)) {
-        for (khiter_t k = kh_begin(h); k != kh_end(h); ++k) {
-            if (!kh_exist(h, k)) continue;
-            zsock_t* sock = kh_val(h, k);
-            if (items[n++].revents && ZMQ_POLLIN) {
-                err = process_packet(l, sock, is_router);
-            }
-        }
-    }
-
-    return err;
+    *ptr_p = ptr;
 }
 
 // poll network socket file handles
 E_LINQ_ERROR
 linq_poll(linq_s* l, uint32_t ms)
 {
-    // TODO poll both sockets as once and accept blocking poll
-    int e = poll_sockets(l, l->routers, true, ms);
-    if (!e) e = poll_sockets(l, l->dealers, false, ms);
+    zmq_pollitem_t items[MAX_CONNECTIONS], *ptr = items;
+    int err, n_router = socket_map_size(l->routers),
+             n_dealer = socket_map_size(l->dealers);
+    linq_assert(n_router + n_dealer < MAX_CONNECTIONS);
+
+    memset(items, 0, sizeof(items));
+    populate_sockets(l->routers, &ptr);
+    populate_sockets(l->dealers, &ptr);
+
+    ptr = items;
+    err = zmq_poll(items, n_router + n_dealer, ms);
+    if (!(err < 0)) {
+        for (khiter_t k = kh_begin(l->routers); k != kh_end(l->routers); ++k) {
+            if (!kh_exist(l->routers, k)) continue;
+            zsock_t* sock = kh_val(l->routers, k);
+            if (ptr->revents && ZMQ_POLLIN) {
+                err = process_packet(l, sock, true);
+            }
+            ptr++;
+        }
+        // linq_assert(n == n_router);
+        for (khiter_t k = kh_begin(l->dealers); k != kh_end(l->dealers); ++k) {
+            if (!kh_exist(l->dealers, k)) continue;
+            zsock_t* sock = kh_val(l->dealers, k);
+            if (ptr->revents && ZMQ_POLLIN) {
+                err = process_packet(l, sock, false);
+            }
+            ptr++;
+        }
+    }
 
     // Loop through devices
     device_map_foreach(l->devices, foreach_node_check_request_timeout, l);
 
-    return e;
+    return err;
 }
 
 device_s**
