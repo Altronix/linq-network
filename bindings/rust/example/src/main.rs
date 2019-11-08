@@ -5,18 +5,22 @@
 extern crate rocket;
 extern crate linq;
 
-// use rocket::response::content;
 use linq::{Endpoint, Event, Linq, Request};
-use rocket::State;
+use rocket::{Rocket, State};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
 static PORT: u32 = 33455;
 
-#[get("/linq")]
+#[get("/devices")]
 fn linq_route(linq: State<Arc<Mutex<Linq>>>) -> String {
     linq.lock().unwrap().device_count().to_string()
+}
+
+#[get("/proxy")]
+fn proxy_route(_linq: State<Arc<Mutex<Linq>>>) -> String {
+    "TODO".to_string()
 }
 
 #[get("/hello")]
@@ -24,29 +28,36 @@ fn hello_route() -> String {
     "hello".to_string()
 }
 
-fn main() {
-    // Setup Linq
-    println!("Listening on port {}", PORT);
-    let linq = Arc::new(Mutex::new(
-        Linq::new()
-            .register(Event::on_heartbeat(move |l, id| {
-                println!("[S] Received HEARTBEAT from [{}]", id);
-                let sid = id.to_owned();
-                l.send(Request::Get("/ATX/about"), id, move |_e, json| {
-                    println!("[S] Received RESPONSE from [{}]\n{}", sid, json);
-                });
-            }))
-            .register(Event::on_alert(|_l, sid| {
-                println!("[S] Received ALERT from [{}]", sid)
-            }))
-            .register(Event::on_error(|_l, e, _sid| {
-                println!("[S] Received ERROR [{}]", e)
-            }))
-            .listen(Endpoint::Tcp(PORT)),
-    ));
+// Initialize Linq
+fn linq_init() -> Linq {
+    Linq::new()
+        .register(Event::on_heartbeat(move |l, id| {
+            println!("[S] Received HEARTBEAT from [{}]", id);
+            let sid = id.to_owned();
+            l.send(Request::Get("/ATX/about"), id, move |_e, json| {
+                println!("[S] Received RESPONSE from [{}]\n{}", sid, json);
+            });
+        }))
+        .register(Event::on_alert(|_l, sid| {
+            println!("[S] Received ALERT from [{}]", sid)
+        }))
+        .register(Event::on_error(|_l, e, _sid| {
+            println!("[S] Received ERROR [{}]", e)
+        }))
+        .listen(Endpoint::Tcp(PORT))
+}
 
-    // Start Linq thread and share Linq state with rocket
-    let rocket_linq = Arc::clone(&linq);
+// Initialize Rocket with Linq Context
+fn rocket_init(linq: Arc<Mutex<Linq>>) -> Rocket {
+    rocket::ignite()
+        .mount("/linq", routes![linq_route, hello_route, proxy_route])
+        .manage(linq)
+}
+
+fn main() {
+    let linq = Arc::new(Mutex::new(linq_init()));
+
+    let clone = Arc::clone(&linq);
     let t = std::thread::spawn(move || {
         while linq::running() {
             thread::sleep(Duration::from_millis(50));
@@ -55,11 +66,8 @@ fn main() {
         }
     });
 
-    // Launch Rocket // TODO fix shutdown
-    rocket::ignite()
-        .mount("/", routes![linq_route, hello_route])
-        .manage(rocket_linq)
-        .launch();
+    let rocket = rocket_init(clone);
+    rocket.launch();
 
     t.join().unwrap();
 }
