@@ -194,8 +194,12 @@ void
 device_destroy(device_s** d_p)
 {
     device_s* d = *d_p;
+    while (d->request_pending) {
+        device_request_resolve(
+            d, LINQ_ERROR_SHUTTING_DOWN, "{\"error\":\"shutting down...\"}");
+        d->request_pending = request_list_pop(d->requests);
+    }
     request_list_destroy(&d->requests);
-    if (d->request_pending) request_destroy(&d->request_pending);
     memset(d, 0, sizeof(device_s));
     *d_p = NULL;
     linq_free(d);
