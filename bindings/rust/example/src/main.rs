@@ -25,28 +25,30 @@ fn hello_route() -> String {
 fn main() {
     // Setup Linq
     println!("Listening on port {}", PORT);
-    let linq = linq::init()
-        .register(Event::on_heartbeat(move |l, sid| {
-            println!("[S] Received HEARTBEAT from [{}]", sid);
-            l.send(Request::Get("/ATX/about"), sid, |_e, json| {
-                println!("[S] Received RESPONSE from [{}]\n{}", "TODO", json);
-            });
-        }))
-        .register(Event::on_alert(|_l, sid| {
-            println!("[S] Received ALERT from [{}]", sid)
-        }))
-        .register(Event::on_error(|_l, e, _sid| {
-            println!("[S] Received ERROR [{}]", e)
-        }))
-        .listen(Endpoint::Tcp(PORT));
+    let linq = Arc::new(Mutex::new(
+        linq::init()
+            .register(Event::on_heartbeat(move |l, sid| {
+                println!("[S] Received HEARTBEAT from [{}]", sid);
+                l.send(Request::Get("/ATX/about"), sid, |_e, json| {
+                    println!("[S] Received RESPONSE from [{}]\n{}", "TODO", json);
+                });
+            }))
+            .register(Event::on_alert(|_l, sid| {
+                println!("[S] Received ALERT from [{}]", sid)
+            }))
+            .register(Event::on_error(|_l, e, _sid| {
+                println!("[S] Received ERROR [{}]", e)
+            }))
+            .listen(Endpoint::Tcp(PORT)),
+    ));
 
-    let linq = Arc::new(Mutex::new(linq));
     let rocket_linq = Arc::clone(&linq);
     let t = std::thread::spawn(move || linq::task(Arc::clone(&linq)));
 
+    // TODO figure out close properly
     rocket::ignite()
         .mount("/", routes![linq_route, hello_route])
-        .manage::<Arc<Mutex<LinqConnection>>>(rocket_linq)
+        .manage(rocket_linq)
         .launch();
 
     t.join().unwrap();
