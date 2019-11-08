@@ -74,7 +74,8 @@ extern "C"
         linq_alert_s*,
         linq_email_s*,
         device_s**);
-    typedef void (*linq_devices_foreach_fn)(void* ctx, const char*);
+    typedef void (
+        *linq_devices_foreach_fn)(void* ctx, const char*, const char*);
     typedef struct linq_callbacks
     {
         linq_error_fn err;

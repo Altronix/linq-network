@@ -706,12 +706,14 @@ test_linq_shutdown(void** context_p)
 }
 
 static void
-test_linq_devices_callback(void* context, const char* sid)
+test_linq_devices_callback(void* context, const char* sid, const char* pid)
 {
     uint32_t *mask = context, idx = 0;
     assert_memory_equal(sid, "dev", 3);
+    assert_memory_equal(pid, "pid", 3);
     idx = atoi(&sid[3]);
     *mask |= (0x01 << idx);
+    assert_int_equal(idx, atoi(&pid[3]));
 }
 
 static void
@@ -723,14 +725,14 @@ test_linq_devices_foreach(void** context_p)
     linq_listen(linq, "tcp://5.6.7.8:8080");
     linq_connect(linq, "tcp://11.22.33.44:8888");
     linq_connect(linq, "tcp://55.66.77.88:8888");
-    zmsg_t* hb0 = helpers_make_heartbeat("r0", "dev0", "pid", "site");
-    zmsg_t* hb1 = helpers_make_heartbeat("r1", "dev1", "pid", "site");
-    zmsg_t* hb2 = helpers_make_heartbeat(NULL, "dev2", "pid", "site");
-    zmsg_t* hb3 = helpers_make_heartbeat(NULL, "dev3", "pid", "site");
-    zmsg_t* hb4 = helpers_make_heartbeat("r5", "dev4", "pid", "site");
-    zmsg_t* hb5 = helpers_make_heartbeat("r6", "dev5", "pid", "site");
-    zmsg_t* hb6 = helpers_make_heartbeat(NULL, "dev6", "pid", "site");
-    zmsg_t* hb7 = helpers_make_heartbeat(NULL, "dev7", "pid", "site");
+    zmsg_t* hb0 = helpers_make_heartbeat("r0", "dev0", "pid0", "site");
+    zmsg_t* hb1 = helpers_make_heartbeat("r1", "dev1", "pid1", "site");
+    zmsg_t* hb2 = helpers_make_heartbeat(NULL, "dev2", "pid2", "site");
+    zmsg_t* hb3 = helpers_make_heartbeat(NULL, "dev3", "pid3", "site");
+    zmsg_t* hb4 = helpers_make_heartbeat("r5", "dev4", "pid4", "site");
+    zmsg_t* hb5 = helpers_make_heartbeat("r6", "dev5", "pid5", "site");
+    zmsg_t* hb6 = helpers_make_heartbeat(NULL, "dev6", "pid6", "site");
+    zmsg_t* hb7 = helpers_make_heartbeat(NULL, "dev7", "pid7", "site");
 
     czmq_spy_mesg_push_incoming(&hb0);
     czmq_spy_mesg_push_incoming(&hb1);

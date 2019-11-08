@@ -178,8 +178,13 @@ impl Linq {
         }
         self
     }
+
     pub fn device_count(&self) -> u32 {
         unsafe { linq_device_count(self.c_ctx) }
+    }
+
+    pub fn devices(&self) -> std::vec::Vec<String> {
+        std::vec![]
     }
 
     pub fn node_count(&self) -> &Linq {

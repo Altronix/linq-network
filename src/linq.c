@@ -689,7 +689,7 @@ static void
 foreach_device_print_sid(void* ctx, device_s** d_p)
 {
     foreach_device_print_sid_ctx* foreach_ctx = ctx;
-    foreach_ctx->fn(foreach_ctx->ctx, device_serial(*d_p));
+    foreach_ctx->fn(foreach_ctx->ctx, device_serial(*d_p), device_type(*d_p));
 }
 
 // Print a list of serial numbers to caller
