@@ -13,13 +13,15 @@ use std::time::Duration;
 
 static PORT: u32 = 33455;
 
+type LinqDb = Arc<Mutex<Linq>>;
+
 #[get("/devices")]
-fn linq_route(linq: State<Arc<Mutex<Linq>>>) -> String {
+fn linq_route(linq: State<LinqDb>) -> String {
     linq.lock().unwrap().device_count().to_string()
 }
 
 #[get("/proxy")]
-fn proxy_route(_linq: State<Arc<Mutex<Linq>>>) -> String {
+fn proxy_route(_linq: State<LinqDb>) -> String {
     "TODO".to_string()
 }
 
@@ -48,7 +50,7 @@ fn linq() -> Linq {
 }
 
 // Initialize Rocket with Linq Context
-fn rocket(linq: Arc<Mutex<Linq>>) -> Rocket {
+fn rocket(linq: LinqDb) -> Rocket {
     rocket::ignite()
         .mount("/linq", routes![linq_route, hello_route, proxy_route])
         .manage(linq)
