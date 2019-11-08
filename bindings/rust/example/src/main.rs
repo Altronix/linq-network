@@ -22,6 +22,10 @@ fn linq_route(linq: State<LinqDb>) -> String {
 
 #[get("/proxy")]
 fn proxy_route(_linq: State<LinqDb>) -> String {
+    // let linq = linq.lock().unwrap();
+    // linq.send(Request::Get("/ATX/about"), "", move |_e, json| {
+    //     println!("[S] Received RESPONSE from [{}]\n{}", "", json);
+    // });
     "TODO".to_string()
 }
 
@@ -68,6 +72,8 @@ fn main() {
         }
     });
 
+    // TODO https://github.com/SergioBenitez/Rocket/issues/180
+    // Need to 'await' for fix for clean shutdown. (pun intended).
     rocket(clone).launch();
 
     t.join().unwrap();
