@@ -6,14 +6,14 @@ extern crate rocket;
 extern crate linq;
 
 // use rocket::response::content;
-use linq::{Endpoint, Event, LinqContext, Request};
+use linq::{Endpoint, Event, Linq, Request};
 use rocket::State;
 use std::sync::{Arc, Mutex};
 
 static PORT: u32 = 33455;
 
 #[get("/linq")]
-fn linq_route(linq: State<Arc<Mutex<LinqContext>>>) -> String {
+fn linq_route(linq: State<Arc<Mutex<Linq>>>) -> String {
     linq.lock().unwrap().device_count().to_string()
 }
 
@@ -26,7 +26,7 @@ fn main() {
     // Setup Linq
     println!("Listening on port {}", PORT);
     let linq = Arc::new(Mutex::new(
-        linq::init()
+        Linq::new()
             .register(Event::on_heartbeat(move |l, device_id| {
                 println!("[S] Received HEARTBEAT from [{}]", device_id);
                 let sid = device_id.to_owned();
