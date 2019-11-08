@@ -686,7 +686,7 @@ test_linq_shutdown(void** context_p)
     czmq_spy_mesg_push_incoming(&hb5);
     czmq_spy_mesg_push_incoming(&hb6);
     czmq_spy_mesg_push_incoming(&hb7);
-    czmq_spy_poll_set_incoming((0x03));
+    czmq_spy_poll_set_incoming((0b1111)); // Knowledge of innards
     linq_poll(linq, 5);
     linq_poll(linq, 5);
     assert_int_equal(linq_device_count(linq), 8);
