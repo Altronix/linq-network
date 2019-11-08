@@ -22,7 +22,7 @@ pub fn task(linq: Arc<Mutex<LinqConnection>>) -> () {
     while running() {
         // TODO we are locking to long.
         let linq = linq.lock().unwrap();
-        linq.poll(200);
+        linq.poll(2);
     }
 }
 
@@ -45,7 +45,7 @@ impl LinqConnection {
 
     pub fn start(self) -> () {
         while unsafe { linq_sys::sys_running() } {
-            self.poll(200);
+            self.poll(2);
         }
     }
 

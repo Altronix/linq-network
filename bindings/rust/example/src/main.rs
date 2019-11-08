@@ -17,20 +17,15 @@ fn linq_route(linq: State<Arc<Mutex<LinqConnection>>>) -> String {
     linq.lock().unwrap().ctx.device_count().to_string()
 }
 
-struct Counter {
-    x: u32,
-}
-
-#[get("/counter")]
-fn counter(c: State<Mutex<Counter>>) -> String {
-    let mut c = c.lock().unwrap();
-    c.x.to_string()
+#[get("/hello")]
+fn hello_route() -> String {
+    "hello".to_string()
 }
 
 fn main() {
     // Setup Linq
     println!("Listening on port {}", PORT);
-    let conn = linq::init()
+    let linq = linq::init()
         .register(Event::on_heartbeat(move |l, sid| {
             println!("[S] Received HEARTBEAT from [{}]", sid);
             l.send(Request::Get("/ATX/about"), sid, |_e, json| {
@@ -45,15 +40,14 @@ fn main() {
         }))
         .listen(Endpoint::Tcp(PORT));
 
-    let conn = Arc::new(Mutex::new(conn));
-    let rocket_linq = Arc::clone(&conn);
-    let t = std::thread::spawn(move || linq::task(Arc::clone(&conn)));
+    let linq = Arc::new(Mutex::new(linq));
+    let rocket_linq = Arc::clone(&linq);
+    let t = std::thread::spawn(move || linq::task(Arc::clone(&linq)));
 
     rocket::ignite()
-        .mount("/", routes![linq_route, counter])
+        .mount("/", routes![linq_route, hello_route])
         .manage::<Arc<Mutex<LinqConnection>>>(rocket_linq)
-        .manage(Mutex::new(Counter { x: 0 }))
         .launch();
 
-    // t.join().unwrap();
+    t.join().unwrap();
 }
