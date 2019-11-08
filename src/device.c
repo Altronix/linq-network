@@ -169,22 +169,6 @@ request_send(request_s* r, zsock_t* sock)
     return err;
 }
 
-// Push another request onto socket...
-// TODO caller must check request is in queue... refactor check here(?)...
-static void
-flush(device_s* d)
-{
-    linq_assert(d->request_pending == NULL);
-    request_s** r_p = &d->request_pending;
-    *r_p = request_list_pop(d->requests);
-    if (d->router.sz) request_router_id_set(*r_p, d->router.id, d->router.sz);
-    if (request_send(*r_p, d->sock) < 0) {
-        exe_on_complete(r_p, LINQ_ERROR_IO, NULL, &d);
-        request_destroy(r_p);
-    } else {
-    }
-}
-
 device_s*
 device_create(
     zsock_t* sock,
@@ -290,7 +274,9 @@ send_method(
     request_s* r = request_alloc(d, method, path, json, fn, context);
     if (r) {
         request_list_push(d->requests, &r);
-        if (!d->request_pending && request_list_size(d->requests)) flush(d);
+        if (!d->request_pending && request_list_size(d->requests)) {
+            device_request_flush(d);
+        }
     } else {
         exe_on_complete(&r, LINQ_ERROR_OOM, NULL, &d);
     }
@@ -352,7 +338,26 @@ device_request_resolve(device_s* d, E_LINQ_ERROR err, const char* str)
     snprintf(json, sizeof(json), "%s", str);
     exe_on_complete(r_p, err, json, &d);
     request_destroy(r_p);
-    if (request_list_size(d->requests)) flush(d);
+}
+
+void
+device_request_flush(device_s* d)
+{
+    linq_assert(d->request_pending == NULL);
+    request_s** r_p = &d->request_pending;
+    *r_p = request_list_pop(d->requests);
+    if (d->router.sz) request_router_id_set(*r_p, d->router.id, d->router.sz);
+    if (request_send(*r_p, d->sock) < 0) {
+        exe_on_complete(r_p, LINQ_ERROR_IO, NULL, &d);
+        request_destroy(r_p);
+    } else {
+    }
+}
+
+void
+device_request_flush_w_check(device_s* d)
+{
+    if (request_list_size(d->requests)) device_request_flush(d);
 }
 
 bool

@@ -351,6 +351,7 @@ process_response(linq_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
             print_null_terminated(json, sizeof(json), dat);
             if (device_request_pending(*d)) {
                 device_request_resolve(*d, zframe_data(err)[0], json);
+                device_request_flush_w_check(*d);
             }
         }
     }
@@ -587,13 +588,14 @@ linq_disconnect(linq_s* l, linq_socket handle)
 
 // loop through each node and resolve any requests that have timed out
 static void
-foreach_node_check_request_timeout(void* ctx, device_s** n)
+foreach_node_check_request_timeout(void* ctx, device_s** d)
 {
     ((void)ctx);
-    if (device_request_pending(*n) &&
-        device_request_sent_at(*n) + 10000 <= sys_tick()) {
+    if (device_request_pending(*d) &&
+        device_request_sent_at(*d) + 10000 <= sys_tick()) {
         device_request_resolve(
-            *n, LINQ_ERROR_TIMEOUT, "{\"error\":\"timeout\"}");
+            *d, LINQ_ERROR_TIMEOUT, "{\"error\":\"timeout\"}");
+        device_request_flush_w_check(*d);
     }
 }
 
