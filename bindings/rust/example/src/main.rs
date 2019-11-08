@@ -17,7 +17,12 @@ type LinqDb = Arc<Mutex<Linq>>;
 
 #[get("/devices")]
 fn linq_route(linq: State<LinqDb>) -> String {
-    linq.lock().unwrap().device_count().to_string()
+    let mut result = "[Devices]:\n".to_string();
+    for (k, v) in linq.lock().unwrap().devices().iter() {
+        let next = format!("[SERIAL]: {} [PRODUCT]: {}\n", k, v).to_string();
+        result.push_str(&next);
+    }
+    result
 }
 
 #[get("/proxy")]
@@ -39,10 +44,6 @@ fn linq() -> Linq {
     Linq::new()
         .register(Event::on_heartbeat(move |linq, id| {
             println!("[S] Received HEARTBEAT from [{}]", id);
-            let sid = id.to_owned();
-            linq.send(Request::Get("/ATX/about"), id, move |_e, json| {
-                println!("[S] Received RESPONSE from [{}]\n{}", sid, json);
-            });
         }))
         .register(Event::on_alert(|_l, sid| {
             println!("[S] Received ALERT from [{}]", sid)

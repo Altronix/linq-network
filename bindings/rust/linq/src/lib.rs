@@ -4,6 +4,7 @@ use linq_sys::*;
 use std::collections::HashMap;
 use std::ffi::CStr;
 use std::ffi::CString;
+use std::future::Future;
 use std::os::raw;
 use std::os::raw::c_char;
 use std::os::raw::c_void;
@@ -142,7 +143,12 @@ impl Linq {
         unsafe { linq_poll(self.c_ctx, ms) }
     }
 
-    pub fn send<F>(&self, r: Request, sid: &str, cb: F) -> &Linq
+    pub fn send<F>(
+        &self,
+        r: Request,
+        sid: &str,
+        cb: F,
+    ) -> Result<String, String>
     where
         F: 'static + Fn(E_LINQ_ERROR, &str),
     {
@@ -176,8 +182,8 @@ impl Linq {
                     Box::into_raw(cb) as *mut _,
                 );
             },
-        }
-        self
+        };
+        Ok("".to_string())
     }
 
     pub fn device_count(&self) -> u32 {
@@ -228,7 +234,7 @@ extern "C" fn on_error(
     serial: *const raw::c_char,
 ) -> () {
     let l: &mut Linq = unsafe { &mut *(linq as *mut Linq) };
-    let cstr = unsafe { std::ffi::CStr::from_ptr(serial) };
+    let cstr = unsafe { CStr::from_ptr(serial) };
     let cstr = cstr.to_str().expect("to_str() fail!");
     for e in l.event_handlers.iter() {
         match &e.kind {
@@ -244,7 +250,7 @@ extern "C" fn on_heartbeat(
     _arg3: *mut *mut device_s,
 ) -> () {
     let l: &mut Linq = unsafe { &mut *(linq as *mut Linq) };
-    let cstr = unsafe { std::ffi::CStr::from_ptr(serial) };
+    let cstr = unsafe { CStr::from_ptr(serial) };
     let cstr = cstr.to_str().expect("to_str() fail!");
     for e in l.event_handlers.iter() {
         match &e.kind {
@@ -261,7 +267,7 @@ extern "C" fn on_alert(
     device: *mut *mut device_s,
 ) -> () {
     let l: &mut Linq = unsafe { &mut *(linq as *mut Linq) };
-    let cstr = unsafe { std::ffi::CStr::from_ptr(device_serial(*device)) };
+    let cstr = unsafe { CStr::from_ptr(device_serial(*device)) };
     let cstr = cstr.to_str().expect("to_str() fail!");
     for e in l.event_handlers.iter() {
         match &e.kind {
@@ -279,7 +285,7 @@ extern "C" fn on_response(
 ) -> () {
     let cb: Box<Box<dyn Fn(E_LINQ_ERROR, &str)>> =
         unsafe { Box::from_raw(cb as *mut _) };
-    let json = unsafe { std::ffi::CStr::from_ptr(json) };
+    let json = unsafe { CStr::from_ptr(json) };
     cb(e, json.to_str().expect("to_str() fail!"));
     drop(cb);
 }
