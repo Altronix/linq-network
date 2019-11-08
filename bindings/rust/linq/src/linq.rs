@@ -1,15 +1,14 @@
 extern crate linq_sys;
 
-use linq_sys::linq_callbacks;
-use linq_sys::linq_create;
+use linq_sys::*;
 use std::collections::HashMap;
 use std::os::raw;
 use std::os::raw::c_char;
 use std::os::raw::c_void;
 
 pub enum Socket {
-    Server(linq_sys::linq_socket),
-    Client(linq_sys::linq_socket),
+    Server(linq_socket),
+    Client(linq_socket),
 }
 
 pub enum Request {
@@ -66,7 +65,7 @@ impl Event {
 
     pub fn on_error<F>(f: F) -> Self
     where
-        F: 'static + Fn(&Linq, linq_sys::E_LINQ_ERROR, &str),
+        F: 'static + Fn(&Linq, E_LINQ_ERROR, &str),
     {
         let kind = EventKind::Error(Box::new(f));
         Event { kind }
@@ -76,11 +75,11 @@ impl Event {
 pub enum EventKind {
     Heartbeat(Box<dyn Fn(&Linq, &str)>),
     Alert(Box<dyn Fn(&Linq, &str)>),
-    Error(Box<dyn Fn(&Linq, linq_sys::E_LINQ_ERROR, &str)>),
+    Error(Box<dyn Fn(&Linq, E_LINQ_ERROR, &str)>),
 }
 
 pub struct Linq {
-    pub c_ctx: *mut linq_sys::linq_s,
+    pub c_ctx: *mut linq_s,
     event_handlers: std::vec::Vec<Event>,
     sockets: HashMap<String, Socket>,
 }
@@ -88,61 +87,59 @@ pub struct Linq {
 impl Linq {
     pub fn new() -> Linq {
         Linq {
-            c_ctx: unsafe { linq_create(&CALLBACKS as *const _, std::ptr::null_mut()) },
+            c_ctx: unsafe {
+                linq_create(&CALLBACKS as *const _, std::ptr::null_mut())
+            },
             event_handlers: std::vec![],
             sockets: HashMap::new(),
         }
     }
 
     pub fn register(mut self, e: Event) -> Self {
-        unsafe { linq_sys::linq_context_set(self.c_ctx, &mut self as *mut Linq as *mut _) };
+        unsafe {
+            linq_context_set(self.c_ctx, &mut self as *mut Linq as *mut _)
+        };
         self.event_handlers.push(e);
         self
     }
 
     pub fn listen(mut self, ep: Endpoint) -> Self {
-        let socket = unsafe { linq_sys::linq_listen(self.c_ctx, ep.to_c_str().as_ptr()) };
-        self.sockets.insert(ep.to_str(), Socket::Server(socket));
+        let s = unsafe { linq_listen(self.c_ctx, ep.to_c_str().as_ptr()) };
+        self.sockets.insert(ep.to_str(), Socket::Server(s));
         self
     }
 
     pub fn connect(mut self, ep: Endpoint) -> Self {
-        let socket = unsafe { linq_sys::linq_connect(self.c_ctx, ep.to_c_str().as_ptr()) };
-        self.sockets.insert(ep.to_str(), Socket::Client(socket));
+        let s = unsafe { linq_connect(self.c_ctx, ep.to_c_str().as_ptr()) };
+        self.sockets.insert(ep.to_str(), Socket::Client(s));
         self
     }
 
     pub fn shutdown(self, s: &str) -> Self {
         match self.sockets.get(s).unwrap() {
             Socket::Server(s) => unsafe {
-                linq_sys::linq_shutdown(self.c_ctx, *s);
+                linq_shutdown(self.c_ctx, *s);
             },
             Socket::Client(s) => unsafe {
-                linq_sys::linq_disconnect(self.c_ctx, *s);
+                linq_disconnect(self.c_ctx, *s);
             },
         };
         self
     }
 
-    pub fn disconnect(&self, s: linq_sys::linq_socket) -> () {
-        unsafe {
-            linq_sys::linq_shutdown(self.c_ctx, s);
-        }
-    }
-
-    pub fn poll(&self, ms: u32) -> linq_sys::E_LINQ_ERROR {
-        unsafe { linq_sys::linq_poll(self.c_ctx, ms) }
+    pub fn poll(&self, ms: u32) -> E_LINQ_ERROR {
+        unsafe { linq_poll(self.c_ctx, ms) }
     }
 
     pub fn send<F>(&self, r: Request, sid: &str, cb: F) -> &Linq
     where
-        F: 'static + Fn(linq_sys::E_LINQ_ERROR, &str),
+        F: 'static + Fn(E_LINQ_ERROR, &str),
     {
         use std::ffi::CString;
-        let cb: Box<Box<dyn Fn(linq_sys::E_LINQ_ERROR, &str)>> = Box::new(Box::new(cb));
+        let cb: Box<Box<dyn Fn(E_LINQ_ERROR, &str)>> = Box::new(Box::new(cb));
         match r {
             Request::Get(path) => unsafe {
-                linq_sys::linq_device_send_get(
+                linq_device_send_get(
                     self.c_ctx,
                     CString::new(sid).unwrap().as_ptr(),
                     CString::new(path).unwrap().as_ptr(),
@@ -151,7 +148,7 @@ impl Linq {
                 );
             },
             Request::Post(path, data) => unsafe {
-                linq_sys::linq_device_send_post(
+                linq_device_send_post(
                     self.c_ctx,
                     CString::new(sid).unwrap().as_ptr(),
                     CString::new(path).unwrap().as_ptr(),
@@ -161,7 +158,7 @@ impl Linq {
                 );
             },
             Request::Delete(path) => unsafe {
-                linq_sys::linq_device_send_delete(
+                linq_device_send_delete(
                     self.c_ctx,
                     CString::new(sid).unwrap().as_ptr(),
                     CString::new(path).unwrap().as_ptr(),
@@ -173,12 +170,12 @@ impl Linq {
         self
     }
     pub fn device_count(&self) -> u32 {
-        unsafe { linq_sys::linq_device_count(self.c_ctx) }
+        unsafe { linq_device_count(self.c_ctx) }
     }
 
     pub fn node_count(&self) -> &Linq {
         unsafe {
-            linq_sys::linq_nodes_count(self.c_ctx);
+            linq_nodes_count(self.c_ctx);
         }
         self
     }
@@ -187,7 +184,7 @@ impl Linq {
 impl Drop for Linq {
     fn drop(&mut self) {
         unsafe {
-            linq_sys::linq_destroy(&mut self.c_ctx);
+            linq_destroy(&mut self.c_ctx);
         }
     }
 }
@@ -197,7 +194,7 @@ unsafe impl Sync for Linq {}
 
 extern "C" fn on_error(
     linq: *mut raw::c_void,
-    error: linq_sys::E_LINQ_ERROR,
+    error: E_LINQ_ERROR,
     _arg3: *const raw::c_char,
     serial: *const raw::c_char,
 ) -> () {
@@ -215,7 +212,7 @@ extern "C" fn on_error(
 extern "C" fn on_heartbeat(
     linq: *mut raw::c_void,
     serial: *const raw::c_char,
-    _arg3: *mut *mut linq_sys::device_s,
+    _arg3: *mut *mut device_s,
 ) -> () {
     let l: &mut Linq = unsafe { &mut *(linq as *mut Linq) };
     let cstr = unsafe { std::ffi::CStr::from_ptr(serial) };
@@ -230,12 +227,12 @@ extern "C" fn on_heartbeat(
 
 extern "C" fn on_alert(
     linq: *mut raw::c_void,
-    _arg2: *mut linq_sys::linq_alert_s,
-    _arg3: *mut linq_sys::linq_email_s,
-    device: *mut *mut linq_sys::device_s,
+    _arg2: *mut linq_alert_s,
+    _arg3: *mut linq_email_s,
+    device: *mut *mut device_s,
 ) -> () {
     let l: &mut Linq = unsafe { &mut *(linq as *mut Linq) };
-    let cstr = unsafe { std::ffi::CStr::from_ptr(linq_sys::device_serial(*device)) };
+    let cstr = unsafe { std::ffi::CStr::from_ptr(device_serial(*device)) };
     let cstr = cstr.to_str().expect("to_str() fail!");
     for e in l.event_handlers.iter() {
         match &e.kind {
@@ -247,11 +244,12 @@ extern "C" fn on_alert(
 
 extern "C" fn on_response(
     cb: *mut c_void,
-    e: linq_sys::E_LINQ_ERROR,
+    e: E_LINQ_ERROR,
     json: *const c_char,
-    _d: *mut *mut linq_sys::device_s,
+    _d: *mut *mut device_s,
 ) -> () {
-    let cb: Box<Box<dyn Fn(linq_sys::E_LINQ_ERROR, &str)>> = unsafe { Box::from_raw(cb as *mut _) };
+    let cb: Box<Box<dyn Fn(E_LINQ_ERROR, &str)>> =
+        unsafe { Box::from_raw(cb as *mut _) };
     let json = unsafe { std::ffi::CStr::from_ptr(json) };
     cb(e, json.to_str().expect("to_str() fail!"));
     drop(cb);

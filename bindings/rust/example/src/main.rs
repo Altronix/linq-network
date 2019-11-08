@@ -27,10 +27,10 @@ fn main() {
     println!("Listening on port {}", PORT);
     let linq = Arc::new(Mutex::new(
         Linq::new()
-            .register(Event::on_heartbeat(move |l, device_id| {
-                println!("[S] Received HEARTBEAT from [{}]", device_id);
-                let sid = device_id.to_owned();
-                l.send(Request::Get("/ATX/about"), device_id, move |_e, json| {
+            .register(Event::on_heartbeat(move |l, id| {
+                println!("[S] Received HEARTBEAT from [{}]", id);
+                let sid = id.to_owned();
+                l.send(Request::Get("/ATX/about"), id, move |_e, json| {
                     println!("[S] Received RESPONSE from [{}]\n{}", sid, json);
                 });
             }))
