@@ -2,6 +2,8 @@ extern crate linq_sys;
 
 use linq_sys::*;
 use std::collections::HashMap;
+use std::ffi::CStr;
+use std::ffi::CString;
 use std::os::raw;
 use std::os::raw::c_char;
 use std::os::raw::c_void;
@@ -42,8 +44,8 @@ impl Endpoint {
         }
     }
 
-    pub fn to_c_str(&self) -> std::ffi::CString {
-        std::ffi::CString::new(self.to_str()).unwrap()
+    pub fn to_c_str(&self) -> CString {
+        CString::new(self.to_str()).unwrap()
     }
 }
 
@@ -144,7 +146,6 @@ impl Linq {
     where
         F: 'static + Fn(E_LINQ_ERROR, &str),
     {
-        use std::ffi::CString;
         let cb: Box<Box<dyn Fn(E_LINQ_ERROR, &str)>> = Box::new(Box::new(cb));
         match r {
             Request::Get(path) => unsafe {
@@ -183,8 +184,22 @@ impl Linq {
         unsafe { linq_device_count(self.c_ctx) }
     }
 
-    pub fn devices(&self) -> std::vec::Vec<String> {
-        std::vec![]
+    pub fn devices(&self) -> HashMap<String, String> {
+        let mut map = HashMap::new();
+        let ctx: *mut c_void =
+            &mut map as *mut HashMap<String, String> as *mut _;
+        extern "C" fn foreach(
+            ctx: *mut c_void,
+            sid: *const c_char,
+            pid: *const c_char,
+        ) {
+            let map = unsafe { &mut *(ctx as *mut HashMap<String, String>) };
+            let sid = unsafe { CStr::from_ptr(sid).to_str().unwrap() };
+            let pid = unsafe { CStr::from_ptr(pid).to_str().unwrap() };
+            map.insert(sid.to_owned(), pid.to_owned());
+        }
+        unsafe { linq_devices_foreach(self.c_ctx, Some(foreach), ctx) };
+        map
     }
 
     pub fn node_count(&self) -> &Linq {
