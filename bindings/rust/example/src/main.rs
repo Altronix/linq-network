@@ -6,15 +6,15 @@ extern crate rocket;
 extern crate linq;
 
 // use rocket::response::content;
-use linq::{Endpoint, Event, LinqConnection, Request};
+use linq::{Endpoint, Event, LinqContext, Request};
 use rocket::State;
 use std::sync::{Arc, Mutex};
 
 static PORT: u32 = 33455;
 
 #[get("/linq")]
-fn linq_route(linq: State<Arc<Mutex<LinqConnection>>>) -> String {
-    linq.lock().unwrap().ctx.device_count().to_string()
+fn linq_route(linq: State<Arc<Mutex<LinqContext>>>) -> String {
+    linq.lock().unwrap().device_count().to_string()
 }
 
 #[get("/hello")]
@@ -42,13 +42,19 @@ fn main() {
             .listen(Endpoint::Tcp(PORT)),
     ));
 
-    let rocket_linq = Arc::clone(&linq);
-    let t = std::thread::spawn(move || linq::task(Arc::clone(&linq)));
+    let linq_spawn = Arc::clone(&linq);
+    let rocket_spawn = Arc::clone(&linq);
+    let t = std::thread::spawn(move || {
+        while linq::running() {
+            let linq_spawn = linq_spawn.lock().unwrap();
+            linq_spawn.poll(1);
+        }
+    });
 
     // TODO figure out close properly
     rocket::ignite()
         .mount("/", routes![linq_route, hello_route])
-        .manage(rocket_linq)
+        .manage(rocket_spawn)
         .launch();
 
     t.join().unwrap();

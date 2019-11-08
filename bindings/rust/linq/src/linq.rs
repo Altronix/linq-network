@@ -2,9 +2,15 @@ extern crate linq_sys;
 
 use linq_sys::linq_callbacks;
 use linq_sys::linq_create;
+use std::collections::HashMap;
 use std::os::raw;
 use std::os::raw::c_char;
 use std::os::raw::c_void;
+
+pub enum Socket {
+    Server(linq_sys::linq_socket),
+    Client(linq_sys::linq_socket),
+}
 
 pub enum Request {
     Get(&'static str),
@@ -76,6 +82,7 @@ pub enum EventKind {
 pub struct LinqContext {
     pub c_ctx: *mut linq_sys::linq_s,
     event_handlers: std::vec::Vec<Event>,
+    sockets: HashMap<String, Socket>,
 }
 
 impl LinqContext {
@@ -83,26 +90,38 @@ impl LinqContext {
         LinqContext {
             c_ctx: unsafe { linq_create(&CALLBACKS as *const _, std::ptr::null_mut()) },
             event_handlers: std::vec![],
+            sockets: HashMap::new(),
         }
     }
 
-    pub fn register(&mut self, e: Event) -> &mut Self {
+    pub fn register(mut self, e: Event) -> Self {
+        unsafe { linq_sys::linq_context_set(self.c_ctx, &mut self as *mut LinqContext as *mut _) };
         self.event_handlers.push(e);
         self
     }
 
-    pub fn listen(&self, ep: &Endpoint) -> linq_sys::linq_socket {
-        unsafe { linq_sys::linq_listen(self.c_ctx, ep.to_c_str().as_ptr()) }
+    pub fn listen(mut self, ep: Endpoint) -> Self {
+        let socket = unsafe { linq_sys::linq_listen(self.c_ctx, ep.to_c_str().as_ptr()) };
+        self.sockets.insert(ep.to_str(), Socket::Server(socket));
+        self
     }
 
-    pub fn connect(&self, ep: &Endpoint) -> linq_sys::linq_socket {
-        unsafe { linq_sys::linq_connect(self.c_ctx, ep.to_c_str().as_ptr()) }
+    pub fn connect(mut self, ep: Endpoint) -> Self {
+        let socket = unsafe { linq_sys::linq_connect(self.c_ctx, ep.to_c_str().as_ptr()) };
+        self.sockets.insert(ep.to_str(), Socket::Client(socket));
+        self
     }
 
-    pub fn shutdown(&self, s: linq_sys::linq_socket) -> () {
-        unsafe {
-            linq_sys::linq_shutdown(self.c_ctx, s);
-        }
+    pub fn shutdown(self, s: &str) -> Self {
+        match self.sockets.get(s).unwrap() {
+            Socket::Server(s) => unsafe {
+                linq_sys::linq_shutdown(self.c_ctx, *s);
+            },
+            Socket::Client(s) => unsafe {
+                linq_sys::linq_disconnect(self.c_ctx, *s);
+            },
+        };
+        self
     }
 
     pub fn disconnect(&self, s: linq_sys::linq_socket) -> () {
