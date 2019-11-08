@@ -29,12 +29,12 @@ fn hello_route() -> String {
 }
 
 // Initialize Linq
-fn linq_init() -> Linq {
+fn linq() -> Linq {
     Linq::new()
-        .register(Event::on_heartbeat(move |l, id| {
+        .register(Event::on_heartbeat(move |linq, id| {
             println!("[S] Received HEARTBEAT from [{}]", id);
             let sid = id.to_owned();
-            l.send(Request::Get("/ATX/about"), id, move |_e, json| {
+            linq.send(Request::Get("/ATX/about"), id, move |_e, json| {
                 println!("[S] Received RESPONSE from [{}]\n{}", sid, json);
             });
         }))
@@ -48,14 +48,14 @@ fn linq_init() -> Linq {
 }
 
 // Initialize Rocket with Linq Context
-fn rocket_init(linq: Arc<Mutex<Linq>>) -> Rocket {
+fn rocket(linq: Arc<Mutex<Linq>>) -> Rocket {
     rocket::ignite()
         .mount("/linq", routes![linq_route, hello_route, proxy_route])
         .manage(linq)
 }
 
 fn main() {
-    let linq = Arc::new(Mutex::new(linq_init()));
+    let linq = Arc::new(Mutex::new(linq()));
 
     let clone = Arc::clone(&linq);
     let t = std::thread::spawn(move || {
@@ -66,8 +66,7 @@ fn main() {
         }
     });
 
-    let rocket = rocket_init(clone);
-    rocket.launch();
+    rocket(clone).launch();
 
     t.join().unwrap();
 }
