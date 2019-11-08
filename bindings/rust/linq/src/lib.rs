@@ -84,6 +84,7 @@ pub enum EventKind {
 
 pub struct Linq {
     pub c_ctx: *mut linq_s,
+    context_set: bool,
     event_handlers: std::vec::Vec<Event>,
     sockets: HashMap<String, Socket>,
 }
@@ -94,15 +95,19 @@ impl Linq {
             c_ctx: unsafe {
                 linq_create(&CALLBACKS as *const _, std::ptr::null_mut())
             },
+            context_set: false,
             event_handlers: std::vec![],
             sockets: HashMap::new(),
         }
     }
 
     pub fn register(mut self, e: Event) -> Self {
-        unsafe {
-            linq_context_set(self.c_ctx, &mut self as *mut Linq as *mut _)
-        };
+        if !self.context_set {
+            self.context_set = true;
+            unsafe {
+                linq_context_set(self.c_ctx, &mut self as *mut Linq as *mut _)
+            };
+        }
         self.event_handlers.push(e);
         self
     }
