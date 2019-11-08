@@ -705,6 +705,54 @@ test_linq_shutdown(void** context_p)
     test_reset();
 }
 
+static void
+test_linq_devices_callback(void* context, const char* sid)
+{
+    uint32_t *mask = context, idx = 0;
+    assert_memory_equal(sid, "dev", 3);
+    idx = atoi(&sid[3]);
+    *mask |= (0x01 << idx);
+}
+
+static void
+test_linq_devices_foreach(void** context_p)
+{
+    ((void)context_p);
+    linq_s* linq = linq_create(NULL, NULL);
+    linq_listen(linq, "tcp://1.2.3.4:8080");
+    linq_listen(linq, "tcp://5.6.7.8:8080");
+    linq_connect(linq, "tcp://11.22.33.44:8888");
+    linq_connect(linq, "tcp://55.66.77.88:8888");
+    zmsg_t* hb0 = helpers_make_heartbeat("r0", "dev0", "pid", "site");
+    zmsg_t* hb1 = helpers_make_heartbeat("r1", "dev1", "pid", "site");
+    zmsg_t* hb2 = helpers_make_heartbeat(NULL, "dev2", "pid", "site");
+    zmsg_t* hb3 = helpers_make_heartbeat(NULL, "dev3", "pid", "site");
+    zmsg_t* hb4 = helpers_make_heartbeat("r5", "dev4", "pid", "site");
+    zmsg_t* hb5 = helpers_make_heartbeat("r6", "dev5", "pid", "site");
+    zmsg_t* hb6 = helpers_make_heartbeat(NULL, "dev6", "pid", "site");
+    zmsg_t* hb7 = helpers_make_heartbeat(NULL, "dev7", "pid", "site");
+
+    czmq_spy_mesg_push_incoming(&hb0);
+    czmq_spy_mesg_push_incoming(&hb1);
+    czmq_spy_mesg_push_incoming(&hb2);
+    czmq_spy_mesg_push_incoming(&hb3);
+    czmq_spy_mesg_push_incoming(&hb4);
+    czmq_spy_mesg_push_incoming(&hb5);
+    czmq_spy_mesg_push_incoming(&hb6);
+    czmq_spy_mesg_push_incoming(&hb7);
+    czmq_spy_poll_set_incoming((0b1111)); // Knowledge of innards
+    linq_poll(linq, 5);
+    linq_poll(linq, 5);
+    assert_int_equal(linq_device_count(linq), 8);
+
+    uint32_t mask = 0x00;
+    linq_devices_foreach(linq, test_linq_devices_callback, &mask);
+    assert_int_equal(mask, 0b11111111);
+
+    linq_destroy(&linq);
+    test_reset();
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -730,7 +778,8 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_forward_request),
         cmocka_unit_test(test_linq_forward_client_request),
         cmocka_unit_test(test_linq_connect),
-        cmocka_unit_test(test_linq_shutdown)
+        cmocka_unit_test(test_linq_shutdown),
+        cmocka_unit_test(test_linq_devices_foreach)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);

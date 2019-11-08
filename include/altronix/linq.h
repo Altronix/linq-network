@@ -74,6 +74,7 @@ extern "C"
         linq_alert_s*,
         linq_email_s*,
         device_s**);
+    typedef void (*linq_devices_foreach_fn)(void* ctx, const char*);
     typedef struct linq_callbacks
     {
         linq_error_fn err;
@@ -92,6 +93,7 @@ extern "C"
     E_LINQ_ERROR linq_poll(linq_s* l, uint32_t ms);
     device_s** linq_device(const linq_s*, const char*);
     uint32_t linq_device_count(const linq_s*);
+    void linq_devices_foreach(const linq_s* l, linq_devices_foreach_fn, void*);
     uint32_t linq_nodes_count(const linq_s* linq);
     E_LINQ_ERROR linq_device_send_get(
         const linq_s*,

@@ -676,6 +676,32 @@ linq_device_count(const linq_s* l)
     return device_map_size(l->devices);
 }
 
+// Context used for linq_devices_foreach HOF (Higher Order Function)
+typedef struct
+{
+    const linq_s* l;
+    linq_devices_foreach_fn fn;
+    void* ctx;
+} foreach_device_print_sid_ctx;
+
+// linq_device_foreach HOF
+static void
+foreach_device_print_sid(void* ctx, device_s** d_p)
+{
+    foreach_device_print_sid_ctx* foreach_ctx = ctx;
+    foreach_ctx->fn(foreach_ctx->ctx, device_serial(*d_p));
+}
+
+// Print a list of serial numbers to caller
+void
+linq_devices_foreach(const linq_s* l, linq_devices_foreach_fn fn, void* ctx)
+{
+    foreach_device_print_sid_ctx foreach_ctx = { l,
+                                                 fn,
+                                                 ctx ? ctx : l->context };
+    device_map_foreach(l->devices, foreach_device_print_sid, &foreach_ctx);
+}
+
 // return how many nodes are connected to linq
 uint32_t
 linq_nodes_count(const linq_s* l)
