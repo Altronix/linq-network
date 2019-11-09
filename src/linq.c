@@ -561,7 +561,6 @@ remove_nodes(zsock_t** s, node_map_s* nodes)
 E_LINQ_ERROR
 linq_shutdown(linq_s* l, linq_socket handle)
 {
-    // TODO resolve all request callbacks...
     zsock_t** s = socket_map_resolve(l->routers, handle);
     if (s) {
         remove_devices(s, l->devices);
