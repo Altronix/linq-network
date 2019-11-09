@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 linq-sys = { path = "../linq-sys" }
+futures = "0.3.1"

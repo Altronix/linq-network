@@ -26,11 +26,13 @@ fn linq_route(linq: State<LinqDb>) -> String {
 }
 
 #[get("/proxy")]
-fn proxy_route(_linq: State<LinqDb>) -> String {
+fn proxy_route(linq: State<LinqDb>) -> String {
+    let linq = linq.lock().unwrap();
+    linq.send_cb(Request::Get("/ATX/about"), "", move |_e, json| {
+        println!("[S] Received RESPONSE from [{}]\n{}", "", json);
+    });
     // let linq = linq.lock().unwrap();
-    // linq.send(Request::Get("/ATX/about"), "", move |_e, json| {
-    //     println!("[S] Received RESPONSE from [{}]\n{}", "", json);
-    // });
+    // linq.send(Request::Get("/ATX/about"), "").close();
     "TODO".to_string()
 }
 
@@ -42,7 +44,7 @@ fn hello_route() -> String {
 // Initialize Linq
 fn linq() -> Linq {
     Linq::new()
-        .register(Event::on_heartbeat(move |linq, id| {
+        .register(Event::on_heartbeat(move |_linq, id| {
             println!("[S] Received HEARTBEAT from [{}]", id);
         }))
         .register(Event::on_alert(|_l, sid| {
@@ -75,7 +77,7 @@ fn main() {
 
     // TODO https://github.com/SergioBenitez/Rocket/issues/180
     // Need to 'await' for fix for clean shutdown. (pun intended).
-    rocket(clone).launch();
+    // rocket(clone).launch();
 
     t.join().unwrap();
 }

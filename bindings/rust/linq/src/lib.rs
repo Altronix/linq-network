@@ -1,10 +1,12 @@
+extern crate futures;
 extern crate linq_sys;
 
+use futures::channel::oneshot;
 use linq_sys::*;
 use std::collections::HashMap;
 use std::ffi::CStr;
 use std::ffi::CString;
-use std::future::Future;
+// use std::future::Future;
 use std::os::raw;
 use std::os::raw::c_char;
 use std::os::raw::c_void;
@@ -143,16 +145,20 @@ impl Linq {
         unsafe { linq_poll(self.c_ctx, ms) }
     }
 
-    pub fn send<F>(
-        &self,
-        r: Request,
-        sid: &str,
-        cb: F,
-    ) -> Result<String, String>
+    pub fn send(&self, r: Request, sid: &str) -> oneshot::Receiver<u32> {
+        let (tx, rx) = oneshot::channel::<u32>();
+        self.send_cb(r, sid, move |_, _| {
+            tx.send(3).unwrap();
+        });
+        rx
+    }
+
+    pub fn send_cb<F>(&self, r: Request, sid: &str, cb: F) -> ()
     where
-        F: 'static + Fn(E_LINQ_ERROR, &str),
+        F: 'static + FnOnce(E_LINQ_ERROR, &str),
     {
-        let cb: Box<Box<dyn Fn(E_LINQ_ERROR, &str)>> = Box::new(Box::new(cb));
+        let cb: Box<Box<dyn FnOnce(E_LINQ_ERROR, &str)>> =
+            Box::new(Box::new(cb));
         match r {
             Request::Get(path) => unsafe {
                 linq_device_send_get(
@@ -183,7 +189,6 @@ impl Linq {
                 );
             },
         };
-        Ok("".to_string())
     }
 
     pub fn device_count(&self) -> u32 {
@@ -283,11 +288,11 @@ extern "C" fn on_response(
     json: *const c_char,
     _d: *mut *mut device_s,
 ) -> () {
-    let cb: Box<Box<dyn Fn(E_LINQ_ERROR, &str)>> =
+    let cb: Box<Box<dyn FnOnce(E_LINQ_ERROR, &str)>> =
         unsafe { Box::from_raw(cb as *mut _) };
     let json = unsafe { CStr::from_ptr(json) };
     cb(e, json.to_str().expect("to_str() fail!"));
-    drop(cb);
+    // drop(cb);
 }
 
 static CALLBACKS: linq_callbacks = linq_callbacks {
