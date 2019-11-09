@@ -278,9 +278,7 @@ send_method(
     request_s* r = request_alloc(d, method, path, json, fn, context);
     if (r) {
         request_list_push(d->requests, &r);
-        if (!d->request_pending && request_list_size(d->requests)) {
-            device_request_flush(d);
-        }
+        device_request_flush_w_check(d);
     } else {
         exe_on_complete(&r, LINQ_ERROR_OOM, NULL, &d);
     }
@@ -361,7 +359,9 @@ device_request_flush(device_s* d)
 void
 device_request_flush_w_check(device_s* d)
 {
-    if (request_list_size(d->requests)) device_request_flush(d);
+    if (request_list_size(d->requests) && !d->request_pending) {
+        device_request_flush(d);
+    }
 }
 
 bool
