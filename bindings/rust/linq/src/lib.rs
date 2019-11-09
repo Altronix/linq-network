@@ -88,10 +88,9 @@ pub enum EventKind {
 }
 
 pub struct Linq {
-    pub c_ctx: *mut linq_s,
+    c_ctx: *mut linq_s,
     event_handlers: std::vec::Vec<Event>,
     sockets: HashMap<String, Socket>,
-    valid: u32,
 }
 
 impl Linq {
@@ -102,7 +101,6 @@ impl Linq {
             },
             event_handlers: std::vec![],
             sockets: HashMap::new(),
-            valid: 123,
         }
     }
 
@@ -111,6 +109,8 @@ impl Linq {
         self
     }
 
+    // TODO - look into std::pin or refactor so that Linq is managed in a box
+    // and we return a wrapper around Linq
     pub fn pin(mut self) -> Self {
         let ctx: *mut c_void = &mut self as *mut Linq as *mut _;
         unsafe { linq_context_set(self.c_ctx, ctx) };

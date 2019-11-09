@@ -77,7 +77,7 @@ fn main() {
 
     // TODO https://github.com/SergioBenitez/Rocket/issues/180
     // Need to 'await' for fix for clean shutdown. (pun intended).
-    // rocket(clone).launch();
+    rocket(clone).launch();
 
     t.join().unwrap();
 }
