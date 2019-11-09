@@ -89,9 +89,9 @@ pub enum EventKind {
 
 pub struct Linq {
     pub c_ctx: *mut linq_s,
-    context_set: bool,
     event_handlers: std::vec::Vec<Event>,
     sockets: HashMap<String, Socket>,
+    valid: u32,
 }
 
 impl Linq {
@@ -100,20 +100,20 @@ impl Linq {
             c_ctx: unsafe {
                 linq_create(&CALLBACKS as *const _, std::ptr::null_mut())
             },
-            context_set: false,
             event_handlers: std::vec![],
             sockets: HashMap::new(),
+            valid: 123,
         }
     }
 
     pub fn register(mut self, e: Event) -> Self {
-        if !self.context_set {
-            self.context_set = true;
-            unsafe {
-                linq_context_set(self.c_ctx, &mut self as *mut Linq as *mut _)
-            };
-        }
         self.event_handlers.push(e);
+        self
+    }
+
+    pub fn pin(mut self) -> Self {
+        let ctx: *mut c_void = &mut self as *mut Linq as *mut _;
+        unsafe { linq_context_set(self.c_ctx, ctx) };
         self
     }
 
@@ -241,6 +241,7 @@ extern "C" fn on_error(
     let l: &mut Linq = unsafe { &mut *(linq as *mut Linq) };
     let cstr = unsafe { CStr::from_ptr(serial) };
     let cstr = cstr.to_str().expect("to_str() fail!");
+
     for e in l.event_handlers.iter() {
         match &e.kind {
             EventKind::Error(f) => f(l, error, cstr),
@@ -257,6 +258,7 @@ extern "C" fn on_heartbeat(
     let l: &mut Linq = unsafe { &mut *(linq as *mut Linq) };
     let cstr = unsafe { CStr::from_ptr(serial) };
     let cstr = cstr.to_str().expect("to_str() fail!");
+
     for e in l.event_handlers.iter() {
         match &e.kind {
             EventKind::Heartbeat(f) => f(l, cstr),
