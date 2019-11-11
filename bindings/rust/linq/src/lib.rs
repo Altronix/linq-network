@@ -66,6 +66,8 @@ impl Future for ResponseFuture {
     type Output = Result<String, E_LINQ_ERROR>;
     fn poll(self: Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<Self::Output> {
         let mut r = self.response.lock().unwrap();
+        // TODO Refactor this. We are copying the JSON twice and we shouldn't have to
+        // Also, Match { Match { ... can probably use if let Some(.. syntax???
         match r.error {
             Some(e) => {
                 let json = r.json.as_ref().unwrap();
