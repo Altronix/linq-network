@@ -70,7 +70,7 @@ impl Future for ResponseFuture {
         if r.error.is_some() && r.json.is_some() {
             let err = r.error.unwrap();
             let json = r.json.as_ref().unwrap().to_string();
-            match r.error.unwrap() {
+            match err {
                 E_LINQ_ERROR_LINQ_ERROR_OK => Poll::Ready(Ok(json)),
                 _ => Poll::Ready(Err(err)),
             }
