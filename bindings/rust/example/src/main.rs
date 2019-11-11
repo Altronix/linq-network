@@ -61,7 +61,8 @@ fn proxy_route(
         let f;
         {
             // NOTE - Do not call "block_on()" while holding the mutex
-            // TODO - rocket.rs should accept a future eventually?
+            // TODO - rocket.rs should accept a future eventually - and
+            // therefore we do not need to call block_on() in the route
             let linq = linq.lock().unwrap();
             f = linq.send(request, id.as_str());
         }
@@ -88,7 +89,7 @@ fn linq() -> Linq {
     Linq::new()
         .register(Event::on_heartbeat(move |_linq, id| {
             // NOTE cannot block inside the callbacks because they share the task with
-            // linq.poll() TODO switch to "stream"
+            // linq.poll() TODO switch to "stream" api for events (instead of callbacks)
             println!("[S] Received HEARTBEAT from [{}]", id);
         }))
         .register(Event::on_alert(|_l, sid| {
