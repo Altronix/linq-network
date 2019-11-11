@@ -11,6 +11,7 @@ use std::os::raw;
 use std::os::raw::c_char;
 use std::os::raw::c_void;
 use std::pin::Pin;
+use std::result::Result;
 use std::sync::{Arc, Mutex};
 use std::task::{Context, Poll, Waker};
 
@@ -30,13 +31,15 @@ pub enum Request {
 }
 
 pub struct Response {
-    result: Option<E_LINQ_ERROR>,
+    error: Option<E_LINQ_ERROR>,
+    json: Option<String>,
     waker: Option<Waker>,
 }
 
 impl Response {
-    fn resolve(&mut self, e: E_LINQ_ERROR, _json: &str) {
-        self.result = Some(e);
+    fn resolve(&mut self, e: E_LINQ_ERROR, json: &str) {
+        self.error = Some(e);
+        self.json = Some(json.to_string());
         if let Some(waker) = self.waker.take() {
             waker.wake();
         }
@@ -51,7 +54,8 @@ impl ResponseFuture {
     fn new() -> Self {
         ResponseFuture {
             response: Arc::new(Mutex::new(Response {
-                result: None,
+                error: None,
+                json: None,
                 waker: None,
             })),
         }
@@ -59,11 +63,19 @@ impl ResponseFuture {
 }
 
 impl Future for ResponseFuture {
-    type Output = E_LINQ_ERROR;
+    type Output = Result<String, E_LINQ_ERROR>;
     fn poll(self: Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<Self::Output> {
         let mut r = self.response.lock().unwrap();
-        match r.result {
-            Some(r) => Poll::Ready(r),
+        match r.error {
+            Some(e) => {
+                let json = r.json.as_ref().unwrap();
+                match e {
+                    E_LINQ_ERROR_LINQ_ERROR_OK => {
+                        Poll::Ready(Ok(json.to_string()))
+                    }
+                    _ => Poll::Ready(Err(e)),
+                }
+            }
             None => {
                 r.waker = Some(ctx.waker().clone());
                 Poll::Pending
