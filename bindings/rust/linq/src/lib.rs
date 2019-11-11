@@ -24,10 +24,10 @@ pub enum Socket {
     Client(linq_socket),
 }
 
-pub enum Request {
-    Get(&'static str),
-    Post(&'static str, &'static str),
-    Delete(&'static str),
+pub enum Request<'a> {
+    Get(&'a str),
+    Post(&'a str, &'a str),
+    Delete(&'a str),
 }
 
 pub struct Response {

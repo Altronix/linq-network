@@ -3,16 +3,24 @@
 
 #[macro_use]
 extern crate rocket;
+#[macro_use]
+extern crate rocket_contrib;
+#[macro_use]
+extern crate serde_derive;
+
 extern crate linq;
 
 use futures::executor::block_on;
 use linq::{Endpoint, Event, Linq, Request};
 use rocket::{Rocket, State};
+use rocket_contrib::json::{Json, JsonValue};
+use std::option::Option;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
 static PORT: u32 = 33455;
+type ID = String;
 
 type LinqDb = Arc<Mutex<Linq>>;
 
@@ -20,22 +28,52 @@ type LinqDb = Arc<Mutex<Linq>>;
 fn linq_route(linq: State<LinqDb>) -> String {
     let mut result = "[Devices]:\n".to_string();
     for (k, v) in linq.lock().unwrap().devices().iter() {
-        let next = format!("[SERIAL]: {} [PRODUCT]: {}\n", k, v).to_string();
+        let next = format!("[SERIAL]: {} [PRODUCT]: {}", k, v).to_string();
         result.push_str(&next);
     }
     result
 }
 
-#[get("/proxy")]
-fn proxy_route(linq: State<LinqDb>) -> String {
-    let linq = linq.lock().unwrap();
-    match block_on(linq.send(Request::Get("/ATX/about"), "")) {
-        Ok(s) => s,
-        Err(n) => {
-            let mut e = "Error:".to_string();
-            e.push_str(&n.to_string());
-            e
+#[derive(Serialize, Deserialize)]
+struct ProxyRequest {
+    meth: String,
+    path: String,
+    data: Option<String>,
+}
+
+#[post("/proxy/<id>", format = "json", data = "<data>")]
+fn proxy_route(
+    linq: State<LinqDb>,
+    id: ID,
+    data: Json<ProxyRequest>,
+) -> String {
+    // Check ProxyRequest params and store request
+    let request = match data.0.meth.as_str() {
+        "POST" => match &data.0.data {
+            Some(d) => Some(Request::Post(&data.0.path, d.as_str())),
+            _ => None,
+        },
+        "DELETE" => Some(Request::Delete(&data.0.path)),
+        _ => Some(Request::Get(data.0.path.as_ref())),
+    };
+    // If request was valid make request
+    if let Some(request) = request {
+        let f;
+        {
+            // NOTE - Do not call "block_on()" while holding the mutex
+            let linq = linq.lock().unwrap();
+            f = linq.send(request, id.as_str());
         }
+        match block_on(f) {
+            Ok(s) => s,
+            Err(n) => {
+                let mut e = "Error: ".to_string();
+                e.push_str(&n.to_string());
+                e
+            }
+        }
+    } else {
+        "BAD ARGS".to_string()
     }
 }
 
@@ -48,6 +86,8 @@ fn hello_route() -> String {
 fn linq() -> Linq {
     Linq::new()
         .register(Event::on_heartbeat(move |_linq, id| {
+            // NOTE cannot block inside the callbacks because they share the task with
+            // linq.poll() TODO switch to "stream"
             println!("[S] Received HEARTBEAT from [{}]", id);
         }))
         .register(Event::on_alert(|_l, sid| {
@@ -78,9 +118,10 @@ fn main() {
         }
     });
 
-    // TODO https://github.com/SergioBenitez/Rocket/issues/180
-    // Need to 'await' for fix for clean shutdown. (pun intended).
-    rocket(clone).launch();
+    let _r = std::thread::spawn(move || rocket(clone).launch());
 
     t.join().unwrap();
+    // TODO https://github.com/SergioBenitez/Rocket/issues/180
+    // Need to 'await' for fix for clean shutdown. (pun intended).
+    // r.join().unwrap();
 }
