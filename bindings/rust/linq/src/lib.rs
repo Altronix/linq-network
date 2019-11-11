@@ -67,21 +67,16 @@ impl Future for ResponseFuture {
     fn poll(self: Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<Self::Output> {
         let mut r = self.response.lock().unwrap();
         // TODO Refactor this. We are copying the JSON twice and we shouldn't have to
-        // Also, Match { Match { ... can probably use if let Some(.. syntax???
-        match r.error {
-            Some(e) => {
-                let json = r.json.as_ref().unwrap();
-                match e {
-                    E_LINQ_ERROR_LINQ_ERROR_OK => {
-                        Poll::Ready(Ok(json.to_string()))
-                    }
-                    _ => Poll::Ready(Err(e)),
-                }
+        if r.error.is_some() && r.json.is_some() {
+            let err = r.error.unwrap();
+            let json = r.json.as_ref().unwrap().to_string();
+            match r.error.unwrap() {
+                E_LINQ_ERROR_LINQ_ERROR_OK => Poll::Ready(Ok(json)),
+                _ => Poll::Ready(Err(err)),
             }
-            None => {
-                r.waker = Some(ctx.waker().clone());
-                Poll::Pending
-            }
+        } else {
+            r.waker = Some(ctx.waker().clone());
+            Poll::Pending
         }
     }
 }
