@@ -708,6 +708,16 @@ linq_nodes_count(const linq_s* l)
     return node_map_size(l->nodes);
 }
 
+static void
+send_error(linq_request_complete_fn fn, void* context, E_LINQ_ERROR e)
+{
+    char err[32];
+    if (fn) {
+        snprintf(err, sizeof(err), "{\"error\":%d}", e);
+        fn(context, e, err, NULL);
+    }
+}
+
 // send a get request to a device connected to us
 E_LINQ_ERROR
 linq_device_send_get(
@@ -718,9 +728,13 @@ linq_device_send_get(
     void* context)
 {
     device_s** d = linq_device(linq, serial);
-    if (!d) return LINQ_ERROR_DEVICE_NOT_FOUND;
-    device_send_get(*d, path, fn, context);
-    return LINQ_ERROR_OK;
+    if (!d) {
+        send_error(fn, context, LINQ_ERROR_DEVICE_NOT_FOUND);
+        return LINQ_ERROR_DEVICE_NOT_FOUND;
+    } else {
+        device_send_get(*d, path, fn, context);
+        return LINQ_ERROR_OK;
+    }
 }
 
 // send a post request to a device connected to us
@@ -734,9 +748,13 @@ linq_device_send_post(
     void* context)
 {
     device_s** d = linq_device(linq, serial);
-    if (!d) return LINQ_ERROR_DEVICE_NOT_FOUND;
-    device_send_post(*d, path, json, fn, context);
-    return LINQ_ERROR_OK;
+    if (!d) {
+        send_error(fn, context, LINQ_ERROR_DEVICE_NOT_FOUND);
+        return LINQ_ERROR_DEVICE_NOT_FOUND;
+    } else {
+        device_send_post(*d, path, json, fn, context);
+        return LINQ_ERROR_OK;
+    }
 }
 
 // send a delete request to a device connected to us
@@ -749,7 +767,11 @@ linq_device_send_delete(
     void* context)
 {
     device_s** d = linq_device(linq, serial);
-    if (!d) return LINQ_ERROR_DEVICE_NOT_FOUND;
-    device_send_delete(*d, path, fn, context);
-    return LINQ_ERROR_OK;
+    if (!d) {
+        send_error(fn, context, LINQ_ERROR_DEVICE_NOT_FOUND);
+        return LINQ_ERROR_DEVICE_NOT_FOUND;
+    } else {
+        device_send_delete(*d, path, fn, context);
+        return LINQ_ERROR_OK;
+    }
 }
