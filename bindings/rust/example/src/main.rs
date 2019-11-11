@@ -5,6 +5,7 @@
 extern crate rocket;
 extern crate linq;
 
+use futures::executor::block_on;
 use linq::{Endpoint, Event, Linq, Request};
 use rocket::{Rocket, State};
 use std::sync::{Arc, Mutex};
@@ -28,12 +29,10 @@ fn linq_route(linq: State<LinqDb>) -> String {
 #[get("/proxy")]
 fn proxy_route(linq: State<LinqDb>) -> String {
     let linq = linq.lock().unwrap();
-    linq.send_cb(Request::Get("/ATX/about"), "", move |_e, json| {
-        println!("[S] Received RESPONSE from [{}]\n{}", "", json);
-    });
-    // let linq = linq.lock().unwrap();
-    // linq.send(Request::Get("/ATX/about"), "").close();
-    "TODO".to_string()
+    match block_on(linq.send(Request::Get("/ATX/about"), "")) {
+        Ok(s) => s,
+        Err(e) => "Error".to_string(),
+    }
 }
 
 #[get("/hello")]

@@ -1,15 +1,18 @@
 extern crate futures;
 extern crate linq_sys;
 
-use futures::channel::oneshot;
 use linq_sys::*;
 use std::collections::HashMap;
 use std::ffi::CStr;
 use std::ffi::CString;
-// use std::future::Future;
+use std::future::Future;
+use std::option::Option;
 use std::os::raw;
 use std::os::raw::c_char;
 use std::os::raw::c_void;
+use std::pin::Pin;
+use std::sync::{Arc, Mutex};
+use std::task::{Context, Poll, Waker};
 
 pub fn running() -> bool {
     unsafe { sys_running() }
@@ -24,6 +27,49 @@ pub enum Request {
     Get(&'static str),
     Post(&'static str, &'static str),
     Delete(&'static str),
+}
+
+pub struct Response {
+    result: Option<E_LINQ_ERROR>,
+    waker: Option<Waker>,
+}
+
+impl Response {
+    fn resolve(&mut self, e: E_LINQ_ERROR, _json: &str) {
+        self.result = Some(e);
+        if let Some(waker) = self.waker.take() {
+            waker.wake();
+        }
+    }
+}
+
+pub struct ResponseFuture {
+    response: Arc<Mutex<Response>>,
+}
+
+impl ResponseFuture {
+    fn new() -> Self {
+        ResponseFuture {
+            response: Arc::new(Mutex::new(Response {
+                result: None,
+                waker: None,
+            })),
+        }
+    }
+}
+
+impl Future for ResponseFuture {
+    type Output = E_LINQ_ERROR;
+    fn poll(self: Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<Self::Output> {
+        let mut r = self.response.lock().unwrap();
+        match r.result {
+            Some(r) => Poll::Ready(r),
+            None => {
+                r.waker = Some(ctx.waker().clone());
+                Poll::Pending
+            }
+        }
+    }
 }
 
 pub enum Endpoint {
@@ -145,18 +191,31 @@ impl Linq {
         unsafe { linq_poll(self.c_ctx, ms) }
     }
 
-    pub fn send(&self, r: Request, sid: &str) -> oneshot::Receiver<u32> {
-        let (tx, rx) = oneshot::channel::<u32>();
-        self.send_cb(r, sid, move |_, _| {
-            tx.send(3).unwrap();
+    pub fn send(&self, r: Request, sid: &str) -> ResponseFuture {
+        let response = ResponseFuture::new();
+        let clone = Arc::clone(&response.response);
+        self.send_cb(r, sid, move |e, json| {
+            let mut r = clone.lock().unwrap();
+            r.resolve(e, json);
         });
-        rx
+        response
     }
 
     pub fn send_cb<F>(&self, r: Request, sid: &str, cb: F) -> ()
     where
         F: 'static + FnOnce(E_LINQ_ERROR, &str),
     {
+        extern "C" fn on_response(
+            cb: *mut c_void,
+            e: E_LINQ_ERROR,
+            json: *const c_char,
+            _d: *mut *mut device_s,
+        ) -> () {
+            let cb: Box<Box<dyn FnOnce(E_LINQ_ERROR, &str)>> =
+                unsafe { Box::from_raw(cb as *mut _) };
+            let json = unsafe { CStr::from_ptr(json) };
+            cb(e, json.to_str().expect("to_str() fail!"));
+        }
         let cb: Box<Box<dyn FnOnce(E_LINQ_ERROR, &str)>> =
             Box::new(Box::new(cb));
         match r {
@@ -282,19 +341,6 @@ extern "C" fn on_alert(
             _ => (),
         }
     }
-}
-
-extern "C" fn on_response(
-    cb: *mut c_void,
-    e: E_LINQ_ERROR,
-    json: *const c_char,
-    _d: *mut *mut device_s,
-) -> () {
-    let cb: Box<Box<dyn FnOnce(E_LINQ_ERROR, &str)>> =
-        unsafe { Box::from_raw(cb as *mut _) };
-    let json = unsafe { CStr::from_ptr(json) };
-    cb(e, json.to_str().expect("to_str() fail!"));
-    // drop(cb);
 }
 
 static CALLBACKS: linq_callbacks = linq_callbacks {
