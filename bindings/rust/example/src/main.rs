@@ -26,6 +26,7 @@ type LinqDb = Arc<Mutex<Linq>>;
 
 #[get("/devices")]
 fn linq_route(linq: State<LinqDb>) -> String {
+    // TODO send JSON
     let mut result = "[Devices]:\n".to_string();
     for (k, v) in linq.lock().unwrap().devices().iter() {
         let next = format!("[SERIAL]: {} [PRODUCT]: {}", k, v).to_string();
