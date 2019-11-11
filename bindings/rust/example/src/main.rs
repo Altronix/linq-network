@@ -31,7 +31,11 @@ fn proxy_route(linq: State<LinqDb>) -> String {
     let linq = linq.lock().unwrap();
     match block_on(linq.send(Request::Get("/ATX/about"), "")) {
         Ok(s) => s,
-        Err(e) => "Error".to_string(),
+        Err(n) => {
+            let mut e = "Error:".to_string();
+            e.push_str(&n.to_string());
+            e
+        }
     }
 }
 
