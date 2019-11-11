@@ -63,6 +63,7 @@ fn proxy_route(
             // NOTE - Do not call "block_on()" while holding the mutex
             // TODO - rocket.rs should accept a future eventually - and
             // therefore we do not need to call block_on() in the route
+            // https://github.com/SergioBenitez/rocket/issues/1065
             let linq = linq.lock().unwrap();
             f = linq.send(request, id.as_str());
         }
