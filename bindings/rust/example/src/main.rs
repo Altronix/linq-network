@@ -3,7 +3,6 @@
 
 #[macro_use]
 extern crate rocket;
-#[macro_use]
 extern crate rocket_contrib;
 #[macro_use]
 extern crate serde_derive;
@@ -12,8 +11,9 @@ extern crate linq;
 
 use futures::executor::block_on;
 use linq::{Endpoint, Event, Linq, Request};
+use rocket::response::content;
 use rocket::{Rocket, State};
-use rocket_contrib::json::{Json, JsonValue};
+use rocket_contrib::json::Json;
 use std::option::Option;
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -25,14 +25,18 @@ type ID = String;
 type LinqDb = Arc<Mutex<Linq>>;
 
 #[get("/devices")]
-fn linq_route(linq: State<LinqDb>) -> String {
-    // TODO send JSON
-    let mut result = "[Devices]:\n".to_string();
-    for (k, v) in linq.lock().unwrap().devices().iter() {
-        let next = format!("[SERIAL]: {} [PRODUCT]: {}", k, v).to_string();
-        result.push_str(&next);
+fn linq_route(linq: State<LinqDb>) -> content::Json<String> {
+    let mut ret = "{".to_string();
+    let linq = linq.lock().unwrap();
+    let sz = linq.devices().len();
+    let mut n = 0;
+    for (k, v) in linq.devices().iter() {
+        let end = if n < sz - 1 { "," } else { "" };
+        n = n + 1;
+        ret.push_str(&format!("\"{}\":{{\"product\":\"{}\"}}{}", k, v, end));
     }
-    result
+    ret.push_str("}");
+    content::Json(ret)
 }
 
 #[derive(Serialize, Deserialize)]
@@ -47,7 +51,7 @@ fn proxy_route(
     linq: State<LinqDb>,
     id: ID,
     data: Json<ProxyRequest>,
-) -> String {
+) -> content::Json<String> {
     // Check ProxyRequest params and store request
     let request = match data.0.meth.as_str() {
         "POST" => match &data.0.data {
@@ -69,15 +73,15 @@ fn proxy_route(
             f = linq.send(request, id.as_str());
         }
         match block_on(f) {
-            Ok(s) => s,
+            Ok(s) => content::Json(s),
             Err(n) => {
                 let mut e = "Error: ".to_string();
                 e.push_str(&n.to_string());
-                e
+                content::Json(e)
             }
         }
     } else {
-        "BAD ARGS".to_string()
+        content::Json("{\"error\":\"bad args\"}".to_string())
     }
 }
 
