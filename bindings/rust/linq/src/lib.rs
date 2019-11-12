@@ -3,6 +3,7 @@ extern crate linq_sys;
 
 use linq_sys::*;
 use std::collections::HashMap;
+use std::collections::VecDeque;
 use std::ffi::CStr;
 use std::ffi::CString;
 use std::future::Future;
@@ -11,6 +12,7 @@ use std::os::raw;
 use std::os::raw::c_char;
 use std::os::raw::c_void;
 use std::pin::Pin;
+use std::ptr::null_mut;
 use std::result::Result;
 use std::sync::{Arc, Mutex};
 use std::task::{Context, Poll, Waker};
@@ -144,16 +146,21 @@ pub enum EventKind {
 
 pub struct Linq {
     c_ctx: *mut linq_s,
+    events: Arc<Mutex<VecDeque<u32>>>,
     event_handlers: std::vec::Vec<Event>,
     sockets: HashMap<String, Socket>,
 }
 
 impl Linq {
     pub fn new() -> Linq {
+        let events = Arc::new(Mutex::new(VecDeque::new()));
+        let clone = Arc::clone(&events);
+        let c_ctx = unsafe { linq_create(&CALLBACKS as *const _, null_mut()) };
+        let data = Arc::into_raw(clone) as *mut c_void;
+        unsafe { linq_context_set(c_ctx, data) };
         Linq {
-            c_ctx: unsafe {
-                linq_create(&CALLBACKS as *const _, std::ptr::null_mut())
-            },
+            c_ctx,
+            events,
             event_handlers: std::vec![],
             sockets: HashMap::new(),
         }
@@ -167,8 +174,8 @@ impl Linq {
     // TODO - look into std::pin or refactor so that Linq is managed in a box
     // and we return a wrapper around Linq
     pub fn pin(mut self) -> Self {
-        let ctx: *mut c_void = &mut self as *mut Linq as *mut _;
-        unsafe { linq_context_set(self.c_ctx, ctx) };
+        // let ctx: *mut c_void = &mut self as *mut Linq as *mut _;
+        // unsafe { linq_context_set(self.c_ctx, ctx) };
         self
     }
 
@@ -306,33 +313,40 @@ extern "C" fn on_error(
     _arg3: *const raw::c_char,
     serial: *const raw::c_char,
 ) -> () {
-    let l: &mut Linq = unsafe { &mut *(linq as *mut Linq) };
+    let _l: &mut Linq = unsafe { &mut *(linq as *mut Linq) };
     let cstr = unsafe { CStr::from_ptr(serial) };
-    let cstr = cstr.to_str().expect("to_str() fail!");
+    let _cstr = cstr.to_str().expect("to_str() fail!");
 
-    for e in l.event_handlers.iter() {
-        match &e.kind {
-            EventKind::Error(f) => f(l, error, cstr),
-            _ => (),
-        }
-    }
+    // for e in l.event_handlers.iter() {
+    //     match &e.kind {
+    //         EventKind::Error(f) => f(l, error, cstr),
+    //         _ => (),
+    //     }
+    // }
 }
 
 extern "C" fn on_heartbeat(
-    linq: *mut raw::c_void,
+    ctx: *mut raw::c_void,
     serial: *const raw::c_char,
     _arg3: *mut *mut device_s,
 ) -> () {
-    let l: &mut Linq = unsafe { &mut *(linq as *mut Linq) };
+    // TODO Need to tell Arc not to drop
     let cstr = unsafe { CStr::from_ptr(serial) };
     let cstr = cstr.to_str().expect("to_str() fail!");
-
-    for e in l.event_handlers.iter() {
-        match &e.kind {
-            EventKind::Heartbeat(f) => f(l, cstr),
-            _ => (),
-        }
+    let e: Arc<Mutex<VecDeque<u32>>> = unsafe { Arc::from_raw(ctx as *mut _) };
+    {
+        let mut e = e.lock().unwrap();
+        e.push_back(3);
+        println!("[RECEIVED HEARTBEAT] {}, {}", e.len(), cstr);
     }
+    core::mem::forget(e);
+
+    // for e in l.event_handlers.iter() {
+    //     match &e.kind {
+    //         EventKind::Heartbeat(f) => f(l, cstr),
+    //         _ => (),
+    //     }
+    // }
 }
 
 extern "C" fn on_alert(
@@ -341,15 +355,15 @@ extern "C" fn on_alert(
     _arg3: *mut linq_email_s,
     device: *mut *mut device_s,
 ) -> () {
-    let l: &mut Linq = unsafe { &mut *(linq as *mut Linq) };
+    let _l: &mut Linq = unsafe { &mut *(linq as *mut Linq) };
     let cstr = unsafe { CStr::from_ptr(device_serial(*device)) };
-    let cstr = cstr.to_str().expect("to_str() fail!");
-    for e in l.event_handlers.iter() {
-        match &e.kind {
-            EventKind::Alert(f) => f(l, cstr),
-            _ => (),
-        }
-    }
+    let _cstr = cstr.to_str().expect("to_str() fail!");
+    // for e in l.event_handlers.iter() {
+    //     match &e.kind {
+    //         EventKind::Alert(f) => f(l, cstr),
+    //         _ => (),
+    //     }
+    // }
 }
 
 static CALLBACKS: linq_callbacks = linq_callbacks {
