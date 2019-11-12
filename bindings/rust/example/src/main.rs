@@ -115,7 +115,7 @@ fn rocket(linq: LinqDb) -> Rocket {
 }
 
 fn main() {
-    let linq = Arc::new(Mutex::new(linq().pin()));
+    let linq = Arc::new(Mutex::new(linq()));
 
     let clone = Arc::clone(&linq);
     let t = std::thread::spawn(move || {

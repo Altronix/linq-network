@@ -17,6 +17,8 @@ use std::result::Result;
 use std::sync::{Arc, Mutex};
 use std::task::{Context, Poll, Waker};
 
+type EventLock = Arc<Mutex<VecDeque<u32>>>;
+
 pub fn running() -> bool {
     unsafe { sys_running() }
 }
@@ -68,7 +70,6 @@ impl Future for ResponseFuture {
     type Output = Result<String, E_LINQ_ERROR>;
     fn poll(self: Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<Self::Output> {
         let mut r = self.response.lock().unwrap();
-        // TODO Refactor this. We are copying the JSON twice and we shouldn't have to
         if r.error.is_some() && r.json.is_some() {
             let err = r.error.unwrap();
             let json = r.json.as_ref().unwrap().to_string();
@@ -146,7 +147,8 @@ pub enum EventKind {
 
 pub struct Linq {
     c_ctx: *mut linq_s,
-    events: Arc<Mutex<VecDeque<u32>>>,
+    events: EventLock,
+    c_events: *mut c_void,
     event_handlers: std::vec::Vec<Event>,
     sockets: HashMap<String, Socket>,
 }
@@ -156,11 +158,12 @@ impl Linq {
         let events = Arc::new(Mutex::new(VecDeque::new()));
         let clone = Arc::clone(&events);
         let c_ctx = unsafe { linq_create(&CALLBACKS as *const _, null_mut()) };
-        let data = Arc::into_raw(clone) as *mut c_void;
-        unsafe { linq_context_set(c_ctx, data) };
+        let c_events = Arc::into_raw(clone) as *mut c_void;
+        unsafe { linq_context_set(c_ctx, c_events) };
         Linq {
             c_ctx,
             events,
+            c_events,
             event_handlers: std::vec![],
             sockets: HashMap::new(),
         }
@@ -168,14 +171,6 @@ impl Linq {
 
     pub fn register(mut self, e: Event) -> Self {
         self.event_handlers.push(e);
-        self
-    }
-
-    // TODO - look into std::pin or refactor so that Linq is managed in a box
-    // and we return a wrapper around Linq
-    pub fn pin(mut self) -> Self {
-        // let ctx: *mut c_void = &mut self as *mut Linq as *mut _;
-        // unsafe { linq_context_set(self.c_ctx, ctx) };
         self
     }
 
@@ -298,9 +293,10 @@ impl Linq {
 
 impl Drop for Linq {
     fn drop(&mut self) {
-        unsafe {
-            linq_destroy(&mut self.c_ctx);
-        }
+        // Destroy c context and memory we passed to c lib
+        // Summon Arc pointer from raw so that it will free on drop
+        unsafe { linq_destroy(&mut self.c_ctx) };
+        let _e: EventLock = unsafe { Arc::from_raw(self.c_events as *mut _) };
     }
 }
 
@@ -309,7 +305,7 @@ unsafe impl Sync for Linq {}
 
 extern "C" fn on_error(
     linq: *mut raw::c_void,
-    error: E_LINQ_ERROR,
+    _error: E_LINQ_ERROR,
     _arg3: *const raw::c_char,
     serial: *const raw::c_char,
 ) -> () {
@@ -333,7 +329,7 @@ extern "C" fn on_heartbeat(
     // TODO Need to tell Arc not to drop
     let cstr = unsafe { CStr::from_ptr(serial) };
     let cstr = cstr.to_str().expect("to_str() fail!");
-    let e: Arc<Mutex<VecDeque<u32>>> = unsafe { Arc::from_raw(ctx as *mut _) };
+    let e: EventLock = unsafe { Arc::from_raw(ctx as *mut _) };
     {
         let mut e = e.lock().unwrap();
         e.push_back(3);
