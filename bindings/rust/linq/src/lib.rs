@@ -2,7 +2,6 @@ extern crate futures;
 extern crate linq_sys;
 
 use futures::stream::Stream;
-use futures::stream::StreamExt;
 use linq_sys::*;
 use std::collections::HashMap;
 use std::collections::VecDeque;
@@ -173,7 +172,7 @@ impl Linq {
     // Create context for linq library
     // Create callback context for linq events (Event Queue)
     // Initialize Linq wrapper
-    pub fn new() -> Linq {
+    pub fn new() -> Self {
         let events = Arc::new(Mutex::new(EventStreamState::new()));
         let clone = Arc::clone(&events);
         let c_ctx = unsafe { linq_create(&CALLBACKS as *const _, null_mut()) };
@@ -187,7 +186,7 @@ impl Linq {
         }
     }
 
-    pub fn stream(ep: Endpoint) -> (Linq, EventStream) {
+    pub fn stream(ep: Endpoint) -> (Self, EventStream) {
         let linq = Linq::new().listen(ep);
         let es = EventStream::new(&linq.events);
         (linq, es)

@@ -100,9 +100,6 @@ fn rocket(linq: LinqDb) -> Rocket {
 
 async fn stream_future(stream: &mut linq::EventStream) -> () {
     while let Some(e) = stream.next().await {
-        if !linq::running() {
-            return;
-        }
         match e {
             Event::Heartbeat(s) => println!("[RECEIVED HEARTBEAT] {}", s),
             Event::Alert(s) => println!("[RECEIVED ALERT] {}", s),
@@ -124,13 +121,13 @@ fn main() {
         }
     });
 
-    // let _r = std::thread::spawn(move || rocket(clone).launch());
+    let _r = std::thread::spawn(move || rocket(clone).launch());
 
-    // TODO need to terminate stream
-    block_on(stream_future(&mut stream));
+    let _s = std::thread::spawn(move || block_on(stream_future(&mut stream)));
 
     t.join().unwrap();
-    // TODO https://github.com/SergioBenitez/Rocket/issues/180
+    // NOTE https://github.com/SergioBenitez/Rocket/issues/180
     // Need to 'await' for fix for clean shutdown. (pun intended).
-    // r.join().unwrap();
+    // r.join().unwrap(); // TODO wait for issues/180 fix
+    // s.join().unwrap(); // TODO need to signal end of stream
 }
