@@ -70,7 +70,7 @@ fn proxy_route(
             // therefore we do not need to call block_on() in the route
             // https://github.com/SergioBenitez/rocket/issues/1065
             let linq = linq.lock().unwrap();
-            f = linq.send(request, id.as_str());
+            f = linq.send(request, &id);
         }
         match block_on(f) {
             Ok(s) => content::Json(s),
@@ -90,11 +90,6 @@ fn hello_route() -> String {
     "hello".to_string()
 }
 
-// Initialize Linq
-fn linq() -> Linq {
-    Linq::new().listen(Endpoint::Tcp(PORT))
-}
-
 // Initialize Rocket with Linq Context
 fn rocket(linq: LinqDb) -> Rocket {
     rocket::ignite()
@@ -103,7 +98,7 @@ fn rocket(linq: LinqDb) -> Rocket {
 }
 
 fn main() {
-    let linq = Arc::new(Mutex::new(linq()));
+    let linq = Arc::new(Mutex::new(Linq::new().listen(Endpoint::Tcp(PORT))));
 
     let clone = Arc::clone(&linq);
     let t = std::thread::spawn(move || {

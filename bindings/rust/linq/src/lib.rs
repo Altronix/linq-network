@@ -1,6 +1,8 @@
 extern crate futures;
 extern crate linq_sys;
 
+use futures::stream::Stream;
+use futures::stream::StreamExt;
 use linq_sys::*;
 use std::collections::HashMap;
 use std::collections::VecDeque;
@@ -16,8 +18,6 @@ use std::ptr::null_mut;
 use std::result::Result;
 use std::sync::{Arc, Mutex};
 use std::task::{Context, Poll, Waker};
-
-type EventLock = Arc<Mutex<VecDeque<u32>>>;
 
 pub fn running() -> bool {
     unsafe { sys_running() }
@@ -111,6 +111,7 @@ impl Endpoint {
     }
 }
 
+/*
 pub struct Event {
     kind: EventKind,
 }
@@ -145,6 +146,41 @@ pub enum EventKind {
     Alert(Box<dyn Fn(&Linq, &str)>),
     Error(Box<dyn Fn(&Linq, E_LINQ_ERROR, &str)>),
 }
+*/
+
+type EventLock = Arc<Mutex<VecDeque<Event>>>;
+pub enum Event {
+    Heartbeat(String),
+    Alert(String),
+    Error(E_LINQ_ERROR, String),
+}
+
+pub struct EventStream {
+    events: EventLock,
+}
+
+impl EventStream {
+    pub fn new(events: &EventLock) -> Self {
+        EventStream {
+            events: Arc::clone(events),
+        }
+    }
+}
+
+impl Stream for EventStream {
+    type Item = Event;
+    fn poll_next(
+        self: Pin<&mut Self>,
+        _cx: &mut Context,
+    ) -> Poll<Option<Self::Item>> {
+        let mut events = self.events.lock().unwrap();
+        let e = events.pop_front();
+        match e {
+            Some(e) => Poll::Ready(Some(e)),
+            _ => Poll::Pending,
+        }
+    }
+}
 
 pub struct Linq {
     c_ctx: *mut linq_s,
@@ -168,6 +204,13 @@ impl Linq {
             events,
             c_events,
             sockets: HashMap::new(),
+        }
+    }
+
+    pub async fn events(&self) {
+        let mut stream = EventStream::new(&self.events);
+        while let Some(_e) = stream.next().await {
+            println!("RECEIVED EVENT");
         }
     }
 
@@ -310,7 +353,7 @@ unsafe impl Send for Linq {}
 unsafe impl Sync for Linq {}
 
 // Populate the c_context ptr (event queue) with an additional event
-fn load_event(ctx: *mut c_void, event: u32) {
+fn load_event(ctx: *mut c_void, event: Event) {
     let events: EventLock = unsafe { Arc::from_raw(ctx as *mut _) };
     {
         // Need to unlock() mutex before we forget mem
@@ -325,13 +368,13 @@ fn load_event(ctx: *mut c_void, event: u32) {
 // Callback from c library when error
 extern "C" fn on_error(
     ctx: *mut raw::c_void,
-    _error: E_LINQ_ERROR,
+    error: E_LINQ_ERROR,
     _arg3: *const raw::c_char,
     serial: *const raw::c_char,
 ) -> () {
     let cstr = unsafe { CStr::from_ptr(serial) };
     let cstr = cstr.to_str().expect("to_str() fail!");
-    load_event(ctx, 2);
+    load_event(ctx, Event::Error(error, cstr.to_string()));
     println!("[RECEIVED HEARTBEAT] {}", cstr);
 }
 
@@ -343,7 +386,7 @@ extern "C" fn on_heartbeat(
 ) -> () {
     let cstr = unsafe { CStr::from_ptr(serial) };
     let cstr = cstr.to_str().expect("to_str() fail!");
-    load_event(ctx, 3); // TODO 3 == event
+    load_event(ctx, Event::Heartbeat(cstr.to_string()));
     println!("[RECEIVED HEARTBEAT] {}", cstr);
 }
 
@@ -356,7 +399,7 @@ extern "C" fn on_alert(
 ) -> () {
     let cstr = unsafe { CStr::from_ptr(device_serial(*device)) };
     let cstr = cstr.to_str().expect("to_str() fail!");
-    load_event(ctx, 1);
+    load_event(ctx, Event::Alert(cstr.to_string()));
     println!("[RECEIVED ALERT] {}", cstr);
 }
 
