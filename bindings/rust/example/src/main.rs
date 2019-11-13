@@ -10,6 +10,7 @@ extern crate serde_derive;
 extern crate linq;
 
 use futures::executor::block_on;
+use futures::stream::StreamExt;
 use linq::{Endpoint, Event, Linq, Request};
 use rocket::response::content;
 use rocket::{Rocket, State};
@@ -97,10 +98,19 @@ fn rocket(linq: LinqDb) -> Rocket {
         .manage(linq)
 }
 
+async fn stream(linq: &Linq) -> Event {
+    let mut stream = linq.events();
+    let e = stream.next().await.unwrap();
+    println!("RECEIVED HEARTBEAT FROM STREAM");
+    e
+}
+
 fn main() {
-    let linq = Arc::new(Mutex::new(Linq::new().listen(Endpoint::Tcp(PORT))));
+    let linq = Linq::new().listen(Endpoint::Tcp(PORT));
+    let linq = Arc::new(Mutex::new(linq));
 
     let clone = Arc::clone(&linq);
+    let clone0 = Arc::clone(&linq);
     let t = std::thread::spawn(move || {
         while linq::running() {
             thread::sleep(Duration::from_millis(50));
@@ -110,6 +120,8 @@ fn main() {
     });
 
     // let _r = std::thread::spawn(move || rocket(clone).launch());
+
+    // block_on(stream);
 
     t.join().unwrap();
     // TODO https://github.com/SergioBenitez/Rocket/issues/180

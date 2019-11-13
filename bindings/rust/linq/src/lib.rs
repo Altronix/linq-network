@@ -111,7 +111,7 @@ impl Endpoint {
     }
 }
 
-type EventLock = Arc<Mutex<EventStreamState>>;
+type EventsLock = Arc<Mutex<EventStreamState>>;
 pub enum Event {
     Heartbeat(String),
     Alert(String),
@@ -148,13 +148,16 @@ impl Stream for EventStream {
     type Item = Event;
     fn poll_next(
         self: Pin<&mut Self>,
-        _cx: &mut Context,
+        cx: &mut Context,
     ) -> Poll<Option<Self::Item>> {
         let mut state = self.state.lock().unwrap();
         let e = state.events.pop_front();
         match e {
             Some(e) => Poll::Ready(Some(e)),
-            _ => Poll::Pending,
+            _ => {
+                state.waker = Some(cx.waker().clone());
+                Poll::Pending
+            }
         }
     }
 }
@@ -184,11 +187,8 @@ impl Linq {
         }
     }
 
-    pub async fn events(&self) {
-        let mut stream = EventStream::new(&self.events);
-        while let Some(_e) = stream.next().await {
-            println!("RECEIVED EVENT");
-        }
+    pub fn events(&self) -> EventStream {
+        EventStream::new(&self.events)
     }
 
     // Listen for incoming linq nodes or device nodes
@@ -322,7 +322,7 @@ impl Drop for Linq {
         // Destroy c context and memory we passed to c library
         // Summon Arc pointer from raw so that it will free on drop
         unsafe { linq_destroy(&mut self.c_ctx) };
-        let _e: EventLock = unsafe { Arc::from_raw(self.c_events as *mut _) };
+        let _e: EventsLock = unsafe { Arc::from_raw(self.c_events as *mut _) };
     }
 }
 
@@ -331,11 +331,14 @@ unsafe impl Sync for Linq {}
 
 // Populate the c_context ptr (event queue) with an additional event
 fn load_event(ctx: *mut c_void, event: Event) {
-    let state: EventLock = unsafe { Arc::from_raw(ctx as *mut _) };
+    let state: EventsLock = unsafe { Arc::from_raw(ctx as *mut _) };
     {
         // Need to unlock() mutex before we forget mem
         let mut state = state.lock().unwrap();
         state.events.push_back(event);
+        if let Some(waker) = state.waker.take() {
+            waker.wake();
+        }
     }
     // This was cast from c ptr. If we call destructor we'll get double free's
     // (We free the actual Arc ptr in Linq destructor)
