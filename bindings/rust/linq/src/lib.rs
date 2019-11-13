@@ -231,6 +231,7 @@ impl Linq {
             let json = unsafe { CStr::from_ptr(json) };
             cb(e, json.to_str().expect("to_str() fail!"));
         }
+        // Why two box's? `\_(",)_/`
         let cb: Box<Box<dyn FnOnce(E_LINQ_ERROR, &str)>> =
             Box::new(Box::new(cb));
         match r {
@@ -311,7 +312,7 @@ unsafe impl Sync for Linq {}
 fn load_event(ctx: *mut c_void, event: u32) {
     let events: EventLock = unsafe { Arc::from_raw(ctx as *mut _) };
     {
-        // Need to unlock() mutex before we drop mem
+        // Need to unlock() mutex before we forget mem
         let mut events = events.lock().unwrap();
         events.push_back(event);
     }
