@@ -187,8 +187,10 @@ impl Linq {
         }
     }
 
-    pub fn events(&self) -> EventStream {
-        EventStream::new(&self.events)
+    pub fn stream(ep: Endpoint) -> (Linq, EventStream) {
+        let linq = Linq::new().listen(ep);
+        let es = EventStream::new(&linq.events);
+        (linq, es)
     }
 
     // Listen for incoming linq nodes or device nodes
@@ -355,7 +357,6 @@ extern "C" fn on_error(
     let cstr = unsafe { CStr::from_ptr(serial) };
     let cstr = cstr.to_str().expect("to_str() fail!");
     load_event(ctx, Event::Error(error, cstr.to_string()));
-    println!("[RECEIVED HEARTBEAT] {}", cstr);
 }
 
 // Callback from c library when heartbeat
@@ -367,7 +368,6 @@ extern "C" fn on_heartbeat(
     let cstr = unsafe { CStr::from_ptr(serial) };
     let cstr = cstr.to_str().expect("to_str() fail!");
     load_event(ctx, Event::Heartbeat(cstr.to_string()));
-    println!("[RECEIVED HEARTBEAT] {}", cstr);
 }
 
 // Calback from c library when alert
@@ -380,7 +380,6 @@ extern "C" fn on_alert(
     let cstr = unsafe { CStr::from_ptr(device_serial(*device)) };
     let cstr = cstr.to_str().expect("to_str() fail!");
     load_event(ctx, Event::Alert(cstr.to_string()));
-    println!("[RECEIVED ALERT] {}", cstr);
 }
 
 static CALLBACKS: linq_callbacks = linq_callbacks {

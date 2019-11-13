@@ -98,19 +98,24 @@ fn rocket(linq: LinqDb) -> Rocket {
         .manage(linq)
 }
 
-async fn stream(linq: &Linq) -> Event {
-    let mut stream = linq.events();
-    let e = stream.next().await.unwrap();
-    println!("RECEIVED HEARTBEAT FROM STREAM");
-    e
+async fn stream_future(stream: &mut linq::EventStream) -> () {
+    while let Some(e) = stream.next().await {
+        if !linq::running() {
+            return;
+        }
+        match e {
+            Event::Heartbeat(s) => println!("[RECEIVED HEARTBEAT] {}", s),
+            Event::Alert(s) => println!("[RECEIVED ALERT] {}", s),
+            Event::Error(_, _) => println!("[RECEIVED ERROR]"),
+        };
+    }
 }
 
 fn main() {
-    let linq = Linq::new().listen(Endpoint::Tcp(PORT));
+    let (linq, mut stream) = Linq::stream(Endpoint::Tcp(PORT));
     let linq = Arc::new(Mutex::new(linq));
 
     let clone = Arc::clone(&linq);
-    let clone0 = Arc::clone(&linq);
     let t = std::thread::spawn(move || {
         while linq::running() {
             thread::sleep(Duration::from_millis(50));
@@ -121,7 +126,8 @@ fn main() {
 
     // let _r = std::thread::spawn(move || rocket(clone).launch());
 
-    // block_on(stream);
+    // TODO need to terminate stream
+    block_on(stream_future(&mut stream));
 
     t.join().unwrap();
     // TODO https://github.com/SergioBenitez/Rocket/issues/180
