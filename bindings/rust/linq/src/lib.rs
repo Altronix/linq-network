@@ -202,7 +202,6 @@ impl Linq {
         unsafe { linq_poll(self.c_ctx, ms) }
     }
 
-    // TODO refactor into async fn instead of return ResponseFuture
     pub fn send(&self, r: Request, sid: &str) -> ResponseFuture {
         let response = ResponseFuture::new();
         let clone = Arc::clone(&response.response);
