@@ -111,43 +111,6 @@ impl Endpoint {
     }
 }
 
-/*
-pub struct Event {
-    kind: EventKind,
-}
-
-impl Event {
-    pub fn on_heartbeat<F>(f: F) -> Event
-    where
-        F: 'static + Fn(&Linq, &str),
-    {
-        let kind = EventKind::Heartbeat(Box::new(f));
-        Event { kind }
-    }
-    pub fn on_alert<F>(f: F) -> Self
-    where
-        F: 'static + Fn(&Linq, &str),
-    {
-        let kind = EventKind::Alert(Box::new(f));
-        Event { kind }
-    }
-
-    pub fn on_error<F>(f: F) -> Self
-    where
-        F: 'static + Fn(&Linq, E_LINQ_ERROR, &str),
-    {
-        let kind = EventKind::Error(Box::new(f));
-        Event { kind }
-    }
-}
-
-pub enum EventKind {
-    Heartbeat(Box<dyn Fn(&Linq, &str)>),
-    Alert(Box<dyn Fn(&Linq, &str)>),
-    Error(Box<dyn Fn(&Linq, E_LINQ_ERROR, &str)>),
-}
-*/
-
 type EventLock = Arc<Mutex<VecDeque<Event>>>;
 pub enum Event {
     Heartbeat(String),
