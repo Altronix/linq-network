@@ -109,7 +109,7 @@ fn main() {
         }
     });
 
-    let _r = std::thread::spawn(move || rocket(clone).launch());
+    // let _r = std::thread::spawn(move || rocket(clone).launch());
 
     t.join().unwrap();
     // TODO https://github.com/SergioBenitez/Rocket/issues/180

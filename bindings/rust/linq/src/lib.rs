@@ -111,21 +111,35 @@ impl Endpoint {
     }
 }
 
-type EventLock = Arc<Mutex<VecDeque<Event>>>;
+type EventLock = Arc<Mutex<EventStreamState>>;
 pub enum Event {
     Heartbeat(String),
     Alert(String),
     Error(E_LINQ_ERROR, String),
 }
 
+pub struct EventStreamState {
+    events: VecDeque<Event>,
+    waker: Option<Waker>,
+}
+
+impl EventStreamState {
+    pub fn new() -> Self {
+        EventStreamState {
+            events: VecDeque::new(),
+            waker: None,
+        }
+    }
+}
+
 pub struct EventStream {
-    events: EventLock,
+    state: Arc<Mutex<EventStreamState>>,
 }
 
 impl EventStream {
-    pub fn new(events: &EventLock) -> Self {
+    pub fn new(events: &Arc<Mutex<EventStreamState>>) -> Self {
         EventStream {
-            events: Arc::clone(events),
+            state: Arc::clone(events),
         }
     }
 }
@@ -136,8 +150,8 @@ impl Stream for EventStream {
         self: Pin<&mut Self>,
         _cx: &mut Context,
     ) -> Poll<Option<Self::Item>> {
-        let mut events = self.events.lock().unwrap();
-        let e = events.pop_front();
+        let mut state = self.state.lock().unwrap();
+        let e = state.events.pop_front();
         match e {
             Some(e) => Poll::Ready(Some(e)),
             _ => Poll::Pending,
@@ -147,7 +161,7 @@ impl Stream for EventStream {
 
 pub struct Linq {
     c_ctx: *mut linq_s,
-    events: EventLock,
+    events: Arc<Mutex<EventStreamState>>,
     c_events: *mut c_void,
     sockets: HashMap<String, Socket>,
 }
@@ -157,7 +171,7 @@ impl Linq {
     // Create callback context for linq events (Event Queue)
     // Initialize Linq wrapper
     pub fn new() -> Linq {
-        let events = Arc::new(Mutex::new(VecDeque::new()));
+        let events = Arc::new(Mutex::new(EventStreamState::new()));
         let clone = Arc::clone(&events);
         let c_ctx = unsafe { linq_create(&CALLBACKS as *const _, null_mut()) };
         let c_events = Arc::into_raw(clone) as *mut c_void;
@@ -317,15 +331,15 @@ unsafe impl Sync for Linq {}
 
 // Populate the c_context ptr (event queue) with an additional event
 fn load_event(ctx: *mut c_void, event: Event) {
-    let events: EventLock = unsafe { Arc::from_raw(ctx as *mut _) };
+    let state: EventLock = unsafe { Arc::from_raw(ctx as *mut _) };
     {
         // Need to unlock() mutex before we forget mem
-        let mut events = events.lock().unwrap();
-        events.push_back(event);
+        let mut state = state.lock().unwrap();
+        state.events.push_back(event);
     }
     // This was cast from c ptr. If we call destructor we'll get double free's
     // (We free the actual Arc ptr in Linq destructor)
-    core::mem::forget(events);
+    core::mem::forget(state);
 }
 
 // Callback from c library when error
