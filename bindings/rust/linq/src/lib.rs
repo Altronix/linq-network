@@ -186,17 +186,16 @@ impl Linq {
         }
     }
 
-    pub fn stream(ep: Endpoint) -> (Self, EventStream) {
-        let linq = Linq::new().listen(ep);
-        let es = EventStream::new(&linq.events);
-        (linq, es)
-    }
-
     // Listen for incoming linq nodes or device nodes
-    pub fn listen(mut self, ep: Endpoint) -> Self {
+    // TODO - return socket handle and remove socket hashmap
+    pub fn listen(&mut self, ep: Endpoint) -> &Self {
         let s = unsafe { linq_listen(self.c_ctx, ep.to_c_str().as_ptr()) };
         self.sockets.insert(ep.to_str(), Socket::Server(s));
         self
+    }
+
+    pub fn stream(&self) -> EventStream {
+        EventStream::new(&self.events)
     }
 
     // Connect to another linq node
@@ -208,6 +207,7 @@ impl Linq {
 
     // Opposite of listen or connect. You do not need to shutdown on clean up.
     // You only need to shutdown if you want to close connections
+    // TODO - Use socket handle for shutdown
     pub fn shutdown(self, s: &str) -> Self {
         match self.sockets.get(s).unwrap() {
             Socket::Server(s) => unsafe {

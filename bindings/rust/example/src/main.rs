@@ -109,9 +109,17 @@ async fn stream_future(stream: &mut linq::EventStream) -> () {
 }
 
 fn main() {
-    let (linq, mut stream) = Linq::stream(Endpoint::Tcp(PORT));
-    let linq = Arc::new(Mutex::new(linq));
+    // Create LinQ instance
+    let mut linq = Linq::new();
 
+    // Listen to TCP endpoint tcp://*:PORT
+    linq.listen(Endpoint::Tcp(PORT));
+
+    // Create a stream to listen to events
+    let mut stream = linq.stream();
+
+    // Prepare linq with mutex for seperate thread
+    let linq = Arc::new(Mutex::new(linq));
     let clone = Arc::clone(&linq);
     let t = std::thread::spawn(move || {
         while linq::running() {
@@ -121,8 +129,10 @@ fn main() {
         }
     });
 
+    // Start web server
     let _r = std::thread::spawn(move || rocket(clone).launch());
 
+    // Execute Futures
     let _s = std::thread::spawn(move || block_on(stream_future(&mut stream)));
 
     t.join().unwrap();
