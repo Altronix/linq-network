@@ -202,6 +202,7 @@ impl Linq {
         unsafe { linq_poll(self.c_ctx, ms) }
     }
 
+    // TODO refactor into async fn instead of return ResponseFuture
     pub fn send(&self, r: Request, sid: &str) -> ResponseFuture {
         let response = ResponseFuture::new();
         let clone = Arc::clone(&response.response);
@@ -212,6 +213,8 @@ impl Linq {
         response
     }
 
+    // We call linq_device_send... which accepts a callback on response. We
+    // store response as heap enclosure (fn on_response)
     pub fn send_cb<F>(&self, r: Request, sid: &str, cb: F) -> ()
     where
         F: 'static + FnOnce(E_LINQ_ERROR, &str),
@@ -293,7 +296,7 @@ impl Linq {
 
 impl Drop for Linq {
     fn drop(&mut self) {
-        // Destroy c context and memory we passed to c lib
+        // Destroy c context and memory we passed to c library
         // Summon Arc pointer from raw so that it will free on drop
         unsafe { linq_destroy(&mut self.c_ctx) };
         let _e: EventLock = unsafe { Arc::from_raw(self.c_events as *mut _) };
@@ -303,63 +306,55 @@ impl Drop for Linq {
 unsafe impl Send for Linq {}
 unsafe impl Sync for Linq {}
 
+// Populate the c_context ptr (event queue) with an additional event
+fn load_event(ctx: *mut c_void, event: u32) {
+    let events: EventLock = unsafe { Arc::from_raw(ctx as *mut _) };
+    {
+        // Need to unlock() mutex before we drop mem
+        let mut events = events.lock().unwrap();
+        events.push_back(event);
+    }
+    // This was cast from c ptr. If we call destructor we'll get double free's
+    // (We free the actual Arc ptr in Linq destructor)
+    core::mem::forget(events);
+}
+
+// Callback from c library when error
 extern "C" fn on_error(
-    linq: *mut raw::c_void,
+    ctx: *mut raw::c_void,
     _error: E_LINQ_ERROR,
     _arg3: *const raw::c_char,
     serial: *const raw::c_char,
 ) -> () {
-    let _l: &mut Linq = unsafe { &mut *(linq as *mut Linq) };
     let cstr = unsafe { CStr::from_ptr(serial) };
-    let _cstr = cstr.to_str().expect("to_str() fail!");
-
-    // for e in l.event_handlers.iter() {
-    //     match &e.kind {
-    //         EventKind::Error(f) => f(l, error, cstr),
-    //         _ => (),
-    //     }
-    // }
+    let cstr = cstr.to_str().expect("to_str() fail!");
+    load_event(ctx, 2);
+    println!("[RECEIVED HEARTBEAT] {}", cstr);
 }
 
+// Callback from c library when heartbeat
 extern "C" fn on_heartbeat(
     ctx: *mut raw::c_void,
     serial: *const raw::c_char,
     _arg3: *mut *mut device_s,
 ) -> () {
-    // TODO Need to tell Arc not to drop
     let cstr = unsafe { CStr::from_ptr(serial) };
     let cstr = cstr.to_str().expect("to_str() fail!");
-    let e: EventLock = unsafe { Arc::from_raw(ctx as *mut _) };
-    {
-        let mut e = e.lock().unwrap();
-        e.push_back(3);
-        println!("[RECEIVED HEARTBEAT] {}, {}", e.len(), cstr);
-    }
-    core::mem::forget(e);
-
-    // for e in l.event_handlers.iter() {
-    //     match &e.kind {
-    //         EventKind::Heartbeat(f) => f(l, cstr),
-    //         _ => (),
-    //     }
-    // }
+    load_event(ctx, 3); // TODO 3 == event
+    println!("[RECEIVED HEARTBEAT] {}", cstr);
 }
 
+// Calback from c library when alert
 extern "C" fn on_alert(
-    linq: *mut raw::c_void,
+    ctx: *mut raw::c_void,
     _arg2: *mut linq_alert_s,
     _arg3: *mut linq_email_s,
     device: *mut *mut device_s,
 ) -> () {
-    let _l: &mut Linq = unsafe { &mut *(linq as *mut Linq) };
     let cstr = unsafe { CStr::from_ptr(device_serial(*device)) };
-    let _cstr = cstr.to_str().expect("to_str() fail!");
-    // for e in l.event_handlers.iter() {
-    //     match &e.kind {
-    //         EventKind::Alert(f) => f(l, cstr),
-    //         _ => (),
-    //     }
-    // }
+    let cstr = cstr.to_str().expect("to_str() fail!");
+    load_event(ctx, 1);
+    println!("[RECEIVED ALERT] {}", cstr);
 }
 
 static CALLBACKS: linq_callbacks = linq_callbacks {
