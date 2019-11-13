@@ -67,6 +67,7 @@ impl ResponseFuture {
 }
 
 impl Future for ResponseFuture {
+    //   Output = Result<&'a str, E_LINQ_ERROR> TODO - figure out how
     type Output = Result<String, E_LINQ_ERROR>;
     fn poll(self: Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<Self::Output> {
         let mut r = self.response.lock().unwrap();
