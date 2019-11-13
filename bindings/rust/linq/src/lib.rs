@@ -149,11 +149,13 @@ pub struct Linq {
     c_ctx: *mut linq_s,
     events: EventLock,
     c_events: *mut c_void,
-    event_handlers: std::vec::Vec<Event>,
     sockets: HashMap<String, Socket>,
 }
 
 impl Linq {
+    // Create context for linq library
+    // Create callback context for linq events (Event Queue)
+    // Initialize Linq wrapper
     pub fn new() -> Linq {
         let events = Arc::new(Mutex::new(VecDeque::new()));
         let clone = Arc::clone(&events);
@@ -164,28 +166,26 @@ impl Linq {
             c_ctx,
             events,
             c_events,
-            event_handlers: std::vec![],
             sockets: HashMap::new(),
         }
     }
 
-    pub fn register(mut self, e: Event) -> Self {
-        self.event_handlers.push(e);
-        self
-    }
-
+    // Listen for incoming linq nodes or device nodes
     pub fn listen(mut self, ep: Endpoint) -> Self {
         let s = unsafe { linq_listen(self.c_ctx, ep.to_c_str().as_ptr()) };
         self.sockets.insert(ep.to_str(), Socket::Server(s));
         self
     }
 
+    // Connect to another linq node
     pub fn connect(mut self, ep: Endpoint) -> Self {
         let s = unsafe { linq_connect(self.c_ctx, ep.to_c_str().as_ptr()) };
         self.sockets.insert(ep.to_str(), Socket::Client(s));
         self
     }
 
+    // Opposite of listen or connect. You do not need to shutdown on clean up.
+    // You only need to shutdown if you want to close connections
     pub fn shutdown(self, s: &str) -> Self {
         match self.sockets.get(s).unwrap() {
             Socket::Server(s) => unsafe {
@@ -198,10 +198,12 @@ impl Linq {
         self
     }
 
+    // Run background tasks (handle Linq IO)
     pub fn poll(&self, ms: u32) -> E_LINQ_ERROR {
         unsafe { linq_poll(self.c_ctx, ms) }
     }
 
+    // Linq C library accepts callback on response. We turn response into future
     pub fn send(&self, r: Request, sid: &str) -> ResponseFuture {
         let response = ResponseFuture::new();
         let clone = Arc::clone(&response.response);
