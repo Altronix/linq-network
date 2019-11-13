@@ -92,19 +92,7 @@ fn hello_route() -> String {
 
 // Initialize Linq
 fn linq() -> Linq {
-    Linq::new()
-        .register(Event::on_heartbeat(move |_linq, id| {
-            // NOTE cannot block inside the callbacks because they share the task with
-            // linq.poll() TODO switch to "stream" api for events (instead of callbacks)
-            println!("[S] Received HEARTBEAT from [{}]", id);
-        }))
-        .register(Event::on_alert(|_l, sid| {
-            println!("[S] Received ALERT from [{}]", sid)
-        }))
-        .register(Event::on_error(|_l, e, _sid| {
-            println!("[S] Received ERROR [{}]", e)
-        }))
-        .listen(Endpoint::Tcp(PORT))
+    Linq::new().listen(Endpoint::Tcp(PORT))
 }
 
 // Initialize Rocket with Linq Context
