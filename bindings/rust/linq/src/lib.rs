@@ -214,7 +214,7 @@ impl Linq {
         response
     }
 
-    // We call linq_device_send... which accepts a callback on response. We
+    // We call linq_device_send... which accepts a callback for response. We
     // store response as heap enclosure (fn on_response)
     pub fn send_cb<F>(&self, r: Request, sid: &str, cb: F) -> ()
     where
