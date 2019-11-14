@@ -5,7 +5,7 @@ use std::env;
 use std::path::PathBuf;
 
 fn main() {
-    // Build linq TODO build static
+    // Build linq-io TODO build static
     let dst = cmake::build("../../../");
     let out = dst.display();
 
@@ -13,7 +13,7 @@ fn main() {
     println!("cargo:rustc-link-search=native={}/lib", out);
     println!("cargo:rustc-link-search=native={}/build/install/lib", out);
     println!("cargo:rustc-link-search=native={}/build/install/lib64", out);
-    println!("cargo:rustc-link-lib=static=linq");
+    println!("cargo:rustc-link-lib=static=linq-io");
     println!("cargo:rustc-link-lib=static=zmq");
     println!("cargo:rustc-link-lib=static=czmq");
     println!("cargo:rustc-link-lib=uuid");

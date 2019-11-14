@@ -437,15 +437,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "linq"
+name = "linq-io"
 version = "0.1.0"
 dependencies = [
  "futures 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "linq-sys 0.1.0",
+ "linq-io-sys 0.1.0",
 ]
 
 [[package]]
-name = "linq-sys"
+name = "linq-io-sys"
 version = "0.1.0"
 dependencies = [
  "bindgen 0.51.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -647,7 +647,7 @@ name = "proxy"
 version = "0.1.0"
 dependencies = [
  "futures 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "linq 0.1.0",
+ "linq-io 0.1.0",
  "rocket 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "rocket_contrib 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.102 (registry+https://github.com/rust-lang/crates.io-index)",

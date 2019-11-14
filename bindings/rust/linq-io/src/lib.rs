@@ -1,8 +1,8 @@
 extern crate futures;
-extern crate linq_sys;
+extern crate linq_io_sys;
 
 use futures::stream::Stream;
-use linq_sys::*;
+use linq_io_sys::*;
 use std::collections::HashMap;
 use std::collections::VecDeque;
 use std::ffi::CStr;
@@ -23,8 +23,8 @@ pub fn running() -> bool {
 }
 
 pub enum Socket {
-    Server(linq_socket),
-    Client(linq_socket),
+    Server(linq_io_socket),
+    Client(linq_io_socket),
 }
 
 pub enum Request<'a> {
@@ -162,7 +162,7 @@ impl Stream for EventStream {
 }
 
 pub struct Linq {
-    c_ctx: *mut linq_s,
+    c_ctx: *mut linq_io_s,
     events: Arc<Mutex<EventStreamState>>,
     c_events: *mut c_void,
     sockets: HashMap<String, Socket>,
@@ -175,9 +175,10 @@ impl Linq {
     pub fn new() -> Self {
         let events = Arc::new(Mutex::new(EventStreamState::new()));
         let clone = Arc::clone(&events);
-        let c_ctx = unsafe { linq_create(&CALLBACKS as *const _, null_mut()) };
+        let c_ctx =
+            unsafe { linq_io_create(&CALLBACKS as *const _, null_mut()) };
         let c_events = Arc::into_raw(clone) as *mut c_void;
-        unsafe { linq_context_set(c_ctx, c_events) };
+        unsafe { linq_io_context_set(c_ctx, c_events) };
         Linq {
             c_ctx,
             events,
@@ -189,7 +190,7 @@ impl Linq {
     // Listen for incoming linq nodes or device nodes
     // TODO - return socket handle and remove socket hashmap
     pub fn listen(&mut self, ep: Endpoint) -> &Self {
-        let s = unsafe { linq_listen(self.c_ctx, ep.to_c_str().as_ptr()) };
+        let s = unsafe { linq_io_listen(self.c_ctx, ep.to_c_str().as_ptr()) };
         self.sockets.insert(ep.to_str(), Socket::Server(s));
         self
     }
@@ -200,7 +201,7 @@ impl Linq {
 
     // Connect to another linq node
     pub fn connect(mut self, ep: Endpoint) -> Self {
-        let s = unsafe { linq_connect(self.c_ctx, ep.to_c_str().as_ptr()) };
+        let s = unsafe { linq_io_connect(self.c_ctx, ep.to_c_str().as_ptr()) };
         self.sockets.insert(ep.to_str(), Socket::Client(s));
         self
     }
@@ -211,10 +212,10 @@ impl Linq {
     pub fn shutdown(self, s: &str) -> Self {
         match self.sockets.get(s).unwrap() {
             Socket::Server(s) => unsafe {
-                linq_shutdown(self.c_ctx, *s);
+                linq_io_shutdown(self.c_ctx, *s);
             },
             Socket::Client(s) => unsafe {
-                linq_disconnect(self.c_ctx, *s);
+                linq_io_disconnect(self.c_ctx, *s);
             },
         };
         self
@@ -222,7 +223,7 @@ impl Linq {
 
     // Run background tasks (handle Linq IO)
     pub fn poll(&self, ms: u32) -> E_LINQ_ERROR {
-        unsafe { linq_poll(self.c_ctx, ms) }
+        unsafe { linq_io_poll(self.c_ctx, ms) }
     }
 
     // Linq C library accepts callback on response. We turn response into future
@@ -236,7 +237,7 @@ impl Linq {
         response
     }
 
-    // We call linq_device_send... which accepts a callback for response. We
+    // We call linq_io_device_send... which accepts a callback for response. We
     // store response as heap enclosure (fn on_response)
     pub fn send_cb<F>(&self, r: Request, sid: &str, cb: F) -> ()
     where
@@ -258,7 +259,7 @@ impl Linq {
             Box::new(Box::new(cb));
         match r {
             Request::Get(path) => unsafe {
-                linq_device_send_get(
+                linq_io_device_send_get(
                     self.c_ctx,
                     CString::new(sid).unwrap().as_ptr(),
                     CString::new(path).unwrap().as_ptr(),
@@ -267,7 +268,7 @@ impl Linq {
                 );
             },
             Request::Post(path, data) => unsafe {
-                linq_device_send_post(
+                linq_io_device_send_post(
                     self.c_ctx,
                     CString::new(sid).unwrap().as_ptr(),
                     CString::new(path).unwrap().as_ptr(),
@@ -277,7 +278,7 @@ impl Linq {
                 );
             },
             Request::Delete(path) => unsafe {
-                linq_device_send_delete(
+                linq_io_device_send_delete(
                     self.c_ctx,
                     CString::new(sid).unwrap().as_ptr(),
                     CString::new(path).unwrap().as_ptr(),
@@ -289,7 +290,7 @@ impl Linq {
     }
 
     pub fn device_count(&self) -> u32 {
-        unsafe { linq_device_count(self.c_ctx) }
+        unsafe { linq_io_device_count(self.c_ctx) }
     }
 
     pub fn devices(&self) -> HashMap<String, String> {
@@ -306,13 +307,13 @@ impl Linq {
             let pid = unsafe { CStr::from_ptr(pid).to_str().unwrap() };
             map.insert(sid.to_owned(), pid.to_owned());
         }
-        unsafe { linq_devices_foreach(self.c_ctx, Some(foreach), ctx) };
+        unsafe { linq_io_devices_foreach(self.c_ctx, Some(foreach), ctx) };
         map
     }
 
     pub fn node_count(&self) -> &Linq {
         unsafe {
-            linq_nodes_count(self.c_ctx);
+            linq_io_nodes_count(self.c_ctx);
         }
         self
     }
@@ -322,7 +323,7 @@ impl Drop for Linq {
     fn drop(&mut self) {
         // Destroy c context and memory we passed to c library
         // Summon Arc pointer from raw so that it will free on drop
-        unsafe { linq_destroy(&mut self.c_ctx) };
+        unsafe { linq_io_destroy(&mut self.c_ctx) };
         let _e: EventsLock = unsafe { Arc::from_raw(self.c_events as *mut _) };
     }
 }
@@ -372,8 +373,8 @@ extern "C" fn on_heartbeat(
 // Calback from c library when alert
 extern "C" fn on_alert(
     ctx: *mut raw::c_void,
-    _arg2: *mut linq_alert_s,
-    _arg3: *mut linq_email_s,
+    _arg2: *mut linq_io_alert_s,
+    _arg3: *mut linq_io_email_s,
     device: *mut *mut device_s,
 ) -> () {
     let cstr = unsafe { CStr::from_ptr(device_serial(*device)) };
@@ -381,7 +382,7 @@ extern "C" fn on_alert(
     load_event(ctx, Event::Alert(cstr.to_string()));
 }
 
-static CALLBACKS: linq_callbacks = linq_callbacks {
+static CALLBACKS: linq_io_callbacks = linq_io_callbacks {
     err: Some(on_error),
     hb: Some(on_heartbeat),
     alert: Some(on_alert),
