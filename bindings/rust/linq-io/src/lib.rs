@@ -161,14 +161,14 @@ impl Stream for EventStream {
     }
 }
 
-pub struct Linq {
+pub struct Handle {
     c_ctx: *mut linq_io_s,
     events: Arc<Mutex<EventStreamState>>,
     c_events: *mut c_void,
     sockets: HashMap<String, Socket>,
 }
 
-impl Linq {
+impl Handle {
     // Create context for linq library
     // Create callback context for linq events (Event Queue)
     // Initialize Linq wrapper
@@ -179,7 +179,7 @@ impl Linq {
             unsafe { linq_io_create(&CALLBACKS as *const _, null_mut()) };
         let c_events = Arc::into_raw(clone) as *mut c_void;
         unsafe { linq_io_context_set(c_ctx, c_events) };
-        Linq {
+        Handle {
             c_ctx,
             events,
             c_events,
@@ -221,12 +221,12 @@ impl Linq {
         self
     }
 
-    // Run background tasks (handle Linq IO)
+    // Run background tasks (handle Handle IO)
     pub fn poll(&self, ms: u32) -> E_LINQ_ERROR {
         unsafe { linq_io_poll(self.c_ctx, ms) }
     }
 
-    // Linq C library accepts callback on response. We turn response into future
+    // Handle C library accepts callback on response. We turn response into future
     pub fn send(&self, r: Request, sid: &str) -> ResponseFuture {
         let response = ResponseFuture::new();
         let clone = Arc::clone(&response.response);
@@ -311,7 +311,7 @@ impl Linq {
         map
     }
 
-    pub fn node_count(&self) -> &Linq {
+    pub fn node_count(&self) -> &Handle {
         unsafe {
             linq_io_nodes_count(self.c_ctx);
         }
@@ -319,7 +319,7 @@ impl Linq {
     }
 }
 
-impl Drop for Linq {
+impl Drop for Handle {
     fn drop(&mut self) {
         // Destroy c context and memory we passed to c library
         // Summon Arc pointer from raw so that it will free on drop
@@ -328,8 +328,8 @@ impl Drop for Linq {
     }
 }
 
-unsafe impl Send for Linq {}
-unsafe impl Sync for Linq {}
+unsafe impl Send for Handle {}
+unsafe impl Sync for Handle {}
 
 // Populate the c_context ptr (event queue) with an additional event
 fn load_event(ctx: *mut c_void, event: Event) {
@@ -343,7 +343,7 @@ fn load_event(ctx: *mut c_void, event: Event) {
         }
     }
     // This was cast from c ptr. If we call destructor we'll get double free's
-    // (We free the actual Arc ptr in Linq destructor)
+    // (We free the actual Arc ptr in Handle destructor)
     core::mem::forget(state);
 }
 

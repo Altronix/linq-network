@@ -188,7 +188,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "linq-sys"
+name = "linq-io-sys"
 version = "0.1.0"
 dependencies = [
  "bindgen 0.51.0 (registry+https://github.com/rust-lang/crates.io-index)",

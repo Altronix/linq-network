@@ -5,14 +5,14 @@
 extern crate linq_io;
 use futures::executor::block_on;
 use futures::stream::StreamExt;
-use linq_io::{Endpoint, Event, Linq};
+use linq_io::{Endpoint, Event, Handle};
 use std::thread;
 use std::time::Duration;
 
 static PORT: u32 = 33455;
 
 fn main() {
-    let mut linq = Linq::new();
+    let mut linq = Handle::new();
     linq.listen(Endpoint::Tcp(PORT));
 
     let events = linq.events().for_each(async move |e| {
