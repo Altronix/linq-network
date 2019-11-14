@@ -1,10 +1,10 @@
 #include "node.h"
 #include "containers.h"
 
-// main class struct (extends linq_socket_s)
+// main class struct (extends linq_io_socket_s)
 typedef struct node_s
 {
-    zsock_t* sock; // linq_socket_s expects zsock_t to be first
+    zsock_t* sock; // linq_io_socket_s expects zsock_t to be first
     router_s router;
     char serial[SID_LEN];
 } node_s;
@@ -16,7 +16,7 @@ node_create(
     uint32_t router_sz,
     const char* sid)
 {
-    node_s* node = linq_malloc(sizeof(node_s));
+    node_s* node = linq_io_malloc(sizeof(node_s));
     if (node) {
         memset(node, 0, sizeof(node_s));
         node->sock = s;
@@ -32,7 +32,7 @@ node_destroy(node_s** node_p)
     node_s* node = *node_p;
     *node_p = NULL;
     memset(node, 0, sizeof(node_s));
-    linq_free(node);
+    linq_io_free(node);
 }
 
 void

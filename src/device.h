@@ -27,21 +27,24 @@ extern "C"
     uint32_t device_last_seen(device_s* d);
     uint32_t device_uptime(device_s* d);
     void device_heartbeat(device_s* d);
+    void device_send_delete(
+        device_s*,
+        const char*,
+        linq_io_request_complete_fn,
+        void*);
     void
-    device_send_delete(device_s*, const char*, linq_request_complete_fn, void*);
-    void
-    device_send_get(device_s*, const char*, linq_request_complete_fn, void*);
+    device_send_get(device_s*, const char*, linq_io_request_complete_fn, void*);
     void device_send_post(
         device_s*,
         const char*,
         const char*,
-        linq_request_complete_fn,
+        linq_io_request_complete_fn,
         void*);
     void device_send(
         device_s* d,
         const char* path,
         const char* json,
-        linq_request_complete_fn fn,
+        linq_io_request_complete_fn fn,
         void* context);
     uint32_t device_request_sent_at(device_s* d);
     void device_request_resolve(device_s* d, int err, const char*);

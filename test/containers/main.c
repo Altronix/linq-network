@@ -20,7 +20,7 @@ item_free(item** p)
 {
     item* t = *p;
     *p = NULL;
-    linq_free(t);
+    linq_io_free(t);
 }
 
 void
@@ -28,7 +28,7 @@ car_free(car** p)
 {
     car* c = *p;
     *p = NULL;
-    linq_free(c);
+    linq_io_free(c);
 }
 
 LIST_INIT(item, item, item_free);
@@ -42,9 +42,9 @@ test_container_list_create(void** context_p)
 {
     ((void)context_p);
     item_list_s* list = item_list_create();
-    item* item0 = linq_malloc(sizeof(item));
-    item* item1 = linq_malloc(sizeof(item));
-    item* item2 = linq_malloc(sizeof(item));
+    item* item0 = linq_io_malloc(sizeof(item));
+    item* item1 = linq_io_malloc(sizeof(item));
+    item* item2 = linq_io_malloc(sizeof(item));
 
     item_list_push(list, &item0);
     assert_null(item0);
@@ -60,7 +60,7 @@ test_container_list_create(void** context_p)
     item0 = item_list_pop(list);
 
     assert_int_equal(2, item_list_size(list));
-    linq_free(item0);
+    linq_io_free(item0);
 
     item_list_destroy(&list);
     assert_null(list);
@@ -71,9 +71,9 @@ test_container_map_create(void** context_p)
 {
     ((void)context_p);
     item_map_s* hash = item_map_create();
-    item* item0 = linq_malloc(sizeof(item));
-    item* item1 = linq_malloc(sizeof(item));
-    item* item2 = linq_malloc(sizeof(item));
+    item* item0 = linq_io_malloc(sizeof(item));
+    item* item1 = linq_io_malloc(sizeof(item));
+    item* item2 = linq_io_malloc(sizeof(item));
 
     assert_non_null(hash);
 

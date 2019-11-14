@@ -22,7 +22,7 @@ test_reset()
 }
 
 static void
-test_linq_create(void** context_p)
+test_linq_io_create(void** context_p)
 {
     ((void)context_p);
     altronix::Linq l;
@@ -30,7 +30,7 @@ test_linq_create(void** context_p)
 }
 
 static void
-test_linq_device(void** context_p)
+test_linq_io_device(void** context_p)
 {
     ((void)context_p);
     altronix::Linq l;
@@ -51,7 +51,7 @@ test_linq_device(void** context_p)
 }
 
 static void
-test_linq_alert(void** context_p)
+test_linq_io_alert(void** context_p)
 {
     ((void)context_p);
     bool alert_pass = false;
@@ -66,22 +66,23 @@ test_linq_alert(void** context_p)
     czmq_spy_poll_set_incoming((0x01));
 
     l.listen("tcp://*:32820");
-    l.on_alert(
-        [&alert_pass](
-            linq_alert_s* alert, linq_email_s* email, altronix::Device& d) {
-            assert_string_equal(d.serial(), "serial");
-            assert_string_equal(alert->who, "TestUser");
-            assert_string_equal(alert->what, "TestAlert");
-            assert_string_equal(alert->where, "Altronix Site ID");
-            assert_string_equal(alert->when, "1");
-            assert_string_equal(alert->mesg, "Test Alert Message");
-            assert_string_equal(email->to0, "mail0@gmail.com");
-            assert_string_equal(email->to1, "mail1@gmail.com");
-            assert_string_equal(email->to2, "mail2@gmail.com");
-            assert_string_equal(email->to3, "mail3@gmail.com");
-            assert_string_equal(email->to4, "mail4@gmail.com");
-            alert_pass = true;
-        });
+    l.on_alert([&alert_pass](
+                   linq_io_alert_s* alert,
+                   linq_io_email_s* email,
+                   altronix::Device& d) {
+        assert_string_equal(d.serial(), "serial");
+        assert_string_equal(alert->who, "TestUser");
+        assert_string_equal(alert->what, "TestAlert");
+        assert_string_equal(alert->where, "Altronix Site ID");
+        assert_string_equal(alert->when, "1");
+        assert_string_equal(alert->mesg, "Test Alert Message");
+        assert_string_equal(email->to0, "mail0@gmail.com");
+        assert_string_equal(email->to1, "mail1@gmail.com");
+        assert_string_equal(email->to2, "mail2@gmail.com");
+        assert_string_equal(email->to3, "mail3@gmail.com");
+        assert_string_equal(email->to4, "mail4@gmail.com");
+        alert_pass = true;
+    });
 
     // Read heartbeat and alert
     l.poll(5);
@@ -97,9 +98,9 @@ main(int argc, char* argv[])
     ((void)argc);
     ((void)argv);
     int err;
-    const struct CMUnitTest tests[] = { cmocka_unit_test(test_linq_device),
-                                        cmocka_unit_test(test_linq_create),
-                                        cmocka_unit_test(test_linq_alert) };
+    const struct CMUnitTest tests[] = { cmocka_unit_test(test_linq_io_device),
+                                        cmocka_unit_test(test_linq_io_create),
+                                        cmocka_unit_test(test_linq_io_alert) };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
     return err;
