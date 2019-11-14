@@ -2,7 +2,6 @@ extern crate futures;
 extern crate linq_sys;
 
 use futures::stream::Stream;
-use futures::stream::StreamExt;
 use linq_sys::*;
 use std::collections::HashMap;
 use std::collections::VecDeque;
@@ -195,7 +194,7 @@ impl Linq {
         self
     }
 
-    pub fn stream(&self) -> EventStream {
+    pub fn events(&self) -> EventStream {
         EventStream::new(&self.events)
     }
 

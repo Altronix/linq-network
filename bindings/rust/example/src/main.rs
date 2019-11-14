@@ -107,7 +107,7 @@ fn main() {
     linq.listen(Endpoint::Tcp(PORT));
 
     // Create a stream to listen to events
-    let stream = linq.stream().for_each(async move |e| {
+    let events = linq.events().for_each(async move |e| {
         match e {
             Event::Heartbeat(s) => println!("[RECEIVED HEARTBEAT] {}", s),
             Event::Alert(s) => println!("[RECEIVED ALERT] {}", s),
@@ -130,7 +130,7 @@ fn main() {
     let _r = std::thread::spawn(move || rocket(clone).launch());
 
     // Execute Futures
-    let _s = std::thread::spawn(move || block_on(stream));
+    let _s = std::thread::spawn(move || block_on(events));
 
     t.join().unwrap();
     // NOTE https://github.com/SergioBenitez/Rocket/issues/180
