@@ -1,5 +1,6 @@
 #![feature(proc_macro_hygiene)]
 #![feature(decl_macro)]
+#![feature(async_closure)]
 
 #[macro_use]
 extern crate rocket;
@@ -106,7 +107,7 @@ fn main() {
     linq.listen(Endpoint::Tcp(PORT));
 
     // Create a stream to listen to events
-    let stream = linq.stream().map(|e| {
+    let stream = linq.stream().for_each(async move |e| {
         match e {
             Event::Heartbeat(s) => println!("[RECEIVED HEARTBEAT] {}", s),
             Event::Alert(s) => println!("[RECEIVED ALERT] {}", s),

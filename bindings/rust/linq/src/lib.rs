@@ -142,12 +142,6 @@ impl EventStream {
             state: Arc::clone(events),
         }
     }
-
-    pub async fn map(mut self, f: fn(&Event) -> ()) -> () {
-        while let Some(e) = self.next().await {
-            f(&e);
-        }
-    }
 }
 
 impl Stream for EventStream {
