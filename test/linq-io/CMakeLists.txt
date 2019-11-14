@@ -1,10 +1,10 @@
 # --------------------------------------------------------------------------
-# Build test-linq
+# Build test-linq-io
 # --------------------------------------------------------------------------
 
 find_package(Threads)
 
-add_executable(test-linq main.c)
+add_executable(test-linq-io main.c)
 
 string(CONCAT wrap_flags "-Wl,")
 string(CONCAT wrap_flags ${wrap_flags} "--wrap=zmq_poll,")
@@ -22,13 +22,13 @@ string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_connect,")
 string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_send,")
 string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_recv")
 
-target_link_libraries(test-linq
-                      linq-test
+target_link_libraries(test-linq-io
+                      linq-io-test
                       zmq
                       czmq
                       helpers
                       mock-czmq
                       cmocka)
-set_target_properties(test-linq PROPERTIES LINK_FLAGS ${wrap_flags})
-add_test(NAME test-linq COMMAND test-linq)
-install(TARGETS test-linq DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+set_target_properties(test-linq-io PROPERTIES LINK_FLAGS ${wrap_flags})
+add_test(NAME test-linq-io COMMAND test-linq-io)
+install(TARGETS test-linq-io DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

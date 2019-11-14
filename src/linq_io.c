@@ -1,7 +1,7 @@
 #include "base64.h"
 #include "containers.h"
 #include "device.h"
-#include "linq_internal.h"
+#include "linq_io_internal.h"
 #include "node.h"
 
 #define JSMN_HEADER

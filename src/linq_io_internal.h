@@ -8,7 +8,7 @@
 #include "czmq.h"
 
 // project includes
-#include "altronix/linq.h"
+#include "altronix/linq_io.h"
 
 // [router, version, type, serial]
 // [router, version, 0x00, serial, type, siteId]         = HEARTBEAT

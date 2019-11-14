@@ -1,10 +1,10 @@
 #include "device.h"
-#include "linq.hpp"
+#include "linq_io.hpp"
 
 extern "C"
 {
 #include "helpers.h"
-#include "linq_internal.h"
+#include "linq_io_internal.h"
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
 

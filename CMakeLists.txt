@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.11)
-project(linq)
+project(linq-io)
 
 option(BUILD_DEPENDENCIES "Whether or not to build the tests" ON)
 set(LINQ_BUILD_DEPENDENCIES
     ${BUILD_DEPENDENCIES}
-    CACHE BOOL "Build the external directory for linq")
+    CACHE BOOL "Build the external directory for linq-io")
 
 # dependency install
 include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
@@ -36,7 +36,7 @@ if(ENABLE_TESTING)
   add_subdirectory(test/_fixture)
   add_subdirectory(test/_mocks)
   add_subdirectory(test/containers)
-  add_subdirectory(test/linq)
+  add_subdirectory(test/linq-io)
   add_subdirectory(test/device)
   add_subdirectory(test/devices)
   add_subdirectory(test/integration)

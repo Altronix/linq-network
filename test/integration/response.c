@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "altronix/linq.h"
+#include "altronix/linq_io.h"
 #include "fixture.h"
 
 static void

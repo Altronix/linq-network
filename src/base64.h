@@ -27,7 +27,7 @@
 #ifndef POLARSSL_BASE64_H
 #define POLARSSL_BASE64_H
 
-#include "linq_internal.h"
+#include "linq_io_internal.h"
 
 #define POLARSSL_ERR_BASE64_BUFFER_TOO_SMALL                                   \
     -0x002A /**< Output buffer too small. */

@@ -1,6 +1,6 @@
 #include "mock_zmsg.h"
 
-#include "altronix/linq.h"
+#include "altronix/linq_io.h"
 #include <cmocka.h>
 
 typedef struct mock_zmsg_s
