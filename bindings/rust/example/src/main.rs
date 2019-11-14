@@ -98,16 +98,6 @@ fn rocket(linq: LinqDb) -> Rocket {
         .manage(linq)
 }
 
-async fn stream_future(stream: &mut linq::EventStream) -> () {
-    while let Some(e) = stream.next().await {
-        match e {
-            Event::Heartbeat(s) => println!("[RECEIVED HEARTBEAT] {}", s),
-            Event::Alert(s) => println!("[RECEIVED ALERT] {}", s),
-            Event::Error(_, _) => println!("[RECEIVED ERROR]"),
-        };
-    }
-}
-
 fn main() {
     // Create LinQ instance
     let mut linq = Linq::new();
@@ -116,7 +106,13 @@ fn main() {
     linq.listen(Endpoint::Tcp(PORT));
 
     // Create a stream to listen to events
-    let mut stream = linq.stream();
+    let stream = linq.stream().map(|e| {
+        match e {
+            Event::Heartbeat(s) => println!("[RECEIVED HEARTBEAT] {}", s),
+            Event::Alert(s) => println!("[RECEIVED ALERT] {}", s),
+            Event::Error(_, _) => println!("[RECEIVED ERROR]"),
+        };
+    });
 
     // Prepare linq with mutex for seperate thread
     let linq = Arc::new(Mutex::new(linq));
@@ -133,7 +129,7 @@ fn main() {
     let _r = std::thread::spawn(move || rocket(clone).launch());
 
     // Execute Futures
-    let _s = std::thread::spawn(move || block_on(stream_future(&mut stream)));
+    let _s = std::thread::spawn(move || block_on(stream));
 
     t.join().unwrap();
     // NOTE https://github.com/SergioBenitez/Rocket/issues/180

@@ -2,6 +2,7 @@ extern crate futures;
 extern crate linq_sys;
 
 use futures::stream::Stream;
+use futures::stream::StreamExt;
 use linq_sys::*;
 use std::collections::HashMap;
 use std::collections::VecDeque;
@@ -139,6 +140,12 @@ impl EventStream {
     pub fn new(events: &Arc<Mutex<EventStreamState>>) -> Self {
         EventStream {
             state: Arc::clone(events),
+        }
+    }
+
+    pub async fn map(mut self, f: fn(&Event) -> ()) -> () {
+        while let Some(e) = self.next().await {
+            f(&e);
         }
     }
 }
