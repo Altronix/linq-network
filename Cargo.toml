@@ -1,0 +1,7 @@
+[workspace]
+members = [
+	"bindings/rust/linq-io-sys",
+	"bindings/rust/linq-io",
+	"bindings/rust/examples/proxy",
+	"bindings/rust/examples/event_listener",
+]
