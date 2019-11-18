@@ -32,3 +32,8 @@ target
 
 #ctags
 tags
+
+#cargo
+/target
+**/*.rs.bk
+Cargo.lock
