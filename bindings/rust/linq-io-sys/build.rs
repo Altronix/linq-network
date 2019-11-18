@@ -2,11 +2,22 @@ extern crate bindgen;
 extern crate cmake;
 
 use std::env;
+use std::fs;
 use std::path::PathBuf;
+
+// TODO - Sometimes we are built as a submodule to another project, Sometimes
+// we are built from git root. Should find better way to build project...
+fn find_cmake_list() -> String {
+    let f = fs::metadata("../../../../CMakeLists.txt");
+    match f {
+        Ok(_) => "../../../../".to_owned(),
+        _ => "../../../".to_owned(),
+    }
+}
 
 fn main() {
     // Build linq-io TODO build static
-    let dst = cmake::build("../../../");
+    let dst = cmake::build(find_cmake_list());
     let out = dst.display();
 
     // Add compiler flags
