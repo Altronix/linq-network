@@ -73,7 +73,7 @@ extern "C"
     typedef struct
     {
         zsock_t* sock;
-    } linq_io_socket_s;
+    } linq_netw_socket_s;
 
     // helpful struct for maintaining frames
     typedef struct

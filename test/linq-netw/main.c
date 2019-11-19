@@ -25,7 +25,7 @@ test_reset()
 }
 
 static void
-linq_io_on_error_fn(
+linq_netw_on_error_fn(
     void* pass,
     E_LINQ_ERROR e,
     const char* what,
@@ -38,7 +38,7 @@ linq_io_on_error_fn(
 }
 
 static void
-linq_io_on_heartbeat_fn(void* pass, const char* serial, device_s** d)
+linq_netw_on_heartbeat_fn(void* pass, const char* serial, device_s** d)
 {
     assert_string_equal(serial, expect_serial);
     assert_string_equal(device_serial(*d), expect_serial);
@@ -46,10 +46,10 @@ linq_io_on_heartbeat_fn(void* pass, const char* serial, device_s** d)
 }
 
 static void
-linq_io_on_alert_fn(
+linq_netw_on_alert_fn(
     void* pass,
-    linq_io_alert_s* alert,
-    linq_io_email_s* email,
+    linq_netw_alert_s* alert,
+    linq_netw_email_s* email,
     device_s** d)
 {
     assert_string_equal(device_serial(*d), expect_serial);
@@ -66,22 +66,22 @@ linq_io_on_alert_fn(
     *((bool*)pass) = true;
 }
 
-linq_io_callbacks callbacks = { .err = linq_io_on_error_fn,
-                                .hb = linq_io_on_heartbeat_fn,
-                                .alert = linq_io_on_alert_fn };
+linq_netw_callbacks callbacks = { .err = linq_netw_on_error_fn,
+                                  .hb = linq_netw_on_heartbeat_fn,
+                                  .alert = linq_netw_on_alert_fn };
 
 static void
-test_linq_io_create(void** context_p)
+test_linq_netw_create(void** context_p)
 {
     ((void)context_p);
-    linq_io_s* l = linq_io_create(NULL, NULL);
+    linq_netw_s* l = linq_netw_create(NULL, NULL);
     assert_non_null(l);
-    linq_io_destroy(&l);
+    linq_netw_destroy(&l);
     assert_null(l);
 }
 
 static void
-test_linq_io_receive_protocol_error_short(void** context_p)
+test_linq_netw_receive_protocol_error_short(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
@@ -91,18 +91,18 @@ test_linq_io_receive_protocol_error_short(void** context_p)
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
 
-    linq_io_s* l = linq_io_create(&callbacks, (void*)&pass);
-    linq_io_listen(l, "tcp://*:32820");
-    linq_io_poll(l, 5);
+    linq_netw_s* l = linq_netw_create(&callbacks, (void*)&pass);
+    linq_netw_listen(l, "tcp://*:32820");
+    linq_netw_poll(l, 5);
 
     assert_true(pass);
 
-    linq_io_destroy(&l);
+    linq_netw_destroy(&l);
     test_reset();
 }
 
 static void
-test_linq_io_receive_protocol_error_serial(void** context_p)
+test_linq_netw_receive_protocol_error_serial(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
@@ -116,18 +116,18 @@ test_linq_io_receive_protocol_error_serial(void** context_p)
 
     expect_error = LINQ_ERROR_PROTOCOL;
 
-    linq_io_s* l = linq_io_create(&callbacks, &pass);
-    linq_io_listen(l, "tcp://*:32820");
-    linq_io_poll(l, 5);
+    linq_netw_s* l = linq_netw_create(&callbacks, &pass);
+    linq_netw_listen(l, "tcp://*:32820");
+    linq_netw_poll(l, 5);
 
     assert_true(pass);
 
-    linq_io_destroy(&l);
+    linq_netw_destroy(&l);
     test_reset();
 }
 
 static void
-test_linq_io_receive_protocol_error_router(void** context_p)
+test_linq_netw_receive_protocol_error_router(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
@@ -141,18 +141,18 @@ test_linq_io_receive_protocol_error_router(void** context_p)
 
     expect_error = LINQ_ERROR_PROTOCOL;
 
-    linq_io_s* l = linq_io_create(&callbacks, &pass);
-    linq_io_listen(l, "tcp://*:32820");
-    linq_io_poll(l, 5);
+    linq_netw_s* l = linq_netw_create(&callbacks, &pass);
+    linq_netw_listen(l, "tcp://*:32820");
+    linq_netw_poll(l, 5);
 
     assert_true(pass);
 
-    linq_io_destroy(&l);
+    linq_netw_destroy(&l);
     test_reset();
 }
 
 static void
-test_linq_io_receive_heartbeat_ok(void** context_p)
+test_linq_netw_receive_heartbeat_ok(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
@@ -167,12 +167,12 @@ test_linq_io_receive_heartbeat_ok(void** context_p)
     spy_sys_set_tick(100);
 
     // Receive a heartbeat
-    linq_io_s* l = linq_io_create(&callbacks, (void*)&pass);
-    linq_io_listen(l, "tcp://*:32820");
-    linq_io_poll(l, 5);
-    device_s** d = linq_io_device(l, serial);
+    linq_netw_s* l = linq_netw_create(&callbacks, (void*)&pass);
+    linq_netw_listen(l, "tcp://*:32820");
+    linq_netw_poll(l, 5);
+    device_s** d = linq_netw_device(l, serial);
     assert_non_null(d);
-    assert_int_equal(linq_io_device_count(l), 1);
+    assert_int_equal(linq_netw_device_count(l), 1);
     assert_int_equal(device_router(*d)->sz, 4);
     assert_memory_equal(device_router(*d)->id, "rid0", 4);
     assert_string_equal(device_serial(*d), serial);
@@ -181,9 +181,9 @@ test_linq_io_receive_heartbeat_ok(void** context_p)
 
     // Receive a second heartbeat , update router id and last seen
     spy_sys_set_tick(200);
-    linq_io_poll(l, 5);
+    linq_netw_poll(l, 5);
     assert_non_null(d);
-    assert_int_equal(linq_io_device_count(l), 1);
+    assert_int_equal(linq_netw_device_count(l), 1);
     assert_int_equal(device_router(*d)->sz, 5);
     assert_memory_equal(device_router(*d)->id, "rid00", 5);
     assert_string_equal(device_serial(*d), serial);
@@ -192,12 +192,12 @@ test_linq_io_receive_heartbeat_ok(void** context_p)
 
     assert_true(pass);
 
-    linq_io_destroy(&l);
+    linq_netw_destroy(&l);
     test_reset();
 }
 
 static void
-test_linq_io_receive_heartbeat_error_short(void** context_p)
+test_linq_netw_receive_heartbeat_error_short(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
@@ -208,18 +208,18 @@ test_linq_io_receive_heartbeat_error_short(void** context_p)
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
 
-    linq_io_s* l = linq_io_create(&callbacks, (void*)&pass);
-    linq_io_listen(l, "tcp://*:32820");
-    linq_io_poll(l, 5);
+    linq_netw_s* l = linq_netw_create(&callbacks, (void*)&pass);
+    linq_netw_listen(l, "tcp://*:32820");
+    linq_netw_poll(l, 5);
 
     assert_true(pass);
 
-    linq_io_destroy(&l);
+    linq_netw_destroy(&l);
     test_reset();
 }
 
 static void
-test_linq_io_receive_alert_ok(void** context_p)
+test_linq_netw_receive_alert_ok(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
@@ -232,20 +232,20 @@ test_linq_io_receive_alert_ok(void** context_p)
     czmq_spy_mesg_push_incoming(&alert);
     czmq_spy_poll_set_incoming((0x01));
 
-    linq_io_s* l = linq_io_create(&callbacks, (void*)&pass);
-    linq_io_listen(l, "tcp://*:32820");
-    linq_io_poll(l, 5);
+    linq_netw_s* l = linq_netw_create(&callbacks, (void*)&pass);
+    linq_netw_listen(l, "tcp://*:32820");
+    linq_netw_poll(l, 5);
     pass = false;
-    linq_io_poll(l, 5);
+    linq_netw_poll(l, 5);
 
     assert_true(pass);
 
-    linq_io_destroy(&l);
+    linq_netw_destroy(&l);
     test_reset();
 }
 
 static void
-test_linq_io_receive_alert_error_short(void** context_p)
+test_linq_netw_receive_alert_error_short(void** context_p)
 {
     ((void)context_p);
 }
@@ -260,7 +260,7 @@ on_response_ok(void* pass, int err, const char* data, device_s** d)
 }
 
 static void
-test_linq_io_receive_response_ok(void** context_p)
+test_linq_netw_receive_response_ok(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
@@ -276,14 +276,14 @@ test_linq_io_receive_response_ok(void** context_p)
     // Send a get request
     // receive get response
     // make sure callback is as expect
-    linq_io_s* l = linq_io_create(&callbacks, (void*)&pass);
-    linq_io_listen(l, "tcp://*:32820");
-    linq_io_poll(l, 5);
-    linq_io_device_send_get(l, serial, "/ATX/test", on_response_ok, &pass);
-    linq_io_poll(l, 5);
+    linq_netw_s* l = linq_netw_create(&callbacks, (void*)&pass);
+    linq_netw_listen(l, "tcp://*:32820");
+    linq_netw_poll(l, 5);
+    linq_netw_device_send_get(l, serial, "/ATX/test", on_response_ok, &pass);
+    linq_netw_poll(l, 5);
     assert_true(pass);
 
-    linq_io_destroy(&l);
+    linq_netw_destroy(&l);
     test_reset();
 }
 
@@ -297,7 +297,7 @@ on_response_error_timeout(void* pass, int err, const char* data, device_s** d)
 }
 
 static void
-test_linq_io_receive_response_error_timeout(void** context_p)
+test_linq_netw_receive_response_error_timeout(void** context_p)
 {
     ((void)context_p);
 
@@ -312,55 +312,55 @@ test_linq_io_receive_response_error_timeout(void** context_p)
 
     // Receive a new device @t=0
     spy_sys_set_tick(0);
-    linq_io_s* l = linq_io_create(&callbacks, &pass);
-    linq_io_listen(l, "tcp://*:32820");
-    linq_io_poll(l, 5);
-    d = linq_io_device(l, serial);
+    linq_netw_s* l = linq_netw_create(&callbacks, &pass);
+    linq_netw_listen(l, "tcp://*:32820");
+    linq_netw_poll(l, 5);
+    d = linq_netw_device(l, serial);
     device_send_get(*d, "/ATX/test", on_response_error_timeout, &response_pass);
     assert_int_equal(device_request_pending_count(*d), 1);
 
     // Still waiting for response @t=9999
     spy_sys_set_tick(9999);
     czmq_spy_poll_set_incoming((0x00));
-    linq_io_poll(l, 5);
+    linq_netw_poll(l, 5);
     assert_false(response_pass);
     assert_int_equal(device_request_pending_count(*d), 1);
 
     // Timeout callback happens @t=10000
     spy_sys_set_tick(10000);
-    linq_io_poll(l, 5);
+    linq_netw_poll(l, 5);
     assert_true(response_pass);
     assert_int_equal(device_request_pending_count(*d), 0);
 
     // Response is resolved but there is no more request pending
     czmq_spy_poll_set_incoming((0x01));
     czmq_spy_mesg_push_incoming(&r);
-    linq_io_poll(l, 5);
+    linq_netw_poll(l, 5);
 
-    linq_io_destroy(&l);
+    linq_netw_destroy(&l);
     test_reset();
 }
 
 static void
-test_linq_io_receive_hello(void** context_p)
+test_linq_netw_receive_hello(void** context_p)
 {
     ((void)context_p);
     zmsg_t* m = helpers_make_hello("router", "node");
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
-    linq_io_s* l = linq_io_create(NULL, NULL);
-    linq_io_listen(l, "tcp://*:32820");
+    linq_netw_s* l = linq_netw_create(NULL, NULL);
+    linq_netw_listen(l, "tcp://*:32820");
 
-    assert_int_equal(linq_io_nodes_count(l), 0);
-    linq_io_poll(l, 5);
-    assert_int_equal(linq_io_nodes_count(l), 1);
+    assert_int_equal(linq_netw_nodes_count(l), 0);
+    linq_netw_poll(l, 5);
+    assert_int_equal(linq_netw_nodes_count(l), 1);
 
-    linq_io_destroy(&l);
+    linq_netw_destroy(&l);
     test_reset();
 }
 
 static void
-test_linq_io_receive_hello_double_id(void** context_p)
+test_linq_netw_receive_hello_double_id(void** context_p)
 {
     ((void)context_p);
     zmsg_t* m0 = helpers_make_hello("router", "node");
@@ -370,38 +370,38 @@ test_linq_io_receive_hello_double_id(void** context_p)
     czmq_spy_mesg_push_incoming(&m1);
     czmq_spy_poll_set_incoming((0x01));
 
-    linq_io_s* l = linq_io_create(NULL, NULL);
-    linq_io_listen(l, "tcp://*:32820");
-    assert_int_equal(linq_io_nodes_count(l), 0);
-    linq_io_poll(l, 5);
-    assert_int_equal(linq_io_nodes_count(l), 1);
-    linq_io_poll(l, 5);
-    assert_int_equal(linq_io_nodes_count(l), 1);
+    linq_netw_s* l = linq_netw_create(NULL, NULL);
+    linq_netw_listen(l, "tcp://*:32820");
+    assert_int_equal(linq_netw_nodes_count(l), 0);
+    linq_netw_poll(l, 5);
+    assert_int_equal(linq_netw_nodes_count(l), 1);
+    linq_netw_poll(l, 5);
+    assert_int_equal(linq_netw_nodes_count(l), 1);
 
-    linq_io_destroy(&l);
+    linq_netw_destroy(&l);
     test_reset();
 }
 
 static void
-test_linq_io_broadcast_heartbeat_receive(void** context_p)
+test_linq_netw_broadcast_heartbeat_receive(void** context_p)
 {
     ((void)context_p);
     zmsg_t* hb = helpers_make_heartbeat(NULL, "serial", "product", "site");
-    linq_io_s* linq = linq_io_create(NULL, NULL);
+    linq_netw_s* linq = linq_netw_create(NULL, NULL);
 
-    linq_io_connect(linq, "ipc:///123");
+    linq_netw_connect(linq, "ipc:///123");
 
     // TODO - this heartbeat comes from a dealer socket
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
-    linq_io_poll(linq, 5);
+    linq_netw_poll(linq, 5);
 
-    linq_io_destroy(&linq);
+    linq_netw_destroy(&linq);
     test_reset();
 }
 
 static void
-test_linq_io_broadcast_heartbeat(void** context_p)
+test_linq_netw_broadcast_heartbeat(void** context_p)
 {
     ((void)context_p);
 
@@ -416,11 +416,11 @@ test_linq_io_broadcast_heartbeat(void** context_p)
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
 
-    linq_io_s* l = linq_io_create(NULL, NULL);
-    linq_io_listen(l, "tcp://*:32820");
-    linq_io_poll(l, 5); // receive hello
-    linq_io_poll(l, 5); // recieve hello
-    linq_io_poll(l, 5); // receive heartbeat
+    linq_netw_s* l = linq_netw_create(NULL, NULL);
+    linq_netw_listen(l, "tcp://*:32820");
+    linq_netw_poll(l, 5); // receive hello
+    linq_netw_poll(l, 5); // recieve hello
+    linq_netw_poll(l, 5); // receive heartbeat
 
     // outgoing should have a heartbeat with client router
     for (int i = 0; i < 2; i++) {
@@ -451,12 +451,12 @@ test_linq_io_broadcast_heartbeat(void** context_p)
     outgoing = czmq_spy_mesg_pop_outgoing();
     assert_null(outgoing);
 
-    linq_io_destroy(&l);
+    linq_netw_destroy(&l);
     test_reset();
 }
 
 static void
-test_linq_io_broadcast_alert(void** context_p)
+test_linq_netw_broadcast_alert(void** context_p)
 {
     ((void)context_p);
 
@@ -473,12 +473,12 @@ test_linq_io_broadcast_alert(void** context_p)
     czmq_spy_mesg_push_incoming(&alert);
     czmq_spy_poll_set_incoming((0x01));
 
-    linq_io_s* l = linq_io_create(NULL, NULL);
-    linq_io_listen(l, "tcp://*:32820");
-    linq_io_poll(l, 5); // receive heartbeat
-    linq_io_poll(l, 5); // receive hello
-    linq_io_poll(l, 5); // recieve hello
-    linq_io_poll(l, 5); // receive alert
+    linq_netw_s* l = linq_netw_create(NULL, NULL);
+    linq_netw_listen(l, "tcp://*:32820");
+    linq_netw_poll(l, 5); // receive heartbeat
+    linq_netw_poll(l, 5); // receive hello
+    linq_netw_poll(l, 5); // recieve hello
+    linq_netw_poll(l, 5); // receive alert
 
     // outgoing should have a heartbeat with client router
     for (int i = 0; i < 2; i++) {
@@ -512,12 +512,12 @@ test_linq_io_broadcast_alert(void** context_p)
     outgoing = czmq_spy_mesg_pop_outgoing();
     assert_null(outgoing);
 
-    linq_io_destroy(&l);
+    linq_netw_destroy(&l);
     test_reset();
 }
 
 static void
-test_linq_io_forward_request(void** context_p)
+test_linq_netw_forward_request(void** context_p)
 {
     ((void)context_p);
     zmsg_t *hb, *hello, *request, *response, *outgoing;
@@ -533,12 +533,12 @@ test_linq_io_forward_request(void** context_p)
     czmq_spy_mesg_push_incoming(&response); // device response
     czmq_spy_poll_set_incoming((0x01));
 
-    linq_io_s* l = linq_io_create(NULL, NULL);
-    linq_io_listen(l, "tcp://*:32820");
-    linq_io_poll(l, 5);
-    linq_io_poll(l, 5);
-    linq_io_poll(l, 5);
-    linq_io_poll(l, 5);
+    linq_netw_s* l = linq_netw_create(NULL, NULL);
+    linq_netw_listen(l, "tcp://*:32820");
+    linq_netw_poll(l, 5);
+    linq_netw_poll(l, 5);
+    linq_netw_poll(l, 5);
+    linq_netw_poll(l, 5);
 
     // First outgoing message is to the device
     outgoing = czmq_spy_mesg_pop_outgoing();
@@ -583,12 +583,12 @@ test_linq_io_forward_request(void** context_p)
     zframe_destroy(&dat);
     zmsg_destroy(&outgoing);
 
-    linq_io_destroy(&l);
+    linq_netw_destroy(&l);
     test_reset();
 }
 
 static void
-test_linq_io_forward_client_request(void** context_p)
+test_linq_netw_forward_client_request(void** context_p)
 {
     ((void)context_p);
     zframe_t *ver, *typ, *sid, *url;
@@ -598,12 +598,12 @@ test_linq_io_forward_client_request(void** context_p)
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming(0x01);
 
-    linq_io_s* l = linq_io_create(NULL, NULL);
-    linq_io_connect(l, "ipc:///test");
+    linq_netw_s* l = linq_netw_create(NULL, NULL);
+    linq_netw_connect(l, "ipc:///test");
 
-    linq_io_poll(l, 5); // add a device
+    linq_netw_poll(l, 5); // add a device
 
-    linq_io_device_send_get(l, "device123", "/ATX/hello", NULL, NULL);
+    linq_netw_device_send_get(l, "device123", "/ATX/hello", NULL, NULL);
     outgoing = czmq_spy_mesg_pop_outgoing();
     assert_non_null(outgoing);
     zmsg_destroy(&outgoing); // delete outgoing hello frames
@@ -624,19 +624,19 @@ test_linq_io_forward_client_request(void** context_p)
     zframe_destroy(&sid);
     zframe_destroy(&url);
     zmsg_destroy(&outgoing);
-    linq_io_destroy(&l);
+    linq_netw_destroy(&l);
     test_reset();
 }
 
 static void
-test_linq_io_connect(void** context_p)
+test_linq_netw_connect(void** context_p)
 {
     ((void)context_p);
-    linq_io_socket s;
+    linq_netw_socket s;
 
-    linq_io_s* linq = linq_io_create(NULL, NULL);
+    linq_netw_s* linq = linq_netw_create(NULL, NULL);
 
-    s = linq_io_connect(linq, "ipc:///filex");
+    s = linq_netw_connect(linq, "ipc:///filex");
     assert_true(!(LINQ_ERROR_OK == s));
 
     zmsg_t* outgoing = czmq_spy_mesg_pop_outgoing();
@@ -656,19 +656,19 @@ test_linq_io_connect(void** context_p)
     zframe_destroy(&sid);
     zmsg_destroy(&outgoing);
 
-    linq_io_destroy(&linq);
+    linq_netw_destroy(&linq);
     test_reset();
 }
 
 static void
-test_linq_io_shutdown(void** context_p)
+test_linq_netw_shutdown(void** context_p)
 {
     ((void)context_p);
-    linq_io_s* linq = linq_io_create(NULL, NULL);
-    linq_io_socket l0 = linq_io_listen(linq, "tcp://1.2.3.4:8080");
-    linq_io_socket l1 = linq_io_listen(linq, "tcp://5.6.7.8:8080");
-    linq_io_socket c0 = linq_io_connect(linq, "tcp://11.22.33.44:8888");
-    linq_io_socket c1 = linq_io_connect(linq, "tcp://55.66.77.88:8888");
+    linq_netw_s* linq = linq_netw_create(NULL, NULL);
+    linq_netw_socket l0 = linq_netw_listen(linq, "tcp://1.2.3.4:8080");
+    linq_netw_socket l1 = linq_netw_listen(linq, "tcp://5.6.7.8:8080");
+    linq_netw_socket c0 = linq_netw_connect(linq, "tcp://11.22.33.44:8888");
+    linq_netw_socket c1 = linq_netw_connect(linq, "tcp://55.66.77.88:8888");
     zmsg_t* hb0 = helpers_make_heartbeat("r0", "dev1", "pid", "site");
     zmsg_t* hb1 = helpers_make_heartbeat("r1", "dev2", "pid", "site");
     zmsg_t* hb2 = helpers_make_heartbeat(NULL, "dev3", "pid", "site");
@@ -687,26 +687,26 @@ test_linq_io_shutdown(void** context_p)
     czmq_spy_mesg_push_incoming(&hb6);
     czmq_spy_mesg_push_incoming(&hb7);
     czmq_spy_poll_set_incoming((0b1111)); // Knowledge of innards
-    linq_io_poll(linq, 5);
-    linq_io_poll(linq, 5);
-    assert_int_equal(linq_io_device_count(linq), 8);
-    linq_io_shutdown(linq, l0);
-    assert_int_equal(linq_io_device_count(linq), 6);
-    linq_io_shutdown(linq, l1);
-    assert_int_equal(linq_io_device_count(linq), 4);
-    linq_io_disconnect(linq, c0);
-    assert_int_equal(linq_io_device_count(linq), 2);
-    assert_int_equal(linq_io_nodes_count(linq), 1);
-    linq_io_disconnect(linq, c1);
-    assert_int_equal(linq_io_device_count(linq), 0);
-    assert_int_equal(linq_io_nodes_count(linq), 0);
+    linq_netw_poll(linq, 5);
+    linq_netw_poll(linq, 5);
+    assert_int_equal(linq_netw_device_count(linq), 8);
+    linq_netw_shutdown(linq, l0);
+    assert_int_equal(linq_netw_device_count(linq), 6);
+    linq_netw_shutdown(linq, l1);
+    assert_int_equal(linq_netw_device_count(linq), 4);
+    linq_netw_disconnect(linq, c0);
+    assert_int_equal(linq_netw_device_count(linq), 2);
+    assert_int_equal(linq_netw_nodes_count(linq), 1);
+    linq_netw_disconnect(linq, c1);
+    assert_int_equal(linq_netw_device_count(linq), 0);
+    assert_int_equal(linq_netw_nodes_count(linq), 0);
 
-    linq_io_destroy(&linq);
+    linq_netw_destroy(&linq);
     test_reset();
 }
 
 static void
-test_linq_io_devices_callback(void* context, const char* sid, const char* pid)
+test_linq_netw_devices_callback(void* context, const char* sid, const char* pid)
 {
     uint32_t *mask = context, idx = 0;
     assert_memory_equal(sid, "dev", 3);
@@ -717,14 +717,14 @@ test_linq_io_devices_callback(void* context, const char* sid, const char* pid)
 }
 
 static void
-test_linq_io_devices_foreach(void** context_p)
+test_linq_netw_devices_foreach(void** context_p)
 {
     ((void)context_p);
-    linq_io_s* linq = linq_io_create(NULL, NULL);
-    linq_io_listen(linq, "tcp://1.2.3.4:8080");
-    linq_io_listen(linq, "tcp://5.6.7.8:8080");
-    linq_io_connect(linq, "tcp://11.22.33.44:8888");
-    linq_io_connect(linq, "tcp://55.66.77.88:8888");
+    linq_netw_s* linq = linq_netw_create(NULL, NULL);
+    linq_netw_listen(linq, "tcp://1.2.3.4:8080");
+    linq_netw_listen(linq, "tcp://5.6.7.8:8080");
+    linq_netw_connect(linq, "tcp://11.22.33.44:8888");
+    linq_netw_connect(linq, "tcp://55.66.77.88:8888");
     zmsg_t* hb0 = helpers_make_heartbeat("r0", "dev0", "pid0", "site");
     zmsg_t* hb1 = helpers_make_heartbeat("r1", "dev1", "pid1", "site");
     zmsg_t* hb2 = helpers_make_heartbeat(NULL, "dev2", "pid2", "site");
@@ -743,15 +743,15 @@ test_linq_io_devices_foreach(void** context_p)
     czmq_spy_mesg_push_incoming(&hb6);
     czmq_spy_mesg_push_incoming(&hb7);
     czmq_spy_poll_set_incoming((0b1111)); // Knowledge of innards
-    linq_io_poll(linq, 5);
-    linq_io_poll(linq, 5);
-    assert_int_equal(linq_io_device_count(linq), 8);
+    linq_netw_poll(linq, 5);
+    linq_netw_poll(linq, 5);
+    assert_int_equal(linq_netw_device_count(linq), 8);
 
     uint32_t mask = 0x00;
-    linq_io_devices_foreach(linq, test_linq_io_devices_callback, &mask);
+    linq_netw_devices_foreach(linq, test_linq_netw_devices_callback, &mask);
     assert_int_equal(mask, 0b11111111);
 
-    linq_io_destroy(&linq);
+    linq_netw_destroy(&linq);
     test_reset();
 }
 
@@ -762,26 +762,26 @@ main(int argc, char* argv[])
     ((void)argv);
     int err;
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_linq_io_create),
-        cmocka_unit_test(test_linq_io_receive_protocol_error_short),
-        cmocka_unit_test(test_linq_io_receive_protocol_error_serial),
-        cmocka_unit_test(test_linq_io_receive_protocol_error_router),
-        cmocka_unit_test(test_linq_io_receive_heartbeat_ok),
-        cmocka_unit_test(test_linq_io_receive_heartbeat_error_short),
-        cmocka_unit_test(test_linq_io_receive_alert_ok),
-        cmocka_unit_test(test_linq_io_receive_alert_error_short),
-        cmocka_unit_test(test_linq_io_receive_response_ok),
-        cmocka_unit_test(test_linq_io_receive_response_error_timeout),
-        cmocka_unit_test(test_linq_io_receive_hello),
-        cmocka_unit_test(test_linq_io_receive_hello_double_id),
-        cmocka_unit_test(test_linq_io_broadcast_heartbeat),
-        cmocka_unit_test(test_linq_io_broadcast_heartbeat_receive),
-        cmocka_unit_test(test_linq_io_broadcast_alert),
-        cmocka_unit_test(test_linq_io_forward_request),
-        cmocka_unit_test(test_linq_io_forward_client_request),
-        cmocka_unit_test(test_linq_io_connect),
-        cmocka_unit_test(test_linq_io_shutdown),
-        cmocka_unit_test(test_linq_io_devices_foreach)
+        cmocka_unit_test(test_linq_netw_create),
+        cmocka_unit_test(test_linq_netw_receive_protocol_error_short),
+        cmocka_unit_test(test_linq_netw_receive_protocol_error_serial),
+        cmocka_unit_test(test_linq_netw_receive_protocol_error_router),
+        cmocka_unit_test(test_linq_netw_receive_heartbeat_ok),
+        cmocka_unit_test(test_linq_netw_receive_heartbeat_error_short),
+        cmocka_unit_test(test_linq_netw_receive_alert_ok),
+        cmocka_unit_test(test_linq_netw_receive_alert_error_short),
+        cmocka_unit_test(test_linq_netw_receive_response_ok),
+        cmocka_unit_test(test_linq_netw_receive_response_error_timeout),
+        cmocka_unit_test(test_linq_netw_receive_hello),
+        cmocka_unit_test(test_linq_netw_receive_hello_double_id),
+        cmocka_unit_test(test_linq_netw_broadcast_heartbeat),
+        cmocka_unit_test(test_linq_netw_broadcast_heartbeat_receive),
+        cmocka_unit_test(test_linq_netw_broadcast_alert),
+        cmocka_unit_test(test_linq_netw_forward_request),
+        cmocka_unit_test(test_linq_netw_forward_client_request),
+        cmocka_unit_test(test_linq_netw_connect),
+        cmocka_unit_test(test_linq_netw_shutdown),
+        cmocka_unit_test(test_linq_netw_devices_foreach)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);

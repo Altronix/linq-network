@@ -24,14 +24,14 @@ typedef struct request_s
     router_s forward;
     uint32_t sent_at;
     void* ctx;
-    linq_io_request_complete_fn on_complete;
+    linq_netw_request_complete_fn on_complete;
     zframe_t* frames[FRAME_REQ_DATA_IDX + 1];
 } request_s;
 
-// main class struct (extends linq_io_socket_s)
+// main class struct (extends linq_netw_socket_s)
 typedef struct device_s
 {
-    zsock_t* sock; // linq_io_socket_s expects zsock_t* to be first
+    zsock_t* sock; // linq_netw_socket_s expects zsock_t* to be first
     router_s router;
     request_list_s* requests;
     request_s* request_pending;
@@ -84,13 +84,13 @@ request_alloc_mem(
     uint32_t plen,
     const char* d,
     uint32_t dlen,
-    linq_io_request_complete_fn fn,
+    linq_netw_request_complete_fn fn,
     void* context)
 {
     bool hop = device_hops(device);
     const char* s = device_serial(device);
     uint32_t slen = strlen(s);
-    request_s* r = linq_io_malloc(sizeof(request_s));
+    request_s* r = linq_netw_malloc(sizeof(request_s));
     if (r) {
         memset(r, 0, sizeof(request_s));
         r->on_complete = fn;
@@ -115,7 +115,7 @@ request_alloc(
     E_REQUEST_METHOD method,
     const char* path,
     const char* json,
-    linq_io_request_complete_fn on_complete,
+    linq_netw_request_complete_fn on_complete,
     void* context)
 {
     return request_alloc_mem(
@@ -137,14 +137,14 @@ request_destroy(request_s** r_p)
     for (uint32_t i = 0; i < (sizeof(r->frames) / sizeof(zframe_t*)); i++) {
         if (r->frames[i]) zframe_destroy(&r->frames[i]);
     }
-    linq_io_free(r);
+    linq_netw_free(r);
 }
 
 static void
 request_router_id_set(request_s* r, uint8_t* rid, uint32_t rid_len)
 {
     r->frames[FRAME_RID_IDX] = zframe_new(rid, rid_len);
-    linq_io_assert(r->frames[FRAME_RID_IDX]);
+    linq_netw_assert(r->frames[FRAME_RID_IDX]);
 }
 
 static const char*
@@ -177,7 +177,7 @@ device_create(
     const char* serial,
     const char* type)
 {
-    device_s* d = linq_io_malloc(sizeof(device_s));
+    device_s* d = linq_netw_malloc(sizeof(device_s));
     if (d) {
         memset(d, 0, sizeof(device_s));
         d->sock = sock;
@@ -202,7 +202,7 @@ device_destroy(device_s** d_p)
     request_list_destroy(&d->requests);
     memset(d, 0, sizeof(device_s));
     *d_p = NULL;
-    linq_io_free(d);
+    linq_netw_free(d);
 }
 
 const char*
@@ -272,7 +272,7 @@ send_method(
     E_REQUEST_METHOD method,
     const char* path,
     const char* json,
-    linq_io_request_complete_fn fn,
+    linq_netw_request_complete_fn fn,
     void* context)
 {
     request_s* r = request_alloc(d, method, path, json, fn, context);
@@ -288,7 +288,7 @@ void
 device_send_delete(
     device_s* d,
     const char* path,
-    linq_io_request_complete_fn fn,
+    linq_netw_request_complete_fn fn,
     void* context)
 {
     send_method(d, REQUEST_METHOD_DELETE, path, NULL, fn, context);
@@ -298,7 +298,7 @@ void
 device_send_get(
     device_s* d,
     const char* path,
-    linq_io_request_complete_fn fn,
+    linq_netw_request_complete_fn fn,
     void* context)
 {
     send_method(d, REQUEST_METHOD_GET, path, NULL, fn, context);
@@ -309,7 +309,7 @@ device_send_post(
     device_s* d,
     const char* path,
     const char* json,
-    linq_io_request_complete_fn fn,
+    linq_netw_request_complete_fn fn,
     void* context)
 {
     send_method(d, REQUEST_METHOD_POST, path, json, fn, context);
@@ -320,7 +320,7 @@ device_send(
     device_s* d,
     const char* path,
     const char* json,
-    linq_io_request_complete_fn fn,
+    linq_netw_request_complete_fn fn,
     void* context)
 {
     send_method(d, REQUEST_METHOD_RAW, path, json, fn, context);
@@ -345,7 +345,7 @@ device_request_resolve(device_s* d, E_LINQ_ERROR err, const char* str)
 void
 device_request_flush(device_s* d)
 {
-    linq_io_assert(d->request_pending == NULL);
+    linq_netw_assert(d->request_pending == NULL);
     request_s** r_p = &d->request_pending;
     *r_p = request_list_pop(d->requests);
     if (d->router.sz) request_router_id_set(*r_p, d->router.id, d->router.sz);

@@ -32,18 +32,18 @@ char g_frame_typ_hello = FRAME_TYP_HELLO;
 MAP_INIT(device, device_s, device_destroy);
 MAP_INIT(node, node_s, node_destroy);
 MAP_INIT(socket, zsock_t, zsock_destroy);
-device_s** linq_io_device_from_frame(linq_io_s* l, zframe_t* frame);
+device_s** linq_netw_device_from_frame(linq_netw_s* l, zframe_t* frame);
 
 // Main class
-typedef struct linq_io_s
+typedef struct linq_netw_s
 {
     void* context;
     socket_map_s* routers;
     socket_map_s* dealers;
     device_map_s* devices;
     node_map_s* nodes;
-    const linq_io_callbacks* callbacks;
-} linq_io_s;
+    const linq_netw_callbacks* callbacks;
+} linq_netw_s;
 
 // A version on the wire is a byte
 typedef int8_t version;
@@ -149,7 +149,7 @@ pop_le(zmsg_t* msg, uint32_t le)
 
 // read incoming zmq frame and test valid json
 static zframe_t*
-pop_alert(zmsg_t* msg, linq_io_alert_s* alert)
+pop_alert(zmsg_t* msg, linq_netw_alert_s* alert)
 {
     int r, count, sz;
     zframe_t* f = pop_le(msg, JSON_LEN);
@@ -180,7 +180,7 @@ pop_alert(zmsg_t* msg, linq_io_alert_s* alert)
 }
 
 static zframe_t*
-pop_email(zmsg_t* msg, linq_io_email_s* emails)
+pop_email(zmsg_t* msg, linq_netw_email_s* emails)
 {
     int r, count, sz;
     zframe_t* f = pop_le(msg, JSON_LEN);
@@ -311,7 +311,7 @@ on_device_response(
 
 // check the zmq request frames are valid and process the request
 static E_LINQ_ERROR
-process_request(linq_io_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
+process_request(linq_netw_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     zframe_t *path = NULL, *data = NULL;
@@ -322,7 +322,7 @@ process_request(linq_io_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
             data = frames[FRAME_REQ_DATA_IDX] = pop_le(*msg, JSON_LEN);
         }
         node_s** n = node_resolve(sock, l->nodes, frames, false);
-        device_s** d = linq_io_device_from_frame(l, frames[FRAME_SID_IDX]);
+        device_s** d = linq_netw_device_from_frame(l, frames[FRAME_SID_IDX]);
         if (n && d) {
             print_null_terminated(url, sizeof(url), path);
             if (data) print_null_terminated(json, sizeof(json), data);
@@ -337,7 +337,7 @@ process_request(linq_io_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
 
 // check the zmq response frames are valid and process the response
 static E_LINQ_ERROR
-process_response(linq_io_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
+process_response(linq_netw_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     zframe_t *err, *dat;
@@ -360,13 +360,13 @@ process_response(linq_io_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
 
 // check the zmq alert frames are valid and process the alert
 static E_LINQ_ERROR
-process_alert(linq_io_s* l, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
+process_alert(linq_netw_s* l, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     char alert_data[JSON_LEN];
     char email_data[JSON_LEN];
-    linq_io_alert_s alert;
-    linq_io_email_s email;
+    linq_netw_alert_s alert;
+    linq_netw_email_s email;
     memset(&alert, 0, sizeof(alert));
     memset(&email, 0, sizeof(email));
     alert.data = alert_data;
@@ -393,7 +393,7 @@ process_alert(linq_io_s* l, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
 
 // check the zmq hello message is valid and add a node if it does not exist
 static E_LINQ_ERROR
-process_hello(linq_io_s* l, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
+process_hello(linq_netw_s* l, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
 {
     ((void)l);
     ((void)msg);
@@ -407,7 +407,7 @@ process_hello(linq_io_s* l, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
 
 // check the zmq heartbeat frames are valid and process the heartbeat
 static E_LINQ_ERROR
-process_heartbeat(linq_io_s* l, zsock_t* s, zmsg_t** msg, zframe_t** frames)
+process_heartbeat(linq_netw_s* l, zsock_t* s, zmsg_t** msg, zframe_t** frames)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     if (zmsg_size(*msg) == 2 &&
@@ -430,7 +430,7 @@ process_heartbeat(linq_io_s* l, zsock_t* s, zmsg_t** msg, zframe_t** frames)
 
 // check the zmq header frames are valid and process the packet
 static E_LINQ_ERROR
-process_packet(linq_io_s* l, zsock_t* s, bool router)
+process_packet(linq_netw_s* l, zsock_t* s, bool router)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     int total_frames = 0, start = 1;
@@ -467,12 +467,12 @@ process_packet(linq_io_s* l, zsock_t* s, bool router)
 }
 
 // Create main context for the caller
-linq_io_s*
-linq_io_create(const linq_io_callbacks* cb, void* context)
+linq_netw_s*
+linq_netw_create(const linq_netw_callbacks* cb, void* context)
 {
-    linq_io_s* l = linq_io_malloc(sizeof(linq_io_s));
+    linq_netw_s* l = linq_netw_malloc(sizeof(linq_netw_s));
     if (l) {
-        memset(l, 0, sizeof(linq_io_s));
+        memset(l, 0, sizeof(linq_netw_s));
         l->devices = device_map_create();
         l->nodes = node_map_create();
         l->routers = socket_map_create();
@@ -485,26 +485,26 @@ linq_io_create(const linq_io_callbacks* cb, void* context)
 
 // Free main context after use
 void
-linq_io_destroy(linq_io_s** linq_io_p)
+linq_netw_destroy(linq_netw_s** linq_netw_p)
 {
-    linq_io_s* l = *linq_io_p;
-    *linq_io_p = NULL;
+    linq_netw_s* l = *linq_netw_p;
+    *linq_netw_p = NULL;
     device_map_destroy(&l->devices);
     node_map_destroy(&l->nodes);
     socket_map_destroy(&l->routers);
     socket_map_destroy(&l->dealers);
-    linq_io_free(l);
+    linq_netw_free(l);
 }
 
 void
-linq_io_context_set(linq_io_s* linq, void* ctx)
+linq_netw_context_set(linq_netw_s* linq, void* ctx)
 {
     linq->context = ctx;
 }
 
 // Listen for incoming device connections on "endpoint"
-linq_io_socket
-linq_io_listen(linq_io_s* l, const char* ep)
+linq_netw_socket
+linq_netw_listen(linq_netw_s* l, const char* ep)
 {
     zsock_t* socket = zsock_new_router(ep);
     if (socket) {
@@ -516,8 +516,8 @@ linq_io_listen(linq_io_s* l, const char* ep)
 }
 
 // connect to a remote linq and send hello frames
-linq_io_socket
-linq_io_connect(linq_io_s* l, const char* ep)
+linq_netw_socket
+linq_netw_connect(linq_netw_s* l, const char* ep)
 {
     zsock_t* socket = zsock_new_dealer(ep);
     if (socket) {
@@ -539,7 +539,7 @@ remove_devices(zsock_t** s, device_map_s* devices)
     for (khiter_t k = kh_begin(devices); k != kh_end(devices); ++k) {
         if (!kh_exist(devices, k)) continue;
         device_s** device = &kh_val(devices, k);
-        linq_io_socket_s* socket = ((linq_io_socket_s*)(*device));
+        linq_netw_socket_s* socket = ((linq_netw_socket_s*)(*device));
         if (eq == socket->sock) {
             device_map_remove(devices, device_serial(*device));
         }
@@ -553,13 +553,13 @@ remove_nodes(zsock_t** s, node_map_s* nodes)
     for (khiter_t k = kh_begin(nodes); k != kh_end(nodes); ++k) {
         if (!kh_exist(nodes, k)) continue;
         node_s** node = &kh_val(nodes, k);
-        linq_io_socket_s* socket = ((linq_io_socket_s*)(*node));
+        linq_netw_socket_s* socket = ((linq_netw_socket_s*)(*node));
         if (eq == socket->sock) { node_map_remove(nodes, node_serial(*node)); }
     }
 }
 
 E_LINQ_ERROR
-linq_io_shutdown(linq_io_s* l, linq_io_socket handle)
+linq_netw_shutdown(linq_netw_s* l, linq_netw_socket handle)
 {
     zsock_t** s = socket_map_resolve(l->routers, handle);
     if (s) {
@@ -572,7 +572,7 @@ linq_io_shutdown(linq_io_s* l, linq_io_socket handle)
 }
 
 E_LINQ_ERROR
-linq_io_disconnect(linq_io_s* l, linq_io_socket handle)
+linq_netw_disconnect(linq_netw_s* l, linq_netw_socket handle)
 {
     zsock_t** s = socket_map_resolve(l->dealers, handle);
     if (s) {
@@ -614,12 +614,12 @@ populate_sockets(socket_map_s* h, zmq_pollitem_t** ptr_p)
 
 // poll network socket file handles
 E_LINQ_ERROR
-linq_io_poll(linq_io_s* l, uint32_t ms)
+linq_netw_poll(linq_netw_s* l, uint32_t ms)
 {
     zmq_pollitem_t items[MAX_CONNECTIONS], *ptr = items;
     int err, n_router = socket_map_size(l->routers),
              n_dealer = socket_map_size(l->dealers);
-    linq_io_assert(n_router + n_dealer < MAX_CONNECTIONS);
+    linq_netw_assert(n_router + n_dealer < MAX_CONNECTIONS);
 
     memset(items, 0, sizeof(items));
     populate_sockets(l->routers, &ptr);
@@ -636,7 +636,7 @@ linq_io_poll(linq_io_s* l, uint32_t ms)
             }
             ptr++;
         }
-        // linq_io_assert(n == n_router);
+        // linq_netw_assert(n == n_router);
         for (khiter_t k = kh_begin(l->dealers); k != kh_end(l->dealers); ++k) {
             if (!kh_exist(l->dealers, k)) continue;
             zsock_t* sock = kh_val(l->dealers, k);
@@ -654,36 +654,36 @@ linq_io_poll(linq_io_s* l, uint32_t ms)
 }
 
 device_s**
-linq_io_device_from_frame(linq_io_s* l, zframe_t* frame)
+linq_netw_device_from_frame(linq_netw_s* l, zframe_t* frame)
 {
     char sid[SID_LEN];
     print_null_terminated(sid, SID_LEN, frame);
-    return linq_io_device(l, sid);
+    return linq_netw_device(l, sid);
 }
 
 // get a device from the device map
 device_s**
-linq_io_device(const linq_io_s* l, const char* serial)
+linq_netw_device(const linq_netw_s* l, const char* serial)
 {
     return device_map_get(l->devices, serial);
 }
 
 // return how many devices are connected to linq
 uint32_t
-linq_io_device_count(const linq_io_s* l)
+linq_netw_device_count(const linq_netw_s* l)
 {
     return device_map_size(l->devices);
 }
 
-// Context used for linq_io_devices_foreach HOF (Higher Order Function)
+// Context used for linq_netw_devices_foreach HOF (Higher Order Function)
 typedef struct
 {
-    const linq_io_s* l;
-    linq_io_devices_foreach_fn fn;
+    const linq_netw_s* l;
+    linq_netw_devices_foreach_fn fn;
     void* ctx;
 } foreach_device_print_sid_ctx;
 
-// linq_io_device_foreach HOF
+// linq_netw_device_foreach HOF
 static void
 foreach_device_print_sid(void* ctx, device_s** d_p)
 {
@@ -693,9 +693,9 @@ foreach_device_print_sid(void* ctx, device_s** d_p)
 
 // Print a list of serial numbers to caller
 void
-linq_io_devices_foreach(
-    const linq_io_s* l,
-    linq_io_devices_foreach_fn fn,
+linq_netw_devices_foreach(
+    const linq_netw_s* l,
+    linq_netw_devices_foreach_fn fn,
     void* ctx)
 {
     foreach_device_print_sid_ctx foreach_ctx = { l,
@@ -706,13 +706,13 @@ linq_io_devices_foreach(
 
 // return how many nodes are connected to linq
 uint32_t
-linq_io_nodes_count(const linq_io_s* l)
+linq_netw_nodes_count(const linq_netw_s* l)
 {
     return node_map_size(l->nodes);
 }
 
 static void
-send_error(linq_io_request_complete_fn fn, void* context, E_LINQ_ERROR e)
+send_error(linq_netw_request_complete_fn fn, void* context, E_LINQ_ERROR e)
 {
     char err[32];
     if (fn) {
@@ -723,14 +723,14 @@ send_error(linq_io_request_complete_fn fn, void* context, E_LINQ_ERROR e)
 
 // send a get request to a device connected to us
 E_LINQ_ERROR
-linq_io_device_send_get(
-    const linq_io_s* linq,
+linq_netw_device_send_get(
+    const linq_netw_s* linq,
     const char* serial,
     const char* path,
-    linq_io_request_complete_fn fn,
+    linq_netw_request_complete_fn fn,
     void* context)
 {
-    device_s** d = linq_io_device(linq, serial);
+    device_s** d = linq_netw_device(linq, serial);
     if (!d) {
         send_error(fn, context, LINQ_ERROR_DEVICE_NOT_FOUND);
         return LINQ_ERROR_DEVICE_NOT_FOUND;
@@ -742,15 +742,15 @@ linq_io_device_send_get(
 
 // send a post request to a device connected to us
 E_LINQ_ERROR
-linq_io_device_send_post(
-    const linq_io_s* linq,
+linq_netw_device_send_post(
+    const linq_netw_s* linq,
     const char* serial,
     const char* path,
     const char* json,
-    linq_io_request_complete_fn fn,
+    linq_netw_request_complete_fn fn,
     void* context)
 {
-    device_s** d = linq_io_device(linq, serial);
+    device_s** d = linq_netw_device(linq, serial);
     if (!d) {
         send_error(fn, context, LINQ_ERROR_DEVICE_NOT_FOUND);
         return LINQ_ERROR_DEVICE_NOT_FOUND;
@@ -762,14 +762,14 @@ linq_io_device_send_post(
 
 // send a delete request to a device connected to us
 E_LINQ_ERROR
-linq_io_device_send_delete(
-    const linq_io_s* linq,
+linq_netw_device_send_delete(
+    const linq_netw_s* linq,
     const char* serial,
     const char* path,
-    linq_io_request_complete_fn fn,
+    linq_netw_request_complete_fn fn,
     void* context)
 {
-    device_s** d = linq_io_device(linq, serial);
+    device_s** d = linq_netw_device(linq, serial);
     if (!d) {
         send_error(fn, context, LINQ_ERROR_DEVICE_NOT_FOUND);
         return LINQ_ERROR_DEVICE_NOT_FOUND;

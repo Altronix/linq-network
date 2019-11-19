@@ -22,7 +22,7 @@ test_reset()
 }
 
 static void
-test_linq_io_create(void** context_p)
+test_linq_netw_create(void** context_p)
 {
     ((void)context_p);
     altronix::Linq l;
@@ -30,7 +30,7 @@ test_linq_io_create(void** context_p)
 }
 
 static void
-test_linq_io_device(void** context_p)
+test_linq_netw_device(void** context_p)
 {
     ((void)context_p);
     altronix::Linq l;
@@ -51,7 +51,7 @@ test_linq_io_device(void** context_p)
 }
 
 static void
-test_linq_io_alert(void** context_p)
+test_linq_netw_alert(void** context_p)
 {
     ((void)context_p);
     bool alert_pass = false;
@@ -67,8 +67,8 @@ test_linq_io_alert(void** context_p)
 
     l.listen("tcp://*:32820");
     l.on_alert([&alert_pass](
-                   linq_io_alert_s* alert,
-                   linq_io_email_s* email,
+                   linq_netw_alert_s* alert,
+                   linq_netw_email_s* email,
                    altronix::Device& d) {
         assert_string_equal(d.serial(), "serial");
         assert_string_equal(alert->who, "TestUser");
@@ -98,9 +98,10 @@ main(int argc, char* argv[])
     ((void)argc);
     ((void)argv);
     int err;
-    const struct CMUnitTest tests[] = { cmocka_unit_test(test_linq_io_device),
-                                        cmocka_unit_test(test_linq_io_create),
-                                        cmocka_unit_test(test_linq_io_alert) };
+    const struct CMUnitTest tests[] = { cmocka_unit_test(test_linq_netw_device),
+                                        cmocka_unit_test(test_linq_netw_create),
+                                        cmocka_unit_test(
+                                            test_linq_netw_alert) };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
     return err;

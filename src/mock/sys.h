@@ -3,13 +3,13 @@
 
 #include <stdint.h>
 
-#define linq_io_malloc_fn malloc
-#define linq_io_free_fn free
-#define linq_io_assert_fn assert
+#define linq_netw_malloc_fn malloc
+#define linq_netw_free_fn free
+#define linq_netw_assert_fn assert
 
-#define linq_io_malloc(x) linq_io_malloc_fn(x)
-#define linq_io_free(x) linq_io_free_fn(x)
-#define linq_io_assert(x) linq_io_assert_fn(x)
+#define linq_netw_malloc(x) linq_netw_malloc_fn(x)
+#define linq_netw_free(x) linq_netw_free_fn(x)
+#define linq_netw_assert(x) linq_netw_assert_fn(x)
 
 #ifdef __cplusplus
 extern "C"

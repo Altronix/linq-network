@@ -85,7 +85,7 @@ extern "C"
         type* node = *node_p;                                                  \
         *node_p = NULL;                                                        \
         khiter_t k = kh_put_##tag(nodes, key, &ret);                           \
-        linq_io_assert(ret >= 0);                                              \
+        linq_netw_assert(ret >= 0);                                            \
         kh_val(nodes, k) = node;                                               \
         return &kh_val(nodes, k);                                              \
     }                                                                          \
