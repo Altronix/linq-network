@@ -13,7 +13,7 @@ fn main() {
     println!("cargo:rustc-link-search=native={}/lib", out);
     println!("cargo:rustc-link-search=native={}/build/install/lib", out);
     println!("cargo:rustc-link-search=native={}/build/install/lib64", out);
-    println!("cargo:rustc-link-lib=static=linq-io");
+    println!("cargo:rustc-link-lib=static=linq-netw");
     println!("cargo:rustc-link-lib=static=zmq");
     println!("cargo:rustc-link-lib=static=czmq");
     println!("cargo:rustc-link-lib=uuid");

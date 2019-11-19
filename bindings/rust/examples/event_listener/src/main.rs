@@ -2,10 +2,10 @@
 #![feature(decl_macro)]
 #![feature(async_closure)]
 
-extern crate linq_io;
+extern crate linq_netw;
 use futures::executor::block_on;
 use futures::stream::StreamExt;
-use linq_io::{Endpoint, Event, Handle};
+use linq_netw::{Endpoint, Event, Handle};
 use std::thread;
 use std::time::Duration;
 
@@ -24,7 +24,7 @@ fn main() {
     });
 
     let t = std::thread::spawn(move || {
-        while linq_io::running() {
+        while linq_netw::running() {
             thread::sleep(Duration::from_millis(50));
             linq.poll(1);
         }

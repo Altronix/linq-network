@@ -8,11 +8,11 @@ extern crate rocket_contrib;
 #[macro_use]
 extern crate serde_derive;
 
-extern crate linq_io;
+extern crate linq_netw;
 
 use futures::executor::block_on;
 use futures::stream::StreamExt;
-use linq_io::{Endpoint, Event, Handle, Request};
+use linq_netw::{Endpoint, Event, Handle, Request};
 use rocket::response::content;
 use rocket::{Rocket, State};
 use rocket_contrib::json::Json;
@@ -119,7 +119,7 @@ fn main() {
     let linq = Arc::new(Mutex::new(linq));
     let clone = Arc::clone(&linq);
     let t = std::thread::spawn(move || {
-        while linq_io::running() {
+        while linq_netw::running() {
             thread::sleep(Duration::from_millis(50));
             let linq = linq.lock().unwrap();
             linq.poll(1);
