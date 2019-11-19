@@ -3,7 +3,7 @@
 
 // includes
 #include "czmq.h"
-#include "linq_io_internal.h"
+#include "linq_netw_internal.h"
 
 #ifdef __cplusplus
 extern "C"

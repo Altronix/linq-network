@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 add_library(mock-czmq mock_zmsg.c mock_zsock.c mock_zpoll.c)
 target_link_libraries(mock-czmq
-                      linq-io-test
+                      linq-netw-test
                       czmq
                       zmq)
 target_include_directories(mock-czmq PUBLIC .)
@@ -27,7 +27,7 @@ string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_recv")
 add_executable(test-mocks main.c)
 set_target_properties(test-mocks PROPERTIES LINK_FLAGS ${wrap_flags})
 target_link_libraries(test-mocks
-                      linq-io-test
+                      linq-netw-test
                       zmq
                       czmq
                       helpers

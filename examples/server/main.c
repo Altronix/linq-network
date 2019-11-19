@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "altronix/linq_io.h"
+#include "altronix/linq_netw.h"
 
 static bool received_response = false;
 

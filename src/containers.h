@@ -1,7 +1,7 @@
 #ifndef CONTAINERS_H_
 #define CONTAINERS_H_
 
-#include "linq_io_internal.h"
+#include "linq_netw_internal.h"
 
 #include "klib/khash.h"
 #include "klib/klist.h"

@@ -1,7 +1,7 @@
-#include "altronix/linq_io.h"
+#include "altronix/linq_netw.h"
 #include "device.h"
 #include "helpers.h"
-#include "linq_io_internal.h"
+#include "linq_netw_internal.h"
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
 #include <czmq.h>

@@ -1,5 +1,5 @@
 #include "helpers.h"
-#include "linq_io_internal.h"
+#include "linq_netw_internal.h"
 
 zmsg_t*
 helpers_make_heartbeat(
