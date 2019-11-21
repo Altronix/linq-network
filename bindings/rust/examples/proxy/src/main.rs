@@ -99,7 +99,7 @@ fn rocket(linq: LinqDb) -> Rocket {
         .manage(linq)
 }
 
-fn main() {
+fn main() -> Result<(), rocket::error::Error> {
     // Create LinQ instance
     let mut linq = Handle::new();
 
@@ -114,6 +114,7 @@ fn main() {
             Event::Error(_, _) => println!("[RECEIVED ERROR]"),
         };
     });
+    let s = std::thread::spawn(move || block_on(events));
 
     // Prepare linq with mutex for seperate thread
     let linq = Arc::new(Mutex::new(linq));
@@ -127,14 +128,13 @@ fn main() {
     });
 
     // Start web server
-    let _r = std::thread::spawn(move || rocket(clone).launch());
-
-    // Execute Futures
-    let _s = std::thread::spawn(move || block_on(events));
+    let rocket = rocket(clone);
+    let shutdown_handle = rocket.get_shutdown_handle();
+    let r = std::thread::spawn(move || rocket.launch());
 
     t.join().unwrap();
-    // NOTE https://github.com/SergioBenitez/Rocket/issues/180
-    // Need to 'await' for fix for clean shutdown. (pun intended).
-    // r.join().unwrap(); // TODO wait for issues/180 fix
+    shutdown_handle.shutdown();
+    r.join().unwrap()?;
     // s.join().unwrap(); // TODO need to signal end of stream
+    Ok(())
 }
