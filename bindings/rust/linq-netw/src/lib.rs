@@ -2,6 +2,7 @@ extern crate futures;
 extern crate linq_netw_sys;
 
 mod event;
+pub use event::Event;
 
 use linq_netw_sys::*;
 use std::collections::HashMap;
