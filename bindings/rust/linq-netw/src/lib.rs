@@ -1,15 +1,14 @@
 extern crate futures;
 extern crate linq_netw_sys;
 
-use futures::stream::Stream;
+mod event;
+
 use linq_netw_sys::*;
 use std::collections::HashMap;
-use std::collections::VecDeque;
 use std::ffi::CStr;
 use std::ffi::CString;
 use std::future::Future;
 use std::option::Option;
-use std::os::raw;
 use std::os::raw::c_char;
 use std::os::raw::c_void;
 use std::pin::Pin;
@@ -110,62 +109,10 @@ impl Endpoint {
     }
 }
 
-type EventsLock = Arc<Mutex<EventStreamState>>;
-pub enum Event {
-    Heartbeat(String),
-    Alert(String),
-    Error(E_LINQ_ERROR, String),
-}
-
-pub struct EventStreamState {
-    events: VecDeque<Event>,
-    waker: Option<Waker>,
-}
-
-impl EventStreamState {
-    pub fn new() -> Self {
-        EventStreamState {
-            events: VecDeque::new(),
-            waker: None,
-        }
-    }
-}
-
-pub struct EventStream {
-    state: Arc<Mutex<EventStreamState>>,
-}
-
-impl EventStream {
-    pub fn new(events: &Arc<Mutex<EventStreamState>>) -> Self {
-        EventStream {
-            state: Arc::clone(events),
-        }
-    }
-}
-
-impl Stream for EventStream {
-    type Item = Event;
-    fn poll_next(
-        self: Pin<&mut Self>,
-        cx: &mut Context,
-    ) -> Poll<Option<Self::Item>> {
-        let mut state = self.state.lock().unwrap();
-        let e = state.events.pop_front();
-        match e {
-            Some(e) => Poll::Ready(Some(e)),
-            _ => {
-                state.waker = Some(cx.waker().clone());
-                Poll::Pending
-            }
-        }
-    }
-}
-
 pub struct Handle {
     c_ctx: *mut linq_netw_s,
-    events: Arc<Mutex<EventStreamState>>,
+    events: Arc<Mutex<event::EventStreamState>>,
     c_events: *mut c_void,
-    sockets: HashMap<String, Socket>,
 }
 
 impl Handle {
@@ -173,45 +120,42 @@ impl Handle {
     // Create callback context for linq events (Event Queue)
     // Initialize Linq wrapper
     pub fn new() -> Self {
-        let events = Arc::new(Mutex::new(EventStreamState::new()));
+        let events = Arc::new(Mutex::new(event::EventStreamState::new()));
         let clone = Arc::clone(&events);
-        let c_ctx =
-            unsafe { linq_netw_create(&CALLBACKS as *const _, null_mut()) };
+        let c_ctx = unsafe {
+            linq_netw_create(&event::CALLBACKS as *const _, null_mut())
+        };
         let c_events = Arc::into_raw(clone) as *mut c_void;
         unsafe { linq_netw_context_set(c_ctx, c_events) };
         Handle {
             c_ctx,
             events,
             c_events,
-            sockets: HashMap::new(),
         }
     }
 
     // Listen for incoming linq nodes or device nodes
     // TODO - return socket handle and remove socket hashmap
-    pub fn listen(&mut self, ep: Endpoint) -> &Self {
+    pub fn listen(&self, ep: Endpoint) -> Socket {
         let s = unsafe { linq_netw_listen(self.c_ctx, ep.to_c_str().as_ptr()) };
-        self.sockets.insert(ep.to_str(), Socket::Server(s));
-        self
+        Socket::Server(s)
     }
 
-    pub fn events(&self) -> EventStream {
-        EventStream::new(&self.events)
+    pub fn events(&self) -> event::EventStream {
+        event::EventStream::new(&self.events)
     }
 
     // Connect to another linq node
-    pub fn connect(mut self, ep: Endpoint) -> Self {
-        let s =
-            unsafe { linq_netw_connect(self.c_ctx, ep.to_c_str().as_ptr()) };
-        self.sockets.insert(ep.to_str(), Socket::Client(s));
-        self
+    pub fn connect(&self, ep: Endpoint) -> Socket {
+        let ep = ep.to_c_str().as_ptr();
+        let s = unsafe { linq_netw_connect(self.c_ctx, ep) };
+        Socket::Client(s)
     }
 
     // Opposite of listen or connect. You do not need to shutdown on clean up.
     // You only need to shutdown if you want to close connections
-    // TODO - Use socket handle for shutdown
-    pub fn shutdown(self, s: &str) -> Self {
-        match self.sockets.get(s).unwrap() {
+    pub fn shutdown(self, s: &Socket) -> Self {
+        match s {
             Socket::Server(s) => unsafe {
                 linq_netw_shutdown(self.c_ctx, *s);
             },
@@ -329,6 +273,7 @@ impl Drop for Handle {
     fn drop(&mut self) {
         // Destroy c context and memory we passed to c library
         // Summon Arc pointer from raw so that it will free on drop
+        use event::EventsLock;
         unsafe { linq_netw_destroy(&mut self.c_ctx) };
         let _e: EventsLock = unsafe { Arc::from_raw(self.c_events as *mut _) };
     }
@@ -336,60 +281,3 @@ impl Drop for Handle {
 
 unsafe impl Send for Handle {}
 unsafe impl Sync for Handle {}
-
-// Populate the c_context ptr (event queue) with an additional event
-fn load_event(ctx: *mut c_void, event: Event) {
-    let state: EventsLock = unsafe { Arc::from_raw(ctx as *mut _) };
-    {
-        // Need to unlock() mutex before we forget mem
-        let mut state = state.lock().unwrap();
-        state.events.push_back(event);
-        if let Some(waker) = state.waker.take() {
-            waker.wake();
-        }
-    }
-    // This was cast from c ptr. If we call destructor we'll get double free's
-    // (We free the actual Arc ptr in Handle destructor)
-    core::mem::forget(state);
-}
-
-// Callback from c library when error
-extern "C" fn on_error(
-    ctx: *mut raw::c_void,
-    error: E_LINQ_ERROR,
-    _arg3: *const raw::c_char,
-    serial: *const raw::c_char,
-) -> () {
-    let cstr = unsafe { CStr::from_ptr(serial) };
-    let cstr = cstr.to_str().expect("to_str() fail!");
-    load_event(ctx, Event::Error(error, cstr.to_string()));
-}
-
-// Callback from c library when heartbeat
-extern "C" fn on_heartbeat(
-    ctx: *mut raw::c_void,
-    serial: *const raw::c_char,
-    _arg3: *mut *mut device_s,
-) -> () {
-    let cstr = unsafe { CStr::from_ptr(serial) };
-    let cstr = cstr.to_str().expect("to_str() fail!");
-    load_event(ctx, Event::Heartbeat(cstr.to_string()));
-}
-
-// Calback from c library when alert
-extern "C" fn on_alert(
-    ctx: *mut raw::c_void,
-    _arg2: *mut linq_netw_alert_s,
-    _arg3: *mut linq_netw_email_s,
-    device: *mut *mut device_s,
-) -> () {
-    let cstr = unsafe { CStr::from_ptr(device_serial(*device)) };
-    let cstr = cstr.to_str().expect("to_str() fail!");
-    load_event(ctx, Event::Alert(cstr.to_string()));
-}
-
-static CALLBACKS: linq_netw_callbacks = linq_netw_callbacks {
-    err: Some(on_error),
-    hb: Some(on_heartbeat),
-    alert: Some(on_alert),
-};
