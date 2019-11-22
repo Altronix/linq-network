@@ -10,18 +10,23 @@ use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 use std::task::{Context, Poll, Waker};
 
-pub type EventsLock = Arc<Mutex<EventStreamState>>;
+// All events from linq_netw match this signature
 pub enum Event {
     Heartbeat(String),
     Alert(String),
     Error(E_LINQ_ERROR, String),
 }
 
+// Shared state for event stream
+pub type EventsLock = Arc<Mutex<EventStreamState>>;
+
+// Queue of events and waker for stream
 pub struct EventStreamState {
     events: VecDeque<Event>,
     waker: Option<Waker>,
 }
 
+// Helper to create a stream state
 impl EventStreamState {
     pub fn new() -> Self {
         EventStreamState {
@@ -31,10 +36,12 @@ impl EventStreamState {
     }
 }
 
+// The event stream handle (contains pointer to shared state)
 pub struct EventStream {
     state: Arc<Mutex<EventStreamState>>,
 }
 
+// Helper to create an event stream
 impl EventStream {
     pub fn new(events: &Arc<Mutex<EventStreamState>>) -> Self {
         EventStream {
@@ -43,6 +50,7 @@ impl EventStream {
     }
 }
 
+// Must implement the Stream trait for our stream
 impl Stream for EventStream {
     type Item = Event;
     fn poll_next(

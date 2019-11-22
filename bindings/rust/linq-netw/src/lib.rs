@@ -16,7 +16,7 @@ use std::pin::Pin;
 use std::ptr::null_mut;
 use std::result::Result;
 use std::sync::{Arc, Mutex};
-use std::task::{Context, Poll, Waker};
+use std::task::{Context as Ctx, Poll, Waker};
 
 pub fn running() -> bool {
     unsafe { sys_running() }
@@ -68,7 +68,7 @@ impl ResponseFuture {
 impl Future for ResponseFuture {
     //   Output = Result<&'a str, E_LINQ_ERROR> TODO - figure out how
     type Output = Result<String, E_LINQ_ERROR>;
-    fn poll(self: Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<Self::Output> {
+    fn poll(self: Pin<&mut Self>, ctx: &mut Ctx<'_>) -> Poll<Self::Output> {
         let mut r = self.response.lock().unwrap();
         if r.error.is_some() && r.json.is_some() {
             let err = r.error.unwrap();
@@ -110,13 +110,13 @@ impl Endpoint {
     }
 }
 
-pub struct Handle {
+pub struct Context {
     c_ctx: *mut linq_netw_s,
     events: Arc<Mutex<event::EventStreamState>>,
     c_events: *mut c_void,
 }
 
-impl Handle {
+impl Context {
     // Create context for linq library
     // Create callback context for linq events (Event Queue)
     // Initialize Linq wrapper
@@ -128,7 +128,7 @@ impl Handle {
         };
         let c_events = Arc::into_raw(clone) as *mut c_void;
         unsafe { linq_netw_context_set(c_ctx, c_events) };
-        Handle {
+        Context {
             c_ctx,
             events,
             c_events,
@@ -167,7 +167,7 @@ impl Handle {
         self
     }
 
-    // Run background tasks (handle Handle IO)
+    // Run background tasks (handle Context IO)
     pub fn poll(&self, ms: i32) -> E_LINQ_ERROR {
         unsafe { linq_netw_poll(self.c_ctx, ms) }
     }
@@ -177,7 +177,7 @@ impl Handle {
         self.poll(-1)
     }
 
-    // Handle C library accepts callback on response. We turn response into future
+    // C library accepts callback on response. We turn response into future
     pub fn send(&self, r: Request, sid: &str) -> ResponseFuture {
         let response = ResponseFuture::new();
         let clone = Arc::clone(&response.response);
@@ -188,8 +188,8 @@ impl Handle {
         response
     }
 
-    // We call linq_netw_device_send... which accepts a callback for response. We
-    // store response as heap enclosure (fn on_response)
+    // We call linq_netw_device_send... which accepts a callback for response.
+    // We store response as heap enclosure (fn on_response)
     pub fn send_cb<F>(&self, r: Request, sid: &str, cb: F) -> ()
     where
         F: 'static + FnOnce(E_LINQ_ERROR, &str),
@@ -262,7 +262,7 @@ impl Handle {
         map
     }
 
-    pub fn node_count(&self) -> &Handle {
+    pub fn node_count(&self) -> &Context {
         unsafe {
             linq_netw_nodes_count(self.c_ctx);
         }
@@ -270,7 +270,7 @@ impl Handle {
     }
 }
 
-impl Drop for Handle {
+impl Drop for Context {
     fn drop(&mut self) {
         // Destroy c context and memory we passed to c library
         // Summon Arc pointer from raw so that it will free on drop
@@ -280,5 +280,5 @@ impl Drop for Handle {
     }
 }
 
-unsafe impl Send for Handle {}
-unsafe impl Sync for Handle {}
+unsafe impl Send for Context {}
+unsafe impl Sync for Context {}
