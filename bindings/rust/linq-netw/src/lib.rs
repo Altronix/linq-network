@@ -262,11 +262,8 @@ impl Context {
         map
     }
 
-    pub fn node_count(&self) -> &Context {
-        unsafe {
-            linq_netw_nodes_count(self.c_ctx);
-        }
-        self
+    pub fn node_count(&self) -> u32 {
+        unsafe { linq_netw_nodes_count(self.c_ctx) }
     }
 }
 
