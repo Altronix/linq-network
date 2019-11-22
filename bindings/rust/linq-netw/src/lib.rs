@@ -4,6 +4,8 @@ extern crate linq_netw_sys;
 mod event;
 pub use event::Event;
 
+pub mod shutdown;
+
 use linq_netw_sys::*;
 use std::collections::HashMap;
 use std::ffi::CStr;
@@ -17,10 +19,6 @@ use std::ptr::null_mut;
 use std::result::Result;
 use std::sync::{Arc, Mutex};
 use std::task::{Context as Ctx, Poll, Waker};
-
-pub fn running() -> bool {
-    unsafe { sys_running() }
-}
 
 pub enum Socket {
     Server(linq_netw_socket),
@@ -114,6 +112,7 @@ pub struct Context {
     c_ctx: *mut linq_netw_s,
     events: Arc<Mutex<event::EventStreamState>>,
     c_events: *mut c_void,
+    shutdown: Vec<Arc<Mutex<shutdown::Shutdown>>>,
 }
 
 impl Context {
@@ -132,6 +131,7 @@ impl Context {
             c_ctx,
             events,
             c_events,
+            shutdown: vec![],
         }
     }
 
@@ -153,9 +153,8 @@ impl Context {
         Socket::Client(s)
     }
 
-    // Opposite of listen or connect. You do not need to shutdown on clean up.
-    // You only need to shutdown if you want to close connections
-    pub fn shutdown(self, s: &Socket) -> Self {
+    // Opposite of listen or connect. You do not need to close on clean up.
+    pub fn close(self, s: &Socket) -> Self {
         match s {
             Socket::Server(s) => unsafe {
                 linq_netw_shutdown(self.c_ctx, *s);
@@ -175,6 +174,12 @@ impl Context {
     // Same as poll accept will block on socket read
     pub fn poll_blocking(&self) -> E_LINQ_ERROR {
         self.poll(-1)
+    }
+
+    pub fn shutdown_handle(&mut self) -> shutdown::ShutdownFuture {
+        let sd = shutdown::ShutdownFuture::new();
+        self.shutdown.push(Arc::clone(&sd.shutdown));
+        sd
     }
 
     // C library accepts callback on response. We turn response into future
