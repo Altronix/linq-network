@@ -614,7 +614,7 @@ populate_sockets(socket_map_s* h, zmq_pollitem_t** ptr_p)
 
 // poll network socket file handles
 E_LINQ_ERROR
-linq_netw_poll(linq_netw_s* l, uint32_t ms)
+linq_netw_poll(linq_netw_s* l, int32_t ms)
 {
     zmq_pollitem_t items[MAX_CONNECTIONS], *ptr = items;
     int err, n_router = socket_map_size(l->routers),

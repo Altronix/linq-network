@@ -91,7 +91,7 @@ extern "C"
     linq_netw_socket linq_netw_connect(linq_netw_s* l, const char* ep);
     E_LINQ_ERROR linq_netw_shutdown(linq_netw_s*, linq_netw_socket);
     E_LINQ_ERROR linq_netw_disconnect(linq_netw_s*, linq_netw_socket);
-    E_LINQ_ERROR linq_netw_poll(linq_netw_s* l, uint32_t ms);
+    E_LINQ_ERROR linq_netw_poll(linq_netw_s* l, int32_t ms);
     device_s** linq_netw_device(const linq_netw_s*, const char*);
     uint32_t linq_netw_device_count(const linq_netw_s*);
     void linq_netw_devices_foreach(

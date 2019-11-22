@@ -223,8 +223,13 @@ impl Handle {
     }
 
     // Run background tasks (handle Handle IO)
-    pub fn poll(&self, ms: u32) -> E_LINQ_ERROR {
+    pub fn poll(&self, ms: i32) -> E_LINQ_ERROR {
         unsafe { linq_netw_poll(self.c_ctx, ms) }
+    }
+
+    // Same as poll accept will block on socket read
+    pub fn poll_blocking(&self) -> E_LINQ_ERROR {
+        self.poll(-1)
     }
 
     // Handle C library accepts callback on response. We turn response into future
