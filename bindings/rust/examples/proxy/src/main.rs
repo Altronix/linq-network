@@ -12,7 +12,7 @@ extern crate linq_netw;
 
 use futures::executor::block_on;
 use futures::stream::StreamExt;
-use linq_netw::{Endpoint, Event, Handle, Request};
+use linq_netw::{Context, Endpoint, Event, Request};
 use rocket::response::content;
 use rocket::{Rocket, State};
 use rocket_contrib::json::Json;
@@ -24,7 +24,7 @@ use std::time::Duration;
 static PORT: u32 = 33455;
 type ID = String;
 
-type LinqDb = Arc<Mutex<Handle>>;
+type LinqDb = Arc<Mutex<Context>>;
 
 #[get("/devices")]
 fn linq_route(linq: State<LinqDb>) -> content::Json<String> {
@@ -101,7 +101,7 @@ fn rocket(linq: LinqDb) -> Rocket {
 
 fn main() -> Result<(), rocket::error::Error> {
     // Create LinQ instance
-    let mut linq = Handle::new();
+    let mut linq = Context::new();
 
     // Listen to TCP endpoint tcp://*:PORT
     linq.listen(Endpoint::Tcp(PORT));
