@@ -1,25 +1,22 @@
 extern crate futures;
 extern crate linq_netw_sys;
 
-mod resolver;
 mod event;
+mod simple_future;
 pub use event::Event;
 
 pub mod shutdown;
 
 use linq_netw_sys::*;
+use simple_future::SimpleFuture;
 use std::collections::HashMap;
 use std::ffi::CStr;
 use std::ffi::CString;
-use std::future::Future;
 use std::option::Option;
 use std::os::raw::c_char;
 use std::os::raw::c_void;
-use std::pin::Pin;
 use std::ptr::null_mut;
-use std::result::Result;
 use std::sync::{Arc, Mutex};
-use std::task::{Context as Ctx, Poll, Waker};
 
 pub enum Socket {
     Server(linq_netw_socket),
@@ -32,55 +29,10 @@ pub enum Request<'a> {
     Delete(&'a str),
 }
 
+#[derive(Clone)]
 pub struct Response {
-    error: Option<E_LINQ_ERROR>,
-    json: Option<String>,
-    waker: Option<Waker>,
-}
-
-impl Response {
-    fn resolve(&mut self, e: E_LINQ_ERROR, json: &str) {
-        self.error = Some(e);
-        self.json = Some(json.to_string());
-        if let Some(waker) = self.waker.take() {
-            waker.wake();
-        }
-    }
-}
-
-pub struct ResponseFuture {
-    response: Arc<Mutex<Response>>,
-}
-
-impl ResponseFuture {
-    fn new() -> Self {
-        ResponseFuture {
-            response: Arc::new(Mutex::new(Response {
-                error: None,
-                json: None,
-                waker: None,
-            })),
-        }
-    }
-}
-
-impl Future for ResponseFuture {
-    //   Output = Result<&'a str, E_LINQ_ERROR> TODO - figure out how
-    type Output = Result<String, E_LINQ_ERROR>;
-    fn poll(self: Pin<&mut Self>, ctx: &mut Ctx<'_>) -> Poll<Self::Output> {
-        let mut r = self.response.lock().unwrap();
-        if r.error.is_some() && r.json.is_some() {
-            let err = r.error.unwrap();
-            let json = r.json.as_ref().unwrap().to_string();
-            match err {
-                E_LINQ_ERROR_LINQ_ERROR_OK => Poll::Ready(Ok(json)),
-                _ => Poll::Ready(Err(err)),
-            }
-        } else {
-            r.waker = Some(ctx.waker().clone());
-            Poll::Pending
-        }
-    }
+    pub error: E_LINQ_ERROR,
+    pub json: String,
 }
 
 pub enum Endpoint {
@@ -184,14 +136,17 @@ impl Context {
     }
 
     // C library accepts callback on response. We turn response into future
-    pub fn send(&self, r: Request, sid: &str) -> ResponseFuture {
-        let response = ResponseFuture::new();
-        let clone = Arc::clone(&response.response);
-        self.send_cb(r, sid, move |e, json| {
+    pub fn send(&self, r: Request, sid: &str) -> SimpleFuture<Response> {
+        let future = SimpleFuture::new();
+        let clone = Arc::clone(&future.state);
+        self.send_cb(r, sid, move |error, json| {
             let mut r = clone.lock().unwrap();
-            r.resolve(e, json);
+            r.resolve(Response {
+                error: error,
+                json: json.to_string(),
+            });
         });
-        response
+        future
     }
 
     // We call linq_netw_device_send... which accepts a callback for response.

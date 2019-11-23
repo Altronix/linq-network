@@ -75,7 +75,7 @@ fn proxy_route(
             f = linq.send(request, &id);
         }
         match block_on(f) {
-            Ok(s) => content::Json(s),
+            Ok(response) => content::Json(response.json),
             Err(n) => {
                 let mut e = "Error: ".to_string();
                 e.push_str(&n.to_string());
@@ -120,7 +120,7 @@ fn main() -> Result<(), rocket::error::Error> {
     let linq = Arc::new(Mutex::new(linq));
     let clone = Arc::clone(&linq);
     let t = std::thread::spawn(move || {
-        while linq_netw::running() {
+        while linq_netw::shutdown::running() {
             thread::sleep(Duration::from_millis(50));
             let linq = linq.lock().unwrap();
             linq.poll(1);

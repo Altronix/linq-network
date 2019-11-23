@@ -4,12 +4,12 @@ use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 use std::task::{Context, Poll, Waker};
 
-pub struct Resolve<T> {
+pub struct SimpleFutureState<T> {
     data: Option<T>,
     waker: Option<Waker>,
 }
 
-impl<T> Resolve<T> {
+impl<T> SimpleFutureState<T> {
     pub fn resolve(&mut self, data: T) -> () {
         self.data = Some(data);
         if let Some(waker) = self.waker.take() {
@@ -18,14 +18,14 @@ impl<T> Resolve<T> {
     }
 }
 
-pub struct ResolveFuture<T> {
-    pub resolve: Arc<Mutex<Resolve<T>>>,
+pub struct SimpleFuture<T> {
+    pub state: Arc<Mutex<SimpleFutureState<T>>>,
 }
 
-impl<T> ResolveFuture<T> {
+impl<T> SimpleFuture<T> {
     pub fn new() -> Self {
-        ResolveFuture {
-            resolve: Arc::new(Mutex::new(Resolve {
+        SimpleFuture {
+            state: Arc::new(Mutex::new(SimpleFutureState {
                 data: None,
                 waker: None,
             })),
@@ -33,14 +33,14 @@ impl<T> ResolveFuture<T> {
     }
 }
 
-impl<T: Copy> Future for ResolveFuture<T> {
+impl<T: Clone> Future for SimpleFuture<T> {
     type Output = Result<T, Box<dyn std::error::Error>>;
     fn poll(self: Pin<&mut Self>, ctx: &mut Context<'_>) -> Poll<Self::Output> {
-        let mut resolve = self.resolve.lock().unwrap();
-        match resolve.data {
-            Some(d) => Poll::Ready(Ok(d)),
+        let mut state = self.state.lock().unwrap();
+        match &state.data {
+            Some(d) => Poll::Ready(Ok(d.clone())),
             _ => {
-                resolve.waker = Some(ctx.waker().clone());
+                state.waker = Some(ctx.waker().clone());
                 Poll::Pending
             }
         }
