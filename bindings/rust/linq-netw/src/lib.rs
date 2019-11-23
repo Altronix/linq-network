@@ -10,11 +10,14 @@ use simple_future::SimpleFuture;
 use std::collections::HashMap;
 use std::ffi::CStr;
 use std::ffi::CString;
-use std::option::Option;
 use std::os::raw::c_char;
 use std::os::raw::c_void;
 use std::ptr::null_mut;
 use std::sync::{Arc, Mutex};
+
+pub fn running() -> bool {
+    unsafe { sys_running() }
+}
 
 pub enum Socket {
     Server(linq_netw_socket),

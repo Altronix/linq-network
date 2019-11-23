@@ -15,6 +15,7 @@ pub enum Event {
     Heartbeat(String),
     Alert(String),
     Error(E_LINQ_ERROR, String),
+    Ctrlc,
 }
 
 // Shared state for event stream
@@ -120,8 +121,14 @@ extern "C" fn on_alert(
     load_event(ctx, Event::Alert(cstr.to_string()));
 }
 
+// Calback from c library when control-c detected
+extern "C" fn on_ctrlc(ctx: *mut raw::c_void) -> () {
+    load_event(ctx, Event::Ctrlc);
+}
+
 pub static CALLBACKS: linq_netw_callbacks = linq_netw_callbacks {
     err: Some(on_error),
     hb: Some(on_heartbeat),
     alert: Some(on_alert),
+    ctrlc: Some(on_ctrlc),
 };

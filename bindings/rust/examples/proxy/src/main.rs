@@ -11,6 +11,7 @@ extern crate serde_derive;
 extern crate linq_netw;
 
 use futures::executor::block_on;
+use futures::prelude::*;
 use futures::stream::StreamExt;
 use linq_netw::{Context, Endpoint, Event, Request};
 use rocket::response::content;
@@ -107,20 +108,27 @@ fn main() -> Result<(), rocket::error::Error> {
     linq.listen(Endpoint::Tcp(PORT));
 
     // Create a stream to listen to events
-    let events = linq.events().for_each(async move |e| {
-        match e {
-            Event::Heartbeat(s) => println!("[RECEIVED HEARTBEAT] {}", s),
-            Event::Alert(s) => println!("[RECEIVED ALERT] {}", s),
-            Event::Error(_, _) => println!("[RECEIVED ERROR]"),
-        };
-    });
+    let events = linq
+        .events()
+        .take_while(|e| match e {
+            Event::Ctrlc => future::ready(false),
+            _ => future::ready(true),
+        })
+        .for_each(async move |e| {
+            match e {
+                Event::Heartbeat(s) => println!("[RECEIVED HEARTBEAT] {}", s),
+                Event::Alert(s) => println!("[RECEIVED ALERT] {}", s),
+                Event::Error(_, _) => println!("[RECEIVED ERROR]"),
+                _ => (),
+            };
+        });
     let s = std::thread::spawn(move || block_on(events));
 
     // Prepare linq with mutex for seperate thread
     let linq = Arc::new(Mutex::new(linq));
     let clone = Arc::clone(&linq);
     let t = std::thread::spawn(move || {
-        while linq_netw::shutdown::running() {
+        while linq_netw::running() {
             thread::sleep(Duration::from_millis(50));
             let linq = linq.lock().unwrap();
             linq.poll(1);
