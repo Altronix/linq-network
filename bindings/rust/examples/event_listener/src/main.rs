@@ -4,9 +4,10 @@
 
 extern crate linq_netw;
 use futures::executor::block_on;
+use futures::future::join;
+use futures::prelude::*;
 use futures::stream::StreamExt;
 use linq_netw::{Context, Endpoint, Event};
-use std::thread;
 use std::time::Duration;
 
 static PORT: u32 = 33455;
@@ -15,21 +16,27 @@ fn main() {
     let linq = Context::new();
     linq.listen(Endpoint::Tcp(PORT));
 
-    let events = linq.events().for_each(async move |e| {
-        match e {
-            Event::Heartbeat(s) => println!("[RECEIVED HEARTBEAT] {}", s),
-            Event::Alert(s) => println!("[RECEIVED ALERT] {}", s),
-            Event::Error(_, _) => println!("[RECEIVED ERROR]"),
-        };
-    });
+    let events = linq
+        .events()
+        .take_while(|e| match e {
+            Event::Ctrlc => future::ready(false),
+            _ => future::ready(true),
+        })
+        .for_each(async move |e| {
+            match e {
+                Event::Heartbeat(s) => println!("[RECEIVED HEARTBEAT] {}", s),
+                Event::Alert(s) => println!("[RECEIVED ALERT] {}", s),
+                Event::Error(_, _) => println!("[RECEIVED ERROR]"),
+                _ => (),
+            };
+        });
 
-    let t = std::thread::spawn(move || {
+    let linq_poller = async_std::task::spawn(async move {
         while linq_netw::running() {
-            thread::sleep(Duration::from_millis(50));
-            linq.poll(1);
+            futures_timer::Delay::new(Duration::from_millis(50)).await;
+            linq.poll(0);
         }
     });
 
-    block_on(events);
-    t.join().unwrap();
+    block_on(join(events, linq_poller));
 }
