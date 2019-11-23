@@ -3,6 +3,7 @@
 #include "device.h"
 #include "linq_netw_internal.h"
 #include "node.h"
+#include "sys.h"
 
 #define JSMN_HEADER
 #include "jsmn/jsmn.h"
@@ -21,6 +22,11 @@
     do {                                                                       \
         if (linq->callbacks && linq->callbacks->alert)                         \
             linq->callbacks->alert(linq->context, a, e, device_p);             \
+    } while (0)
+#define exe_on_ctrlc(linq)                                                     \
+    do {                                                                       \
+        if (linq->callbacks && linq->callbacks->ctrlc)                         \
+            linq->callbacks->ctrlc(linq->context);                             \
     } while (0)
 
 char g_frame_ver_0 = FRAME_VER_0;
@@ -649,6 +655,10 @@ linq_netw_poll(linq_netw_s* l, int32_t ms)
 
     // Loop through devices
     device_map_foreach(l->devices, foreach_node_check_request_timeout, l);
+
+    // Check if we received a ctrlc and generate an event
+    // TODO needs test
+    if (!sys_running()) exe_on_ctrlc(l);
 
     return err;
 }

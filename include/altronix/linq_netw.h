@@ -60,20 +60,15 @@ extern "C"
         E_LINQ_ERROR e,
         const char* json,
         device_s**);
-    typedef void (*linq_netw_error_fn)( //
-        void*,
-        E_LINQ_ERROR,
-        const char*,
-        const char*);
-    typedef void (*linq_netw_heartbeat_fn)( //
-        void*,
-        const char*,
-        device_s**);
-    typedef void (*linq_netw_alert_fn)( //
+    typedef void (
+        *linq_netw_error_fn)(void*, E_LINQ_ERROR, const char*, const char*);
+    typedef void (*linq_netw_heartbeat_fn)(void*, const char*, device_s**);
+    typedef void (*linq_netw_alert_fn)(
         void*,
         linq_netw_alert_s*,
         linq_netw_email_s*,
         device_s**);
+    typedef void (*linq_netw_ctrlc_fn)(void*);
     typedef void (
         *linq_netw_devices_foreach_fn)(void* ctx, const char*, const char*);
     typedef struct linq_netw_callbacks
@@ -81,6 +76,7 @@ extern "C"
         linq_netw_error_fn err;
         linq_netw_heartbeat_fn hb;
         linq_netw_alert_fn alert;
+        linq_netw_ctrlc_fn ctrlc;
     } linq_netw_callbacks;
 
     // Linq API
