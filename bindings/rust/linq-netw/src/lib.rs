@@ -1,6 +1,7 @@
 extern crate futures;
 extern crate linq_netw_sys;
 
+mod resolver;
 mod event;
 pub use event::Event;
 
