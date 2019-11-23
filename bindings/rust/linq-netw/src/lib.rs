@@ -5,8 +5,6 @@ mod event;
 mod simple_future;
 pub use event::Event;
 
-pub mod shutdown;
-
 use linq_netw_sys::*;
 use simple_future::SimpleFuture;
 use std::collections::HashMap;
@@ -65,7 +63,6 @@ pub struct Context {
     c_ctx: *mut linq_netw_s,
     events: Arc<Mutex<event::EventStreamState>>,
     c_events: *mut c_void,
-    shutdown: Vec<Arc<Mutex<shutdown::Shutdown>>>,
 }
 
 impl Context {
@@ -84,7 +81,6 @@ impl Context {
             c_ctx,
             events,
             c_events,
-            shutdown: vec![],
         }
     }
 
@@ -127,12 +123,6 @@ impl Context {
     // Same as poll accept will block on socket read
     pub fn poll_blocking(&self) -> E_LINQ_ERROR {
         self.poll(-1)
-    }
-
-    pub fn shutdown_handle(&mut self) -> shutdown::ShutdownFuture {
-        let sd = shutdown::ShutdownFuture::new();
-        self.shutdown.push(Arc::clone(&sd.shutdown));
-        sd
     }
 
     // C library accepts callback on response. We turn response into future
