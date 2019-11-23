@@ -8,9 +8,11 @@ extern crate rocket_contrib;
 #[macro_use]
 extern crate serde_derive;
 
+extern crate futures_timer;
 extern crate linq_netw;
 
 use futures::executor::block_on;
+use futures::future::join;
 use futures::prelude::*;
 use futures::stream::StreamExt;
 use linq_netw::{Context, Endpoint, Event, Request};
@@ -19,7 +21,6 @@ use rocket::{Rocket, State};
 use rocket_contrib::json::Json;
 use std::option::Option;
 use std::sync::{Arc, Mutex};
-use std::thread;
 use std::time::Duration;
 
 static PORT: u32 = 33455;
@@ -102,7 +103,7 @@ fn rocket(linq: LinqDb) -> Rocket {
 
 fn main() -> Result<(), rocket::error::Error> {
     // Create LinQ instance
-    let mut linq = Context::new();
+    let linq = Context::new();
 
     // Listen to TCP endpoint tcp://*:PORT
     linq.listen(Endpoint::Tcp(PORT));
@@ -126,11 +127,11 @@ fn main() -> Result<(), rocket::error::Error> {
     // Prepare linq with mutex for seperate thread
     let linq = Arc::new(Mutex::new(linq));
     let clone = Arc::clone(&linq);
-    let t = std::thread::spawn(move || {
+    let linq_poller = async_std::task::spawn(async move {
         while linq_netw::running() {
-            thread::sleep(Duration::from_millis(50));
+            futures_timer::Delay::new(Duration::from_millis(50)).await;
             let linq = linq.lock().unwrap();
-            linq.poll(1);
+            linq.poll(0);
         }
     });
 
@@ -139,8 +140,7 @@ fn main() -> Result<(), rocket::error::Error> {
     let shutdown_handle = rocket.get_shutdown_handle();
     let r = std::thread::spawn(move || rocket.launch());
 
-    block_on(events);
-    t.join().unwrap();
+    block_on(join(events, linq_poller));
     shutdown_handle.shutdown();
     r.join().unwrap()?;
     Ok(())
