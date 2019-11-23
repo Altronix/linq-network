@@ -122,7 +122,6 @@ fn main() -> Result<(), rocket::error::Error> {
                 _ => (),
             };
         });
-    let s = std::thread::spawn(move || block_on(events));
 
     // Prepare linq with mutex for seperate thread
     let linq = Arc::new(Mutex::new(linq));
@@ -140,9 +139,9 @@ fn main() -> Result<(), rocket::error::Error> {
     let shutdown_handle = rocket.get_shutdown_handle();
     let r = std::thread::spawn(move || rocket.launch());
 
+    block_on(events);
     t.join().unwrap();
     shutdown_handle.shutdown();
     r.join().unwrap()?;
-    // s.join().unwrap(); // TODO need to signal end of stream
     Ok(())
 }
