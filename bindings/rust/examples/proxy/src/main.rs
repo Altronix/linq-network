@@ -56,6 +56,7 @@ async fn proxy_route(
     id: ID,
     data: Json<ProxyRequest>,
 ) -> content::Json<String> {
+    // TODO use route guard
     // Check ProxyRequest params and store request
     let request = match data.0.meth.as_str() {
         "POST" => match &data.0.data {
@@ -69,10 +70,7 @@ async fn proxy_route(
     if let Some(request) = request {
         let f;
         {
-            // NOTE - Do not call "block_on()" while holding the mutex
-            // TODO - rocket.rs should accept a future eventually - and
-            // therefore we do not need to call block_on() in the route
-            // https://github.com/SergioBenitez/rocket/issues/1065
+            // Don't await while holding lock...
             let linq = linq.lock().unwrap();
             f = linq.send(request, &id);
         }
