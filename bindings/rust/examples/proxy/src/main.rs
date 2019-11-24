@@ -50,30 +50,29 @@ struct ProxyRequest {
     data: Option<String>,
 }
 
-#[post("/proxy/<id>", format = "json", data = "<data>")]
-async fn proxy_route(
-    linq: State<'_, LinqDb>,
-    id: ID,
-    data: Json<ProxyRequest>,
-) -> content::Json<String> {
-    // TODO use route guard
-    // Check ProxyRequest params and store request
-    let request = match data.0.meth.as_str() {
+fn parse_request<'a>(data: &'a Json<ProxyRequest>) -> Option<Request<'a>> {
+    match data.0.meth.as_str() {
         "POST" => match &data.0.data {
             Some(d) => Some(Request::Post(&data.0.path, d.as_str())),
             _ => None,
         },
         "DELETE" => Some(Request::Delete(&data.0.path)),
         _ => Some(Request::Get(data.0.path.as_ref())),
-    };
+    }
+}
+
+#[post("/proxy/<id>", format = "json", data = "<data>")]
+async fn proxy_route(
+    linq: State<'_, LinqDb>,
+    id: ID,
+    data: Json<ProxyRequest>,
+) -> content::Json<String> {
     // If request was valid make request
-    if let Some(request) = request {
-        let f;
-        {
-            // Don't await while holding lock...
+    if let Some(request) = parse_request(&data) {
+        let f = {
             let linq = linq.lock().unwrap();
-            f = linq.send(request, &id);
-        }
+            linq.send(request, &id)
+        };
         let response = f.await;
         match response {
             Ok(response) => content::Json(response.json),
