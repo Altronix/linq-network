@@ -51,8 +51,8 @@ struct ProxyRequest {
 }
 
 #[post("/proxy/<id>", format = "json", data = "<data>")]
-fn proxy_route(
-    linq: State<LinqDb>,
+async fn proxy_route(
+    linq: State<'_, LinqDb>,
     id: ID,
     data: Json<ProxyRequest>,
 ) -> content::Json<String> {
@@ -76,7 +76,8 @@ fn proxy_route(
             let linq = linq.lock().unwrap();
             f = linq.send(request, &id);
         }
-        match block_on(f) {
+        let response = f.await;
+        match response {
             Ok(response) => content::Json(response.json),
             Err(n) => {
                 let mut e = "Error: ".to_string();
