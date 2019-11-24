@@ -3,11 +3,12 @@
 #![feature(async_closure)]
 
 extern crate linq_netw;
+use linq_netw::{Context, Endpoint, Event};
+
 use futures::executor::block_on;
 use futures::future::join;
 use futures::prelude::*;
 use futures::stream::StreamExt;
-use linq_netw::{Context, Endpoint, Event};
 use std::time::Duration;
 
 static PORT: u32 = 33455;
