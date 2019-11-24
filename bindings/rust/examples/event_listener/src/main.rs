@@ -18,10 +18,7 @@ fn main() {
 
     let events = linq
         .events()
-        .take_while(|e| match e {
-            Event::Ctrlc => future::ready(false),
-            _ => future::ready(true),
-        })
+        .take_while(|e| future::ready(*e != Event::Ctrlc))
         .for_each(async move |e| {
             match e {
                 Event::Heartbeat(s) => println!("[RECEIVED HEARTBEAT] {}", s),

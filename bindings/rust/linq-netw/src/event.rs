@@ -11,6 +11,7 @@ use std::sync::{Arc, Mutex};
 use std::task::{Context, Poll, Waker};
 
 // All events from linq_netw match this signature
+#[derive(PartialEq)]
 pub enum Event {
     Heartbeat(String),
     Alert(String),
