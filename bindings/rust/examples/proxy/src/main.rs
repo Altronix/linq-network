@@ -124,6 +124,7 @@ fn main() -> Result<(), rocket::error::Error> {
         });
 
     // Prepare linq with mutex for seperate thread
+    // start non blocking linq async task
     let linq = Arc::new(Mutex::new(linq));
     let clone = Arc::clone(&linq);
     let linq_poller = async_std::task::spawn(async move {
