@@ -9,6 +9,20 @@ typedef struct
     uint32_t port;
 } fixture_context;
 
+static int
+cb_504(item_s* item, item_cb_s* cb)
+{
+    ((void)item);
+    ((void)cb);
+    static int count = 0;
+    if (count++ < 3) {
+        return 504;
+    } else {
+        count = 0;
+        return 0;
+    }
+}
+
 fixture_context*
 fixture_create(const char* sid, uint32_t port)
 {
@@ -47,7 +61,8 @@ fixture_create(const char* sid, uint32_t port)
               f->api.doc, "hello", 5, "world", NULL, NULL) &&
           item_create_set_num_path(f->api.doc, "shutdown", 0, NULL, NULL) &&
           item_create_set_num_path(f->api.doc, "result", -1, NULL, NULL) &&
-          item_create_set_num_path(f->api.doc, "alert", 0, NULL, NULL))) {
+          item_create_set_num_path(f->api.doc, "alert", 0, NULL, NULL) &&
+          item_create_set_num_path(f->api.doc, "test_504", 0, cb_504, NULL))) {
         item_destroy(&f->api.doc);
         atxclient_destroy(&f->client);
         unet_destroy(&f->netw);
@@ -107,3 +122,4 @@ fixture_poll(fixture_context* f)
         }
     }
 }
+
