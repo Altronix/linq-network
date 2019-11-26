@@ -5,7 +5,6 @@
 #[macro_use]
 extern crate rocket;
 extern crate rocket_contrib;
-#[macro_use]
 extern crate serde_derive;
 
 extern crate futures_timer;
@@ -18,16 +17,15 @@ use futures::stream::StreamExt;
 use linq_netw::{Context, Endpoint, Event, Request};
 use rocket::response::content;
 use rocket::{Rocket, State};
-use rocket_contrib::json::Json;
-use std::option::Option;
+use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 static PORT: u32 = 33455;
-type ID = String;
 
 type LinqDb = Arc<Mutex<Context>>;
 
+// Return a JSON map of all the connected devices
 #[get("/devices")]
 fn linq_route(linq: State<LinqDb>) -> content::Json<String> {
     let mut ret = "{".to_string();
@@ -43,59 +41,65 @@ fn linq_route(linq: State<LinqDb>) -> content::Json<String> {
     content::Json(ret)
 }
 
-#[derive(Serialize, Deserialize)]
-struct ProxyRequest {
-    meth: String,
-    path: String,
-    data: Option<String>,
-}
-
-fn parse_request<'a>(data: &'a Json<ProxyRequest>) -> Option<Request<'a>> {
-    match data.0.meth.as_str() {
-        "POST" => match &data.0.data {
-            Some(d) => Some(Request::Post(&data.0.path, d.as_str())),
-            _ => None,
-        },
-        "DELETE" => Some(Request::Delete(&data.0.path)),
-        _ => Some(Request::Get(data.0.path.as_ref())),
-    }
-}
-
-#[post("/proxy/<id>", format = "json", data = "<data>")]
-async fn proxy_route(
+// Make a GET request to a LinQ connected device
+#[get("/proxy/<id>/<path..>")]
+async fn proxy_route_get(
     linq: State<'_, LinqDb>,
-    id: ID,
-    data: Json<ProxyRequest>,
+    id: String,
+    path: PathBuf,
 ) -> content::Json<String> {
-    // If request was valid make request
-    if let Some(request) = parse_request(&data) {
-        let f = {
-            let linq = linq.lock().unwrap();
-            linq.send(request, &id)
-        };
-        let response = f.await;
-        match response {
-            Ok(response) => content::Json(response.json),
-            Err(n) => {
-                let mut e = "Error: ".to_string();
-                e.push_str(&n.to_string());
-                content::Json(e)
-            }
-        }
+    if let Some(path) = path.to_str() {
+        let request = Request::Get(&path);
+        proxy_request(linq, id, request).await
     } else {
         content::Json("{\"error\":\"bad args\"}".to_string())
     }
 }
 
-#[get("/hello")]
-fn hello_route() -> String {
-    "hello".to_string()
+// Make a POST request to a LinQ connected device
+#[post("/proxy/<id>/<path..>", format = "json", data = "<data>")]
+async fn proxy_route_post(
+    linq: State<'_, LinqDb>,
+    id: String,
+    path: PathBuf,
+    data: String,
+) -> content::Json<String> {
+    if let Some(path) = path.to_str() {
+        let request = Request::Post(&path, &data);
+        proxy_request(linq, id, request).await
+    } else {
+        content::Json("{\"error\":\"bad args\"}".to_string())
+    }
+}
+
+// Send the request to the device and return the result
+async fn proxy_request<'a>(
+    linq: State<'_, LinqDb>,
+    id: String,
+    request: Request<'a>,
+) -> content::Json<String> {
+    let future = {
+        let linq = linq.lock().unwrap();
+        linq.send(request, &id)
+    };
+    let response = future.await;
+    match response {
+        Ok(response) => content::Json(response.json),
+        Err(n) => {
+            let mut e = "Error: ".to_string();
+            e.push_str(&n.to_string());
+            content::Json(e)
+        }
+    }
 }
 
 // Initialize Rocket with Linq Context
 fn rocket(linq: LinqDb) -> Rocket {
     rocket::ignite()
-        .mount("/linq", routes![linq_route, hello_route, proxy_route])
+        .mount(
+            "/linq",
+            routes![linq_route, proxy_route_get, proxy_route_post],
+        )
         .manage(linq)
 }
 
