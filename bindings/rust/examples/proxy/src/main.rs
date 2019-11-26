@@ -82,8 +82,7 @@ async fn proxy_request<'a>(
         let linq = linq.lock().unwrap();
         linq.send(request, &id)
     };
-    let response = future.await;
-    match response {
+    match future.await {
         Ok(response) => content::Json(response.json),
         Err(n) => {
             let mut e = "Error: ".to_string();
