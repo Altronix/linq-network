@@ -15,3 +15,7 @@ target_link_libraries(integration-forward-response-test linq-netw
                       linq-common-fixture)
 add_test(NAME integration-forward-response-test
          COMMAND integration-forward-response-test)
+
+add_executable(integration-504-test process_504.c)
+target_link_libraries(integration-504-test linq-netw linq-common-fixture)
+add_test(NAME integration-504-test COMMAND integration-504-test)
