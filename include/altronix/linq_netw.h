@@ -25,6 +25,10 @@ extern "C"
         LINQ_ERROR_DEVICE_NOT_FOUND = -5,
         LINQ_ERROR_TIMEOUT = -6,
         LINQ_ERROR_SHUTTING_DOWN = -7,
+        LINQ_ERROR_400 = 400,
+        LINQ_ERROR_404 = 404,
+        LINQ_ERROR_500 = 500,
+        LINQ_ERROR_505 = 505,
     } E_LINQ_ERROR;
 
     typedef struct linq_netw_alert_s

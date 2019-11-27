@@ -342,6 +342,93 @@ test_linq_netw_receive_response_error_timeout(void** context_p)
 }
 
 static void
+on_response_error_codes(void* pass, int err, const char* data, device_s** d)
+{
+    ((void)d);
+    char expect[32];
+    snprintf(expect, sizeof(expect), "{\"error\":%d}", expect_error);
+    assert_string_equal(data, expect);
+    assert_int_equal(err, expect_error);
+    *((bool*)pass) = true;
+}
+
+static void
+test_linq_netw_receive_response_error_codes(void** context_p)
+{
+    ((void)context_p);
+
+    bool pass = false;
+    const char* serial = expect_serial = "serial";
+    device_s** d;
+
+    int codes[] = { 0, 400, 403, 404, 500 };
+    for (int i = 0; i < 5; i++) {
+        // Setup incoming network (1st poll heartbeat, 2nd poll response)
+        char data[32];
+        snprintf(data, sizeof(data), "{\"error\":%d}", codes[i]);
+        expect_error = codes[i];
+        zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
+        zmsg_t* r = helpers_make_response("rid0", serial, codes[i], data);
+        czmq_spy_mesg_push_incoming(&hb);
+        czmq_spy_mesg_push_incoming(&r);
+        czmq_spy_poll_set_incoming((0x01));
+
+        // Setup code under test
+        linq_netw_s* l = linq_netw_create(NULL, NULL);
+        linq_netw_listen(l, "tcp://*:32820");
+        linq_netw_poll(l, 0);
+        d = linq_netw_device(l, serial);
+        assert_non_null(d);
+
+        // Start test
+        device_send_get(*d, "/ATX/test", on_response_error_codes, &pass);
+        assert_int_equal(device_request_pending_count(*d), 1);
+        linq_netw_poll(l, 0);
+
+        // Measure test
+        assert_true(pass);
+
+        // Cleanup test
+        linq_netw_destroy(&l);
+        test_reset();
+    }
+}
+
+static void
+on_response_error_504(void* pass, int err, const char* data, device_s** d)
+{
+    ((void)pass);
+    ((void)err);
+    ((void)data);
+    ((void)d);
+    // TODO
+}
+
+static void
+test_linq_netw_receive_response_error_504(void** context_p)
+{
+    ((void)context_p);
+    // TODO
+}
+
+static void
+on_response_ok_504(void* pass, int err, const char* data, device_s** d)
+{
+    ((void)pass);
+    ((void)err);
+    ((void)data);
+    ((void)d);
+    // TODO
+}
+
+static void
+test_linq_netw_receive_response_ok_504(void** context_p)
+{
+    ((void)context_p);
+    // TODO
+}
+
+static void
 test_linq_netw_receive_hello(void** context_p)
 {
     ((void)context_p);
@@ -772,7 +859,9 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_netw_receive_alert_error_short),
         cmocka_unit_test(test_linq_netw_receive_response_ok),
         cmocka_unit_test(test_linq_netw_receive_response_error_timeout),
-        // TODO receive_response_error_400/404/500/504/...
+        cmocka_unit_test(test_linq_netw_receive_response_error_codes),
+        cmocka_unit_test(test_linq_netw_receive_response_error_504),
+        cmocka_unit_test(test_linq_netw_receive_response_ok_504),
         cmocka_unit_test(test_linq_netw_receive_hello),
         cmocka_unit_test(test_linq_netw_receive_hello_double_id),
         cmocka_unit_test(test_linq_netw_broadcast_heartbeat),

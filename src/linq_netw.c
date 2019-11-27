@@ -348,6 +348,7 @@ process_response(linq_netw_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     zframe_t *err, *dat;
+    int16_t err_code;
     char json[JSON_LEN] = { 0 };
     if ((zmsg_size(*msg) == 2) &&
         (err = frames[FRAME_RES_ERR_IDX] = pop_eq(*msg, 2)) &&
@@ -357,7 +358,10 @@ process_response(linq_netw_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
         if (d) {
             print_null_terminated(json, sizeof(json), dat);
             if (device_request_pending(*d)) {
-                device_request_resolve(*d, zframe_data(err)[0], json);
+                // TODO check error code, if 504, update request retry at
+                // TODO check if we need to flip byte order
+                err_code = (int16_t)(*(int16_t*)zframe_data(err));
+                device_request_resolve(*d, err_code, json);
                 device_request_flush_w_check(*d);
             }
         }
@@ -443,7 +447,7 @@ process_packet(linq_netw_s* l, zsock_t* s, bool router)
     int total_frames = 0, start = 1;
     zframe_t* f[FRAME_MAX];
     memset(f, 0, sizeof(f));
-    zmsg_t* msg = zmsg_recv(s);
+    zmsg_t* msg = zmsg_recv(s); // TODO can be null
     total_frames = zmsg_size(msg);
     if (total_frames > FRAME_MAX) total_frames = FRAME_MAX;
 
@@ -594,9 +598,10 @@ linq_netw_disconnect(linq_netw_s* l, linq_netw_socket handle)
 
 // loop through each node and resolve any requests that have timed out
 static void
-foreach_node_check_request_timeout(void* ctx, device_s** d)
+foreach_node_check_request(void* ctx, device_s** d)
 {
     ((void)ctx);
+    // TODO - if retry at, send retry
     if (device_request_pending(*d) &&
         device_request_sent_at(*d) + 10000 <= sys_tick()) {
         device_request_resolve(
@@ -655,7 +660,7 @@ linq_netw_poll(linq_netw_s* l, int32_t ms)
     }
 
     // Loop through devices
-    device_map_foreach(l->devices, foreach_node_check_request_timeout, l);
+    device_map_foreach(l->devices, foreach_node_check_request, l);
 
     // Check if we received a ctrlc and generate an event
     // TODO needs test

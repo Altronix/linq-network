@@ -23,6 +23,8 @@ typedef struct request_s
 {
     router_s forward;
     uint32_t sent_at;
+    uint32_t retry_at;
+    uint32_t retry_count;
     void* ctx;
     linq_netw_request_complete_fn on_complete;
     zframe_t* frames[FRAME_REQ_DATA_IDX + 1];
@@ -354,6 +356,14 @@ device_request_flush(device_s* d)
         request_destroy(r_p);
     } else {
     }
+}
+
+void
+device_request_retry(device_s* d)
+{
+    // TODO same as flush, accept do not pop request
+    // (add retry prop on request struct)
+    ((void)d);
 }
 
 void
