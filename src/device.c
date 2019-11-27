@@ -145,6 +145,7 @@ request_destroy(request_s** r_p)
 static void
 request_router_id_set(request_s* r, uint8_t* rid, uint32_t rid_len)
 {
+    if (r->frames[FRAME_RID_IDX]) zframe_destroy(&r->frames[FRAME_RID_IDX]);
     r->frames[FRAME_RID_IDX] = zframe_new(rid, rid_len);
     linq_netw_assert(r->frames[FRAME_RID_IDX]);
 }
@@ -334,6 +335,27 @@ device_request_sent_at(device_s* r)
     return r->request_pending ? r->request_pending->sent_at : 0;
 }
 
+uint32_t
+device_request_retry_count(device_s* r)
+{
+    linq_netw_assert(r->request_pending);
+    return r->request_pending->retry_count;
+}
+
+uint32_t
+device_request_retry_at(device_s* r)
+{
+    linq_netw_assert(r->request_pending);
+    return r->request_pending->retry_at;
+}
+
+void
+device_request_retry_at_set(device_s* r, uint32_t set)
+{
+    linq_netw_assert(r->request_pending);
+    r->request_pending->retry_at = set;
+}
+
 void
 device_request_resolve(device_s* d, E_LINQ_ERROR err, const char* str)
 {
@@ -361,9 +383,16 @@ device_request_flush(device_s* d)
 void
 device_request_retry(device_s* d)
 {
-    // TODO same as flush, accept do not pop request
-    // (add retry prop on request struct)
-    ((void)d);
+    linq_netw_assert(d->request_pending);
+    request_s** r_p = &d->request_pending;
+    (*r_p)->retry_at = 0;
+    (*r_p)->retry_count++;
+    if (d->router.sz) request_router_id_set(*r_p, d->router.id, d->router.sz);
+    if (request_send(*r_p, d->sock) < 0) {
+        exe_on_complete(r_p, LINQ_ERROR_IO, NULL, &d);
+        request_destroy(r_p);
+    } else {
+    }
 }
 
 void

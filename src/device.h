@@ -50,9 +50,13 @@ extern "C"
         linq_netw_request_complete_fn fn,
         void* context);
     uint32_t device_request_sent_at(device_s* d);
+    uint32_t device_request_retry_count(device_s* r);
+    uint32_t device_request_retry_at(device_s* d);
+    void device_request_retry_at_set(device_s* d, uint32_t);
     void device_request_resolve(device_s* d, int err, const char*);
     void device_request_flush(device_s* d);
     void device_request_flush_w_check(device_s* d);
+    void device_request_retry(device_s* d);
     bool device_request_pending(device_s* n);
     uint32_t device_request_pending_count(device_s* d);
 

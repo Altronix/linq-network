@@ -358,11 +358,20 @@ process_response(linq_netw_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
         if (d) {
             print_null_terminated(json, sizeof(json), dat);
             if (device_request_pending(*d)) {
-                // TODO check error code, if 504, update request retry at
                 // TODO check if we need to flip byte order
                 err_code = (int16_t)(*(int16_t*)zframe_data(err));
-                device_request_resolve(*d, err_code, json);
-                device_request_flush_w_check(*d);
+                if (err_code == LINQ_ERROR_504) {
+                    if (device_request_retry_count(*d) >= LINQ_NETW_MAX_RETRY) {
+                        device_request_resolve(*d, err_code, json);
+                        device_request_flush_w_check(*d);
+                    } else {
+                        uint32_t retry = sys_tick() + LINQ_NETW_RETRY_TIMEOUT;
+                        device_request_retry_at_set(*d, retry);
+                    }
+                } else {
+                    device_request_resolve(*d, err_code, json);
+                    device_request_flush_w_check(*d);
+                }
             }
         }
     }
@@ -601,12 +610,16 @@ static void
 foreach_node_check_request(void* ctx, device_s** d)
 {
     ((void)ctx);
-    // TODO - if retry at, send retry
-    if (device_request_pending(*d) &&
-        device_request_sent_at(*d) + 10000 <= sys_tick()) {
-        device_request_resolve(
-            *d, LINQ_ERROR_TIMEOUT, "{\"error\":\"timeout\"}");
-        device_request_flush_w_check(*d);
+    if (device_request_pending(*d)) {
+        uint32_t tick = sys_tick();
+        uint32_t retry_at = device_request_retry_at(*d);
+        if (device_request_sent_at(*d) + 10000 <= tick) {
+            device_request_resolve(
+                *d, LINQ_ERROR_TIMEOUT, "{\"error\":\"timeout\"}");
+            device_request_flush_w_check(*d);
+        } else if (retry_at && retry_at <= tick) {
+            device_request_retry(*d);
+        }
     }
 }
 

@@ -37,7 +37,7 @@ extern "C"
         LINQ_ERROR_403 = 403,
         LINQ_ERROR_404 = 404,
         LINQ_ERROR_500 = 500,
-        LINQ_ERROR_504 = 505,
+        LINQ_ERROR_504 = 504,
     } E_LINQ_ERROR;
 
     typedef struct linq_netw_alert_s

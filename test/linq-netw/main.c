@@ -449,6 +449,7 @@ test_linq_netw_receive_response_error_504(void** context_p)
 
         // @t=retry-1, make sure do not send request
         t += LINQ_NETW_RETRY_TIMEOUT - 1;
+        spy_sys_set_tick(t);
         czmq_spy_poll_set_incoming((0x00));
         linq_netw_poll(l, 0);
         outgoing = czmq_spy_mesg_pop_outgoing();
@@ -456,12 +457,18 @@ test_linq_netw_receive_response_error_504(void** context_p)
 
         // @t=retry, send request again, (incoming 504 #2)
         t++;
+        spy_sys_set_tick(t);
         czmq_spy_poll_set_incoming((0x00));
         linq_netw_poll(l, 0);
         outgoing = czmq_spy_mesg_pop_outgoing();
         assert_non_null(outgoing); // TODO measure outgoing packets
         zmsg_destroy(&outgoing);
     }
+
+    // Send the final amount of 504's we're willing to tollorate
+    czmq_spy_mesg_push_incoming(&incoming[LINQ_NETW_MAX_RETRY]);
+    czmq_spy_poll_set_incoming(0x01);
+    linq_netw_poll(l, 0);
 
     assert_true(pass);
     linq_netw_destroy(&l);
@@ -497,7 +504,7 @@ test_linq_netw_receive_response_ok_504(void** context_p)
     zmsg_t* outgoing = NULL;
 
     // Setup code under test
-    linq_netw_s* l = linq_netw_create(&callbacks, &pass);
+    linq_netw_s* l = linq_netw_create(NULL, NULL);
     linq_netw_listen(l, "tcp://*:32820");
 
     // Receive a new device @t=0
@@ -522,6 +529,7 @@ test_linq_netw_receive_response_ok_504(void** context_p)
 
         // @t=retry-1, make sure do not send request
         t += LINQ_NETW_RETRY_TIMEOUT - 1;
+        spy_sys_set_tick(t);
         czmq_spy_poll_set_incoming((0x00));
         linq_netw_poll(l, 0);
         outgoing = czmq_spy_mesg_pop_outgoing();
@@ -529,6 +537,7 @@ test_linq_netw_receive_response_ok_504(void** context_p)
 
         // @t=retry, send request again, (incoming 504 #2)
         t++;
+        spy_sys_set_tick(t);
         czmq_spy_poll_set_incoming((0x00));
         linq_netw_poll(l, 0);
         outgoing = czmq_spy_mesg_pop_outgoing();
@@ -540,8 +549,8 @@ test_linq_netw_receive_response_ok_504(void** context_p)
     czmq_spy_mesg_push_incoming(&ok);
     czmq_spy_poll_set_incoming(0x01);
     linq_netw_poll(l, 0);
-    assert_true(pass);
 
+    assert_true(pass);
     linq_netw_destroy(&l);
     test_reset();
 }
