@@ -772,6 +772,7 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_netw_receive_alert_error_short),
         cmocka_unit_test(test_linq_netw_receive_response_ok),
         cmocka_unit_test(test_linq_netw_receive_response_error_timeout),
+        // TODO receive_response_error_400/404/500/504/...
         cmocka_unit_test(test_linq_netw_receive_hello),
         cmocka_unit_test(test_linq_netw_receive_hello_double_id),
         cmocka_unit_test(test_linq_netw_broadcast_heartbeat),
