@@ -14,7 +14,7 @@ on_response(void* ctx, E_LINQ_ERROR e, const char* json, device_s** d)
     ((void)ctx);
     ((void)e);
     ((void)d);
-    printf("[S] Received response %s", json);
+    printf("[S] Received response %s\n", json);
     received_response = true;
 }
 
@@ -25,7 +25,7 @@ on_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
     ((void)e);
     ((void)what);
     ((void)serial);
-    printf("%s", "[C] Received Error");
+    printf("%s", "[C] Received Error\n");
 }
 
 static void
@@ -64,9 +64,9 @@ on_request_complete(void* pass, E_LINQ_ERROR e, const char* json, device_s** d)
     ((void)d);
     if (!e && !memcmp("{\"hello\":\"world\"}", json, 17)) {
         *((bool*)pass) = true;
-        printf("%s", "[C] received response");
+        printf("%s", "[C] received response\n");
     } else {
-        printf("%s", "[C] received response error!");
+        printf("%s", "[C] received response error!\n");
     }
 }
 
