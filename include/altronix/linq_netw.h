@@ -11,6 +11,14 @@ extern "C"
 {
 #endif
 
+#ifndef LINQ_NETW_MAX_RETRY
+#define LINQ_NETW_MAX_RETRY 5
+#endif
+
+#ifndef LINQ_NETW_RETRY_TIMEOUT
+#define LINQ_NETW_RETRY_TIMEOUT 500
+#endif
+
     typedef struct device_s device_s;
     typedef struct linq_netw_s linq_netw_s;
     typedef uint32_t linq_netw_socket;
@@ -26,9 +34,10 @@ extern "C"
         LINQ_ERROR_TIMEOUT = -6,
         LINQ_ERROR_SHUTTING_DOWN = -7,
         LINQ_ERROR_400 = 400,
+        LINQ_ERROR_403 = 403,
         LINQ_ERROR_404 = 404,
         LINQ_ERROR_500 = 500,
-        LINQ_ERROR_505 = 505,
+        LINQ_ERROR_504 = 505,
     } E_LINQ_ERROR;
 
     typedef struct linq_netw_alert_s

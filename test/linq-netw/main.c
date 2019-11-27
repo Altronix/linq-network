@@ -290,8 +290,8 @@ test_linq_netw_receive_response_ok(void** context_p)
 static void
 on_response_error_timeout(void* pass, int err, const char* data, device_s** d)
 {
-    ((void)d);
     *((bool*)pass) = true;
+    assert_string_equal(device_serial(*d), "serial");
     assert_int_equal(err, LINQ_ERROR_TIMEOUT);
     assert_string_equal(data, "{\"error\":\"timeout\"}");
 }
@@ -344,9 +344,9 @@ test_linq_netw_receive_response_error_timeout(void** context_p)
 static void
 on_response_error_codes(void* pass, int err, const char* data, device_s** d)
 {
-    ((void)d);
     char expect[32];
     snprintf(expect, sizeof(expect), "{\"error\":%d}", expect_error);
+    assert_string_equal(device_serial(*d), "serial");
     assert_string_equal(data, expect);
     assert_int_equal(err, expect_error);
     *((bool*)pass) = true;
@@ -397,35 +397,153 @@ test_linq_netw_receive_response_error_codes(void** context_p)
 static void
 on_response_error_504(void* pass, int err, const char* data, device_s** d)
 {
-    ((void)pass);
-    ((void)err);
-    ((void)data);
     ((void)d);
-    // TODO
+    assert_string_equal(data, "{\"error\":504}");
+    assert_int_equal(err, LINQ_ERROR_504);
+    *((bool*)pass) = true;
 }
 
 static void
 test_linq_netw_receive_response_error_504(void** context_p)
 {
+    // Same as receive_response_ok_504 accept we add an extra 504 to incoming
     ((void)context_p);
-    // TODO
+    bool pass = false;
+    uint32_t t = 0;
+    const char* serial = expect_serial = "serial";
+    device_s** d;
+    zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
+    zmsg_t* incoming[LINQ_NETW_MAX_RETRY + 1] = {
+        helpers_make_response("rid0", serial, 504, "{\"error\":504}"),
+        helpers_make_response("rid0", serial, 504, "{\"error\":504}"),
+        helpers_make_response("rid0", serial, 504, "{\"error\":504}"),
+        helpers_make_response("rid0", serial, 504, "{\"error\":504}"),
+        helpers_make_response("rid0", serial, 504, "{\"error\":504}"),
+        helpers_make_response("rid0", serial, 504, "{\"error\":504}")
+    };
+    zmsg_t* outgoing = NULL;
+
+    // Setup code under test
+    linq_netw_s* l = linq_netw_create(&callbacks, &pass);
+    linq_netw_listen(l, "tcp://*:32820");
+
+    // Receive a new device @t=0
+    spy_sys_set_tick(t);
+    czmq_spy_mesg_push_incoming(&hb);
+    czmq_spy_poll_set_incoming((0x01));
+    linq_netw_poll(l, 0);
+    d = linq_netw_device(l, serial);
+    assert_non_null(d);
+
+    // Start test @t=0
+    device_send_get(*d, "/ATX/test", on_response_error_504, &pass);
+    outgoing = czmq_spy_mesg_pop_outgoing();
+    assert_non_null(outgoing);
+    zmsg_destroy(&outgoing);
+
+    for (int i = 0; i < LINQ_NETW_MAX_RETRY; i++) {
+        // incoming 504
+        czmq_spy_mesg_push_incoming(&incoming[i]);
+        czmq_spy_poll_set_incoming((0x01));
+        linq_netw_poll(l, 0);
+
+        // @t=retry-1, make sure do not send request
+        t += LINQ_NETW_RETRY_TIMEOUT - 1;
+        czmq_spy_poll_set_incoming((0x00));
+        linq_netw_poll(l, 0);
+        outgoing = czmq_spy_mesg_pop_outgoing();
+        assert_null(outgoing);
+
+        // @t=retry, send request again, (incoming 504 #2)
+        t++;
+        czmq_spy_poll_set_incoming((0x00));
+        linq_netw_poll(l, 0);
+        outgoing = czmq_spy_mesg_pop_outgoing();
+        assert_non_null(outgoing); // TODO measure outgoing packets
+        zmsg_destroy(&outgoing);
+    }
+
+    assert_true(pass);
+    linq_netw_destroy(&l);
+    test_reset();
 }
 
 static void
 on_response_ok_504(void* pass, int err, const char* data, device_s** d)
 {
-    ((void)pass);
-    ((void)err);
-    ((void)data);
-    ((void)d);
-    // TODO
+    assert_int_equal(err, 0);
+    assert_string_equal(data, "{\"test\":1}");
+    assert_string_equal(device_serial(*d), "serial");
+    *(bool*)pass = true;
 }
 
 static void
 test_linq_netw_receive_response_ok_504(void** context_p)
 {
     ((void)context_p);
-    // TODO
+    bool pass = false;
+    uint32_t t = 0;
+    const char* serial = expect_serial = "serial";
+    device_s** d;
+    zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
+    zmsg_t* ok = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
+    zmsg_t* incoming[LINQ_NETW_MAX_RETRY] = {
+        helpers_make_response("rid0", serial, 504, "{\"error\":504}"),
+        helpers_make_response("rid0", serial, 504, "{\"error\":504}"),
+        helpers_make_response("rid0", serial, 504, "{\"error\":504}"),
+        helpers_make_response("rid0", serial, 504, "{\"error\":504}"),
+        helpers_make_response("rid0", serial, 504, "{\"error\":504}")
+    };
+    zmsg_t* outgoing = NULL;
+
+    // Setup code under test
+    linq_netw_s* l = linq_netw_create(&callbacks, &pass);
+    linq_netw_listen(l, "tcp://*:32820");
+
+    // Receive a new device @t=0
+    spy_sys_set_tick(t);
+    czmq_spy_mesg_push_incoming(&hb);
+    czmq_spy_poll_set_incoming((0x01));
+    linq_netw_poll(l, 0);
+    d = linq_netw_device(l, serial);
+    assert_non_null(d);
+
+    // Start test @t=0
+    device_send_get(*d, "/ATX/test", on_response_ok_504, &pass);
+    outgoing = czmq_spy_mesg_pop_outgoing();
+    assert_non_null(outgoing);
+    zmsg_destroy(&outgoing);
+
+    for (int i = 0; i < LINQ_NETW_MAX_RETRY; i++) {
+        // incoming 504
+        czmq_spy_mesg_push_incoming(&incoming[i]);
+        czmq_spy_poll_set_incoming((0x01));
+        linq_netw_poll(l, 0);
+
+        // @t=retry-1, make sure do not send request
+        t += LINQ_NETW_RETRY_TIMEOUT - 1;
+        czmq_spy_poll_set_incoming((0x00));
+        linq_netw_poll(l, 0);
+        outgoing = czmq_spy_mesg_pop_outgoing();
+        assert_null(outgoing);
+
+        // @t=retry, send request again, (incoming 504 #2)
+        t++;
+        czmq_spy_poll_set_incoming((0x00));
+        linq_netw_poll(l, 0);
+        outgoing = czmq_spy_mesg_pop_outgoing();
+        assert_non_null(outgoing); // TODO measure outgoing packets
+        zmsg_destroy(&outgoing);
+        assert_false(pass);
+    }
+
+    czmq_spy_mesg_push_incoming(&ok);
+    czmq_spy_poll_set_incoming(0x01);
+    linq_netw_poll(l, 0);
+    assert_true(pass);
+
+    linq_netw_destroy(&l);
+    test_reset();
 }
 
 static void
