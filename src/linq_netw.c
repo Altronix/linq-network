@@ -298,6 +298,7 @@ on_device_response(
     const char* json,
     device_s** device)
 {
+    int16_t e = error;
     node_s** node = ctx;
     node_send_frames_n(
         *node,
@@ -308,8 +309,8 @@ on_device_response(
         1,                              //
         device_serial(*device),         // serial
         strlen(device_serial(*device)), //
-        &error,                         // error
-        1,                              //
+        &e,                             // error
+        2,                              //
         json,                           // data
         strlen(json)                    //
     );
@@ -349,7 +350,7 @@ process_response(linq_netw_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
     zframe_t *err, *dat;
     char json[JSON_LEN] = { 0 };
     if ((zmsg_size(*msg) == 2) &&
-        (err = frames[FRAME_RES_ERR_IDX] = pop_eq(*msg, 1)) &&
+        (err = frames[FRAME_RES_ERR_IDX] = pop_eq(*msg, 2)) &&
         (dat = frames[FRAME_RES_DAT_IDX] = pop_le(*msg, JSON_LEN))) {
         e = LINQ_ERROR_OK;
         device_s** d = device_resolve(sock, l->devices, frames, false);

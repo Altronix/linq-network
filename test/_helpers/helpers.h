@@ -70,7 +70,7 @@ extern "C"
     zmsg_t* helpers_make_response(
         const char* rid,
         const char* sid,
-        int err,
+        int16_t err,
         const char* data);
     zmsg_t* helpers_make_request(
         const char* rid,

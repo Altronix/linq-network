@@ -64,7 +64,7 @@ zmsg_t*
 helpers_make_response(
     const char* rid,
     const char* sid,
-    int err,
+    int16_t err,
     const char* data)
 {
     zmsg_t* m = helpers_create_message_mem(
@@ -76,7 +76,7 @@ helpers_make_response(
         sid,                   // serial
         strlen(sid),           //
         &err,                  // error
-        1,                     //
+        2,                     //
         data,                  // data
         strlen(data));         //
     if (rid) {
