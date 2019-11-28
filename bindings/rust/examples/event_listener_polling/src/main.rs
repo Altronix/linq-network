@@ -3,7 +3,7 @@
 #![feature(async_closure)]
 
 extern crate linq_netw;
-use linq_netw::{Context, Endpoint, Event};
+use linq_netw::{Endpoint, Event};
 
 use futures::executor::block_on;
 use futures::future::join;
@@ -14,7 +14,7 @@ use std::time::Duration;
 static PORT: u32 = 33455;
 
 fn main() {
-    let linq = Context::new();
+    let linq = linq_netw::polling::Context::new();
     linq.listen(Endpoint::Tcp(PORT));
 
     let events = linq

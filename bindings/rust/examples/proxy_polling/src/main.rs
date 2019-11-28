@@ -14,7 +14,7 @@ use futures::executor::block_on;
 use futures::future::join;
 use futures::prelude::*;
 use futures::stream::StreamExt;
-use linq_netw::{Context, Endpoint, Event, Request};
+use linq_netw::{Endpoint, Event, Request};
 use rocket::response::content;
 use rocket::{Rocket, State};
 use std::path::PathBuf;
@@ -23,7 +23,7 @@ use std::time::Duration;
 
 static PORT: u32 = 33455;
 
-type LinqDb = Arc<Mutex<Context>>;
+type LinqDb = Arc<Mutex<linq_netw::polling::Context>>;
 
 // Return a JSON map of all the connected devices
 #[get("/devices")]
@@ -104,7 +104,7 @@ fn rocket(linq: LinqDb) -> Rocket {
 
 fn main() -> Result<(), rocket::error::Error> {
     // Create LinQ instance
-    let linq = Context::new();
+    let linq = linq_netw::polling::Context::new();
 
     // Listen to TCP endpoint tcp://*:PORT
     linq.listen(Endpoint::Tcp(PORT));
