@@ -105,7 +105,7 @@ impl Context {
     }
 
     // Opposite of listen or connect. You do not need to close on clean up.
-    pub fn close(self, s: &Socket) -> Self {
+    pub fn close(&self, s: &Socket) -> &Self {
         match s {
             Socket::Server(s) => unsafe {
                 linq_netw_shutdown(self.c_ctx, *s);
