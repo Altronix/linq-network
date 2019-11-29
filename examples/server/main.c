@@ -14,7 +14,7 @@ on_response(void* ctx, E_LINQ_ERROR e, const char* json, device_s** d)
     ((void)ctx);
     ((void)e);
     ((void)d);
-    printf("[S] Received response %s\n", json);
+    printf("[S] Received response [%d] %s\n", e, json);
     received_response = true;
 }
 
@@ -49,7 +49,7 @@ on_heartbeat(void* ctx, const char* serial, device_s** d)
     ((void)d);
     printf("%s", "[C] Received new device\n");
     linq_netw_s* linq = ctx;
-    linq_netw_device_send_get(linq, serial, "/ATX/about", on_response, NULL);
+    linq_netw_device_send_get(linq, serial, "/ATX/abosut", on_response, NULL);
 }
 
 linq_netw_callbacks callbacks = { .err = on_error,

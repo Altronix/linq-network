@@ -67,6 +67,7 @@ helpers_make_response(
     int16_t err,
     const char* data)
 {
+    err = (err >> 8 | err << 8);
     zmsg_t* m = helpers_create_message_mem(
         5,
         &g_frame_ver_0,        // version

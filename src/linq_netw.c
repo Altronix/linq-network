@@ -358,8 +358,7 @@ process_response(linq_netw_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
         if (d) {
             print_null_terminated(json, sizeof(json), dat);
             if (device_request_pending(*d)) {
-                // TODO check if we need to flip byte order
-                err_code = (int16_t)(*(int16_t*)zframe_data(err));
+                err_code = zframe_data(err)[1] | zframe_data(err)[0] << 8;
                 if (err_code == LINQ_ERROR_504) {
                     if (device_request_retry_count(*d) >= LINQ_NETW_MAX_RETRY) {
                         device_request_resolve(*d, err_code, json);
