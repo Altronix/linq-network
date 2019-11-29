@@ -162,7 +162,11 @@ request_send(request_s* r, zsock_t* sock)
     zmsg_t* msg = zmsg_new();
     int err, c = r->frames[FRAME_RID_IDX] ? 0 : 1;
     while (c < FRAME_REQ_DATA_IDX) {
-        if (r->frames[c]) zmsg_append(msg, &r->frames[c]);
+        if (r->frames[c]) {
+            zframe_t* f = zframe_dup(r->frames[c]);
+            linq_netw_assert(f);
+            zmsg_append(msg, &f);
+        }
         c++;
     }
     if (r->frames[c]) zmsg_append(msg, &r->frames[c]);
