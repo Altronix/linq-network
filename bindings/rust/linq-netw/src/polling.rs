@@ -108,10 +108,10 @@ impl Context {
     pub fn close(&self, s: &Socket) -> &Self {
         match s {
             Socket::Server(s) => unsafe {
-                linq_netw_shutdown(self.c_ctx, *s);
+                linq_netw_close_router(self.c_ctx, *s);
             },
             Socket::Client(s) => unsafe {
-                linq_netw_disconnect(self.c_ctx, *s);
+                linq_netw_close_dealer(self.c_ctx, *s);
             },
         };
         self
