@@ -25,6 +25,20 @@ pub struct NetworkError {
     pub kind: NetworkErrorKind,
 }
 
+impl NetworkError {
+    pub fn to_http(&self) -> u16 {
+        match self.kind {
+            NetworkErrorKind::DeviceNotFound => 404,
+            NetworkErrorKind::HttpBadRequest => 400,
+            NetworkErrorKind::HttpUnauthorized => 403,
+            NetworkErrorKind::HttpNotFound => 404,
+            NetworkErrorKind::HttpServerError => 500,
+            NetworkErrorKind::HttpTryAgainLater => 504,
+            _ => 500,
+        }
+    }
+}
+
 impl fmt::Display for NetworkError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         use NetworkErrorKind::*;

@@ -15,6 +15,7 @@ use futures::future::join;
 use futures::prelude::*;
 use futures::stream::StreamExt;
 use linq_netw::{Endpoint, Event, Request};
+use rocket::http::Status;
 use rocket::response::content;
 use rocket::{Rocket, State};
 use std::path::PathBuf;
@@ -47,12 +48,12 @@ async fn proxy_route_get(
     linq: State<'_, LinqDb>,
     id: String,
     path: PathBuf,
-) -> content::Json<String> {
+) -> Result<content::Json<String>, Status> {
     if let Some(path) = path.to_str() {
         let request = Request::Get(&path);
         proxy_request(linq, id, request).await
     } else {
-        content::Json("{\"error\":\"bad args\"}".to_string())
+        Err(Status::new(400, ""))
     }
 }
 
@@ -63,12 +64,12 @@ async fn proxy_route_post(
     id: String,
     path: PathBuf,
     data: String,
-) -> content::Json<String> {
+) -> Result<content::Json<String>, Status> {
     if let Some(path) = path.to_str() {
         let request = Request::Post(&path, &data);
         proxy_request(linq, id, request).await
     } else {
-        content::Json("{\"error\":\"bad args\"}".to_string())
+        Err(Status::new(400, ""))
     }
 }
 
@@ -77,18 +78,17 @@ async fn proxy_request<'a>(
     linq: State<'_, LinqDb>,
     id: String,
     request: Request<'a>,
-) -> content::Json<String> {
+) -> Result<content::Json<String>, Status> {
     let future = {
         let linq = linq.lock().unwrap();
         linq.send(request, &id)
     };
     match future.await {
-        Ok(response) => content::Json(response.json),
-        Err(n) => {
-            let mut e = "Error: ".to_string();
-            e.push_str(&n.to_string());
-            content::Json(e)
-        }
+        Ok(response) => match response.result {
+            Ok(v) => Ok(content::Json(v)),
+            Err(e) => Err(Status::new(e.to_http(), "")),
+        },
+        Err(_n) => Err(Status::new(400, "")),
     }
 }
 
