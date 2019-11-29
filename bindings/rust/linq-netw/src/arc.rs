@@ -6,72 +6,87 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
+pub struct ThreadContext {
+    context: polling::Context,
+    shutdown: bool,
+}
+
 pub struct Context {
-    context: Arc<Mutex<polling::Context>>,
+    mutex: Arc<Mutex<ThreadContext>>,
     thread: Option<std::thread::JoinHandle<()>>,
 }
 
 impl Context {
     pub fn new() -> Self {
-        let context = Arc::new(Mutex::new(polling::Context::new()));
-        let clone = Arc::clone(&context);
-        let thread = Some(std::thread::spawn(move || {
-            while polling::running() {
-                std::thread::sleep(Duration::from_millis(50));
-                clone.lock().unwrap().poll(0);
-            }
+        let mutex = Arc::new(Mutex::new(ThreadContext {
+            context: polling::Context::new(),
+            shutdown: false,
         }));
-        Context { context, thread }
+        let clone = Arc::clone(&mutex);
+        let thread = Some(std::thread::spawn(move || loop {
+            std::thread::sleep(Duration::from_millis(50));
+            let clone = clone.lock().unwrap();
+            clone.context.poll(0);
+            if clone.shutdown {
+                break;
+            };
+        }));
+        Context { mutex, thread }
     }
 
     pub fn listen(&self, ep: Endpoint) -> Socket {
-        self.context.lock().unwrap().listen(ep)
+        self.mutex.lock().unwrap().context.listen(ep)
     }
 
     pub fn events(&self) -> event::EventStream {
-        self.context.lock().unwrap().events()
+        self.mutex.lock().unwrap().context.events()
     }
 
     pub fn connect(&self, ep: Endpoint) -> Socket {
-        self.context.lock().unwrap().connect(ep)
+        self.mutex.lock().unwrap().context.connect(ep)
     }
 
     pub fn close(&self, s: &Socket) -> &Self {
-        self.context.lock().unwrap().close(s);
+        self.mutex.lock().unwrap().context.close(s);
         self
     }
 
     pub fn get(&self, path: &str, sid: &str) -> SimpleFuture<Response> {
-        self.context.lock().unwrap().get(path, sid)
+        self.mutex.lock().unwrap().context.get(path, sid)
     }
 
     pub fn post(&self, p: &str, d: &str, id: &str) -> SimpleFuture<Response> {
-        self.context.lock().unwrap().post(p, d, id)
+        self.mutex.lock().unwrap().context.post(p, d, id)
     }
 
     pub fn delete(&self, p: &str, id: &str) -> SimpleFuture<Response> {
-        self.context.lock().unwrap().delete(p, id)
+        self.mutex.lock().unwrap().context.delete(p, id)
     }
 
     pub fn send(&self, r: Request, sid: &str) -> SimpleFuture<Response> {
-        self.context.lock().unwrap().send(r, sid)
+        self.mutex.lock().unwrap().context.send(r, sid)
     }
 
     pub fn device_count(&self) -> u32 {
-        self.context.lock().unwrap().device_count()
+        self.mutex.lock().unwrap().context.device_count()
     }
 
     pub fn devices(&self) -> HashMap<String, String> {
-        self.context.lock().unwrap().devices()
+        self.mutex.lock().unwrap().context.devices()
     }
 
     pub fn node_count(&self) -> u32 {
-        self.context.lock().unwrap().node_count()
+        self.mutex.lock().unwrap().context.node_count()
+    }
+
+    fn shutdown(&self) {
+        self.mutex.lock().unwrap().shutdown = true;
     }
 }
 
 impl Drop for Context {
     fn drop(&mut self) {
+        self.shutdown();
         self.thread.take().unwrap().join().unwrap();
     }
 }
