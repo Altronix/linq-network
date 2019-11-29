@@ -55,7 +55,7 @@ main(int argc, char* argv[])
         if (linq_netw_poll(server, 0)) break;
         if (!request_sent && linq_netw_device_count(server)) {
             linq_netw_device_send_get(
-                server, "dummy", "/ATX/test_504", on_request_complete, &pass);
+                server, "dummy", "/ATX/test/504", on_request_complete, &pass);
             request_sent = true;
             printf("%s", "[C] Request Sent!");
         }
