@@ -1,8 +1,10 @@
+extern crate linq_netw_sys;
 use std::error;
 use std::fmt;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
-pub enum ErrorKind {
+pub enum NetworkErrorKind {
+    Ok,
     OutOfMemory,
     BadArgs,
     Protocol,
@@ -15,38 +17,90 @@ pub enum ErrorKind {
     HttpNotFound,
     HttpServerError,
     HttpTryAgainLater,
+    Unknown,
 }
 
 #[derive(Debug, Clone)]
-struct Error {
-    kind: ErrorKind,
+pub struct NetworkError {
+    pub kind: NetworkErrorKind,
 }
 
-impl fmt::Display for Error {
+impl fmt::Display for NetworkError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use NetworkErrorKind::*;
         match self.kind {
-            ErrorKind::OutOfMemory => write!(f, "System out of memory"),
-            ErrorKind::BadArgs => write!(f, "Caller provided bad arguments"),
-            ErrorKind::Protocol => write!(f, "Network protocol error"),
-            ErrorKind::Io => write!(f, "System IO error"),
-            ErrorKind::DeviceNotFound => write!(f, "Device not found"),
-            ErrorKind::Timeout => write!(f, "Request timeout"),
-            ErrorKind::ShuttingDown => write!(f, "System is shutting down"),
-            ErrorKind::HttpBadRequest => write!(f, "HTTP (500) Bad request"),
-            ErrorKind::HttpUnauthorized => write!(f, "HTTP (403) Unauthorized"),
-            ErrorKind::HttpNotFound => write!(f, "HTTP (404) Not found"),
-            ErrorKind::HttpServerError => write!(f, "HTTP (500) Server error"),
-            ErrorKind::HttpTryAgainLater => {
-                write!(f, "HTTP (504) Try again later")
-            }
+            Ok => write!(f, "Ok!"),
+            OutOfMemory => write!(f, "System out of memory"),
+            BadArgs => write!(f, "Caller provided bad arguments"),
+            Protocol => write!(f, "Network protocol error"),
+            Io => write!(f, "System IO error"),
+            DeviceNotFound => write!(f, "Device not found"),
+            Timeout => write!(f, "Request timeout"),
+            ShuttingDown => write!(f, "System is shutting down"),
+            HttpBadRequest => write!(f, "HTTP (500) Bad request"),
+            HttpUnauthorized => write!(f, "HTTP (403) Unauthorized"),
+            HttpNotFound => write!(f, "HTTP (404) Not found"),
+            HttpServerError => write!(f, "HTTP (500) Server error"),
+            HttpTryAgainLater => write!(f, "HTTP (504) Try again later"),
+            Unknown => write!(f, "Impossible error"),
         }
     }
 }
 
-impl error::Error for Error {
+impl error::Error for NetworkError {
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         match self.kind {
             _ => Some(self),
+        }
+    }
+}
+
+impl From<linq_netw_sys::E_LINQ_ERROR> for NetworkError {
+    fn from(err: linq_netw_sys::E_LINQ_ERROR) -> NetworkError {
+        use linq_netw_sys::*;
+        match err {
+            E_LINQ_ERROR_LINQ_ERROR_OK => NetworkError {
+                kind: NetworkErrorKind::Ok,
+            },
+            E_LINQ_ERROR_LINQ_ERROR_OOM => NetworkError {
+                kind: NetworkErrorKind::OutOfMemory,
+            },
+            E_LINQ_ERROR_LINQ_ERROR_BAD_ARGS => NetworkError {
+                kind: NetworkErrorKind::BadArgs,
+            },
+            E_LINQ_ERROR_LINQ_ERROR_PROTOCOL => NetworkError {
+                kind: NetworkErrorKind::Protocol,
+            },
+            E_LINQ_ERROR_LINQ_ERROR_IO => NetworkError {
+                kind: NetworkErrorKind::Io,
+            },
+            E_LINQ_ERROR_LINQ_ERROR_DEVICE_NOT_FOUND => NetworkError {
+                kind: NetworkErrorKind::DeviceNotFound,
+            },
+            E_LINQ_ERROR_LINQ_ERROR_TIMEOUT => NetworkError {
+                kind: NetworkErrorKind::Timeout,
+            },
+            E_LINQ_ERROR_LINQ_ERROR_SHUTTING_DOWN => NetworkError {
+                kind: NetworkErrorKind::ShuttingDown,
+            },
+            E_LINQ_ERROR_LINQ_ERROR_400 => NetworkError {
+                kind: NetworkErrorKind::HttpBadRequest,
+            },
+            E_LINQ_ERROR_LINQ_ERROR_403 => NetworkError {
+                kind: NetworkErrorKind::HttpUnauthorized,
+            },
+            E_LINQ_ERROR_LINQ_ERROR_404 => NetworkError {
+                kind: NetworkErrorKind::HttpNotFound,
+            },
+            E_LINQ_ERROR_LINQ_ERROR_500 => NetworkError {
+                kind: NetworkErrorKind::HttpServerError,
+            },
+            E_LINQ_ERROR_LINQ_ERROR_504 => NetworkError {
+                kind: NetworkErrorKind::HttpTryAgainLater,
+            },
+            _ => NetworkError {
+                kind: NetworkErrorKind::Unknown,
+            },
         }
     }
 }

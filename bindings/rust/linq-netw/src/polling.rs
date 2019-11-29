@@ -1,6 +1,7 @@
 extern crate futures;
 extern crate linq_netw_sys;
 
+use crate::error::{NetworkError, NetworkErrorKind};
 use crate::event;
 use crate::simple_future;
 
@@ -31,8 +32,7 @@ pub enum Request<'a> {
 
 #[derive(Clone)]
 pub struct Response {
-    pub error: E_LINQ_ERROR,
-    pub json: String,
+    pub result: Result<String, NetworkError>,
 }
 
 pub enum Endpoint {
@@ -133,9 +133,13 @@ impl Context {
         let clone = Arc::clone(&future.state);
         self.send_cb(r, sid, move |error, json| {
             let mut r = clone.lock().unwrap();
+            let error = NetworkError::from(error);
             r.resolve(Response {
-                error: error,
-                json: json.to_string(),
+                result: if error.kind == NetworkErrorKind::Ok {
+                    Ok(json.to_string())
+                } else {
+                    Err(error)
+                },
             });
         });
         future
