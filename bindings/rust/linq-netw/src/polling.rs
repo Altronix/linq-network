@@ -127,6 +127,18 @@ impl Context {
         self.poll(-1)
     }
 
+    pub fn get(&self, path: &str, sid: &str) -> SimpleFuture<Response> {
+        self.send(Request::Get(path), sid)
+    }
+
+    pub fn post(&self, p: &str, d: &str, id: &str) -> SimpleFuture<Response> {
+        self.send(Request::Post(p, d), id)
+    }
+
+    pub fn delete(&self, p: &str, id: &str) -> SimpleFuture<Response> {
+        self.send(Request::Delete(p), id)
+    }
+
     // C library accepts callback on response. We turn response into future
     pub fn send(&self, r: Request, sid: &str) -> SimpleFuture<Response> {
         let future = SimpleFuture::new();

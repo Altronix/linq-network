@@ -41,6 +41,18 @@ impl Context {
         self
     }
 
+    pub fn get(&self, path: &str, sid: &str) -> SimpleFuture<Response> {
+        self.context.lock().unwrap().get(path, sid)
+    }
+
+    pub fn post(&self, p: &str, d: &str, id: &str) -> SimpleFuture<Response> {
+        self.context.lock().unwrap().post(p, d, id)
+    }
+
+    pub fn delete(&self, p: &str, id: &str) -> SimpleFuture<Response> {
+        self.context.lock().unwrap().delete(p, id)
+    }
+
     pub fn send(&self, r: Request, sid: &str) -> SimpleFuture<Response> {
         self.context.lock().unwrap().send(r, sid)
     }
