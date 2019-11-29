@@ -10,10 +10,9 @@
 void
 on_request_complete(void* pass, E_LINQ_ERROR e, const char* json, device_s** d)
 {
-    ((void)e);
     ((void)json);
     ((void)d);
-    *((bool*)pass) = true;
+    *((bool*)pass) = e == LINQ_ERROR_OK ? true : false;
 }
 
 static int PORT = 32820;
@@ -55,7 +54,7 @@ main(int argc, char* argv[])
         if (linq_netw_poll(server, 0)) break;
         if (!request_sent && linq_netw_device_count(server)) {
             linq_netw_device_send_get(
-                server, "dummy", "/ATX/test/504", on_request_complete, &pass);
+                server, "dummy", "/ATX/test_504", on_request_complete, &pass);
             request_sent = true;
             printf("%s", "[C] Request Sent!");
         }
