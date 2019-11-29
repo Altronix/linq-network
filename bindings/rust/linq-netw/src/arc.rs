@@ -63,3 +63,9 @@ impl Drop for Context {
         self.thread.take().unwrap().join().unwrap();
     }
 }
+
+impl AsRef<Context> for Context {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}
