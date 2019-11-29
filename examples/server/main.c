@@ -59,14 +59,12 @@ linq_netw_callbacks callbacks = { .err = on_error,
 void
 on_request_complete(void* pass, E_LINQ_ERROR e, const char* json, device_s** d)
 {
-    ((void)e);
-    ((void)json);
     ((void)d);
     if (!e && !memcmp("{\"hello\":\"world\"}", json, 17)) {
         *((bool*)pass) = true;
-        printf("%s", "[C] received response\n");
+        printf("%s [%d]", "[C] received response\n", e);
     } else {
-        printf("%s", "[C] received response error!\n");
+        printf("%s [%d]", "[C] received response error!\n", e);
     }
 }
 
