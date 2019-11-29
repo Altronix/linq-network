@@ -875,7 +875,7 @@ test_linq_netw_connect(void** context_p)
 }
 
 static void
-test_linq_netw_shutdown(void** context_p)
+test_linq_netw_close_router(void** context_p)
 {
     ((void)context_p);
     linq_netw_s* linq = linq_netw_create(NULL, NULL);
@@ -904,14 +904,14 @@ test_linq_netw_shutdown(void** context_p)
     linq_netw_poll(linq, 5);
     linq_netw_poll(linq, 5);
     assert_int_equal(linq_netw_device_count(linq), 8);
-    linq_netw_shutdown(linq, l0);
+    linq_netw_close_router(linq, l0);
     assert_int_equal(linq_netw_device_count(linq), 6);
-    linq_netw_shutdown(linq, l1);
+    linq_netw_close_router(linq, l1);
     assert_int_equal(linq_netw_device_count(linq), 4);
-    linq_netw_disconnect(linq, c0);
+    linq_netw_close_dealer(linq, c0);
     assert_int_equal(linq_netw_device_count(linq), 2);
     assert_int_equal(linq_netw_nodes_count(linq), 1);
-    linq_netw_disconnect(linq, c1);
+    linq_netw_close_dealer(linq, c1);
     assert_int_equal(linq_netw_device_count(linq), 0);
     assert_int_equal(linq_netw_nodes_count(linq), 0);
 
@@ -997,7 +997,7 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_netw_forward_request),
         cmocka_unit_test(test_linq_netw_forward_client_request),
         cmocka_unit_test(test_linq_netw_connect),
-        cmocka_unit_test(test_linq_netw_shutdown),
+        cmocka_unit_test(test_linq_netw_close_router),
         cmocka_unit_test(test_linq_netw_devices_foreach)
     };
 

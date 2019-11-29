@@ -56,10 +56,16 @@ class Linq
     }
 
     // shutdown a listener
-    void shutdown(linq_netw_socket s) { linq_netw_shutdown(linq_netw_, s); }
+    void close_router(linq_netw_socket s)
+    {
+        linq_netw_close_router(linq_netw_, s);
+    }
 
     // close connection to a remote node
-    void disconnect(linq_netw_socket s) { linq_netw_disconnect(linq_netw_, s); }
+    void close_dealer(linq_netw_socket s)
+    {
+        linq_netw_close_dealer(linq_netw_, s);
+    }
 
     // process io
     E_LINQ_ERROR poll(uint32_t ms) { return linq_netw_poll(linq_netw_, ms); }

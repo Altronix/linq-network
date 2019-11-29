@@ -48,6 +48,7 @@ typedef struct linq_netw_s
     socket_map_s* dealers;
     device_map_s* devices;
     node_map_s* nodes;
+    bool shutdown;
     const linq_netw_callbacks* callbacks;
 } linq_netw_s;
 
@@ -578,7 +579,7 @@ remove_nodes(zsock_t** s, node_map_s* nodes)
 }
 
 E_LINQ_ERROR
-linq_netw_shutdown(linq_netw_s* l, linq_netw_socket handle)
+linq_netw_close_router(linq_netw_s* l, linq_netw_socket handle)
 {
     zsock_t** s = socket_map_resolve(l->routers, handle);
     if (s) {
@@ -591,7 +592,7 @@ linq_netw_shutdown(linq_netw_s* l, linq_netw_socket handle)
 }
 
 E_LINQ_ERROR
-linq_netw_disconnect(linq_netw_s* l, linq_netw_socket handle)
+linq_netw_close_dealer(linq_netw_s* l, linq_netw_socket handle)
 {
     zsock_t** s = socket_map_resolve(l->dealers, handle);
     if (s) {
