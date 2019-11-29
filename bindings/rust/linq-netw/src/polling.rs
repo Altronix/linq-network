@@ -133,8 +133,6 @@ impl Context {
         let clone = Arc::clone(&future.state);
         self.send_cb(r, sid, move |error, json| {
             let mut r = clone.lock().unwrap();
-            println!("RESPONSE {}", json.to_string());
-            println!("CODE {:?}", error);
             let error = NetworkError::from(error);
             r.resolve(Response {
                 result: if error.kind == NetworkErrorKind::Ok {
