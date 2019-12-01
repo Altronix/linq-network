@@ -22,16 +22,15 @@ else()
   find_package(klib)
   find_package(jsmn)
 endif()
-add_subdirectory(src)
-add_subdirectory(examples/server)
-add_subdirectory(bindings/cpp)
 
 if(ENABLE_TESTING)
   set(CMAKE_BUILD_TYPE Debug)
   enable_testing()
   include(CTest)
   include(cmake/cmocka.cmake)
+  include(cmake/CodeCoverage.cmake)
   include(cmake/test-fixture.cmake)
+  append_coverage_compiler_flags()
   add_subdirectory(test/_helpers)
   add_subdirectory(test/_fixture)
   add_subdirectory(test/_mocks)
@@ -41,4 +40,35 @@ if(ENABLE_TESTING)
   add_subdirectory(test/devices)
   add_subdirectory(test/integration)
   add_subdirectory(bindings/cpp/test)
+
+  # add test coverage
+  set(COVERAGE_LCOV_EXCLUDES test/**/* external/**/*)
+
+  setup_target_for_coverage_lcov(NAME
+                                 test-coverage
+                                 EXECUTABLE
+                                 test-containers
+                                 COMMAND
+                                 test-linq-netw
+                                 COMMAND
+                                 test-device
+                                 COMMAND
+                                 test-devices
+                                 COMMAND
+                                 integration-alert-test
+                                 COMMAND
+                                 integration-broadcast-test
+                                 COMMAND
+                                 integration-response-test
+                                 COMMAND
+                                 integration-forward-response-test
+                                 COMMAND
+                                 integration-504-test
+                                 COMMAND
+                                 binding-linq-netw-cpp-test)
+
 endif()
+
+add_subdirectory(src)
+add_subdirectory(examples/server)
+add_subdirectory(bindings/cpp)
