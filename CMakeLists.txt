@@ -30,7 +30,6 @@ if(ENABLE_TESTING)
   include(cmake/cmocka.cmake)
   include(cmake/CodeCoverage.cmake)
   include(cmake/test-fixture.cmake)
-  append_coverage_compiler_flags()
   add_subdirectory(test/_helpers)
   add_subdirectory(test/_fixture)
   add_subdirectory(test/_mocks)
@@ -42,7 +41,9 @@ if(ENABLE_TESTING)
   add_subdirectory(bindings/cpp/test)
 
   # add test coverage
-  set(COVERAGE_LCOV_EXCLUDES test/**/* external/**/*)
+  # Note COVERAGE_LCOV_EXCLUDE doesn't work
+  append_coverage_compiler_flags()
+  set(lcov_root ./src)
 
   setup_target_for_coverage_lcov(NAME
                                  test-coverage
