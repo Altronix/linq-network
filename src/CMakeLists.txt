@@ -45,7 +45,7 @@ if(NOT MSVC)
 else()
   add_definitions(-DCZMQ_STATIC)
   add_definitions(-DZMQ_STATIC)
-  set(win-libs iphlpapi wldap32)
+  set(win-libs ws2_32 iphlpapi wldap32)
   add_library(linq-netw
               ${linq_netw_SOURCES}
               ${linq_netw_win_SOURCES}
@@ -53,7 +53,7 @@ else()
               ${linq_netw_win_HEADERS})
   target_link_libraries(linq-netw
                         czmq
-                        libzmq
+                        zmq
                         jsmn
                         klib
                         ${win-libs}

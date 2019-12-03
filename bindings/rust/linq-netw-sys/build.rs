@@ -25,6 +25,7 @@ fn main() {
     let out = dst.display();
 
     // Add compiler flags
+    // TODO - Handle Windows build (right now only static=zmq should change
     println!("cargo:rustc-link-search=native={}/lib", out);
     println!("cargo:rustc-link-search=native={}/build/install/lib", out);
     println!("cargo:rustc-link-search=native={}/build/install/lib64", out);

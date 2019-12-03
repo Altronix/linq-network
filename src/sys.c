@@ -7,5 +7,5 @@
 bool
 sys_running()
 {
-    return !zsys_interrupted;
+    return !zsys_is_interrupted();
 }

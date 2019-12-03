@@ -10,8 +10,12 @@ ExternalProject_Add(czmq-project
 	)
 
 ExternalProject_Get_Property(czmq-project install_dir)
-set(czmq_LIBRARY ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}czmq${CMAKE_STATIC_LIBRARY_SUFFIX})
 set(czmq_INCLUDE_DIR ${install_dir}/include)
+IF(NOT MSVC)
+  set(czmq_LIBRARY ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}czmq${CMAKE_STATIC_LIBRARY_SUFFIX})
+ELSE()
+  set(czmq_LIBRARY ${install_dir}/lib/libczmq${CMAKE_STATIC_LIBRARY_SUFFIX})
+ENDIF()
 
 add_library(czmq STATIC IMPORTED)
 add_dependencies(czmq-project zmq-project)
