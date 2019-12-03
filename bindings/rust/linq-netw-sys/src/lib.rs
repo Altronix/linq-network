@@ -1,3 +1,7 @@
+// Copyright (c) 2019-2020 Altronix Corp
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #![allow(non_camel_case_types)]
 #![allow(non_upper_case_globals)]
 
