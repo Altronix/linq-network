@@ -27,9 +27,7 @@ fn print_windows(out: &std::path::Display<'_>) {
     println!("cargo:rustc-link-lib=static=czmq");
     println!("cargo:rustc-link-lib=static=libzmq-v142-mt-s-4_3_3"); //Yuck
     println!("cargo:rustc-link-lib=uuid");
-    println!("cargo:rustc-link-lib=stdc++");
-    println!("cargo:rustc-link-lib=m");
-    println!("cargo:rustc-link-lib=rt");
+    println!("cargo:rustc-link-lib=iphlpapi");
 }
 
 fn print_linux(out: &std::path::Display<'_>) {
