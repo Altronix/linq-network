@@ -19,23 +19,44 @@ fn find_cmake_list() -> String {
     }
 }
 
+fn print_windows(out: &std::path::Display<'_>) {
+    println!("cargo:rustc-link-search=native={}/lib", out);
+    println!("cargo:rustc-link-search=native={}/build/install/lib", out);
+    println!("cargo:rustc-link-search=native={}/build/install/lib64", out);
+    println!("cargo:rustc-link-lib=static=linq-netw");
+    println!("cargo:rustc-link-lib=static=czmq");
+    println!("cargo:rustc-link-lib=static=zmq-v142-mt-s-4_3_3"); //Yuck
+    println!("cargo:rustc-link-lib=uuid");
+    println!("cargo:rustc-link-lib=stdc++");
+    println!("cargo:rustc-link-lib=m");
+    println!("cargo:rustc-link-lib=rt");
+}
+
+fn print_linux(out: &std::path::Display<'_>) {
+    println!("cargo:rustc-link-lib=static=zmq");
+    println!("cargo:rustc-link-search=native={}/lib", out);
+    println!("cargo:rustc-link-search=native={}/build/install/lib", out);
+    println!("cargo:rustc-link-search=native={}/build/install/lib64", out);
+    println!("cargo:rustc-link-lib=static=linq-netw");
+    println!("cargo:rustc-link-lib=static=czmq");
+    println!("cargo:rustc-link-lib=static=zmq");
+    println!("cargo:rustc-link-lib=uuid");
+    println!("cargo:rustc-link-lib=stdc++");
+    println!("cargo:rustc-link-lib=m");
+    println!("cargo:rustc-link-lib=rt");
+}
+
 fn main() {
     // Build linq-io TODO build static
     let dst = cmake::build(find_cmake_list());
     let out = dst.display();
 
     // Add compiler flags
-    // TODO - Handle Windows build (right now only static=zmq should change
-    println!("cargo:rustc-link-search=native={}/lib", out);
-    println!("cargo:rustc-link-search=native={}/build/install/lib", out);
-    println!("cargo:rustc-link-search=native={}/build/install/lib64", out);
-    println!("cargo:rustc-link-lib=static=linq-netw");
-    println!("cargo:rustc-link-lib=static=zmq");
-    println!("cargo:rustc-link-lib=static=czmq");
-    println!("cargo:rustc-link-lib=uuid");
-    println!("cargo:rustc-link-lib=stdc++");
-    println!("cargo:rustc-link-lib=m");
-    println!("cargo:rustc-link-lib=rt");
+    match env::var("CARGO_CFG_TARGET_OS").as_ref().map(|x| &**x) {
+        Ok("linux") => print_linux(&out),
+        Ok("windows") => print_windows(&out),
+        _ => {}
+    };
 
     // Generate bindings
     let bindings = bindgen::Builder::default()
