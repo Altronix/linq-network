@@ -5,6 +5,8 @@
 extern crate bindgen;
 extern crate cmake;
 
+// NOTE  https://github.com/rust-lang/rust-bindgen/blob/master/book/src/requirements.md
+
 use std::env;
 use std::fs;
 use std::path::PathBuf;
@@ -46,13 +48,19 @@ fn print_linux(out: &std::path::Display<'_>) {
 
 fn main() {
     // Build linq-io TODO build static
-    let dst = cmake::build(find_cmake_list());
-    let out = dst.display();
 
     // Add compiler flags
     match env::var("CARGO_CFG_TARGET_OS").as_ref().map(|x| &**x) {
-        Ok("linux") => print_linux(&out),
-        Ok("windows") => print_windows(&out),
+        Ok("linux") => {
+            let dst = cmake::Config::new(find_cmake_list()).build();
+            let out = dst.display();
+            print_linux(&out);
+        },
+        Ok("windows") => {
+            let dst = cmake::Config::new(find_cmake_list()).build();
+            let out = dst.display();
+            print_windows(&out);
+        },
         _ => panic!("Unknown Host OS!"),
     };
 
