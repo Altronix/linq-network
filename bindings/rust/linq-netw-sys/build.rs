@@ -24,7 +24,6 @@ fn find_cmake_list() -> String {
 fn print_windows(out: &std::path::Display<'_>) {
     println!("cargo:rustc-link-search=native={}/lib", out);
     println!("cargo:rustc-link-search=native={}/build/install/lib", out);
-    println!("cargo:rustc-link-search=native={}/build/install/lib64", out);
     println!("cargo:rustc-link-lib=static=linq-netw");
     println!("cargo:rustc-link-lib=static=libczmq");
     println!("cargo:rustc-link-lib=static=libzmq-v142-mt-s-4_3_3"); //Yuck

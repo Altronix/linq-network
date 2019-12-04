@@ -1,5 +1,5 @@
 [package]
-name = "event_listener_polling"
+name = "events"
 version = "0.1.0"
 authors = ["thomas <thomas.chiantia@gmail.com>"]
 edition = "2018"
@@ -11,3 +11,4 @@ linq-netw = { path = "../../linq-netw" }
 futures = "0.3.1"
 futures-timer = "2.0.2"
 async-std = "1.1.0"
+async-attributes = "1.1.1"
