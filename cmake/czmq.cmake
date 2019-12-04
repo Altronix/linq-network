@@ -4,9 +4,17 @@ ExternalProject_Add(czmq-project
 	SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/czmq
 	INSTALL_DIR ${deps_INSTALL_DIR}
 	UPDATE_COMMAND ""
+	BUILD_COMMAND ""
+	INSTALL_COMMAND
+		cmake
+		--build .
+		--target install
+		--config Release
 	LIST_SEPARATOR |
 	CMAKE_ARGS 
 		-DCMAKE_INSTALL_PREFIX=${deps_INSTALL_DIR}
+		-DCZMQ_WITH_SYSTEMD:BOOL=OFF
+		-DENABLE_DRAFTS:BOOL=ON
 	)
 
 ExternalProject_Get_Property(czmq-project install_dir)
