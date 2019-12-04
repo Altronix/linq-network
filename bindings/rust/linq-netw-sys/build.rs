@@ -25,7 +25,7 @@ fn print_windows(out: &std::path::Display<'_>) {
     println!("cargo:rustc-link-search=native={}/build/install/lib64", out);
     println!("cargo:rustc-link-lib=static=linq-netw");
     println!("cargo:rustc-link-lib=static=czmq");
-    println!("cargo:rustc-link-lib=static=zmq-v142-mt-s-4_3_3"); //Yuck
+    println!("cargo:rustc-link-lib=static=libzmq-v142-mt-s-4_3_3"); //Yuck
     println!("cargo:rustc-link-lib=uuid");
     println!("cargo:rustc-link-lib=stdc++");
     println!("cargo:rustc-link-lib=m");
@@ -55,7 +55,7 @@ fn main() {
     match env::var("CARGO_CFG_TARGET_OS").as_ref().map(|x| &**x) {
         Ok("linux") => print_linux(&out),
         Ok("windows") => print_windows(&out),
-        _ => {}
+        _ => panic!("Unknown Host OS!"),
     };
 
     // Generate bindings
