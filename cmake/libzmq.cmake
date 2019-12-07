@@ -25,6 +25,10 @@ ExternalProject_Add(zmq-project
 ExternalProject_Get_Property(zmq-project install_dir)
 set(zmq_INCLUDE_DIR ${install_dir}/include)
 IF(NOT MSVC)
+  # Get the version of the ZMQ library
+  execute_process(COMMAND ${CMAKE_SOURCE_DIR}/cmake/read_zmq_version.sh
+    ${CMAKE_SOURCE_DIR}/external/libzmq/include/zmq.h
+    OUTPUT_VARIABLE zmq_VERSION)
   set(zmq_LIBRARY ${install_dir}/lib64/${CMAKE_STATIC_LIBRARY_PREFIX}zmq${CMAKE_STATIC_LIBRARY_SUFFIX})
 ELSE()
   set(zmq_LIBRARY ${install_dir}/lib/libzmq-v142-mt-s-4_3_3${CMAKE_STATIC_LIBRARY_SUFFIX})
