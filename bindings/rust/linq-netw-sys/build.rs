@@ -22,15 +22,15 @@ fn find_cmake_list() -> String {
 }
 
 fn print_windows(out: &std::path::Display<'_>) {
-    // let libzmq = format!("{}/build/libzmq-loc.txt", out);
-    // let libzmq = fs::read(libzmq).unwrap();
-    // let libzmq = String::from_utf8(libzmq).unwrap();
-    println!("cargo:rustc-link-search=native={}\\lib", out);
-    println!("cargo:rustc-link-search=native={}\\build\\install\\lib", out);
-    println!("cargo:rustc-link-search=native={}\\build\\install\\lib64", out);
+    // Parse the name of libzmq library and remove the extention.
+    let libzmq = format!("{}/build/libzmq-loc.txt", out);
+    let libzmq = fs::read(libzmq).unwrap();
+    let libzmq = String::from_utf8(libzmq).unwrap();
+    let libzmq = libzmq.split(".").collect::<Vec<&str>>()[0];
+    println!("cargo:rustc-link-search=native={}/lib", out);
     println!("cargo:rustc-link-lib=static=linq-netw");
     println!("cargo:rustc-link-lib=static=libczmq");
-    println!("cargo:rustc-link-lib=static=libzmq");
+    println!("cargo:rustc-link-lib=static={}", libzmq);
     println!("cargo:rustc-link-lib=uuid");
     println!("cargo:rustc-link-lib=iphlpapi");
     println!("cargo:rustc-link-lib=Rpcrt4");
@@ -40,8 +40,7 @@ fn print_linux(out: &std::path::Display<'_>) {
     println!("{}", out);
     println!("cargo:rustc-link-lib=static=zmq");
     println!("cargo:rustc-link-search=native={}/lib", out);
-    println!("cargo:rustc-link-search=native={}/build/install/lib", out);
-    println!("cargo:rustc-link-search=native={}/build/install/lib64", out);
+    println!("cargo:rustc-link-search=native={}/lib64", out);
     println!("cargo:rustc-link-lib=static=linq-netw");
     println!("cargo:rustc-link-lib=static=czmq");
     println!("cargo:rustc-link-lib=static=zmq");
