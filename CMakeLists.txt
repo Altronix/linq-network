@@ -9,8 +9,6 @@ set(LINQ_BUILD_DEPENDENCIES
 # dependency install
 include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 find_package(Threads)
-set(deps_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/install)
-file(MAKE_DIRECTORY ${deps_INSTALL_DIR}/include)
 if(LINQ_BUILD_DEPENDENCIES)
   include(cmake/libzmq.cmake)
   include(cmake/czmq.cmake)

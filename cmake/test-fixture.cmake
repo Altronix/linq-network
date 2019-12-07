@@ -15,7 +15,7 @@ ExternalProject_Add(wolfssl_PROJECT
 	SOURCE_DIR ${wolfssl_SOURCE_DIR}
 	BUILD_IN_SOURCE 1
 	UPDATE_COMMAND ""
-	PREFIX ${deps_INSTALL_DIR}
+	PREFIX ${CMAKE_INSTALL_PREFIX}
 	CONFIGURE_COMMAND ./autogen.sh
 		COMMAND ./configure --prefix=<INSTALL_DIR>
 		--enable-debug
