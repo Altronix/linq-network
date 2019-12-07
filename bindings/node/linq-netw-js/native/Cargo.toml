@@ -15,3 +15,4 @@ neon-build = "0.3.3"
 
 [dependencies]
 neon = "0.3.3"
+linq-netw = { path = "../../../rust/linq-netw" }
