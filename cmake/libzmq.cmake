@@ -26,14 +26,14 @@ ExternalProject_Get_Property(zmq-project install_dir)
 set(zmq_INCLUDE_DIR ${install_dir}/include)
 IF(NOT MSVC)
   # Get the version of the ZMQ library
-  execute_process(COMMAND ${CMAKE_SOURCE_DIR}/cmake/read_zmq_version.sh
+  execute_process(COMMAND ${CMAKE_SOURCE_DIR}/scripts/read_zmq_version.sh
     ${CMAKE_SOURCE_DIR}/external/libzmq/include/zmq.h
     OUTPUT_VARIABLE zmq_VERSION)
   set(zmq_LIBRARY ${CMAKE_STATIC_LIBRARY_PREFIX}zmq${CMAKE_STATIC_LIBRARY_SUFFIX})
   set(zmq_LIBRARY_LOC ${install_dir}/lib64/${zmq_LIBRARY})
 ELSE()
   execute_process(COMMAND powershell
-    -File ${CMAKE_SOURCE_DIR}/cmake/read_zmq_version.ps1
+    -File ${CMAKE_SOURCE_DIR}/scripts/read_zmq_version.ps1
     ${CMAKE_SOURCE_DIR}/external/libzmq/include/zmq.h
     OUTPUT_VARIABLE zmq_VERSION)
   STRING(REGEX REPLACE "\n" "" zmq_VERSION ${zmq_VERSION})
