@@ -22,17 +22,22 @@ fn find_cmake_list() -> String {
 }
 
 fn print_windows(out: &std::path::Display<'_>) {
-    println!("cargo:rustc-link-search=native={}/lib", out);
-    println!("cargo:rustc-link-search=native={}/build/install/lib", out);
+    // let libzmq = format!("{}/build/libzmq-loc.txt", out);
+    // let libzmq = fs::read(libzmq).unwrap();
+    // let libzmq = String::from_utf8(libzmq).unwrap();
+    println!("cargo:rustc-link-search=native={}\\lib", out);
+    println!("cargo:rustc-link-search=native={}\\build\\install\\lib", out);
+    println!("cargo:rustc-link-search=native={}\\build\\install\\lib64", out);
     println!("cargo:rustc-link-lib=static=linq-netw");
     println!("cargo:rustc-link-lib=static=libczmq");
-    println!("cargo:rustc-link-lib=static=libzmq-v142-mt-s-4_3_3"); //Yuck
+    println!("cargo:rustc-link-lib=static=libzmq");
     println!("cargo:rustc-link-lib=uuid");
     println!("cargo:rustc-link-lib=iphlpapi");
     println!("cargo:rustc-link-lib=Rpcrt4");
 }
 
 fn print_linux(out: &std::path::Display<'_>) {
+    println!("{}", out);
     println!("cargo:rustc-link-lib=static=zmq");
     println!("cargo:rustc-link-search=native={}/lib", out);
     println!("cargo:rustc-link-search=native={}/build/install/lib", out);
@@ -55,12 +60,12 @@ fn main() {
             let dst = cmake::Config::new(find_cmake_list()).build();
             let out = dst.display();
             print_linux(&out);
-        },
+        }
         Ok("windows") => {
             let dst = cmake::Config::new(find_cmake_list()).build();
             let out = dst.display();
             print_windows(&out);
-        },
+        }
         _ => panic!("Unknown Host OS!"),
     };
 

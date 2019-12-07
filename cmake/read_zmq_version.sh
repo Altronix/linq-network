@@ -17,8 +17,4 @@ fi
 MAJOR=`echo $MAJOR | awk '{ print $3 }'`
 MINOR=`echo $MINOR | awk '{ print $3 }'`
 PATCH=`echo $PATCH | awk '{ print $3 }'`
-echo $MAJOR | tr -d '\n'
-echo _ | tr -d '\n'
-echo $MINOR | tr -d '\n'
-echo _ | tr -d '\n'
-echo $PATCH | tr -d '\n'
+echo ${MAJOR}_${MINOR}_${PATCH} | tr -d '\n'

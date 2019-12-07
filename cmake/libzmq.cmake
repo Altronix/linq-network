@@ -29,12 +29,21 @@ IF(NOT MSVC)
   execute_process(COMMAND ${CMAKE_SOURCE_DIR}/cmake/read_zmq_version.sh
     ${CMAKE_SOURCE_DIR}/external/libzmq/include/zmq.h
     OUTPUT_VARIABLE zmq_VERSION)
-  set(zmq_LIBRARY ${install_dir}/lib64/${CMAKE_STATIC_LIBRARY_PREFIX}zmq${CMAKE_STATIC_LIBRARY_SUFFIX})
+  set(zmq_LIBRARY ${CMAKE_STATIC_LIBRARY_PREFIX}zmq${CMAKE_STATIC_LIBRARY_SUFFIX})
+  set(zmq_LIBRARY_LOC ${install_dir}/lib64/${zmq_LIBRARY})
 ELSE()
-  set(zmq_LIBRARY ${install_dir}/lib/libzmq-v142-mt-s-4_3_3${CMAKE_STATIC_LIBRARY_SUFFIX})
+  execute_process(COMMAND powershell
+    -File ${CMAKE_SOURCE_DIR}/cmake/read_zmq_version.ps1
+    ${CMAKE_SOURCE_DIR}/external/libzmq/include/zmq.h
+    OUTPUT_VARIABLE zmq_VERSION)
+  STRING(REGEX REPLACE "\n" "" zmq_VERSION ${zmq_VERSION})
+  STRING(REGEX REPLACE "\r" "" zmq_VERSION ${zmq_VERSION})
+  set(zmq_LIBRARY libzmq-${CMAKE_VS_PLATFORM_TOOLSET}-mt-s-${zmq_VERSION}${CMAKE_STATIC_LIBRARY_SUFFIX})
+  set(zmq_LIBRARY_LOC ${install_dir}/lib/${zmq_LIBRARY})
 ENDIF()
 
+FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/libzmq-loc.txt ${zmq_LIBRARY})
 add_library(zmq STATIC IMPORTED)
-set_property(TARGET zmq PROPERTY IMPORTED_LOCATION ${zmq_LIBRARY})
+set_property(TARGET zmq PROPERTY IMPORTED_LOCATION ${zmq_LIBRARY_LOC})
 set_property(TARGET zmq PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${zmq_INCLUDE_DIR})
 add_dependencies(zmq zmq-project)
