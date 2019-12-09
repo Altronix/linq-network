@@ -645,17 +645,30 @@ foreach_device_check_request(device_map_s* self, void* ctx, device_s** d)
 }
 
 static void
+foreach_socket_process(socket_map_s* self, void* ctx, zsock_t** sock_p)
+{
+    ((void)self);
+    ((void)sock_p);
+    linq_netw_s* l = ctx;
+    ((void)l);
+}
+
+static void
+foreach_socket_populate_poll(socket_map_s* self, void* ctx, zsock_t** sock_p)
+{
+    ((void)self);
+    zmq_pollitem_t** ptr_p = ctx;
+    zmq_pollitem_t* ptr = *ptr_p;
+    ptr->socket = zsock_resolve(*sock_p);
+    ptr->events = ZMQ_POLLIN;
+    ptr++;
+    *ptr_p = ptr;
+}
+
+static void
 populate_sockets(socket_map_s* h, zmq_pollitem_t** ptr_p)
 {
-    zmq_pollitem_t* ptr = *ptr_p;
-    for (khiter_t k = kh_begin(h); k != kh_end(h); ++k) {
-        if (!kh_exist(h, k)) continue;
-        zsock_t* sock = kh_val(h, k);
-        ptr->socket = zsock_resolve(sock);
-        ptr->events = ZMQ_POLLIN;
-        ptr++;
-    }
-    *ptr_p = ptr;
+    socket_map_foreach(h, foreach_socket_populate_poll, ptr_p);
 }
 
 // poll network socket file handles
