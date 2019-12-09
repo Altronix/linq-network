@@ -10,11 +10,6 @@
         if ((*rp)->on_complete) (*rp)->on_complete((*rp)->ctx, err, dat, dp);  \
     } while (0)
 
-typedef struct request_s request_s;
-
-static void request_destroy(request_s** r_p);
-LIST_INIT(request, request_s, request_destroy);
-
 typedef enum E_REQUEST_METHOD
 {
     REQUEST_METHOD_RAW = 0,
@@ -22,6 +17,10 @@ typedef enum E_REQUEST_METHOD
     REQUEST_METHOD_POST,
     REQUEST_METHOD_DELETE
 } E_REQUEST_METHOD;
+
+typedef struct request_s request_s;
+static void request_destroy(request_s** r_p);
+LIST_INIT(request, request_s, request_destroy);
 
 typedef struct request_s
 {
