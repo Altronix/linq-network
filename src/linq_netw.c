@@ -579,17 +579,17 @@ foreach_device_remove_if_sock_eq(
 }
 
 static void
-remove_devices(zsock_t** s, device_map_s* devices)
-{
-    device_map_foreach(devices, foreach_device_remove_if_sock_eq, *s);
-}
-
-static void
 foreach_node_remove_if_sock_eq(node_map_s* self, void* ctx, node_s** device_p)
 {
     zsock_t* eq = ctx;
     linq_netw_socket_s* socket = ((linq_netw_socket_s*)*device_p);
     if (eq == socket->sock) node_map_remove(self, node_serial(*device_p));
+}
+
+static void
+remove_devices(zsock_t** s, device_map_s* devices)
+{
+    device_map_foreach(devices, foreach_device_remove_if_sock_eq, *s);
 }
 
 static void
