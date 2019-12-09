@@ -568,29 +568,34 @@ linq_netw_connect(linq_netw_s* l, const char* ep)
 }
 
 static void
+foreach_device_remove_if_sock_eq(
+    device_map_s* self,
+    void* ctx,
+    device_s** device_p)
+{
+    zsock_t* eq = ctx;
+    linq_netw_socket_s* socket = ((linq_netw_socket_s*)*device_p);
+    if (eq == socket->sock) device_map_remove(self, device_serial(*device_p));
+}
+
+static void
 remove_devices(zsock_t** s, device_map_s* devices)
 {
-    zsock_t* eq = *s;
-    for (khiter_t k = kh_begin(devices); k != kh_end(devices); ++k) {
-        if (!kh_exist(devices, k)) continue;
-        device_s** device = &kh_val(devices, k);
-        linq_netw_socket_s* socket = ((linq_netw_socket_s*)(*device));
-        if (eq == socket->sock) {
-            device_map_remove(devices, device_serial(*device));
-        }
-    }
+    device_map_foreach(devices, foreach_device_remove_if_sock_eq, *s);
+}
+
+static void
+foreach_node_remove_if_sock_eq(node_map_s* self, void* ctx, node_s** device_p)
+{
+    zsock_t* eq = ctx;
+    linq_netw_socket_s* socket = ((linq_netw_socket_s*)*device_p);
+    if (eq == socket->sock) node_map_remove(self, node_serial(*device_p));
 }
 
 static void
 remove_nodes(zsock_t** s, node_map_s* nodes)
 {
-    zsock_t* eq = *s;
-    for (khiter_t k = kh_begin(nodes); k != kh_end(nodes); ++k) {
-        if (!kh_exist(nodes, k)) continue;
-        node_s** node = &kh_val(nodes, k);
-        linq_netw_socket_s* socket = ((linq_netw_socket_s*)(*node));
-        if (eq == socket->sock) { node_map_remove(nodes, node_serial(*node)); }
-    }
+    node_map_foreach(nodes, foreach_node_remove_if_sock_eq, *s);
 }
 
 E_LINQ_ERROR
