@@ -656,24 +656,20 @@ foreach_socket_process(socket_map_s* self, void* context, zsock_t** sock_p)
 {
     ((void)self);
     foreach_socket_process_context* ctx = context;
-    zmq_pollitem_t* ptr = *((zmq_pollitem_t**)ctx->poll_p);
-    if (ptr->revents && ZMQ_POLLIN) {
+    if ((*(zmq_pollitem_t**)ctx->poll_p)->revents && ZMQ_POLLIN) {
         int err = process_packet(ctx->network, *sock_p, ctx->is_router);
         ((void)err);
     }
-    ptr++;
-    *((zmq_pollitem_t**)ctx->poll_p) = ptr;
+    (*(zmq_pollitem_t**)ctx->poll_p)++;
 }
 
 static void
 foreach_socket_populate_poll(socket_map_s* self, void* ctx, zsock_t** sock_p)
 {
     ((void)self);
-    zmq_pollitem_t* ptr = *((zmq_pollitem_t**)ctx);
-    ptr->socket = zsock_resolve(*sock_p);
-    ptr->events = ZMQ_POLLIN;
-    ptr++;
-    *((zmq_pollitem_t**)ctx) = ptr;
+    (*(zmq_pollitem_t**)ctx)->socket = zsock_resolve(*sock_p);
+    (*(zmq_pollitem_t**)ctx)->events = ZMQ_POLLIN;
+    (*(zmq_pollitem_t**)ctx)++;
 }
 
 static void
