@@ -18,6 +18,16 @@ extern "C"
     static inline void __list_free_fn(void* ctx) { ((void)ctx); }
 #define FREE_FN(x) __list_free_fn(x->data)
 
+#define LIST_INIT_H(tag, type)                                                 \
+    typedef kl_##tag##_t tag##_list_s;                                         \
+    typedef kl1_##tag tag##_item_s;                                            \
+    tag##_list_s* tag##_list_create();                                         \
+    void tag##_list_destroy(tag##_list_s** list_p);                            \
+    type* tag##_list_front(tag##_list_s* list);                                \
+    void tag##_list_push(tag##_list_s* list, type** r_p);                      \
+    type* tag##_list_pop(tag##_list_s* l);                                     \
+    uint32_t tag##_list_size(tag##_list_s* l);
+
 #define LIST_INIT(tag, type, list_free_fn)                                     \
     KLIST_INIT(tag, type*, FREE_FN)                                            \
                                                                                \
@@ -61,6 +71,20 @@ extern "C"
     }                                                                          \
                                                                                \
     uint32_t tag##_list_size(tag##_list_s* l) { return l->size; }
+
+#define MAP_INIT_H(tag, type)                                                  \
+    typedef struct kh_##tag##_s tag##_map_s;                                   \
+    typedef void (*tag##_map_foreach_fn)(void*, type**);                       \
+    tag##_map_s* tag##_map_create();                                           \
+    void tag##_map_destroy(tag##_map_s** map_p);                               \
+    type** tag##_map_add(tag##_map_s* nodes, const char* key, type** node_p);  \
+    void tag##_map_remove_iter(tag##_map_s* nodes, khiter_t k);                \
+    void tag##_map_remove(tag##_map_s* nodes, const char* serial);             \
+    type** tag##_map_get(tag##_map_s* hash, const char* serial);               \
+    type** tag##_map_resolve(tag##_map_s* hash, khiter_t k);                   \
+    khiter_t tag##_map_key(tag##_map_s* hash, const char* serial);             \
+    uint32_t tag##_map_size(tag##_map_s* hash);                                \
+    void tag##_map_foreach(tag##_map_s*, tag##_map_foreach_fn, void*);
 
 #define MAP_INIT(tag, type, map_free_fn)                                       \
     KHASH_MAP_INIT_STR(tag, type*)                                             \
