@@ -644,25 +644,36 @@ foreach_device_check_request(device_map_s* self, void* ctx, device_s** d)
     }
 }
 
+typedef struct foreach_socket_process_context
+{
+    linq_netw_s* network;
+    zmq_pollitem_t** poll_p;
+    bool is_router;
+} foreach_socket_process_context;
+
 static void
-foreach_socket_process(socket_map_s* self, void* ctx, zsock_t** sock_p)
+foreach_socket_process(socket_map_s* self, void* context, zsock_t** sock_p)
 {
     ((void)self);
-    ((void)sock_p);
-    linq_netw_s* l = ctx;
-    ((void)l);
+    foreach_socket_process_context* ctx = context;
+    zmq_pollitem_t* ptr = *((zmq_pollitem_t**)ctx->poll_p);
+    if (ptr->revents && ZMQ_POLLIN) {
+        int err = process_packet(ctx->network, *sock_p, ctx->is_router);
+        ((void)err);
+    }
+    ptr++;
+    *((zmq_pollitem_t**)ctx->poll_p) = ptr;
 }
 
 static void
 foreach_socket_populate_poll(socket_map_s* self, void* ctx, zsock_t** sock_p)
 {
     ((void)self);
-    zmq_pollitem_t** ptr_p = ctx;
-    zmq_pollitem_t* ptr = *ptr_p;
+    zmq_pollitem_t* ptr = *((zmq_pollitem_t**)ctx);
     ptr->socket = zsock_resolve(*sock_p);
     ptr->events = ZMQ_POLLIN;
     ptr++;
-    *ptr_p = ptr;
+    *((zmq_pollitem_t**)ctx) = ptr;
 }
 
 static void
@@ -687,23 +698,13 @@ linq_netw_poll(linq_netw_s* l, int32_t ms)
     ptr = items;
     err = zmq_poll(items, n_router + n_dealer, ms);
     if (!(err < 0)) {
-        for (khiter_t k = kh_begin(l->routers); k != kh_end(l->routers); ++k) {
-            if (!kh_exist(l->routers, k)) continue;
-            zsock_t* sock = kh_val(l->routers, k);
-            if (ptr->revents && ZMQ_POLLIN) {
-                err = process_packet(l, sock, true);
-            }
-            ptr++;
-        }
-        // linq_netw_assert(n == n_router);
-        for (khiter_t k = kh_begin(l->dealers); k != kh_end(l->dealers); ++k) {
-            if (!kh_exist(l->dealers, k)) continue;
-            zsock_t* sock = kh_val(l->dealers, k);
-            if (ptr->revents && ZMQ_POLLIN) {
-                err = process_packet(l, sock, false);
-            }
-            ptr++;
-        }
+        foreach_socket_process_context ctx = { .network = l,
+                                               .poll_p = &ptr,
+                                               .is_router = true };
+        socket_map_foreach(l->routers, foreach_socket_process, &ctx);
+        ctx.is_router = false;
+        socket_map_foreach(l->dealers, foreach_socket_process, &ctx);
+        err = 0;
     }
 
     // Loop through devices
