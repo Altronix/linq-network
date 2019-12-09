@@ -18,10 +18,6 @@ typedef enum E_REQUEST_METHOD
     REQUEST_METHOD_DELETE
 } E_REQUEST_METHOD;
 
-typedef struct request_s request_s;
-static void request_destroy(request_s** r_p);
-LIST_INIT(request, request_s, request_destroy);
-
 typedef struct request_s
 {
     router_s forward;
@@ -32,6 +28,8 @@ typedef struct request_s
     linq_netw_request_complete_fn on_complete;
     zframe_t* frames[FRAME_REQ_DATA_IDX + 1];
 } request_s;
+static void request_destroy(request_s** r_p);
+LIST_INIT(request, request_s, request_destroy);
 
 // main class struct (extends linq_netw_socket_s)
 typedef struct device_s
@@ -46,6 +44,7 @@ typedef struct device_s
     uint32_t uptime;
     uint32_t last_seen;
 } device_s;
+MAP_INIT(device, device_s, device_destroy);
 
 static zframe_t*
 write_path_to_frame(const char* method, const char* path, uint32_t path_len)

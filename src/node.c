@@ -12,6 +12,7 @@ typedef struct node_s
     router_s router;
     char serial[SID_LEN];
 } node_s;
+MAP_INIT(node, node_s, node_destroy);
 
 node_s*
 node_create(

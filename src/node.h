@@ -5,6 +5,7 @@
 #ifndef NODE_H_
 #define NODE_H_
 
+#include "containers.h"
 #include "czmq.h"
 #include "linq_netw_internal.h"
 
@@ -14,6 +15,7 @@ extern "C"
 #endif
 
     typedef struct node_s node_s;
+    MAP_INIT_H(node, node_s);
 
     node_s* node_create(
         zsock_t*,

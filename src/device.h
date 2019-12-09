@@ -6,6 +6,7 @@
 #define DEVICE_H_
 
 // includes
+#include "containers.h"
 #include "czmq.h"
 #include "linq_netw_internal.h"
 
@@ -13,6 +14,8 @@
 extern "C"
 {
 #endif
+
+    MAP_INIT_H(device, device_s);
 
     device_s* device_create(
         zsock_t* sock_p,

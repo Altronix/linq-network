@@ -39,8 +39,6 @@ char g_frame_typ_request = FRAME_TYP_REQUEST;
 char g_frame_typ_response = FRAME_TYP_RESPONSE;
 char g_frame_typ_alert = FRAME_TYP_ALERT;
 char g_frame_typ_hello = FRAME_TYP_HELLO;
-MAP_INIT(device, device_s, device_destroy);
-MAP_INIT(node, node_s, node_destroy);
 MAP_INIT(socket, zsock_t, zsock_destroy);
 device_s** linq_netw_device_from_frame(linq_netw_s* l, zframe_t* frame);
 
