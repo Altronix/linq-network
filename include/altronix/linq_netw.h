@@ -99,6 +99,8 @@ extern "C"
     // Linq API
     linq_netw_s* linq_netw_create(const linq_netw_callbacks*, void*);
     void linq_netw_destroy(linq_netw_s**);
+    void linq_netw_init(linq_netw_s*, const linq_netw_callbacks*, void*);
+    void linq_netw_deinit(linq_netw_s*);
     void linq_netw_context_set(linq_netw_s* linq, void* ctx);
     linq_netw_socket linq_netw_listen(linq_netw_s*, const char* ep);
     linq_netw_socket linq_netw_connect(linq_netw_s* l, const char* ep);

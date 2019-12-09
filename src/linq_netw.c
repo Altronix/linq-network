@@ -495,15 +495,7 @@ linq_netw_s*
 linq_netw_create(const linq_netw_callbacks* cb, void* context)
 {
     linq_netw_s* l = linq_netw_malloc(sizeof(linq_netw_s));
-    if (l) {
-        memset(l, 0, sizeof(linq_netw_s));
-        l->devices = device_map_create();
-        l->nodes = node_map_create();
-        l->routers = socket_map_create();
-        l->dealers = socket_map_create();
-        l->callbacks = cb;
-        l->context = context ? context : l;
-    }
+    if (l) linq_netw_init(l, cb, context);
     return l;
 }
 
@@ -513,11 +505,29 @@ linq_netw_destroy(linq_netw_s** linq_netw_p)
 {
     linq_netw_s* l = *linq_netw_p;
     *linq_netw_p = NULL;
+    linq_netw_deinit(l);
+    linq_netw_free(l);
+}
+
+void
+linq_netw_init(linq_netw_s* l, const linq_netw_callbacks* cb, void* context)
+{
+    memset(l, 0, sizeof(linq_netw_s));
+    l->devices = device_map_create();
+    l->nodes = node_map_create();
+    l->routers = socket_map_create();
+    l->dealers = socket_map_create();
+    l->callbacks = cb;
+    l->context = context ? context : l;
+}
+
+void
+linq_netw_deinit(linq_netw_s* l)
+{
     device_map_destroy(&l->devices);
     node_map_destroy(&l->nodes);
     socket_map_destroy(&l->routers);
     socket_map_destroy(&l->dealers);
-    linq_netw_free(l);
 }
 
 void
