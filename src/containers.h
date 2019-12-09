@@ -74,7 +74,7 @@ extern "C"
 
 #define MAP_INIT_H(tag, type)                                                  \
     typedef struct kh_##tag##_s tag##_map_s;                                   \
-    typedef void (*tag##_map_foreach_fn)(void*, type**);                       \
+    typedef void (*tag##_map_foreach_fn)(tag##_map_s*, void*, type**);         \
     tag##_map_s* tag##_map_create();                                           \
     void tag##_map_destroy(tag##_map_s** map_p);                               \
     type** tag##_map_add(tag##_map_s* nodes, const char* key, type** node_p);  \
@@ -90,7 +90,7 @@ extern "C"
     KHASH_MAP_INIT_STR(tag, type*)                                             \
                                                                                \
     typedef struct kh_##tag##_s tag##_map_s;                                   \
-    typedef void (*tag##_map_foreach_fn)(void*, type**);                       \
+    typedef void (*tag##_map_foreach_fn)(tag##_map_s*, void*, type**);         \
                                                                                \
     tag##_map_s* tag##_map_create() { return kh_init_##tag(); }                \
                                                                                \
@@ -158,7 +158,7 @@ extern "C"
         tag##_map_s* hash, tag##_map_foreach_fn fn, void* ctx)                 \
     {                                                                          \
         for (khiter_t k = kh_begin(hash); k != kh_end(hash); ++k) {            \
-            if (kh_exist(hash, k)) fn(ctx, &kh_val(hash, k));                  \
+            if (kh_exist(hash, k)) fn(hash, ctx, &kh_val(hash, k));            \
         }                                                                      \
     }
 

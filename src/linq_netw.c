@@ -288,8 +288,9 @@ node_resolve(zsock_t* sock, node_map_s* map, zframe_t** frames, bool insert)
 
 // Broadcast x frames to each node (router frame is added per each node)
 static void
-foreach_node_forward_message(void* ctx, node_s** n)
+foreach_node_forward_message(node_map_s* self, void* ctx, node_s** n)
 {
+    ((void)self);
     frames_s* frames = ctx;
     node_send_frames(*n, frames->n, frames->frames);
 }
@@ -621,8 +622,9 @@ linq_netw_close_dealer(linq_netw_s* l, linq_netw_socket handle)
 
 // loop through each node and resolve any requests that have timed out
 static void
-foreach_node_check_request(void* ctx, device_s** d)
+foreach_device_check_request(device_map_s* self, void* ctx, device_s** d)
 {
+    ((void)self);
     ((void)ctx);
     if (device_request_pending(*d)) {
         uint32_t tick = sys_tick();
@@ -687,7 +689,7 @@ linq_netw_poll(linq_netw_s* l, int32_t ms)
     }
 
     // Loop through devices
-    device_map_foreach(l->devices, foreach_node_check_request, l);
+    device_map_foreach(l->devices, foreach_device_check_request, l);
 
     // Check if we received a ctrlc and generate an event
     // TODO needs test
@@ -728,8 +730,9 @@ typedef struct
 
 // linq_netw_device_foreach HOF
 static void
-foreach_device_print_sid(void* ctx, device_s** d_p)
+foreach_device_print_sid(device_map_s* self, void* ctx, device_s** d_p)
 {
+    ((void)self);
     foreach_device_print_sid_ctx* foreach_ctx = ctx;
     foreach_ctx->fn(foreach_ctx->ctx, device_serial(*d_p), device_type(*d_p));
 }
