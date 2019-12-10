@@ -22,7 +22,7 @@ jobs:
                                 command: "git submodule update --init ./external/klib"
                         - run:
                                 name: "Install CMake"
-                                command: "choco install cmake -y"
+                                command: "choco install cmake -y; setx /m PATH \"C:\\Program Files\\CMake\\bin;%PATH%\""
                         - run:
                                 name: "Create Build Files"
                                 command: "cmake -H. -Bbuild"
