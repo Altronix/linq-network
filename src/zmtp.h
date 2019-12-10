@@ -1,6 +1,7 @@
 #ifndef ZMTP_H
 #define ZMTP_H
 
+#include "containers.h"
 #include "device.h"
 #include "linq_netw_internal.h"
 #include "node.h"
