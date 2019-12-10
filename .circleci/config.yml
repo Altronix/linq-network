@@ -25,7 +25,7 @@ jobs:
                                 command: "choco install cmake -y; setx /m PATH \"C:\\Program Files\\CMake\\bin;%PATH%\""
                         - run:
                                 name: "Create Build Files"
-                                command: "cmake -DCMAKE_INSTALL_PREFIX=./build/install -B./build ."
+                                command: "cmake -DCMAKE_INSTALL_PREFIX:PATH=./install -B./build ."
                         - run:
                                 name: "Build"
                                 command: "cmake --build ./build"
