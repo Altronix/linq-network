@@ -34,11 +34,11 @@ LIST_INIT(request, request_s, request_destroy);
 // main class struct (extends linq_netw_socket_s)
 typedef struct device_s
 {
-    zsock_t* sock; // linq_netw_socket_s expects zsock_t* to be first
-    router_s router;
+    zsock_t* sock;   // linq_netw_socket_s expects zsock_t* to be first
+    router_s router; // linq_netw_socket_s expects router to be second
+    char serial[SID_LEN];
     request_list_s* requests;
     request_s* request_pending;
-    char serial[SID_LEN];
     char type[TID_LEN];
     uint32_t birth;
     uint32_t uptime;

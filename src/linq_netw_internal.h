@@ -77,6 +77,7 @@ extern "C"
     typedef struct
     {
         zsock_t* sock;
+        router_s* router;
     } linq_netw_socket_s;
 
     // helpful struct for maintaining frames
