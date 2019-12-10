@@ -10,21 +10,22 @@ extern "C"
 {
 #endif
 
-    typedef void (*zmtp_cb_error_fn)(E_LINQ_ERROR, const char*, const char*);
+    typedef void (
+        *zmtp_cb_error_fn)(void*, E_LINQ_ERROR, const char*, const char*);
     typedef void (*zmtp_cb_heartbeat_fn)(void*, const char*, device_s**);
     typedef void (*zmtp_cb_ctrlc_fn)(void*);
     typedef void (*zmtp_cb_alert_fn)(
         void*,
         linq_netw_alert_s*,
-        linq_netw_email_s**,
+        linq_netw_email_s*,
         device_s**);
-    typedef struct zmtp_callbacks
+    typedef struct zmtp_callbacks_s
     {
         zmtp_cb_error_fn err;
         zmtp_cb_heartbeat_fn hb;
         zmtp_cb_alert_fn alert;
         zmtp_cb_ctrlc_fn ctrlc;
-    } zmtp_callbacks;
+    } zmtp_callbacks_s;
 
     MAP_INIT_H(socket, zsock_t);
     typedef struct zmtp_s
@@ -35,14 +36,14 @@ extern "C"
         device_map_s** devices_p;
         node_map_s** nodes_p;
         bool shutdown;
-        const zmtp_callbacks* callbacks;
+        const zmtp_callbacks_s* callbacks;
     } zmtp_s;
 
     void zmtp_init(
         zmtp_s* zmtp,
         device_map_s** devices_p,
         node_map_s** nodes_p,
-        const zmtp_callbacks* callbacks,
+        const zmtp_callbacks_s* callbacks,
         void* ctx);
     void zmtp_deinit(zmtp_s* zmtp);
     linq_netw_socket zmtp_listen(zmtp_s* zmtp, const char* ep);

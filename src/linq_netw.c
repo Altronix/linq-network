@@ -47,12 +47,10 @@ device_s** linq_netw_device_from_frame(linq_netw_s* l, zframe_t* frame);
 typedef struct linq_netw_s
 {
     void* context;
-    socket_map_s* routers;
-    socket_map_s* dealers;
+    const linq_netw_callbacks* callbacks;
     device_map_s* devices;
     node_map_s* nodes;
-    bool shutdown;
-    const linq_netw_callbacks* callbacks;
+    zmtp_s zmtp;
 } linq_netw_s;
 
 static void
@@ -92,6 +90,13 @@ on_zmtp_ctrlc(void* ctx)
     linq_netw_s* l = ctx;
     if (l->callbacks && l->callbacks->ctrlc) l->callbacks->ctrlc(l->context);
 }
+
+static zmtp_callbacks_s zmtp_callbacks = {
+    .err = on_zmtp_error,
+    .hb = on_zmtp_heartbeat,
+    .alert = on_zmtp_alert,
+    .ctrlc = on_zmtp_ctrlc,
+};
 
 // A version on the wire is a byte
 typedef int8_t version;
@@ -540,7 +545,13 @@ linq_netw_s*
 linq_netw_create(const linq_netw_callbacks* cb, void* context)
 {
     linq_netw_s* l = linq_netw_malloc(sizeof(linq_netw_s));
-    if (l) linq_netw_init(l, cb, context);
+    if (l) {
+        l->devices = device_map_create();
+        l->nodes = node_map_create();
+        l->callbacks = cb;
+        l->context = context ? context : l;
+        zmtp_init(&l->zmtp, &l->devices, &l->nodes, &zmtp_callbacks, l);
+    }
     return l;
 }
 
@@ -550,29 +561,10 @@ linq_netw_destroy(linq_netw_s** linq_netw_p)
 {
     linq_netw_s* l = *linq_netw_p;
     *linq_netw_p = NULL;
-    linq_netw_deinit(l);
-    linq_netw_free(l);
-}
-
-void
-linq_netw_init(linq_netw_s* l, const linq_netw_callbacks* cb, void* context)
-{
-    memset(l, 0, sizeof(linq_netw_s));
-    l->devices = device_map_create();
-    l->nodes = node_map_create();
-    l->routers = socket_map_create();
-    l->dealers = socket_map_create();
-    l->callbacks = cb;
-    l->context = context ? context : l;
-}
-
-void
-linq_netw_deinit(linq_netw_s* l)
-{
+    zmtp_deinit(&l->zmtp);
     device_map_destroy(&l->devices);
     node_map_destroy(&l->nodes);
-    socket_map_destroy(&l->routers);
-    socket_map_destroy(&l->dealers);
+    linq_netw_free(l);
 }
 
 void
@@ -587,8 +579,8 @@ linq_netw_listen(linq_netw_s* l, const char* ep)
 {
     zsock_t* socket = zsock_new_router(ep);
     if (socket) {
-        socket_map_add(l->routers, ep, &socket);
-        return socket_map_key(l->routers, ep);
+        socket_map_add(l->zmtp.routers, ep, &socket);
+        return socket_map_key(l->zmtp.routers, ep);
     } else {
         return LINQ_ERROR_SOCKET;
     }
@@ -600,13 +592,14 @@ linq_netw_connect(linq_netw_s* l, const char* ep)
 {
     zsock_t* socket = zsock_new_dealer(ep);
     if (socket) {
-        socket_map_add(l->dealers, ep, &socket);
-        node_s* n = node_create(*socket_map_get(l->dealers, ep), NULL, 0, ep);
+        socket_map_add(l->zmtp.dealers, ep, &socket);
+        node_s* n =
+            node_create(*socket_map_get(l->zmtp.dealers, ep), NULL, 0, ep);
         if (n) {
             node_send_hello(n);
             node_map_add(l->nodes, ep, &n);
         }
-        return socket_map_key(l->dealers, ep);
+        return socket_map_key(l->zmtp.dealers, ep);
     }
     return LINQ_ERROR_SOCKET;
 }
@@ -645,10 +638,10 @@ remove_nodes(zsock_t** s, node_map_s* nodes)
 E_LINQ_ERROR
 linq_netw_close_router(linq_netw_s* l, linq_netw_socket handle)
 {
-    zsock_t** s = socket_map_resolve(l->routers, handle);
+    zsock_t** s = socket_map_resolve(l->zmtp.routers, handle);
     if (s) {
         remove_devices(s, l->devices);
-        socket_map_remove_iter(l->routers, handle);
+        socket_map_remove_iter(l->zmtp.routers, handle);
         return LINQ_ERROR_OK;
     } else {
         return LINQ_ERROR_BAD_ARGS;
@@ -658,11 +651,11 @@ linq_netw_close_router(linq_netw_s* l, linq_netw_socket handle)
 E_LINQ_ERROR
 linq_netw_close_dealer(linq_netw_s* l, linq_netw_socket handle)
 {
-    zsock_t** s = socket_map_resolve(l->dealers, handle);
+    zsock_t** s = socket_map_resolve(l->zmtp.dealers, handle);
     if (s) {
         remove_devices(s, l->devices);
         remove_nodes(s, l->nodes);
-        socket_map_remove_iter(l->dealers, handle);
+        socket_map_remove_iter(l->zmtp.dealers, handle);
         return LINQ_ERROR_OK;
     } else {
         return LINQ_ERROR_BAD_ARGS;
@@ -726,20 +719,20 @@ E_LINQ_ERROR
 linq_netw_poll(linq_netw_s* l, int32_t ms)
 {
     zmq_pollitem_t items[MAX_CONNECTIONS], *ptr = items;
-    int err, n_router = socket_map_size(l->routers),
-             n_dealer = socket_map_size(l->dealers);
+    int err, n_router = socket_map_size(l->zmtp.routers),
+             n_dealer = socket_map_size(l->zmtp.dealers);
     linq_netw_assert(n_router + n_dealer < MAX_CONNECTIONS);
 
     memset(items, 0, sizeof(items));
-    populate_sockets(l->routers, &ptr);
-    populate_sockets(l->dealers, &ptr);
+    populate_sockets(l->zmtp.routers, &ptr);
+    populate_sockets(l->zmtp.dealers, &ptr);
 
     ptr = items;
     err = zmq_poll(items, n_router + n_dealer, ms);
     if (!(err < 0)) {
         foreach_socket_process_context ctx = { .network = l, .poll_p = &ptr };
-        socket_map_foreach(l->routers, foreach_socket_process, &ctx);
-        socket_map_foreach(l->dealers, foreach_socket_process, &ctx);
+        socket_map_foreach(l->zmtp.routers, foreach_socket_process, &ctx);
+        socket_map_foreach(l->zmtp.dealers, foreach_socket_process, &ctx);
         err = 0;
     }
 

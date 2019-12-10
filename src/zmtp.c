@@ -12,7 +12,7 @@ zmtp_init(
     zmtp_s* zmtp,
     device_map_s** devices_p,
     node_map_s** nodes_p,
-    const zmtp_callbacks* callbacks,
+    const zmtp_callbacks_s* callbacks,
     void* context)
 {
     zmtp->devices_p = devices_p;
