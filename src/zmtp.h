@@ -50,6 +50,8 @@ extern "C"
     linq_netw_socket zmtp_connect(zmtp_s* l, const char* ep);
     E_LINQ_ERROR zmtp_close_router(zmtp_s* zmtp, linq_netw_socket sock);
     E_LINQ_ERROR zmtp_close_dealer(zmtp_s* zmtp, linq_netw_socket sock);
+    E_LINQ_ERROR
+    zmtp_poll(zmtp_s* self, int32_t ms);
     E_LINQ_ERROR zmtp_device_send_get(
         const zmtp_s*,
         const char*,
