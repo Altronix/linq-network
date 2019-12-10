@@ -219,6 +219,12 @@ pop_email(zmsg_t* msg, linq_netw_email_s* emails)
     return f;
 }
 
+static bool
+is_router(zsock_t* sock)
+{
+    return zsock_type_str(sock)[0] == 'R';
+}
+
 // Write null terminated string into a frame data buffer
 static int
 print_null_terminated(char* c, uint32_t sz, zframe_t* f)
@@ -453,10 +459,11 @@ process_heartbeat(linq_netw_s* l, zsock_t* s, zmsg_t** msg, zframe_t** frames)
 
 // check the zmq header frames are valid and process the packet
 static E_LINQ_ERROR
-process_packet(linq_netw_s* l, zsock_t* s, bool router)
+process_packet(linq_netw_s* l, zsock_t* s)
 {
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     int total_frames = 0, start = 1;
+    bool router = is_router(s);
     zframe_t* f[FRAME_MAX];
     memset(f, 0, sizeof(f));
     zmsg_t* msg = zmsg_recv(s); // TODO can be null
@@ -646,7 +653,6 @@ typedef struct foreach_socket_process_context
 {
     linq_netw_s* network;
     zmq_pollitem_t** poll_p;
-    bool is_router;
 } foreach_socket_process_context;
 
 static void
@@ -655,7 +661,7 @@ foreach_socket_process(socket_map_s* self, void* context, zsock_t** sock_p)
     ((void)self);
     foreach_socket_process_context* ctx = context;
     if ((*(zmq_pollitem_t**)ctx->poll_p)->revents && ZMQ_POLLIN) {
-        int err = process_packet(ctx->network, *sock_p, ctx->is_router);
+        int err = process_packet(ctx->network, *sock_p);
         ((void)err);
     }
     (*(zmq_pollitem_t**)ctx->poll_p)++;
@@ -692,11 +698,8 @@ linq_netw_poll(linq_netw_s* l, int32_t ms)
     ptr = items;
     err = zmq_poll(items, n_router + n_dealer, ms);
     if (!(err < 0)) {
-        foreach_socket_process_context ctx = { .network = l,
-                                               .poll_p = &ptr,
-                                               .is_router = true };
+        foreach_socket_process_context ctx = { .network = l, .poll_p = &ptr };
         socket_map_foreach(l->routers, foreach_socket_process, &ctx);
-        ctx.is_router = false;
         socket_map_foreach(l->dealers, foreach_socket_process, &ctx);
         err = 0;
     }

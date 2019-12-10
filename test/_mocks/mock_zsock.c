@@ -4,9 +4,12 @@
 
 #include "mock_zsock.h"
 
+static const char* DEALER = "DEALER";
+static const char* ROUTER = "ROUTER";
+
 typedef struct mock_zsock_s
 {
-    char dummy[100];
+    const char* type;
 } mock_zsock_s;
 
 int
@@ -52,10 +55,7 @@ __wrap_zsock_new_router(const char* endpoints)
 {
     ((void)endpoints);
     mock_zsock_s* s = malloc(sizeof(mock_zsock_s));
-    if (s) {
-        memset(s, 0, sizeof(mock_zsock_s));
-        snprintf(s->dummy, sizeof(s->dummy), "%s", "ROUTER");
-    }
+    if (s) s->type = ROUTER;
     return (zsock_t*)s;
 }
 
@@ -75,10 +75,7 @@ __wrap_zsock_new_dealer(const char* endpoints)
 {
     ((void)endpoints);
     mock_zsock_s* s = malloc(sizeof(mock_zsock_s));
-    if (s) {
-        memset(s, 0, sizeof(mock_zsock_s));
-        snprintf(s->dummy, sizeof(s->dummy), "%s", "DEALER");
-    }
+    if (s) s->type = DEALER;
     return (zsock_t*)s;
 }
 
@@ -110,4 +107,10 @@ __wrap_zsock_destroy_checked(
     ((void)filename);
     ((void)line_nbr);
     return __wrap_zsock_destroy(self_p);
+}
+
+const char*
+__wrap_zsock_type_str(zsock_t* self)
+{
+    return ((mock_zsock_s*)self)->type;
 }
