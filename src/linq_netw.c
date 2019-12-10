@@ -2,18 +2,9 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "base64.h"
-#include "containers.h"
-#include "device.h"
 #include "linq_netw_internal.h"
 #include "node.h"
-#include "sys.h"
 #include "zmtp.h"
-
-#define JSMN_HEADER
-#include "jsmn/jsmn.h"
-
-MAP_INIT(socket, zsock_t, zsock_destroy);
 
 // Main class
 typedef struct linq_netw_s
@@ -107,89 +98,26 @@ linq_netw_context_set(linq_netw_s* linq, void* ctx)
 linq_netw_socket
 linq_netw_listen(linq_netw_s* l, const char* ep)
 {
-    zsock_t* socket = zsock_new_router(ep);
-    if (socket) {
-        socket_map_add(l->zmtp.routers, ep, &socket);
-        return socket_map_key(l->zmtp.routers, ep);
-    } else {
-        return LINQ_ERROR_SOCKET;
-    }
+    return zmtp_listen(&l->zmtp, ep);
 }
 
 // connect to a remote linq and send hello frames
 linq_netw_socket
 linq_netw_connect(linq_netw_s* l, const char* ep)
 {
-    zsock_t* socket = zsock_new_dealer(ep);
-    if (socket) {
-        socket_map_add(l->zmtp.dealers, ep, &socket);
-        node_s* n =
-            node_create(*socket_map_get(l->zmtp.dealers, ep), NULL, 0, ep);
-        if (n) {
-            node_send_hello(n);
-            node_map_add(l->nodes, ep, &n);
-        }
-        return socket_map_key(l->zmtp.dealers, ep);
-    }
-    return LINQ_ERROR_SOCKET;
-}
-
-static void
-foreach_device_remove_if_sock_eq(
-    device_map_s* self,
-    void* ctx,
-    device_s** device_p)
-{
-    zsock_t* eq = ctx;
-    linq_netw_socket_s* socket = ((linq_netw_socket_s*)*device_p);
-    if (eq == socket->sock) device_map_remove(self, device_serial(*device_p));
-}
-
-static void
-foreach_node_remove_if_sock_eq(node_map_s* self, void* ctx, node_s** device_p)
-{
-    zsock_t* eq = ctx;
-    linq_netw_socket_s* socket = ((linq_netw_socket_s*)*device_p);
-    if (eq == socket->sock) node_map_remove(self, node_serial(*device_p));
-}
-
-static void
-remove_devices(zsock_t** s, device_map_s* devices)
-{
-    device_map_foreach(devices, foreach_device_remove_if_sock_eq, *s);
-}
-
-static void
-remove_nodes(zsock_t** s, node_map_s* nodes)
-{
-    node_map_foreach(nodes, foreach_node_remove_if_sock_eq, *s);
+    return zmtp_connect(&l->zmtp, ep);
 }
 
 E_LINQ_ERROR
 linq_netw_close_router(linq_netw_s* l, linq_netw_socket handle)
 {
-    zsock_t** s = socket_map_resolve(l->zmtp.routers, handle);
-    if (s) {
-        remove_devices(s, l->devices);
-        socket_map_remove_iter(l->zmtp.routers, handle);
-        return LINQ_ERROR_OK;
-    } else {
-        return LINQ_ERROR_BAD_ARGS;
-    }
+    return zmtp_close_router(&l->zmtp, handle);
 }
 
 E_LINQ_ERROR
 linq_netw_close_dealer(linq_netw_s* l, linq_netw_socket handle)
 {
-    zsock_t** s = socket_map_resolve(l->zmtp.dealers, handle);
-    if (s) {
-        remove_devices(s, l->devices);
-        remove_nodes(s, l->nodes);
-        socket_map_remove_iter(l->zmtp.dealers, handle);
-        return LINQ_ERROR_OK;
-    } else {
-        return LINQ_ERROR_BAD_ARGS;
-    }
+    return zmtp_close_dealer(&l->zmtp, handle);
 }
 
 // poll network socket file handles

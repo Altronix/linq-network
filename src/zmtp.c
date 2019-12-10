@@ -1,9 +1,12 @@
 #include "zmtp.h"
 #include "base64.h"
 #include "device.h"
+#include "sys.h"
 
 #define JSMN_HEADER
 #include "jsmn/jsmn.h"
+
+MAP_INIT(socket, zsock_t, zsock_destroy);
 
 // A version on the wire is a byte
 typedef int8_t version;
@@ -501,17 +504,90 @@ zmtp_deinit(zmtp_s* zmtp)
 
 linq_netw_socket
 zmtp_listen(zmtp_s* zmtp, const char* ep)
-{}
+{
+    zsock_t* socket = zsock_new_router(ep);
+    if (socket) {
+        socket_map_add(zmtp->routers, ep, &socket);
+        return socket_map_key(zmtp->routers, ep);
+    } else {
+        return LINQ_ERROR_SOCKET;
+    }
+}
 
 linq_netw_socket
-zmtp_connect(zmtp_s* l, const char* ep)
-{}
+zmtp_connect(zmtp_s* zmtp, const char* ep)
+{
+    zsock_t* socket = zsock_new_dealer(ep);
+    if (socket) {
+        socket_map_add(zmtp->dealers, ep, &socket);
+        node_s* n =
+            node_create(*socket_map_get(zmtp->dealers, ep), NULL, 0, ep);
+        if (n) {
+            node_send_hello(n);
+            node_map_add(*zmtp->nodes_p, ep, &n);
+        }
+        return socket_map_key(zmtp->dealers, ep);
+    }
+    return LINQ_ERROR_SOCKET;
+}
+
+static void
+foreach_device_remove_if_sock_eq(
+    device_map_s* self,
+    void* ctx,
+    device_s** device_p)
+{
+    zsock_t* eq = ctx;
+    linq_netw_socket_s* socket = ((linq_netw_socket_s*)*device_p);
+    if (eq == socket->sock) device_map_remove(self, device_serial(*device_p));
+}
+
+static void
+foreach_node_remove_if_sock_eq(node_map_s* self, void* ctx, node_s** device_p)
+{
+    zsock_t* eq = ctx;
+    linq_netw_socket_s* socket = ((linq_netw_socket_s*)*device_p);
+    if (eq == socket->sock) node_map_remove(self, node_serial(*device_p));
+}
+
+static void
+remove_devices(zsock_t** s, device_map_s* devices)
+{
+    device_map_foreach(devices, foreach_device_remove_if_sock_eq, *s);
+}
+
+static void
+remove_nodes(zsock_t** s, node_map_s* nodes)
+{
+    node_map_foreach(nodes, foreach_node_remove_if_sock_eq, *s);
+}
 
 E_LINQ_ERROR
-zmtp_close_router(zmtp_s* zmtp, linq_netw_socket sock) {}
+zmtp_close_router(zmtp_s* zmtp, linq_netw_socket handle)
+{
+    zsock_t** s = socket_map_resolve(zmtp->routers, handle);
+    if (s) {
+        remove_devices(s, *zmtp->devices_p);
+        socket_map_remove_iter(zmtp->routers, handle);
+        return LINQ_ERROR_OK;
+    } else {
+        return LINQ_ERROR_BAD_ARGS;
+    }
+}
 
 E_LINQ_ERROR
-zmtp_close_dealer(zmtp_s* zmtp, linq_netw_socket sock) {}
+zmtp_close_dealer(zmtp_s* zmtp, linq_netw_socket handle)
+{
+    zsock_t** s = socket_map_resolve(zmtp->dealers, handle);
+    if (s) {
+        remove_devices(s, *zmtp->devices_p);
+        remove_nodes(s, *zmtp->nodes_p);
+        socket_map_remove_iter(zmtp->dealers, handle);
+        return LINQ_ERROR_OK;
+    } else {
+        return LINQ_ERROR_BAD_ARGS;
+    }
+}
 
 // loop through each node and resolve any requests that have timed out
 static void
