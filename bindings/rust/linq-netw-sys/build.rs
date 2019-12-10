@@ -13,12 +13,18 @@ use std::path::PathBuf;
 
 // TODO - Sometimes we are built as a submodule to another project, Sometimes
 // we are built from git root. Should find better way to build project...
-fn find_cmake_list() -> String {
+fn find_root() -> String {
     let f = fs::metadata("../../../../CMakeLists.txt");
     match f {
         Ok(_) => "../../../../".to_owned(),
         _ => "../../../".to_owned(),
     }
+}
+
+fn gen_header() {
+    let header = format!("{}/include/altronix/linq_netw.h", find_root());
+    let header = fs::read(header).unwrap();
+    fs::write("./wrapper.h", header).unwrap();
 }
 
 fn print_windows(out: &std::path::Display<'_>) {
@@ -52,16 +58,17 @@ fn print_linux(out: &std::path::Display<'_>) {
 
 fn main() {
     // Build linq-io TODO build static
+    gen_header();
 
     // Add compiler flags
     match env::var("CARGO_CFG_TARGET_OS").as_ref().map(|x| &**x) {
         Ok("linux") => {
-            let dst = cmake::Config::new(find_cmake_list()).build();
+            let dst = cmake::Config::new(find_root()).build();
             let out = dst.display();
             print_linux(&out);
         }
         Ok("windows") => {
-            let dst = cmake::Config::new(find_cmake_list()).build();
+            let dst = cmake::Config::new(find_root()).build();
             let out = dst.display();
             print_windows(&out);
         }
