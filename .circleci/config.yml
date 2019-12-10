@@ -9,3 +9,9 @@ jobs:
                 steps:
                         - checkout
                         - run: Write-Host "Hello"
+
+workflows:
+        version: 2.1
+        build_and_test:
+                jobs:
+                        - build-windows
