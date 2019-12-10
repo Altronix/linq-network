@@ -7,6 +7,9 @@ jobs:
         build-windows:
                 executor: win/default
                 steps:
+                        - add_ssh_keys:
+                                fingerprints:
+                                        - "07:a2:81:7c:93:cb:8b:03:f4:d9:31:6d:29:6b:ea:07"
                         - checkout
                         - run: Write-Host "Hello"
 
