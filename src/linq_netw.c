@@ -8,6 +8,7 @@
 #include "linq_netw_internal.h"
 #include "node.h"
 #include "sys.h"
+#include "zmtp.h"
 
 #define JSMN_HEADER
 #include "jsmn/jsmn.h"
@@ -53,6 +54,44 @@ typedef struct linq_netw_s
     bool shutdown;
     const linq_netw_callbacks* callbacks;
 } linq_netw_s;
+
+static void
+on_zmtp_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
+{
+    linq_netw_s* l = ctx;
+    if (l->callbacks && l->callbacks->err) {
+        l->callbacks->err(l->context, e, what, serial);
+    }
+}
+
+static void
+on_zmtp_heartbeat(void* ctx, const char* serial, device_s** d)
+{
+    linq_netw_s* l = ctx;
+    if (l->callbacks && l->callbacks->hb) {
+        l->callbacks->hb(l->context, serial, d);
+    }
+}
+
+static void
+on_zmtp_alert(
+    void* ctx,
+    linq_netw_alert_s* alert,
+    linq_netw_email_s* email,
+    device_s** d)
+{
+    linq_netw_s* l = ctx;
+    if (l->callbacks && l->callbacks->alert) {
+        l->callbacks->alert(l->context, alert, email, d);
+    }
+}
+
+static void
+on_zmtp_ctrlc(void* ctx)
+{
+    linq_netw_s* l = ctx;
+    if (l->callbacks && l->callbacks->ctrlc) l->callbacks->ctrlc(l->context);
+}
 
 // A version on the wire is a byte
 typedef int8_t version;

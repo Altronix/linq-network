@@ -4,14 +4,16 @@ set(sources
     device.c
     node.c
     jsmn.c
-    sys.c)
+    sys.c
+    zmtp.c)
 set(headers
     ../include/altronix/linq_netw.h
     base64.h
     containers.h
     linq_netw_internal.h
     device.h
-    node.h)
+    node.h
+    zmtp.h)
 
 set(linq_netw_INSTALL_HEADERS ../include/altronix/linq_netw.h)
 set(linq_netw_SOURCES ${sources})
