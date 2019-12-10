@@ -21,6 +21,9 @@ jobs:
                                 name: "Pull Dependency (klib)"
                                 command: "git submodule update --init ./external/klib"
                         - run:
+                                name: "Install CMake"
+                                command: "choco install cmake -y"
+                        - run:
                                 name: "Create Build Files"
                                 command: "cmake -H. -Bbuild"
                         - run:
