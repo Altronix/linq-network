@@ -16,6 +16,7 @@ matrix:
                           - cmake -DCMAKE_INSTALL_PREFIX=./build/install . 
                           - cmake --build ./ --target install
                 - os: linux
+                  dist: bionic
                   language: c
                   addons:
                           apt:
