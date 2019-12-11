@@ -31,7 +31,7 @@ IF(NOT MSVC)
     ${CMAKE_SOURCE_DIR}/external/libzmq/include/zmq.h
     OUTPUT_VARIABLE zmq_VERSION)
   set(zmq_LIBRARY ${CMAKE_STATIC_LIBRARY_PREFIX}zmq${CMAKE_STATIC_LIBRARY_SUFFIX})
-  set(zmq_LIBRARY_LOC ${install_dir}/lib64/${zmq_LIBRARY})
+  set(zmq_LIBRARY_LOC ${install_dir}/${CMAKE_INSTALL_LIBDIR}/${zmq_LIBRARY})
 ELSE()
   execute_process(COMMAND powershell
     -File ${CMAKE_SOURCE_DIR}/scripts/read_zmq_version.ps1
