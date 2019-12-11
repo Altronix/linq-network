@@ -33,6 +33,7 @@ target_link_libraries(test-mocks
                       czmq
                       helpers
                       mock-czmq
-                      cmocka)
+                      cmocka
+                      stdc++) #linking stdc++ OK since (tests linux only)
 add_test(NAME test-mocks COMMAND test-mocks)
 install(TARGETS test-mocks DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
