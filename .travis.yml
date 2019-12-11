@@ -13,6 +13,13 @@ matrix:
                   language: c
                   script:
                         cmake -DCMAKE_INSTALL_PREFIX=./build/install . && cmake --build ./ --target install
+                - os: linux
+                  language: rust
+                  script:
+			curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -y &&
+			rustup default nightly &&
+			rustup update &&
+			cargo build
                 - os: windows
                   language: c
                   script:
