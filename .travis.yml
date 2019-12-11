@@ -1,0 +1,16 @@
+git:
+        submodules: false
+
+before_install:
+        - git submodule update --init ./external/libzmq
+        - git submodule update --init ./external/czmq
+        - git submodule update --init ./external/jsmn
+        - git submodule update --init ./external/klib
+
+matrix:
+        include:
+                - os: linux
+                  language: c
+                - script:
+                        cmake -DCMAKE_INSTALL_PREFIX=./install -B./build .
+
