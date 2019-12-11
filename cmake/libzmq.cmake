@@ -2,7 +2,7 @@
 
 ExternalProject_Add(zmq-project
 	SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/libzmq
-	INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
+	PREFIX ${prefix}
 	UPDATE_COMMAND ""
 	BUILD_COMMAND ""
 	INSTALL_COMMAND
@@ -12,7 +12,7 @@ ExternalProject_Add(zmq-project
 		--config Release
 	LIST_SEPARATOR |
 	CMAKE_ARGS 
-		-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} 
+		-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
 		-DZMQ_BUILD_TESTS:BOOL=OFF 
 		-DDISABLE_WS:BOOL=ON
 		-DENABLE_CURVE:BOOL=OFF
@@ -24,6 +24,7 @@ ExternalProject_Add(zmq-project
 
 ExternalProject_Get_Property(zmq-project install_dir)
 set(zmq_INCLUDE_DIR ${install_dir}/include)
+FILE(MAKE_DIRECTORY ${install_dir}/include)
 IF(NOT MSVC)
   # Get the version of the ZMQ library
   execute_process(COMMAND ${CMAKE_SOURCE_DIR}/scripts/read_zmq_version.sh
