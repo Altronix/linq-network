@@ -15,11 +15,10 @@ matrix:
                         cmake -DCMAKE_INSTALL_PREFIX=./build/install . && cmake --build ./ --target install
                 - os: linux
                   language: rust
+                  rust:
+                          - nightly
                   script:
-			curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -y && \
-			rustup default nightly && \
-			rustup update && \
-			cargo build
+                          - cargo build --verbose --all
                 - os: windows
                   language: c
                   script:
