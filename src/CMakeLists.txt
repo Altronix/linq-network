@@ -68,6 +68,7 @@ endif()
 
 if(ENABLE_TESTING)
   set(CMAKE_BUILD_TYPE Debug)
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
   add_library(linq-netw-test
               ${linq_netw_SOURCES}
               ${linq_netw_mock_SOURCES}

@@ -12,13 +12,11 @@ matrix:
         include:
                 - os: linux
                   language: c
-                  env: ENABLE_TESTING=OFF
                   script:
                           - cmake -DCMAKE_INSTALL_PREFIX=./build/install . 
                           - cmake --build ./ --target install
                 - os: linux
                   language: c
-                  env: ENABLE_TESTING=ON
                   addons:
                           apt:
                                   packages: lcov
@@ -27,7 +25,6 @@ matrix:
                           - cmake --build ./ --target install
                 - os: linux
                   language: rust
-                  env: ENABLE_TESTING=OFF
                   rust:
                           - nightly
                   script:
@@ -35,7 +32,8 @@ matrix:
                 - os: windows
                   language: c
                   script: 
-                          - cmake -DCMAKE_INSTALL_PREFIX:PATH=./build/install . && cmake --build ./ --target install
+                          - cmake -DCMAKE_INSTALL_PREFIX:PATH=./build/install . 
+                          - cmake --build ./ --target install
                 - os: windows
                   language: rust
                   rust:
