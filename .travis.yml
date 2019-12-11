@@ -11,6 +11,6 @@ matrix:
         include:
                 - os: linux
                   language: c
-                - script:
+                  script:
                         cmake -DCMAKE_INSTALL_PREFIX=./install -B./build .
                         cmake --build ./build --target install
