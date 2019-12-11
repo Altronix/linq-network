@@ -16,9 +16,9 @@ matrix:
                 - os: linux
                   language: rust
                   script:
-			curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -y &&
-			rustup default nightly &&
-			rustup update &&
+			curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -y && \
+			rustup default nightly && \
+			rustup update && \
 			cargo build
                 - os: windows
                   language: c
