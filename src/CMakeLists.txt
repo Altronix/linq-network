@@ -67,7 +67,6 @@ else()
 endif()
 
 if(ENABLE_TESTING)
-  set(CMAKE_BUILD_TYPE Debug)
   add_library(linq-netw-test
               ${linq_netw_SOURCES}
               ${linq_netw_mock_SOURCES}

@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.11)
 project(linq-netw)
 
+# Compiler stuff
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 option(BUILD_DEPENDENCIES "Whether or not to build the tests" ON)
 set(LINQ_BUILD_DEPENDENCIES
     ${BUILD_DEPENDENCIES}
@@ -27,15 +31,19 @@ if(ENABLE_TESTING)
   include(CTest)
   include(cmake/cmocka.cmake)
   include(cmake/CodeCoverage.cmake)
-  include(cmake/test-fixture.cmake)
+  if(EXISTS "${CMAKE_SOURCE_DIR}/external/linq-common/CMakeLists.txt")
+    MESSAGE(STATUS "linq-common found!")
+    MESSAGE(STATUS "Building linq-common integration test")
+    include(cmake/test-fixture.cmake)
+    add_subdirectory(test/integration)
+    add_subdirectory(test/_fixture)
+  endif()
   add_subdirectory(test/_helpers)
-  add_subdirectory(test/_fixture)
   add_subdirectory(test/_mocks)
   add_subdirectory(test/containers)
   add_subdirectory(test/linq-netw)
   add_subdirectory(test/device)
   add_subdirectory(test/devices)
-  add_subdirectory(test/integration)
   add_subdirectory(bindings/cpp/test)
 
   # add test coverage
@@ -43,29 +51,12 @@ if(ENABLE_TESTING)
   append_coverage_compiler_flags()
   set(lcov_root ./src)
 
-  setup_target_for_coverage_lcov(NAME
-                                 test-coverage
-                                 EXECUTABLE
-                                 test-containers
-                                 COMMAND
-                                 test-linq-netw
-                                 COMMAND
-                                 test-device
-                                 COMMAND
-                                 test-devices
-                                 COMMAND
-                                 integration-alert-test
-                                 COMMAND
-                                 integration-broadcast-test
-                                 COMMAND
-                                 integration-response-test
-                                 COMMAND
-                                 integration-forward-response-test
-                                 COMMAND
-                                 integration-504-test
-                                 COMMAND
-                                 binding-linq-netw-cpp-test)
-
+  setup_target_for_coverage_lcov(NAME test-coverage
+    EXECUTABLE test-containers
+    COMMAND test-linq-netw
+    COMMAND test-device
+    COMMAND test-devices
+    COMMAND binding-linq-netw-cpp-test)
 endif()
 
 add_subdirectory(src)

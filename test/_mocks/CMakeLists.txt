@@ -29,7 +29,6 @@ add_executable(test-mocks main.c)
 set_target_properties(test-mocks PROPERTIES LINK_FLAGS ${wrap_flags})
 target_link_libraries(test-mocks
                       linq-netw-test
-                      zmq
                       czmq
                       helpers
                       mock-czmq
