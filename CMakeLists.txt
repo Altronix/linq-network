@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.11)
 project(linq-netw)
 
+# Compiler stuff
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 option(BUILD_DEPENDENCIES "Whether or not to build the tests" ON)
 set(LINQ_BUILD_DEPENDENCIES
     ${BUILD_DEPENDENCIES}
