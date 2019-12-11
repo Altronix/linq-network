@@ -2,7 +2,7 @@
 
 ExternalProject_Add(cmocka-project
 	SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/cmocka
-	PREFIX ${prefix}
+	INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
 	UPDATE_COMMAND ""
 	LIST_SEPARATOR |
 	CMAKE_ARGS 

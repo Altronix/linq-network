@@ -6,8 +6,6 @@ set(LINQ_BUILD_DEPENDENCIES
     ${BUILD_DEPENDENCIES}
     CACHE BOOL "Build the external directory for linq-netw")
 
-set(prefix ${CMAKE_INSTALL_PREFIX})
-
 # dependency install
 include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 find_package(Threads)

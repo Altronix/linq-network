@@ -2,7 +2,7 @@
 
 ExternalProject_Add(zmq-project
 	SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/libzmq
-	PREFIX ${prefix}
+	INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
 	UPDATE_COMMAND ""
 	BUILD_COMMAND ""
 	INSTALL_COMMAND
