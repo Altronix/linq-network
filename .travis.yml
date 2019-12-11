@@ -16,4 +16,4 @@ matrix:
                 - os: windows
                   language: c
                   script:
-                        cmake -DCMAKE_INSTALL_PREFIX=./build/install . && cmake --build ./ --target install
+                        cmake -DCMAKE_INSTALL_PREFIX:PATH=./build/install . && cmake --build ./ --target install
