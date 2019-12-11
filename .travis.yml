@@ -32,7 +32,7 @@ matrix:
                 - os: windows
                   language: c
                   script: 
-                          - cmake -DCMAKE_INSTALL_PREFIX:PATH=./build/install . 
+                          - cmake -DCMAKE_INSTALL_PREFIX:PATH=./build/install .
                           - cmake --build ./ --target install
                 - os: windows
                   language: rust
