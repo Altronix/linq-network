@@ -6,5 +6,4 @@ members = [
 	"bindings/rust/examples/events_polling",
 	"bindings/rust/linq-netw",
 	"bindings/rust/linq-netw-sys",
-	"bindings/node/linq-netw-js/native",
 ]
