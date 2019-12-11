@@ -7,12 +7,13 @@ ExternalProject_Add(cmocka-project
 	LIST_SEPARATOR |
 	CMAKE_ARGS 
 		-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+		-DCMAKE_INSTALL_LIBDIR=<INSTALL_DIR>/lib
 		-DWITH_STATIC_LIB:BOOL=ON 
 		-DUNIT_TESTING:BOOL=OFF
 	)
 
 ExternalProject_Get_Property(cmocka-project install_dir)
-set(cmocka_LIBRARY ${install_dir}/${CMAKE_INSTALL_LIBDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}cmocka-static${CMAKE_STATIC_LIBRARY_SUFFIX})
+set(cmocka_LIBRARY ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}cmocka-static${CMAKE_STATIC_LIBRARY_SUFFIX})
 set(cmocka_INCLUDE_DIR ${install_dir}/include)
 
 add_library(cmocka STATIC IMPORTED)

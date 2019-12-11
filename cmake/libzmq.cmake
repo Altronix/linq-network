@@ -13,6 +13,7 @@ ExternalProject_Add(zmq-project
 	LIST_SEPARATOR |
 	CMAKE_ARGS 
 		-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+		-DCMAKE_INSTALL_LIBDIR=<INSTALL_DIR>/lib
 		-DZMQ_BUILD_TESTS:BOOL=OFF 
 		-DDISABLE_WS:BOOL=ON
 		-DENABLE_CURVE:BOOL=OFF
@@ -31,7 +32,7 @@ IF(NOT MSVC)
     ${CMAKE_SOURCE_DIR}/external/libzmq/include/zmq.h
     OUTPUT_VARIABLE zmq_VERSION)
   set(zmq_LIBRARY ${CMAKE_STATIC_LIBRARY_PREFIX}zmq${CMAKE_STATIC_LIBRARY_SUFFIX})
-  set(zmq_LIBRARY_LOC ${install_dir}/${CMAKE_INSTALL_LIBDIR}/${zmq_LIBRARY})
+  set(zmq_LIBRARY_LOC ${install_dir}/lib/${zmq_LIBRARY})
 ELSE()
   execute_process(COMMAND powershell
     -File ${CMAKE_SOURCE_DIR}/scripts/read_zmq_version.ps1
