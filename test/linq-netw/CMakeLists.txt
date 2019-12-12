@@ -25,11 +25,9 @@ string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_recv")
 
 target_link_libraries(test-linq-netw
                       linq-netw-test
-                      zmq
-                      czmq
+		      czmq
                       helpers
-                      mock-czmq
-                      cmocka)
+		      cmocka)
 set_target_properties(test-linq-netw PROPERTIES LINK_FLAGS ${wrap_flags})
 add_test(NAME test-linq-netw COMMAND test-linq-netw)
 install(TARGETS test-linq-netw DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

@@ -25,11 +25,8 @@ string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_recv")
 
 target_link_libraries(test-device
                       linq-netw-test
-                      mock-czmq
-                      zmq
                       czmq
                       helpers
-                      mock-czmq
                       cmocka)
 set_target_properties(test-device PROPERTIES LINK_FLAGS ${wrap_flags})
 add_test(NAME test-device COMMAND test-device)

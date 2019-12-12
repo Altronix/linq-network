@@ -1,7 +1,7 @@
 add_library(helpers helpers.c helpers.h)
 target_link_libraries(helpers
                       linq-netw-test
-                      czmq
-                      zmq
-                      cmocka)
+		      mock-czmq
+		      stdc++
+		      uuid)
 target_include_directories(helpers PUBLIC .)
