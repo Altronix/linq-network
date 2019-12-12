@@ -24,9 +24,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .take_while(|e| future::ready(*e != Event::Ctrlc))
         .for_each(async move |e| {
             match e {
-                Event::Heartbeat(s) => println!("[RECEIVED HEARTBEAT] {}", s),
-                Event::Alert(s) => println!("[RECEIVED ALERT] {}", s),
-                Event::Error(_, _) => println!("[RECEIVED ERROR]"),
+                Event::Heartbeat(_serial) => (),
+                Event::Alert(_serial) => (),
+                Event::Error(_, _) => (),
                 _ => (),
             };
         })

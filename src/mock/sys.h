@@ -6,6 +6,7 @@
 #define SYS_H
 
 #include <stdint.h>
+#include <string.h>
 
 #define linq_netw_malloc_fn malloc
 #define linq_netw_free_fn free

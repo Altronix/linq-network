@@ -26,6 +26,19 @@ set(linq_netw_unix_HEADERS ./unix/sys.h)
 set(linq_netw_mock_SOURCES ./mock/sys.c)
 set(linq_netw_mock_HEADERS ./mock/sys.h)
 
+if (${LINQ_LOG_LEVEL} STREQUAL "TRACE" OR
+    ${LINQ_LOG_LEVEL} STREQUAL "DEBUG" OR
+    ${LINQ_LOG_LEVEL} STREQUAL "INFO" OR
+    ${LINQ_LOG_LEVEL} STREQUAL "WARN" OR
+    ${LINQ_LOG_LEVEL} STREQUAL "ERROR" OR
+    ${LINQ_LOG_LEVEL} STREQUAL "FATAL" OR
+    ${LINQ_LOG_LEVEL} STREQUAL "NONE")
+  MESSAGE(STATUS "LINQ_LOG_LEVEL set ${LINQ_LOG_LEVEL}")
+  list(APPEND(linq_netw_HEADERS log.h))
+else()
+  MESSAGE(STATUS "LINQ_LOG_LEVEL DISABLED")
+endif()
+
 if(NOT MSVC)
   add_library(linq-netw
               ${linq_netw_SOURCES}

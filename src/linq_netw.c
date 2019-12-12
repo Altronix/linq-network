@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "linq_netw_internal.h"
+#include "log.h"
 #include "node.h"
 #include "zmtp.h"
 
@@ -19,6 +20,7 @@ typedef struct linq_netw_s
 static void
 on_zmtp_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 {
+    log_error("Receieved error from device [%d]", e);
     linq_netw_s* l = ctx;
     if (l->callbacks && l->callbacks->err) {
         l->callbacks->err(l->context, e, what, serial);
@@ -28,6 +30,7 @@ on_zmtp_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 static void
 on_zmtp_heartbeat(void* ctx, const char* serial, device_s** d)
 {
+    log_info("Received heartbeat [%s]", serial);
     linq_netw_s* l = ctx;
     if (l->callbacks && l->callbacks->hb) {
         l->callbacks->hb(l->context, serial, d);
@@ -41,6 +44,12 @@ on_zmtp_alert(
     linq_netw_email_s* email,
     device_s** d)
 {
+    log_info(
+        "Received alert [%s] [%s] [%s] [%s]",
+        alert->who,
+        alert->what,
+        alert->where,
+        alert->mesg);
     linq_netw_s* l = ctx;
     if (l->callbacks && l->callbacks->alert) {
         l->callbacks->alert(l->context, alert, email, d);
@@ -50,6 +59,7 @@ on_zmtp_alert(
 static void
 on_zmtp_ctrlc(void* ctx)
 {
+    log_info("Received shutdown signal");
     linq_netw_s* l = ctx;
     if (l->callbacks && l->callbacks->ctrlc) l->callbacks->ctrlc(l->context);
 }
@@ -65,6 +75,7 @@ static zmtp_callbacks_s zmtp_callbacks = {
 linq_netw_s*
 linq_netw_create(const linq_netw_callbacks* cb, void* context)
 {
+    log_trace("linq_netw_create()");
     linq_netw_s* l = linq_netw_malloc(sizeof(linq_netw_s));
     if (l) {
         l->devices = device_map_create();
@@ -80,6 +91,7 @@ linq_netw_create(const linq_netw_callbacks* cb, void* context)
 void
 linq_netw_destroy(linq_netw_s** linq_netw_p)
 {
+    log_trace("linq_netw_destroy()");
     linq_netw_s* l = *linq_netw_p;
     *linq_netw_p = NULL;
     zmtp_deinit(&l->zmtp);
@@ -91,6 +103,7 @@ linq_netw_destroy(linq_netw_s** linq_netw_p)
 void
 linq_netw_context_set(linq_netw_s* linq, void* ctx)
 {
+    log_trace("linq_netw_context_set()");
     linq->context = ctx;
 }
 
@@ -98,6 +111,7 @@ linq_netw_context_set(linq_netw_s* linq, void* ctx)
 linq_netw_socket
 linq_netw_listen(linq_netw_s* l, const char* ep)
 {
+    log_trace("linq_netw_listen()");
     return zmtp_listen(&l->zmtp, ep);
 }
 
@@ -105,18 +119,21 @@ linq_netw_listen(linq_netw_s* l, const char* ep)
 linq_netw_socket
 linq_netw_connect(linq_netw_s* l, const char* ep)
 {
+    log_trace("linq_netw_connect()");
     return zmtp_connect(&l->zmtp, ep);
 }
 
 E_LINQ_ERROR
 linq_netw_close_router(linq_netw_s* l, linq_netw_socket handle)
 {
+    log_trace("linq_netw_close_router()");
     return zmtp_close_router(&l->zmtp, handle);
 }
 
 E_LINQ_ERROR
 linq_netw_close_dealer(linq_netw_s* l, linq_netw_socket handle)
 {
+    log_trace("linq_netw_close_dealer()");
     return zmtp_close_dealer(&l->zmtp, handle);
 }
 
@@ -131,6 +148,7 @@ linq_netw_poll(linq_netw_s* l, int32_t ms)
 device_s**
 linq_netw_device(const linq_netw_s* l, const char* serial)
 {
+    log_trace("linq_netw_device()");
     return device_map_get(l->devices, serial);
 }
 
@@ -138,6 +156,7 @@ linq_netw_device(const linq_netw_s* l, const char* serial)
 uint32_t
 linq_netw_device_count(const linq_netw_s* l)
 {
+    log_trace("linq_netw_device_count()");
     return device_map_size(l->devices);
 }
 
@@ -175,6 +194,7 @@ linq_netw_devices_foreach(
 uint32_t
 linq_netw_nodes_count(const linq_netw_s* l)
 {
+    log_trace("linq_netw_nodes_count()");
     return node_map_size(l->nodes);
 }
 
@@ -187,6 +207,7 @@ linq_netw_device_send_get(
     linq_netw_request_complete_fn fn,
     void* context)
 {
+    log_trace("linq_netw_send_get() [%s]", path);
     return zmtp_device_send_get(&linq->zmtp, serial, path, fn, context);
 }
 
@@ -200,6 +221,7 @@ linq_netw_device_send_post(
     linq_netw_request_complete_fn fn,
     void* context)
 {
+    log_trace("linq_netw_device_send_post() [%s]", path);
     return zmtp_device_send_post(&linq->zmtp, serial, path, json, fn, context);
 }
 
@@ -212,5 +234,6 @@ linq_netw_device_send_delete(
     linq_netw_request_complete_fn fn,
     void* context)
 {
+    log_trace("linq_netw_device_send_delete() [%s]", path);
     return zmtp_device_send_delete(&linq->zmtp, serial, path, fn, context);
 }

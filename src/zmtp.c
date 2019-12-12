@@ -1,6 +1,7 @@
 #include "zmtp.h"
 #include "base64.h"
 #include "device.h"
+#include "log.h"
 #include "sys.h"
 
 #define JSMN_HEADER

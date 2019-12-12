@@ -9,6 +9,10 @@ option(BUILD_DEPENDENCIES "Whether or not to build the tests" ON)
 set(LINQ_BUILD_DEPENDENCIES
     ${BUILD_DEPENDENCIES}
     CACHE BOOL "Build the external directory for linq-netw")
+set(LINQ_LOG_LEVEL
+  "TRACE"
+  CACHE STRING 
+  "set logging to TRACE, DEBUG, INFO, WARN, ERROR, FATAL, NONE")
 
 # dependency install
 include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
