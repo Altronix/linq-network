@@ -84,8 +84,6 @@ main(int argc, char* argv[])
         printf("%s", "[S] Listen Failure!\n");
         linq_netw_destroy(&server);
         return -1;
-    } else {
-        printf("%s", "[S] Listening on port 33455...\n");
     }
 
     http = linq_netw_listen(server, "http://*:8000");

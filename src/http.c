@@ -5,6 +5,13 @@ static void
 http_ev_handler(struct mg_connection* c, int ev, void* p)
 {
     switch (ev) {
+        case MG_EV_POLL: break;
+        case MG_EV_ACCEPT: log_info("Received MG_EV_ACCEPT"); break;
+        case MG_EV_CONNECT: log_info("Received MG_EV_CONNECT"); break;
+        case MG_EV_RECV: log_info("Received MG_EV_RECV"); break;
+        case MG_EV_SEND: log_info("Received MG_EV_SEND"); break;
+        case MG_EV_CLOSE: log_info("Received MG_EV_CLOSE"); break;
+        case MG_EV_TIMER: log_info("Received MG_EV_TIMER"); break;
         case MG_EV_HTTP_REQUEST: log_info("Received HTTP Request"); break;
         case MG_EV_HTTP_REPLY: log_info("Received HTTP Reply"); break;
         case MG_EV_HTTP_CHUNK: log_info("Received HTTP Chunk"); break;

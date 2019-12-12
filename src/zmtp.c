@@ -347,13 +347,25 @@ process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
                 err_code = zframe_data(err)[1] | zframe_data(err)[0] << 8;
                 if (err_code == LINQ_ERROR_504) {
                     if (device_request_retry_count(*d) >= LINQ_NETW_MAX_RETRY) {
+                        log_info(
+                            "Recieved Response (%d) [%s]",
+                            err_code,
+                            device_serial(*d));
                         device_request_resolve(*d, err_code, json);
                         device_request_flush_w_check(*d);
                     } else {
+                        log_info(
+                            "Received Response (%d) [%s] ...retrying",
+                            err_code,
+                            device_serial(*d));
                         uint32_t retry = sys_tick() + LINQ_NETW_RETRY_TIMEOUT;
                         device_request_retry_at_set(*d, retry);
                     }
                 } else {
+                    log_info(
+                        "Received Response (%d) [%s]",
+                        err_code,
+                        device_serial(*d));
                     device_request_resolve(*d, err_code, json);
                     device_request_flush_w_check(*d);
                 }

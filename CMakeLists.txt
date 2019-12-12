@@ -56,6 +56,7 @@ if(ENABLE_TESTING)
   # Note COVERAGE_LCOV_EXCLUDE doesn't work
   append_coverage_compiler_flags()
   set(lcov_root ./src)
+  set(COVERAGE_LCOV_EXCLUDES "'./src/mongoose/*'")
 
   setup_target_for_coverage_lcov(NAME test-coverage
     EXECUTABLE test-containers

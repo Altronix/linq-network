@@ -108,6 +108,9 @@ linq_netw_destroy(linq_netw_s** linq_netw_p)
     zmtp_deinit(&l->zmtp);
     device_map_destroy(&l->devices);
     node_map_destroy(&l->nodes);
+#if WITH_MONGOOSE
+    http_deinit(&l->http);
+#endif
     linq_netw_free(l);
 }
 
@@ -125,15 +128,19 @@ linq_netw_listen(linq_netw_s* l, const char* ep)
     log_trace("linq_netw_listen()");
     int ep_len = strlen(ep);
     if (ep_len > 9 && !(memcmp(ep, "http://*:", 9))) {
+        log_info("Listening (HTTP) [%s]", &ep[9]);
         http_listen(&l->http, &ep[9]);
         return 0;
     } else if (ep_len > 15 && !(memcmp(ep, "http://0.0.0.0:", 15))) {
+        log_info("Listening (HTTP) [%s]", &ep[15]);
         http_listen(&l->http, &ep[15]);
         return 0;
     } else if (ep_len > 17 && !(memcmp(ep, "http://127.0.0.1:", 17))) {
+        log_info("Listening (HTTP) [%s]", &ep[17]);
         http_listen(&l->http, &ep[17]);
         return 0;
     } else {
+        log_info("Listening (ZMTP) [%s]", ep);
         return zmtp_listen(&l->zmtp, ep);
     }
 }
