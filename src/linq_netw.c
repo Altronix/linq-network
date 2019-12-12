@@ -7,6 +7,10 @@
 #include "node.h"
 #include "zmtp.h"
 
+#if WITH_MONGOOSE
+#include "http.h"
+#endif
+
 // Main class
 typedef struct linq_netw_s
 {

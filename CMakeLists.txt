@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(BUILD_DEPENDENCIES "Whether or not to build the tests" ON)
+option(WITH_MONGOOSE "Include HTTP support" ON)
 set(LINQ_BUILD_DEPENDENCIES
     ${BUILD_DEPENDENCIES}
     CACHE BOOL "Build the external directory for linq-netw")
@@ -22,11 +23,13 @@ if(LINQ_BUILD_DEPENDENCIES)
   include(cmake/czmq.cmake)
   include(cmake/klib.cmake)
   include(cmake/jsmn.cmake)
+  include(cmake/mongoose.cmake)
 else()
   find_package(czmq)
   find_package(libzmq)
   find_package(klib)
   find_package(jsmn)
+  find_package(mongoose)
 endif()
 
 if(ENABLE_TESTING)
