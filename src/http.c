@@ -12,7 +12,10 @@ http_ev_handler(struct mg_connection* c, int ev, void* p)
         case MG_EV_SEND: log_info("Received MG_EV_SEND"); break;
         case MG_EV_CLOSE: log_info("Received MG_EV_CLOSE"); break;
         case MG_EV_TIMER: log_info("Received MG_EV_TIMER"); break;
-        case MG_EV_HTTP_REQUEST: log_info("Received HTTP Request"); break;
+        case MG_EV_HTTP_REQUEST:
+            log_info("Received HTTP Request");
+            struct http_message* m = (struct http_message*)p;
+            break;
         case MG_EV_HTTP_REPLY: log_info("Received HTTP Reply"); break;
         case MG_EV_HTTP_CHUNK: log_info("Received HTTP Chunk"); break;
         case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST:
@@ -60,4 +63,5 @@ http_listen(http_s* http, const char* port)
         linq_netw_assert(http->listener);
     }
     http->listener = mg_bind(&http->connections, port, http_ev_handler);
+    mg_set_protocol_http_websocket(http->listener);
 }
