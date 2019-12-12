@@ -27,13 +27,13 @@ string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_connect,")
 string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_send,")
 string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_recv")
 
-add_executable(test-mocks main.c)
-set_target_properties(test-mocks PROPERTIES LINK_FLAGS ${wrap_flags})
-target_link_libraries(test-mocks
+add_executable(test-mock-czmq main.c)
+set_target_properties(test-mock-czmq PROPERTIES LINK_FLAGS ${wrap_flags})
+target_link_libraries(test-mock-czmq
                       mock-czmq
                       cmocka
                       helpers
                       linq-netw-test
 		      mock-czmq)
-add_test(NAME test-mocks COMMAND test-mocks)
-install(TARGETS test-mocks DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+add_test(NAME test-mock-czmq COMMAND test-mocks)
+install(TARGETS test-mock-czmq DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
