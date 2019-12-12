@@ -18,7 +18,7 @@ on_response(void* ctx, E_LINQ_ERROR e, const char* json, device_s** d)
     ((void)ctx);
     ((void)e);
     ((void)d);
-    printf("[S] Received response [%d] %s\n", e, json);
+    ((void)json);
     received_response = true;
 }
 
@@ -43,7 +43,6 @@ on_alert(
     ((void)alert);
     ((void)mail);
     ((void)d);
-    printf("%s", "[C] Received alert\n");
 }
 
 static void
@@ -51,7 +50,6 @@ on_heartbeat(void* ctx, const char* serial, device_s** d)
 {
     ((void)serial);
     ((void)d);
-    printf("%s", "[C] Received new device\n");
     linq_netw_s* linq = ctx;
     linq_netw_device_send_get(linq, serial, "/ATX/abosut", on_response, NULL);
 }
@@ -66,9 +64,7 @@ on_request_complete(void* pass, E_LINQ_ERROR e, const char* json, device_s** d)
     ((void)d);
     if (!e && !memcmp("{\"hello\":\"world\"}", json, 17)) {
         *((bool*)pass) = true;
-        printf("%s [%d]", "[C] received response\n", e);
     } else {
-        printf("%s [%d]", "[C] received response error!\n", e);
     }
 }
 
@@ -78,7 +74,7 @@ main(int argc, char* argv[])
     ((void)argc);
     ((void)argv);
     int err = -1;
-    linq_netw_socket s;
+    linq_netw_socket s, http;
 
     linq_netw_s* server = linq_netw_create(&callbacks, NULL);
     if (!server) { return -1; }
@@ -92,18 +88,14 @@ main(int argc, char* argv[])
         printf("%s", "[S] Listening on port 33455...\n");
     }
 
-    bool request_sent = false;
-    while (sys_running()) {
-        err = linq_netw_poll(server, 5);
-        // if (err) break;
-
-        if (!request_sent && linq_netw_device_count(server)) {
-            // printf("%s", "[C] Request Sent!");
-            // linq_netw_device_send_get(
-            //     server, "dummy", "/ATX/hello", on_request_complete, &pass);
-            // request_sent = true;
-        }
+    http = linq_netw_listen(server, "http://*:8000");
+    if (http == LINQ_ERROR_SOCKET) {
+        printf("%s", "[S] HTTP Listen Failure!\n");
+        linq_netw_destroy(&server);
+        return -1;
     }
+
+    while (sys_running()) { err = linq_netw_poll(server, 5); }
 
     linq_netw_destroy(&server);
 

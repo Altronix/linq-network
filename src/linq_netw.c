@@ -2,9 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "linq_netw_internal.h"
+#include "altronix/linq_netw.h"
 #include "log.h"
 #include "node.h"
+#include "sys.h"
 #include "zmtp.h"
 
 #if WITH_MONGOOSE
@@ -19,6 +20,9 @@ typedef struct linq_netw_s
     device_map_s* devices;
     node_map_s* nodes;
     zmtp_s zmtp;
+#if WITH_MONGOOSE
+    http_s http;
+#endif
 } linq_netw_s;
 
 static void
@@ -87,6 +91,9 @@ linq_netw_create(const linq_netw_callbacks* cb, void* context)
         l->callbacks = cb;
         l->context = context ? context : l;
         zmtp_init(&l->zmtp, &l->devices, &l->nodes, &zmtp_callbacks, l);
+#if WITH_MONGOOSE
+        http_init(&l->http);
+#endif
     }
     return l;
 }
@@ -116,7 +123,19 @@ linq_netw_socket
 linq_netw_listen(linq_netw_s* l, const char* ep)
 {
     log_trace("linq_netw_listen()");
-    return zmtp_listen(&l->zmtp, ep);
+    int ep_len = strlen(ep);
+    if (ep_len > 9 && !(memcmp(ep, "http://*:", 9))) {
+        http_listen(&l->http, &ep[9]);
+        return 0;
+    } else if (ep_len > 15 && !(memcmp(ep, "http://0.0.0.0:", 15))) {
+        http_listen(&l->http, &ep[15]);
+        return 0;
+    } else if (ep_len > 17 && !(memcmp(ep, "http://127.0.0.1:", 17))) {
+        http_listen(&l->http, &ep[17]);
+        return 0;
+    } else {
+        return zmtp_listen(&l->zmtp, ep);
+    }
 }
 
 // connect to a remote linq and send hello frames
@@ -141,11 +160,29 @@ linq_netw_close_dealer(linq_netw_s* l, linq_netw_socket handle)
     return zmtp_close_dealer(&l->zmtp, handle);
 }
 
+E_LINQ_ERROR
+linq_netw_close_http(linq_netw_s* l, linq_netw_socket sock)
+{
+    log_trace("linq_netw_close_http()");
+    ((void)l);
+    ((void)sock);
+    return LINQ_ERROR_OK;
+}
+
 // poll network socket file handles
 E_LINQ_ERROR
 linq_netw_poll(linq_netw_s* l, int32_t ms)
 {
-    return zmtp_poll(&l->zmtp, ms);
+    E_LINQ_ERROR err = zmtp_poll(&l->zmtp, ms);
+    if (err) log_error("zmtp_poll() error! [%d]", err);
+#if WITH_MONGOOSE
+    err = http_poll(&l->http, ms);
+    if (err) {
+        log_error("http_poll() error! [%d]", err);
+        err = LINQ_ERROR_IO;
+    }
+#endif
+    return err;
 }
 
 // get a device from the device map
