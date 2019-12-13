@@ -1,6 +1,17 @@
 #include "http.h"
 #include "log.h"
 
+#define HTTP_FORMAT_HEADERS                                                    \
+    "HTTP/1.0 %d \r\n"                                                         \
+    "Server: Linq Embedded Web Server\r\n"                                     \
+    "Connection: %s\r\n"                                                       \
+    "Content-Type: %s\r\n"                                                     \
+    "Content-Length: %d\r\n"                                                   \
+    "%s"                                                                       \
+    "X-Frame-Options: SAMEORIGIN\r\n"                                          \
+    "Content-Security-Policy: script-src 'self' 'unsafe-eval';\r\n"            \
+    "\r\n"
+
 static void
 http_ev_handler(struct mg_connection* c, int ev, void* p)
 {
@@ -15,6 +26,8 @@ http_ev_handler(struct mg_connection* c, int ev, void* p)
         case MG_EV_HTTP_REQUEST:
             log_info("%06s %04s", "(HTTP)", "Request");
             struct http_message* m = (struct http_message*)p;
+            ((void)m);
+            http_printf_json(c, 200, "{\"hello\":\"%s\"}", "world");
             break;
         case MG_EV_HTTP_REPLY: log_info("%06s %04s", "(HTTP)", "Reply"); break;
         case MG_EV_HTTP_CHUNK: log_info("%06s %04s", "(HTTP)", "Chunk"); break;
@@ -67,4 +80,52 @@ http_listen(http_s* http, const char* port)
     }
     http->listener = mg_bind(&http->connections, port, http_ev_handler);
     mg_set_protocol_http_websocket(http->listener);
+}
+
+void
+http_printf_json(void* c, int code, const char* fmt, ...)
+{
+    size_t l;
+    va_list ap;
+
+    // Get Content-Length
+    va_start(ap, fmt);
+    l = vsnprintf(NULL, 0, fmt, ap);
+    va_end(ap);
+
+    // Send data
+    va_start(ap, fmt);
+    http_vprintf(c, code, "application/json", l, fmt, ap);
+    va_end(ap);
+}
+
+void
+http_printf(void* connection, int code, const char* type, const char* fmt, ...)
+{
+    size_t l;
+    va_list ap;
+
+    // Get Content-Length
+    va_start(ap, fmt);
+    l = vsnprintf(NULL, 0, fmt, ap);
+    va_end(ap);
+
+    // Send data
+    va_start(ap, fmt);
+    http_vprintf(connection, code, type, l, fmt, ap);
+    va_end(ap);
+}
+
+void
+http_vprintf(
+    void* c,
+    int code,
+    const char* type,
+    uint32_t l,
+    const char* fmt,
+    va_list list)
+{
+    // Send headers
+    mg_printf(c, HTTP_FORMAT_HEADERS, code, "keep-alive", type, l, "");
+    mg_vprintf(c, fmt, list);
 }

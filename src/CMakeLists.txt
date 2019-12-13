@@ -41,9 +41,9 @@ endif()
 
 if (WITH_MONGOOSE)
   MESSAGE(STATUS "MONGOOSE ENABLED")
-  add_definitions(-DWITH_MONGOOSE)
-  add_definitions(-DMG_ENABLE_HTTP_STREAMING_MULTIPART)
-  add_definitions(-DMG_ENABLE_WEBSOCKET)
+  list(APPEND definitions "-DWITH_MONGOOSE")
+  list(APPEND definitions "-DMG_ENABLE_HTTP_STREAMING_MULTIPART")
+  list(APPEND definitions "-DMG_ENABLE_WEBSOCKET")
   list(APPEND linq_netw_HEADERS mongoose.h http.h)
   list(APPEND linq_netw_SOURCES mongoose.c http.c)
 else()
@@ -66,6 +66,7 @@ if(NOT MSVC)
                         m
                         stdc++
                         uuid)
+  target_compile_definitions(linq-netw PUBLIC ${definitions})
   target_include_directories(linq-netw PUBLIC ../include)
   target_include_directories(linq-netw PUBLIC ./unix)
 else()
@@ -86,6 +87,7 @@ else()
                         ${CMAKE_THREAD_LIBS_INIT}
                         uuid
                         Rpcrt4)
+  target_compile_definitions(linq-netw PUBLIC ${definitions})
   target_include_directories(linq-netw PUBLIC ../include)
   target_include_directories(linq-netw PUBLIC ./win)
 endif()
@@ -106,6 +108,7 @@ if(ENABLE_TESTING)
                         m
                         stdc++
                         uuid)
+  target_compile_definitions(linq-netw-test PUBLIC ${definitions})
   target_include_directories(linq-netw-test PUBLIC ../include)
   target_include_directories(linq-netw-test PUBLIC ./)
   target_include_directories(linq-netw-test PUBLIC ./mock)

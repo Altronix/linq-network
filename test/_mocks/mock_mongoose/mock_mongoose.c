@@ -170,3 +170,34 @@ __wrap_mg_mgr_poll(struct mg_mgr* m, int timeout_ms)
     ((void)timeout_ms);
     return -1;
 }
+
+int
+__wrap_mg_printf(struct mg_connection* c, const char* fmt, ...)
+{
+    ((void)c);
+    ((void)fmt);
+    return -1;
+}
+
+int
+__wrap_mg_vprintf(struct mg_connection* c, const char* fmt, va_list list)
+{
+    ((void)c);
+    ((void)fmt);
+    ((void)list);
+    return 0;
+}
+
+void
+__wrap_mg_printf_http_chunk(struct mg_connection* nc, const char* fmt, ...)
+{
+    ((void)nc);
+    ((void)fmt);
+}
+
+void
+__wrap_mg_printf_html_escape(struct mg_connection* nc, const char* fmt, ...)
+{
+    ((void)nc);
+    ((void)fmt);
+}
