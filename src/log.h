@@ -72,7 +72,7 @@ extern "C"
 #endif
 
 #define FMT_STRING                                                             \
-    "\x1b[37m==>\x1b[0m%7ld %s%s\x1b[0m \x1b[35m%15s:%05d\x1b[0m "
+    "\x1b[37m=>\x1b[0m%7ld %s%s\x1b[0m \x1b[35m%15s:%05d\x1b[0m "
 
     static const char* level_names[] = { "TRACE", "DEBUG", "INFO ",
                                          "WARN ", "ERROR", "FATAL" };

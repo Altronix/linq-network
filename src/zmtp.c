@@ -347,7 +347,7 @@ process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
                 err_code = zframe_data(err)[1] | zframe_data(err)[0] << 8;
                 if (err_code == LINQ_ERROR_504) {
                     if (device_request_retry_count(*d) >= LINQ_NETW_MAX_RETRY) {
-                        log_info(
+                        log_warn(
                             "%20s (%d) [%s]",
                             "Recieved Response",
                             err_code,
@@ -355,7 +355,7 @@ process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
                         device_request_resolve(*d, err_code, json);
                         device_request_flush_w_check(*d);
                     } else {
-                        log_info(
+                        log_warn(
                             "%20s (%d) [%s] ...retrying",
                             "Received Response",
                             err_code,
