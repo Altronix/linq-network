@@ -51,6 +51,7 @@ if(ENABLE_TESTING)
   add_subdirectory(test/linq-netw)
   add_subdirectory(test/device)
   add_subdirectory(test/devices)
+  add_subdirectory(test/http)
   add_subdirectory(bindings/cpp/test)
 
   # add test coverage

@@ -84,7 +84,8 @@ flags = [
 
 '-I./test/_fixture',
 '-I./test/_helpers',
-'-I./test/_mocks',
+'-I./test/_mocks/mock_czmq',
+'-I./test/_mocks/mock_mongoose',
 '-I./test/linq',
 '-I./include',
 '-I./src',

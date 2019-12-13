@@ -12,7 +12,7 @@ function(mock_mongoose_linker_flags dst)
   string(CONCAT wrap_flags ${wrap_flags} "--wrap=mg_mgr_init,")
   string(CONCAT wrap_flags ${wrap_flags} "--wrap=mg_mgr_free,")
   string(CONCAT wrap_flags ${wrap_flags} "--wrap=mg_mgr_poll,")
-  string(CONCAT wrap_flags ${wrap_flags} "--wrap=mg_mgr_bind")
+  string(CONCAT wrap_flags ${wrap_flags} "--wrap=mg_bind")
   set(${dst} ${wrap_flags} PARENT_SCOPE)
 endfunction()
 

@@ -137,3 +137,36 @@ mongoose_spy_event_close_push(int handle)
     event->ev = MG_EV_CLOSE;
     event_list_push(incoming_events, &event);
 }
+
+void
+__wrap_mg_mgr_init(struct mg_mgr* m, void* user_data)
+{
+    ((void)m);
+    ((void)user_data);
+}
+
+void
+__wrap_mg_mgr_free(struct mg_mgr* m)
+{
+    ((void)m);
+}
+
+struct mg_connection*
+__wrap_mg_bind(
+    struct mg_mgr* srv,
+    const char* address,
+    MG_CB(mg_event_handler_t event_handler, void* user_data))
+{
+    ((void)srv);
+    ((void)address);
+    ((void)event_handler);
+    return NULL;
+}
+
+int
+__wrap_mg_mgr_poll(struct mg_mgr* m, int timeout_ms)
+{
+    ((void)m);
+    ((void)timeout_ms);
+    return -1;
+}
