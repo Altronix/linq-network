@@ -35,5 +35,5 @@ target_link_libraries(test-mock-czmq
                       helpers
                       linq-netw-test
 		      mock-czmq)
-add_test(NAME test-mock-czmq COMMAND test-mocks)
+add_test(NAME test-mock-czmq COMMAND test-mock-czmq)
 install(TARGETS test-mock-czmq DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

@@ -55,7 +55,12 @@ if(ENABLE_TESTING)
 
   # add test coverage
   APPEND_COVERAGE_COMPILER_FLAGS()
-  set(COVERAGE_LCOV_EXCLUDES 'examples/*' 'src/mongoose/*')
+  set(COVERAGE_LCOV_EXCLUDES 
+    '${PROJECT_SOURCE_DIR}/examples/*' 
+    '${PROJECT_SOURCE_DIR}/src/base64.*'   # external copy/pasted
+    '${PROJECT_SOURCE_DIR}/src/mongoose.*' # external copy/pasted
+    '${PROJECT_SOURCE_DIR}/src/mock/*'
+    '${PROJECT_SOURCE_DIR}/external/*')
 
   setup_target_for_coverage_lcov(NAME test-coverage
     EXECUTABLE test-containers
