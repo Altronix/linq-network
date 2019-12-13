@@ -7,6 +7,19 @@
 #include <cmocka.h>
 
 static void
+test_mock_alloc(void** context_p)
+{
+    ((void)context_p);
+    mongoose_spy_init();
+
+    mongoose_spy_event_request_push("admin:admin", "GET", "/ATX/hello", NULL);
+    mongoose_spy_event_request_push(
+        "admin:admin", "POST", "/ATX/hello", "{\"hello\":\"world\"}");
+
+    mongoose_spy_deinit();
+}
+
+static void
 test_mock_push_incoming(void** context_p)
 {
     ((void)context_p);

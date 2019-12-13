@@ -16,6 +16,7 @@ string(CONCAT wrap_flags ${wrap_flags} "--wrap=mg_mgr_bind")
 add_executable(test-mock-mongoose main.c)
 set_target_properties(test-mock-mongoose PROPERTIES LINK_FLAGS ${wrap_flags})
 target_link_libraries(test-mock-mongoose
+                      mock-mongoose
                       cmocka
                       helpers)
 add_test(NAME test-mock-mongoose COMMAND test-mock-mongoose)

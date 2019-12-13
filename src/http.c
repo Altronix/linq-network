@@ -31,6 +31,9 @@ http_ev_handler(struct mg_connection* c, int ev, void* p)
         case MG_EV_HTTP_MULTIPART_REQUEST_END:
             log_info("%06s %04s", "(HTTP)", "Recv");
             break;
+        default:
+            log_error("%06s %04s %s (%d)", "(HTTP)", "Recv", "Unkown", ev);
+            break;
     }
 }
 
