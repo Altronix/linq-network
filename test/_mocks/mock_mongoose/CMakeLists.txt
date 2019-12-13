@@ -7,11 +7,16 @@ target_link_libraries(mock-mongoose
 		      stdc++)
 target_include_directories(mock-mongoose PUBLIC .)
 
-string(CONCAT wrap_flags "-Wl,")
-string(CONCAT wrap_flags ${wrap_flags} "--wrap=mg_mgr_init,")
-string(CONCAT wrap_flags ${wrap_flags} "--wrap=mg_mgr_free,")
-string(CONCAT wrap_flags ${wrap_flags} "--wrap=mg_mgr_poll,")
-string(CONCAT wrap_flags ${wrap_flags} "--wrap=mg_mgr_bind")
+function(mock_mongoose_linker_flags dst)
+  string(CONCAT wrap_flags "-Wl,")
+  string(CONCAT wrap_flags ${wrap_flags} "--wrap=mg_mgr_init,")
+  string(CONCAT wrap_flags ${wrap_flags} "--wrap=mg_mgr_free,")
+  string(CONCAT wrap_flags ${wrap_flags} "--wrap=mg_mgr_poll,")
+  string(CONCAT wrap_flags ${wrap_flags} "--wrap=mg_mgr_bind")
+  set(${dst} ${wrap_flags} PARENT_SCOPE)
+endfunction()
+
+mock_mongoose_linker_flags(wrap_flags)
 
 add_executable(test-mock-mongoose main.c)
 set_target_properties(test-mock-mongoose PROPERTIES LINK_FLAGS ${wrap_flags})
