@@ -28,7 +28,7 @@ typedef struct linq_netw_s
 static void
 on_zmtp_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 {
-    log_error("%20s [%d]", "Receieved error from device", e);
+    log_error("%06s %04s [%d]", "(ZMTP)", "Event error", e);
     linq_netw_s* l = ctx;
     if (l->callbacks && l->callbacks->err) {
         l->callbacks->err(l->context, e, what, serial);
@@ -38,7 +38,7 @@ on_zmtp_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 static void
 on_zmtp_heartbeat(void* ctx, const char* serial, device_s** d)
 {
-    log_info("%20s", "Received heartbeat", serial);
+    log_info("%06s %04s [%s]", "(ZMTP)", "Event heartbeat", serial);
     linq_netw_s* l = ctx;
     if (l->callbacks && l->callbacks->hb) {
         l->callbacks->hb(l->context, serial, d);
@@ -53,8 +53,9 @@ on_zmtp_alert(
     device_s** d)
 {
     log_info(
-        "%20s [%s] [%s] [%s] [%s]",
-        "Received alert",
+        "%06s %04s [%s] [%s] [%s] [%s]",
+        "(ZMTP)",
+        "Event",
         alert->who,
         alert->what,
         alert->where,
@@ -68,7 +69,7 @@ on_zmtp_alert(
 static void
 on_zmtp_ctrlc(void* ctx)
 {
-    log_info("%20s", "Received shutdown signal");
+    log_info("%06s %04s", "Received shutdown signal");
     linq_netw_s* l = ctx;
     if (l->callbacks && l->callbacks->ctrlc) l->callbacks->ctrlc(l->context);
 }
@@ -84,7 +85,6 @@ static zmtp_callbacks_s zmtp_callbacks = {
 linq_netw_s*
 linq_netw_create(const linq_netw_callbacks* cb, void* context)
 {
-    log_trace("%20s", "linq_netw_create()");
     linq_netw_s* l = linq_netw_malloc(sizeof(linq_netw_s));
     if (l) {
         l->devices = device_map_create();
@@ -103,7 +103,6 @@ linq_netw_create(const linq_netw_callbacks* cb, void* context)
 void
 linq_netw_destroy(linq_netw_s** linq_netw_p)
 {
-    log_trace("%20s", "linq_netw_destroy()");
     linq_netw_s* l = *linq_netw_p;
     *linq_netw_p = NULL;
     zmtp_deinit(&l->zmtp);
@@ -118,7 +117,6 @@ linq_netw_destroy(linq_netw_s** linq_netw_p)
 void
 linq_netw_context_set(linq_netw_s* linq, void* ctx)
 {
-    log_trace("%20s", "linq_netw_context_set()");
     linq->context = ctx;
 }
 
@@ -126,22 +124,21 @@ linq_netw_context_set(linq_netw_s* linq, void* ctx)
 linq_netw_socket
 linq_netw_listen(linq_netw_s* l, const char* ep)
 {
-    log_trace("%20s", "linq_netw_listen()");
     int ep_len = strlen(ep);
     if (ep_len > 9 && !(memcmp(ep, "http://*:", 9))) {
-        log_info("%20s [%s]", "Listening (HTTP)", &ep[9]);
+        log_info("%06s %04s [%s]", "(HTTP)", "Listening", &ep[9]);
         http_listen(&l->http, &ep[9]);
         return 0;
     } else if (ep_len > 15 && !(memcmp(ep, "http://0.0.0.0:", 15))) {
-        log_info("%20s [%s]", "Listening (HTTP)", &ep[15]);
+        log_info("%06s %04s [%s]", "(HTTP)", "Listening", &ep[15]);
         http_listen(&l->http, &ep[15]);
         return 0;
     } else if (ep_len > 17 && !(memcmp(ep, "http://127.0.0.1:", 17))) {
-        log_info("%20s [%s]", "Listening (HTTP)", &ep[17]);
+        log_info("%06s %04s [%s]", "(HTTP)", "Listening", &ep[17]);
         http_listen(&l->http, &ep[17]);
         return 0;
     } else {
-        log_info("%20s", "Listening (ZMTP)", ep);
+        log_info("%06s %04s [%s]", "(ZMTP)", "Listening", ep);
         return zmtp_listen(&l->zmtp, ep);
     }
 }
@@ -150,28 +147,24 @@ linq_netw_listen(linq_netw_s* l, const char* ep)
 linq_netw_socket
 linq_netw_connect(linq_netw_s* l, const char* ep)
 {
-    log_trace("%20s", "linq_netw_connect()");
     return zmtp_connect(&l->zmtp, ep);
 }
 
 E_LINQ_ERROR
 linq_netw_close_router(linq_netw_s* l, linq_netw_socket handle)
 {
-    log_trace("%20s", "linq_netw_close_router()");
     return zmtp_close_router(&l->zmtp, handle);
 }
 
 E_LINQ_ERROR
 linq_netw_close_dealer(linq_netw_s* l, linq_netw_socket handle)
 {
-    log_trace("%20s", "linq_netw_close_dealer()");
     return zmtp_close_dealer(&l->zmtp, handle);
 }
 
 E_LINQ_ERROR
 linq_netw_close_http(linq_netw_s* l, linq_netw_socket sock)
 {
-    log_trace("%20s", "linq_netw_close_http()");
     ((void)l);
     ((void)sock);
     return LINQ_ERROR_OK;
@@ -182,13 +175,10 @@ E_LINQ_ERROR
 linq_netw_poll(linq_netw_s* l, int32_t ms)
 {
     E_LINQ_ERROR err = zmtp_poll(&l->zmtp, ms);
-    if (err) log_error("%20s", "zmtp_poll() error!", err);
+    if (err) log_error("%06s %04s", "(ZMTP)", "Poll err", err);
 #if WITH_MONGOOSE
     err = http_poll(&l->http, ms);
-    if (err) {
-        log_error("%20s", "http_poll() error!", err);
-        err = LINQ_ERROR_IO;
-    }
+    if (err) { err = LINQ_ERROR_IO; }
 #endif
     return err;
 }
@@ -197,7 +187,6 @@ linq_netw_poll(linq_netw_s* l, int32_t ms)
 device_s**
 linq_netw_device(const linq_netw_s* l, const char* serial)
 {
-    log_trace("%20s", "linq_netw_device()");
     return device_map_get(l->devices, serial);
 }
 
@@ -205,7 +194,6 @@ linq_netw_device(const linq_netw_s* l, const char* serial)
 uint32_t
 linq_netw_device_count(const linq_netw_s* l)
 {
-    log_trace("%20s", "linq_netw_device_count()");
     return device_map_size(l->devices);
 }
 
@@ -243,7 +231,6 @@ linq_netw_devices_foreach(
 uint32_t
 linq_netw_nodes_count(const linq_netw_s* l)
 {
-    log_trace("%20s", "linq_netw_nodes_count()");
     return node_map_size(l->nodes);
 }
 
@@ -256,7 +243,6 @@ linq_netw_device_send_get(
     linq_netw_request_complete_fn fn,
     void* context)
 {
-    log_trace("%20s [%s]", "linq_netw_send_get()", path);
     return zmtp_device_send_get(&linq->zmtp, serial, path, fn, context);
 }
 
@@ -270,7 +256,6 @@ linq_netw_device_send_post(
     linq_netw_request_complete_fn fn,
     void* context)
 {
-    log_trace("%20s [%s]", "linq_netw_device_send_post()", path);
     return zmtp_device_send_post(&linq->zmtp, serial, path, json, fn, context);
 }
 
@@ -283,6 +268,5 @@ linq_netw_device_send_delete(
     linq_netw_request_complete_fn fn,
     void* context)
 {
-    log_trace("%20s [%s]", "linq_netw_device_send_delete()", path);
     return zmtp_device_send_delete(&linq->zmtp, serial, path, fn, context);
 }
