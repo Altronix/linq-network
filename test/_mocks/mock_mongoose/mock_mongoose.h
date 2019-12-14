@@ -2,7 +2,7 @@
 #define MOCK_MONGOOSE_H
 
 #include "mongoose.h"
-#include "parse_http_response.h"
+#include "parse_http.h"
 
 #ifdef __cplusplus
 extern "C"

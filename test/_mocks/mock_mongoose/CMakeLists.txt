@@ -3,8 +3,8 @@
 # --------------------------------------------------------------------------
 add_library(mock-mongoose 
   mock_mongoose.c
-  parse_http_response.c
-  parse_http_response.h)
+  parse_http.c
+  parse_http.h)
 
 target_link_libraries(mock-mongoose
   linq-netw-test
