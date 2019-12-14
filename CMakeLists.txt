@@ -68,6 +68,7 @@ if(ENABLE_TESTING)
     COMMAND test-linq-netw
     COMMAND test-device
     COMMAND test-devices
+    COMMAND test-http
     COMMAND binding-linq-netw-cpp-test)
 endif()
 

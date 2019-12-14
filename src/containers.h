@@ -15,6 +15,14 @@ extern "C"
 {
 #endif
 
+#define GENERIC_FREE_FN(type)                                                  \
+    void type##_free_fn(type** ctx_p)                                          \
+    {                                                                          \
+        type* ctx = *ctx_p;                                                    \
+        *ctx_p = NULL;                                                         \
+        linq_netw_free(ctx);                                                   \
+    }
+
     static inline void __list_free_fn(void* ctx) { ((void)ctx); }
 #define FREE_FN(x) __list_free_fn(x->data)
 
@@ -85,6 +93,10 @@ extern "C"
     khiter_t tag##_map_key(tag##_map_s* hash, const char* serial);             \
     uint32_t tag##_map_size(tag##_map_s* hash);                                \
     void tag##_map_foreach(tag##_map_s*, tag##_map_foreach_fn, void*);
+
+#define MAP_INIT_W_FREE(tag, type)                                             \
+    GENERIC_FREE_FN(type)                                                      \
+    MAP_INIT(tag, type, type##_free_fn)
 
 #define MAP_INIT(tag, type, map_free_fn)                                       \
     KHASH_MAP_INIT_STR(tag, type*)                                             \

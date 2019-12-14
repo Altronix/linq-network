@@ -49,6 +49,7 @@ flags = [
 '-DWITH_MONGOOSE',
 '-DMG_ENABLE_HTTP_WEBSOCKET',
 '-DMG_ENABLE_HTTP_STREAMING_MULTIPART',
+'-DMG_ENABLE_CALLBACK_USERDATA',
 # THIS IS IMPORTANT! Without a "-std=<something>" flag, clang won't know which
 # language to use when compiling headers. So it will guess. Badly. So C++
 # headers will be compiled as C headers. You don't want that so ALWAYS specify
@@ -72,6 +73,7 @@ flags = [
 '-I./external/czmq/include',
 '-I./external/libzmq/include',
 '-I./external/cmocka/include',
+'-I./external/http_parser/',
 '-I./external/klib',
 '-I./external/linq-common/libatx',
 '-I./external/linq-common/libitem/json',

@@ -1,7 +1,11 @@
 #include "mock_mongoose.h"
 #include "base64.h"
 #include "containers.h"
+#include "http_parser.h"
 #include "mongoose.h"
+#include "parse_http_response.h"
+
+#include "cmocka.h"
 
 #define HEADERS                                                                \
     "GET %s HTTP/1.1\r\n"                                                      \
@@ -44,9 +48,9 @@ typedef struct mock_mongoose_event
     struct http_message message;
     char request[2048];
 } mock_mongoose_event;
-static void
 
 // Free mock event
+static void
 mock_mongoose_event_destroy(mock_mongoose_event** ev_p)
 {
     mock_mongoose_event* event = *ev_p;
@@ -57,13 +61,36 @@ mock_mongoose_event_destroy(mock_mongoose_event** ev_p)
 // Linked list of mock events
 LIST_INIT(event, mock_mongoose_event, mock_mongoose_event_destroy);
 
+// Any outgoing responses
+typedef mongoose_parser_context mock_mongoose_response;
+
+// Free outgoing event
+static void
+mock_mongoose_response_destroy(mock_mongoose_response** resp_p)
+{
+    mock_mongoose_response* resp = *resp_p;
+    *resp_p = NULL;
+    linq_netw_free(resp);
+}
+// Linked list of outgoing responses
+LIST_INIT(response, mock_mongoose_response, mock_mongoose_response_destroy);
+
+// TODO eventually we want to map events and responses to a handle
+// Right now this only supports testing single connection
 static event_list_s* incoming_events = NULL;
+static response_list_s* outgoing_responses = NULL;
+
+// Callers event handler
+typedef void(ev_handler)(struct mg_connection* nc, int, void*, void*);
+static ev_handler* test_event_handler = NULL;
+static void* test_user_data = NULL;
 
 // Call before your test
 void
 mongoose_spy_init()
 {
     incoming_events = event_list_create();
+    outgoing_responses = response_list_create();
 }
 
 // Call after your test
@@ -71,6 +98,7 @@ void
 mongoose_spy_deinit()
 {
     event_list_destroy(&incoming_events);
+    response_list_destroy(&outgoing_responses);
 }
 
 static mock_mongoose_event*
@@ -151,15 +179,24 @@ __wrap_mg_mgr_free(struct mg_mgr* m)
     ((void)m);
 }
 
+void
+__wrap_mg_set_protocol_http_websocket(struct mg_connection* nc)
+{
+    ((void)nc);
+}
+
 struct mg_connection*
 __wrap_mg_bind(
     struct mg_mgr* srv,
     const char* address,
-    MG_CB(mg_event_handler_t event_handler, void* user_data))
+    mg_event_handler_t event_handler,
+    void* user_data)
 {
     ((void)srv);
     ((void)address);
     ((void)event_handler);
+    test_event_handler = event_handler;
+    test_user_data = user_data;
     return NULL;
 }
 
@@ -168,14 +205,35 @@ __wrap_mg_mgr_poll(struct mg_mgr* m, int timeout_ms)
 {
     ((void)m);
     ((void)timeout_ms);
-    return -1;
+    int count = 0;
+    mock_mongoose_event* ev = event_list_pop(incoming_events);
+    if (ev) {
+        count = 1;
+        (*test_event_handler)(NULL, ev->ev, &ev->message, test_user_data);
+        mock_mongoose_event_destroy(&ev);
+    }
+    return count;
 }
 
 int
 __wrap_mg_printf(struct mg_connection* c, const char* fmt, ...)
 {
     ((void)c);
-    ((void)fmt);
+    va_list list;
+    size_t l;
+    char response[4098];
+    http_parser parser;
+
+    va_start(list, fmt);
+    l = vsnprintf(response, sizeof(response), fmt, list);
+    va_end(list);
+
+    mock_mongoose_response* r =
+        linq_netw_malloc(sizeof(mongoose_parser_context));
+    linq_netw_assert(r);
+    mongoose_parser_init(&parser, r);
+    mongoose_parser_parse(&parser, response, l);
+    response_list_push(outgoing_responses, &r);
     return -1;
 }
 
@@ -185,6 +243,7 @@ __wrap_mg_vprintf(struct mg_connection* c, const char* fmt, va_list list)
     ((void)c);
     ((void)fmt);
     ((void)list);
+    assert_string_equal(NULL, "__wrap_mg_vprintf() not implemented");
     return 0;
 }
 
@@ -193,6 +252,7 @@ __wrap_mg_printf_http_chunk(struct mg_connection* nc, const char* fmt, ...)
 {
     ((void)nc);
     ((void)fmt);
+    assert_string_equal(NULL, "__wrap_mg_printf_chunk() not implemented");
 }
 
 void
@@ -200,4 +260,5 @@ __wrap_mg_printf_html_escape(struct mg_connection* nc, const char* fmt, ...)
 {
     ((void)nc);
     ((void)fmt);
+    assert_string_equal(NULL, "__wrap_mg_printf_html_escape() not implemented");
 }

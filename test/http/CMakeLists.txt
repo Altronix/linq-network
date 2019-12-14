@@ -8,7 +8,6 @@ target_link_libraries(test-http
 		      cmocka)
 
 mock_mongoose_linker_flags(wrap_flags)
-message(STATUS ${wrap_flags})
 set_target_properties(test-http PROPERTIES LINK_FLAGS ${wrap_flags})
 add_test(NAME test-http COMMAND test-http)
 install(TARGETS test-http DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

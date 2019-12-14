@@ -1,8 +1,12 @@
-add_library(helpers helpers.c helpers.h)
+add_library(helpers 
+  helpers.c 
+  helpers.h)
+
 target_link_libraries(helpers
-                      linq-netw-test
-		      mock-czmq
-		      mock-mongoose
-		      stdc++
-		      uuid)
+  linq-netw-test
+  mock-czmq
+  mock-mongoose
+  stdc++
+  uuid)
+
 target_include_directories(helpers PUBLIC .)

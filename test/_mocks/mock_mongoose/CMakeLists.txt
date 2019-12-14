@@ -1,16 +1,24 @@
 # --------------------------------------------------------------------------
 # Lib of mock functions for test
 # --------------------------------------------------------------------------
-add_library(mock-mongoose mock_mongoose.c)
+add_library(mock-mongoose 
+  mock_mongoose.c
+  parse_http_response.c
+  parse_http_response.h)
+
 target_link_libraries(mock-mongoose
-                      linq-netw-test
-		      stdc++)
+  linq-netw-test
+  http-parser
+  cmocka
+  stdc++)
+
 target_include_directories(mock-mongoose PUBLIC .)
 
 function(mock_mongoose_linker_flags dst)
   string(CONCAT wrap_flags "-Wl,")
   string(CONCAT wrap_flags ${wrap_flags} "--wrap=mg_mgr_init,")
   string(CONCAT wrap_flags ${wrap_flags} "--wrap=mg_mgr_free,")
+  string(CONCAT wrap_flags ${wrap_flags} "--wrap=mg_set_protocol_http_websocket,")
   string(CONCAT wrap_flags ${wrap_flags} "--wrap=mg_mgr_poll,")
   string(CONCAT wrap_flags ${wrap_flags} "--wrap=mg_printf,")
   string(CONCAT wrap_flags ${wrap_flags} "--wrap=mg_vprintf,")

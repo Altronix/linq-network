@@ -1,5 +1,8 @@
 #ifndef MOCK_MONGOOSE_H
 #define MOCK_MONGOOSE_H
+
+#include "mongoose.h"
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -14,6 +17,8 @@ extern "C"
         const char* data);
 
     void mongoose_spy_event_close_push(int handle);
+    void mongoose_spy_set_ev_handler(mg_event_handler_t *ev, void*);
+
 #ifdef __cplusplus
 }
 #endif
