@@ -41,6 +41,7 @@ extern "C"
         mock_mongoose_outgoing_data** data_p);
     void mongoose_spy_event_close_push(int handle);
     mock_mongoose_outgoing_data* mongoose_spy_outgoing_data_pop(int n);
+    mongoose_parser_context* mongoose_spy_response_pop();
     void mongoose_spy_set_ev_handler(mg_event_handler_t* ev, void*);
     void mock_mongoose_response_destroy(mock_mongoose_response** resp_p);
 

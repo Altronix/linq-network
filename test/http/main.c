@@ -50,11 +50,11 @@ test_http_simple_get(void** context_p)
     mongoose_spy_event_request_push("admin:admin", "GET", "/hello", NULL);
     while (http_poll(&http, 0)) {};
 
-    // TODO - need to parse request to populate the callback properly
-    // mongoose_parser_context* response = mongoose_spy_response_pop();
-    // assert_non_null(response);
-    // assert_memory_equal(response->body, "{\"hello\":\"world\"}", 17);
-    // mock_mongoose_response_destroy(&response);
+    mongoose_parser_context* response = mongoose_spy_response_pop();
+    assert_non_null(response);
+    assert_int_equal(response->content_length, 17);
+    assert_memory_equal(response->body, "{\"hello\":\"world\"}", 17);
+    mock_mongoose_response_destroy(&response);
 
     http_deinit(&http);
     mongoose_spy_deinit();

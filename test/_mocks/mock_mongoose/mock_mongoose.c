@@ -91,6 +91,14 @@ mongoose_spy_deinit()
     outgoing_data_list_destroy(&outgoing_data);
 }
 
+void
+mock_mongoose_response_destroy(mock_mongoose_response** resp_p)
+{
+    mock_mongoose_response* resp = *resp_p;
+    *resp_p = NULL;
+    linq_netw_free(resp);
+}
+
 static mock_mongoose_event*
 event_copy(mock_mongoose_event* src, int ev)
 {
@@ -175,10 +183,30 @@ mongoose_spy_outgoing_data_pop(int i)
             linq_netw_assert(spot + n->l < sizeof(d->mem));
             snprintf(&d->mem[spot], sizeof(d->mem) - spot, n->mem, n->l);
             spot += n->l;
+            d->l += n->l;
             mock_mongoose_outgoing_data_destroy(&n);
         }
         return d;
     }
+}
+
+mongoose_parser_context*
+mongoose_spy_response_pop()
+{
+    http_parser parser;
+
+    // Allocate return
+    mongoose_parser_context* ctx =
+        linq_netw_malloc(sizeof(mongoose_parser_context));
+    linq_netw_assert(ctx);
+
+    // Prepare to parse outgoing data
+    mongoose_parser_init(&parser, ctx, HTTP_RESPONSE);
+    mock_mongoose_outgoing_data* d = mongoose_spy_outgoing_data_pop(2);
+    linq_netw_assert(d);
+    mongoose_parser_parse(&parser, d->mem, d->l);
+    mock_mongoose_outgoing_data_destroy(&d);
+    return ctx;
 }
 
 void

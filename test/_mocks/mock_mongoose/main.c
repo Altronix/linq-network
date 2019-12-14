@@ -32,6 +32,7 @@ test_mock_push_incoming(void** context_p)
 
     mock_mongoose_outgoing_data* data = mongoose_spy_outgoing_data_pop(4);
     assert_memory_equal(data->mem, "abcd", 4);
+    assert_int_equal(data->l, 4);
     mock_mongoose_outgoing_data_destroy(&data);
 
     mongoose_spy_deinit();
