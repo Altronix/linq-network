@@ -12,11 +12,16 @@
 #include <setjmp.h>
 
 static void
-test_http_hello_route(void* ctx, HTTP_METHOD meth, uint32_t l, const char* body)
+test_http_hello_route(
+    http_route_context* ctx,
+    HTTP_METHOD meth,
+    uint32_t l,
+    const char* body)
 {
-    assert_int_equal(meth, HTTP_GET);
+    assert_int_equal(meth, HTTP_METHOD_GET);
     assert_int_equal(l, 0);
     assert_null(body);
+    http_printf_json(ctx, 200, "{\"hello\":\"world\"}");
 }
 
 static void
@@ -43,9 +48,13 @@ test_http_simple_get(void** context_p)
 
     // Generate some events
     mongoose_spy_event_request_push("admin:admin", "GET", "/hello", NULL);
-    http_poll(&http, 0);
+    // while (http_poll(&http, 0)) {}; // See TODO below before uncomment
 
-    // TODO Read back response
+    // TODO - need to parse request to populate the callback properly
+    // mongoose_parser_context* response = mongoose_spy_response_pop();
+    // assert_non_null(response);
+    // assert_memory_equal(response->body, "{\"hello\":\"world\"}", 17);
+    // mock_mongoose_response_destroy(&response);
 
     http_deinit(&http);
     mongoose_spy_deinit();

@@ -61,11 +61,8 @@ mock_mongoose_event_destroy(mock_mongoose_event** ev_p)
 // Linked list of mock events
 LIST_INIT(event, mock_mongoose_event, mock_mongoose_event_destroy);
 
-// Any outgoing responses
-typedef mongoose_parser_context mock_mongoose_response;
-
 // Free outgoing event
-static void
+void
 mock_mongoose_response_destroy(mock_mongoose_response** resp_p)
 {
     mock_mongoose_response* resp = *resp_p;
@@ -81,7 +78,7 @@ static event_list_s* incoming_events = NULL;
 static response_list_s* outgoing_responses = NULL;
 
 // Callers event handler
-typedef void(ev_handler)(struct mg_connection* nc, int, void*);
+typedef void(ev_handler)(struct mg_connection* nc, int, void*, void*);
 static ev_handler* test_event_handler = NULL;
 static void* test_user_data = NULL;
 
@@ -132,6 +129,7 @@ mongoose_spy_event_request_push(
     switch (meth[0]) {
         case 'G':
         case 'D':
+            // TODO - need to parse request
             snprintf(req->request, sizeof(req->request), HEADERS, path, auth);
             break;
         case 'P':
@@ -164,6 +162,12 @@ mongoose_spy_event_close_push(int handle)
     memset(event, 0, sizeof(mock_mongoose_event));
     event->ev = MG_EV_CLOSE;
     event_list_push(incoming_events, &event);
+}
+
+mock_mongoose_response*
+mongoose_spy_response_pop()
+{
+    return response_list_pop(outgoing_responses);
 }
 
 void
@@ -209,7 +213,7 @@ __wrap_mg_mgr_poll(struct mg_mgr* m, int timeout_ms)
     mock_mongoose_event* ev = event_list_pop(incoming_events);
     if (ev) {
         count = 1;
-        (*test_event_handler)(NULL, ev->ev, &ev->message);
+        (*test_event_handler)(NULL, ev->ev, &ev->message, test_user_data);
         mock_mongoose_event_destroy(&ev);
     }
     return count;

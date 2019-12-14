@@ -14,18 +14,25 @@ extern "C"
     // Type of request
     typedef enum
     {
-        HTTP_GET,
-        HTTP_POST,
-        HTTP_PUT,
-        HTTP_DELETE,
+        HTTP_METHOD_GET,
+        HTTP_METHOD_POST,
+        HTTP_METHOD_PUT,
+        HTTP_METHOD_DELETE,
     } HTTP_METHOD;
 
     // Callback for a http request
-    typedef void (*http_route_cb)(void*, HTTP_METHOD, uint32_t, const char*);
+    typedef struct http_route_context http_route_context;
+    typedef void (*http_route_cb)(
+        http_route_context*,
+        HTTP_METHOD,
+        uint32_t,
+        const char*);
     typedef struct http_route_context
     {
         http_route_cb cb;
         void* context;
+        void* connection;
+        struct http_route_context* self;
     } http_route_context;
     MAP_INIT_H(routes, http_route_context);
 
@@ -43,9 +50,21 @@ extern "C"
     E_LINQ_ERROR http_poll(http_s*, int32_t);
     void http_listen(http_s* http, const char* port);
     void http_use(http_s* http, const char* path, http_route_cb, void*);
-    void http_printf_json(void* c, int code, const char* fmt, ...);
-    void http_printf(void* c, int code, const char* type, const char* fmt, ...);
-    void http_vprintf(void*, int, const char*, uint32_t, const char*, va_list);
+    void
+    http_printf_json(http_route_context* c, int code, const char* fmt, ...);
+    void http_printf(
+        http_route_context* c,
+        int code,
+        const char* type,
+        const char* fmt,
+        ...);
+    void http_vprintf(
+        http_route_context*,
+        int,
+        const char*,
+        uint32_t,
+        const char*,
+        va_list);
 #ifdef __cplusplus
 }
 #endif
