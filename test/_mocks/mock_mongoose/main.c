@@ -23,6 +23,18 @@ static void
 test_mock_push_incoming(void** context_p)
 {
     ((void)context_p);
+    mongoose_spy_init();
+
+    mg_printf(NULL, "a");
+    mg_printf(NULL, "b");
+    mg_printf(NULL, "c");
+    mg_printf(NULL, "d");
+
+    mock_mongoose_outgoing_data* data = mongoose_spy_outgoing_data_pop(4);
+    assert_memory_equal(data->mem, "abcd", 4);
+    mock_mongoose_outgoing_data_destroy(&data);
+
+    mongoose_spy_deinit();
 }
 
 static void

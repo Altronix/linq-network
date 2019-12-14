@@ -162,9 +162,23 @@ mongoose_spy_event_close_push(int handle)
 }
 
 mock_mongoose_outgoing_data*
-mongoose_spy_outgoing_data_pop()
+mongoose_spy_outgoing_data_pop(int i)
 {
-    return outgoing_data_list_pop(outgoing_data);
+    mock_mongoose_outgoing_data *n, *d = outgoing_data_list_pop(outgoing_data);
+    if (i == 1) {
+        return d;
+    } else {
+        uint32_t spot = d->l;
+        i--;
+        while (i--) {
+            n = outgoing_data_list_pop(outgoing_data);
+            linq_netw_assert(spot + n->l < sizeof(d->mem));
+            snprintf(&d->mem[spot], sizeof(d->mem) - spot, n->mem, n->l);
+            spot += n->l;
+            mock_mongoose_outgoing_data_destroy(&n);
+        }
+        return d;
+    }
 }
 
 void
