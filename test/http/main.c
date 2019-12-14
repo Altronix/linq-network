@@ -48,7 +48,7 @@ test_http_simple_get(void** context_p)
 
     // Generate some events
     mongoose_spy_event_request_push("admin:admin", "GET", "/hello", NULL);
-    // while (http_poll(&http, 0)) {}; // See TODO below before uncomment
+    while (http_poll(&http, 0)) {};
 
     // TODO - need to parse request to populate the callback properly
     // mongoose_parser_context* response = mongoose_spy_response_pop();

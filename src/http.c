@@ -106,10 +106,9 @@ http_ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
             struct http_message* m = (struct http_message*)p;
             const char* path = get_uri(m);
             if (path && (r = routes_map_get(http->routes, path))) {
-                log_info("%06s %04s", "(HTTP) %s (%s)", "Req.", path);
                 (*r)->cb((*r)->context, get_method(m), m->body.len, m->body.p);
             } else {
-                log_info("%06s %04s", "(HTTP) %s (404)", "Req.");
+                log_info("%06s %04s %s [%s]", "(HTTP)", "Req.", "(404)", path);
                 c_printf_json(c, 404, "{\"error\":\"%s\"}", "not found");
             }
         } break;

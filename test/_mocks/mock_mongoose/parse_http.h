@@ -23,7 +23,7 @@ extern "C"
         char body[2048];
     } mongoose_parser_context;
 
-    void mongoose_parser_init(http_parser* p, mongoose_parser_context*);
+    void mongoose_parser_init(http_parser* p, void*, enum http_parser_type);
     int mongoose_parser_parse(http_parser* p, const char* data, uint32_t len);
 
 #ifdef __cplusplus

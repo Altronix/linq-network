@@ -39,16 +39,6 @@
     "\r\n"                                                                     \
     "%s"
 
-// State of mock event
-typedef struct mock_mongoose_event
-{
-    struct mg_connection* c;
-    int ev;
-    void* p;
-    struct http_message message;
-    char request[2048];
-} mock_mongoose_event;
-
 // Free mock event
 static void
 mock_mongoose_event_destroy(mock_mongoose_event** ev_p)
@@ -63,19 +53,22 @@ LIST_INIT(event, mock_mongoose_event, mock_mongoose_event_destroy);
 
 // Free outgoing event
 void
-mock_mongoose_response_destroy(mock_mongoose_response** resp_p)
+mock_mongoose_outgoing_data_destroy(mock_mongoose_outgoing_data** data_p)
 {
-    mock_mongoose_response* resp = *resp_p;
-    *resp_p = NULL;
-    linq_netw_free(resp);
+    mock_mongoose_outgoing_data* data = *data_p;
+    *data_p = NULL;
+    linq_netw_free(data);
 }
-// Linked list of outgoing responses
-LIST_INIT(response, mock_mongoose_response, mock_mongoose_response_destroy);
+// Linked list of outgoing data
+LIST_INIT(
+    outgoing_data,
+    mock_mongoose_outgoing_data,
+    mock_mongoose_outgoing_data_destroy);
 
 // TODO eventually we want to map events and responses to a handle
 // Right now this only supports testing single connection
 static event_list_s* incoming_events = NULL;
-static response_list_s* outgoing_responses = NULL;
+static outgoing_data_list_s* outgoing_data = NULL;
 
 // Callers event handler
 typedef void(ev_handler)(struct mg_connection* nc, int, void*, void*);
@@ -87,7 +80,7 @@ void
 mongoose_spy_init()
 {
     incoming_events = event_list_create();
-    outgoing_responses = response_list_create();
+    outgoing_data = outgoing_data_list_create();
 }
 
 // Call after your test
@@ -95,7 +88,7 @@ void
 mongoose_spy_deinit()
 {
     event_list_destroy(&incoming_events);
-    response_list_destroy(&outgoing_responses);
+    outgoing_data_list_destroy(&outgoing_data);
 }
 
 static mock_mongoose_event*
@@ -117,40 +110,44 @@ mongoose_spy_event_request_push(
 {
     // Basic auth string
     uint8_t authb64[96];
-    size_t len = sizeof(authb64);
-    b64_encode(authb64, &len, (uint8_t*)auth, strlen((char*)auth));
+    size_t l = sizeof(authb64);
+    b64_encode(authb64, &l, (uint8_t*)auth, strlen((char*)auth));
+    http_parser parser;
 
     // Init the event context
-    mock_mongoose_event* req = linq_netw_malloc(sizeof(mock_mongoose_event));
-    linq_netw_assert(req);
-    memset(req, 0, sizeof(mock_mongoose_event));
+    mock_mongoose_event* r = linq_netw_malloc(sizeof(mock_mongoose_event));
+    linq_netw_assert(r);
+    memset(r, 0, sizeof(mock_mongoose_event));
+    mongoose_parser_init(&parser, r, HTTP_REQUEST);
 
     // Populate the request
     switch (meth[0]) {
         case 'G':
         case 'D':
-            // TODO - need to parse request
-            snprintf(req->request, sizeof(req->request), HEADERS, path, auth);
+            l = snprintf(r->request, sizeof(r->request), HEADERS, path, auth);
+            mongoose_parser_parse(&parser, r->request, l);
             break;
         case 'P':
             snprintf(
-                req->request,
-                sizeof(req->request),
+                r->request,
+                sizeof(r->request),
                 HEADERS_DATA,
                 path,
                 auth,
                 strlen(data),
                 data);
+            mongoose_parser_init(&parser, r, HTTP_REQUEST);
+            mongoose_parser_parse(&parser, r->request, l);
             break;
     }
-    req->ev = MG_EV_HTTP_REQUEST;
-    mock_mongoose_event* accept = event_copy(req, MG_EV_ACCEPT);
-    mock_mongoose_event* recv = event_copy(req, MG_EV_ACCEPT);
-    mock_mongoose_event* chunk = event_copy(req, MG_EV_ACCEPT);
+    r->ev = MG_EV_HTTP_REQUEST;
+    mock_mongoose_event* accept = event_copy(r, MG_EV_ACCEPT);
+    mock_mongoose_event* recv = event_copy(r, MG_EV_ACCEPT);
+    mock_mongoose_event* chunk = event_copy(r, MG_EV_ACCEPT);
     event_list_push(incoming_events, &accept);
     event_list_push(incoming_events, &recv);
     event_list_push(incoming_events, &chunk);
-    event_list_push(incoming_events, &req);
+    event_list_push(incoming_events, &r);
 }
 
 void
@@ -164,10 +161,10 @@ mongoose_spy_event_close_push(int handle)
     event_list_push(incoming_events, &event);
 }
 
-mock_mongoose_response*
-mongoose_spy_response_pop()
+mock_mongoose_outgoing_data*
+mongoose_spy_outgoing_data_pop()
 {
-    return response_list_pop(outgoing_responses);
+    return outgoing_data_list_pop(outgoing_data);
 }
 
 void
@@ -224,30 +221,26 @@ __wrap_mg_printf(struct mg_connection* c, const char* fmt, ...)
 {
     ((void)c);
     va_list list;
-    size_t l;
-    char response[4098];
-    http_parser parser;
 
+    mock_mongoose_outgoing_data* d =
+        linq_netw_malloc(sizeof(mock_mongoose_outgoing_data));
+    linq_netw_assert(d);
     va_start(list, fmt);
-    l = vsnprintf(response, sizeof(response), fmt, list);
+    d->l = vsnprintf(d->mem, sizeof(d->mem), fmt, list);
     va_end(list);
-
-    mock_mongoose_response* r =
-        linq_netw_malloc(sizeof(mongoose_parser_context));
-    linq_netw_assert(r);
-    mongoose_parser_init(&parser, r);
-    mongoose_parser_parse(&parser, response, l);
-    response_list_push(outgoing_responses, &r);
-    return -1;
+    outgoing_data_list_push(outgoing_data, &d);
+    return 0;
 }
 
 int
 __wrap_mg_vprintf(struct mg_connection* c, const char* fmt, va_list list)
 {
     ((void)c);
-    ((void)fmt);
-    ((void)list);
-    assert_string_equal(NULL, "__wrap_mg_vprintf() not implemented");
+    mock_mongoose_outgoing_data* d =
+        linq_netw_malloc(sizeof(mock_mongoose_outgoing_data));
+    linq_netw_assert(d);
+    d->l = vsnprintf(d->mem, sizeof(d->mem), fmt, list);
+    outgoing_data_list_push(outgoing_data, &d);
     return 0;
 }
 
