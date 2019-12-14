@@ -81,7 +81,7 @@ static event_list_s* incoming_events = NULL;
 static response_list_s* outgoing_responses = NULL;
 
 // Callers event handler
-typedef void(ev_handler)(struct mg_connection* nc, int, void*, void*);
+typedef void(ev_handler)(struct mg_connection* nc, int, void*);
 static ev_handler* test_event_handler = NULL;
 static void* test_user_data = NULL;
 
@@ -209,7 +209,7 @@ __wrap_mg_mgr_poll(struct mg_mgr* m, int timeout_ms)
     mock_mongoose_event* ev = event_list_pop(incoming_events);
     if (ev) {
         count = 1;
-        (*test_event_handler)(NULL, ev->ev, &ev->message, test_user_data);
+        (*test_event_handler)(NULL, ev->ev, &ev->message);
         mock_mongoose_event_destroy(&ev);
     }
     return count;

@@ -41,7 +41,7 @@ get_uri(struct http_message* m)
 }
 
 static void
-http_ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
+http_ev_handler(struct mg_connection* c, int ev, void* p)
 {
     switch (ev) {
         case MG_EV_POLL: break;
@@ -115,7 +115,7 @@ http_listen(http_s* http, const char* port)
         log_fatal("%10s", "Please shutdown HTTP server before listening again");
         linq_netw_assert(http->listener);
     }
-    http->listener = mg_bind(&http->connections, port, http_ev_handler, http);
+    http->listener = mg_bind(&http->connections, port, http_ev_handler);
     mg_set_protocol_http_websocket(http->listener);
 }
 
