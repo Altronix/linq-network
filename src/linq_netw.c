@@ -28,7 +28,7 @@ typedef struct linq_netw_s
 static void
 on_zmtp_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 {
-    log_error("%06s %04s [%d]", "(ZMTP)", "Event error", e);
+    log_error("%06s %04s [%d]", "(ZMTP)", "Evnt ERROR", e);
     linq_netw_s* l = ctx;
     if (l->callbacks && l->callbacks->err) {
         l->callbacks->err(l->context, e, what, serial);
@@ -38,7 +38,7 @@ on_zmtp_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 static void
 on_zmtp_heartbeat(void* ctx, const char* serial, device_s** d)
 {
-    log_info("%06s %04s [%s]", "(ZMTP)", "Event heartbeat", serial);
+    log_info("%06s %04s [%s]", "(ZMTP)", "Evnt HEART", serial);
     linq_netw_s* l = ctx;
     if (l->callbacks && l->callbacks->hb) {
         l->callbacks->hb(l->context, serial, d);
@@ -55,7 +55,7 @@ on_zmtp_alert(
     log_info(
         "%06s %04s [%s] [%s] [%s] [%s]",
         "(ZMTP)",
-        "Event",
+        "Evnt.",
         alert->who,
         alert->what,
         alert->where,

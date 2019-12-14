@@ -367,7 +367,7 @@ process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
                     }
                 } else {
                     log_info(
-                        "%06s %04s (%d) [%s]",
+                        "%06s %04s (%03d) [%s]",
                         "(ZMTP)",
                         "Resp",
                         err_code,
