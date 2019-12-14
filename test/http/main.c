@@ -21,6 +21,7 @@ test_http_hello_route(
     assert_int_equal(meth, HTTP_METHOD_GET);
     assert_int_equal(l, 0);
     assert_null(body);
+    *((bool*)ctx->context) = true;
     http_printf_json(ctx, 200, "{\"hello\":\"world\"}");
 }
 
@@ -56,6 +57,7 @@ test_http_simple_get(void** context_p)
     assert_memory_equal(response->body, "{\"hello\":\"world\"}", 17);
     mock_mongoose_response_destroy(&response);
 
+    assert_true(pass);
     http_deinit(&http);
     mongoose_spy_deinit();
 }

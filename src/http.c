@@ -106,7 +106,7 @@ http_ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
             struct http_message* m = (struct http_message*)p;
             const char* path = get_uri(m);
             if (path && (r = routes_map_get(http->routes, path))) {
-                (*r)->cb((*r)->context, get_method(m), m->body.len, m->body.p);
+                (*r)->cb(*r, get_method(m), m->body.len, m->body.p);
             } else {
                 log_info("%06s %04s %s [%s]", "(HTTP)", "Req.", "(404)", path);
                 c_printf_json(c, 404, "{\"error\":\"%s\"}", "not found");
@@ -170,11 +170,11 @@ http_listen(http_s* http, const char* port)
 void
 http_use(http_s* http, const char* path, http_route_cb cb, void* context)
 {
-    http_route_context* ctx = linq_netw_malloc(sizeof(http_route_context));
-    linq_netw_assert(ctx);
-    ctx->cb = cb;
-    ctx->context = context;
-    routes_map_add(http->routes, path, &ctx);
+    http_route_context* route = linq_netw_malloc(sizeof(http_route_context));
+    linq_netw_assert(route);
+    route->cb = cb;
+    route->context = context;
+    routes_map_add(http->routes, path, &route);
 }
 
 void
