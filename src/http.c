@@ -52,7 +52,7 @@ get_uri(struct http_message* m)
 }
 
 // Write to connection
-void
+static void
 c_vprintf(
     void* c,
     int code,
@@ -67,7 +67,7 @@ c_vprintf(
 }
 
 // Write json to connection
-void
+static void
 c_printf_json(void* c, int code, const char* fmt, ...)
 {
     size_t l;
@@ -80,7 +80,7 @@ c_printf_json(void* c, int code, const char* fmt, ...)
     va_end(ap);
 }
 
-void
+static void
 c_printf(void* connection, int code, const char* type, const char* fmt, ...)
 {
     size_t l;
