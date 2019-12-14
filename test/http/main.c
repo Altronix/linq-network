@@ -38,7 +38,13 @@ test_http_simple_route(void** context_p)
     http_s http;
     http_init(&http);
 
+    // TODO add route
+
     mongoose_spy_event_request_push("admin:admin", "GET", "/hello", NULL);
+
+    http_poll(&http, 0);
+
+    // TODO Read back response
 
     http_deinit(&http);
     mongoose_spy_deinit();
