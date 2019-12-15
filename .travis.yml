@@ -7,6 +7,7 @@ before_install:
         - git submodule update --init ./external/jsmn
         - git submodule update --init ./external/klib
         - git submodule update --init ./external/cmocka
+        - git submodule update --init ./external/http_parser
 
 matrix:
         include:
