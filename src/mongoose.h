@@ -89,7 +89,7 @@
 #define CS_PLATFORM CS_P_ESP32
 #elif defined(ICACHE_FLASH)
 #define CS_PLATFORM CS_P_ESP8266
-#elif defined(TARGET_IS_TM4C129_RA0) || defined(TARGET_IS_TM4C129_RA1) ||      \
+#elif defined(TARGET_IS_TM4C129_RA0) || defined(TARGET_IS_TM4C129_RA1) || \
     defined(TARGET_IS_TM4C129_RA2)
 #define CS_PLATFORM CS_P_TM4C129
 #elif defined(RS14100)
@@ -145,9 +145,8 @@
 #endif
 
 #if !defined(WEAK)
-#if (                                                                          \
-    defined(__GNUC__) || defined(__clang__) ||                                 \
-    defined(__TI_COMPILER_VERSION__)) &&                                       \
+#if (defined(__GNUC__) || defined(__clang__) || \
+     defined(__TI_COMPILER_VERSION__)) &&       \
     !defined(_WIN32)
 #define WEAK __attribute__((weak))
 #else
@@ -207,7 +206,6 @@
 #endif
 
 #include <assert.h>
-#include <ctype.h>
 #include <direct.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -219,15 +217,16 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <ctype.h>
 
 #ifdef _MSC_VER
 #pragma comment(lib, "ws2_32.lib") /* Linking with winsock library */
 #endif
 
-#include <process.h>
-#include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <windows.h>
+#include <process.h>
 
 #if _MSC_VER < 1700
 typedef int bool;
@@ -296,10 +295,10 @@ typedef uint32_t in_addr_t;
 #define SIZE_T_FMT "Iu"
 typedef struct _stati64 cs_stat_t;
 #ifndef S_ISDIR
-#define S_ISDIR(x) (((x)&_S_IFMT) == _S_IFDIR)
+#define S_ISDIR(x) (((x) &_S_IFMT) == _S_IFDIR)
 #endif
 #ifndef S_ISREG
-#define S_ISREG(x) (((x)&_S_IFMT) == _S_IFREG)
+#define S_ISREG(x) (((x) &_S_IFMT) == _S_IFREG)
 #endif
 #define DIRSEP '\\'
 #define CS_DEFINE_DIRENT
@@ -353,10 +352,10 @@ unsigned int sleep(unsigned int seconds);
 /* https://stackoverflow.com/questions/16647819/timegm-cross-platform */
 #define timegm _mkgmtime
 
-#define gmtime_r(a, b)                                                         \
-    do {                                                                       \
-        *(b) = *gmtime(a);                                                     \
-    } while (0)
+#define gmtime_r(a, b) \
+  do {                 \
+    *(b) = *gmtime(a); \
+  } while (0)
 
 #endif /* CS_PLATFORM == CS_P_WINDOWS */
 #endif /* CS_COMMON_PLATFORMS_PLATFORM_WINDOWS_H_ */
@@ -398,6 +397,7 @@ unsigned int sleep(unsigned int seconds);
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
+#include <stdint.h>
 #include <limits.h>
 #include <math.h>
 #include <netdb.h>
@@ -406,13 +406,12 @@ unsigned int sleep(unsigned int seconds);
 #include <signal.h>
 #include <stdarg.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/param.h>
-#include <sys/select.h>
 #include <sys/socket.h>
+#include <sys/select.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -434,13 +433,13 @@ unsigned int sleep(unsigned int seconds);
  * We require strtoll, and if your embedded pre-c99 compiler lacks one, please
  * implement a shim.
  */
-#if !(defined(__cplusplus) && __cplusplus >= 201103L) &&                       \
+#if !(defined(__cplusplus) && __cplusplus >= 201103L) && \
     !(defined(__DARWIN_C_LEVEL) && __DARWIN_C_LEVEL >= 200809L)
-long long strtoll(const char*, char**, int);
+long long strtoll(const char *, char **, int);
 #endif
 
 typedef int sock_t;
-#define MG_INVALID_SOCKET (-1)
+#define INVALID_SOCKET (-1)
 #define SIZE_T_FMT "zu"
 typedef struct stat cs_stat_t;
 #define DIRSEP '/'
@@ -460,7 +459,7 @@ typedef struct stat cs_stat_t;
 #endif
 #endif
 
-#define mg_closesocket(x) close(x)
+#define closesocket(x) close(x)
 
 #ifndef MG_MAX_HTTP_REQUEST_SIZE
 #define MG_MAX_HTTP_REQUEST_SIZE 8192
@@ -631,10 +630,10 @@ typedef struct stat cs_stat_t;
 #endif
 
 #define inet_ntop(af, src, dst, size)                                          \
-    (((af) == AF_INET) ? ipaddr_ntoa_r((const ip_addr_t*)(src), (dst), (size)) \
-                       : NULL)
-#define inet_pton(af, src, dst)                                                \
-    (((af) == AF_INET) ? ipaddr_aton((src), (ip_addr_t*)(dst)) : 0)
+  (((af) == AF_INET) ? ipaddr_ntoa_r((const ip_addr_t *) (src), (dst), (size)) \
+                     : NULL)
+#define inet_pton(af, src, dst) \
+  (((af) == AF_INET) ? ipaddr_aton((src), (ip_addr_t *) (dst)) : 0)
 
 #endif /* CS_PLATFORM == CS_P_ESP8266 */
 #endif /* CS_COMMON_PLATFORMS_PLATFORM_ESP8266_H_ */
@@ -679,12 +678,12 @@ typedef struct stat cs_stat_t;
  * into Makefile IPATH and do the same thing (include w/out path)
  */
 
-#include <netapp.h>
 #include <simplelink.h>
+#include <netapp.h>
 #undef timeval
 
 typedef int sock_t;
-#define MG_INVALID_SOCKET (-1)
+#define INVALID_SOCKET (-1)
 
 #define to64(x) strtoll(x, NULL, 10)
 #define INT64_FMT PRId64
@@ -693,9 +692,9 @@ typedef int sock_t;
 
 #define SOMAXCONN 8
 
-const char* inet_ntop(int af, const void* src, char* dst, socklen_t size);
-char* inet_ntoa(struct in_addr in);
-int inet_pton(int af, const char* src, void* dst);
+const char *inet_ntop(int af, const void *src, char *dst, socklen_t size);
+char *inet_ntoa(struct in_addr in);
+int inet_pton(int af, const char *src, void *dst);
 
 #endif /* CS_PLATFORM == CS_P_CC3100 */
 #endif /* CS_COMMON_PLATFORMS_PLATFORM_CC3100_H_ */
@@ -748,7 +747,7 @@ int inet_pton(int af, const char* src, void* dst);
 /* Amalgamated: #include "common/platforms/simplelink/cs_simplelink.h" */
 
 typedef int sock_t;
-#define MG_INVALID_SOCKET (-1)
+#define INVALID_SOCKET (-1)
 #define SIZE_T_FMT "u"
 typedef struct stat cs_stat_t;
 #define DIRSEP '/'
@@ -762,17 +761,16 @@ typedef struct stat cs_stat_t;
 /* Some functions we implement for Mongoose. */
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #ifdef __TI_COMPILER_VERSION__
-    struct SlTimeval_t;
+struct SlTimeval_t;
 #define timeval SlTimeval_t
-    int gettimeofday(struct timeval* t, void* tz);
-    int settimeofday(const struct timeval* tv, const void* tz);
+int gettimeofday(struct timeval *t, void *tz);
+int settimeofday(const struct timeval *tv, const void *tz);
 
-    int asprintf(char** strp, const char* fmt, ...);
+int asprintf(char **strp, const char *fmt, ...);
 
 #endif
 
@@ -781,21 +779,20 @@ extern "C"
 
 #include <file.h>
 
-    typedef unsigned int mode_t;
-    typedef size_t _off_t;
-    typedef long ssize_t;
+typedef unsigned int mode_t;
+typedef size_t _off_t;
+typedef long ssize_t;
 
-    struct stat
-    {
-        int st_ino;
-        mode_t st_mode;
-        int st_nlink;
-        time_t st_mtime;
-        off_t st_size;
-    };
+struct stat {
+  int st_ino;
+  mode_t st_mode;
+  int st_nlink;
+  time_t st_mtime;
+  off_t st_size;
+};
 
-    int _stat(const char* pathname, struct stat* st);
-    int stat(const char* pathname, struct stat* st);
+int _stat(const char *pathname, struct stat *st);
+int stat(const char *pathname, struct stat *st);
 
 #define __S_IFMT 0170000
 
@@ -803,7 +800,7 @@ extern "C"
 #define __S_IFCHR 0020000
 #define __S_IFREG 0100000
 
-#define __S_ISTYPE(mode, mask) (((mode)&__S_IFMT) == (mask))
+#define __S_ISTYPE(mode, mask) (((mode) &__S_IFMT) == (mask))
 
 #define S_IFDIR __S_IFDIR
 #define S_IFCHR __S_IFCHR
@@ -822,7 +819,7 @@ extern "C"
 #define MG_FS_SLFS
 #endif
 
-#if (defined(CC3200_FS_SPIFFS) || defined(CC3200_FS_SLFS)) &&                  \
+#if (defined(CC3200_FS_SPIFFS) || defined(CC3200_FS_SLFS)) && \
     !defined(MG_ENABLE_FILESYSTEM)
 #define MG_ENABLE_FILESYSTEM 1
 #define CS_DEFINE_DIRENT
@@ -889,7 +886,7 @@ extern "C"
 /* Amalgamated: #include "common/platforms/simplelink/cs_simplelink.h" */
 
 typedef int sock_t;
-#define MG_INVALID_SOCKET (-1)
+#define INVALID_SOCKET (-1)
 #define SIZE_T_FMT "u"
 typedef struct stat cs_stat_t;
 #define DIRSEP '/'
@@ -903,17 +900,16 @@ typedef struct stat cs_stat_t;
 /* Some functions we implement for Mongoose. */
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #ifdef __TI_COMPILER_VERSION__
-    struct SlTimeval_t;
+struct SlTimeval_t;
 #define timeval SlTimeval_t
-    int gettimeofday(struct timeval* t, void* tz);
-    int settimeofday(const struct timeval* tv, const void* tz);
+int gettimeofday(struct timeval *t, void *tz);
+int settimeofday(const struct timeval *tv, const void *tz);
 
-    int asprintf(char** strp, const char* fmt, ...);
+int asprintf(char **strp, const char *fmt, ...);
 
 #endif
 
@@ -922,21 +918,20 @@ extern "C"
 
 #include <file.h>
 
-    typedef unsigned int mode_t;
-    typedef size_t _off_t;
-    typedef long ssize_t;
+typedef unsigned int mode_t;
+typedef size_t _off_t;
+typedef long ssize_t;
 
-    struct stat
-    {
-        int st_ino;
-        mode_t st_mode;
-        int st_nlink;
-        time_t st_mtime;
-        off_t st_size;
-    };
+struct stat {
+  int st_ino;
+  mode_t st_mode;
+  int st_nlink;
+  time_t st_mtime;
+  off_t st_size;
+};
 
-    int _stat(const char* pathname, struct stat* st);
-    int stat(const char* pathname, struct stat* st);
+int _stat(const char *pathname, struct stat *st);
+int stat(const char *pathname, struct stat *st);
 
 #define __S_IFMT 0170000
 
@@ -944,7 +939,7 @@ extern "C"
 #define __S_IFCHR 0020000
 #define __S_IFREG 0100000
 
-#define __S_ISTYPE(mode, mask) (((mode)&__S_IFMT) == (mask))
+#define __S_ISTYPE(mode, mask) (((mode) &__S_IFMT) == (mask))
 
 #define S_IFDIR __S_IFDIR
 #define S_IFCHR __S_IFCHR
@@ -1007,7 +1002,7 @@ extern "C"
 /* Amalgamated: #include "common/platforms/simplelink/cs_simplelink.h" */
 
 typedef int sock_t;
-#define MG_INVALID_SOCKET (-1)
+#define INVALID_SOCKET (-1)
 #define SIZE_T_FMT "u"
 typedef struct stat cs_stat_t;
 #define DIRSEP '/'
@@ -1021,14 +1016,13 @@ typedef struct stat cs_stat_t;
 /* Some functions we implement for Mongoose. */
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #ifdef __TI_COMPILER_VERSION__
-    struct SlTimeval_t;
+struct SlTimeval_t;
 #define timeval SlTimeval_t
-    int gettimeofday(struct timeval* t, void* tz);
+int gettimeofday(struct timeval *t, void *tz);
 #endif
 
 /* TI's libc does not have stat & friends, add them. */
@@ -1036,20 +1030,19 @@ extern "C"
 
 #include <file.h>
 
-    typedef unsigned int mode_t;
-    typedef size_t _off_t;
-    typedef long ssize_t;
+typedef unsigned int mode_t;
+typedef size_t _off_t;
+typedef long ssize_t;
 
-    struct stat
-    {
-        int st_ino;
-        mode_t st_mode;
-        int st_nlink;
-        time_t st_mtime;
-        off_t st_size;
-    };
+struct stat {
+  int st_ino;
+  mode_t st_mode;
+  int st_nlink;
+  time_t st_mtime;
+  off_t st_size;
+};
 
-    int _stat(const char* pathname, struct stat* st);
+int _stat(const char *pathname, struct stat *st);
 #define stat(a, b) _stat(a, b)
 
 #define __S_IFMT 0170000
@@ -1058,7 +1051,7 @@ extern "C"
 #define __S_IFCHR 0020000
 #define __S_IFREG 0100000
 
-#define __S_ISTYPE(mode, mask) (((mode)&__S_IFMT) == (mask))
+#define __S_ISTYPE(mode, mask) (((mode) &__S_IFMT) == (mask))
 
 #define S_IFDIR __S_IFDIR
 #define S_IFCHR __S_IFCHR
@@ -1075,7 +1068,7 @@ extern "C"
 #define CS_ENABLE_STDIO 1
 #endif
 
-#if (defined(CC3200_FS_SPIFFS) || defined(CC3200_FS_SLFS)) &&                  \
+#if (defined(CC3200_FS_SPIFFS) || defined(CC3200_FS_SLFS)) && \
     !defined(MG_ENABLE_FILESYSTEM)
 #define MG_ENABLE_FILESYSTEM 1
 #endif
@@ -1193,14 +1186,14 @@ typedef struct stat cs_stat_t;
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
-#include <fcntl.h>
 #include <inttypes.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <time.h>
+#include <fcntl.h>
+#include <stdio.h>
 
 typedef struct stat cs_stat_t;
 #define DIRSEP '/'
@@ -1221,10 +1214,9 @@ typedef struct stat cs_stat_t;
 
 /* copied from GCC on ARM; for some reason useconds are signed */
 typedef long suseconds_t; /* microseconds (signed) */
-struct timeval
-{
-    time_t tv_sec;       /* seconds */
-    suseconds_t tv_usec; /* and microseconds */
+struct timeval {
+  time_t tv_sec;       /* seconds */
+  suseconds_t tv_usec; /* and microseconds */
 };
 
 #endif
@@ -1236,7 +1228,7 @@ struct timeval
 #include <simplelink.h>
 
 typedef int sock_t;
-#define MG_INVALID_SOCKET (-1)
+#define INVALID_SOCKET (-1)
 
 #define to64(x) strtoll(x, NULL, 10)
 #define INT64_FMT PRId64
@@ -1245,11 +1237,11 @@ typedef int sock_t;
 
 #define SOMAXCONN 8
 
-const char* inet_ntop(int af, const void* src, char* dst, socklen_t size);
-char* inet_ntoa(struct in_addr in);
-int inet_pton(int af, const char* src, void* dst);
-int inet_aton(const char* cp, struct in_addr* inp);
-in_addr_t inet_addr(const char* cp);
+const char *inet_ntop(int af, const void *src, char *dst, socklen_t size);
+char *inet_ntoa(struct in_addr in);
+int inet_pton(int af, const char *src, void *dst);
+int inet_aton(const char *cp, struct in_addr *inp);
+in_addr_t inet_addr(const char *cp);
 
 #endif /* MG_NET_IF == MG_NET_IF_SIMPLELINK */
 
@@ -1299,7 +1291,7 @@ in_addr_t inet_addr(const char* cp);
 #define LWIP_TIMEVAL_PRIVATE 0
 #else
 struct timeval;
-int gettimeofday(struct timeval* tp, void* tzp);
+int gettimeofday(struct timeval *tp, void *tzp);
 #endif
 
 #define INT64_FMT PRId64
@@ -1413,10 +1405,10 @@ int gettimeofday(struct timeval* tp, void* tzp);
 #endif
 
 #if CS_PLATFORM == CS_P_CC3220
-#include <ti/drivers/net/wifi/netapp.h>
 #include <ti/drivers/net/wifi/porting/user.h>
 #include <ti/drivers/net/wifi/simplelink.h>
 #include <ti/drivers/net/wifi/sl_socket.h>
+#include <ti/drivers/net/wifi/netapp.h>
 #else
 /* We want to disable SL_INC_STD_BSD_API_NAMING, so we include user.h ourselves
  * and undef it. */
@@ -1425,8 +1417,8 @@ int gettimeofday(struct timeval* tp, void* tzp);
 #undef PROVISIONING_API_H_
 #undef SL_INC_STD_BSD_API_NAMING
 
-#include <simplelink/include/netapp.h>
 #include <simplelink/include/simplelink.h>
+#include <simplelink/include/netapp.h>
 #endif /* CS_PLATFORM == CS_P_CC3220 */
 
 /* Now define only the subset of the BSD API that we use.
@@ -1471,29 +1463,26 @@ int gettimeofday(struct timeval* tp, void* tzp);
 #define SOMAXCONN 8
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-    const char* inet_ntop(int af, const void* src, char* dst, socklen_t size);
-    char* inet_ntoa(struct in_addr in);
-    int inet_pton(int af, const char* src, void* dst);
+const char *inet_ntop(int af, const void *src, char *dst, socklen_t size);
+char *inet_ntoa(struct in_addr in);
+int inet_pton(int af, const char *src, void *dst);
 
-    struct mg_mgr;
-    struct mg_connection;
+struct mg_mgr;
+struct mg_connection;
 
-    typedef void (*mg_init_cb)(struct mg_mgr* mgr);
-    bool mg_start_task(int priority, int stack_size, mg_init_cb mg_init);
+typedef void (*mg_init_cb)(struct mg_mgr *mgr);
+bool mg_start_task(int priority, int stack_size, mg_init_cb mg_init);
 
-    void mg_run_in_task(
-        void (*cb)(struct mg_mgr* mgr, void* arg),
-        void* cb_arg);
+void mg_run_in_task(void (*cb)(struct mg_mgr *mgr, void *arg), void *cb_arg);
 
-    int sl_fs_init(void);
+int sl_fs_init(void);
 
-    void sl_restart_cb(struct mg_mgr* mgr);
+void sl_restart_cb(struct mg_mgr *mgr);
 
-    int sl_set_ssl_opts(int sock, struct mg_connection* nc);
+int sl_set_ssl_opts(int sock, struct mg_connection *nc);
 
 #ifdef __cplusplus
 }
@@ -1510,8 +1499,8 @@ extern "C"
 #define SL_ERROR_BSD_ESECDATEERROR SL_ESECDATEERROR
 #define SL_ERROR_BSD_ESECSNOVERIFY SL_ESECSNOVERIFY
 #define SL_ERROR_FS_FAILED_TO_ALLOCATE_MEM SL_FS_ERR_FAILED_TO_ALLOCATE_MEM
-#define SL_ERROR_FS_FILE_HAS_NOT_BEEN_CLOSE_CORRECTLY                          \
-    SL_FS_FILE_HAS_NOT_BEEN_CLOSE_CORRECTLY
+#define SL_ERROR_FS_FILE_HAS_NOT_BEEN_CLOSE_CORRECTLY \
+  SL_FS_FILE_HAS_NOT_BEEN_CLOSE_CORRECTLY
 #define SL_ERROR_FS_FILE_NAME_EXIST SL_FS_FILE_NAME_EXIST
 #define SL_ERROR_FS_FILE_NOT_EXISTS SL_FS_ERR_FILE_NOT_EXISTS
 #define SL_ERROR_FS_NO_AVAILABLE_NV_INDEX SL_FS_ERR_NO_AVAILABLE_NV_INDEX
@@ -1539,8 +1528,8 @@ extern "C"
 
 #else /* SL_MAJOR_VERSION_NUM >= 2 */
 
-#define FS_MODE_OPEN_CREATE(max_size, flag)                                    \
-    (SL_FS_CREATE | SL_FS_CREATE_MAX_SIZE(max_size))
+#define FS_MODE_OPEN_CREATE(max_size, flag) \
+  (SL_FS_CREATE | SL_FS_CREATE_MAX_SIZE(max_size))
 #define SL_FI_FILE_SIZE(fi) ((fi).Len)
 #define SL_FI_FILE_MAX_SIZE(fi) ((fi).MaxSize)
 
@@ -1549,7 +1538,7 @@ extern "C"
 
 #endif /* SL_MAJOR_VERSION_NUM < 2 */
 
-int slfs_open(const unsigned char* fname, uint32_t flags, uint32_t* token);
+int slfs_open(const unsigned char *fname, uint32_t flags, uint32_t *token);
 
 #endif /* MG_NET_IF == MG_NET_IF_SIMPLELINK */
 
@@ -1594,9 +1583,9 @@ int slfs_open(const unsigned char* fname, uint32_t flags, uint32_t* token);
 
 #pragma comment(lib, "ws2.lib") /* Linking with WinCE winsock library */
 
-#include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <windows.h>
 
 #define strdup _strdup
 
@@ -1621,7 +1610,7 @@ int slfs_open(const unsigned char* fname, uint32_t flags, uint32_t* token);
 #define snprintf _snprintf
 #define fileno _fileno
 #define vsnprintf _vsnprintf
-#define sleep(x) Sleep((x)*1000)
+#define sleep(x) Sleep((x) *1000)
 #define to64(x) _atoi64(x)
 #define rmdir _rmdir
 
@@ -1714,11 +1703,10 @@ typedef uint32_t in_addr_t;
 #define MG_NET_IF MG_NET_IF_SOCKET
 #endif
 
-typedef struct _stati64
-{
-    uint32_t st_mtime;
-    uint32_t st_size;
-    uint32_t st_mode;
+typedef struct _stati64 {
+  uint32_t st_mtime;
+  uint32_t st_size;
+  uint32_t st_mode;
 } cs_stat_t;
 
 /*
@@ -1739,23 +1727,23 @@ typedef struct _stati64
 #endif
 
 #ifndef _UINTPTR_T_DEFINED
-typedef unsigned int* uintptr_t;
+typedef unsigned int *uintptr_t;
 #endif
 
 #define _S_IFREG 2
 #define _S_IFDIR 4
 
 #ifndef S_ISDIR
-#define S_ISDIR(x) (((x)&_S_IFDIR) != 0)
+#define S_ISDIR(x) (((x) &_S_IFDIR) != 0)
 #endif
 
 #ifndef S_ISREG
-#define S_ISREG(x) (((x)&_S_IFREG) != 0)
+#define S_ISREG(x) (((x) &_S_IFREG) != 0)
 #endif
 
-int open(const char* filename, int oflag, int pmode);
-int _wstati64(const wchar_t* path, cs_stat_t* st);
-const char* strerror();
+int open(const char *filename, int oflag, int pmode);
+int _wstati64(const wchar_t *path, cs_stat_t *st);
+const char *strerror();
 
 #endif /* CS_PLATFORM == CS_P_WINCE */
 #endif /* CS_COMMON_PLATFORMS_PLATFORM_WINCE_H_ */
@@ -1900,10 +1888,10 @@ typedef struct stat cs_stat_t;
 
 #define MG_NET_IF MG_NET_IF_PIC32
 
-#include <ctype.h>
 #include <stdint.h>
-#include <stdlib.h>
 #include <time.h>
+#include <ctype.h>
+#include <stdlib.h>
 
 #include <system_config.h>
 #include <system_definitions.h>
@@ -1920,7 +1908,7 @@ typedef TCP_SOCKET sock_t;
 #define CS_ENABLE_STDIO 1
 #endif
 
-char* inet_ntoa(struct in_addr in);
+char *inet_ntoa(struct in_addr in);
 
 #endif /* CS_PLATFORM == CS_P_PIC32 */
 
@@ -1966,14 +1954,13 @@ char* inet_ntoa(struct in_addr in);
 #endif
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #define to64(x) strtoll(x, NULL, 10)
 #define INT64_FMT "lld"
 #define SIZE_T_FMT "u"
-    typedef struct stat cs_stat_t;
+typedef struct stat cs_stat_t;
 #define DIRSEP '/'
 
 #ifndef CS_ENABLE_STDIO
@@ -2015,7 +2002,6 @@ extern "C"
 #if CS_PLATFORM == CS_P_STM32
 
 #include <ctype.h>
-#include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdint.h>
@@ -2025,6 +2011,7 @@ extern "C"
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <dirent.h>
 
 #include <stm32_sdk_hal.h>
 
@@ -2086,12 +2073,12 @@ typedef struct stat cs_stat_t;
 #undef BYTE_ORDER
 #endif
 
-#include <lwip/dns.h>
-#include <lwip/err.h>
-#include <lwip/inet.h>
-#include <lwip/ip_addr.h>
-#include <lwip/netdb.h>
 #include <lwip/opt.h>
+#include <lwip/err.h>
+#include <lwip/ip_addr.h>
+#include <lwip/inet.h>
+#include <lwip/netdb.h>
+#include <lwip/dns.h>
 
 #ifndef LWIP_PROVIDE_ERRNO
 #include <errno.h>
@@ -2108,18 +2095,15 @@ typedef struct stat cs_stat_t;
 #define LWIP_SOCKET 0
 #endif
 
-#define MG_INVALID_SOCKET (-1)
+#define INVALID_SOCKET (-1)
 #define SOMAXCONN 10
 typedef int sock_t;
 
 #if MG_NET_IF == MG_NET_IF_LWIP_LOW_LEVEL
 struct mg_mgr;
 struct mg_connection;
-void mg_lwip_set_keepalive_params(
-    struct mg_connection* nc,
-    int idle,
-    int interval,
-    int count);
+void mg_lwip_set_keepalive_params(struct mg_connection *nc, int idle,
+                                  int interval, int count);
 #endif
 
 /* For older version of LWIP */
@@ -2160,20 +2144,18 @@ void mg_lwip_set_keepalive_params(
 #endif
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif /* __cplusplus */
 
-    typedef struct
-    {
-        uint32_t buf[4];
-        uint32_t bits[2];
-        unsigned char in[64];
-    } cs_md5_ctx;
+typedef struct {
+  uint32_t buf[4];
+  uint32_t bits[2];
+  unsigned char in[64];
+} cs_md5_ctx;
 
-    void cs_md5_init(cs_md5_ctx* c);
-    void cs_md5_update(cs_md5_ctx* c, const unsigned char* data, size_t len);
-    void cs_md5_final(unsigned char* md, cs_md5_ctx* c);
+void cs_md5_init(cs_md5_ctx *c);
+void cs_md5_update(cs_md5_ctx *c, const unsigned char *data, size_t len);
+void cs_md5_final(unsigned char *md, cs_md5_ctx *c);
 
 #ifdef __cplusplus
 }
@@ -2212,26 +2194,21 @@ extern "C"
 /* Amalgamated: #include "common/platform.h" */
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif /* __cplusplus */
 
-    typedef struct
-    {
-        uint32_t state[5];
-        uint32_t count[2];
-        unsigned char buffer[64];
-    } cs_sha1_ctx;
+typedef struct {
+  uint32_t state[5];
+  uint32_t count[2];
+  unsigned char buffer[64];
+} cs_sha1_ctx;
 
-    void cs_sha1_init(cs_sha1_ctx*);
-    void cs_sha1_update(cs_sha1_ctx*, const unsigned char* data, uint32_t len);
-    void cs_sha1_final(unsigned char digest[20], cs_sha1_ctx*);
-    void cs_hmac_sha1(
-        const unsigned char* key,
-        size_t key_len,
-        const unsigned char* text,
-        size_t text_len,
-        unsigned char out[20]);
+void cs_sha1_init(cs_sha1_ctx *);
+void cs_sha1_update(cs_sha1_ctx *, const unsigned char *data, uint32_t len);
+void cs_sha1_final(unsigned char digest[20], cs_sha1_ctx *);
+void cs_hmac_sha1(const unsigned char *key, size_t key_len,
+                  const unsigned char *text, size_t text_len,
+                  unsigned char out[20]);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
@@ -2267,18 +2244,17 @@ extern "C"
 /* Amalgamated: #include "common/platform.h" */
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif /* __cplusplus */
 
-    /* Sub-second granularity time(). */
-    double cs_time(void);
+/* Sub-second granularity time(). */
+double cs_time(void);
 
-    /*
-     * Similar to (non-standard) timegm, converts broken-down time into the
-     * number of seconds since Unix Epoch.
-     */
-    double cs_timegm(const struct tm* tm);
+/*
+ * Similar to (non-standard) timegm, converts broken-down time into the number
+ * of seconds since Unix Epoch.
+ */
+double cs_timegm(const struct tm *tm);
 
 #ifdef __cplusplus
 }
@@ -2311,96 +2287,85 @@ extern "C"
 #include <stddef.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-    /* Describes chunk of memory */
-    struct mg_str
-    {
-        const char* p; /* Memory chunk pointer */
-        size_t len;    /* Memory chunk length */
-    };
+/* Describes chunk of memory */
+struct mg_str {
+  const char *p; /* Memory chunk pointer */
+  size_t len;    /* Memory chunk length */
+};
 
-    /*
-     * Helper function for creating mg_str struct from plain C string.
-     * `NULL` is allowed and becomes `{NULL, 0}`.
-     */
-    struct mg_str mg_mk_str(const char* s);
+/*
+ * Helper function for creating mg_str struct from plain C string.
+ * `NULL` is allowed and becomes `{NULL, 0}`.
+ */
+struct mg_str mg_mk_str(const char *s);
 
-    /*
-     * Like `mg_mk_str`, but takes string length explicitly.
-     */
-    struct mg_str mg_mk_str_n(const char* s, size_t len);
+/*
+ * Like `mg_mk_str`, but takes string length explicitly.
+ */
+struct mg_str mg_mk_str_n(const char *s, size_t len);
 
 /* Macro for initializing mg_str. */
-#define MG_MK_STR(str_literal)                                                 \
-    {                                                                          \
-        str_literal, sizeof(str_literal) - 1                                   \
-    }
-#define MG_MK_STR_N(str_literal, len)                                          \
-    {                                                                          \
-        str_literal, len                                                       \
-    }
-#define MG_NULL_STR                                                            \
-    {                                                                          \
-        NULL, 0                                                                \
-    }
+#define MG_MK_STR(str_literal) \
+  { str_literal, sizeof(str_literal) - 1 }
+#define MG_MK_STR_N(str_literal, len) \
+  { str_literal, len }
+#define MG_NULL_STR \
+  { NULL, 0 }
 
-    /*
-     * Cross-platform version of `strcmp()` where where first string is
-     * specified by `struct mg_str`.
-     */
-    int mg_vcmp(const struct mg_str* str2, const char* str1);
+/*
+ * Cross-platform version of `strcmp()` where where first string is
+ * specified by `struct mg_str`.
+ */
+int mg_vcmp(const struct mg_str *str2, const char *str1);
 
-    /*
-     * Cross-platform version of `strncasecmp()` where first string is
-     * specified by `struct mg_str`.
-     */
-    int mg_vcasecmp(const struct mg_str* str2, const char* str1);
+/*
+ * Cross-platform version of `strncasecmp()` where first string is
+ * specified by `struct mg_str`.
+ */
+int mg_vcasecmp(const struct mg_str *str2, const char *str1);
 
-    /* Creates a copy of s (heap-allocated). */
-    struct mg_str mg_strdup(const struct mg_str s);
+/* Creates a copy of s (heap-allocated). */
+struct mg_str mg_strdup(const struct mg_str s);
 
-    /*
-     * Creates a copy of s (heap-allocated).
-     * Resulting string is NUL-terminated (but NUL is not included in len).
-     */
-    struct mg_str mg_strdup_nul(const struct mg_str s);
+/*
+ * Creates a copy of s (heap-allocated).
+ * Resulting string is NUL-terminated (but NUL is not included in len).
+ */
+struct mg_str mg_strdup_nul(const struct mg_str s);
 
-    /*
-     * Locates character in a string.
-     */
-    const char* mg_strchr(const struct mg_str s, int c);
+/*
+ * Locates character in a string.
+ */
+const char *mg_strchr(const struct mg_str s, int c);
 
-    /*
-     * Compare two `mg_str`s; return value is the same as `strcmp`.
-     */
-    int mg_strcmp(const struct mg_str str1, const struct mg_str str2);
+/*
+ * Compare two `mg_str`s; return value is the same as `strcmp`.
+ */
+int mg_strcmp(const struct mg_str str1, const struct mg_str str2);
 
-    /*
-     * Like `mg_strcmp`, but compares at most `n` characters.
-     */
-    int
-    mg_strncmp(const struct mg_str str1, const struct mg_str str2, size_t n);
+/*
+ * Like `mg_strcmp`, but compares at most `n` characters.
+ */
+int mg_strncmp(const struct mg_str str1, const struct mg_str str2, size_t n);
 
-    /*
-     * Free the string (assuming it was heap allocated).
-     */
-    void mg_strfree(struct mg_str* s);
+/*
+ * Free the string (assuming it was heap allocated).
+ */
+void mg_strfree(struct mg_str *s);
 
-    /*
-     * Finds the first occurrence of a substring `needle` in the `haystack`.
-     */
-    const char* mg_strstr(
-        const struct mg_str haystack,
-        const struct mg_str needle);
+/*
+ * Finds the first occurrence of a substring `needle` in the `haystack`.
+ */
+const char *mg_strstr(const struct mg_str haystack, const struct mg_str needle);
 
-    /* Strip whitespace at the start and the end of s */
-    struct mg_str mg_strstrip(struct mg_str s);
+/* Strip whitespace at the start and the end of s */
+struct mg_str mg_strstrip(struct mg_str s);
 
-    /* Returns 1 if s starts with the given prefix. */
-    int mg_str_starts_with(struct mg_str s, struct mg_str prefix);
+/* Returns 1 if s starts with the given prefix. */
+int mg_str_starts_with(struct mg_str s, struct mg_str prefix);
 
 #ifdef __cplusplus
 }
@@ -2441,8 +2406,7 @@ extern "C"
 /* Amalgamated: #include "common/platform.h" */
 
 #if defined(__cplusplus)
-extern "C"
-{
+extern "C" {
 #endif
 
 #ifndef MBUF_SIZE_MULTIPLIER
@@ -2457,67 +2421,65 @@ extern "C"
 #endif
 #endif
 
-    /* Memory buffer descriptor */
-    struct mbuf
-    {
-        char* buf;  /* Buffer pointer */
-        size_t len; /* Data length. Data is located between offset 0 and len. */
-        size_t size; /* Buffer size allocated by realloc(1). Must be >= len */
-    };
+/* Memory buffer descriptor */
+struct mbuf {
+  char *buf;   /* Buffer pointer */
+  size_t len;  /* Data length. Data is located between offset 0 and len. */
+  size_t size; /* Buffer size allocated by realloc(1). Must be >= len */
+};
 
-    /*
-     * Initialises an Mbuf.
-     * `initial_capacity` specifies the initial capacity of the mbuf.
-     */
-    void mbuf_init(struct mbuf*, size_t initial_capacity);
+/*
+ * Initialises an Mbuf.
+ * `initial_capacity` specifies the initial capacity of the mbuf.
+ */
+void mbuf_init(struct mbuf *, size_t initial_capacity);
 
-    /* Frees the space allocated for the mbuffer and resets the mbuf structure.
-     */
-    void mbuf_free(struct mbuf*);
+/* Frees the space allocated for the mbuffer and resets the mbuf structure. */
+void mbuf_free(struct mbuf *);
 
-    /*
-     * Appends data to the Mbuf.
-     *
-     * Returns the number of bytes appended or 0 if out of memory.
-     */
-    size_t mbuf_append(struct mbuf*, const void* data, size_t data_size);
+/*
+ * Appends data to the Mbuf.
+ *
+ * Returns the number of bytes appended or 0 if out of memory.
+ */
+size_t mbuf_append(struct mbuf *, const void *data, size_t data_size);
 
-    /*
-     * Appends data to the Mbuf and frees it (data must be heap-allocated).
-     *
-     * Returns the number of bytes appended or 0 if out of memory.
-     * data is freed irrespective of return value.
-     */
-    size_t mbuf_append_and_free(struct mbuf*, void* data, size_t data_size);
+/*
+ * Appends data to the Mbuf and frees it (data must be heap-allocated).
+ *
+ * Returns the number of bytes appended or 0 if out of memory.
+ * data is freed irrespective of return value.
+ */
+size_t mbuf_append_and_free(struct mbuf *, void *data, size_t data_size);
 
-    /*
-     * Inserts data at a specified offset in the Mbuf.
-     *
-     * Existing data will be shifted forwards and the buffer will
-     * be grown if necessary.
-     * Returns the number of bytes inserted.
-     */
-    size_t mbuf_insert(struct mbuf*, size_t, const void*, size_t);
+/*
+ * Inserts data at a specified offset in the Mbuf.
+ *
+ * Existing data will be shifted forwards and the buffer will
+ * be grown if necessary.
+ * Returns the number of bytes inserted.
+ */
+size_t mbuf_insert(struct mbuf *, size_t, const void *, size_t);
 
-    /* Removes `data_size` bytes from the beginning of the buffer. */
-    void mbuf_remove(struct mbuf*, size_t data_size);
+/* Removes `data_size` bytes from the beginning of the buffer. */
+void mbuf_remove(struct mbuf *, size_t data_size);
 
-    /*
-     * Resizes an Mbuf.
-     *
-     * If `new_size` is smaller than buffer's `len`, the
-     * resize is not performed.
-     */
-    void mbuf_resize(struct mbuf*, size_t new_size);
+/*
+ * Resizes an Mbuf.
+ *
+ * If `new_size` is smaller than buffer's `len`, the
+ * resize is not performed.
+ */
+void mbuf_resize(struct mbuf *, size_t new_size);
 
-    /* Moves the state from one mbuf to the other. */
-    void mbuf_move(struct mbuf* from, struct mbuf* to);
+/* Moves the state from one mbuf to the other. */
+void mbuf_move(struct mbuf *from, struct mbuf *to);
 
-    /* Removes all the data from mbuf (if any). */
-    void mbuf_clear(struct mbuf*);
+/* Removes all the data from mbuf (if any). */
+void mbuf_clear(struct mbuf *);
 
-    /* Shrinks an Mbuf by resizing its `size` to `len`. */
-    void mbuf_trim(struct mbuf*);
+/* Shrinks an Mbuf by resizing its `size` to `len`. */
+void mbuf_trim(struct mbuf *);
 
 #if defined(__cplusplus)
 }
@@ -2556,41 +2518,35 @@ extern "C"
 #include <stdio.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-    typedef void (*cs_base64_putc_t)(char, void*);
+typedef void (*cs_base64_putc_t)(char, void *);
 
-    struct cs_base64_ctx
-    {
-        /* cannot call it putc because it's a macro on some environments */
-        cs_base64_putc_t b64_putc;
-        unsigned char chunk[3];
-        int chunk_size;
-        void* user_data;
-    };
+struct cs_base64_ctx {
+  /* cannot call it putc because it's a macro on some environments */
+  cs_base64_putc_t b64_putc;
+  unsigned char chunk[3];
+  int chunk_size;
+  void *user_data;
+};
 
-    void cs_base64_init(
-        struct cs_base64_ctx* ctx,
-        cs_base64_putc_t putc,
-        void* user_data);
-    void
-    cs_base64_update(struct cs_base64_ctx* ctx, const char* str, size_t len);
-    void cs_base64_finish(struct cs_base64_ctx* ctx);
+void cs_base64_init(struct cs_base64_ctx *ctx, cs_base64_putc_t putc,
+                    void *user_data);
+void cs_base64_update(struct cs_base64_ctx *ctx, const char *str, size_t len);
+void cs_base64_finish(struct cs_base64_ctx *ctx);
 
-    void cs_base64_encode(const unsigned char* src, int src_len, char* dst);
-    void cs_fprint_base64(FILE* f, const unsigned char* src, int src_len);
+void cs_base64_encode(const unsigned char *src, int src_len, char *dst);
+void cs_fprint_base64(FILE *f, const unsigned char *src, int src_len);
 
-    /*
-     * Decodes a base64 string `s` length `len` into `dst`.
-     * `dst` must have enough space to hold the result.
-     * `*dec_len` will contain the resulting length of the string in `dst`
-     * while return value will return number of processed bytes in `src`.
-     * Return value == len indicates successful processing of all the data.
-     */
-    int
-    cs_base64_decode(const unsigned char* s, int len, char* dst, int* dec_len);
+/*
+ * Decodes a base64 string `s` length `len` into `dst`.
+ * `dst` must have enough space to hold the result.
+ * `*dec_len` will contain the resulting length of the string in `dst`
+ * while return value will return number of processed bytes in `src`.
+ * Return value == len indicates successful processing of all the data.
+ */
+int cs_base64_decode(const unsigned char *s, int len, char *dst, int *dec_len);
 
 #ifdef __cplusplus
 }
@@ -2658,153 +2614,142 @@ extern "C"
 #define CS_STRINGIFY_MACRO(x) CS_STRINGIFY_LIT(x)
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-    /*
-     * Equivalent of standard `strnlen()`.
-     */
-    size_t c_strnlen(const char* s, size_t maxlen);
+/*
+ * Equivalent of standard `strnlen()`.
+ */
+size_t c_strnlen(const char *s, size_t maxlen);
 
-    /*
-     * Equivalent of standard `snprintf()`.
-     */
-    int c_snprintf(char* buf, size_t buf_size, const char* format, ...)
-        PRINTF_LIKE(3, 4);
+/*
+ * Equivalent of standard `snprintf()`.
+ */
+int c_snprintf(char *buf, size_t buf_size, const char *format, ...)
+    PRINTF_LIKE(3, 4);
 
-    /*
-     * Equivalent of standard `vsnprintf()`.
-     */
-    int c_vsnprintf(char* buf, size_t buf_size, const char* format, va_list ap);
+/*
+ * Equivalent of standard `vsnprintf()`.
+ */
+int c_vsnprintf(char *buf, size_t buf_size, const char *format, va_list ap);
 
-    /*
-     * Find the first occurrence of find in s, where the search is limited to
-     * the first slen characters of s.
-     */
-    const char* c_strnstr(const char* s, const char* find, size_t slen);
+/*
+ * Find the first occurrence of find in s, where the search is limited to the
+ * first slen characters of s.
+ */
+const char *c_strnstr(const char *s, const char *find, size_t slen);
 
-    /*
-     * Stringify binary data. Output buffer size must be 2 * size_of_input + 1
-     * because each byte of input takes 2 bytes in string representation
-     * plus 1 byte for the terminating \0 character.
-     */
-    void cs_to_hex(char* to, const unsigned char* p, size_t len);
+/*
+ * Stringify binary data. Output buffer size must be 2 * size_of_input + 1
+ * because each byte of input takes 2 bytes in string representation
+ * plus 1 byte for the terminating \0 character.
+ */
+void cs_to_hex(char *to, const unsigned char *p, size_t len);
 
-    /*
-     * Convert stringified binary data back to binary.
-     * Does the reverse of `cs_to_hex()`.
-     */
-    void cs_from_hex(char* to, const char* p, size_t len);
+/*
+ * Convert stringified binary data back to binary.
+ * Does the reverse of `cs_to_hex()`.
+ */
+void cs_from_hex(char *to, const char *p, size_t len);
 
 #if CS_ENABLE_STRDUP
-    /*
-     * Equivalent of standard `strdup()`, defined if only `CS_ENABLE_STRDUP`
-     * is 1.
-     */
-    char* strdup(const char* src);
+/*
+ * Equivalent of standard `strdup()`, defined if only `CS_ENABLE_STRDUP` is 1.
+ */
+char *strdup(const char *src);
 #endif
 
 #if CS_ENABLE_TO64
 #include <stdint.h>
-    /*
-     * Simple string -> int64 conversion routine.
-     */
-    int64_t cs_to64(const char* s);
+/*
+ * Simple string -> int64 conversion routine.
+ */
+int64_t cs_to64(const char *s);
 #endif
 
-    /*
-     * Cross-platform version of `strncasecmp()`.
-     */
-    int mg_ncasecmp(const char* s1, const char* s2, size_t len);
+/*
+ * Cross-platform version of `strncasecmp()`.
+ */
+int mg_ncasecmp(const char *s1, const char *s2, size_t len);
 
-    /*
-     * Cross-platform version of `strcasecmp()`.
-     */
-    int mg_casecmp(const char* s1, const char* s2);
+/*
+ * Cross-platform version of `strcasecmp()`.
+ */
+int mg_casecmp(const char *s1, const char *s2);
 
-    /*
-     * Prints message to the buffer. If the buffer is large enough to hold the
-     * message, it returns buffer. If buffer is to small, it allocates a large
-     * enough buffer on heap and returns allocated buffer.
-     * This is a supposed use case:
-     *
-     * ```c
-     *    char buf[5], *p = buf;
-     *    mg_avprintf(&p, sizeof(buf), "%s", "hi there");
-     *    use_p_somehow(p);
-     *    if (p != buf) {
-     *      free(p);
-     *    }
-     * ```
-     *
-     * The purpose of this is to avoid malloc-ing if generated strings are
-     * small.
-     */
-    int mg_asprintf(char** buf, size_t size, const char* fmt, ...)
-        PRINTF_LIKE(3, 4);
+/*
+ * Prints message to the buffer. If the buffer is large enough to hold the
+ * message, it returns buffer. If buffer is to small, it allocates a large
+ * enough buffer on heap and returns allocated buffer.
+ * This is a supposed use case:
+ *
+ * ```c
+ *    char buf[5], *p = buf;
+ *    mg_avprintf(&p, sizeof(buf), "%s", "hi there");
+ *    use_p_somehow(p);
+ *    if (p != buf) {
+ *      free(p);
+ *    }
+ * ```
+ *
+ * The purpose of this is to avoid malloc-ing if generated strings are small.
+ */
+int mg_asprintf(char **buf, size_t size, const char *fmt, ...)
+    PRINTF_LIKE(3, 4);
 
-    /* Same as mg_asprintf, but takes varargs list. */
-    int mg_avprintf(char** buf, size_t size, const char* fmt, va_list ap);
+/* Same as mg_asprintf, but takes varargs list. */
+int mg_avprintf(char **buf, size_t size, const char *fmt, va_list ap);
 
-    /*
-     * A helper function for traversing a comma separated list of values.
-     * It returns a list pointer shifted to the next value or NULL if the end
-     * of the list found.
-     * The value is stored in a val vector. If the value has a form "x=y", then
-     * eq_val vector is initialised to point to the "y" part, and val vector
-     * length is adjusted to point only to "x". If the list is just a comma
-     * separated list of entries, like "aa,bb,cc" then `eq_val` will contain
-     * zero-length string.
-     *
-     * The purpose of this function is to parse comma separated string without
-     * any copying/memory allocation.
-     */
-    const char* mg_next_comma_list_entry(
-        const char* list,
-        struct mg_str* val,
-        struct mg_str* eq_val);
+/*
+ * A helper function for traversing a comma separated list of values.
+ * It returns a list pointer shifted to the next value or NULL if the end
+ * of the list found.
+ * The value is stored in a val vector. If the value has a form "x=y", then
+ * eq_val vector is initialised to point to the "y" part, and val vector length
+ * is adjusted to point only to "x".
+ * If the list is just a comma separated list of entries, like "aa,bb,cc" then
+ * `eq_val` will contain zero-length string.
+ *
+ * The purpose of this function is to parse comma separated string without
+ * any copying/memory allocation.
+ */
+const char *mg_next_comma_list_entry(const char *list, struct mg_str *val,
+                                     struct mg_str *eq_val);
 
-    /*
-     * Like `mg_next_comma_list_entry()`, but takes `list` as `struct mg_str`.
-     * NB: Test return value's .p, not .len. On last itreation that yields
-     * result .len will be 0 but .p will not. When finished, .p will be NULL.
-     */
-    struct mg_str mg_next_comma_list_entry_n(
-        struct mg_str list,
-        struct mg_str* val,
-        struct mg_str* eq_val);
+/*
+ * Like `mg_next_comma_list_entry()`, but takes `list` as `struct mg_str`.
+ * NB: Test return value's .p, not .len. On last itreation that yields result
+ * .len will be 0 but .p will not. When finished, .p will be NULL.
+ */
+struct mg_str mg_next_comma_list_entry_n(struct mg_str list, struct mg_str *val,
+                                         struct mg_str *eq_val);
 
-    /*
-     * Matches 0-terminated string (mg_match_prefix) or string with given length
-     * mg_match_prefix_n against a glob pattern. Glob syntax:
-     * ```
-     * - * matches zero or more characters until a slash character /
-     * - ** matches zero or more characters
-     * - ? Matches exactly one character which is not a slash /
-     * - | or ,  divides alternative patterns
-     * - any other character matches itself
-     * ```
-     * Match is case-insensitive. Return number of bytes matched.
-     * Examples:
-     * ```
-     * mg_match_prefix("a*f", len, "abcdefgh") == 6
-     * mg_match_prefix("a*f", len, "abcdexgh") == 0
-     * mg_match_prefix("a*f|de*,xy", len, "defgh") == 5
-     * mg_match_prefix("?*", len, "abc") == 3
-     * mg_match_prefix("?*", len, "") == 0
-     * ```
-     */
-    size_t
-    mg_match_prefix(const char* pattern, int pattern_len, const char* str);
+/*
+ * Matches 0-terminated string (mg_match_prefix) or string with given length
+ * mg_match_prefix_n against a glob pattern. Glob syntax:
+ * ```
+ * - * matches zero or more characters until a slash character /
+ * - ** matches zero or more characters
+ * - ? Matches exactly one character which is not a slash /
+ * - | or ,  divides alternative patterns
+ * - any other character matches itself
+ * ```
+ * Match is case-insensitive. Return number of bytes matched.
+ * Examples:
+ * ```
+ * mg_match_prefix("a*f", len, "abcdefgh") == 6
+ * mg_match_prefix("a*f", len, "abcdexgh") == 0
+ * mg_match_prefix("a*f|de*,xy", len, "defgh") == 5
+ * mg_match_prefix("?*", len, "abc") == 3
+ * mg_match_prefix("?*", len, "") == 0
+ * ```
+ */
+size_t mg_match_prefix(const char *pattern, int pattern_len, const char *str);
 
-    /*
-     * Like `mg_match_prefix()`, but takes `pattern` and `str` as `struct
-     * mg_str`.
-     */
-    size_t mg_match_prefix_n(
-        const struct mg_str pattern,
-        const struct mg_str str);
+/*
+ * Like `mg_match_prefix()`, but takes `pattern` and `str` as `struct mg_str`.
+ */
+size_t mg_match_prefix_n(const struct mg_str pattern, const struct mg_str str);
 
 #ifdef __cplusplus
 }
