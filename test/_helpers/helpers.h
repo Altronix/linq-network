@@ -13,7 +13,10 @@
 #include <setjmp.h>
 
 #include "cmocka.h"
+
 #include "czmq.h"
+#undef closesocket    // Mongoose and czmq both define these
+#undef INVALID_SOCKET // Mongoose and czmq both define these
 
 #define TEST_ALERT_LEGACY                                                      \
     ("{"                                                                       \

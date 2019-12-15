@@ -5,8 +5,11 @@
 #ifndef MOCK_MONGOOSE_H
 #define MOCK_MONGOOSE_H
 
-#include "mongoose.h"
 #include "parse_http.h"
+
+#include "mongoose.h"
+#undef closesocket
+#undef INVALID_SOCKET
 
 #ifdef __cplusplus
 extern "C"

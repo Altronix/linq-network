@@ -8,7 +8,6 @@
 #include "linq_netw_internal.h"
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
-#include <czmq.h>
 
 #include <cmocka.h>
 #include <setjmp.h>

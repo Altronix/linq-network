@@ -6,7 +6,6 @@
 #include "http.h"
 #include "linq_netw_internal.h"
 #include "mock_mongoose.h"
-#include "mongoose.h"
 
 #include <cmocka.h>
 #include <setjmp.h>

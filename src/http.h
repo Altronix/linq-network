@@ -7,8 +7,11 @@
 
 #include "altronix/linq_netw.h"
 #include "containers.h"
-#include "mongoose.h"
 #include "sys.h"
+
+#include "mongoose.h"
+#undef closesocket    // Mongoose and czmq both define these
+#undef INVALID_SOCKET // Mongoose and czmq both define these
 
 #ifdef __cplusplus
 extern "C"

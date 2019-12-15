@@ -6,7 +6,6 @@
 #include "base64.h"
 #include "containers.h"
 #include "http_parser.h"
-#include "mongoose.h"
 #include "parse_http.h"
 
 #include "cmocka.h"

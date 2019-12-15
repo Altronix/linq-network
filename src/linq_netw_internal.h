@@ -10,6 +10,8 @@
 
 // Dependencies includes
 #include "czmq.h"
+#undef closesocket    // Mongoose and czmq both define these
+#undef INVALID_SOCKET // Mongoose and czmq both define these
 
 // project includes
 #include "altronix/linq_netw.h"
