@@ -1,9 +1,4 @@
 [workspace]
 members = [
-	"bindings/rust/examples/proxy",
-	"bindings/rust/examples/proxy_polling",
 	"bindings/rust/examples/events",
-	"bindings/rust/examples/events_polling",
-	"bindings/rust/linq-netw",
-	"bindings/rust/linq-netw-sys",
 ]
