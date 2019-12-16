@@ -10,3 +10,4 @@ OS and Version | Architecture | Compiler | C   | Rust | Node | Build System     
 Ubuntu 18.04   | amd64        | gcc/llvm | YES | YES  | NO   | CMake                 |
 Fedora 30      | amd64        | gcc/llvm | YES | YES  | NO   | CMake                 |
 Windows 10     | amd64        | gcc/llvm | YES | YES  | NO   | Visual Studio + CMake |
+--------------------------------------------------------------------------------------------------
