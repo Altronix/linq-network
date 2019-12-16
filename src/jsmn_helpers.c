@@ -15,14 +15,13 @@ uint32_t
 jsmn_parse_tokens(
     const char* data,
     uint32_t n_tokens,
-    jsmntok_t** tokens_p,
+    jsmntok_t* t,
     uint32_t n_tags,
     ...)
 {
     char* cmp;
     linq_str tag;
     uint32_t count = 0;
-    jsmntok_t* t = *tokens_p;
     for (uint32_t i = 0; i < n_tokens; i++) {
         if (t[i].type == JSMN_OBJECT || (t[i].type == JSMN_ARRAY)) {
             tag.p = NULL;
@@ -55,7 +54,7 @@ jsmn_parse_tokens_path(
     const char* data,
     const char* path,
     uint32_t n_tokens,
-    jsmntok_t** tokens_p,
+    jsmntok_t* t,
     uint32_t n_tags,
     ...)
 {
@@ -64,7 +63,7 @@ jsmn_parse_tokens_path(
     ((void)data);
     ((void)path);
     ((void)n_tokens);
-    ((void)tokens_p);
+    ((void)t);
     ((void)n_tags);
     // TODO
 }

@@ -9,17 +9,19 @@ extern "C"
 #include "jsmn/jsmn.h"
 #include "sys.h"
 
+#define jsmn_helper(x) jsmntok_t[x]
+
     uint32_t jsmn_parse_tokens(
         const char* data,
         uint32_t n_tokens,
-        jsmntok_t**,
+        jsmntok_t*,
         uint32_t,
         ...);
     uint32_t jsmn_parse_tokens_path(
         const char*,
         const char*,
         uint32_t,
-        jsmntok_t**,
+        jsmntok_t*,
         uint32_t,
         ...);
 

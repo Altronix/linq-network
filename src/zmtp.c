@@ -113,7 +113,7 @@ pop_alert(zmsg_t* msg, linq_netw_alert_s* alert)
     zframe_t* f = pop_le(msg, JSON_LEN);
     sz = zframe_size(f);
     memcpy(alert->data, zframe_data(f), sz);
-    jsmntok_t t[30], *tokens = t;
+    jsmntok_t t[30];
     jsmn_parser p;
     jsmn_init(&p);
     r = jsmn_parse(&p, alert->data, sz, t, 30);
@@ -122,7 +122,7 @@ pop_alert(zmsg_t* msg, linq_netw_alert_s* alert)
         count = jsmn_parse_tokens(
             alert->data,
             r,
-            &tokens,
+            t,
             5,
             "who",   &alert->who,
             "what",  &alert->what,
@@ -144,7 +144,7 @@ pop_email(zmsg_t* msg, linq_netw_email_s* emails)
     zframe_t* f = pop_le(msg, JSON_LEN);
     sz = zframe_size(f);
     memcpy(emails->data, zframe_data(f), sz);
-    jsmntok_t t[30], *tokens = t;
+    jsmntok_t t[30];
     jsmn_parser p;
     jsmn_init(&p);
     r = jsmn_parse(&p, emails->data, sz, t, 30);
@@ -153,7 +153,7 @@ pop_email(zmsg_t* msg, linq_netw_email_s* emails)
         count = jsmn_parse_tokens(
             emails->data,
             r,
-            &tokens,
+            t,
             5,
             "to0", &emails->to0,
             "to1", &emails->to1,
