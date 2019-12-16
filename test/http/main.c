@@ -73,7 +73,7 @@ test_http_query_route(
     assert_null(body);
     *((bool*)ctx->context) = true;
     const char* query = "BOO";
-    int len = 3;
+    uint32_t len = 3;
     http_parse_query_str(ctx, "notfound", &query, &len);
     assert_null(query);
     assert_int_equal(len, 0);
@@ -137,7 +137,7 @@ test_http_invalid_query_route(
     assert_null(body);
     const char* test = "BOO";
     const char* query = test;
-    int len = 3;
+    uint32_t len = 3;
     (*((int*)ctx->context))++;
 
     http_parse_query_str(ctx, "invalid", &query, &len);

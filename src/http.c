@@ -110,8 +110,8 @@ http_ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
             const char* path = get_uri(m);
             http_route_context** r;
             if (path && (r = routes_map_get(http->routes, path))) {
-                (*r)->connection = c;
-                (*r)->message = m;
+                (*r)->curr_connection = c;
+                (*r)->curr_message = m;
                 (*r)->cb(*r, get_method(m), m->body.len, m->body.p);
             } else {
                 log_info("%06s %04s %s [%s]", "(HTTP)", "Req.", "(404)", path);
@@ -190,7 +190,7 @@ http_parse_query_str(
     const char** result,
     uint32_t* l)
 {
-    struct mg_str* q = &c->message->query_string;
+    struct mg_str* q = &c->curr_message->query_string;
     const char *end, *spot = strstr(q->p, want);
     uint32_t wantlen = strlen(want);
     if (spot) {
@@ -214,7 +214,7 @@ http_parse_query_str(
 }
 
 void
-http_printf_json(http_route_context* c, int code, const char* fmt, ...)
+http_printf_json(http_route_context* route, int code, const char* fmt, ...)
 {
     size_t l;
     va_list ap;
@@ -222,13 +222,13 @@ http_printf_json(http_route_context* c, int code, const char* fmt, ...)
     // Send data
     va_get_len(ap, fmt, l);
     va_start(ap, fmt);
-    c_vprintf(c->connection, code, "application/json", l, fmt, ap);
+    c_vprintf(route->curr_connection, code, "application/json", l, fmt, ap);
     va_end(ap);
 }
 
 void
 http_printf(
-    http_route_context* connection,
+    http_route_context* route,
     int code,
     const char* type,
     const char* fmt,
@@ -240,6 +240,6 @@ http_printf(
     // Send data
     va_get_len(ap, fmt, l);
     va_start(ap, fmt);
-    c_vprintf(connection->connection, code, type, l, fmt, ap);
+    c_vprintf(route->curr_connection, code, type, l, fmt, ap);
     va_end(ap);
 }

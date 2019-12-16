@@ -38,8 +38,8 @@ extern "C"
     {
         http_route_cb cb;
         void* context;
-        struct mg_connection* connection;
-        struct http_message* message;
+        struct mg_connection* curr_connection;
+        struct http_message* curr_message;
         struct http_route_context* self;
     } http_route_context;
     MAP_INIT_H(routes, http_route_context);
