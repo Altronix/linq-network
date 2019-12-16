@@ -19,6 +19,14 @@ extern "C"
         uint32_t,
         ...);
 
+    uint32_t jsmn_parse_tokens_path(
+        jsmntok_t*,
+        uint32_t sz,
+        const char* data,
+        uint32_t,
+        uint32_t,
+        ...);
+
 #ifdef __cplusplus
 }
 #endif

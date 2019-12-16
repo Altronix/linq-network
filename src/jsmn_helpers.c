@@ -56,3 +56,19 @@ jsmn_parse_tokens(
     }
     return count;
 }
+
+uint32_t
+jsmn_parse_tokens_path(
+    jsmntok_t* t,
+    uint32_t max_tokens,
+    const char* data,
+    uint32_t sz,
+    uint32_t n_tags,
+    ...)
+{
+    ((void)t);
+    ((void)max_tokens);
+    ((void)data);
+    ((void)sz);
+    ((void)n_tags);
+}
