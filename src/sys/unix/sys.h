@@ -5,10 +5,11 @@
 #ifndef SYS_H
 #define SYS_H
 
-#include <stdint.h>
-#include <string.h>
+#include <stdarg.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define linq_netw_malloc_fn malloc
 #define linq_netw_free_fn free

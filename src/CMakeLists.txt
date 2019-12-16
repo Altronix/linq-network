@@ -4,12 +4,14 @@ set(sources
     device.c
     node.c
     jsmn.c
+    jsmn_helpers.c
     sys.c
     zmtp.c)
 set(headers
     ../include/altronix/linq_netw.h
     base64.h
     containers.h
+    jsmn_helpers.h
     linq_netw_internal.h
     device.h
     node.h
