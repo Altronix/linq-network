@@ -8,8 +8,7 @@
 #include "log.h"
 #include "sys.h"
 
-#define JSMN_HEADER
-#include "jsmn/jsmn.h"
+#include "jsmn_helpers.h"
 
 MAP_INIT(socket, zsock_t, zsock_destroy);
 
@@ -67,56 +66,6 @@ device_get_from_frame(zmtp_s* l, zframe_t* frame)
     return device_get(l, sid);
 }
 
-// parse a token from a json string inside a frame
-static uint32_t
-parse_token(char* data, jsmntok_t* t, char** ptr)
-{
-    uint32_t sz = t->end - t->start;
-    *ptr = &data[t->start];
-    (*ptr)[sz] = 0;
-    return sz;
-}
-
-// unholy footgun (parse many tokens)
-static uint32_t
-parse_tokens(
-    char* data,
-    uint32_t n_tokens,
-    jsmntok_t** tokens_p,
-    uint32_t n_tags,
-    ...)
-{
-    char *tag = NULL, *cmp, **str;
-    uint32_t taglen = 0;
-    uint32_t count = 0;
-    jsmntok_t* t = *tokens_p;
-    for (uint32_t i = 0; i < n_tokens; i++) {
-        if (t[i].type == JSMN_OBJECT || (t[i].type == JSMN_ARRAY)) {
-            tag = NULL;
-            continue;
-        }
-        if (!tag) {
-            taglen = parse_token(data, &t[i], &tag);
-        } else {
-            uint32_t c = n_tags << 1;
-            va_list list;
-            va_start(list, n_tags);
-            while (c >= 2) {
-                c -= 2;
-                cmp = va_arg(list, char*);
-                str = va_arg(list, char**);
-                if (taglen == strlen(cmp) && !memcmp(tag, cmp, taglen)) {
-                    parse_token(data, &t[i], str);
-                    count++;
-                }
-            }
-            va_end(list);
-            tag = NULL;
-        }
-    }
-    return count;
-}
-
 // read incoming zmq frame and test size is equal to expected
 static zframe_t*
 pop_eq(zmsg_t* msg, uint32_t expect)
@@ -170,7 +119,7 @@ pop_alert(zmsg_t* msg, linq_netw_alert_s* alert)
     r = jsmn_parse(&p, alert->data, sz, t, 30);
     if (r >= 11) {
         // clang-format off
-        count = parse_tokens(
+        count = jsmn_parse_tokens(
             alert->data,
             r,
             &tokens,
@@ -201,7 +150,7 @@ pop_email(zmsg_t* msg, linq_netw_email_s* emails)
     r = jsmn_parse(&p, emails->data, sz, t, 30);
     if (r >= 11) {
         // clang-format off
-        count = parse_tokens(
+        count = jsmn_parse_tokens(
             emails->data,
             r,
             &tokens,

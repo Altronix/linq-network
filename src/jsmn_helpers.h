@@ -5,16 +5,11 @@ extern "C"
 {
 #endif
 
+#define JSMN_HEADER
 #include "jsmn/jsmn.h"
 #include "sys.h"
 
-    typedef struct jsmn_result
-    {
-        const char* p;
-        uint32_t len;
-    } jsmn_result;
-
-    static uint32_t parse_tokens(char*, uint32_t, jsmntok_t**, uint32_t, ...);
+    uint32_t jsmn_parse_tokens(char*, uint32_t, jsmntok_t**, uint32_t, ...);
 
 #ifdef __cplusplus
 }

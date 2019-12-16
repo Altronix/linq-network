@@ -75,16 +75,16 @@ test_linq_netw_alert(void** context_p)
                    linq_netw_email_s* email,
                    altronix::Device& d) {
         assert_string_equal(d.serial(), "serial");
-        assert_string_equal(alert->who, "TestUser");
-        assert_string_equal(alert->what, "TestAlert");
-        assert_string_equal(alert->where, "Altronix Site ID");
-        assert_string_equal(alert->when, "1");
-        assert_string_equal(alert->mesg, "Test Alert Message");
-        assert_string_equal(email->to0, "mail0@gmail.com");
-        assert_string_equal(email->to1, "mail1@gmail.com");
-        assert_string_equal(email->to2, "mail2@gmail.com");
-        assert_string_equal(email->to3, "mail3@gmail.com");
-        assert_string_equal(email->to4, "mail4@gmail.com");
+        assert_memory_equal(alert->who.p, "TestUser", 8);
+        assert_memory_equal(alert->what.p, "TestAlert", 9);
+        assert_memory_equal(alert->where.p, "Altronix Site ID", 16);
+        assert_memory_equal(alert->when.p, "1", 1);
+        assert_memory_equal(alert->mesg.p, "Test Alert Message", 18);
+        assert_memory_equal(email->to0.p, "mail0@gmail.com", 15);
+        assert_memory_equal(email->to1.p, "mail1@gmail.com", 15);
+        assert_memory_equal(email->to2.p, "mail2@gmail.com", 15);
+        assert_memory_equal(email->to3.p, "mail3@gmail.com", 15);
+        assert_memory_equal(email->to4.p, "mail4@gmail.com", 15);
         alert_pass = true;
     });
 

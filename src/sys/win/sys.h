@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include <stdarg.h>
 
 #define linq_netw_malloc_fn malloc
 #define linq_netw_free_fn free

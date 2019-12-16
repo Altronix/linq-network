@@ -49,21 +49,29 @@ on_zmtp_heartbeat(void* ctx, const char* serial, device_s** d)
 static void
 on_zmtp_alert(
     void* ctx,
-    linq_netw_alert_s* alert,
+    linq_netw_alert_s* a,
     linq_netw_email_s* email,
     device_s** d)
 {
+    char p[4][128];
+    memset(p, 0, sizeof(p));
+
+    // Our JSON data isn't null terminated. So we copy so we can printf
+    memcpy(p[0], a->who.p, a->who.len < 128 ? a->who.len : 128);
+    memcpy(p[1], a->what.p, a->what.len < 128 ? a->what.len : 128);
+    memcpy(p[2], a->where.p, a->where.len < 128 ? a->where.len : 128);
+    memcpy(p[3], a->mesg.p, a->mesg.len < 128 ? a->mesg.len : 128);
     log_info(
         "%06s %04s [%s] [%s] [%s] [%s]",
         "(ZMTP)",
         "Evnt.",
-        alert->who,
-        alert->what,
-        alert->where,
-        alert->mesg);
+        p[0],
+        p[1],
+        p[2],
+        p[3]);
     linq_netw_s* l = ctx;
     if (l->callbacks && l->callbacks->alert) {
-        l->callbacks->alert(l->context, alert, email, d);
+        l->callbacks->alert(l->context, a, email, d);
     }
 }
 

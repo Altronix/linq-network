@@ -27,6 +27,12 @@ extern "C"
     typedef struct linq_netw_s linq_netw_s;
     typedef uint32_t linq_netw_socket;
 
+    typedef struct linq_str
+    {
+        const char* p;
+        uint32_t len;
+    } linq_str;
+
     typedef enum
     {
         LINQ_ERROR_OK = 0,
@@ -46,29 +52,29 @@ extern "C"
 
     typedef struct linq_netw_alert_s
     {
-        const char* who;
-        const char* what;
-        const char* where;
-        const char* when;
-        const char* mesg;
-        const char* email[5];
+        linq_str who;
+        linq_str what;
+        linq_str where;
+        linq_str when;
+        linq_str mesg;
+        linq_str email[5];
         char* data;
     } linq_netw_alert_s;
 
     typedef struct linq_netw_email_s
     {
-        const char* to0;
-        const char* to1;
-        const char* to2;
-        const char* to3;
-        const char* to4;
-        const char* from;
-        const char* subject;
-        const char* user;
-        const char* password;
-        const char* server;
-        const char* port;
-        const char* device;
+        linq_str to0;
+        linq_str to1;
+        linq_str to2;
+        linq_str to3;
+        linq_str to4;
+        linq_str from;
+        linq_str subject;
+        linq_str user;
+        linq_str password;
+        linq_str server;
+        linq_str port;
+        linq_str device;
         char* data;
     } linq_netw_email_s;
 

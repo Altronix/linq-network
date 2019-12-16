@@ -15,14 +15,14 @@
 static E_LINQ_ERROR expect_error = LINQ_ERROR_OK;
 static const char* empty = "";
 static const char* expect_what = "";
-static const char* expect_serial = "";
+static const char* expect_sid = "";
 
 static void
 test_reset()
 {
     expect_error = LINQ_ERROR_OK;
     expect_what = empty;
-    expect_serial = empty;
+    expect_sid = empty;
     czmq_spy_mesg_reset();
     czmq_spy_poll_reset();
 }
@@ -36,15 +36,15 @@ linq_netw_on_error_fn(
 {
     assert_int_equal(e, expect_error);
     assert_string_equal(what, expect_what);
-    assert_string_equal(serial, expect_serial);
+    assert_string_equal(serial, expect_sid);
     *((bool*)pass) = true;
 }
 
 static void
 linq_netw_on_heartbeat_fn(void* pass, const char* serial, device_s** d)
 {
-    assert_string_equal(serial, expect_serial);
-    assert_string_equal(device_serial(*d), expect_serial);
+    assert_string_equal(serial, expect_sid);
+    assert_string_equal(device_serial(*d), expect_sid);
     *((bool*)pass) = true;
 }
 
@@ -55,17 +55,17 @@ linq_netw_on_alert_fn(
     linq_netw_email_s* email,
     device_s** d)
 {
-    assert_string_equal(device_serial(*d), expect_serial);
-    assert_string_equal(alert->who, "TestUser");
-    assert_string_equal(alert->what, "TestAlert");
-    assert_string_equal(alert->where, "Altronix Site ID");
-    assert_string_equal(alert->when, "1");
-    assert_string_equal(alert->mesg, "Test Alert Message");
-    assert_string_equal(email->to0, "mail0@gmail.com");
-    assert_string_equal(email->to1, "mail1@gmail.com");
-    assert_string_equal(email->to2, "mail2@gmail.com");
-    assert_string_equal(email->to3, "mail3@gmail.com");
-    assert_string_equal(email->to4, "mail4@gmail.com");
+    assert_memory_equal(device_serial(*d), expect_sid, strlen(expect_sid));
+    assert_memory_equal(alert->who.p, "TestUser", 8);
+    assert_memory_equal(alert->what.p, "TestAlert", 9);
+    assert_memory_equal(alert->where.p, "Altronix Site ID", 16);
+    assert_memory_equal(alert->when.p, "1", 1);
+    assert_memory_equal(alert->mesg.p, "Test Alert Message", 18);
+    assert_memory_equal(email->to0.p, "mail0@gmail.com", 15);
+    assert_memory_equal(email->to1.p, "mail1@gmail.com", 15);
+    assert_memory_equal(email->to2.p, "mail2@gmail.com", 15);
+    assert_memory_equal(email->to3.p, "mail3@gmail.com", 15);
+    assert_memory_equal(email->to4.p, "mail4@gmail.com", 15);
     *((bool*)pass) = true;
 }
 
@@ -159,7 +159,7 @@ test_linq_netw_receive_heartbeat_ok(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
-    const char* serial = expect_serial = "serial";
+    const char* serial = expect_sid = "serial";
     zmsg_t* hb0 = helpers_make_heartbeat("rid0", serial, "product", "site");
     zmsg_t* hb1 = helpers_make_heartbeat("rid00", serial, "product", "site");
 
@@ -226,7 +226,7 @@ test_linq_netw_receive_alert_ok(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
-    const char* sid = expect_serial = "sid";
+    const char* sid = expect_sid = "sid";
     zmsg_t* hb = helpers_make_heartbeat("rid", sid, "pid", "site");
     zmsg_t* alert = helpers_make_alert("rid", sid, "pid");
 
@@ -267,7 +267,7 @@ test_linq_netw_receive_response_ok(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
-    const char* serial = expect_serial = "serial";
+    const char* serial = expect_sid = "serial";
     zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
     zmsg_t* r = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
 
@@ -305,7 +305,7 @@ test_linq_netw_receive_response_error_timeout(void** context_p)
     ((void)context_p);
 
     bool pass = false, response_pass = false;
-    const char* serial = expect_serial = "serial";
+    const char* serial = expect_sid = "serial";
     device_s** d;
     zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
     zmsg_t* r = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
@@ -361,7 +361,7 @@ test_linq_netw_receive_response_error_codes(void** context_p)
     ((void)context_p);
 
     bool pass = false;
-    const char* serial = expect_serial = "serial";
+    const char* serial = expect_sid = "serial";
     device_s** d;
 
     int codes[] = { 0, 400, 403, 404, 500 };
@@ -413,7 +413,7 @@ test_linq_netw_receive_response_error_504(void** context_p)
     ((void)context_p);
     bool pass = false;
     uint32_t t = 0;
-    const char* serial = expect_serial = "serial";
+    const char* serial = expect_sid = "serial";
     device_s** d;
     zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
     zmsg_t* incoming[LINQ_NETW_MAX_RETRY + 1] = {
@@ -493,7 +493,7 @@ test_linq_netw_receive_response_ok_504(void** context_p)
     ((void)context_p);
     bool pass = false;
     uint32_t t = 0;
-    const char* serial = expect_serial = "serial";
+    const char* serial = expect_sid = "serial";
     device_s** d;
     zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
     zmsg_t* ok = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
