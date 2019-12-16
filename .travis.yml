@@ -32,7 +32,7 @@ matrix:
                           - ctest -T memcheck
                           - make test-coverage
                   after_success:
-                          - bash <(curl -s https://codecov.io/bash) -f test-coverage.info
+                          - bash <(curl -s https://codecov.io/bash) -f test-coverage.info.cleaned
                 - os: linux
                   name: Linux/Cargo Debug
                   language: rust
