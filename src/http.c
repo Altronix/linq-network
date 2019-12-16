@@ -54,7 +54,7 @@ get_uri(struct http_message* m)
 // Write to connection
 static void
 c_vprintf(
-    void* c,
+    struct mg_connection* c,
     int code,
     const char* type,
     uint32_t l,
@@ -68,7 +68,7 @@ c_vprintf(
 
 // Write json to connection
 static void
-c_printf_json(void* c, int code, const char* fmt, ...)
+c_printf_json(struct mg_connection* c, int code, const char* fmt, ...)
 {
     size_t l;
     va_list ap;
@@ -105,11 +105,13 @@ http_ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
         case MG_EV_CLOSE: log_info("%06s %04s", "(HTTP)", "Close"); break;
         case MG_EV_TIMER: log_info("%06s %04s", "(HTTP)", "Timer"); break;
         case MG_EV_HTTP_REQUEST: {
-            http_route_context** r;
             http_s* http = user_data;
             struct http_message* m = (struct http_message*)p;
             const char* path = get_uri(m);
+            http_route_context** r;
             if (path && (r = routes_map_get(http->routes, path))) {
+                (*r)->connection = c;
+                (*r)->message = m;
                 (*r)->cb(*r, get_method(m), m->body.len, m->body.p);
             } else {
                 log_info("%06s %04s %s [%s]", "(HTTP)", "Req.", "(404)", path);
@@ -190,7 +192,7 @@ http_printf_json(http_route_context* c, int code, const char* fmt, ...)
     // Send data
     va_get_len(ap, fmt, l);
     va_start(ap, fmt);
-    c_vprintf(c, code, "application/json", l, fmt, ap);
+    c_vprintf(c->connection, code, "application/json", l, fmt, ap);
     va_end(ap);
 }
 

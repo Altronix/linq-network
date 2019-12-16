@@ -10,6 +10,7 @@
 
 #if WITH_MONGOOSE
 #include "http.h"
+#include "routes/routes.h"
 #endif
 
 // Main class
@@ -94,6 +95,9 @@ linq_netw_create(const linq_netw_callbacks* cb, void* context)
         zmtp_init(&l->zmtp, &l->devices, &l->nodes, &zmtp_callbacks, l);
 #if WITH_MONGOOSE
         http_init(&l->http);
+        http_use(&l->http, "/api/v1/linq/devices", route_devices, l);
+        http_use(&l->http, "/api/vi/linq/alerts", route_alerts, l);
+        http_use(&l->http, "/api/v1/linq/proxy", route_proxy, l);
 #endif
     }
     return l;
