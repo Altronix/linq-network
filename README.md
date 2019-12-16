@@ -4,10 +4,9 @@
 
 ### Supported Platforms Supported with CI ###
 
---------------------------------------------------------------------------------------------------
-OS and Version | Architecture | Compiler | C   | Rust | Node | Build System          | Remarks
---------------------------------------------------------------------------------------------------
-Ubuntu 18.04   | amd64        | gcc/llvm | YES | YES  | NO   | CMake                 |
-Fedora 30      | amd64        | gcc/llvm | YES | YES  | NO   | CMake                 |
-Windows 10     | amd64        | gcc/llvm | YES | YES  | NO   | Visual Studio + CMake |
---------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------
+OS and Version | Architecture | Compiler | C   | Rust | Node | Build System                                | Remarks
+---------------|--------------|----------|-----|------|------|---------------------------------------------|------------
+Ubuntu 18.04   | amd64        | gcc/llvm | YES | YES  | NO   | CMake / Cargo                               |
+Fedora 30      | amd64        | gcc/llvm | YES | YES  | NO   | CMake / Cargo                               |
+Windows 10     | amd64        | gcc/llvm | YES | YES  | NO   | CMake / Cargo w/Visual Studio & Powershell  |
