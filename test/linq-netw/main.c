@@ -9,8 +9,9 @@
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
 
-#include <cmocka.h>
 #include <setjmp.h>
+
+#include <cmocka.h>
 
 static E_LINQ_ERROR expect_error = LINQ_ERROR_OK;
 static const char* empty = "";
