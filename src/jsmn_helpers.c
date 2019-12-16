@@ -4,7 +4,7 @@
 #include "sys.h"
 
 static uint32_t
-parse_token(char* data, jsmntok_t* t, linq_str* result)
+parse_token(const char* data, jsmntok_t* t, linq_str* result)
 {
     result->len = t->end - t->start;
     result->p = &data[t->start];
@@ -13,7 +13,7 @@ parse_token(char* data, jsmntok_t* t, linq_str* result)
 
 uint32_t
 jsmn_parse_tokens(
-    char* data,
+    const char* data,
     uint32_t n_tokens,
     jsmntok_t** tokens_p,
     uint32_t n_tags,
@@ -48,4 +48,23 @@ jsmn_parse_tokens(
         }
     }
     return count;
+}
+
+uint32_t
+jsmn_parse_tokens_path(
+    const char* data,
+    const char* path,
+    uint32_t n_tokens,
+    jsmntok_t** tokens_p,
+    uint32_t n_tags,
+    ...)
+{
+    // Recursively navigate tokens till find last target
+    // then call jsmn_parse_tokens()
+    ((void)data);
+    ((void)path);
+    ((void)n_tokens);
+    ((void)tokens_p);
+    ((void)n_tags);
+    // TODO
 }
