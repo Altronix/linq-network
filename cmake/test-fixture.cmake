@@ -1,14 +1,7 @@
 # test-fixture
 
 set(linq_common_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/linq-common)
-set(http_parser_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/http_parser)
 set(wolfssl_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/wolfssl)
-
-### Build http_parser ###
-add_library(http-parser 
-	${http_parser_SOURCE_DIR}/http_parser.c 
-	${http_parser_SOURCE_DIR}/http_parser.h)
-target_include_directories(http-parser PUBLIC ${http_parser_SOURCE_DIR})
 
 ### Build Wolfssl ###
 ExternalProject_Add(wolfssl_PROJECT
