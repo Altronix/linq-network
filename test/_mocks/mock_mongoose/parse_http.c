@@ -151,8 +151,15 @@ int
 http_request_on_url(http_parser* p, const char* at, size_t len)
 {
     mock_mongoose_event* req = p->data;
+    const char* params = memchr(at, '?', len);
     req->message.uri.p = at;
-    req->message.uri.len = len;
+    if (params) {
+        req->message.uri.len = params - at;
+        req->message.query_string.p = ++params;
+        req->message.query_string.len = len - req->message.uri.len - 1;
+    } else {
+        req->message.uri.len = len;
+    }
     return 0;
 }
 
