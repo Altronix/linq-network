@@ -109,62 +109,51 @@ pop_le(zmsg_t* msg, uint32_t le)
 static zframe_t*
 pop_alert(zmsg_t* msg, linq_netw_alert_s* alert)
 {
-    int r, count, sz;
+    int count, sz;
     zframe_t* f = pop_le(msg, JSON_LEN);
     sz = zframe_size(f);
     memcpy(alert->data, zframe_data(f), sz);
     jsmntok_t t[30];
-    jsmn_parser p;
-    jsmn_init(&p);
-    r = jsmn_parse(&p, alert->data, sz, t, 30);
-    if (r >= 11) {
-        // clang-format off
-        count = jsmn_parse_tokens(
-            alert->data,
-            r,
-            t,
-            5,
-            "who",   &alert->who,
-            "what",  &alert->what,
-            "siteId",&alert->where,
-            "when",  &alert->when,
-            "mesg",  &alert->mesg);
-        // clang-format on
-        if (!(count == 5)) zframe_destroy(&f);
-    } else {
-        zframe_destroy(&f);
-    }
+    // clang-format off
+    count = jsmn_parse_tokens(
+        t,
+        30,
+        alert->data,
+        sz,
+        5,
+        "who",   &alert->who,
+        "what",  &alert->what,
+        "siteId",&alert->where,
+        "when",  &alert->when,
+        "mesg",  &alert->mesg);
+    // clang-format on
+    if (!(count == 5)) zframe_destroy(&f);
     return f;
 }
 
 static zframe_t*
 pop_email(zmsg_t* msg, linq_netw_email_s* emails)
 {
-    int r, count, sz;
+    int count, sz;
     zframe_t* f = pop_le(msg, JSON_LEN);
     sz = zframe_size(f);
     memcpy(emails->data, zframe_data(f), sz);
     jsmntok_t t[30];
-    jsmn_parser p;
-    jsmn_init(&p);
-    r = jsmn_parse(&p, emails->data, sz, t, 30);
-    if (r >= 11) {
-        // clang-format off
-        count = jsmn_parse_tokens(
-            emails->data,
-            r,
-            t,
-            5,
-            "to0", &emails->to0,
-            "to1", &emails->to1,
-            "to2", &emails->to2,
-            "to3", &emails->to3,
-            "to4", &emails->to4);
-        // clang-format on
-        if (!(count == 5)) zframe_destroy(&f);
-    } else {
-        zframe_destroy(&f);
-    }
+
+    // clang-format off
+    count = jsmn_parse_tokens(
+        t,
+        30,
+        emails->data,
+        sz,
+        5,
+        "to0", &emails->to0,
+        "to1", &emails->to1,
+        "to2", &emails->to2,
+        "to3", &emails->to3,
+        "to4", &emails->to4);
+    // clang-format on
+
     return f;
 }
 

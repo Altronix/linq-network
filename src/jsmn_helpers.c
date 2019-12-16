@@ -13,57 +13,46 @@ parse_token(const char* data, jsmntok_t* t, linq_str* result)
 
 uint32_t
 jsmn_parse_tokens(
-    const char* data,
-    uint32_t n_tokens,
     jsmntok_t* t,
+    uint32_t max_tokens,
+    const char* data,
+    uint32_t sz,
     uint32_t n_tags,
     ...)
 {
+    uint32_t n_tokens;
     char* cmp;
     linq_str tag;
+    jsmn_parser p;
+    jsmn_init(&p);
     uint32_t count = 0;
-    for (uint32_t i = 0; i < n_tokens; i++) {
-        if (t[i].type == JSMN_OBJECT || (t[i].type == JSMN_ARRAY)) {
-            tag.p = NULL;
-            continue;
-        }
-        if (!tag.p) {
-            tag.len = parse_token(data, &t[i], &tag);
-        } else {
-            uint32_t c = n_tags << 1;
-            va_list list;
-            va_start(list, n_tags);
-            while (c >= 2) {
-                c -= 2;
-                cmp = va_arg(list, char*);
-                linq_str* result = va_arg(list, linq_str*);
-                if (tag.len == strlen(cmp) && !memcmp(tag.p, cmp, tag.len)) {
-                    parse_token(data, &t[i], result);
-                    count++;
-                }
+    n_tokens = jsmn_parse(&p, data, sz, t, max_tokens);
+    if (n_tokens <= max_tokens) {
+        for (uint32_t i = 0; i < n_tokens; i++) {
+            if (t[i].type == JSMN_OBJECT || (t[i].type == JSMN_ARRAY)) {
+                tag.p = NULL;
+                continue;
             }
-            va_end(list);
-            tag.p = NULL;
+            if (!tag.p) {
+                tag.len = parse_token(data, &t[i], &tag);
+            } else {
+                uint32_t c = n_tags << 1;
+                va_list list;
+                va_start(list, n_tags);
+                while (c >= 2) {
+                    c -= 2;
+                    cmp = va_arg(list, char*);
+                    linq_str* result = va_arg(list, linq_str*);
+                    if (tag.len == strlen(cmp) &&
+                        !memcmp(tag.p, cmp, tag.len)) {
+                        parse_token(data, &t[i], result);
+                        count++;
+                    }
+                }
+                va_end(list);
+                tag.p = NULL;
+            }
         }
     }
     return count;
-}
-
-uint32_t
-jsmn_parse_tokens_path(
-    const char* data,
-    const char* path,
-    uint32_t n_tokens,
-    jsmntok_t* t,
-    uint32_t n_tags,
-    ...)
-{
-    // Recursively navigate tokens till find last target
-    // then call jsmn_parse_tokens()
-    ((void)data);
-    ((void)path);
-    ((void)n_tokens);
-    ((void)t);
-    ((void)n_tags);
-    // TODO
 }

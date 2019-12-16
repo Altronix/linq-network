@@ -55,18 +55,16 @@ test_parse_obj(void** context_p)
 {
     ((void)context_p);
 
-    int count = 0, r;
+    int count = 0;
     linq_str values[5];
     jsmntok_t t[30];
-    jsmn_parser p;
-    jsmn_init(&p);
-    r = jsmn_parse(&p, data_obj, strlen(data_obj), t, 30);
 
     // clang-format off
     count = jsmn_parse_tokens(
-        data_obj,
-        r,
         t,
+        30,
+        data_obj,
+        strlen(data_obj),
         5,
         "hello", &values[0],
         "this",  &values[1],
