@@ -12,13 +12,13 @@ before_install:
 matrix:
         include:
                 - os: linux
-                  name: Linux/CMake Debug
+                  name: Linux/C/CMake/Debug
                   language: c
                   script:
                           - cmake -DCMAKE_INSTALL_PREFIX=./build/install . 
                           - cmake --build ./ --target install
                 - os: linux
-                  name: Linux/CMake Test
+                  name: Linux/C/CMake/Test
                   dist: bionic
                   language: c
                   addons:
@@ -34,20 +34,20 @@ matrix:
                   after_success:
                           - bash <(curl -s https://codecov.io/bash) -f test-coverage.info.cleaned
                 - os: linux
-                  name: Linux/Cargo Debug
+                  name: Linux/Rust/Cargo/Debug
                   language: rust
                   rust:
                           - nightly
                   script:
                           - cargo build --verbose --all
                 - os: windows
-                  name: Windows/VS Debug
+                  name: Windows/C/VS/Debug
                   language: c
                   script: 
                           - cmake -DCMAKE_INSTALL_PREFIX:PATH=./build/install .
                           - cmake --build ./ --target install
                 - os: windows
-                  name: Windows/Cargo
+                  name: Windows/Rust/Cargo/Debug
                   language: rust
                   rust:
                           - nightly
