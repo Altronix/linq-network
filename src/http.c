@@ -184,6 +184,36 @@ http_use(http_s* http, const char* path, http_route_cb cb, void* context)
 }
 
 void
+http_parse_query_str(
+    http_route_context* c,
+    const char* want,
+    const char** result,
+    uint32_t* l)
+{
+    struct mg_str* q = &c->message->query_string;
+    const char *end, *spot = strstr(q->p, want);
+    uint32_t wantlen = strlen(want);
+    if (spot) {
+        if (!(wantlen <= q->len &&                    // bad query str
+              (size_t)spot - (size_t)q->p < q->len && // bad query str
+              (!(spot[wantlen] == '='))))             // bad query str
+        {
+            spot += wantlen + 1;
+            end = memchr(spot, '&', q->len - (spot - q->p));
+            *l = end ? end - spot : q->len - (spot - q->p);
+            *result = spot;
+        } else {
+            log_error("(HTTP) Invalid Query String Detected");
+            *result = NULL;
+            *l = 0;
+        }
+    } else {
+        *result = NULL;
+        *l = 0;
+    }
+}
+
+void
 http_printf_json(http_route_context* c, int code, const char* fmt, ...)
 {
     size_t l;

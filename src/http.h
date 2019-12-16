@@ -58,8 +58,16 @@ extern "C"
     E_LINQ_ERROR http_poll(http_s*, int32_t);
     void http_listen(http_s* http, const char* port);
     void http_use(http_s* http, const char* path, http_route_cb, void*);
-    void
-    http_printf_json(http_route_context* c, int code, const char* fmt, ...);
+    void http_parse_query_str(
+        http_route_context* c,
+        const char* want,
+        const char** result,
+        uint32_t* l);
+    void http_printf_json(
+        http_route_context* context,
+        int code,
+        const char* fmt,
+        ...);
     void http_printf(
         http_route_context* c,
         int code,
