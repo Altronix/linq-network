@@ -3,7 +3,6 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "altronix/linq_netw.h"
-#include "db.h"
 #include "linq_netw_internal.h"
 #include "mock_sqlite.h"
 
