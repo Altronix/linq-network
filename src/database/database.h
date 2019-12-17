@@ -16,6 +16,7 @@ extern "C"
 
     void database_init(database_s* d);
     void database_deinit(database_s* d);
+    bool database_table_exists(database_s* d, const char* table);
 
 #ifdef __cplusplus
 }

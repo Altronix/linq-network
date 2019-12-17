@@ -6,9 +6,10 @@
 #define SYS_H
 
 #include <assert.h>
-#include <stdint.h>
-#include <string.h>
 #include <stdarg.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
 
 #define linq_netw_malloc_fn malloc
 #define linq_netw_free_fn free
