@@ -58,6 +58,11 @@ if(ENABLE_TESTING)
   add_subdirectory(test/jsmn)
   add_subdirectory(bindings/cpp/test)
 
+  if(WITH_SQLITE)
+    add_subdirectory(test/_mocks/mock_sqlite)
+    add_subdirectory(test/db)
+  endif()
+
   # add test coverage
   APPEND_COVERAGE_COMPILER_FLAGS()
   set(COVERAGE_LCOV_EXCLUDES 
@@ -74,7 +79,9 @@ if(ENABLE_TESTING)
     COMMAND test-device
     COMMAND test-devices
     COMMAND test-http
+    COMMAND test-db #TODO remove from test coverage if WITHOUT SQLITE
     COMMAND binding-linq-netw-cpp-test)
+
 endif()
 
 add_subdirectory(src)
