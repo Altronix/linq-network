@@ -13,6 +13,10 @@
 #include "routes/routes.h"
 #endif
 
+#if WITH_SQLITE
+#include "database/database.h"
+#endif
+
 // Main class
 typedef struct linq_netw_s
 {
@@ -104,8 +108,10 @@ linq_netw_create(const linq_netw_callbacks* cb, void* context)
 #if WITH_MONGOOSE
         http_init(&l->http);
         http_use(&l->http, "/api/v1/linq/devices", route_devices, l);
-        http_use(&l->http, "/api/vi/linq/alerts", route_alerts, l);
         http_use(&l->http, "/api/v1/linq/proxy", route_proxy, l);
+#endif
+#if WITH_SQLITE
+        http_use(&l->http, "/api/vi/linq/alerts", route_alerts, l);
 #endif
     }
     return l;

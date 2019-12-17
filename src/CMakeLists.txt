@@ -79,7 +79,11 @@ if (WITH_SQLITE)
   list(APPEND definitions "-DSQLITE_THREADSAFE=1")
   list(APPEND definitions "-DSQLITE_USE_URI")
   list(APPEND definitions "-DHAVE_USLEEP=1")
-  list(APPEND linq_netw_SOURCES ./sqlite3.c ./sqlite3.h)
+  list(APPEND linq_netw_SOURCES 
+    ./sqlite3.c 
+    ./sqlite3.h
+    ./database/database.c
+    ./database/database.h)
 else()
   MESSAGE(STATUS "SQlite Disabled")
 endif()

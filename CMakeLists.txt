@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(BUILD_DEPENDENCIES "Whether or not to build the tests" ON)
 option(WITH_MONGOOSE "Include HTTP support" ON)
+option(WITH_SQLITE "Include database support" ON)
+
 set(LINQ_BUILD_DEPENDENCIES
     ${BUILD_DEPENDENCIES}
     CACHE BOOL "Build the external directory for linq-netw")
