@@ -5,6 +5,7 @@
 #ifndef SYS_H
 #define SYS_H
 
+#include <assert.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdarg.h>
