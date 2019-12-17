@@ -62,6 +62,7 @@ if(ENABLE_TESTING)
     '${PROJECT_SOURCE_DIR}/examples/*' 
     '${PROJECT_SOURCE_DIR}/src/base64.*'   # external copy/pasted
     '${PROJECT_SOURCE_DIR}/src/mongoose.*' # external copy/pasted
+    '${PROJECT_SOURCE_DIR}/src/sqlite3.*'  # external copy/pasted
     '${PROJECT_SOURCE_DIR}/src/mock/*'
     '${PROJECT_SOURCE_DIR}/external/*')
 
