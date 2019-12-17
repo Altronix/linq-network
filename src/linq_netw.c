@@ -28,6 +28,9 @@ typedef struct linq_netw_s
 #if WITH_MONGOOSE
     http_s http;
 #endif
+#if WITH_SQLITE
+    database_s database;
+#endif
 } linq_netw_s;
 
 static void
@@ -111,6 +114,7 @@ linq_netw_create(const linq_netw_callbacks* cb, void* context)
         http_use(&l->http, "/api/v1/linq/proxy", route_proxy, l);
 #endif
 #if WITH_SQLITE
+        database_init(&l->database);
         http_use(&l->http, "/api/vi/linq/alerts", route_alerts, l);
 #endif
     }
@@ -128,6 +132,9 @@ linq_netw_destroy(linq_netw_s** linq_netw_p)
     node_map_destroy(&l->nodes);
 #if WITH_MONGOOSE
     http_deinit(&l->http);
+#endif
+#if WITH_SQLITE
+    database_deinit(&l->database);
 #endif
     linq_netw_free(l);
 }

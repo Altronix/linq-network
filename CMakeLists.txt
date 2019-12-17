@@ -1,25 +1,65 @@
 cmake_minimum_required(VERSION 3.11)
 project(linq-netw)
 
+# dependency install
+include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
+find_package(Threads)
+
 # Compiler stuff
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-option(BUILD_DEPENDENCIES "Whether or not to build the tests" ON)
-option(WITH_MONGOOSE "Include HTTP support" ON)
-option(WITH_SQLITE "Include database support" ON)
-
-set(LINQ_BUILD_DEPENDENCIES
-    ${BUILD_DEPENDENCIES}
-    CACHE BOOL "Build the external directory for linq-netw")
 set(LINQ_LOG_LEVEL
   "TRACE"
   CACHE STRING 
   "set logging to TRACE, DEBUG, INFO, WARN, ERROR, FATAL, NONE")
+MESSAGE(STATUS "LINQ_LOG_LEVEL set ${LINQ_LOG_LEVEL}")
+function(append_log_level_compiler_flags dst)
+  list(APPEND definitions "-DLINQ_LOG_LEVEL=${LINQ_LOG_LEVEL}")
+  set(${dst} ${definitions} PARENT_SCOPE)
+endfunction()
 
-# dependency install
-include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
-find_package(Threads)
+option(WITH_MONGOOSE "Include HTTP support" ON)
+if(WITH_MONGOOSE)
+  function(append_mongoose_compiler_flags dst)
+    list(APPEND definitions "-DWITH_MONGOOSE")
+    list(APPEND definitions "-DMG_ENABLE_HTTP_STREAMING_MULTIPART")
+    list(APPEND definitions "-DMG_ENABLE_WEBSOCKET")
+    list(APPEND definitions "-DMG_ENABLE_CALLBACK_USERDATA")
+    set(${dst} ${definitions} PARENT_SCOPE)
+  endfunction()
+endif()
+
+option(WITH_SQLITE "Include database support" ON)
+if(WITH_SQLITE)
+  function(append_sqlite_compiler_flags dst)
+    list(APPEND definitions "-DWITH_SQLITE")
+    list(APPEND definitions "-DSQLITE_CORE")
+    list(APPEND definitions "-DSQLITE_DEFAULT_FORIEGN_KEYS=1")
+    list(APPEND definitions "-DSQLITE_ENABLE_API_ARMOR")
+    list(APPEND definitions "-DSQLITE_ENABLE_COLUMN_METADATA")
+    list(APPEND definitions "-DSQLITE_ENABLE_DBSTAT_VTAB")
+    list(APPEND definitions "-DSQLITE_ENABLE_FTS3")
+    list(APPEND definitions "-DSQLITE_ENABLE_FTS3_PARENTHESIS")
+    list(APPEND definitions "-DSQLITE_ENABLE_FTS5")
+    list(APPEND definitions "-DSQLITE_ENABLE_JSON1")
+    list(APPEND definitions "-DSQLITE_ENABLE_LOAD_EXTENSION")
+    list(APPEND definitions "-DSQLITE_ENABLE_MEMORY_MANAGEMENT")
+    list(APPEND definitions "-DSQLITE_ENABLE_RTREE")
+    list(APPEND definitions "-DSQLITE_ENABLE_STAT2")
+    list(APPEND definitions "-DSQLITE_ENABLE_STAT4")
+    list(APPEND definitions "-DSQLITE_SOUNDEX")
+    list(APPEND definitions "-DSQLITE_THREADSAFE=1")
+    list(APPEND definitions "-DSQLITE_USE_URI")
+    list(APPEND definitions "-DHAVE_USLEEP=1")
+    set(${dst} ${definitions} PARENT_SCOPE)
+  endfunction()
+endif()
+
+option(BUILD_DEPENDENCIES "Whether or not to build the tests" ON)
+set(LINQ_BUILD_DEPENDENCIES
+    ${BUILD_DEPENDENCIES}
+    CACHE BOOL "Build the external directory for linq-netw")
 if(LINQ_BUILD_DEPENDENCIES)
   include(cmake/libzmq.cmake)
   include(cmake/czmq.cmake)

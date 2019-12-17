@@ -13,6 +13,7 @@ set(headers
     containers.h
     jsmn_helpers.h
     linq_netw_internal.h
+    log.h
     device.h
     node.h
     zmtp.h)
@@ -28,26 +29,10 @@ set(linq_netw_unix_HEADERS ./sys/unix/sys.h)
 set(linq_netw_mock_SOURCES ./sys/mock/sys.c)
 set(linq_netw_mock_HEADERS ./sys/mock/sys.h)
 
-if (${LINQ_LOG_LEVEL} STREQUAL "TRACE" OR
-    ${LINQ_LOG_LEVEL} STREQUAL "DEBUG" OR
-    ${LINQ_LOG_LEVEL} STREQUAL "INFO" OR
-    ${LINQ_LOG_LEVEL} STREQUAL "WARN" OR
-    ${LINQ_LOG_LEVEL} STREQUAL "ERROR" OR
-    ${LINQ_LOG_LEVEL} STREQUAL "FATAL" OR
-    ${LINQ_LOG_LEVEL} STREQUAL "NONE")
-  MESSAGE(STATUS "LINQ_LOG_LEVEL set ${LINQ_LOG_LEVEL}")
-  list(APPEND definitions "-DLINQ_LOG_LEVEL=${LINQ_LOG_LEVEL}")
-  list(APPEND linq_netw_HEADERS log.h)
-else()
-  MESSAGE(STATUS "LINQ_LOG_LEVEL DISABLED")
-endif()
+append_log_level_compiler_flags(definitions)
 
 if (WITH_MONGOOSE)
   MESSAGE(STATUS "MONGOOSE ENABLED")
-  list(APPEND definitions "-DWITH_MONGOOSE")
-  list(APPEND definitions "-DMG_ENABLE_HTTP_STREAMING_MULTIPART")
-  list(APPEND definitions "-DMG_ENABLE_WEBSOCKET")
-  list(APPEND definitions "-DMG_ENABLE_CALLBACK_USERDATA")
   list(APPEND linq_netw_HEADERS mongoose.h http.h ./routes/routes.h)
   list(APPEND linq_netw_SOURCES 
     mongoose.c 
@@ -55,35 +40,19 @@ if (WITH_MONGOOSE)
     ./routes/route_alerts.c
     ./routes/route_devices.c
     ./routes/route_proxy.c)
+  append_mongoose_compiler_flags(definitions)
 else()
   MESSAGE(STATUS "MONGOOSE DISABLED")
 endif()
 
 if (WITH_SQLITE)
   MESSAGE(STATUS "SQlite Enabled")
-  list(APPEND definitions "-DSQLITE_CORE")
-  list(APPEND definitions "-DSQLITE_DEFAULT_FORIEGN_KEYS=1")
-  list(APPEND definitions "-DSQLITE_ENABLE_API_ARMOR")
-  list(APPEND definitions "-DSQLITE_ENABLE_COLUMN_METADATA")
-  list(APPEND definitions "-DSQLITE_ENABLE_DBSTAT_VTAB")
-  list(APPEND definitions "-DSQLITE_ENABLE_FTS3")
-  list(APPEND definitions "-DSQLITE_ENABLE_FTS3_PARENTHESIS")
-  list(APPEND definitions "-DSQLITE_ENABLE_FTS5")
-  list(APPEND definitions "-DSQLITE_ENABLE_JSON1")
-  list(APPEND definitions "-DSQLITE_ENABLE_LOAD_EXTENSION")
-  list(APPEND definitions "-DSQLITE_ENABLE_MEMORY_MANAGEMENT")
-  list(APPEND definitions "-DSQLITE_ENABLE_RTREE")
-  list(APPEND definitions "-DSQLITE_ENABLE_STAT2")
-  list(APPEND definitions "-DSQLITE_ENABLE_STAT4")
-  list(APPEND definitions "-DSQLITE_SOUNDEX")
-  list(APPEND definitions "-DSQLITE_THREADSAFE=1")
-  list(APPEND definitions "-DSQLITE_USE_URI")
-  list(APPEND definitions "-DHAVE_USLEEP=1")
   list(APPEND linq_netw_SOURCES 
     ./sqlite3.c 
     ./sqlite3.h
     ./database/database.c
     ./database/database.h)
+  append_sqlite_compiler_flags(definitions)
 else()
   MESSAGE(STATUS "SQlite Disabled")
 endif()
@@ -103,7 +72,8 @@ if(NOT MSVC)
                         rt
                         m
                         stdc++
-                        uuid)
+                        uuid
+                        dl)
   target_compile_definitions(linq-netw PUBLIC ${definitions})
   target_include_directories(linq-netw PUBLIC ../include)
   target_include_directories(linq-netw PUBLIC ./sys/unix)
@@ -147,7 +117,8 @@ if(ENABLE_TESTING)
                         rt
                         m
                         stdc++
-                        uuid)
+                        uuid
+                        dl)
   target_compile_definitions(linq-netw-test PUBLIC ${definitions})
   target_include_directories(linq-netw-test PUBLIC ../include)
   target_include_directories(linq-netw-test PUBLIC ./)
