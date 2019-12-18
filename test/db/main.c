@@ -50,6 +50,64 @@ test_db_row_exists(void** context_p)
     sqlite_spy_deinit();
 }
 
+static void
+test_db_insert(void** context_p)
+{
+    ((void)context_p);
+
+    ((void)context_p);
+    sqlite_spy_init();
+    outgoing_statement* statement = NULL;
+    const char* expect = "INSERT INTO devices("
+                         "device_id,"
+                         "product,"
+                         "prj_version,"
+                         "atx_version,"
+                         "mfg,"
+                         "mac"
+                         ") "
+                         "VALUES("
+                         "serial-id,"
+                         "LINQ2,"
+                         "2.00.00,"
+                         "2.00.00,"
+                         "Altronix,"
+                         "00:00:00:AA:AA:AA"
+                         ");";
+
+    database_s d;
+    database_init(&d);
+
+    // Remove any outgoing statements generated from init()
+    while ((statement = sqlite_spy_outgoing_statement_pop())) {
+        linq_netw_free(statement);
+    }
+
+    // clang-format off
+    database_insert(
+        &d,
+        "devices",
+        6,
+        "device_id",   "serial-id",
+        "product",     "LINQ2",
+        "prj_version", "2.00.00",
+        "atx_version", "2.00.00",
+        "mfg",         "Altronix",
+        "mac",         "00:00:00:AA:AA:AA");
+    //clang-format on
+
+    statement = sqlite_spy_outgoing_statement_pop();
+    assert_non_null(statement);
+    assert_string_equal(expect, statement->data);
+    linq_netw_free(statement);
+
+    statement = sqlite_spy_outgoing_statement_pop();
+    assert_null(statement);
+
+    database_deinit(&d);
+    sqlite_spy_deinit();
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -57,7 +115,8 @@ main(int argc, char* argv[])
     ((void)argv);
     int err;
     const struct CMUnitTest tests[] = { cmocka_unit_test(test_db_create),
-                                        cmocka_unit_test(test_db_row_exists) };
+                                        cmocka_unit_test(test_db_row_exists),
+                                        cmocka_unit_test(test_db_insert) };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
     return err;
