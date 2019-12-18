@@ -8,7 +8,7 @@ extern "C"
 {
 #endif
 
-    void database_alerts_create_table(database_s* database);
+    int database_alerts_create_table(database_s* database);
 
 #ifdef __cplusplus
 }
