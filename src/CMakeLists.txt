@@ -41,14 +41,16 @@ if (WITH_SQLITE)
     ./routes/route_devices.c
     ./routes/route_proxy.c
     ./database/database.c
-    ./database/database_alerts.c)
+    ./database/database_alerts.c
+    ./database/database_devices.c)
   list(APPEND linq_netw_HEADERS
     ./sqlite3.h
     ./mongoose.h
     ./http.h
     ./routes/routes.h
     ./database/database.h
-    ./database/database_alerts.h)
+    ./database/database_alerts.h
+    ./database/database_devices.h)
   append_mongoose_compiler_flags(definitions)
   append_sqlite_compiler_flags(definitions)
 else()

@@ -1,4 +1,6 @@
 #include "database.h"
+#include "database_alerts.h"
+#include "database_devices.h"
 #include "log.h"
 
 static bool
@@ -25,8 +27,6 @@ void
 database_init(database_s* d)
 {
     memset(d, 0, sizeof(database_s));
-    const char* enable_keys = "PRAGMA FOREIGN_KEYS = ON;";
-    sqlite3_stmt* sql;
 
     // Open database
     int err = sqlite3_open_v2(
@@ -35,23 +35,28 @@ database_init(database_s* d)
         SQLITE_OPEN_URI | SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
         NULL);
     linq_netw_assert(err == SQLITE_OK);
+    ((void)err);
 
     // Enable FOREIGN_KEYS
-    err = sqlite3_prepare_v2(d->db, enable_keys, -1, &sql, NULL);
-    linq_netw_assert(err == SQLITE_OK);
-    err = sqlite3_step(sql);
-    linq_netw_assert(err == SQLITE_DONE);
-    sqlite3_finalize(sql);
+    database_assert_command(d, "PRAGMA FOREIGN_KEYS = ON;");
 
-    // TODO create databases if they do not exist
-    /*
-    if (database_table_exists(d, "Alert")) {
-        log_info("(DATA) [Alerts] Found!");
+    if (!table_exists(d, "devices")) {
+        log_info("(DATA) [devices] Not found!");
+        log_info("(DATA) [devices] Creating \"devices\" database...");
+        database_devices_create_table(d, "devices");
+        log_info("(DATA) [devices] Database created success!");
     } else {
-        log_info("(DATA) [Alerts] Not found!");
-        log_info("(DATA) [Alerts] Creating \"Alerts\" database");
+        log_info("(DATA) [devices] Database found!");
     }
-    */
+
+    if (!table_exists(d, "alerts")) {
+        log_info("(DATA) [alerts] Not found!");
+        log_info("(DATA) [alerts] Creating \"alerts\" database...");
+        database_alerts_create_table(d, "alerts");
+        log_info("(DATA) [alerts] Database created success!");
+    } else {
+        log_info("(DATA) [alerts] Database found!");
+    }
 }
 
 void
