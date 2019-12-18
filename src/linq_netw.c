@@ -8,12 +8,10 @@
 #include "sys.h"
 #include "zmtp.h"
 
-#if WITH_MONGOOSE
-#include "http.h"
-#include "routes/routes.h"
-#endif
 
 #if WITH_SQLITE
+#include "http.h"
+#include "routes/routes.h"
 #include "database/database.h"
 #endif
 
@@ -25,10 +23,8 @@ typedef struct linq_netw_s
     device_map_s* devices;
     node_map_s* nodes;
     zmtp_s zmtp;
-#if WITH_MONGOOSE
-    http_s http;
-#endif
 #if WITH_SQLITE
+    http_s http;
     database_s database;
 #endif
 } linq_netw_s;
@@ -108,7 +104,7 @@ linq_netw_create(const linq_netw_callbacks* cb, void* context)
         l->callbacks = cb;
         l->context = context ? context : l;
         zmtp_init(&l->zmtp, &l->devices, &l->nodes, &zmtp_callbacks, l);
-#if WITH_MONGOOSE
+#if WITH_SQLITE
         http_init(&l->http);
         http_use(&l->http, "/api/v1/linq/devices", route_devices, l);
         http_use(&l->http, "/api/v1/linq/proxy", route_proxy, l);
@@ -130,10 +126,8 @@ linq_netw_destroy(linq_netw_s** linq_netw_p)
     zmtp_deinit(&l->zmtp);
     device_map_destroy(&l->devices);
     node_map_destroy(&l->nodes);
-#if WITH_MONGOOSE
-    http_deinit(&l->http);
-#endif
 #if WITH_SQLITE
+    http_deinit(&l->http);
     database_deinit(&l->database);
 #endif
     linq_netw_free(l);
@@ -201,7 +195,7 @@ linq_netw_poll(linq_netw_s* l, int32_t ms)
 {
     E_LINQ_ERROR err = zmtp_poll(&l->zmtp, ms);
     if (err) log_error("%06s %04s", "(ZMTP)", "Poll err", err);
-#if WITH_MONGOOSE
+#if WITH_SQLITE
     err = http_poll(&l->http, ms);
     if (err) { err = LINQ_ERROR_IO; }
 #endif

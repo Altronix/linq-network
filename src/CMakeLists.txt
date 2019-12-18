@@ -31,29 +31,25 @@ set(linq_netw_mock_HEADERS ./sys/mock/sys.h)
 
 append_log_level_compiler_flags(definitions)
 
-if (WITH_MONGOOSE)
-  MESSAGE(STATUS "MONGOOSE ENABLED")
-  list(APPEND linq_netw_HEADERS mongoose.h http.h ./routes/routes.h)
-  list(APPEND linq_netw_SOURCES 
-    mongoose.c 
-    http.c
-    ./routes/route_alerts.c
-    ./routes/route_devices.c
-    ./routes/route_proxy.c)
-  append_mongoose_compiler_flags(definitions)
-else()
-  MESSAGE(STATUS "MONGOOSE DISABLED")
-endif()
-
 if (WITH_SQLITE)
   MESSAGE(STATUS "SQlite Enabled")
   list(APPEND linq_netw_SOURCES 
     ./sqlite3.c 
-    ./sqlite3.h
+    ./mongoose.c
+    ./http.c
+    ./routes/route_alerts.c
+    ./routes/route_devices.c
+    ./routes/route_proxy.c
     ./database/database.c
+    ./database/database_alerts.c)
+  list(APPEND linq_netw_HEADERS
+    ./sqlite3.h
+    ./mongoose.h
+    ./http.h
+    ./routes/routes.h
     ./database/database.h
-    ./database/database_alerts.c
     ./database/database_alerts.h)
+  append_mongoose_compiler_flags(definitions)
   append_sqlite_compiler_flags(definitions)
 else()
   MESSAGE(STATUS "SQlite Disabled")
