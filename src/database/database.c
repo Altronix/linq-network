@@ -30,7 +30,6 @@ bool
 database_table_exists(database_s* d, const char* table)
 {
     char stmt[128];
-    const char* ptr;
     bool ret = false;
     sqlite3_stmt* result;
     int err,

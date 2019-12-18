@@ -51,7 +51,9 @@ if (WITH_SQLITE)
     ./sqlite3.c 
     ./sqlite3.h
     ./database/database.c
-    ./database/database.h)
+    ./database/database.h
+    ./database/database_alerts.c
+    ./database/database_alerts.h)
   append_sqlite_compiler_flags(definitions)
 else()
   MESSAGE(STATUS "SQlite Disabled")
