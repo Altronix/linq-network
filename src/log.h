@@ -24,42 +24,42 @@ extern "C"
         LINQ_NONE
     } E_LOG_LEVEL;
 
-#if LINQ_LOG_LEVEL == TRACE
+#if LINQ_LOG_LEVEL == 6
 #define log_trace(...) log_log(LINQ_TRACE, __FILE__, __LINE__, __VA_ARGS__)
 #define log_debug(...) log_log(LINQ_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
 #define log_info(...) log_log(LINQ_INFO, __FILE__, __LINE__, __VA_ARGS__)
 #define log_warn(...) log_log(LINQ_WARN, __FILE__, __LINE__, __VA_ARGS__)
 #define log_error(...) log_log(LINQ_ERROR, __FILE__, __LINE__, __VA_ARGS__)
 #define log_fatal(...) log_log(LINQ_FATAL, __FILE__, __LINE__, __VA_ARGS__)
-#elif LINQ_LOG_LEVEL == DEBUG
+#elif LINQ_LOG_LEVEL == 5
 #define log_trace(...)
 #define log_debug(...) log_log(LINQ_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
 #define log_info(...) log_log(LINQ_INFO, __FILE__, __LINE__, __VA_ARGS__)
 #define log_warn(...) log_log(LINQ_WARN, __FILE__, __LINE__, __VA_ARGS__)
 #define log_error(...) log_log(LINQ_ERROR, __FILE__, __LINE__, __VA_ARGS__)
 #define log_fatal(...) log_log(LINQ_FATAL, __FILE__, __LINE__, __VA_ARGS__)
-#elif LINQ_LOG_LEVEL == INFO
+#elif LINQ_LOG_LEVEL == 4
 #define log_trace(...)
 #define log_debug(...)
 #define log_info(...) log_log(LINQ_INFO, __FILE__, __LINE__, __VA_ARGS__)
 #define log_warn(...) log_log(LINQ_WARN, __FILE__, __LINE__, __VA_ARGS__)
 #define log_error(...) log_log(LINQ_ERROR, __FILE__, __LINE__, __VA_ARGS__)
 #define log_fatal(...) log_log(LINQ_FATAL, __FILE__, __LINE__, __VA_ARGS__)
-#elif LINQ_LOG_LEVEL == WARN
+#elif LINQ_LOG_LEVEL == 3
 #define log_trace(...)
 #define log_debug(...)
 #define log_info(...)
 #define log_warn(...) log_log(LINQ_WARN, __FILE__, __LINE__, __VA_ARGS__)
 #define log_error(...) log_log(LINQ_ERROR, __FILE__, __LINE__, __VA_ARGS__)
 #define log_fatal(...) log_log(LINQ_FATAL, __FILE__, __LINE__, __VA_ARGS__)
-#elif LINQ_LOG_LEVEL == ERROR
+#elif LINQ_LOG_LEVEL == 2
 #define log_trace(...)
 #define log_debug(...)
 #define log_info(...)
 #define log_warn(...)
 #define log_error(...) log_log(LINQ_ERROR, __FILE__, __LINE__, __VA_ARGS__)
 #define log_fatal(...) log_log(LINQ_FATAL, __FILE__, __LINE__, __VA_ARGS__)
-#elif LINQ_LOG_LEVEL == FATAL
+#elif LINQ_LOG_LEVEL == 1
 #define log_trace(...)
 #define log_debug(...)
 #define log_info(...)
