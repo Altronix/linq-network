@@ -8,11 +8,10 @@
 #include "sys.h"
 #include "zmtp.h"
 
-
 #if WITH_SQLITE
+#include "database/database.h"
 #include "http.h"
 #include "routes/routes.h"
-#include "database/database.h"
 #endif
 
 // Main class
@@ -32,7 +31,7 @@ typedef struct linq_netw_s
 static void
 on_zmtp_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 {
-    log_error("%06s %04s [%d]", "(ZMTP)", "Evnt ERROR", e);
+    log_error("%06s Event Error [%d]", "(ZMTP)", e);
     linq_netw_s* l = ctx;
     if (l->callbacks && l->callbacks->err) {
         l->callbacks->err(l->context, e, what, serial);
@@ -42,7 +41,7 @@ on_zmtp_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 static void
 on_zmtp_heartbeat(void* ctx, const char* serial, device_s** d)
 {
-    log_info("%06s %04s [%s]", "(ZMTP)", "Evnt HEART", serial);
+    log_info("%06s Event Heartbeat [%s]", "(ZMTP)", serial);
     linq_netw_s* l = ctx;
     if (l->callbacks && l->callbacks->hb) {
         l->callbacks->hb(l->context, serial, d);
@@ -65,9 +64,8 @@ on_zmtp_alert(
     memcpy(p[2], a->where.p, a->where.len < 128 ? a->where.len : 128);
     memcpy(p[3], a->mesg.p, a->mesg.len < 128 ? a->mesg.len : 128);
     log_info(
-        "%06s %04s [%s] [%s] [%s] [%s]",
+        "%06s Event Alert [%s] [%s] [%s] [%s]",
         "(ZMTP)",
-        "Evnt.",
         p[0],
         p[1],
         p[2],
@@ -81,7 +79,7 @@ on_zmtp_alert(
 static void
 on_zmtp_ctrlc(void* ctx)
 {
-    log_info("%06s %04s", "(ZMTP)", "Received shutdown signal");
+    log_info("%06s Received shutdown signall...", "(ZMTP)");
     linq_netw_s* l = ctx;
     if (l->callbacks && l->callbacks->ctrlc) l->callbacks->ctrlc(l->context);
 }
@@ -145,19 +143,19 @@ linq_netw_listen(linq_netw_s* l, const char* ep)
 {
     int ep_len = strlen(ep);
     if (ep_len > 9 && !(memcmp(ep, "http://*:", 9))) {
-        log_info("%06s %04s [%s]", "(HTTP)", "Listening", &ep[9]);
+        log_info("%06s listening... [%s]", "(HTTP)", &ep[9]);
         http_listen(&l->http, &ep[9]);
         return 0;
     } else if (ep_len > 15 && !(memcmp(ep, "http://0.0.0.0:", 15))) {
-        log_info("%06s %04s [%s]", "(HTTP)", "Listening", &ep[15]);
+        log_info("%06s listening... [%s]", "(HTTP)", &ep[15]);
         http_listen(&l->http, &ep[15]);
         return 0;
     } else if (ep_len > 17 && !(memcmp(ep, "http://127.0.0.1:", 17))) {
-        log_info("%06s %04s [%s]", "(HTTP)", "Listening", &ep[17]);
+        log_info("%06s listening... [%s]", "(HTTP)", &ep[17]);
         http_listen(&l->http, &ep[17]);
         return 0;
     } else {
-        log_info("%06s %04s [%s]", "(ZMTP)", "Listening", ep);
+        log_info("%06s listening... [%s]", "(ZMTP)", ep);
         return zmtp_listen(&l->zmtp, ep);
     }
 }
@@ -194,7 +192,7 @@ E_LINQ_ERROR
 linq_netw_poll(linq_netw_s* l, int32_t ms)
 {
     E_LINQ_ERROR err = zmtp_poll(&l->zmtp, ms);
-    if (err) log_error("%06s %04s", "(ZMTP)", "Poll err", err);
+    if (err) log_error("%06s polling error %d", "(ZMTP)", err);
 #if WITH_SQLITE
     err = http_poll(&l->http, ms);
     if (err) { err = LINQ_ERROR_IO; }
