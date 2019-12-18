@@ -67,6 +67,25 @@ table_exists(database_s* d, const char* table)
     return ret;
 }
 
+static int
+row_insert(database_s* d, const char* table, const char* keys, const char* vals)
+{
+    char stmt[2048 + 512 + 256]; // TODO
+    sqlite3_stmt* sql;
+    int err, n = snprintf(
+                 stmt,
+                 sizeof(stmt),
+                 "INSERT INTO %s(%s) VALUES(%s);",
+                 table,
+                 keys,
+                 vals);
+    linq_netw_assert(n + 1 <= sizeof(stmt));
+    err = sqlite3_prepare_v2(d->db, stmt, n + 1, &sql, NULL);
+    linq_netw_assert(err == SQLITE_OK);
+    err = sqlite3_step(sql);
+    sqlite3_finalize(sql);
+}
+
 static void
 create_table(database_s* d, const char* name, const char* database)
 {
@@ -127,6 +146,18 @@ database_row_exists(
     return row_exists(d, table, key, val);
 }
 
+bool
+database_row_exists_str(
+    database_s* d,
+    const char* table,
+    const char* key,
+    const char* val)
+{
+    char val_str[256];
+    snprintf(val_str, sizeof(val_str), "\"%s\"", val);
+    return row_exists(d, table, key, val_str);
+}
+
 int
 database_insert(database_s* d, const char* table, int n_columns, ...)
 {
@@ -135,7 +166,7 @@ database_insert(database_s* d, const char* table, int n_columns, ...)
     char stmt[2048 + 512 + 256]; // TODO
     sqlite3_stmt* sql;
     const char *key, *val;
-    int err, n, sk = 0, sv = 0;
+    int n, sk = 0, sv = 0;
     va_list list;
     n = n_columns << 1;
 
@@ -153,17 +184,38 @@ database_insert(database_s* d, const char* table, int n_columns, ...)
         }
     }
     va_end(list);
-    n = snprintf(
-        stmt,
-        sizeof(stmt),
-        "INSERT INTO %s(%s) VALUES(%s);",
-        table,
-        keys,
-        vals);
-    linq_netw_assert(n + 1 <= sizeof(stmt));
-    err = sqlite3_prepare_v2(d->db, stmt, n + 1, &sql, NULL);
-    linq_netw_assert(err == SQLITE_OK);
-    err = sqlite3_step(sql);
-    sqlite3_finalize(sql);
-    return err;
+    return row_insert(d, table, keys, vals);
+}
+
+int
+database_insert_n(database_s* d, const char* table, int n_columns, ...)
+{
+    char keys[512];  // TODO
+    char vals[2048]; // TODO
+    const char *key, *val;
+    int val_len, n, sk = 0, sv = 0;
+    va_list list;
+    n = n_columns * 3;
+
+    va_start(list, n_columns);
+    while (n >= 3) {
+        n -= 3;
+        key = va_arg(list, const char*);
+        val = va_arg(list, const char*);
+        val_len = va_arg(list, int);
+        linq_netw_assert(sizeof(vals) - sv > sv + val_len + 1);
+        if (n) {
+            sk += snprintf(&keys[sk], sizeof(keys) - sk, "%s,", key);
+            memcpy(&vals[sv], val, val_len);
+            vals[sv + val_len] = ',';
+            sv += (val_len + 1);
+        } else {
+            sk += snprintf(&keys[sk], sizeof(keys) - sk, "%s", key);
+            memcpy(&vals[sv], val, val_len);
+            vals[sv + val_len] = '\0';
+        }
+    }
+    va_end(list);
+
+    return row_insert(d, table, keys, vals);
 }

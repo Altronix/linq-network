@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "altronix/linq_netw.h"
+#include "jsmn_helpers.h"
 #include "log.h"
 #include "node.h"
 #include "sys.h"
@@ -39,12 +40,35 @@ on_zmtp_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 }
 
 static void
-on_zmtp_heartbeat(void* ctx, const char* serial, device_s** d)
+on_heartbeat_response(
+    void* ctx,
+    E_LINQ_ERROR e,
+    const char* response,
+    device_s** d)
 {
-    log_info("%06s Event Heartbeat [%s]", "(ZMTP)", serial);
+    linq_str product, prj_version, atx_version, web_version, mac;
+    jsmntok_t t[64];
+    if (e) {
+        log_warn("(ZMTP) About request failed! [%s]", device_serial(*d));
+    } else {
+        log_info("(ZMTP) Received About response...");
+    }
+}
+
+static void
+on_zmtp_heartbeat(void* ctx, const char* sid, device_s** d)
+{
+    log_info("(ZMTP) Event Heartbeat [%s]", sid);
     linq_netw_s* l = ctx;
+    /*
+    // TODO break's test
+    if (!database_row_exists_str(&l->database, "devices", "device_id", sid)) {
+        log_info("(ZMTP) New device connected, requesting about data...");
+        device_send_get(*d, "/ATX/about", on_heartbeat_response, l);
+    }
+    */
     if (l->callbacks && l->callbacks->hb) {
-        l->callbacks->hb(l->context, serial, d);
+        l->callbacks->hb(l->context, sid, d);
     }
 }
 

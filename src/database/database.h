@@ -32,7 +32,13 @@ extern "C"
         const char* table,
         const char* key,
         const char* val);
+    bool database_row_exists_str(
+        database_s* d,
+        const char* table,
+        const char* key,
+        const char* val);
     int database_insert(database_s* d, const char* table, int n_columns, ...);
+    int database_insert_n(database_s* d, const char* table, int n_columns, ...);
 
 #ifdef __cplusplus
 }
