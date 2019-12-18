@@ -937,6 +937,9 @@ static void
 test_linq_netw_close_router(void** context_p)
 {
     ((void)context_p);
+
+    test_init();
+
     linq_netw_s* linq = linq_netw_create(NULL, NULL);
     linq_netw_socket l0 = linq_netw_listen(linq, "tcp://1.2.3.4:8080");
     linq_netw_socket l1 = linq_netw_listen(linq, "tcp://5.6.7.8:8080");
@@ -993,6 +996,9 @@ static void
 test_linq_netw_devices_foreach(void** context_p)
 {
     ((void)context_p);
+
+    test_init();
+
     linq_netw_s* linq = linq_netw_create(NULL, NULL);
     linq_netw_listen(linq, "tcp://1.2.3.4:8080");
     linq_netw_listen(linq, "tcp://5.6.7.8:8080");
