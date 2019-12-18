@@ -17,6 +17,7 @@ extern "C"
     void sqlite_spy_init();
     void sqlite_spy_deinit();
     outgoing_statement* sqlite_spy_outgoing_statement_pop();
+    void sqlite_spy_step_return_push(int ret);
 
 #ifdef __cplusplus
 }

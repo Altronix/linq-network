@@ -28,6 +28,9 @@ test_init()
 #ifdef WITH_SQLITE
     mongoose_spy_init();
     sqlite_spy_init();
+    sqlite_spy_step_return_push(SQLITE_DONE); // PRAGMA
+    sqlite_spy_step_return_push(SQLITE_ROW);  // device database OK
+    sqlite_spy_step_return_push(SQLITE_ROW);  // device database OK
 #endif
 }
 

@@ -84,6 +84,7 @@ row_insert(database_s* d, const char* table, const char* keys, const char* vals)
     linq_netw_assert(err == SQLITE_OK);
     err = sqlite3_step(sql);
     sqlite3_finalize(sql);
+    return err;
 }
 
 static void
@@ -163,8 +164,6 @@ database_insert(database_s* d, const char* table, int n_columns, ...)
 {
     char keys[512];              // TODO
     char vals[2048];             // TODO
-    char stmt[2048 + 512 + 256]; // TODO
-    sqlite3_stmt* sql;
     const char *key, *val;
     int n, sk = 0, sv = 0;
     va_list list;
@@ -191,7 +190,7 @@ int
 database_insert_n(database_s* d, const char* table, int n_columns, ...)
 {
     char keys[512];  // TODO
-    char vals[2048]; // TODO
+    char vals[2048]; // TODO MAX column * MAX_TEXT + sizeof INSERT...
     const char *key, *val;
     int val_len, n, sk = 0, sv = 0;
     va_list list;
