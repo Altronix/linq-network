@@ -39,6 +39,7 @@ on_zmtp_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
     }
 }
 
+/*
 static void
 on_heartbeat_response(
     void* ctx,
@@ -52,21 +53,21 @@ on_heartbeat_response(
         log_warn("(ZMTP) About request failed! [%s]", device_serial(*d));
     } else {
         log_info("(ZMTP) Received About response...");
+        // TODO need to parse path
     }
 }
+*/
 
 static void
 on_zmtp_heartbeat(void* ctx, const char* sid, device_s** d)
 {
     log_info("(ZMTP) Event Heartbeat [%s]", sid);
     linq_netw_s* l = ctx;
-    /*
-    // TODO break's test
     if (!database_row_exists_str(&l->database, "devices", "device_id", sid)) {
         log_info("(ZMTP) New device connected, requesting about data...");
-        device_send_get(*d, "/ATX/about", on_heartbeat_response, l);
+        // TODO break's test - define test's as device not in db or is in db
+        // device_send_get(*d, "/ATX/about", on_heartbeat_response, l);
     }
-    */
     if (l->callbacks && l->callbacks->hb) {
         l->callbacks->hb(l->context, sid, d);
     }
