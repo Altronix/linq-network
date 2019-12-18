@@ -8,6 +8,10 @@
 #include "linq_netw_internal.h"
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
+#ifdef WITH_SQLITE
+#include "mock_mongoose.h"
+#include "mock_sqlite.h"
+#endif
 
 #include <setjmp.h>
 
@@ -19,6 +23,15 @@ static const char* expect_what = "";
 static const char* expect_sid = "";
 
 static void
+test_init()
+{
+#ifdef WITH_SQLITE
+    mongoose_spy_init();
+    sqlite_spy_init();
+#endif
+}
+
+static void
 test_reset()
 {
     expect_error = LINQ_ERROR_OK;
@@ -26,6 +39,10 @@ test_reset()
     expect_sid = empty;
     czmq_spy_mesg_reset();
     czmq_spy_poll_reset();
+#ifdef WITH_SQLITE
+    mongoose_spy_deinit();
+    sqlite_spy_deinit();
+#endif
 }
 
 static void
@@ -78,10 +95,12 @@ static void
 test_linq_netw_create(void** context_p)
 {
     ((void)context_p);
+    test_init();
     linq_netw_s* l = linq_netw_create(NULL, NULL);
     assert_non_null(l);
     linq_netw_destroy(&l);
     assert_null(l);
+    test_reset();
 }
 
 static void
@@ -91,6 +110,7 @@ test_linq_netw_receive_protocol_error_short(void** context_p)
     bool pass = false;
     zmsg_t* m = helpers_create_message_str(2, "too", "short");
 
+    test_init();
     expect_error = LINQ_ERROR_PROTOCOL;
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
@@ -115,6 +135,7 @@ test_linq_netw_receive_protocol_error_serial(void** context_p)
     zmsg_t* m = helpers_create_message_mem(
         6, "rid", 3, "\x0", 1, "\x0", 1, sid, SID_LEN + 1, "pid", 3, "site", 4);
 
+    test_init();
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
 
@@ -140,6 +161,7 @@ test_linq_netw_receive_protocol_error_router(void** context_p)
     zmsg_t* m = helpers_create_message_mem(
         6, rid, RID_LEN + 1, "\x0", 1, "\x0", 1, "sid", 3, "pid", 3, "site", 4);
 
+    test_init();
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
 
@@ -163,6 +185,8 @@ test_linq_netw_receive_heartbeat_ok(void** context_p)
     const char* serial = expect_sid = "serial";
     zmsg_t* hb0 = helpers_make_heartbeat("rid0", serial, "product", "site");
     zmsg_t* hb1 = helpers_make_heartbeat("rid00", serial, "product", "site");
+
+    test_init();
 
     // Push some incoming heartbeats
     czmq_spy_mesg_push_incoming(&hb0);
@@ -208,6 +232,8 @@ test_linq_netw_receive_heartbeat_error_short(void** context_p)
     zmsg_t* m = helpers_create_message_mem(
         4, "router", 6, "\x0", 1, "\x0", 1, "product", 7);
 
+    test_init();
+
     expect_error = LINQ_ERROR_PROTOCOL;
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
@@ -230,6 +256,8 @@ test_linq_netw_receive_alert_ok(void** context_p)
     const char* sid = expect_sid = "sid";
     zmsg_t* hb = helpers_make_heartbeat("rid", sid, "pid", "site");
     zmsg_t* alert = helpers_make_alert("rid", sid, "pid");
+
+    test_init();
 
     // Push some incoming messages
     czmq_spy_mesg_push_incoming(&hb);
@@ -272,6 +300,8 @@ test_linq_netw_receive_response_ok(void** context_p)
     zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
     zmsg_t* r = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
 
+    test_init();
+
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_mesg_push_incoming(&r);
     czmq_spy_poll_set_incoming((0x01));
@@ -310,6 +340,8 @@ test_linq_netw_receive_response_error_timeout(void** context_p)
     device_s** d;
     zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
     zmsg_t* r = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
+
+    test_init();
 
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
@@ -368,6 +400,7 @@ test_linq_netw_receive_response_error_codes(void** context_p)
     int codes[] = { 0, 400, 403, 404, 500 };
     for (int i = 0; i < 5; i++) {
         // Setup incoming network (1st poll heartbeat, 2nd poll response)
+        test_init();
         char data[32];
         snprintf(data, sizeof(data), "{\"error\":%d}", codes[i]);
         expect_error = codes[i];
@@ -426,6 +459,8 @@ test_linq_netw_receive_response_error_504(void** context_p)
         helpers_make_response("rid0", serial, 504, "{\"error\":504}")
     };
     zmsg_t* outgoing = NULL;
+
+    test_init();
 
     // Setup code under test
     linq_netw_s* l = linq_netw_create(&callbacks, &pass);
@@ -507,6 +542,8 @@ test_linq_netw_receive_response_ok_504(void** context_p)
     };
     zmsg_t* outgoing = NULL;
 
+    test_init();
+
     // Setup code under test
     linq_netw_s* l = linq_netw_create(NULL, NULL);
     linq_netw_listen(l, "tcp://*:32820");
@@ -563,6 +600,9 @@ static void
 test_linq_netw_receive_hello(void** context_p)
 {
     ((void)context_p);
+
+    test_init();
+
     zmsg_t* m = helpers_make_hello("router", "node");
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
@@ -583,6 +623,8 @@ test_linq_netw_receive_hello_double_id(void** context_p)
     ((void)context_p);
     zmsg_t* m0 = helpers_make_hello("router", "node");
     zmsg_t* m1 = helpers_make_hello("router", "node");
+
+    test_init();
 
     czmq_spy_mesg_push_incoming(&m0);
     czmq_spy_mesg_push_incoming(&m1);
@@ -605,6 +647,9 @@ test_linq_netw_broadcast_heartbeat_receive(void** context_p)
 {
     ((void)context_p);
     zmsg_t* hb = helpers_make_heartbeat(NULL, "serial", "product", "site");
+
+    test_init();
+
     linq_netw_s* linq = linq_netw_create(NULL, NULL);
 
     linq_netw_connect(linq, "ipc:///123");
@@ -627,6 +672,8 @@ test_linq_netw_broadcast_heartbeat(void** context_p)
     zmsg_t* m0 = helpers_make_hello("client-router0", "node0");
     zmsg_t* m1 = helpers_make_hello("client-router1", "node1");
     zmsg_t* outgoing;
+
+    test_init();
 
     // Client sends hello to server, device sends heartbeat to server
     czmq_spy_mesg_push_incoming(&m0);
@@ -683,6 +730,8 @@ test_linq_netw_broadcast_alert(void** context_p)
     zmsg_t* m0 = helpers_make_hello("client-router0", "node0");
     zmsg_t* m1 = helpers_make_hello("client-router1", "node1");
     zmsg_t* outgoing;
+
+    test_init();
 
     // device sends heartbeat to server, two clients connect, device sends alert
     czmq_spy_mesg_push_incoming(&hb);
@@ -744,6 +793,8 @@ test_linq_netw_forward_request(void** context_p)
     hello = helpers_make_hello("router-c", "client123");
     request = helpers_make_request("router-c", "device123", "GET /hello", NULL);
     response = helpers_make_response("router-d", "device123", 0, "world");
+
+    test_init();
 
     czmq_spy_mesg_push_incoming(&hb);       // device heartbeat
     czmq_spy_mesg_push_incoming(&hello);    // remote client hello
@@ -813,6 +864,8 @@ test_linq_netw_forward_client_request(void** context_p)
     zmsg_t* hb = helpers_make_heartbeat(NULL, "device123", "pid", "site");
     zmsg_t* outgoing = NULL;
 
+    test_init();
+
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming(0x01);
 
@@ -851,6 +904,8 @@ test_linq_netw_connect(void** context_p)
 {
     ((void)context_p);
     linq_netw_socket s;
+
+    test_init();
 
     linq_netw_s* linq = linq_netw_create(NULL, NULL);
 

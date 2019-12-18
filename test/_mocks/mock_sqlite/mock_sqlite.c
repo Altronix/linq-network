@@ -13,7 +13,7 @@ sqlite_spy_init()
 void
 sqlite_spy_deinit()
 {
-    statements_list_destroy(&outgoing_statements);
+    if (outgoing_statements) statements_list_destroy(&outgoing_statements);
 }
 
 outgoing_statement*

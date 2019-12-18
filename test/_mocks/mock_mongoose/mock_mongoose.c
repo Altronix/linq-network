@@ -90,8 +90,8 @@ mongoose_spy_init()
 void
 mongoose_spy_deinit()
 {
-    event_list_destroy(&incoming_events);
-    outgoing_data_list_destroy(&outgoing_data);
+    if (incoming_events) event_list_destroy(&incoming_events);
+    if (outgoing_data) outgoing_data_list_destroy(&outgoing_data);
 }
 
 void
