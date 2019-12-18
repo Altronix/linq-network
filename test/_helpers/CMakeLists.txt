@@ -6,6 +6,7 @@ target_link_libraries(helpers
   linq-netw-test
   mock-czmq
   mock-mongoose
+  mock-sqlite
   stdc++
   uuid)
 
