@@ -23,8 +23,10 @@ test_db_row_exists(void** context_p)
     ((void)context_p);
     sqlite_spy_init();
     outgoing_statement* statement = NULL;
-    const char* expect =
-        "SELECT EXISTS(SELECT 1 FROM devices WHERE device_id=test LIMIT 1);";
+    const char* expect = "SELECT EXISTS("
+                         "SELECT 1 FROM devices "
+                         "WHERE device_id=test "
+                         "LIMIT 1);";
 
     database_s d;
     database_init(&d);
