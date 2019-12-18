@@ -36,6 +36,10 @@ extern "C"
     type* tag##_list_pop(tag##_list_s* l);                                     \
     uint32_t tag##_list_size(tag##_list_s* l);
 
+#define LIST_INIT_W_FREE(tag, type)                                            \
+    GENERIC_FREE_FN(type)                                                      \
+    LIST_INIT(tag, type, type##_free_fn)
+
 #define LIST_INIT(tag, type, list_free_fn)                                     \
     KLIST_INIT(tag, type*, FREE_FN)                                            \
                                                                                \

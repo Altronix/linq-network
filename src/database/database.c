@@ -1,7 +1,50 @@
 #include "database.h"
-#include "database_alerts.h"
-#include "database_devices.h"
 #include "log.h"
+
+#define DATABASE_DEVICES                                                       \
+    "CREATE TABLE %s("                                                         \
+    "device_id TEXT PRIMARY KEY,"                                              \
+    "product TEXT,"                                                            \
+    "prj_version TEXT,"                                                        \
+    "atx_version INTEGER,"                                                     \
+    "web_version TEXT,"                                                        \
+    "mac TEXT"                                                                 \
+    ");"
+
+#define DATABASE_ALERTS                                                        \
+    "CREATE TABLE %s("                                                         \
+    "alert_id INTEGER PRIMARY KEY,"                                            \
+    "who TEXT,"                                                                \
+    "what TEXT,"                                                               \
+    "site_id TEXT,"                                                            \
+    "time INTEGER,"                                                            \
+    "mesg TEXT,"                                                               \
+    "name TEXT,"                                                               \
+    "device_id INTEGER,"                                                       \
+    "FOREIGN KEY(device_id) REFERENCES devices(device_id)"                     \
+    ");"
+
+static bool
+row_exists(database_s* d, const char* table, const char* prop, const char* want)
+{
+    char stmt[128];
+    sqlite3_stmt* sql;
+    bool ret;
+    int err, len = snprintf(
+                 stmt,
+                 sizeof(stmt),
+                 "SELECT EXISTS(SELECT 1 FROM %s WHERE %s=%s LIMIT 1);",
+                 table,
+                 prop,
+                 want);
+    linq_netw_assert(len < 128);
+    err = sqlite3_prepare_v2(d->db, stmt, len + 1, &sql, NULL);
+    linq_netw_assert(err == SQLITE_OK);
+    err = sqlite3_step(sql);
+    ret = err == 1 ? true : false;
+    sqlite3_finalize(sql);
+    return ret;
+}
 
 static bool
 table_exists(database_s* d, const char* table)
@@ -10,19 +53,28 @@ table_exists(database_s* d, const char* table)
     bool ret = false;
     sqlite3_stmt* result;
     int err,
-        ln = snprintf(
+        len = snprintf(
             stmt,
             sizeof(stmt),
             "SELECT name FROM sqlite_master WHERE type='table' AND name='%s';",
             table);
-    linq_netw_assert(ln <= 128);
-    err = sqlite3_prepare_v2(d->db, stmt, ln + 1, &result, NULL);
+    linq_netw_assert(len <= 128);
+    err = sqlite3_prepare_v2(d->db, stmt, len + 1, &result, NULL);
     linq_netw_assert(err == SQLITE_OK);
     err = sqlite3_step(result);
     if (err == SQLITE_ROW) ret = true;
     sqlite3_finalize(result);
     return ret;
 }
+
+static void
+create_table(database_s* d, const char* name, const char* database)
+{
+    char table[512];
+    snprintf(table, sizeof(table), database, name);
+    database_assert_command(d, table);
+}
+
 void
 database_init(database_s* d)
 {
@@ -41,21 +93,19 @@ database_init(database_s* d)
     database_assert_command(d, "PRAGMA FOREIGN_KEYS = ON;");
 
     if (!table_exists(d, "devices")) {
-        log_info("(DATA) [devices] Not found!");
-        log_info("(DATA) [devices] Creating \"devices\" database...");
-        database_devices_create_table(d, "devices");
-        log_info("(DATA) [devices] Database created success!");
+        log_info("(DATA) \"devices\" database Not found! Creating database...");
+        create_table(d, "devices", DATABASE_DEVICES);
+        log_info("(DATA) \"devices\" database created success!");
     } else {
-        log_info("(DATA) [devices] Database found!");
+        log_info("(DATA) \"devices\" database found!");
     }
 
     if (!table_exists(d, "alerts")) {
-        log_info("(DATA) [alerts] Not found!");
-        log_info("(DATA) [alerts] Creating \"alerts\" database...");
-        database_alerts_create_table(d, "alerts");
-        log_info("(DATA) [alerts] Database created success!");
+        log_info("(DATA) \"alerts\" database Not found! Creating database...");
+        create_table(d, "alerts", DATABASE_ALERTS);
+        log_info("(DATA) \"alerts\" database created success!");
     } else {
-        log_info("(DATA) [alerts] Database found!");
+        log_info("(DATA) \"alerts\" database found!");
     }
 }
 
@@ -67,3 +117,12 @@ database_deinit(database_s* d)
     ((void)err);
 }
 
+bool
+database_row_exists(
+    database_s* d,
+    const char* table,
+    const char* key,
+    const char* val)
+{
+    return row_exists(d, table, key, val);
+}
