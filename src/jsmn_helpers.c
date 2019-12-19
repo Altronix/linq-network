@@ -108,7 +108,7 @@ jsmn_parse_tokens_path(
 
     uint32_t parent = 0, i = 0, spot = 0, cmplen;
 
-    while (i < max_tokens) {
+    while (i < n_tokens) {
         if (t[i].type == JSMN_OBJECT) {
             parent = i;
             i++;
@@ -125,7 +125,7 @@ jsmn_parse_tokens_path(
                     // Found the object we are looking for...
                     const char* tag;
                     uint32_t taglen;
-                    while (t[i].end <= t[parent].end) {
+                    while (i < n_tokens && t[i].end <= t[parent].end) {
                         if (!is_value(&t[i], data, &tag, &taglen)) {
                             i++;
                             continue;
@@ -148,11 +148,17 @@ jsmn_parse_tokens_path(
                     break;
                 }
             } else {
-                if (!(t[parent].end == (int)sz)) {
-                    while (t[i].start < t[parent].end) { i++; }
-                } else {
+                if (!(++i < n_tokens)) break;
+                int end = t[i].end;
+                while (t[i].start < end) {
                     i++;
+                    //
                 }
+                // if (!(t[parent].end == (int)sz)) {
+                //     while (t[i].start < t[parent].end) { i++; }
+                // } else {
+                //     i++;
+                // }
             }
         } else {
             // JSMN_UNDEFINED || JSMN_ARRAY || JSMN_PRIMITIVE ?
