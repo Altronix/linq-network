@@ -51,8 +51,8 @@ on_heartbeat_response(
     if (e) {
         log_warn(
             "(ZMTP) [%.6s...] (%.3d) About request failed!",
-            e,
-            device_serial(*d));
+            device_serial(*d),
+            e);
     } else {
         // TODO need to parse path
         log_info(
