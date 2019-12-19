@@ -38,6 +38,7 @@ static const char* data_path = //
     "                     \"valB\":\"thatb-thisa-valb\","
     "                     \"valC\":\"thatb-thisa-valc\","
     "                     \"valD\":\"thatb-thisa-vald\","
+    // "                     \"fooD\":{\"valD\":\"gotcha\"},"
     "                     \"valE\":\"thatb-thisa-vale\""
     "           },"
     "           \"thisb\":{"
@@ -48,6 +49,16 @@ static const char* data_path = //
     "                     \"valE\":\"thatb-thisb-vale\""
     "           }"
     "}"
+    "}";
+
+static const char* about_data =
+    "{\"about\":{\"siteId\":\"Site "
+    "ID\",\"prjVersion\":\"2.01.32\",\"productKey\":\"\",\"product\":\"LINQ2\","
+    "\"mqxVersion\":\"4.2.0\",\"atxVersion\":\"2.02.01\",\"sslVersion\":\"3.13."
+    "0\",\"webVersion\":\"2.00.00\",\"mfg\":\"Altronix\",\"user\":\"\",\"mac\":"
+    "\"CC:CE:68:96:5D:EE\",\"sid\":\"cqAIZtK_PLxXdJZIkkMuBS-dfkobQkfeuEFl-"
+    "3JyS94=\",\"iicAddr\":0,\"valid\":{\"mac\":0,\"web\":0,\"mode\":0,"
+    "\"ready\":0,\"webhash\":\"\"},\"policies\":0,\"users\":{},\"address\":25}"
     "}";
 
 static void
@@ -220,14 +231,46 @@ test_parse_path(void** context_p)
     assert_int_equal(count, 0);
 }
 
+static void
+test_parse_about(void** context_p)
+{
+    ((void)context_p);
+
+    int count = 0;
+    linq_str values[5];
+    jsmntok_t t[250];
+
+    // clang-format off
+    count = jsmn_parse_tokens_path(
+        "/about",
+        t,
+        250,
+        about_data,
+        strlen(about_data),
+        6,
+        "sid",        &values[0],
+        "product",    &values[1],
+        "prjVersion", &values[2],
+        "atxVersion", &values[3],
+        "webVersion", &values[4],
+        "mac",        &values[5]);
+    // clang-format on
+
+    // TODO
+    // assert_int_equal(count, 6);
+}
+
 int
 main(int argc, char* argv[])
 {
     ((void)argc);
     ((void)argv);
     int err;
-    const struct CMUnitTest tests[] = { cmocka_unit_test(test_parse_obj),
-                                        cmocka_unit_test(test_parse_path) };
+    const struct CMUnitTest tests[] = {
+        cmocka_unit_test(test_parse_obj),
+        cmocka_unit_test(test_parse_path),
+        cmocka_unit_test(test_parse_about),
+    };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
     return err;

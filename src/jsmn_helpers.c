@@ -4,13 +4,30 @@
 #include "jsmn/jsmn.h"
 #include "jsmn_helpers.h"
 
-#define seek_slash(__bytes, __len, __result)                                   \
+#define __seek_slash(__bytes, __len, __result)                                 \
     do {                                                                       \
         while (__result < __len &&                                             \
                !(__bytes[__result] == '/' || __bytes[__result] == '\\'))       \
             __result++;                                                        \
                                                                                \
     } while (0)
+
+#define __skip_object(__token, __n, __spot)                                    \
+    do {                                                                       \
+        int __end = __token[__spot].end;                                       \
+        while (__spot < __n && __token[__spot].start < __end) __spot++;        \
+    } while (0)
+
+static bool
+is_object(jsmntok_t* t, const char** str_p, uint32_t* len)
+{
+    if (t->type == JSMN_OBJECT || t->type == JSMN_ARRAY) {
+        *str_p = NULL, *len = 0;
+        return false;
+    } else {
+        return true;
+    }
+}
 
 static bool
 is_value(jsmntok_t* t, const char* data, const char** str_p, uint32_t* len)
@@ -115,7 +132,7 @@ jsmn_parse_tokens_path(
         }
         if (t[i].type == JSMN_STRING) {
             if (*path == '/' || *path == '\\') path++;
-            seek_slash(path, strlen(path), spot);
+            __seek_slash(path, strlen(path), spot);
             cmplen = t[i].end - t[i].start;
             if (spot == cmplen && !memcmp(path, &data[t[i].start], spot)) {
                 path += spot;
@@ -148,9 +165,7 @@ jsmn_parse_tokens_path(
                     break;
                 }
             } else {
-                if (!(++i < n_tokens)) break;
-                int end = t[i].end;
-                while (i < n_tokens && t[i].start < end) { i++; }
+                __skip_object(t, n_tokens, i);
             }
         } else {
             // JSMN_UNDEFINED || JSMN_ARRAY || JSMN_PRIMITIVE ?
