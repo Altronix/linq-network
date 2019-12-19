@@ -86,13 +86,41 @@ test_parse_obj(void** context_p)
     assert_memory_equal(values[4].p, "value-test", 10);
 }
 
+static void
+test_parse_path(void** context_p)
+{
+    ((void)context_p);
+
+    int count = 0;
+    linq_str values[5];
+    jsmntok_t t[30];
+
+    // clang-format off
+    /*
+    count = jsmn_parse_tokens_path(
+        "/thatb/thisa",
+        t,
+        150,
+        data_path,
+        strlen(data_path),
+        5,
+        "hello", &values[0],
+        "this",  &values[1],
+        "is",    &values[2],
+        "a",     &values[3],
+        "test",  &values[4]);
+        */
+    // clang-format on
+}
+
 int
 main(int argc, char* argv[])
 {
     ((void)argc);
     ((void)argv);
     int err;
-    const struct CMUnitTest tests[] = { cmocka_unit_test(test_parse_obj) };
+    const struct CMUnitTest tests[] = { cmocka_unit_test(test_parse_obj),
+                                        cmocka_unit_test(test_parse_path) };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
     return err;
