@@ -150,15 +150,7 @@ jsmn_parse_tokens_path(
             } else {
                 if (!(++i < n_tokens)) break;
                 int end = t[i].end;
-                while (t[i].start < end) {
-                    i++;
-                    //
-                }
-                // if (!(t[parent].end == (int)sz)) {
-                //     while (t[i].start < t[parent].end) { i++; }
-                // } else {
-                //     i++;
-                // }
+                while (i < n_tokens && t[i].start < end) { i++; }
             }
         } else {
             // JSMN_UNDEFINED || JSMN_ARRAY || JSMN_PRIMITIVE ?

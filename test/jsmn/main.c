@@ -40,12 +40,12 @@ static const char* data_path = //
     "                     \"valD\":\"thatb-thisa-vald\","
     "                     \"valE\":\"thatb-thisa-vale\""
     "           },"
-    "           \"thatb\":{"
-    "                     \"valA\":\"thatb-thatb-vala\","
-    "                     \"valB\":\"thatb-thatb-valb\","
-    "                     \"valC\":\"thatb-thatb-valc\","
-    "                     \"valD\":\"thatb-thatb-vald\","
-    "                     \"valE\":\"thatb-thatb-vale\""
+    "           \"thisb\":{"
+    "                     \"valA\":\"thatb-thisb-vala\","
+    "                     \"valB\":\"thatb-thisb-valb\","
+    "                     \"valC\":\"thatb-thisb-valc\","
+    "                     \"valD\":\"thatb-thisb-vald\","
+    "                     \"valE\":\"thatb-thisb-vale\""
     "           }"
     "}"
     "}";
@@ -97,7 +97,7 @@ test_parse_path(void** context_p)
 
     // clang-format off
     count = jsmn_parse_tokens_path(
-        "/thatb/thisa",
+        "/thisa/thata",
         t,
         150,
         data_path,
@@ -112,42 +112,15 @@ test_parse_path(void** context_p)
 
     assert_int_equal(count, 5);
     assert_int_equal(values[0].len, 16);
-    assert_memory_equal(values[0].p, "thatb-thisa-vala", 16);
+    assert_memory_equal(values[0].p, "thisa-thata-vala", 16);
     assert_int_equal(values[1].len, 16);
-    assert_memory_equal(values[1].p, "thatb-thisa-valb", 16);
+    assert_memory_equal(values[1].p, "thisa-thata-valb", 16);
     assert_int_equal(values[2].len, 16);
-    assert_memory_equal(values[2].p, "thatb-thisa-valc", 16);
+    assert_memory_equal(values[2].p, "thisa-thata-valc", 16);
     assert_int_equal(values[3].len, 16);
-    assert_memory_equal(values[3].p, "thatb-thisa-vald", 16);
+    assert_memory_equal(values[3].p, "thisa-thata-vald", 16);
     assert_int_equal(values[4].len, 16);
-    assert_memory_equal(values[4].p, "thatb-thisa-vale", 16);
-
-    // clang-format off
-    count = jsmn_parse_tokens_path(
-        "/thatb/thatb",
-        t,
-        150,
-        data_path,
-        strlen(data_path),
-        5,
-        "valA", &values[0],
-        "valB", &values[1],
-        "valC", &values[2],
-        "valD", &values[3],
-        "valE", &values[4]);
-    // clang-format on
-
-    assert_int_equal(count, 5);
-    assert_int_equal(values[0].len, 16);
-    assert_memory_equal(values[0].p, "thatb-thatb-vala", 16);
-    assert_int_equal(values[1].len, 16);
-    assert_memory_equal(values[1].p, "thatb-thatb-valb", 16);
-    assert_int_equal(values[2].len, 16);
-    assert_memory_equal(values[2].p, "thatb-thatb-valc", 16);
-    assert_int_equal(values[3].len, 16);
-    assert_memory_equal(values[3].p, "thatb-thatb-vald", 16);
-    assert_int_equal(values[4].len, 16);
-    assert_memory_equal(values[4].p, "thatb-thatb-vale", 16);
+    assert_memory_equal(values[4].p, "thisa-thata-vale", 16);
 
     // clang-format off
     count = jsmn_parse_tokens_path(
@@ -175,6 +148,76 @@ test_parse_path(void** context_p)
     assert_memory_equal(values[3].p, "thisa-thatb-vald", 16);
     assert_int_equal(values[4].len, 16);
     assert_memory_equal(values[4].p, "thisa-thatb-vale", 16);
+
+    // clang-format off
+    count = jsmn_parse_tokens_path(
+        "/thatb/thisa",
+        t,
+        150,
+        data_path,
+        strlen(data_path),
+        5,
+        "valA", &values[0],
+        "valB", &values[1],
+        "valC", &values[2],
+        "valD", &values[3],
+        "valE", &values[4]);
+    // clang-format on
+
+    assert_int_equal(count, 5);
+    assert_int_equal(values[0].len, 16);
+    assert_memory_equal(values[0].p, "thatb-thisa-vala", 16);
+    assert_int_equal(values[1].len, 16);
+    assert_memory_equal(values[1].p, "thatb-thisa-valb", 16);
+    assert_int_equal(values[2].len, 16);
+    assert_memory_equal(values[2].p, "thatb-thisa-valc", 16);
+    assert_int_equal(values[3].len, 16);
+    assert_memory_equal(values[3].p, "thatb-thisa-vald", 16);
+    assert_int_equal(values[4].len, 16);
+    assert_memory_equal(values[4].p, "thatb-thisa-vale", 16);
+
+    // clang-format off
+    count = jsmn_parse_tokens_path(
+        "/thatb/thisb",
+        t,
+        150,
+        data_path,
+        strlen(data_path),
+        5,
+        "valA", &values[0],
+        "valB", &values[1],
+        "valC", &values[2],
+        "valD", &values[3],
+        "valE", &values[4]);
+    // clang-format on
+
+    assert_int_equal(count, 5);
+    assert_int_equal(values[0].len, 16);
+    assert_memory_equal(values[0].p, "thatb-thisb-vala", 16);
+    assert_int_equal(values[1].len, 16);
+    assert_memory_equal(values[1].p, "thatb-thisb-valb", 16);
+    assert_int_equal(values[2].len, 16);
+    assert_memory_equal(values[2].p, "thatb-thisb-valc", 16);
+    assert_int_equal(values[3].len, 16);
+    assert_memory_equal(values[3].p, "thatb-thisb-vald", 16);
+    assert_int_equal(values[4].len, 16);
+    assert_memory_equal(values[4].p, "thatb-thisb-vale", 16);
+
+    // clang-format off
+    count = jsmn_parse_tokens_path(
+        "thisa/notfound",
+        t,
+        150,
+        data_path,
+        strlen(data_path),
+        5,
+        "valA", &values[0],
+        "valB", &values[1],
+        "valC", &values[2],
+        "valD", &values[3],
+        "valE", &values[4]);
+    // clang-format on
+    assert_int_equal(count, 0);
 }
 
 int
