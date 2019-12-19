@@ -93,10 +93,9 @@ test_parse_path(void** context_p)
 
     int count = 0;
     linq_str values[5];
-    jsmntok_t t[30];
+    jsmntok_t t[150];
 
     // clang-format off
-    /*
     count = jsmn_parse_tokens_path(
         "/thatb/thisa",
         t,
@@ -104,13 +103,24 @@ test_parse_path(void** context_p)
         data_path,
         strlen(data_path),
         5,
-        "hello", &values[0],
-        "this",  &values[1],
-        "is",    &values[2],
-        "a",     &values[3],
-        "test",  &values[4]);
-        */
+        "valA", &values[0],
+        "valB", &values[1],
+        "valC", &values[2],
+        "valD", &values[3],
+        "valE", &values[4]);
     // clang-format on
+
+    assert_int_equal(count, 5);
+    assert_int_equal(values[0].len, 16);
+    assert_memory_equal(values[0].p, "thatb-thisa-vala", 16);
+    assert_int_equal(values[1].len, 16);
+    assert_memory_equal(values[1].p, "thatb-thisa-valb", 16);
+    assert_int_equal(values[2].len, 16);
+    assert_memory_equal(values[2].p, "thatb-thisa-valc", 16);
+    assert_int_equal(values[3].len, 16);
+    assert_memory_equal(values[3].p, "thatb-thisa-vald", 16);
+    assert_int_equal(values[4].len, 16);
+    assert_memory_equal(values[4].p, "thatb-thisa-vale", 16);
 }
 
 int

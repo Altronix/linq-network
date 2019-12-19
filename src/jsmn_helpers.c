@@ -13,6 +13,25 @@
     } while (0)
 
 static bool
+is_value(jsmntok_t* t, const char* data, const char** str_p, uint32_t* len)
+{
+    if (t->type == JSMN_OBJECT || t->type == JSMN_ARRAY) {
+        // This is an object so we don't know the name of the tag yet
+        *str_p = NULL, *len = 0;
+        return false;
+    } else if (!*str_p) {
+        // This is the key name, but not the value. Populate key
+        *str_p = &data[t->start];
+        *len = t->end - t->start;
+        return false;
+    } else {
+        // This token is pointing at the value and previous token is point to
+        // the key
+        return true;
+    }
+}
+
+static bool
 map_key_to_value(
     const char* key,
     uint32_t keylen,
@@ -51,31 +70,22 @@ jsmn_parse_tokens(
     jsmn_init(&p);
     uint32_t count = 0;
     n_tokens = jsmn_parse(&p, data, sz, t, max_tokens);
-    if (n_tokens <= max_tokens) {
-        for (uint32_t i = 0; i < n_tokens; i++) {
-            if (t[i].type == JSMN_OBJECT || (t[i].type == JSMN_ARRAY)) {
-                tag.p = NULL;
-                continue;
-            }
-            if (!tag.p) {
-                tag.len = t[i].end - t[i].start;
-                tag.p = &data[t[i].start];
-            } else {
-                va_list list;
-                va_start(list, n_tags);
-                count += map_key_to_value(
-                             tag.p,
-                             tag.len,
-                             &data[t[i].start],
-                             t[i].end - t[i].start,
-                             n_tags,
-                             list)
-                             ? 1
-                             : 0;
-                va_end(list);
-                tag.p = NULL;
-            }
-        }
+    if (!(n_tokens <= max_tokens)) return 0;
+    for (uint32_t i = 0; i < n_tokens; i++) {
+        if (!is_value(&t[i], data, &tag.p, &tag.len)) continue;
+        va_list list;
+        va_start(list, n_tags);
+        count += map_key_to_value(
+                     tag.p,
+                     tag.len,
+                     &data[t[i].start],
+                     t[i].end - t[i].start,
+                     n_tags,
+                     list)
+                     ? 1
+                     : 0;
+        va_end(list);
+        tag.p = NULL;
     }
     return count;
 }
@@ -96,7 +106,6 @@ jsmn_parse_tokens_path(
     n_tokens = jsmn_parse(&p, data, sz, t, max_tokens);
     if (!(n_tokens <= max_tokens)) return count;
 
-    jsmntok_t* curr = t;
     uint32_t parent = 0, i = 0, spot = 0, cmplen;
 
     while (i < max_tokens) {
@@ -111,8 +120,32 @@ jsmn_parse_tokens_path(
             if (spot == cmplen && !memcmp(path, &data[t[i].start], spot)) {
                 path += spot;
                 i++;
-                if (!path) {
+                parent = i;
+                if (path && !*path) {
                     // Found the object we are looking for...
+                    const char* tag;
+                    uint32_t taglen;
+                    while (t[i].end <= t[parent].end) {
+                        if (!is_value(&t[i], data, &tag, &taglen)) {
+                            i++;
+                            continue;
+                        }
+                        va_list list;
+                        va_start(list, n_tags);
+                        count += map_key_to_value(
+                                     tag,
+                                     taglen,
+                                     &data[t[i].start],
+                                     t[i].end - t[i].start,
+                                     n_tags,
+                                     list)
+                                     ? 1
+                                     : 0;
+                        va_end(list);
+                        i++;
+                        tag = NULL;
+                    }
+                    break;
                 }
             } else {
                 if (!(t[parent].end == (int)sz)) {
@@ -126,4 +159,5 @@ jsmn_parse_tokens_path(
             i++;
         }
     }
+    return count;
 }
