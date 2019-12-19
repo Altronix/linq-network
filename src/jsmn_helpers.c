@@ -1,10 +1,8 @@
-// clang-format off
-#include "jsmn/jsmn.h"
-#include "jsmn_helpers.h"
-// clang-format on
-
 #include "altronix/linq_netw.h"
 #include "sys.h"
+
+#include "jsmn/jsmn.h"
+#include "jsmn_helpers.h"
 
 static uint32_t
 parse_token(const char* data, jsmntok_t* t, linq_str* result)
