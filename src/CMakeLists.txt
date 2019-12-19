@@ -3,7 +3,6 @@ set(sources
     linq_netw.c
     device.c
     node.c
-    jsmn.c
     jsmn_helpers.c
     sys.c
     zmtp.c)

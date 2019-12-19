@@ -1,5 +1,8 @@
-
+// clang-format off
+#include "jsmn/jsmn.h"
 #include "jsmn_helpers.h"
+// clang-format on
+
 #include "altronix/linq_netw.h"
 #include "sys.h"
 
