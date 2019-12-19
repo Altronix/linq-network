@@ -290,27 +290,25 @@ process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
                 if (err_code == LINQ_ERROR_504) {
                     if (device_request_retry_count(*d) >= LINQ_NETW_MAX_RETRY) {
                         log_warn(
-                            "%06s (%d) [%s]",
-                            "(ZMTP)",
-                            err_code,
-                            device_serial(*d));
+                            "(ZMTP) [%.6s...] (%.3d)",
+                            device_serial(*d),
+                            err_code);
                         device_request_resolve(*d, err_code, json);
                         device_request_flush_w_check(*d);
                     } else {
                         log_warn(
-                            "%06s (%03d) [%s] ...retrying",
-                            "(ZMTP)",
-                            err_code,
-                            device_serial(*d));
+                            "(ZMTP) [%.6s...] (%.3d) retrying...",
+                            device_serial(*d),
+                            err_code);
                         uint32_t retry = sys_tick() + LINQ_NETW_RETRY_TIMEOUT;
                         device_request_retry_at_set(*d, retry);
                     }
                 } else {
                     log_info(
-                        "%06s (%03d) [%s]",
-                        "(ZMTP)",
+                        "(ZMTP) [%.6s...] (%.3d) %.20s...",
+                        device_serial(*d),
                         err_code,
-                        device_serial(*d));
+                        json);
                     device_request_resolve(*d, err_code, json);
                     device_request_flush_w_check(*d);
                 }

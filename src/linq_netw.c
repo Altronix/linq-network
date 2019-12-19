@@ -32,7 +32,7 @@ typedef struct linq_netw_s
 static void
 on_zmtp_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 {
-    log_error("%06s Event Error [%d]", "(ZMTP)", e);
+    log_error("(ZMTP) Event Error [%d]", e);
     linq_netw_s* l = ctx;
     if (l->callbacks && l->callbacks->err) {
         l->callbacks->err(l->context, e, what, serial);
@@ -49,12 +49,19 @@ on_heartbeat_response(
     linq_str product, prj_version, atx_version, web_version, mac;
     jsmntok_t t[64];
     if (e) {
-        log_warn("(ZMTP) About request failed! [%s]", device_serial(*d));
+        log_warn(
+            "(ZMTP) [%.6s...] (%.3d) About request failed!",
+            e,
+            device_serial(*d));
     } else {
         // TODO need to parse path
-        log_info("(ZMTP) "
-                 "Received About response. "
-                 "Adding device to database...");
+        log_info(
+            "(ZMTP) "
+            "[%.6s...] (%.3d)"
+            "Received About response. "
+            "Adding device to database...",
+            device_serial(*d),
+            e);
         ((void)product);
         ((void)prj_version);
         ((void)atx_version);
@@ -75,10 +82,12 @@ on_zmtp_heartbeat(void* ctx, const char* sid, device_s** d)
     // Therefore tests should also flush out the response, or mock database
     // query to make tests think device doesn't need to be added into database
     // so there will be no request and response to flush through
-    log_info("(ZMTP) Event Heartbeat [%s]", sid);
     linq_netw_s* l = ctx;
     if (!database_row_exists_str(&l->database, "devices", "device_id", sid)) {
-        log_info("(ZMTP) New device connected, requesting about data...");
+        log_info(
+            "(ZMTP) [%.6s...] "
+            "New device connected, requesting about data...",
+            device_serial(*d));
         device_send_get(*d, "/ATX/about", on_heartbeat_response, l);
     }
     if (l->callbacks && l->callbacks->hb) {
@@ -93,21 +102,7 @@ on_zmtp_alert(
     linq_netw_email_s* email,
     device_s** d)
 {
-    char p[4][128];
-    memset(p, 0, sizeof(p));
-
-    // Our JSON data isn't null terminated. So we copy so we can printf
-    memcpy(p[0], a->who.p, a->who.len < 128 ? a->who.len : 128);
-    memcpy(p[1], a->what.p, a->what.len < 128 ? a->what.len : 128);
-    memcpy(p[2], a->where.p, a->where.len < 128 ? a->where.len : 128);
-    memcpy(p[3], a->mesg.p, a->mesg.len < 128 ? a->mesg.len : 128);
-    log_info(
-        "%06s Event Alert [%s] [%s] [%s] [%s]",
-        "(ZMTP)",
-        p[0],
-        p[1],
-        p[2],
-        p[3]);
+    log_info("(ZMTP) [%.6s...] Event Alert", device_serial(*d));
     linq_netw_s* l = ctx;
     if (l->callbacks && l->callbacks->alert) {
         l->callbacks->alert(l->context, a, email, d);
@@ -117,7 +112,7 @@ on_zmtp_alert(
 static void
 on_zmtp_ctrlc(void* ctx)
 {
-    log_info("%06s Received shutdown signall...", "(ZMTP)");
+    log_info("(ZMTP) Received shutdown signall...");
     linq_netw_s* l = ctx;
     if (l->callbacks && l->callbacks->ctrlc) l->callbacks->ctrlc(l->context);
 }
@@ -181,19 +176,19 @@ linq_netw_listen(linq_netw_s* l, const char* ep)
 {
     int ep_len = strlen(ep);
     if (ep_len > 9 && !(memcmp(ep, "http://*:", 9))) {
-        log_info("%06s listening... [%s]", "(HTTP)", &ep[9]);
+        log_info("(HTTP) Listening... [%s]", &ep[9]);
         http_listen(&l->http, &ep[9]);
         return 0;
     } else if (ep_len > 15 && !(memcmp(ep, "http://0.0.0.0:", 15))) {
-        log_info("%06s listening... [%s]", "(HTTP)", &ep[15]);
+        log_info("(HTTP) Listening... [%s]", &ep[15]);
         http_listen(&l->http, &ep[15]);
         return 0;
     } else if (ep_len > 17 && !(memcmp(ep, "http://127.0.0.1:", 17))) {
-        log_info("%06s listening... [%s]", "(HTTP)", &ep[17]);
+        log_info("(HTTP) Listening... [%s]", &ep[17]);
         http_listen(&l->http, &ep[17]);
         return 0;
     } else {
-        log_info("%06s listening... [%s]", "(ZMTP)", ep);
+        log_info("(HTTP) Listening... [%s]", ep);
         return zmtp_listen(&l->zmtp, ep);
     }
 }
@@ -230,7 +225,7 @@ E_LINQ_ERROR
 linq_netw_poll(linq_netw_s* l, int32_t ms)
 {
     E_LINQ_ERROR err = zmtp_poll(&l->zmtp, ms);
-    if (err) log_error("%06s polling error %d", "(ZMTP)", err);
+    if (err) log_error("(ZMTP) polling error %d", err);
 #if WITH_SQLITE
     err = http_poll(&l->http, ms);
     if (err) { err = LINQ_ERROR_IO; }
