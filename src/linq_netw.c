@@ -51,8 +51,17 @@ on_heartbeat_response(
     if (e) {
         log_warn("(ZMTP) About request failed! [%s]", device_serial(*d));
     } else {
-        log_info("(ZMTP) Received About response...");
+        log_info("(ZMTP) Received About response. Adding device to database.");
         // TODO need to parse path
+        ((void)product);
+        ((void)prj_version);
+        ((void)atx_version);
+        ((void)web_version);
+        ((void)mac);
+        ((void)d);
+        ((void)response);
+        ((void)ctx);
+        ((void)t);
     }
 }
 
@@ -62,7 +71,7 @@ on_zmtp_heartbeat(void* ctx, const char* sid, device_s** d)
     // Note - All tests load devices into context by pushing in heartbeats.
     // Therefore tests should also flush out the response, or mock database
     // query to make tests think device doesn't need to be added into database
-    // and then there will be no request and response to flush through
+    // so there will be no request and response to flush through
     log_info("(ZMTP) Event Heartbeat [%s]", sid);
     linq_netw_s* l = ctx;
     if (!database_row_exists_str(&l->database, "devices", "device_id", sid)) {
