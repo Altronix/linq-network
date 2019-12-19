@@ -27,11 +27,7 @@ is_object(jsmntok_t* t)
 static bool
 is_value(jsmntok_t* t, const char* data, const char** str_p, uint32_t* len)
 {
-    /*if (t->type == JSMN_OBJECT || t->type == JSMN_ARRAY) {
-        // This is an object so we don't know the name of the tag yet
-        *str_p = NULL, *len = 0;
-        return false;
-    } else */if (!*str_p) {
+    if (!*str_p) {
         // This is the key name, but not the value. Populate key
         *str_p = &data[t->start];
         *len = t->end - t->start;
@@ -122,10 +118,7 @@ jsmn_parse_tokens_path(
     uint32_t parent = 0, i = 0, spot = 0, cmplen;
 
     while (i < n_tokens) {
-        if (t[i].type == JSMN_OBJECT) {
-            parent = i;
-            i++;
-        }
+        if (is_object(&t[i])) { (parent = i, i++); }
         if (t[i].type == JSMN_STRING) {
             if (*path == '/' || *path == '\\') path++;
             __seek_slash(path, strlen(path), spot);
@@ -136,9 +129,11 @@ jsmn_parse_tokens_path(
                 parent = i;
                 if (path && !*path) {
                     // Found the object we are looking for...
-                    const char* tag;
-                    uint32_t taglen;
+                    const char* tag = NULL;
+                    uint32_t taglen = 0;
+                    if (is_object(&t[i])) i++;
                     while (i < n_tokens && t[i].end <= t[parent].end) {
+                        // TODO need to skip objects
                         if (!is_value(&t[i], data, &tag, &taglen)) {
                             i++;
                             continue;
