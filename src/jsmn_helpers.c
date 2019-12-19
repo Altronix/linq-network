@@ -19,24 +19,19 @@
     } while (0)
 
 static bool
-is_object(jsmntok_t* t, const char** str_p, uint32_t* len)
+is_object(jsmntok_t* t)
 {
-    if (t->type == JSMN_OBJECT || t->type == JSMN_ARRAY) {
-        *str_p = NULL, *len = 0;
-        return false;
-    } else {
-        return true;
-    }
+    return t->type == JSMN_OBJECT || t->type == JSMN_ARRAY;
 }
 
 static bool
 is_value(jsmntok_t* t, const char* data, const char** str_p, uint32_t* len)
 {
-    if (t->type == JSMN_OBJECT || t->type == JSMN_ARRAY) {
+    /*if (t->type == JSMN_OBJECT || t->type == JSMN_ARRAY) {
         // This is an object so we don't know the name of the tag yet
         *str_p = NULL, *len = 0;
         return false;
-    } else if (!*str_p) {
+    } else */if (!*str_p) {
         // This is the key name, but not the value. Populate key
         *str_p = &data[t->start];
         *len = t->end - t->start;
@@ -81,14 +76,15 @@ jsmn_parse_tokens(
     uint32_t n_tags,
     ...)
 {
-    uint32_t n_tokens;
-    linq_str tag;
+    uint32_t n_tokens, i = 0;
+    linq_str tag = { .p = NULL, .len = 0 };
     jsmn_parser p;
     jsmn_init(&p);
     uint32_t count = 0;
     n_tokens = jsmn_parse(&p, data, sz, t, max_tokens);
     if (!(n_tokens <= max_tokens)) return 0;
-    for (uint32_t i = 0; i < n_tokens; i++) {
+    if (is_object(&t[i])) i++;
+    for (; i < n_tokens; i++) {
         if (!is_value(&t[i], data, &tag.p, &tag.len)) continue;
         va_list list;
         va_start(list, n_tags);

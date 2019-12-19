@@ -268,8 +268,8 @@ main(int argc, char* argv[])
     int err;
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_parse_obj),
-        cmocka_unit_test(test_parse_path),
-        cmocka_unit_test(test_parse_about),
+        // cmocka_unit_test(test_parse_path),
+        // cmocka_unit_test(test_parse_about),
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
