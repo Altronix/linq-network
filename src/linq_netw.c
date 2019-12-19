@@ -46,7 +46,8 @@ on_heartbeat_response(
     const char* response,
     device_s** d)
 {
-    linq_str product, prj_version, atx_version, web_version, mac;
+    linq_str sid, product, prj_version, atx_version, web_version, mac;
+    uint32_t count;
     jsmntok_t t[64];
     if (e) {
         log_warn(
@@ -54,7 +55,6 @@ on_heartbeat_response(
             device_serial(*d),
             e);
     } else {
-        // TODO need to parse path
         log_info(
             "(ZMTP) "
             "[%.6s...] (%.3d)"
@@ -62,15 +62,22 @@ on_heartbeat_response(
             "Adding device to database...",
             device_serial(*d),
             e);
-        ((void)product);
-        ((void)prj_version);
-        ((void)atx_version);
-        ((void)web_version);
-        ((void)mac);
-        ((void)d);
-        ((void)response);
-        ((void)ctx);
-        ((void)t);
+        // clang-format off
+        count = jsmn_parse_tokens_path(
+            "/about",
+            t,
+            64,
+            response,
+            strlen(response),
+            6,
+            "sid",        &sid,
+            "product",    &product,
+            "prjVersion", &prj_version,
+            "atxVersion", &atx_version,
+            "webVersion", &web_version,
+            "mac",        &mac);
+        // clang-format on
+        log_debug("(ZMTP) parsed (%d) \"about\" data fields", count);
         // insert(d,"devices","..","%.*s...",prj_version.len,prj_version.data);
     }
 }
