@@ -68,9 +68,17 @@ table_exists(database_s* d, const char* table)
 }
 
 static int
-row_insert(database_s* d, const char* table, const char* keys, const char* vals)
+row_insert(
+    database_s* d,
+    const char* table,
+    const char* keys,
+    uint32_t keys_len,
+    const char* vals,
+    uint32_t vals_len)
 {
-    char stmt[2048 + 512 + 256]; // TODO
+    char stmt[2048 + 512 + 256]; // TODO - if len greater than stack use malloc
+    ((void)keys_len);            // TODO - if len greater than stack use malloc
+    ((void)vals_len);            // TODO - if len greater than stack use malloc
     sqlite3_stmt* sql;
     int err, n = snprintf(
                  stmt,
@@ -183,7 +191,7 @@ database_insert(database_s* d, const char* table, int n_columns, ...)
         }
     }
     va_end(list);
-    return row_insert(d, table, keys, vals);
+    return row_insert(d, table, keys, sk, vals, sv);
 }
 
 int
@@ -212,11 +220,12 @@ database_insert_n(database_s* d, const char* table, int n_columns, ...)
             sk += snprintf(&keys[sk], sizeof(keys) - sk, "%s", key);
             memcpy(&vals[sv], val, val_len);
             vals[sv + val_len] = '\0';
+            sv += val_len;
         }
     }
     va_end(list);
 
-    return row_insert(d, table, keys, vals);
+    return row_insert(d, table, keys, sk, vals, sv);
 }
 
 int
@@ -226,5 +235,17 @@ database_insert_raw(
     const char* keys,
     const char* vals)
 {
-    return row_insert(d, table, keys, vals);
+    return row_insert(d, table, keys, strlen(keys), vals, strlen(vals));
+}
+
+int
+database_insert_raw_n(
+    database_s* d,
+    const char* table,
+    const char* keys,
+    uint32_t keys_len,
+    const char* vals,
+    uint32_t vals_len)
+{
+    return row_insert(d, table, keys, keys_len, vals, vals_len);
 }

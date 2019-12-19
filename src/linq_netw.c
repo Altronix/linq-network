@@ -62,6 +62,7 @@ on_heartbeat_response(
         ((void)response);
         ((void)ctx);
         ((void)t);
+        // insert(d,"devices","..","%.*s...",prj_version.len,prj_version.data);
     }
 }
 
