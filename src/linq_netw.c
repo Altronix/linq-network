@@ -39,7 +39,6 @@ on_zmtp_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
     }
 }
 
-/*
 static void
 on_heartbeat_response(
     void* ctx,
@@ -56,7 +55,6 @@ on_heartbeat_response(
         // TODO need to parse path
     }
 }
-*/
 
 static void
 on_zmtp_heartbeat(void* ctx, const char* sid, device_s** d)
@@ -65,8 +63,7 @@ on_zmtp_heartbeat(void* ctx, const char* sid, device_s** d)
     linq_netw_s* l = ctx;
     if (!database_row_exists_str(&l->database, "devices", "device_id", sid)) {
         log_info("(ZMTP) New device connected, requesting about data...");
-        // TODO break's test - define test's as device not in db or is in db
-        // device_send_get(*d, "/ATX/about", on_heartbeat_response, l);
+        device_send_get(*d, "/ATX/about", on_heartbeat_response, l);
     }
     if (l->callbacks && l->callbacks->hb) {
         l->callbacks->hb(l->context, sid, d);
@@ -146,9 +143,9 @@ linq_netw_destroy(linq_netw_s** linq_netw_p)
 {
     linq_netw_s* l = *linq_netw_p;
     *linq_netw_p = NULL;
-    zmtp_deinit(&l->zmtp);
     device_map_destroy(&l->devices);
     node_map_destroy(&l->nodes);
+    zmtp_deinit(&l->zmtp);
 #if WITH_SQLITE
     http_deinit(&l->http);
     database_deinit(&l->database);
