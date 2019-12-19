@@ -59,6 +59,10 @@ on_heartbeat_response(
 static void
 on_zmtp_heartbeat(void* ctx, const char* sid, device_s** d)
 {
+    // Note - All tests load devices into context by pushing in heartbeats.
+    // Therefore tests should also flush out the response, or mock database
+    // query to make tests think device doesn't need to be added into database
+    // and then there will be no request and response to flush through
     log_info("(ZMTP) Event Heartbeat [%s]", sid);
     linq_netw_s* l = ctx;
     if (!database_row_exists_str(&l->database, "devices", "device_id", sid)) {
