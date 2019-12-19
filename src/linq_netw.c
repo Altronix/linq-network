@@ -51,8 +51,10 @@ on_heartbeat_response(
     if (e) {
         log_warn("(ZMTP) About request failed! [%s]", device_serial(*d));
     } else {
-        log_info("(ZMTP) Received About response. Adding device to database.");
         // TODO need to parse path
+        log_info("(ZMTP) "
+                 "Received About response. "
+                 "Adding device to database...");
         ((void)product);
         ((void)prj_version);
         ((void)atx_version);
