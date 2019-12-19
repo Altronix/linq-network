@@ -166,6 +166,55 @@ test_db_insert_n(void** context_p)
     sqlite_spy_deinit();
 }
 
+static void
+test_db_insert_raw(void** context_p)
+{
+
+    ((void)context_p);
+    sqlite_spy_init();
+    outgoing_statement* statement = NULL;
+    const char* expect = "INSERT INTO devices("
+                         "device_id,"
+                         "product,"
+                         "prj_version,"
+                         "atx_version,"
+                         "mfg,"
+                         "mac"
+                         ") "
+                         "VALUES("
+                         "serial-id,"
+                         "LINQ2,"
+                         "2.00.00,"
+                         "2.00.00,"
+                         "Altronix,"
+                         "00:00:00:AA:AA:AA"
+                         ");";
+
+    database_s d;
+    database_init(&d);
+
+    // Remove any outgoing statements generated from init()
+    while ((statement = sqlite_spy_outgoing_statement_pop())) {
+        linq_netw_free(statement);
+    }
+
+    database_insert_raw(&d,"devices",""
+    "device_id,product,prj_version,atx_version,mfg,mac",
+    "serial-id,LINQ2,2.00.00,2.00.00,Altronix,00:00:00:AA:AA:AA");
+
+    statement = sqlite_spy_outgoing_statement_pop();
+    assert_non_null(statement);
+    assert_string_equal(expect, statement->data);
+    linq_netw_free(statement);
+
+    statement = sqlite_spy_outgoing_statement_pop();
+    assert_null(statement);
+
+    database_deinit(&d);
+    sqlite_spy_deinit();
+}
+
+
 
 int
 main(int argc, char* argv[])
