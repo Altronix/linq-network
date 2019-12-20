@@ -19,6 +19,8 @@ extern "C"
     outgoing_statement* sqlite_spy_outgoing_statement_pop();
     void sqlite_spy_outgoing_statement_flush();
     void sqlite_spy_step_return_push(int ret);
+    void sqlite_spy_column_text_return_push(const char* ret);
+    void sqlite_spy_column_int_return_push(int ret);
 
 #ifdef __cplusplus
 }

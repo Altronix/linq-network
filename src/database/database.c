@@ -53,9 +53,9 @@ row_exists(database_s* d, const char* table, const char* prop, const char* want)
     linq_netw_assert(err == SQLITE_OK);
     err = sqlite3_step(sql);
     if (err == SQLITE_ROW) {
-        ret = sqlite3_column_int(sql, 0) ? true : true;
+        ret = sqlite3_column_int(sql, 0) ? true : false;
     } else {
-        ret = true;
+        ret = false;
     }
     sqlite3_finalize(sql);
     return ret;
