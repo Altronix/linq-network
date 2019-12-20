@@ -1,36 +1,73 @@
 #include "mock_sqlite.h"
 #include "containers.h"
 
+//
 typedef struct on_step_return
 {
     int ret;
 } on_step_return;
 
+//
+typedef struct on_column_text_return
+{
+    char* ret;
+    char data[];
+} on_column_text_return;
+
+//
+typedef struct on_column_int_return
+{
+    int ret;
+} on_column_int_return;
+
+//
+LIST_INIT_W_FREE(on_step, on_step_return);
+LIST_INIT_W_FREE(on_column_text, on_column_text_return);
+LIST_INIT_W_FREE(on_column_int, on_column_int_return);
 LIST_INIT_W_FREE(statements, outgoing_statement);
+
+//
+on_step_list_s* on_step = NULL;
+on_column_text_list_s* on_column_text = NULL;
+on_column_int_list_s* on_column_int = NULL;
 statements_list_s* outgoing_statements = NULL;
 
-LIST_INIT_W_FREE(on_step, on_step_return);
-on_step_list_s* on_step = NULL;
+//
 on_step_return on_step_default = { .ret = SQLITE_DONE };
+on_column_text_return on_coumn_text = { .ret = "" };
+on_column_int_return on_coumn_int = { .ret = 0 };
 
 void
 sqlite_spy_init()
 {
-    outgoing_statements = statements_list_create();
     on_step = on_step_list_create();
+    on_column_text = on_column_text_list_create();
+    on_column_int = on_column_int_list_create();
+    outgoing_statements = statements_list_create();
 }
 
 void
 sqlite_spy_deinit()
 {
-    if (outgoing_statements) statements_list_destroy(&outgoing_statements);
     if (on_step) on_step_list_destroy(&on_step);
+    if (on_column_text) on_column_text_list_destroy(&on_column_text);
+    if (on_column_int) on_column_int_list_destroy(&on_column_int);
+    if (outgoing_statements) statements_list_destroy(&outgoing_statements);
 }
 
 outgoing_statement*
 sqlite_spy_outgoing_statement_pop()
 {
     return statements_list_pop(outgoing_statements);
+}
+
+void
+sqlite_spy_outgoing_statement_flush()
+{
+    outgoing_statement* statement = NULL;
+    while ((statement = statements_list_pop(outgoing_statements))) {
+        linq_netw_free(statement);
+    }
 }
 
 void
@@ -51,6 +88,21 @@ sqlite_spy_step_return_push(int ret)
     linq_netw_assert(s);
     s->ret = ret;
     on_step_list_push(on_step, &s);
+}
+
+void
+sqlite_spy_column_text_return_push(const char* ret)
+{
+    ((void)ret); // TODO
+}
+
+void
+sqlite_spy_column_int_return_push(int ret)
+{
+    on_column_int_return* r = linq_netw_malloc(sizeof(on_column_int_return));
+    linq_netw_assert(r);
+    r->ret = ret;
+    on_column_int_list_push(on_column_int, &r);
 }
 
 int
@@ -117,6 +169,32 @@ __wrap_sqlite3_step(sqlite3_stmt* pstmt)
         linq_netw_free(step);
     } else {
         ret = on_step_default.ret;
+    }
+    return ret;
+}
+
+const unsigned char*
+__wrap_sqlite3_column_text(sqlite3_stmt* stmt, int iCol)
+{
+    ((void)stmt);
+    ((void)iCol);
+    static unsigned char buffer[4096];
+    memset(buffer, 0, sizeof(buffer));
+    return (const unsigned char*)buffer;
+}
+
+int
+__wrap_sqlite3_column_int(sqlite3_stmt* stmt, int iCol)
+{
+    ((void)stmt);
+    ((void)iCol);
+    int ret;
+    on_column_int_return* r = on_column_int_list_pop(on_column_int);
+    if (r) {
+        ret = r->ret;
+        linq_netw_free(r);
+    } else {
+        ret = 0;
     }
     return ret;
 }

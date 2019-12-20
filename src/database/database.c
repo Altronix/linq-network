@@ -6,7 +6,7 @@
     "device_id TEXT PRIMARY KEY,"                                              \
     "product TEXT,"                                                            \
     "prj_version TEXT,"                                                        \
-    "atx_version INTEGER,"                                                     \
+    "atx_version TEXT,"                                                        \
     "web_version TEXT,"                                                        \
     "mac TEXT"                                                                 \
     ");"
@@ -20,7 +20,7 @@
     "time INTEGER,"                                                            \
     "mesg TEXT,"                                                               \
     "name TEXT,"                                                               \
-    "device_id INTEGER,"                                                       \
+    "device_id TEXT,"                                                          \
     "FOREIGN KEY(device_id) REFERENCES devices(device_id)"                     \
     ");"
 
@@ -40,7 +40,7 @@ row_exists(database_s* d, const char* table, const char* prop, const char* want)
 {
     char stmt[128];
     sqlite3_stmt* sql;
-    bool ret;
+    bool ret = true;
     int err, len = snprintf(
                  stmt,
                  sizeof(stmt),
@@ -52,7 +52,11 @@ row_exists(database_s* d, const char* table, const char* prop, const char* want)
     err = sqlite3_prepare_v2(d->db, stmt, len + 1, &sql, NULL);
     linq_netw_assert(err == SQLITE_OK);
     err = sqlite3_step(sql);
-    ret = err == 1 ? true : false;
+    if (err == SQLITE_ROW) {
+        ret = sqlite3_column_int(sql, 0) ? true : true;
+    } else {
+        ret = true;
+    }
     sqlite3_finalize(sql);
     return ret;
 }

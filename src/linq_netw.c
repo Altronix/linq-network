@@ -46,6 +46,7 @@ on_heartbeat_response(
     const char* response,
     device_s** d)
 {
+    linq_netw_s* l = ctx;
     linq_str sid, product, prj_version, atx_version, web_version, mac;
     uint32_t count;
     jsmntok_t t[64];
@@ -55,14 +56,15 @@ on_heartbeat_response(
             device_serial(*d),
             e);
     } else {
+        char keys[128], vals[128];
+        // clang-format off
         log_info(
             "(ZMTP) "
-            "[%.6s...] (%.3d)"
+            "[%.6s...] (%.3d) "
             "Received About response. "
             "Adding device to database...",
             device_serial(*d),
             e);
-        // clang-format off
         count = jsmn_parse_tokens_path(
             "/about",
             t,
@@ -76,9 +78,27 @@ on_heartbeat_response(
             "atxVersion", &atx_version,
             "webVersion", &web_version,
             "mac",        &mac);
-        // clang-format on
-        log_debug("(ZMTP) parsed (%d) \"about\" data fields", count);
-        // insert(d,"devices","..","%.*s...",prj_version.len,prj_version.data);
+        if(count == 6){
+            uint32_t keylen = snprintf(
+                keys, sizeof(keys),
+                "%s",
+                "device_id,product,prj_version,atx_version,web_version,mac");
+            uint32_t vallen = snprintf(
+                vals, sizeof(vals),
+                "\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\"",
+                sid.len,         sid.p,
+                product.len,     product.p,
+                prj_version.len, prj_version.p,
+                atx_version.len, atx_version.p,
+                web_version.len, web_version.p,
+                mac.len,         mac.p);
+            // clang-format on
+            int err = database_insert_raw_n(
+                &l->database, "devices", keys, keylen, vals, vallen);
+            log_debug("(ZMTP) Database device insert result (%d)", err);
+        } else {
+            log_debug("(ZMTP) Heartbeat parser error");
+        }
     }
 }
 
@@ -96,6 +116,8 @@ on_zmtp_heartbeat(void* ctx, const char* sid, device_s** d)
             "New device connected, requesting about data...",
             device_serial(*d));
         device_send_get(*d, "/ATX/about", on_heartbeat_response, l);
+    } else {
+        log_debug("(ZMTP) [%.6s...] Heartbeat", device_serial(*d));
     }
     if (l->callbacks && l->callbacks->hb) {
         l->callbacks->hb(l->context, sid, d);

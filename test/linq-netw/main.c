@@ -228,6 +228,35 @@ test_linq_netw_receive_heartbeat_ok(void** context_p)
 }
 
 static void
+test_linq_netw_receive_heartbeat_ok_insert_device(void** context_p)
+{
+    ((void)context_p);
+    bool pass = false;
+    const char* serial = expect_sid = "serial";
+    zmsg_t* hb0 = helpers_make_heartbeat("rid0", serial, "product", "site");
+    outgoing_statement* statement = NULL;
+
+    test_init();
+
+    // Push some incoming heartbeats
+    czmq_spy_mesg_push_incoming(&hb0);
+    czmq_spy_poll_set_incoming((0x01));
+
+    linq_netw_s* l = linq_netw_create(&callbacks, (void*)&pass);
+    linq_netw_listen(l, "tcp://*:32820");
+    sqlite_spy_outgoing_statement_flush();
+
+    // Receive a heartbeat
+    linq_netw_poll(l, 5);
+    // TODO find out what "EXISTS" returns...
+    // TODO read outgoing statements. Check we see if device exists
+    // TODO read outgoing statements. Check we insert device into database
+
+    linq_netw_destroy(&l);
+    test_reset();
+}
+
+static void
 test_linq_netw_receive_heartbeat_error_short(void** context_p)
 {
     ((void)context_p);
@@ -1059,6 +1088,7 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_netw_receive_protocol_error_serial),
         cmocka_unit_test(test_linq_netw_receive_protocol_error_router),
         cmocka_unit_test(test_linq_netw_receive_heartbeat_ok),
+        cmocka_unit_test(test_linq_netw_receive_heartbeat_ok_insert_device),
         cmocka_unit_test(test_linq_netw_receive_heartbeat_error_short),
         cmocka_unit_test(test_linq_netw_receive_alert_ok),
         cmocka_unit_test(test_linq_netw_receive_alert_error_short),
