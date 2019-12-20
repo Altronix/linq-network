@@ -22,6 +22,7 @@ static const char* data_path = //
     "                     \"valB\":\"thisa-thata-valb\","
     "                     \"valC\":\"thisa-thata-valc\","
     "                     \"valD\":\"thisa-thata-vald\","
+    "                     \"fooD\":{\"valD\":\"gotcha\"},"
     "                     \"valE\":\"thisa-thata-vale\""
     "           },"
     "           \"thatb\":{"
@@ -38,7 +39,6 @@ static const char* data_path = //
     "                     \"valB\":\"thatb-thisa-valb\","
     "                     \"valC\":\"thatb-thisa-valc\","
     "                     \"valD\":\"thatb-thisa-vald\","
-    // "                     \"fooD\":{\"valD\":\"gotcha\"},"
     "                     \"valE\":\"thatb-thisa-vale\""
     "           },"
     "           \"thisb\":{"
@@ -256,8 +256,7 @@ test_parse_about(void** context_p)
         "mac",        &values[5]);
     // clang-format on
 
-    // TODO
-    // assert_int_equal(count, 6);
+    assert_int_equal(count, 6);
 }
 
 int

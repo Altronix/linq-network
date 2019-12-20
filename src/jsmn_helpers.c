@@ -80,8 +80,16 @@ jsmn_parse_tokens(
     n_tokens = jsmn_parse(&p, data, sz, t, max_tokens);
     if (!(n_tokens <= max_tokens)) return 0;
     if (is_object(&t[i])) i++;
-    for (; i < n_tokens; i++) {
-        if (!is_value(&t[i], data, &tag.p, &tag.len)) continue;
+    while (i < n_tokens) {
+        if (is_object(&t[i])) {
+            __skip_object(t, n_tokens, i);
+            tag.p = NULL;
+            continue;
+        }
+        if (!is_value(&t[i], data, &tag.p, &tag.len)) {
+            i++;
+            continue;
+        }
         va_list list;
         va_start(list, n_tags);
         count += map_key_to_value(
@@ -95,6 +103,7 @@ jsmn_parse_tokens(
                      : 0;
         va_end(list);
         tag.p = NULL;
+        i++;
     }
     return count;
 }
@@ -133,7 +142,11 @@ jsmn_parse_tokens_path(
                     uint32_t taglen = 0;
                     if (is_object(&t[i])) i++;
                     while (i < n_tokens && t[i].end <= t[parent].end) {
-                        // TODO need to skip objects
+                        if (is_object(&t[i])) {
+                            __skip_object(t, n_tokens, i);
+                            tag = NULL;
+                            continue;
+                        }
                         if (!is_value(&t[i], data, &tag, &taglen)) {
                             i++;
                             continue;
@@ -150,8 +163,8 @@ jsmn_parse_tokens_path(
                                      ? 1
                                      : 0;
                         va_end(list);
-                        i++;
                         tag = NULL;
+                        i++;
                     }
                     break;
                 }
