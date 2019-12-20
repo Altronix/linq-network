@@ -130,6 +130,7 @@ if(ENABLE_TESTING)
     COMMAND test-devices
     COMMAND test-http
     COMMAND test-db #TODO remove from test coverage if WITHOUT SQLITE
+    COMMAND test-jsmn
     COMMAND binding-linq-netw-cpp-test)
 
 endif()
