@@ -4,17 +4,6 @@
 #include "sqlite3.h"
 #include "sys.h"
 
-#define database_assert_command(__database, __command)                         \
-    do {                                                                       \
-        int err;                                                               \
-        sqlite3_stmt* sql;                                                     \
-        err = sqlite3_prepare_v2(__database->db, __command, -1, &sql, NULL);   \
-        linq_netw_assert(err == SQLITE_OK);                                    \
-        err = sqlite3_step(sql);                                               \
-        linq_netw_assert(err == SQLITE_DONE);                                  \
-        sqlite3_finalize(sql);                                                 \
-    } while (0);
-
 #ifdef __cplusplus
 extern "C"
 {
