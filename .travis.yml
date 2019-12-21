@@ -1,6 +1,9 @@
 git:
         submodules: false
 
+notifications:
+        emails: false
+
 before_install:
         - git submodule update --init ./external/libzmq
         - git submodule update --init ./external/czmq
