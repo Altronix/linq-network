@@ -147,7 +147,6 @@ mongoose_spy_event_request_push(
                 auth,
                 strlen(data),
                 data);
-            mongoose_parser_init(&parser, r, HTTP_REQUEST);
             mongoose_parser_parse(&parser, r->request, l);
             break;
     }

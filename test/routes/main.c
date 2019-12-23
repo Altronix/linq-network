@@ -106,8 +106,7 @@ test_route_devices_response_get_only(void** context_p)
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
     assert_non_null(response);
-    // TODO check mock_mongoose and post request if working
-    // assert_memory_equal(response->body, body_expect, strlen(body_expect));
+    assert_memory_equal(response->body, body_expect, strlen(body_expect));
     mock_mongoose_response_destroy(&response);
 
     linq_netw_destroy(&l);
