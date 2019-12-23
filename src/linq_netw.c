@@ -48,22 +48,17 @@ on_heartbeat_response(
 {
     linq_netw_s* l = ctx;
     linq_str sid, product, prj_version, atx_version, web_version, mac;
+    const char* ser = device_serial(*d);
     uint32_t count;
     jsmntok_t t[64];
     if (e) {
-        log_warn(
-            "(ZMTP) [%.6s...] (%.3d) About request failed!",
-            device_serial(*d),
-            e);
+        log_warn("(ZMTP) [%.6s...] (%.3d) About request failed!", ser, e);
     } else {
         char keys[128], vals[128];
         // clang-format off
         log_info(
-            "(ZMTP) "
-            "[%.6s...] (%.3d) "
-            "Received About response. "
-            "Adding device to database...",
-            device_serial(*d),
+            "(ZMTP) [%.6s...] (%.3d) Adding device to database...",
+            ser,
             e);
         count = jsmn_parse_tokens_path(
             "/about",
