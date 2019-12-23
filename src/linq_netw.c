@@ -134,8 +134,8 @@ on_zmtp_alert(
     zuuid_t* uid = zuuid_new();
     linq_netw_assert(uid);
     log_info("(ZMTP) [%.6s...] Event Alert", serial);
-    klen = snprintf(
-        k, sizeof(k), "alert_id,who,what,site_id,time,mesg,device_id");
+    klen =
+        snprintf(k, sizeof(k), "alert_id,who,what,site_id,time,mesg,device_id");
     // clang-format off
     vlen = snprintf(
         v,
@@ -184,13 +184,11 @@ linq_netw_create(const linq_netw_callbacks* cb, void* context)
         l->context = context ? context : l;
         zmtp_init(&l->zmtp, &l->devices, &l->nodes, &zmtp_callbacks, l);
 #if WITH_SQLITE
-        http_init(&l->http);
-        http_use(&l->http, "/api/v1/linq/devices", route_devices, l);
-        http_use(&l->http, "/api/v1/linq/proxy", route_proxy, l);
-#endif
-#if WITH_SQLITE
         database_init(&l->database);
-        http_use(&l->http, "/api/vi/linq/alerts", route_alerts, l);
+        http_init(&l->http);
+        http_use(&l->http, "/api/v1/linq-lite/devices", route_devices, l);
+        http_use(&l->http, "/api/vi/linq-lite/alerts", route_alerts, l);
+        http_use(&l->http, "/api/v1/linq-lite/proxy", route_proxy, l);
 #endif
     }
     return l;

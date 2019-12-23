@@ -110,6 +110,7 @@ if(ENABLE_TESTING)
   add_subdirectory(test/device)
   add_subdirectory(test/devices)
   add_subdirectory(test/http)
+  add_subdirectory(test/routes)
   add_subdirectory(test/jsmn)
   add_subdirectory(bindings/cpp/test)
 
