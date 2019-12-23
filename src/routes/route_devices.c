@@ -43,6 +43,7 @@ route_devices(
     // Parse query params if provided then generate sql
     http_parse_query_str(ctx, "count", &count, &countl);
     http_parse_query_str(ctx, "offset", &offset, &offsetl);
+    // TODO test should compare db statements with query string vs no query str
     if (count && offset && countl < 6 && offsetl < 6) {
         l = snprintf(buff, sizeof(buff), QUERY, countl, count, offsetl, offset);
     } else {
