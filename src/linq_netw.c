@@ -135,7 +135,7 @@ on_zmtp_alert(
     linq_netw_assert(uid);
     log_info("(ZMTP) [%.6s...] Event Alert", serial);
     klen = snprintf(
-        k, sizeof(k), "alert_id,who,what,site_id,time,mesg,name,device_id");
+        k, sizeof(k), "alert_id,who,what,site_id,time,mesg,device_id");
     // clang-format off
     vlen = snprintf(
         v,

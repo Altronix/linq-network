@@ -1,7 +1,7 @@
 # --------------------------------------------------------------------------
 # Lib of mock functions for test
 # --------------------------------------------------------------------------
-add_library(mock-czmq mock_zmsg.c mock_zsock.c mock_zpoll.c mock_uuid.c)
+add_library(mock-czmq mock_zmsg.c mock_zsock.c mock_zpoll.c)
 target_link_libraries(mock-czmq
                       linq-netw-test
                       czmq
@@ -22,9 +22,6 @@ function(mock_czmq_linker_flags dst)
   string(CONCAT wrap ${wrap} "--wrap=zsock_new_router_checked,")
   string(CONCAT wrap ${wrap} "--wrap=zsock_new_dealer_checked,")
   string(CONCAT wrap ${wrap} "--wrap=zsock_destroy_checked,")
-  string(CONCAT wrap ${wrap} "--wrap=zuuid_new,")
-  string(CONCAT wrap ${wrap} "--wrap=zuuid_destroy,")
-  string(CONCAT wrap ${wrap} "--wrap=zuuid_str,")
   string(CONCAT wrap ${wrap} "--wrap=zsock_bind,")
   string(CONCAT wrap ${wrap} "--wrap=zsock_resolve,")
   string(CONCAT wrap ${wrap} "--wrap=zsock_connect,")

@@ -346,6 +346,12 @@ test_linq_netw_receive_alert_insert(void** context_p)
     ((void)context_p);
     bool pass = false;
     const char* sid = expect_sid = "sid";
+    const char* expect_keys =
+        "INSERT INTO "
+        "alerts(alert_id,who,what,site_id,time,mesg,device_id)";
+    const char* expect_values =
+        "VALUES(\"\",\"TestUser\",\"TestAlert\",\"Altronix Site "
+        "ID\",\"1\",\"Test Alert Message\",\"sid\");";
     zmsg_t* hb = helpers_make_heartbeat("rid", sid, "pid", "site");
     zmsg_t* alert = helpers_make_alert("rid", sid, "pid");
     outgoing_statement* statement;
@@ -368,6 +374,9 @@ test_linq_netw_receive_alert_insert(void** context_p)
 
     statement = sqlite_spy_outgoing_statement_pop();
     assert_non_null(statement);
+    assert_memory_equal(expect_keys, statement->data, strlen(expect_keys));
+    ((void)expect_values); // TODO the uuid is random each test so we can't
+                           // compare. (Mocking uuid is challenging)
     linq_netw_free(statement);
 
     linq_netw_destroy(&l);
