@@ -126,8 +126,32 @@ on_zmtp_alert(
     linq_netw_email_s* email,
     device_s** d)
 {
-    log_info("(ZMTP) [%.6s...] Event Alert", device_serial(*d));
+    int err;
+    char k[128], v[128];
+    uint32_t klen, vlen;
+    const char* serial = device_serial(*d);
     linq_netw_s* l = ctx;
+    zuuid_t* uid = zuuid_new();
+    linq_netw_assert(uid);
+    log_info("(ZMTP) [%.6s...] Event Alert", serial);
+    klen = snprintf(
+        k, sizeof(k), "alert_id,who,what,site_id,time,mesg,name,device_id");
+    // clang-format off
+    vlen = snprintf(
+        v,
+        sizeof(v),
+        "\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\"",
+        32,                  zuuid_str(uid),
+        a->who.len,          a->who.p,
+        a->what.len,         a->what.p,
+        a->where.len,        a->where.p,
+        a->when.len,         a->when.p,
+        a->mesg.len,         a->mesg.p,
+        (int)strlen(serial), serial);
+    // clang-format on
+    zuuid_destroy(&uid);
+    err = database_insert_raw_n(&l->database, "alerts", k, klen, v, vlen);
+    log_debug("(ZMTP) Database alert insert result (%d)", err);
     if (l->callbacks && l->callbacks->alert) {
         l->callbacks->alert(l->context, a, email, d);
     }

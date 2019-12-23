@@ -341,6 +341,40 @@ test_linq_netw_receive_alert_ok(void** context_p)
 }
 
 static void
+test_linq_netw_receive_alert_insert(void** context_p)
+{
+    ((void)context_p);
+    bool pass = false;
+    const char* sid = expect_sid = "sid";
+    zmsg_t* hb = helpers_make_heartbeat("rid", sid, "pid", "site");
+    zmsg_t* alert = helpers_make_alert("rid", sid, "pid");
+    outgoing_statement* statement;
+
+    test_init();
+
+    // Push some incoming messages
+    czmq_spy_mesg_push_incoming(&hb);
+    czmq_spy_mesg_push_incoming(&alert);
+    czmq_spy_poll_set_incoming((0x01));
+
+    linq_netw_s* l = linq_netw_create(&callbacks, (void*)&pass);
+    linq_netw_listen(l, "tcp://*:32820");
+    linq_netw_poll(l, 5);
+    sqlite_spy_outgoing_statement_flush();
+    pass = false;
+
+    linq_netw_poll(l, 5);
+    assert_true(pass);
+
+    statement = sqlite_spy_outgoing_statement_pop();
+    assert_non_null(statement);
+    linq_netw_free(statement);
+
+    linq_netw_destroy(&l);
+    test_reset();
+}
+
+static void
 test_linq_netw_receive_alert_error_short(void** context_p)
 {
     ((void)context_p);
@@ -1132,6 +1166,7 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_netw_receive_heartbeat_ok_insert_device),
         cmocka_unit_test(test_linq_netw_receive_heartbeat_error_short),
         cmocka_unit_test(test_linq_netw_receive_alert_ok),
+        cmocka_unit_test(test_linq_netw_receive_alert_insert),
         cmocka_unit_test(test_linq_netw_receive_alert_error_short),
         cmocka_unit_test(test_linq_netw_receive_response_ok),
         cmocka_unit_test(test_linq_netw_receive_response_error_timeout),
