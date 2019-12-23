@@ -139,7 +139,7 @@ mongoose_spy_event_request_push(
             mongoose_parser_parse(&parser, r->request, l);
             break;
         case 'P':
-            snprintf(
+            l = snprintf(
                 r->request,
                 sizeof(r->request),
                 HEADERS_DATA,

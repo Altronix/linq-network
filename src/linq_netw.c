@@ -210,6 +210,12 @@ linq_netw_destroy(linq_netw_s** linq_netw_p)
     linq_netw_free(l);
 }
 
+database_s*
+linq_netw_database(linq_netw_s* l)
+{
+    return &l->database;
+}
+
 void
 linq_netw_context_set(linq_netw_s* linq, void* ctx)
 {

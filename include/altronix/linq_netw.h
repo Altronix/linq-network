@@ -23,6 +23,10 @@ extern "C"
 #define LINQ_NETW_RETRY_TIMEOUT 500
 #endif
 
+#ifndef LINQ_NETW_MAX_RESPONSE_SIZE
+#define LINQ_NETW_MAX_RESPONSE_SIZE 8096
+#endif
+
     typedef struct device_s device_s;
     typedef struct linq_netw_s linq_netw_s;
     typedef uint32_t linq_netw_socket;

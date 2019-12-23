@@ -16,6 +16,11 @@
 // project includes
 #include "altronix/linq_netw.h"
 
+#if WITH_SQLITE
+#include "database/database.h"
+#include "http.h"
+#endif
+
 // [router, version, type, serial]
 // [router, version, 0x00, serial, type, siteId]         = HEARTBEAT
 // [router, version, 0x01, serial, path [, data] ]       = REQUEST
@@ -97,6 +102,8 @@ extern "C"
     extern char g_frame_typ_response;
     extern char g_frame_typ_alert;
     extern char g_frame_typ_hello;
+
+    database_s* linq_netw_database(linq_netw_s* l);
 
 #ifdef __cplusplus
 }

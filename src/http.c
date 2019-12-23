@@ -191,25 +191,28 @@ http_parse_query_str(
     uint32_t* l)
 {
     struct mg_str* q = &c->curr_message->query_string;
-    const char *end, *spot = strstr(q->p, want);
-    uint32_t wantlen = strlen(want);
-    if (spot) {
-        if (!(wantlen <= q->len &&                    // bad query str
-              (size_t)spot - (size_t)q->p < q->len && // bad query str
-              (!(spot[wantlen] == '='))))             // bad query str
-        {
-            spot += wantlen + 1;
-            end = memchr(spot, '&', q->len - (spot - q->p));
-            *l = end ? end - spot : q->len - (spot - q->p);
-            *result = spot;
+    if (q) {
+        struct mg_str needle = { .p = want, .len = strlen(want) };
+        const char *end, *spot = mg_strstr(*q, needle);
+        uint32_t wantlen = strlen(want);
+        if (spot) {
+            if (!(wantlen <= q->len &&                    // bad query str
+                  (size_t)spot - (size_t)q->p < q->len && // bad query str
+                  (!(spot[wantlen] == '='))))             // bad query str
+            {
+                spot += wantlen + 1;
+                end = memchr(spot, '&', q->len - (spot - q->p));
+                *l = end ? end - spot : q->len - (spot - q->p);
+                *result = spot;
+            } else {
+                log_error("(HTTP) Invalid Query String Detected");
+                *result = NULL;
+                *l = 0;
+            }
         } else {
-            log_error("(HTTP) Invalid Query String Detected");
             *result = NULL;
             *l = 0;
         }
-    } else {
-        *result = NULL;
-        *l = 0;
     }
 }
 

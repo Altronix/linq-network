@@ -13,7 +13,7 @@
 
 #define DATABASE_ALERTS                                                        \
     "CREATE TABLE %s("                                                         \
-    "alert_id INTEGER PRIMARY KEY,"                                            \
+    "alert_id TEXT PRIMARY KEY,"                                               \
     "who TEXT,"                                                                \
     "what TEXT,"                                                               \
     "site_id TEXT,"                                                            \
