@@ -1,7 +1,11 @@
 # --------------------------------------------------------------------------
 # Build test-routes
 # --------------------------------------------------------------------------
-add_executable(test-routes main.c)
+add_executable(test-routes 
+                      main.c
+                      main.h
+                      devices.c
+                      devices.h)
 target_link_libraries(test-routes
                       linq-netw-test
 		      czmq
