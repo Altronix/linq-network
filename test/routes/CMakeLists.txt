@@ -4,6 +4,8 @@
 add_executable(test-routes 
                       main.c
                       main.h
+                      alerts.c
+                      alerts.h
                       devices.c
                       devices.h)
 target_link_libraries(test-routes
