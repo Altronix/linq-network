@@ -1,14 +1,17 @@
 #include "mock_sqlite.h"
 #include "containers.h"
 
-// TODO this mock doesn't support returning column_text string. Need to return
-// static strings without-allocating
-
 //
 typedef struct on_step_return
 {
     int ret;
 } on_step_return;
+
+//
+typedef struct on_column_text_return
+{
+    const char* ret;
+} on_column_text_return;
 
 //
 typedef struct on_column_int_return
@@ -18,22 +21,25 @@ typedef struct on_column_int_return
 
 //
 LIST_INIT_W_FREE(on_step, on_step_return);
+LIST_INIT_W_FREE(on_column_text, on_column_text_return);
 LIST_INIT_W_FREE(on_column_int, on_column_int_return);
 LIST_INIT_W_FREE(statements, outgoing_statement);
 
-char on_column_text_return[4096];
 on_step_list_s* on_step = NULL;
+on_column_text_list_s* on_column_text = NULL;
 on_column_int_list_s* on_column_int = NULL;
 statements_list_s* outgoing_statements = NULL;
 
 //
 on_step_return on_step_default = { .ret = SQLITE_DONE };
-on_column_int_return on_coumn_int = { .ret = 0 };
+on_column_text_return on_column_text_default = { .ret = "column" };
+on_column_int_return on_coumn_int_default = { .ret = 0 };
 
 void
 sqlite_spy_init()
 {
     on_step = on_step_list_create();
+    on_column_text = on_column_text_list_create();
     on_column_int = on_column_int_list_create();
     outgoing_statements = statements_list_create();
 }
@@ -41,8 +47,8 @@ sqlite_spy_init()
 void
 sqlite_spy_deinit()
 {
-    memset(on_column_text_return, 0, sizeof(on_column_text_return));
     if (on_step) on_step_list_destroy(&on_step);
+    if (on_column_text) on_column_text_list_destroy(&on_column_text);
     if (on_column_int) on_column_int_list_destroy(&on_column_int);
     if (outgoing_statements) statements_list_destroy(&outgoing_statements);
 }
@@ -83,13 +89,12 @@ sqlite_spy_step_return_push(int ret)
 }
 
 void
-sqlite_spy_column_text_return_set(const char* ret)
+sqlite_spy_column_text_return_push(const char* ret)
 {
-    // TODO return
-    int sz = strlen(ret);
-    linq_netw_assert(sz < sizeof(on_column_text_return));
-    memcpy(on_column_text_return, ret, sz);
-    on_column_text_return[sz] = '\0';
+    on_column_text_return* r = linq_netw_malloc(sizeof(on_column_text_return));
+    linq_netw_assert(r);
+    r->ret = ret;
+    on_column_text_list_push(on_column_text, &r);
 }
 
 void
@@ -174,7 +179,15 @@ __wrap_sqlite3_column_text(sqlite3_stmt* stmt, int iCol)
 {
     ((void)stmt);
     ((void)iCol);
-    return (const unsigned char*)on_column_text_return;
+    const char* ret;
+    on_column_text_return* r = on_column_text_list_pop(on_column_text);
+    if (r) {
+        ret = r->ret;
+        linq_netw_free(r);
+    } else {
+        ret = on_column_text_default.ret;
+    }
+    return (const unsigned char*)ret;
 }
 
 int

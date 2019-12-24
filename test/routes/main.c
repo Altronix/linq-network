@@ -32,9 +32,9 @@ test_route_devices(void** context_p)
     const char* body_expect =
         "{"
         "\"devices\":{"
-        "\"A\":{\"product\":\"A\",\"prj_version\":\"A\",\"atx_version\":\"A\"},"
-        "\"A\":{\"product\":\"A\",\"prj_version\":\"A\",\"atx_version\":\"A\"},"
-        "\"A\":{\"product\":\"A\",\"prj_version\":\"A\",\"atx_version\":\"A\"}"
+        "\"A\":{\"product\":\"B\",\"prj_version\":\"C\",\"atx_version\":\"D\"},"
+        "\"A\":{\"product\":\"B\",\"prj_version\":\"C\",\"atx_version\":\"D\"},"
+        "\"A\":{\"product\":\"B\",\"prj_version\":\"C\",\"atx_version\":\"D\"}"
         "}}";
 
     test_init();
@@ -46,7 +46,18 @@ test_route_devices(void** context_p)
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_step_return_push(SQLITE_ROW);
-    sqlite_spy_column_text_return_set("A");
+    sqlite_spy_column_text_return_push("A");
+    sqlite_spy_column_text_return_push("B");
+    sqlite_spy_column_text_return_push("C");
+    sqlite_spy_column_text_return_push("D");
+    sqlite_spy_column_text_return_push("A");
+    sqlite_spy_column_text_return_push("B");
+    sqlite_spy_column_text_return_push("C");
+    sqlite_spy_column_text_return_push("D");
+    sqlite_spy_column_text_return_push("A");
+    sqlite_spy_column_text_return_push("B");
+    sqlite_spy_column_text_return_push("C");
+    sqlite_spy_column_text_return_push("D");
     mongoose_spy_event_request_push(
         "", "GET", "/api/v1/linq-lite/devices", NULL);
     for (int i = 0; i < 4; i++) linq_netw_poll(l, -1);
@@ -73,7 +84,6 @@ test_route_devices_response_too_large(void** context_p)
     sqlite_spy_outgoing_statement_flush();
 
     for (int i = 0; i < 10000; i++) sqlite_spy_step_return_push(SQLITE_ROW);
-    sqlite_spy_column_text_return_set("A");
     mongoose_spy_event_request_push(
         "", "GET", "/api/v1/linq-lite/devices", NULL);
     for (int i = 0; i < 4; i++) linq_netw_poll(l, -1);
@@ -99,7 +109,7 @@ test_route_devices_response_get_only(void** context_p)
     linq_netw_listen(l, "http://*:8000");
     sqlite_spy_outgoing_statement_flush();
 
-    sqlite_spy_column_text_return_set("A");
+    sqlite_spy_column_text_return_push("A");
     mongoose_spy_event_request_push(
         "", "POST", "/api/v1/linq-lite/devices", "{\"blah\":\"blah\"}");
     for (int i = 0; i < 4; i++) linq_netw_poll(l, -1);
