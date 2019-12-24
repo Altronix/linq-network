@@ -38,9 +38,11 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_route_alerts),
         cmocka_unit_test(test_route_alerts_response_too_large),
         cmocka_unit_test(test_route_alerts_response_get_only),
+        cmocka_unit_test(test_route_alerts_response_empty),
         cmocka_unit_test(test_route_devices),
         cmocka_unit_test(test_route_devices_response_too_large),
         cmocka_unit_test(test_route_devices_response_get_only),
+        cmocka_unit_test(test_route_devices_response_empty),
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
