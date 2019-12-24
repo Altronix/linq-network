@@ -16,7 +16,7 @@
     "\"product\":\"%s\","                                                      \
     "\"prj_version\":\"%s\","                                                  \
     "\"atx_version\":\"%s\""                                                   \
-    "}%s"
+    "}"
 
 void
 route_devices(
@@ -59,9 +59,12 @@ route_devices(
         const char *sid = (const char*)sqlite3_column_text(stmt, 0),
                    *pid = (const char*)sqlite3_column_text(stmt, 1),
                    *pver = (const char*)sqlite3_column_text(stmt, 2),
-                   *aver = (const char*)sqlite3_column_text(stmt, 3),
-                   *col = ((err = sqlite3_step(stmt)) == SQLITE_ROW) ? "," : "";
-        l += snprintf(&b[l], sizeof(b) - l, DEVICE, sid, pid, pver, aver, col);
+                   *aver = (const char*)sqlite3_column_text(stmt, 3);
+        l += snprintf(&b[l], sizeof(b) - l, DEVICE, sid, pid, pver, aver);
+        err = sqlite3_step(stmt);
+        if (err == SQLITE_ROW && l < sizeof(b)) {
+            l += snprintf(&b[l], sizeof(b) - l, ",");
+        }
     }
     sqlite3_finalize(stmt);
     if (l < sizeof(b)) {
