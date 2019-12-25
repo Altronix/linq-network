@@ -22,7 +22,7 @@ test_route_alerts(void** context_p)
                               "\"who\":\"who0\","
                               "\"what\":\"what0\","
                               "\"site_id\":\"site_id0\","
-                              "\"when\":\"when0\","
+                              "\"when\":1234,"
                               "\"mesg\":\"mesg0\""
                               "},"
                               "{"
@@ -31,7 +31,7 @@ test_route_alerts(void** context_p)
                               "\"who\":\"who1\","
                               "\"what\":\"what1\","
                               "\"site_id\":\"site_id1\","
-                              "\"when\":\"when1\","
+                              "\"when\":1234,"
                               "\"mesg\":\"mesg1\""
                               "},"
                               "{"
@@ -40,7 +40,7 @@ test_route_alerts(void** context_p)
                               "\"who\":\"who2\","
                               "\"what\":\"what2\","
                               "\"site_id\":\"site_id2\","
-                              "\"when\":\"when2\","
+                              "\"when\":1234,"
                               "\"mesg\":\"mesg2\""
                               "}"
                               "]}";
@@ -55,26 +55,26 @@ test_route_alerts(void** context_p)
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_text_return_push("aid0");
-    sqlite_spy_column_text_return_push("did0");
     sqlite_spy_column_text_return_push("who0");
     sqlite_spy_column_text_return_push("what0");
     sqlite_spy_column_text_return_push("site_id0");
-    sqlite_spy_column_text_return_push("when0");
+    sqlite_spy_column_text_return_push("1234");
     sqlite_spy_column_text_return_push("mesg0");
+    sqlite_spy_column_text_return_push("did0");
     sqlite_spy_column_text_return_push("aid1");
-    sqlite_spy_column_text_return_push("did1");
     sqlite_spy_column_text_return_push("who1");
     sqlite_spy_column_text_return_push("what1");
     sqlite_spy_column_text_return_push("site_id1");
-    sqlite_spy_column_text_return_push("when1");
+    sqlite_spy_column_text_return_push("1234");
     sqlite_spy_column_text_return_push("mesg1");
+    sqlite_spy_column_text_return_push("did1");
     sqlite_spy_column_text_return_push("aid2");
-    sqlite_spy_column_text_return_push("did2");
     sqlite_spy_column_text_return_push("who2");
     sqlite_spy_column_text_return_push("what2");
     sqlite_spy_column_text_return_push("site_id2");
-    sqlite_spy_column_text_return_push("when2");
+    sqlite_spy_column_text_return_push("1234");
     sqlite_spy_column_text_return_push("mesg2");
+    sqlite_spy_column_text_return_push("did2");
     mongoose_spy_event_request_push(
         "", "GET", "/api/v1/linq-lite/alerts", NULL);
     for (int i = 0; i < 4; i++) linq_netw_poll(l, -1);

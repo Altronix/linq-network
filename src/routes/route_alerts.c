@@ -18,7 +18,7 @@
     "\"who\":\"%s\","                                                          \
     "\"what\":\"%s\","                                                         \
     "\"site_id\":\"%s\","                                                      \
-    "\"when\":\"%s\","                                                         \
+    "\"when\":%s,"                                                             \
     "\"mesg\":\"%s\""                                                          \
     "}"
 
@@ -62,12 +62,12 @@ route_alerts(
     err = sqlite3_step(stmt);
     while (err == SQLITE_ROW && (l < sizeof(b))) {
         const char *alert_id = (const char*)sqlite3_column_text(stmt, 0),
-                   *device_id = (const char*)sqlite3_column_text(stmt, 1),
-                   *who = (const char*)sqlite3_column_text(stmt, 2),
-                   *what = (const char*)sqlite3_column_text(stmt, 3),
-                   *site = (const char*)sqlite3_column_text(stmt, 4),
-                   *when = (const char*)sqlite3_column_text(stmt, 5),
-                   *mesg = (const char*)sqlite3_column_text(stmt, 6);
+                   *who = (const char*)sqlite3_column_text(stmt, 1),
+                   *what = (const char*)sqlite3_column_text(stmt, 2),
+                   *site = (const char*)sqlite3_column_text(stmt, 3),
+                   *when = (const char*)sqlite3_column_text(stmt, 4),
+                   *mesg = (const char*)sqlite3_column_text(stmt, 5),
+                   *device_id = (const char*)sqlite3_column_text(stmt, 6);
         l += snprintf(
             &b[l],
             sizeof(b) - l,

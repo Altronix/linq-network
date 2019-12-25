@@ -127,7 +127,7 @@ on_zmtp_alert(
     device_s** d)
 {
     int err;
-    char k[128], v[128];
+    char k[128], v[256];
     uint32_t klen, vlen;
     const char* serial = device_serial(*d);
     linq_netw_s* l = ctx;
@@ -140,7 +140,7 @@ on_zmtp_alert(
     vlen = snprintf(
         v,
         sizeof(v),
-        "\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\"",
+        "\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",%.*s,\"%.*s\",\"%.*s\"",
         32,                  zuuid_str(uid),
         a->who.len,          a->who.p,
         a->what.len,         a->what.p,
