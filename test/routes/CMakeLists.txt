@@ -7,7 +7,9 @@ add_executable(test-routes
                       alerts.c
                       alerts.h
                       devices.c
-                      devices.h)
+                      devices.h
+                      proxy.c
+                      proxy.h)
 target_link_libraries(test-routes
                       linq-netw-test
 		      czmq

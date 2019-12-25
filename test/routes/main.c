@@ -10,6 +10,7 @@
 
 #include "alerts.h"
 #include "devices.h"
+#include "proxy.h"
 
 void
 test_init()
@@ -43,6 +44,7 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_route_devices_response_too_large),
         cmocka_unit_test(test_route_devices_response_get_only),
         cmocka_unit_test(test_route_devices_response_empty),
+        cmocka_unit_test(test_route_proxy)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
