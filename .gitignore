@@ -9,9 +9,6 @@
 *.o
 *.lo
 
-#libatx
-*.json
-
 #cscope
 **/*cscope.files
 **/*cscope.out

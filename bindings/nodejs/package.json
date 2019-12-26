@@ -1,0 +1,23 @@
+{
+  "name": "linq-network-js",
+  "version": "0.0.1",
+  "description": "Node bindings for linq-network",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TomzBench/linq-network.git"
+  },
+  "author": "Altronix",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TomzBench/linq-network/issues"
+  },
+  "homepage": "https://github.com/TomzBench/linq-network#readme",
+  "dependencies": {
+    "cmake-js": "^6.0.0",
+    "nan": "^2.14.0"
+  }
+}
