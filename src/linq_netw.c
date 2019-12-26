@@ -188,7 +188,7 @@ linq_netw_create(const linq_netw_callbacks* cb, void* context)
         http_init(&l->http);
         http_use(&l->http, "/api/v1/linq-lite/devices", route_devices, l);
         http_use(&l->http, "/api/v1/linq-lite/alerts", route_alerts, l);
-        http_use(&l->http, "/api/v1/linq-lite/proxy", route_proxy, l);
+        http_use(&l->http, "/api/v1/linq-lite/proxy/...", route_proxy, l);
 #endif
     }
     return l;

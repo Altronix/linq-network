@@ -53,9 +53,9 @@ write_path_to_frame(const char* method, const char* path, uint32_t path_len)
     uint32_t sz;
     char url[128];
     if (*path == '/') {
-        sz = snprintf(url, sizeof(url), "%s %s", method, path);
+        sz = snprintf(url, sizeof(url), "%s %.*s", method, path_len, path);
     } else {
-        sz = snprintf(url, sizeof(url), "%s /%s", method, path);
+        sz = snprintf(url, sizeof(url), "%s /%.*s", method, path_len, path);
     }
     return zframe_new(url, sz);
 }
@@ -280,11 +280,14 @@ send_method(
     device_s* d,
     E_REQUEST_METHOD method,
     const char* path,
+    uint32_t plen,
     const char* json,
+    uint32_t jlen,
     linq_netw_request_complete_fn fn,
     void* context)
 {
-    request_s* r = request_alloc(d, method, path, json, fn, context);
+    request_s* r =
+        request_alloc_mem(d, method, path, plen, json, jlen, fn, context);
     if (r) {
         request_list_push(d->requests, &r);
         device_request_flush_w_check(d);
@@ -300,7 +303,19 @@ device_send_delete(
     linq_netw_request_complete_fn fn,
     void* context)
 {
-    send_method(d, REQUEST_METHOD_DELETE, path, NULL, fn, context);
+    uint32_t plen = strlen(path);
+    send_method(d, REQUEST_METHOD_DELETE, path, plen, NULL, 0, fn, context);
+}
+
+void
+device_send_delete_mem(
+    device_s* d,
+    const char* path,
+    uint32_t plen,
+    linq_netw_request_complete_fn fn,
+    void* context)
+{
+    send_method(d, REQUEST_METHOD_DELETE, path, plen, NULL, 0, fn, context);
 }
 
 void
@@ -310,7 +325,19 @@ device_send_get(
     linq_netw_request_complete_fn fn,
     void* context)
 {
-    send_method(d, REQUEST_METHOD_GET, path, NULL, fn, context);
+    uint32_t plen = strlen(path);
+    send_method(d, REQUEST_METHOD_GET, path, plen, NULL, 0, fn, context);
+}
+
+void
+device_send_get_mem(
+    device_s* d,
+    const char* path,
+    uint32_t plen,
+    linq_netw_request_complete_fn fn,
+    void* context)
+{
+    send_method(d, REQUEST_METHOD_GET, path, plen, NULL, 0, fn, context);
 }
 
 void
@@ -321,7 +348,21 @@ device_send_post(
     linq_netw_request_complete_fn fn,
     void* context)
 {
-    send_method(d, REQUEST_METHOD_POST, path, json, fn, context);
+    uint32_t plen = strlen(path), jlen = strlen(json);
+    send_method(d, REQUEST_METHOD_POST, path, plen, json, jlen, fn, context);
+}
+
+void
+device_send_post_mem(
+    device_s* d,
+    const char* path,
+    uint32_t plen,
+    const char* json,
+    uint32_t jlen,
+    linq_netw_request_complete_fn fn,
+    void* context)
+{
+    send_method(d, REQUEST_METHOD_POST, path, plen, json, jlen, fn, context);
 }
 
 void
@@ -332,7 +373,8 @@ device_send(
     linq_netw_request_complete_fn fn,
     void* context)
 {
-    send_method(d, REQUEST_METHOD_RAW, path, json, fn, context);
+    uint32_t plen = strlen(path), jlen = json ? strlen(json) : 0;
+    send_method(d, REQUEST_METHOD_RAW, path, plen, json, jlen, fn, context);
 }
 
 uint32_t

@@ -48,10 +48,13 @@ on_alert(
 static void
 on_heartbeat(void* ctx, const char* serial, device_s** d)
 {
+    ((void)ctx);
     ((void)serial);
     ((void)d);
+    /*
     linq_netw_s* linq = ctx;
     linq_netw_device_send_get(linq, serial, "/ATX/test/504", on_response, NULL);
+    */
 }
 
 linq_netw_callbacks callbacks = { .err = on_error,

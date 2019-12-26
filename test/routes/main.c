@@ -2,6 +2,8 @@
 #include "helpers.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
+#include "mock_zmsg.h"
+#include "mock_zpoll.h"
 #include "sys.h"
 
 #include <setjmp.h>
@@ -25,6 +27,8 @@ test_init()
 void
 test_reset()
 {
+    czmq_spy_mesg_reset();
+    czmq_spy_poll_reset();
     mongoose_spy_deinit();
     sqlite_spy_deinit();
 }
@@ -44,7 +48,10 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_route_devices_response_too_large),
         cmocka_unit_test(test_route_devices_response_get_only),
         cmocka_unit_test(test_route_devices_response_empty),
-        cmocka_unit_test(test_route_proxy)
+        cmocka_unit_test(test_route_proxy_get),
+        cmocka_unit_test(test_route_proxy_post),
+        cmocka_unit_test(test_route_proxy_404),
+        cmocka_unit_test(test_route_proxy_400_too_short)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);

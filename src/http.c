@@ -96,26 +96,35 @@ c_printf(void* connection, int code, const char* type, const char* fmt, ...)
 typedef struct foreach_route_check_path_context
 {
     const char* path;
-    http_route_context** found;
+    http_route_context*** found_p;
 } foreach_route_check_path_context;
 
 static void
 foreach_route_check_path(
     routes_map_s* self,
     void* data,
+    const char* test_path,
     http_route_context** r_p)
 {
     ((void)self);
     foreach_route_check_path_context* ctx = data;
-    if (!ctx->found) { uint32_t path_len = strlen(ctx->path); }
+    if (!*ctx->found_p) {
+        uint32_t plen = strlen(ctx->path), tlen = strlen(test_path);
+        if (tlen >= 4 && !(memcmp(&test_path[tlen - 4], "/...", 4))) {
+            if (plen > tlen && !(memcmp(test_path, ctx->path, tlen - 4))) {
+                *ctx->found_p = r_p;
+            }
+        }
+    }
 }
 
 static http_route_context**
 resolve_route(http_s* http, const char* path)
 {
     http_route_context** r_p = NULL;
+    foreach_route_check_path_context ctx = { .path = path, .found_p = &r_p };
     if (path) r_p = routes_map_get(http->routes, path);
-    if (!r_p) {}
+    if (!r_p) routes_map_foreach(http->routes, foreach_route_check_path, &ctx);
     return r_p;
 }
 

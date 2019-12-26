@@ -39,15 +39,35 @@ extern "C"
         const char*,
         linq_netw_request_complete_fn,
         void*);
+    void device_send_delete_mem(
+        device_s*,
+        const char*,
+        uint32_t,
+        linq_netw_request_complete_fn,
+        void*);
     void device_send_get(
         device_s*,
         const char*,
+        linq_netw_request_complete_fn,
+        void*);
+    void device_send_get_mem(
+        device_s*,
+        const char*,
+        uint32_t,
         linq_netw_request_complete_fn,
         void*);
     void device_send_post(
         device_s*,
         const char*,
         const char*,
+        linq_netw_request_complete_fn,
+        void*);
+    void device_send_post_mem(
+        device_s*,
+        const char*,
+        uint32_t,
+        const char*,
+        uint32_t,
         linq_netw_request_complete_fn,
         void*);
     void device_send(
