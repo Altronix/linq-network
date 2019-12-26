@@ -309,11 +309,15 @@ typedef struct
 
 // linq_netw_device_foreach HOF
 static void
-foreach_device_print_sid(device_map_s* self, void* ctx, device_s** d_p)
+foreach_device_print_sid(
+    device_map_s* self,
+    void* ctx,
+    const char* serial,
+    device_s** d_p)
 {
     ((void)self);
     foreach_device_print_sid_ctx* foreach_ctx = ctx;
-    foreach_ctx->fn(foreach_ctx->ctx, device_serial(*d_p), device_type(*d_p));
+    foreach_ctx->fn(foreach_ctx->ctx, serial, device_type(*d_p));
 }
 
 // Print a list of serial numbers to caller

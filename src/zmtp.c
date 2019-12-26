@@ -210,9 +210,14 @@ node_resolve(zsock_t* sock, node_map_s* map, zframe_t** frames, bool insert)
 
 // Broadcast x frames to each node (router frame is added per each node)
 static void
-foreach_node_forward_message(node_map_s* self, void* ctx, node_s** n)
+foreach_node_forward_message(
+    node_map_s* self,
+    void* ctx,
+    const char* key,
+    node_s** n)
 {
     ((void)self);
+    ((void)key);
     frames_s* frames = ctx;
     node_send_frames(*n, frames->n, frames->frames);
 }
@@ -491,19 +496,24 @@ static void
 foreach_device_remove_if_sock_eq(
     device_map_s* self,
     void* ctx,
+    const char* serial,
     device_s** device_p)
 {
     zsock_t* eq = ctx;
     linq_netw_socket_s* socket = ((linq_netw_socket_s*)*device_p);
-    if (eq == socket->sock) device_map_remove(self, device_serial(*device_p));
+    if (eq == socket->sock) device_map_remove(self, serial);
 }
 
 static void
-foreach_node_remove_if_sock_eq(node_map_s* self, void* ctx, node_s** device_p)
+foreach_node_remove_if_sock_eq(
+    node_map_s* self,
+    void* ctx,
+    const char* serial,
+    node_s** device_p)
 {
     zsock_t* eq = ctx;
     linq_netw_socket_s* socket = ((linq_netw_socket_s*)*device_p);
-    if (eq == socket->sock) node_map_remove(self, node_serial(*device_p));
+    if (eq == socket->sock) node_map_remove(self, serial);
 }
 
 static void
@@ -547,10 +557,15 @@ zmtp_close_dealer(zmtp_s* zmtp, linq_netw_socket handle)
 
 // loop through each node and resolve any requests that have timed out
 static void
-foreach_device_check_request(device_map_s* self, void* ctx, device_s** d)
+foreach_device_check_request(
+    device_map_s* self,
+    void* ctx,
+    const char* serial,
+    device_s** d)
 {
     ((void)self);
     ((void)ctx);
+    ((void)serial);
     if (device_request_pending(*d)) {
         uint32_t tick = sys_tick();
         uint32_t retry_at = device_request_retry_at(*d);
@@ -571,9 +586,14 @@ typedef struct foreach_socket_process_context
 } foreach_socket_process_context;
 
 static void
-foreach_socket_process(socket_map_s* self, void* context, zsock_t** sock_p)
+foreach_socket_process(
+    socket_map_s* self,
+    void* context,
+    const char* key,
+    zsock_t** sock_p)
 {
     ((void)self);
+    ((void)key);
     foreach_socket_process_context* ctx = context;
     if ((*(zmq_pollitem_t**)ctx->poll_p)->revents && ZMQ_POLLIN) {
         int err = process_packet(ctx->zmtp, *sock_p);
@@ -583,9 +603,14 @@ foreach_socket_process(socket_map_s* self, void* context, zsock_t** sock_p)
 }
 
 static void
-foreach_socket_populate_poll(socket_map_s* self, void* ctx, zsock_t** sock_p)
+foreach_socket_populate_poll(
+    socket_map_s* self,
+    void* ctx,
+    const char* key,
+    zsock_t** sock_p)
 {
     ((void)self);
+    ((void)key);
     (*(zmq_pollitem_t**)ctx)->socket = zsock_resolve(*sock_p);
     (*(zmq_pollitem_t**)ctx)->events = ZMQ_POLLIN;
     (*(zmq_pollitem_t**)ctx)++;
