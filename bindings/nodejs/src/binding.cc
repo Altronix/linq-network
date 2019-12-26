@@ -1,3 +1,4 @@
+#include "altronix/linq_netw.hpp"
 #include <napi.h>
 
 Napi::Object

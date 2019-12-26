@@ -91,6 +91,8 @@ flags = [
     "-I../../include",
     "-I../../src",
     "-I../../src/sys/mock",
+    "-I./build/install/include",
+    "-I./",
 ]
 
 # Clang automatically sets the '-std=' flag to 'c++14' for MSVC 2015 or later,
