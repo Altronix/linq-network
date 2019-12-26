@@ -1,3 +1,0 @@
-# linq-netw-js
-
-
