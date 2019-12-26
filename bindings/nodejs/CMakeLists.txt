@@ -10,6 +10,15 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ###############################################################################
+# node-addon-api
+###############################################################################
+execute_process(COMMAND node -p "require('node-addon-api').include"
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  OUTPUT_VARIABLE NODE_ADDON_API_DIR)
+string(REPLACE "\n" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
+string(REPLACE "\"" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
+
+###############################################################################
 # Build linq-netw
 ###############################################################################
 ExternalProject_ADD(linq-netw-project
@@ -47,7 +56,7 @@ endif()
 ###############################################################################
 # Build linq-netw-js
 ###############################################################################
-add_library(linq-netw-js SHARED ./src/binding.c)
+add_library(linq-netw-js SHARED ./src/binding.cc)
 set_target_properties(linq-netw-js PROPERTIES PREFIX "" SUFFIX ".node")
-target_include_directories(linq-netw-js PRIVATE ${CMAKE_JS_INC})
+target_include_directories(linq-netw-js PRIVATE ${CMAKE_JS_INC} ${NODE_ADDON_API_DIR})
 target_link_libraries(linq-netw-js linq-netw ${CMAKE_JS_LIB})

@@ -69,6 +69,9 @@ flags = [
     "-isystem",
     "/usr/local/include",
     # includes
+    "-I/home/thomas/.node/node-v10.14.2-linux-x64/include/node",
+    "-I./bindings/nodejs/node_modules/nan",
+    "-I./bindings/nodejs/node_modules/node-addon-api",
     "-I./external/czmq/include",
     "-I./external/libzmq/include",
     "-I./external/cmocka/include",
