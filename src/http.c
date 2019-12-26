@@ -93,6 +93,32 @@ c_printf(void* connection, int code, const char* type, const char* fmt, ...)
     va_end(ap);
 }
 
+typedef struct foreach_route_check_path_context
+{
+    const char* path;
+    http_route_context** found;
+} foreach_route_check_path_context;
+
+static void
+foreach_route_check_path(
+    routes_map_s* self,
+    void* data,
+    http_route_context** r_p)
+{
+    ((void)self);
+    foreach_route_check_path_context* ctx = data;
+    if (!ctx->found) { uint32_t path_len = strlen(ctx->path); }
+}
+
+static http_route_context**
+resolve_route(http_s* http, const char* path)
+{
+    http_route_context** r_p = NULL;
+    if (path) r_p = routes_map_get(http->routes, path);
+    if (!r_p) {}
+    return r_p;
+}
+
 static void
 http_ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
 {
@@ -108,8 +134,8 @@ http_ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
             http_s* http = user_data;
             struct http_message* m = (struct http_message*)p;
             const char* path = get_uri(m);
-            http_route_context** r;
-            if (path && (r = routes_map_get(http->routes, path))) {
+            http_route_context** r = resolve_route(http, path);
+            if (r) {
                 (*r)->curr_connection = c;
                 (*r)->curr_message = m;
                 (*r)->cb(*r, get_method(m), m->body.len, m->body.p);
@@ -217,7 +243,11 @@ http_parse_query_str(
 }
 
 void
-http_printf_json(http_route_context* route, int code, const char* fmt, ...)
+http_printf_json(
+    struct mg_connection* connection,
+    int code,
+    const char* fmt,
+    ...)
 {
     size_t l;
     va_list ap;
@@ -225,13 +255,13 @@ http_printf_json(http_route_context* route, int code, const char* fmt, ...)
     // Send data
     va_get_len(ap, fmt, l);
     va_start(ap, fmt);
-    c_vprintf(route->curr_connection, code, "application/json", l, fmt, ap);
+    c_vprintf(connection, code, "application/json", l, fmt, ap);
     va_end(ap);
 }
 
 void
 http_printf(
-    http_route_context* route,
+    struct mg_connection* connection,
     int code,
     const char* type,
     const char* fmt,
@@ -243,6 +273,6 @@ http_printf(
     // Send data
     va_get_len(ap, fmt, l);
     va_start(ap, fmt);
-    c_vprintf(route->curr_connection, code, type, l, fmt, ap);
+    c_vprintf(connection, code, type, l, fmt, ap);
     va_end(ap);
 }

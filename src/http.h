@@ -64,18 +64,18 @@ extern "C"
         const char** result,
         uint32_t* l);
     void http_printf_json(
-        http_route_context* context,
+        struct mg_connection* connection,
         int code,
         const char* fmt,
         ...);
     void http_printf(
-        http_route_context* c,
+        struct mg_connection* connection,
         int code,
         const char* type,
         const char* fmt,
         ...);
     void http_vprintf(
-        http_route_context*,
+        struct mg_connection* connection,
         int,
         const char*,
         uint32_t,

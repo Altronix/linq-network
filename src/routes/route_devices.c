@@ -36,7 +36,8 @@ route_devices(
     database_s* db = linq_netw_database(ctx->context);
 
     if (!(meth == HTTP_METHOD_GET)) {
-        http_printf_json(ctx, 400, "{\"error\":\"Bad request\"}");
+        http_printf_json(
+            ctx->curr_connection, 400, "{\"error\":\"Bad request\"}");
         return;
     }
 
@@ -69,10 +70,10 @@ route_devices(
     sqlite3_finalize(stmt);
     if (l < sizeof(b)) {
         l += snprintf(&b[l], sizeof(b) - l, "}}");
-        http_printf_json(ctx, 200, b);
+        http_printf_json(ctx->curr_connection, 200, b);
     } else {
         snprintf(b, sizeof(b), "{\"error\":\"Response too large\"}");
-        http_printf_json(ctx, 400, b);
+        http_printf_json(ctx->curr_connection, 400, b);
     }
 }
 
