@@ -23,9 +23,19 @@ extern "C"
 #define LINQ_NETW_RETRY_TIMEOUT 500
 #endif
 
+#ifndef LINQ_NETW_MAX_RESPONSE_SIZE
+#define LINQ_NETW_MAX_RESPONSE_SIZE 8096
+#endif
+
     typedef struct device_s device_s;
     typedef struct linq_netw_s linq_netw_s;
     typedef uint32_t linq_netw_socket;
+
+    typedef struct linq_str
+    {
+        const char* p;
+        uint32_t len;
+    } linq_str;
 
     typedef enum
     {
@@ -46,29 +56,29 @@ extern "C"
 
     typedef struct linq_netw_alert_s
     {
-        const char* who;
-        const char* what;
-        const char* where;
-        const char* when;
-        const char* mesg;
-        const char* email[5];
+        linq_str who;
+        linq_str what;
+        linq_str where;
+        linq_str when;
+        linq_str mesg;
+        linq_str email[5];
         char* data;
     } linq_netw_alert_s;
 
     typedef struct linq_netw_email_s
     {
-        const char* to0;
-        const char* to1;
-        const char* to2;
-        const char* to3;
-        const char* to4;
-        const char* from;
-        const char* subject;
-        const char* user;
-        const char* password;
-        const char* server;
-        const char* port;
-        const char* device;
+        linq_str to0;
+        linq_str to1;
+        linq_str to2;
+        linq_str to3;
+        linq_str to4;
+        linq_str from;
+        linq_str subject;
+        linq_str user;
+        linq_str password;
+        linq_str server;
+        linq_str port;
+        linq_str device;
         char* data;
     } linq_netw_email_s;
 
@@ -106,6 +116,7 @@ extern "C"
     linq_netw_socket linq_netw_connect(linq_netw_s* l, const char* ep);
     E_LINQ_ERROR linq_netw_close_router(linq_netw_s*, linq_netw_socket);
     E_LINQ_ERROR linq_netw_close_dealer(linq_netw_s*, linq_netw_socket);
+    E_LINQ_ERROR linq_netw_close_http(linq_netw_s*, linq_netw_socket);
     E_LINQ_ERROR linq_netw_poll(linq_netw_s* l, int32_t ms);
     device_s** linq_netw_device(const linq_netw_s*, const char*);
     uint32_t linq_netw_device_count(const linq_netw_s*);
