@@ -3,7 +3,7 @@
 #include <mutex>
 #include <thread>
 
-#define NODE_THROW(__env, __err)                                               \
+#define _NTHROW(__env, __err)                                                  \
     do {                                                                       \
         Napi::TypeError::New(__env, __err).ThrowAsJavaScriptException();       \
     } while (0)
@@ -54,8 +54,11 @@ Napi::Value
 LinqNetwork::Listen(const Napi::CallbackInfo& info)
 {
     Napi::Env env = info.Env();
-    if (!(info.Length())) NODE_THROW(env, "Incorrect number of arguments!");
-    if (!(info[0].IsString())) NODE_THROW(env, "Expect arg[0] as String!");
+    // Validate inputs
+    if (!(info.Length())) return _NTHROW(env, "Incorrect number of arguments!");
+    if (!(info[0].IsString())) return _NTHROW(env, "Expect arg[0] as String!");
+
+    // Call c routine with arguments
     std::string arg0 = info[0].ToString();
     std::lock_guard<std::mutex> guard(this->m_);
     auto s = this->linq_.listen(arg0.c_str());
