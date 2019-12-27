@@ -454,6 +454,7 @@ zmtp_init(
     zmtp->shutdown = false;
     zmtp->routers = socket_map_create();
     zmtp->dealers = socket_map_create();
+    log_debug("(ZMTP) Context created...");
 }
 
 void
@@ -461,6 +462,7 @@ zmtp_deinit(zmtp_s* zmtp)
 {
     socket_map_destroy(&zmtp->routers);
     socket_map_destroy(&zmtp->dealers);
+    log_debug("(ZMTP) Context destroyed...");
 }
 
 linq_netw_socket

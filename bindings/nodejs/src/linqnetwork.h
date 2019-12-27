@@ -32,6 +32,7 @@ class LinqNetwork : public Napi::ObjectWrap<LinqNetwork>
     void process();
 
     // Private variables
+    bool shutdown_;
     std::thread t_;
     std::mutex m_;
     altronix::Linq linq_;

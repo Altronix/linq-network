@@ -35,6 +35,7 @@ ExternalProject_Add(linq-netw-project
 	LIST_SEPARATOR |
 	CMAKE_ARGS 
 		-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+		-DLINQ_LOG_LEVEL:STRING=DEBUG
 )
 
 ExternalProject_Get_Property(linq-netw-project install_dir)
@@ -76,10 +77,17 @@ target_include_directories(linq-netw-cpp INTERFACE ${linq_netw_cpp_INSTALL_DIR})
 ###############################################################################
 # Build linq-netw-js
 ###############################################################################
+# find_package(czmq)
+# find_package(zmq)
 add_library(linq-netw-js SHARED 
   ./src/binding.cc
   ./src/linqnetwork.h
   ./src/linqnetwork.cc)
 set_target_properties(linq-netw-js PROPERTIES PREFIX "" SUFFIX ".node")
 target_include_directories(linq-netw-js PRIVATE ${CMAKE_JS_INC} ${NODE_ADDON_API_DIR})
-target_link_libraries(linq-netw-js linq-netw linq-netw-cpp ${CMAKE_JS_LIB})
+target_link_libraries(linq-netw-js 
+  linq-netw 
+  linq-netw-cpp 
+  ${CMAKE_JS_LIB}
+  zmq
+  )
