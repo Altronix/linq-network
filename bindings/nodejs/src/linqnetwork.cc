@@ -80,14 +80,7 @@ LinqNetwork::RegisterCallback(const Napi::CallbackInfo& info)
 
     if (!(info.Length()) >= 1) _NTHROW(env, "Incorrect number of arguments!");
     if (!(info[0].IsFunction())) _NTHROW(env, "Expect arg[0] as Function!");
-
-    // TESTING
     this->r_callback_ = Napi::Persistent(info[0].As<Napi::Function>());
-    auto ref_env = this->r_callback_.Env();
-    auto hb = Napi::String::New(ref_env, "heartbeat");
-    auto sid = Napi::String::New(ref_env, "serial");
-    this->r_callback_.Call({ hb, sid });
-
     return env.Null();
 }
 
