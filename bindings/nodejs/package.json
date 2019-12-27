@@ -5,7 +5,9 @@
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "cmake-js --CDCMAKE_INSTALL_PREFIX=./install compile"
+    "build": "cmake-js --CDCMAKE_INSTALL_PREFIX=./install build",
+    "compile": "cmake-js --CDCMAKE_INSTALL_PREFIX=./install compile",
+    "clean": "cmake-js clean"
   },
   "repository": {
     "type": "git",

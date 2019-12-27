@@ -160,7 +160,7 @@ on_zmtp_alert(
 static void
 on_zmtp_ctrlc(void* ctx)
 {
-    log_info("(ZMTP) Received shutdown signall...");
+    log_info("(ZMTP) Received shutdown signal...");
     linq_netw_s* l = ctx;
     if (l->callbacks && l->callbacks->ctrlc) l->callbacks->ctrlc(l->context);
 }

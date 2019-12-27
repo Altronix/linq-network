@@ -4,8 +4,10 @@
 
 #include "linq_netw_internal.h"
 
+extern volatile int zsys_interrupted;
+
 bool
 sys_running()
 {
-    return !zsys_is_interrupted();
+    return !zsys_interrupted;
 }

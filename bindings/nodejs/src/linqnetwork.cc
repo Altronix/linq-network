@@ -18,14 +18,14 @@ LinqNetwork::Init(Napi::Env env, Napi::Object exports)
         env,
         "LinqNetwork",
         { InstanceMethod("version", &LinqNetwork::Version),
-          InstanceMethod("listen", &LinqNetwork::Version),
-          InstanceMethod("closeRouter", &LinqNetwork::Version),
-          InstanceMethod("closeDealer", &LinqNetwork::Version),
-          InstanceMethod("closeHttp", &LinqNetwork::Version),
-          InstanceMethod("device", &LinqNetwork::Version),
-          InstanceMethod("deviceCount", &LinqNetwork::Version),
-          InstanceMethod("nodeCount", &LinqNetwork::Version),
-          InstanceMethod("send", &LinqNetwork::Version) });
+          InstanceMethod("listen", &LinqNetwork::Listen),
+          InstanceMethod("closeRouter", &LinqNetwork::CloseRouter),
+          InstanceMethod("closeDealer", &LinqNetwork::CloseDealer),
+          InstanceMethod("closeHttp", &LinqNetwork::CloseHttp),
+          InstanceMethod("device", &LinqNetwork::Device),
+          InstanceMethod("deviceCount", &LinqNetwork::DeviceCount),
+          InstanceMethod("nodeCount", &LinqNetwork::NodeCount),
+          InstanceMethod("send", &LinqNetwork::Send) });
     constructor = Napi::Persistent(func);
     constructor.SuppressDestruct();
     exports.Set("LinqNetwork", func);

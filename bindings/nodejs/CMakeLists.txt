@@ -45,14 +45,40 @@ add_library(linq-netw STATIC IMPORTED)
 add_dependencies(linq-netw linq-netw-project)
 set_target_properties(linq-netw PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${linq_network_INCLUDE_DIR})
 
+add_library(czmq STATIC IMPORTED)
+add_dependencies(czmq linq-netw-project)
+set_target_properties(czmq PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${linq_network_INCLUDE_DIR})
+
+add_library(zmq STATIC IMPORTED)
+add_dependencies(zmq linq-netw-project)
+set_target_properties(zmq PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${linq_network_INCLUDE_DIR})
+
 if(NOT MSVC)
 set_property(TARGET linq-netw 
   PROPERTY IMPORTED_LOCATION 
   ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}linq-netw${CMAKE_STATIC_LIBRARY_SUFFIX})
+set_property(TARGET czmq 
+  PROPERTY IMPORTED_LOCATION 
+  ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}czmq${CMAKE_STATIC_LIBRARY_SUFFIX})
+set_property(TARGET zmq 
+  PROPERTY IMPORTED_LOCATION 
+  ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}zmq${CMAKE_STATIC_LIBRARY_SUFFIX})
 else()
+execute_process(COMMAND powershell -ExecutionPolicy Bypass
+  -File "${CMAKE_SOURCE_DIR}/../../scripts/read_zmq_version.ps1"
+        "${CMAKE_SOURCE_DIR}/../../external/libzmq/include/zmq.h"
+  OUTPUT_VARIABLE zmq_VERSION)
+  STRING(REGEX REPLACE "\n" "" zmq_VERSION ${zmq_VERSION})
+  STRING(REGEX REPLACE "\r" "" zmq_VERSION ${zmq_VERSION})
 set_property(TARGET linq-netw 
   PROPERTY IMPORTED_LOCATION 
   ${install_dir}/lib/liblinq-netw${CMAKE_STATIC_LIBRARY_SUFFIX})
+set_property(TARGET czmq
+  PROPERTY IMPORTED_LOCATION 
+  ${install_dir}/lib/libczmq${CMAKE_STATIC_LIBRARY_SUFFIX})
+set_property(TARGET zmq
+  PROPERTY IMPORTED_LOCATION 
+  ${install_dir}/lib/libzmq-${CMAKE_VS_PLATFORM_TOOLSET}-mt-s-${zmq_VERSION}${CMAKE_STATIC_LIBRARY_SUFFIX})
 endif()
 
 ###############################################################################
@@ -77,8 +103,6 @@ target_include_directories(linq-netw-cpp INTERFACE ${linq_netw_cpp_INSTALL_DIR})
 ###############################################################################
 # Build linq-netw-js
 ###############################################################################
-# find_package(czmq)
-# find_package(zmq)
 add_library(linq-netw-js SHARED 
   ./src/binding.cc
   ./src/linqnetwork.h
@@ -88,6 +112,7 @@ target_include_directories(linq-netw-js PRIVATE ${CMAKE_JS_INC} ${NODE_ADDON_API
 target_link_libraries(linq-netw-js 
   linq-netw 
   linq-netw-cpp 
-  ${CMAKE_JS_LIB}
+  czmq
   zmq
+  ${CMAKE_JS_LIB}
   )
