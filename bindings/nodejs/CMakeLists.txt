@@ -8,6 +8,7 @@ find_package(Threads)
 # Compiler stuff
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE on)
 
 ###############################################################################
 # node-addon-api
@@ -75,7 +76,10 @@ target_include_directories(linq-netw-cpp INTERFACE ${linq_netw_cpp_INSTALL_DIR})
 ###############################################################################
 # Build linq-netw-js
 ###############################################################################
-add_library(linq-netw-js SHARED ./src/binding.cc)
+add_library(linq-netw-js SHARED 
+  ./src/binding.cc
+  ./src/linqnetwork.h
+  ./src/linqnetwork.cc)
 set_target_properties(linq-netw-js PROPERTIES PREFIX "" SUFFIX ".node")
 target_include_directories(linq-netw-js PRIVATE ${CMAKE_JS_INC} ${NODE_ADDON_API_DIR})
 target_link_libraries(linq-netw-js linq-netw linq-netw-cpp ${CMAKE_JS_LIB})
