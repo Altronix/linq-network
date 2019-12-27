@@ -55,8 +55,8 @@ LinqNetwork::Listen(const Napi::CallbackInfo& info)
 {
     Napi::Env env = info.Env();
     // Validate inputs
-    if (!(info.Length())) return _NTHROW(env, "Incorrect number of arguments!");
-    if (!(info[0].IsString())) return _NTHROW(env, "Expect arg[0] as String!");
+    if (!(info.Length())) _NTHROW(env, "Incorrect number of arguments!");
+    if (!(info[0].IsString())) _NTHROW(env, "Expect arg[0] as String!");
 
     // Call c routine with arguments
     std::string arg0 = info[0].ToString();

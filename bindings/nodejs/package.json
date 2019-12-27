@@ -2,12 +2,13 @@
   "name": "linq-network-js",
   "version": "0.0.1",
   "description": "Node bindings for linq-network",
-  "main": "src/index.js",
+  "main": "./build/lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "cmake-js --CDCMAKE_INSTALL_PREFIX=./install build",
-    "compile": "cmake-js --CDCMAKE_INSTALL_PREFIX=./install compile",
-    "clean": "cmake-js clean"
+    "native-build": "cmake-js --CDCMAKE_INSTALL_PREFIX=./install build",
+    "native-compile": "cmake-js --CDCMAKE_INSTALL_PREFIX=./install compile",
+    "native-clean": "cmake-js clean",
+    "build": "npm run native-build && tsc -p ./lib"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,8 @@
     "nan": "^2.14.0"
   },
   "devDependencies": {
-    "node-addon-api": "^2.0.0"
+    "@types/node": "^13.1.1",
+    "node-addon-api": "^2.0.0",
+    "typescript": "^3.7.4"
   }
 }
