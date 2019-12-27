@@ -1,7 +1,5 @@
 #include "linqnetwork.h"
 #include <chrono>
-#include <mutex>
-#include <thread>
 
 #define _NTHROW(__env, __err)                                                  \
     do {                                                                       \
@@ -18,6 +16,9 @@ LinqNetwork::Init(Napi::Env env, Napi::Object exports)
         env,
         "LinqNetwork",
         { InstanceMethod("version", &LinqNetwork::Version),
+          InstanceMethod("registerCallback", &LinqNetwork::RegisterCallback),
+          InstanceMethod("isRunning", &LinqNetwork::IsRunning),
+          InstanceMethod("poll", &LinqNetwork::Poll),
           InstanceMethod("listen", &LinqNetwork::Listen),
           InstanceMethod("closeRouter", &LinqNetwork::CloseRouter),
           InstanceMethod("closeDealer", &LinqNetwork::CloseDealer),
@@ -36,18 +37,75 @@ LinqNetwork::LinqNetwork(const Napi::CallbackInfo& info)
     : shutdown_{ false }
     , Napi::ObjectWrap<LinqNetwork>(info)
 {
-    this->t_ = this->spawn();
+    this->linq_
+        .on_heartbeat([this](const char* serial, altronix::Device& device) {
+            ((void)device);
+            if (this->r_callback_) {
+                // std::lock_guard<std::mutex> guard(this->m_);
+                auto env = this->r_callback_.Env();
+                auto hb = Napi::String::New(env, "heartbeat");
+                auto sid = Napi::String::New(env, serial);
+                this->r_callback_.Call({ hb, sid });
+            }
+        })
+        .on_alert([this](
+                      linq_netw_alert_s* alert,
+                      linq_netw_email_s* email,
+                      altronix::Device& d) {
+            ((void)alert);
+            ((void)email);
+            ((void)d);
+        })
+        .on_error(
+            [this](E_LINQ_ERROR error, const char* serial, const char* err) {
+                ((void)error);
+                ((void)serial);
+                ((void)err);
+            })
+        .on_ctrlc([this]() { this->shutdown(); });
 }
 
-LinqNetwork::~LinqNetwork()
-{
-    this->t_.join();
-}
+LinqNetwork::~LinqNetwork() {}
 
 Napi::Value
 LinqNetwork::Version(const Napi::CallbackInfo& info)
 {
     return Napi::String::New(info.Env(), "0.0.1");
+}
+
+Napi::Value
+LinqNetwork::RegisterCallback(const Napi::CallbackInfo& info)
+{
+    Napi::Env env = info.Env();
+
+    if (!(info.Length()) >= 1) _NTHROW(env, "Incorrect number of arguments!");
+    if (!(info[0].IsFunction())) _NTHROW(env, "Expect arg[0] as Function!");
+
+    // TESTING
+    this->r_callback_ = Napi::Persistent(info[0].As<Napi::Function>());
+    auto ref_env = this->r_callback_.Env();
+    auto hb = Napi::String::New(ref_env, "heartbeat");
+    auto sid = Napi::String::New(ref_env, "serial");
+    this->r_callback_.Call({ hb, sid });
+
+    return env.Null();
+}
+
+Napi::Value
+LinqNetwork::IsRunning(const Napi::CallbackInfo& info)
+{
+    return Napi::Boolean::New(info.Env(), !this->shutdown_);
+}
+
+Napi::Value
+LinqNetwork::Poll(const Napi::CallbackInfo& info)
+{
+    Napi::Env env = info.Env();
+    if (!(info.Length())) _NTHROW(env, "Incorrect number of arguments!");
+    if (!(info[0].IsNumber())) _NTHROW(env, "Expect arg[0] as String!");
+    uint32_t ms = info[0].ToNumber();
+    this->linq_.poll(ms);
+    return info.Env().Null();
 }
 
 Napi::Value
@@ -60,7 +118,6 @@ LinqNetwork::Listen(const Napi::CallbackInfo& info)
 
     // Call c routine with arguments
     std::string arg0 = info[0].ToString();
-    std::lock_guard<std::mutex> guard(this->m_);
     auto s = this->linq_.listen(arg0.c_str());
     return Napi::Number::New(info.Env(), s);
 }
@@ -107,18 +164,8 @@ LinqNetwork::Send(const Napi::CallbackInfo& info)
     return Napi::String::New(info.Env(), "TODO");
 }
 
-std::thread
-LinqNetwork::spawn()
-{
-    return std::thread(&LinqNetwork::process, this);
-}
-
 void
-LinqNetwork::process()
+LinqNetwork::shutdown()
 {
-    while (!this->shutdown_) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-        std::lock_guard<std::mutex> guard(this->m_);
-        this->linq_.poll(0);
-    }
+    this->shutdown_ = true;
 }

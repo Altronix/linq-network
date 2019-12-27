@@ -19,6 +19,7 @@ static void on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
 static void on_heartbeat_fn(void*, const char*, device_s**);
 static void
 on_alert_fn(void*, linq_netw_alert_s*, linq_netw_email_s*, device_s**);
+static void on_ctrlc_fn(void*);
 
 using namespace std::placeholders;
 
@@ -43,6 +44,7 @@ class Linq
         callbacks_.err = on_error_fn;
         callbacks_.hb = on_heartbeat_fn;
         callbacks_.alert = on_alert_fn;
+        callbacks_.ctrlc = on_ctrlc_fn;
     }
 
     ~Linq() { linq_netw_destroy(&linq_netw_); }
@@ -107,15 +109,23 @@ class Linq
         return *this;
     }
 
+    Linq& on_ctrlc(std::function<void()> fn)
+    {
+        ctrlc_ = std::bind(fn);
+        return *this;
+    }
+
     friend void on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
     friend void on_heartbeat_fn(void*, const char*, device_s**);
     friend void
     on_alert_fn(void*, linq_netw_alert_s*, linq_netw_email_s*, device_s**);
+    friend void on_ctrlc_fn(void*);
 
   private:
     std::function<void(const char*, Device&)> heartbeat_;
     std::function<void(linq_netw_alert_s*, linq_netw_email_s*, Device&)> alert_;
     std::function<void(E_LINQ_ERROR, const char*, const char*)> error_;
+    std::function<void()> ctrlc_;
     linq_netw_s* linq_netw_;
     linq_netw_callbacks callbacks_ = {};
 };
@@ -124,7 +134,7 @@ static void
 on_error_fn(void* context, E_LINQ_ERROR e, const char* what, const char* serial)
 {
     altronix::Linq* l = (altronix::Linq*)context;
-    l->error_(e, what, serial);
+    if (l->error_) l->error_(e, what, serial);
 }
 
 static void
@@ -144,7 +154,14 @@ on_alert_fn(
 {
     altronix::Linq* l = (altronix::Linq*)context;
     Device device{ *d };
-    l->alert_(alert, email, device);
+    if (l->alert_) l->alert_(alert, email, device);
+}
+
+static void
+on_ctrlc_fn(void* context)
+{
+    altronix::Linq* l = (altronix::Linq*)context;
+    if (l->ctrlc_) l->ctrlc_();
 }
 
 } // namespace altronix

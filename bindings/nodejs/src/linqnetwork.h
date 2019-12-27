@@ -4,9 +4,6 @@
 #include "altronix/linq_netw.hpp"
 #include <napi.h>
 
-#include <mutex>
-#include <thread>
-
 class LinqNetwork : public Napi::ObjectWrap<LinqNetwork>
 {
   public:
@@ -18,6 +15,9 @@ class LinqNetwork : public Napi::ObjectWrap<LinqNetwork>
     // Binding functions
     static Napi::FunctionReference constructor;
     Napi::Value Version(const Napi::CallbackInfo& info);
+    Napi::Value RegisterCallback(const Napi::CallbackInfo& info);
+    Napi::Value IsRunning(const Napi::CallbackInfo& info);
+    Napi::Value Poll(const Napi::CallbackInfo& info);
     Napi::Value Listen(const Napi::CallbackInfo& info);
     Napi::Value CloseRouter(const Napi::CallbackInfo& info);
     Napi::Value CloseDealer(const Napi::CallbackInfo& info);
@@ -28,14 +28,13 @@ class LinqNetwork : public Napi::ObjectWrap<LinqNetwork>
     Napi::Value Send(const Napi::CallbackInfo& info);
 
     // Thread
-    std::thread spawn();
-    void process();
+    void shutdown();
 
     // Private variables
     bool shutdown_;
-    std::thread t_;
-    std::mutex m_;
     altronix::Linq linq_;
+    Napi::Function emit_;
+    Napi::FunctionReference r_callback_;
 };
 
 #endif
