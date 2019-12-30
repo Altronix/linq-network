@@ -40,3 +40,4 @@ Cargo.lock
 
 #sqlite
 **/*/test.db
+test.db

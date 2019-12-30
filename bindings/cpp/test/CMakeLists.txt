@@ -1,15 +1,8 @@
 add_executable(binding-linq-netw-cpp-test main.cpp)
 
-string(CONCAT wrap_flags "-Wl,")
-string(CONCAT wrap_flags ${wrap_flags} "--wrap=zmq_poll,")
-string(CONCAT wrap_flags ${wrap_flags} "--wrap=zmsg_recv,")
-string(CONCAT wrap_flags ${wrap_flags} "--wrap=zmsg_send,")
-string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_bind,")
-string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_resolve,")
-string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_connect,")
-string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_send,")
-string(CONCAT wrap_flags ${wrap_flags} "--wrap=zsock_recv")
-
+mock_czmq_linker_flags(czmq_link_flags)
+mock_sqlite_linker_flags(sqlite_link_flags)
+set(wrap_flags "${czmq_link_flags} ${sqlite_link_flags}")
 target_link_libraries(binding-linq-netw-cpp-test
                       linq-netw-cpp-binding
                       linq-netw-test

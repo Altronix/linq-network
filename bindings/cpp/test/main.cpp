@@ -9,6 +9,8 @@ extern "C"
 {
 #include "helpers.h"
 #include "linq_netw_internal.h"
+#include "mock_mongoose.h"
+#include "mock_sqlite.h"
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
 
@@ -19,24 +21,44 @@ extern "C"
 }
 
 static void
+test_init()
+{
+    mongoose_spy_init();
+    sqlite_spy_init();
+    sqlite_spy_step_return_push(SQLITE_DONE); // PRAGMA
+    sqlite_spy_step_return_push(SQLITE_ROW);  // device database OK
+    sqlite_spy_step_return_push(SQLITE_ROW);  // device database OK
+}
+
+static void
 test_reset()
 {
     czmq_spy_mesg_reset();
     czmq_spy_poll_reset();
+    mongoose_spy_deinit();
+    sqlite_spy_deinit();
 }
 
 static void
 test_linq_netw_create(void** context_p)
 {
     ((void)context_p);
+
+    test_init();
+
     altronix::Linq l;
     ((void)l);
+
+    test_reset();
 }
 
 static void
 test_linq_netw_device(void** context_p)
 {
     ((void)context_p);
+
+    test_init();
+
     altronix::Linq l;
 
     zmsg_t* hb = helpers_make_heartbeat("rid", "serial", "pid", "site");
@@ -46,7 +68,7 @@ test_linq_netw_device(void** context_p)
     l.listen("tcp://*:32999");
     l.poll(5);
 
-    std::shared_ptr<altronix::Device> d = l.device_get("serial");
+    std::shared_ptr<altronix::Device> d = l.device("serial");
     bool pass = d ? true : false;
     assert_true(pass);
     assert_string_equal(d->serial(), "serial");
@@ -55,9 +77,40 @@ test_linq_netw_device(void** context_p)
 }
 
 static void
+test_linq_netw_devices(void** context_p)
+{
+    ((void)context_p);
+
+    test_init();
+
+    altronix::Linq l;
+
+    zmsg_t* hb0 = helpers_make_heartbeat("rid0", "serial0", "pid0", "site0");
+    zmsg_t* hb1 = helpers_make_heartbeat("rid1", "serial1", "pid1", "site1");
+    czmq_spy_mesg_push_incoming(&hb0);
+    czmq_spy_mesg_push_incoming(&hb1);
+    czmq_spy_poll_set_incoming((0x01));
+
+    l.listen("tcp://*:32999");
+    l.poll(5);
+    l.poll(5);
+
+    auto devices = l.devices();
+    assert_int_equal(devices.size(), 2);
+    // bool pass = d ? true : false;
+    // assert_true(pass);
+    // assert_string_equal(d->serial(), "serial");
+
+    test_reset();
+}
+
+static void
 test_linq_netw_alert(void** context_p)
 {
     ((void)context_p);
+
+    test_init();
+
     bool alert_pass = false;
     altronix::Linq l;
 
@@ -96,16 +149,49 @@ test_linq_netw_alert(void** context_p)
     test_reset();
 }
 
+void
+test_linq_netw_send(void** context_p)
+{
+    ((void)context_p);
+    zmsg_t* hb = helpers_make_heartbeat("rid0", "serial0", "pid", "sid");
+    zmsg_t* r = helpers_make_response("rid0", "serial0", 0, "{\"response\":0}");
+    bool pass = false;
+
+    test_init();
+    sqlite_spy_step_return_push(SQLITE_ROW);
+    sqlite_spy_column_int_return_push(1);
+    czmq_spy_mesg_push_incoming(&hb);
+    czmq_spy_mesg_push_incoming(&r);
+    czmq_spy_poll_set_incoming((0x01));
+
+    altronix::Linq linq{};
+    linq.listen("tcp://*:32820");
+    linq.poll(0); // receive heartbeat
+
+    // send get request
+    linq.get("serial0", "/ATX/about", [&pass](altronix::Response& response) {
+        assert_true(response.response == "{\"response\":0}");
+        pass = true;
+    });
+
+    // Process response
+    linq.poll(0);
+    assert_true(pass);
+    test_reset();
+}
+
 int
 main(int argc, char* argv[])
 {
     ((void)argc);
     ((void)argv);
     int err;
-    const struct CMUnitTest tests[] = { cmocka_unit_test(test_linq_netw_device),
-                                        cmocka_unit_test(test_linq_netw_create),
-                                        cmocka_unit_test(
-                                            test_linq_netw_alert) };
+    const struct CMUnitTest tests[] = //
+        { cmocka_unit_test(test_linq_netw_device),
+          cmocka_unit_test(test_linq_netw_devices),
+          cmocka_unit_test(test_linq_netw_create),
+          cmocka_unit_test(test_linq_netw_alert),
+          cmocka_unit_test(test_linq_netw_send) };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
     return err;

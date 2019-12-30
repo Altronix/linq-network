@@ -6,8 +6,10 @@
 #define LINQ_HPP_
 
 #include <functional>
+#include <future>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "altronix/linq_netw.h"
 
@@ -33,6 +35,13 @@ class Device
 
   private:
     device_s* device_;
+};
+
+struct Response
+{
+    E_LINQ_ERROR error;
+    std::string response;
+    std::function<void(Response&)> fn;
 };
 
 class Linq
@@ -73,11 +82,84 @@ class Linq
         linq_netw_close_dealer(linq_netw_, s);
     }
 
+    //
+    void close_http(linq_netw_socket socket)
+    {
+        linq_netw_close_http(linq_netw_, socket);
+    }
+
     // process io
     E_LINQ_ERROR poll(uint32_t ms) { return linq_netw_poll(linq_netw_, ms); }
 
+    static void
+    on_response(void* context, E_LINQ_ERROR e, const char* json, device_s** d_p)
+    {
+        ((void)d_p);
+        Response* r = static_cast<Response*>(context);
+        r->error = e;
+        r->response = std::string(json);
+        r->fn(*r);
+        delete r;
+    }
+
+    void
+    get(std::string serial, std::string path, std::function<void(Response&)> fn)
+    {
+        Response* r = new Response{ LINQ_ERROR_OK, "", fn };
+        linq_netw_device_send_get(
+            this->linq_netw_, serial.c_str(), path.c_str(), on_response, r);
+    }
+
+    void post(
+        std::string serial,
+        std::string path,
+        std::string data,
+        std::function<void(Response&)> fn)
+    {
+        Response* r = new Response{ LINQ_ERROR_OK, "", fn };
+        linq_netw_device_send_post(
+            this->linq_netw_,
+            serial.c_str(),
+            path.c_str(),
+            data.c_str(),
+            on_response,
+            r);
+    }
+
+    void
+    del(std::string serial, std::string path, std::function<void(Response&)> fn)
+    {
+        Response* r = new Response{ LINQ_ERROR_OK, "", fn };
+        linq_netw_device_send_delete(
+            this->linq_netw_, serial.c_str(), path.c_str(), on_response, r);
+    }
+
+    struct foreach_device_populate_vector_context
+    {
+        const Linq* linq;
+        std::vector<std::shared_ptr<Device>>* devices;
+    };
+
+    static void
+    foreach_device_populate_vector(void* ctx, const char* sid, const char* type)
+    {
+        ((void)type);
+        foreach_device_populate_vector_context* context =
+            static_cast<foreach_device_populate_vector_context*>(ctx);
+        context->devices->push_back(context->linq->device(sid));
+    }
+
+    std::vector<std::shared_ptr<Device>> devices()
+    {
+        std::vector<std::shared_ptr<Device>> vec{};
+        foreach_device_populate_vector_context context{ this, &vec };
+        linq_netw_devices_foreach(
+            this->linq_netw_, foreach_device_populate_vector, &context);
+        return vec;
+    }
+
     // get a device context with serial number
-    std::shared_ptr<Device> device_get(const char* str)
+    std::shared_ptr<Device> device(const char* str) const
     {
         device_s** d = linq_netw_device(linq_netw_, str);
         return d ? std::make_shared<Device>(*d) : nullptr;

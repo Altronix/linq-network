@@ -4,6 +4,7 @@ const binding = require("bindings")("linq-netw-js");
 
 export class LinqNetwork extends Events.EventEmitter {
   netw: any;
+
   constructor() {
     super();
     let self = this;
@@ -13,10 +14,67 @@ export class LinqNetwork extends Events.EventEmitter {
     });
   }
 
+  // listen
   listen(port: string) {
     this.netw.listen(port);
   }
 
+  // connect
+  connect(port: string) {
+    this.netw.connect(port);
+  }
+
+  // closeRouter
+  closeRouter(idx: number) {
+    this.netw.closeRouter(idx);
+  }
+
+  // closeDealer
+  closeDealer(idx: number) {
+    this.netw.closeDealer(idx);
+  }
+
+  // closeHttp
+  closeHttp(idx: number) {
+    this.netw.closeHttp(idx);
+  }
+
+  // devices
+  devices() {
+    // TODO
+  }
+
+  // get
+  get() {
+    // TODO
+  }
+
+  // post
+  post() {
+    // TODO
+  }
+
+  // delete
+  delete() {
+    // TODO
+  }
+
+  // send
+  send() {
+    // TODO
+  }
+
+  // deviceCount
+  deviceCount(): number {
+    return this.netw.deviceCount();
+  }
+
+  // nodeCount
+  nodeCount(): number {
+    return this.netw.nodeCound();
+  }
+
+  // run
   run(ms: number) {
     let self = this;
     (function poll() {
