@@ -168,6 +168,8 @@ class Linq
     // get number of devices connected to linq
     uint32_t device_count() { return linq_netw_device_count(linq_netw_); }
 
+    uint32_t node_count() { return linq_netw_node_count(linq_netw_); }
+
     // call function fn on every heartbeat
     Linq& on_heartbeat(std::function<void(const char*, Device&)> fn)
     {

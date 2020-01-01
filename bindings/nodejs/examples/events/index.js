@@ -3,5 +3,10 @@ let netw = new LinqNetwork();
 
 netw.listen("tcp://*:33455");
 netw.listen("http://*:8000");
-netw.on("heartbeat", sid => console.log(sid));
+netw.on("heartbeat", sid =>
+  netw
+    .sendGet(sid, "/ATX/about")
+    .then(response => console.log(response))
+    .catch(e => console.log(e))
+);
 netw.run(50);

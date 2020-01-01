@@ -124,7 +124,7 @@ extern "C"
         const linq_netw_s* l,
         linq_netw_devices_foreach_fn,
         void*);
-    uint32_t linq_netw_nodes_count(const linq_netw_s* linq);
+    uint32_t linq_netw_node_count(const linq_netw_s* linq);
     E_LINQ_ERROR linq_netw_device_send_get(
         const linq_netw_s*,
         const char*,
