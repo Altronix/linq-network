@@ -5,7 +5,9 @@
 extern crate bindgen;
 extern crate cmake;
 
-// NOTE  https://github.com/rust-lang/rust-bindgen/blob/master/book/src/requirements.md
+// NOTE https://github.com/rust-lang/rust-bindgen/blob/master/book/src/requirements.md
+// NOTE For support of mingw and visual studio 2019+ see reference for travis gotcha's here:
+//      https://github.com/zauonlok/renderer/blob/master/.github/workflows/cmake-ci.yml
 
 use std::env;
 use std::fs;
@@ -68,7 +70,9 @@ fn main() {
             print_linux(&out);
         }
         Ok("windows") => {
-            let dst = cmake::Config::new(find_root()).build();
+            let dst = cmake::Config::new(find_root())
+                .generator("Visual Studio 16 2019")
+                .build();
             let out = dst.display();
             print_windows(&out);
         }
