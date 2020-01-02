@@ -55,4 +55,5 @@ matrix:
                   rust:
                           - nightly
                   script:
+                          - choco install visualstudio2019community
                           - cargo build --verbose --all

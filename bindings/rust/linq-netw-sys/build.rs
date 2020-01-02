@@ -71,7 +71,7 @@ fn main() {
         }
         Ok("windows") => {
             let dst = cmake::Config::new(find_root())
-                .generator("Visual Studio 15 2017")
+                .generator("Visual Studio 16 2019")
                 .build();
             let out = dst.display();
             print_windows(&out);
