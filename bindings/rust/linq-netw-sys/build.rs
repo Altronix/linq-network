@@ -58,6 +58,14 @@ fn print_linux(out: &std::path::Display<'_>) {
     println!("cargo:rustc-link-lib=rt");
 }
 
+fn print(out: &std::path::Display<'_>) {
+    match env::var("CARGO_CFG_TARGET_OS").as_ref().map(|x| &**x) {
+        Ok("linux") => print_linux(out),
+        Ok("windows") => print_windows(out),
+        _ => panic!("Unknown Host OS!"),
+    };
+}
+
 fn generator() -> Option<String> {
     match env::var("GENERATOR").as_ref() {
         Ok(r) => Some(r.to_string()),
@@ -67,29 +75,13 @@ fn generator() -> Option<String> {
 
 fn main() {
     gen_header();
-
-    // Add compiler flags
-    match env::var("CARGO_CFG_TARGET_OS").as_ref().map(|x| &**x) {
-        Ok("linux") => {
-            let dst = if let Some(generator) = generator() {
-                cmake::Config::new(find_root()).generator(generator).build()
-            } else {
-                cmake::Config::new(find_root()).build()
-            };
-            let out = dst.display();
-            print_linux(&out);
-        }
-        Ok("windows") => {
-            let dst = if let Some(generator) = generator() {
-                cmake::Config::new(find_root()).generator(generator).build()
-            } else {
-                cmake::Config::new(find_root()).build()
-            };
-            let out = dst.display();
-            print_windows(&out);
-        }
-        _ => panic!("Unknown Host OS!"),
+    let dst = if let Some(generator) = generator() {
+        cmake::Config::new(find_root()).generator(generator).build()
+    } else {
+        cmake::Config::new(find_root()).build()
     };
+    let out = dst.display();
+    print(&out);
 
     // Generate bindings
     let bindings = bindgen::Builder::default()
