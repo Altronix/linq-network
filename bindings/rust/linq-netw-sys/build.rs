@@ -68,7 +68,9 @@ fn main() {
             print_linux(&out);
         }
         Ok("windows") => {
-            let dst = cmake::Config::new(find_root()).build();
+            let dst = cmake::Config::new(find_root())
+                .define("CMAKE_SH", "CMAKE_SH-NOTFOUND")
+                .build();
             let out = dst.display();
             print_windows(&out);
         }

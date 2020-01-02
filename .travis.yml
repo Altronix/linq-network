@@ -47,7 +47,7 @@ matrix:
                   name: Windows/C/VS/Debug
                   language: c
                   script: 
-                          - cmake -DCMAKE_INSTALL_PREFIX:PATH=./build/install .
+                          - cmake -DCMAKE_INSTALL_PREFIX:PATH=./build/install -DCMAKE_SH="CMAKE_SH-NOTFOUND" .
                           - cmake --build ./ --target install
                 - os: windows
                   name: Windows/Rust/Cargo/Debug

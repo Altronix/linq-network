@@ -236,7 +236,7 @@ impl Context {
     }
 
     pub fn node_count(&self) -> u32 {
-        unsafe { linq_netw_nodes_count(self.c_ctx) }
+        unsafe { linq_netw_node_count(self.c_ctx) }
     }
 }
 
