@@ -5,7 +5,7 @@ netw.listen("tcp://*:33455");
 netw.listen("http://*:8000");
 netw.on("heartbeat", sid =>
   netw
-    .sendGet(sid, "/ATX/about")
+    .send(sid, "GET", "/ATX/about")
     .then(response => console.log(response))
     .catch(e => console.log(e))
 );

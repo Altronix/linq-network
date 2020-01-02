@@ -26,6 +26,7 @@ LinqNetwork::Init(Napi::Env env, Napi::Object exports)
             InstanceMethod("closeHttp", &LinqNetwork::CloseHttp),
             InstanceMethod("deviceCount", &LinqNetwork::DeviceCount),
             InstanceMethod("nodeCount", &LinqNetwork::NodeCount),
+            InstanceMethod("send", &LinqNetwork::Send),
             InstanceMethod("sendGet", &LinqNetwork::Get),
             InstanceMethod("sendPost", &LinqNetwork::Post),
             InstanceMethod("sendDelete", &LinqNetwork::Del),
@@ -192,6 +193,30 @@ Napi::Value
 LinqNetwork::Del(const Napi::CallbackInfo& info)
 {
     return Napi::String::New(info.Env(), "TODO");
+}
+
+Napi::Value
+LinqNetwork::Send(const Napi::CallbackInfo& info)
+{
+    // Napi::Env env = info.Env();
+    Napi::Env env = Env();
+    if (!(info.Length() >= 4)) _NTHROW(env, "Incorrect number of arguments!");
+    if (!(info[0].IsString())) _NTHROW(env, "Expect arg[0] as String!");
+    if (!(info[1].IsString())) _NTHROW(env, "Expect arg[1] as String!");
+    if (!(info[2].IsString())) _NTHROW(env, "Expect arg[2] as String!");
+    if (!(info[3].IsString())) _NTHROW(env, "Expect arg[3] as String!");
+    std::string sid = info[0].ToString();
+    std::string meth = info[1].ToString();
+    std::string path = info[2].ToString();
+    std::string data = info[3].ToString();
+    Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(info.Env());
+    this->linq_.send(sid, meth, path, data, [=](altronix::Response& response) {
+        auto env = Env();
+        auto err = Napi::Number::New(env, response.error);
+        auto json = Napi::String::New(env, response.response);
+        deferred.Resolve(json);
+    });
+    return deferred.Promise();
 }
 
 void

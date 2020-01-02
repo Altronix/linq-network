@@ -102,12 +102,52 @@ class Linq
         delete r;
     }
 
+    void send(
+        std::string serial,
+        std::string meth,
+        std::string path,
+        std::string data,
+        std::function<void(Response&)> fn)
+    {
+        Response* response = new Response{ LINQ_ERROR_OK, "", fn };
+        if (meth == "POST" || meth == "PUT") {
+            linq_netw_device_send_post(
+                this->linq_netw_,
+                serial.c_str(),
+                path.c_str(),
+                data.c_str(),
+                on_response,
+                response);
+        } else if (meth == "DELETE") {
+            linq_netw_device_send_delete(
+                this->linq_netw_,
+                serial.c_str(),
+                path.c_str(),
+                on_response,
+                response);
+        } else {
+            linq_netw_device_send_get(
+                this->linq_netw_,
+                serial.c_str(),
+                path.c_str(),
+                on_response,
+                response);
+        }
+    }
+
+    void send(
+        std::string serial,
+        std::string meth,
+        std::string path,
+        std::function<void(Response&)> fn)
+    {
+        this->send(serial, meth, path, "", fn);
+    }
+
     void
     get(std::string serial, std::string path, std::function<void(Response&)> fn)
     {
-        Response* r = new Response{ LINQ_ERROR_OK, "", fn };
-        linq_netw_device_send_get(
-            this->linq_netw_, serial.c_str(), path.c_str(), on_response, r);
+        this->send(serial, "GET", path, "", fn);
     }
 
     void post(
@@ -116,22 +156,13 @@ class Linq
         std::string data,
         std::function<void(Response&)> fn)
     {
-        Response* r = new Response{ LINQ_ERROR_OK, "", fn };
-        linq_netw_device_send_post(
-            this->linq_netw_,
-            serial.c_str(),
-            path.c_str(),
-            data.c_str(),
-            on_response,
-            r);
+        this->send(serial, "POST", path, data, fn);
     }
 
     void
     del(std::string serial, std::string path, std::function<void(Response&)> fn)
     {
-        Response* r = new Response{ LINQ_ERROR_OK, "", fn };
-        linq_netw_device_send_delete(
-            this->linq_netw_, serial.c_str(), path.c_str(), on_response, r);
+        this->send(serial, "DELETE", path, fn);
     }
 
     struct foreach_device_populate_vector_context

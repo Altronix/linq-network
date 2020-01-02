@@ -44,9 +44,9 @@ export class LinqNetwork extends Events.EventEmitter {
     // TODO
   }
 
-  // get
-  sendGet(serial: string, path: string): Promise<any> {
-    return this.netw.sendGet(serial, path);
+  send(serial: string, meth: string, path: string, data: string): Promise<any> {
+    if (!(typeof data === "string")) data = "";
+    return this.netw.send(serial, meth, path, data);
   }
 
   // post
@@ -56,11 +56,6 @@ export class LinqNetwork extends Events.EventEmitter {
 
   // delete
   delete() {
-    // TODO
-  }
-
-  // send
-  send() {
     // TODO
   }
 
