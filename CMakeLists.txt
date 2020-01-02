@@ -6,8 +6,8 @@ include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 find_package(Threads)
 
 # Compiler stuff
-# set(CMAKE_CXX_STANDARD 11)
-# set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE on)
 
 set(LINQ_LOG_LEVEL
@@ -102,10 +102,8 @@ if(ENABLE_TESTING)
   add_subdirectory(test/_helpers)
   add_subdirectory(test/_mocks/mock_czmq)
   add_subdirectory(test/_mocks/mock_mongoose)
-  if(WITH_SQLITE)
-    add_subdirectory(test/_mocks/mock_sqlite)
-    add_subdirectory(test/db)
-  endif()
+  add_subdirectory(test/_mocks/mock_sqlite)
+  add_subdirectory(test/db)
   add_subdirectory(test/containers)
   add_subdirectory(test/linq-netw)
   add_subdirectory(test/device)
@@ -131,8 +129,9 @@ if(ENABLE_TESTING)
     COMMAND test-device
     COMMAND test-devices
     COMMAND test-http
-    COMMAND test-db #TODO remove from test coverage if WITHOUT SQLITE
+    COMMAND test-db
     COMMAND test-jsmn
+    COMMAND test-routes
     COMMAND binding-linq-netw-cpp-test)
 
 endif()
