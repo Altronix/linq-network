@@ -51,9 +51,10 @@ matrix:
                           - cmake --build ./ --target install
                 - os: windows
                   name: Windows/Rust/Cargo/Debug
+                  env:
+                          - GENERATOR="Visual Studio 15 2017"
                   language: rust
                   rust:
                           - nightly
                   script:
-                          - choco install visualstudio2019community
                           - cargo build --verbose --all
