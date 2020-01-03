@@ -727,9 +727,9 @@ test_linq_netw_receive_hello(void** context_p)
     linq_netw_s* l = linq_netw_create(NULL, NULL);
     linq_netw_listen(l, "tcp://*:32820");
 
-    assert_int_equal(linq_netw_nodes_count(l), 0);
+    assert_int_equal(linq_netw_node_count(l), 0);
     linq_netw_poll(l, 5);
-    assert_int_equal(linq_netw_nodes_count(l), 1);
+    assert_int_equal(linq_netw_node_count(l), 1);
 
     linq_netw_destroy(&l);
     test_reset();
@@ -750,11 +750,11 @@ test_linq_netw_receive_hello_double_id(void** context_p)
 
     linq_netw_s* l = linq_netw_create(NULL, NULL);
     linq_netw_listen(l, "tcp://*:32820");
-    assert_int_equal(linq_netw_nodes_count(l), 0);
+    assert_int_equal(linq_netw_node_count(l), 0);
     linq_netw_poll(l, 5);
-    assert_int_equal(linq_netw_nodes_count(l), 1);
+    assert_int_equal(linq_netw_node_count(l), 1);
     linq_netw_poll(l, 5);
-    assert_int_equal(linq_netw_nodes_count(l), 1);
+    assert_int_equal(linq_netw_node_count(l), 1);
 
     linq_netw_destroy(&l);
     test_reset();
@@ -1098,10 +1098,10 @@ test_linq_netw_close_router(void** context_p)
     assert_int_equal(linq_netw_device_count(linq), 4);
     linq_netw_close_dealer(linq, c0);
     assert_int_equal(linq_netw_device_count(linq), 2);
-    assert_int_equal(linq_netw_nodes_count(linq), 1);
+    assert_int_equal(linq_netw_node_count(linq), 1);
     linq_netw_close_dealer(linq, c1);
     assert_int_equal(linq_netw_device_count(linq), 0);
-    assert_int_equal(linq_netw_nodes_count(linq), 0);
+    assert_int_equal(linq_netw_node_count(linq), 0);
 
     linq_netw_destroy(&linq);
     test_reset();

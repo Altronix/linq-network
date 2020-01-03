@@ -72,13 +72,14 @@ execute_process(COMMAND powershell -ExecutionPolicy Bypass
   STRING(REGEX REPLACE "\r" "" zmq_VERSION ${zmq_VERSION})
 set_property(TARGET linq-netw 
   PROPERTY IMPORTED_LOCATION 
-  ${install_dir}/lib/liblinq-netw${CMAKE_STATIC_LIBRARY_SUFFIX})
+  ${install_dir}/lib/linq-netw${CMAKE_STATIC_LIBRARY_SUFFIX})
 set_property(TARGET czmq
   PROPERTY IMPORTED_LOCATION 
   ${install_dir}/lib/libczmq${CMAKE_STATIC_LIBRARY_SUFFIX})
 set_property(TARGET zmq
   PROPERTY IMPORTED_LOCATION 
   ${install_dir}/lib/libzmq-${CMAKE_VS_PLATFORM_TOOLSET}-mt-s-${zmq_VERSION}${CMAKE_STATIC_LIBRARY_SUFFIX})
+  set(link_libs Rpcrt4)
 endif()
 
 ###############################################################################
@@ -115,4 +116,6 @@ target_link_libraries(linq-netw-js
   czmq
   zmq
   ${CMAKE_JS_LIB}
+  uuid
+  ${link_libs}
   )

@@ -39,6 +39,8 @@ matrix:
                 - os: linux
                   name: Linux/Rust/Cargo/Debug
                   language: rust
+                  rust:
+                          - nightly
                   script:
                           - cargo build --verbose --all
                 - os: linux
@@ -57,7 +59,7 @@ matrix:
                   compiler: clang
                   language: rust
                   rust: 
-                          - stable
+                          - nightly
                   script:
                           - cargo build --all --verbose
                 - os: windows
