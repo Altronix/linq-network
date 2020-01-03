@@ -55,4 +55,4 @@ matrix:
                   rust:
                           - nightly
                   script:
-                          - cargo build --verbose --all --target x86_64-pc-windows-msvc
+                          - cargo build --verbose --all --target stable-x86_64-pc-windows-msvc
