@@ -49,8 +49,7 @@ matrix:
                           - cmake --build ./ --target install
                 - os: windows
                   name: Windows/Rust/Cargo/Debug
-                  env:
-                          - GENERATOR="Visual Studio 15 2017"
+                  compiler: clang
                   language: rust
                   rust: 
                           - stable
