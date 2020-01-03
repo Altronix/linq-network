@@ -9,6 +9,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "linq-network-js": "file:../.."
+    "linq-network-js": "file:../../../../"
   }
 }

@@ -42,3 +42,14 @@ node_modules
 #sqlite
 **/*/test.db
 test.db
+
+#don't publish dependencies not needed by nodejs
+external/cmocka
+external/http_parser
+external/linq-common
+external/wolfssl
+external/mongoose
+external/sqlite
+bindings/rust
+bindings/go
+test

@@ -1,0 +1,34 @@
+{
+  "name": "@altronix/linq-network-js",
+  "version": "0.0.1",
+  "description": "Node bindings for linq-network",
+  "main": "./bindings/nodejs/build/lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "native-build": "cmake-js --directory ./bindings/nodesjs --CDCMAKE_INSTALL_PREFIX=./install build",
+    "native-compile": "cmake-js --directory ./bindings/nodejs --CDCMAKE_INSTALL_PREFIX=./install compile",
+    "native-clean": "cmake-js clean",
+    "build": "npm run native-build && tsc -p ./bindings/nodejs/lib",
+    "install": "npm run native-compile && tsc -p ./bindings/nodejs/lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TomzBench/linq-network.git"
+  },
+  "author": "Altronix",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TomzBench/linq-network/issues"
+  },
+  "homepage": "https://github.com/TomzBench/linq-network#readme",
+  "dependencies": {
+    "bindings": "^1.5.0",
+    "cmake-js": "^6.0.0",
+    "nan": "^2.14.0"
+  },
+  "devDependencies": {
+    "@types/node": "^13.1.1",
+    "node-addon-api": "^2.0.0",
+    "typescript": "^3.7.4"
+  }
+}
