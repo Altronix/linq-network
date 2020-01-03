@@ -9,6 +9,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "linq-network-js": "file:../../../../"
+    "@altronix/linq-network-js": "0.0.1-alpha-1"
   }
 }

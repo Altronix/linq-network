@@ -1,4 +1,4 @@
-let LinqNetwork = require("linq-network-js").LinqNetwork;
+let LinqNetwork = require("@altronix/linq-network-js").LinqNetwork;
 let netw = new LinqNetwork();
 
 netw.listen("tcp://*:33455");

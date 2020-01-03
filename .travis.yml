@@ -41,6 +41,11 @@ matrix:
                   language: rust
                   script:
                           - cargo build --verbose --all
+                - os: linux
+                  name: Linux/Node
+                  language: node_js
+                  script:
+                          - npm install
                 - os: windows
                   name: Windows/C/VS/Debug
                   language: c
@@ -55,3 +60,8 @@ matrix:
                           - stable
                   script:
                           - cargo build --all --verbose
+                - os: windows
+                  name: Windows/Node
+                  language: node_js
+                  script:
+                          - npm install
