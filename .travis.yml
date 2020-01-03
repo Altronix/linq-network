@@ -50,5 +50,7 @@ matrix:
                 - os: windows
                   name: Windows/Rust/Cargo/Debug
                   language: rust
+                  rust: 
+                          - stable
                   script:
-                          - cargo build --verbose --all --target stable-x86_64-pc-windows-msvc
+                          - cargo build --verbose --all --target x86_64-pc-windows-msvc
