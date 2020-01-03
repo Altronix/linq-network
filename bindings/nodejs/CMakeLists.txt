@@ -104,7 +104,7 @@ target_include_directories(linq-netw-cpp INTERFACE ${linq_netw_cpp_INSTALL_DIR})
 ###############################################################################
 # Build linq-netw-js
 ###############################################################################
-add_library(linq-netw-js SHARED 
+add_library(linq-netw-js STATIC 
   ./src/binding.cc
   ./src/linqnetwork.h
   ./src/linqnetwork.cc)
