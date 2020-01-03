@@ -39,8 +39,6 @@ matrix:
                 - os: linux
                   name: Linux/Rust/Cargo/Debug
                   language: rust
-                  rust:
-                          - nightly
                   script:
                           - cargo build --verbose --all
                 - os: windows
@@ -52,7 +50,5 @@ matrix:
                 - os: windows
                   name: Windows/Rust/Cargo/Debug
                   language: rust
-                  rust:
-                          - nightly
                   script:
                           - cargo build --verbose --all --target stable-x86_64-pc-windows-msvc
