@@ -79,7 +79,7 @@ set_property(TARGET czmq
 set_property(TARGET zmq
   PROPERTY IMPORTED_LOCATION 
   ${install_dir}/lib/libzmq-${CMAKE_VS_PLATFORM_TOOLSET}-mt-s-${zmq_VERSION}${CMAKE_STATIC_LIBRARY_SUFFIX})
-  set(link_libs Rpcrt4)
+  set(link-libs Rpcrt4 ws2_32 iphlpapi wldap32)
 endif()
 
 ###############################################################################

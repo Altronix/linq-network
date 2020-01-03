@@ -46,6 +46,8 @@ matrix:
                 - os: linux
                   name: Linux/Node
                   language: node_js
+                  node_js:
+                          - 10
                   script:
                           - npm install
                 - os: windows
@@ -65,5 +67,7 @@ matrix:
                 - os: windows
                   name: Windows/Node
                   language: node_js
+                  node_js:
+                          - 10
                   script:
                           - npm install
