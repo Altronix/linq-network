@@ -53,4 +53,4 @@ matrix:
                   rust: 
                           - stable
                   script:
-                          - cargo build --verbose --all --target x86_64-pc-windows-msvc
+                          - cargo build --all --verbose

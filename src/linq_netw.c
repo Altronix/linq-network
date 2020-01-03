@@ -335,7 +335,7 @@ linq_netw_devices_foreach(
 
 // return how many nodes are connected to linq
 uint32_t
-linq_netw_nodes_count(const linq_netw_s* l)
+linq_netw_node_count(const linq_netw_s* l)
 {
     return node_map_size(l->nodes);
 }
