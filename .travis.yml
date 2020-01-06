@@ -1,6 +1,8 @@
 git:
         submodules: false
 
+dist: bionic
+
 notifications:
         emails: false
 
