@@ -1,6 +1,6 @@
 {
   "name": "@altronix/linq-network-js",
-  "version": "0.0.1-alpha-4",
+  "version": "0.0.1-alpha-5",
   "description": "Node bindings for linq-network",
   "main": "./bindings/nodejs/build/lib/index.js",
   "scripts": {

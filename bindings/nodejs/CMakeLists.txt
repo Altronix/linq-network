@@ -6,8 +6,8 @@ include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 find_package(Threads)
 
 # Compiler stuff
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# set(CMAKE_CXX_STANDARD 11)
+# set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE on)
 
 ###############################################################################

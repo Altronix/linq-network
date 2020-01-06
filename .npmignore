@@ -53,3 +53,4 @@ external/sqlite
 bindings/rust
 bindings/go
 test
+.clangd
