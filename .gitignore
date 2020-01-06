@@ -42,3 +42,6 @@ node_modules
 #sqlite
 **/*/test.db
 test.db
+
+compile_commands.json
+.clangd
