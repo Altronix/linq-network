@@ -27,5 +27,9 @@ target_link_libraries(linq-netw-js
   zmq
   ${CMAKE_JS_LIB}
   uuid
-  ${link_libs}
   )
+
+install(TARGETS linq-netw-js
+        LIBRARY DESTINATION . #bindings-js looks in root build folder (not in lib folder)
+        ARCHIVE DESTINATION .
+        PUBLIC_HEADER DESTINATION include/altronix)
