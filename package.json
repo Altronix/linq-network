@@ -1,8 +1,8 @@
 {
   "name": "@altronix/linq-network-js",
-  "version": "0.0.1-alpha-5",
+  "version": "0.0.1-alpha-6",
   "description": "Node bindings for linq-network",
-  "main": "./bindings/nodejs/build/lib/index.js",
+  "main": "./build/install/lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "native-build": "cmake-js --CDCMAKE_INSTALL_PREFIX=./install --CDWITH_NODEJS_BINDING build",
