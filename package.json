@@ -5,7 +5,7 @@
   "main": "./bindings/nodejs/build/lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "native-build": "cmake-js --directory ./bindings/nodejs --CDCMAKE_INSTALL_PREFIX=./install build",
+    "native-build": "cmake-js --CDCMAKE_INSTALL_PREFIX=./install --CDWITH_NODEJS_BINDING build",
     "native-compile": "cmake-js --directory ./bindings/nodejs --CDCMAKE_INSTALL_PREFIX=./install compile",
     "native-clean": "cmake-js clean",
     "build": "npm run native-build && tsc -p ./bindings/nodejs/lib",

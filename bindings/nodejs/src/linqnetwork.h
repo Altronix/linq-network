@@ -1,7 +1,7 @@
 #ifndef LINQNETWORK_H
 #define LINQNETWORK_H
 
-#include "altronix/linq_netw.hpp"
+#include "linq_netw.hpp"
 #include <napi.h>
 
 class LinqNetwork : public Napi::ObjectWrap<LinqNetwork>
