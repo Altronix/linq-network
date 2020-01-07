@@ -83,4 +83,4 @@ export class LinqNetwork extends Events.EventEmitter {
 
 inherits(LinqNetwork, Events.EventEmitter);
 
-export default LinqNetwork;
+export default new LinqNetwork();

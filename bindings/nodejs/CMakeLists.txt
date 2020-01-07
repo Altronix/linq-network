@@ -12,7 +12,7 @@ string(REPLACE "\"" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
 ###############################################################################
 # Build linq-netw-js
 ###############################################################################
-add_library(linq-netw-js STATIC 
+add_library(linq-netw-js SHARED 
   ./src/binding.cc
   ./src/linqnetwork.h
   ./src/linqnetwork.cc)
