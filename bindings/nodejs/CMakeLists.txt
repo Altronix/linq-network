@@ -36,6 +36,9 @@ ExternalProject_Add(linq-netw-project
 	CMAKE_ARGS 
 		-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
 		-DLINQ_LOG_LEVEL:STRING=DEBUG
+		-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+		-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+		-DCMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}
 )
 
 ExternalProject_Get_Property(linq-netw-project install_dir)
