@@ -51,6 +51,7 @@ matrix:
                   node_js:
                           - 10
                   script:
+                          - cd bindings/nodejs/examples/events
                           - npm install
                 - os: windows
                   name: Windows/C/VS/Debug
@@ -72,4 +73,5 @@ matrix:
                   node_js:
                           - 10
                   script:
+                          - cd bindings/nodejs/examples/events
                           - npm install
