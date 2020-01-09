@@ -1,5 +1,6 @@
-Device Setup
-============
+# Device Setup
+
+## Enable Cloud
 
 1. Connect your Altronix LinQ enabled product to your local area network. 
 
@@ -12,3 +13,5 @@ Device Setup
 ![device_setup](/cloud-tcp-setup.png)
 
 :warning: **Warning** - It is recommended to enable TLS
+
+## Upload public key

@@ -31,8 +31,10 @@ install(TARGETS server DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 #### ** Nodejs **
 
-package.json
+1. Add runtime enviorment to your package.json
+   
 ``` json
+// package.json
 {
   // ...
   "cmake-js": {
@@ -42,6 +44,8 @@ package.json
   }
 }
 ```
+
+2. Install @altronix/linq-network-js
 
 ```bash
 npm install @altronix/linq-network-js
