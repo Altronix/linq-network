@@ -3,7 +3,7 @@ add_library(helpers
   helpers.h)
 
 target_link_libraries(helpers
-  linq-netw-test
+  linq-netw-test-static
   mock-czmq
   mock-mongoose
   mock-sqlite

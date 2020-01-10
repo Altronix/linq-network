@@ -10,6 +10,10 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE on)
 
+# Note buildroot sets BUILD_SHARED_LIBS
+option(BUILD_SHARED "Whether or not to build the shared object"  ON)
+option(BUILD_STATIC "Whether or not to build the static archive" ON)
+
 set(LINQ_LOG_LEVEL
   "INFO"
   CACHE STRING 
@@ -82,7 +86,6 @@ else()
   find_package(libzmq)
   find_package(klib)
   find_package(jsmn)
-  find_package(mongoose)
 endif()
 
 if(ENABLE_TESTING)

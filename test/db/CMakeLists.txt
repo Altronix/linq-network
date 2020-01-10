@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 add_executable(test-db main.c)
 target_link_libraries(test-db
-                      linq-netw-test
+                      linq-netw-test-static
                       mock-sqlite
                       helpers
 		      cmocka)

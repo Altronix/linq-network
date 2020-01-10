@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 add_executable(test-jsmn main.c)
 target_link_libraries(test-jsmn
-                      linq-netw-test
+                      linq-netw-test-static
                       helpers
 		      cmocka)
 

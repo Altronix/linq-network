@@ -5,7 +5,7 @@ mock_sqlite_linker_flags(sqlite_link_flags)
 set(wrap_flags "${czmq_link_flags} ${sqlite_link_flags}")
 target_link_libraries(binding-linq-netw-cpp-test
                       linq-netw-cpp-binding
-                      linq-netw-test
+                      linq-netw-test-static
                       mock-czmq
                       zmq
                       czmq
