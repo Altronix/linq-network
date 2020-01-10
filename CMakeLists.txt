@@ -79,13 +79,9 @@ set(LINQ_BUILD_DEPENDENCIES
 if(LINQ_BUILD_DEPENDENCIES)
   include(cmake/libzmq.cmake)
   include(cmake/czmq.cmake)
-  include(cmake/klib.cmake)
-  include(cmake/jsmn.cmake)
 else()
   find_package(czmq)
   find_package(libzmq)
-  find_package(klib)
-  find_package(jsmn)
 endif()
 
 if(ENABLE_TESTING)

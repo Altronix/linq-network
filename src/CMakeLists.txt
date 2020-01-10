@@ -10,6 +10,7 @@ set(SOURCES
     ../include/altronix/linq_netw.h
     base64.h
     containers.h
+    jsmn.h
     jsmn_helpers.h
     linq_netw_internal.h
     log.h
@@ -18,7 +19,7 @@ set(SOURCES
     zmtp.h)
 
 set(INSTALL_HEADERS ../include/altronix/linq_netw.h)
-set(LIBS czmq zmq jsmn klib)
+set(LIBS czmq zmq)
 set(INCS ../include)
 set(SOURCES_SYS_MOCK sys/mock/sys.c)
 set(HEADERS_SYS_MOCK sys/mock/sys.h)

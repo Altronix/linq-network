@@ -7,12 +7,6 @@
 [submodule "external/cmocka"]
 	path = external/cmocka
 	url = git://git.cryptomilk.org/projects/cmocka.git
-[submodule "external/klib"]
-	path = external/klib
-	url = https://github.com/attractivechaos/klib
-[submodule "external/jsmn"]
-	path = external/jsmn
-	url = https://github.com/zserge/jsmn
 [submodule "external/linq-common"]
 	path = external/linq-common
 	url = https://bitbucket.org/Altronix/linq-common
