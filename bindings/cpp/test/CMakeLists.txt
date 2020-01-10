@@ -7,8 +7,8 @@ target_link_libraries(binding-linq-netw-cpp-test
                       linq-netw-cpp-binding
                       linq-netw-test-static
                       mock-czmq
+                      czmq-static
                       zmq
-                      czmq
                       helpers
                       cmocka)
 set_target_properties(binding-linq-netw-cpp-test PROPERTIES LINKER_LANGUAGE CXX)

@@ -8,7 +8,7 @@ add_executable(test-device main.c)
 
 target_link_libraries(test-device
                       linq-netw-test-static
-                      czmq
+                      czmq-static
                       helpers
                       cmocka)
 

@@ -23,8 +23,8 @@ target_include_directories(linq-netw-js PRIVATE ${CMAKE_JS_INC} ${NODE_ADDON_API
 target_link_libraries(linq-netw-js 
   linq-netw-static
   linq-netw-cpp-binding
-  czmq
-  zmq
+  czmq-shared
+  zmq #TODO -shared
   ${CMAKE_JS_LIB}
   uuid
   )

@@ -6,7 +6,7 @@ extern "C"
 #endif
 
 #define JSMN_HEADER
-#include "jsmn/jsmn.h"
+#include "jsmn.h"
 #include "sys.h"
 
 #define jsmn_helper(x) jsmntok_t[x]

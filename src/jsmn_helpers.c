@@ -1,7 +1,7 @@
 #include "altronix/linq_netw.h"
 #include "sys.h"
 
-#include "jsmn/jsmn.h"
+#include "jsmn.h"
 #include "jsmn_helpers.h"
 
 #define __seek_slash(__bytes, __len, __result)                                 \

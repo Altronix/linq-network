@@ -19,7 +19,6 @@ set(SOURCES
     zmtp.h)
 
 set(INSTALL_HEADERS ../include/altronix/linq_netw.h)
-set(LIBS czmq zmq)
 set(INCS ../include)
 set(SOURCES_SYS_MOCK sys/mock/sys.c)
 set(HEADERS_SYS_MOCK sys/mock/sys.h)
@@ -68,6 +67,8 @@ if(ENABLE_TESTING)
               ${SOURCES_SYS_MOCK}
               ${HEADERS_SYS_MOCK})
   target_link_libraries(linq-netw-test-static
+    czmq-static
+    zmq #TODO -static
     ${LIBS}
     ${CMAKE_THREAD_LIBS_INIT})
   target_compile_definitions(linq-netw-test-static PUBLIC ${definitions})
@@ -84,6 +85,8 @@ if(BUILD_STATIC)
     ${SOURCES_SYS}
     ${HEADERS_SYS})
   target_link_libraries(linq-netw-static
+    czmq-static
+    zmq #TODO -static
     ${LIBS}
     ${CMAKE_THREAD_LIBS_INIT})
   target_compile_definitions(linq-netw-static PUBLIC ${definitions})
@@ -105,7 +108,11 @@ if(BUILD_SHARED)
     ${HEADERS}
     ${SOURCES_SYS}
     ${HEADERS_SYS})
-  target_link_libraries(linq-netw ${LIBS} ${CMAKE_THREAD_LIBS_INIT})
+  target_link_libraries(linq-netw 
+    czmq-shared 
+    zmq  #TODO -shared
+    ${LIBS} 
+    ${CMAKE_THREAD_LIBS_INIT})
   target_compile_definitions(linq-netw PUBLIC ${definitions})
   target_include_directories(linq-netw PUBLIC ${INCS})
   target_include_directories(linq-netw PRIVATE sys/unix)
