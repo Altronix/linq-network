@@ -67,7 +67,6 @@ matrix:
                   rust: 
                           - nightly
                   script:
-                          - choco install llvm
                           - cargo build --all --verbose
                 - os: windows
                   name: Windows/Node
