@@ -103,7 +103,9 @@ extern "C"
     extern char g_frame_typ_alert;
     extern char g_frame_typ_hello;
 
+#ifdef WITH_SQLITE
     database_s* linq_netw_database(linq_netw_s* l);
+#endif
 
 #ifdef __cplusplus
 }

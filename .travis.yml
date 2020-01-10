@@ -9,8 +9,6 @@ notifications:
 before_install:
         - git submodule update --init ./external/libzmq
         - git submodule update --init ./external/czmq
-        - git submodule update --init ./external/jsmn
-        - git submodule update --init ./external/klib
         - git submodule update --init ./external/cmocka
         - git clone https://github.com/nodejs/http-parser ./external/http_parser
 

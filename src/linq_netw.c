@@ -54,6 +54,7 @@ on_heartbeat_response(
     if (e) {
         log_warn("(ZMTP) [%.6s...] (%.3d) About request failed!", ser, e);
     } else {
+#ifdef WITH_SQLITE
         char keys[128], vals[128];
         // clang-format off
         log_info(
@@ -94,6 +95,7 @@ on_heartbeat_response(
         } else {
             log_debug("(ZMTP) Heartbeat parser error");
         }
+#endif
     }
 }
 
@@ -105,6 +107,7 @@ on_zmtp_heartbeat(void* ctx, const char* sid, device_s** d)
     // query to make tests think device doesn't need to be added into database
     // so there will be no request and response to flush through
     linq_netw_s* l = ctx;
+#ifdef WITH_SQLITE
     if (!database_row_exists_str(&l->database, "devices", "device_id", sid)) {
         log_info(
             "(ZMTP) [%.6s...] "
@@ -114,6 +117,7 @@ on_zmtp_heartbeat(void* ctx, const char* sid, device_s** d)
     } else {
         log_debug("(ZMTP) [%.6s...] Heartbeat", device_serial(*d));
     }
+#endif
     if (l->callbacks && l->callbacks->hb) {
         l->callbacks->hb(l->context, sid, d);
     }
@@ -150,7 +154,9 @@ on_zmtp_alert(
         (int)strlen(serial), serial);
     // clang-format on
     zuuid_destroy(&uid);
+#ifdef WITH_SQLITE
     err = database_insert_raw_n(&l->database, "alerts", k, klen, v, vlen);
+#endif
     log_debug("(ZMTP) Database alert insert result (%d)", err);
     if (l->callbacks && l->callbacks->alert) {
         l->callbacks->alert(l->context, a, email, d);
@@ -210,11 +216,13 @@ linq_netw_destroy(linq_netw_s** linq_netw_p)
     linq_netw_free(l);
 }
 
+#ifdef WITH_SQLITE
 database_s*
 linq_netw_database(linq_netw_s* l)
 {
     return &l->database;
 }
+#endif
 
 void
 linq_netw_context_set(linq_netw_s* linq, void* ctx)
@@ -227,18 +235,24 @@ linq_netw_socket
 linq_netw_listen(linq_netw_s* l, const char* ep)
 {
     int ep_len = strlen(ep);
-    if (ep_len > 9 && !(memcmp(ep, "http://*:", 9))) {
-        log_info("(HTTP) Listening... [%s]", &ep[9]);
-        http_listen(&l->http, &ep[9]);
-        return 0;
-    } else if (ep_len > 15 && !(memcmp(ep, "http://0.0.0.0:", 15))) {
-        log_info("(HTTP) Listening... [%s]", &ep[15]);
-        http_listen(&l->http, &ep[15]);
-        return 0;
-    } else if (ep_len > 17 && !(memcmp(ep, "http://127.0.0.1:", 17))) {
-        log_info("(HTTP) Listening... [%s]", &ep[17]);
-        http_listen(&l->http, &ep[17]);
-        return 0;
+    if (ep_len > 4 && !memcmp(ep, "http", 4)) {
+#ifdef WITH_SQLITE
+        if (ep_len > 9 && !(memcmp(ep, "http://*:", 9))) {
+            log_info("(HTTP) Listening... [%s]", &ep[9]);
+            http_listen(&l->http, &ep[9]);
+            return 0;
+        } else if (ep_len > 15 && !(memcmp(ep, "http://0.0.0.0:", 15))) {
+            log_info("(HTTP) Listening... [%s]", &ep[15]);
+            http_listen(&l->http, &ep[15]);
+            return 0;
+        } else if (ep_len > 17 && !(memcmp(ep, "http://127.0.0.1:", 17))) {
+            log_info("(HTTP) Listening... [%s]", &ep[17]);
+            http_listen(&l->http, &ep[17]);
+            return 0;
+        } else {
+            return LINQ_ERROR_SOCKET;
+        }
+#endif
     } else {
         log_info("(HTTP) Listening... [%s]", ep);
         return zmtp_listen(&l->zmtp, ep);
