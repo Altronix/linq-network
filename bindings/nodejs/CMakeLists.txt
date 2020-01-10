@@ -21,7 +21,7 @@ set_target_properties(linq-netw-js PROPERTIES
   SUFFIX ".node")
 target_include_directories(linq-netw-js PRIVATE ${CMAKE_JS_INC} ${NODE_ADDON_API_DIR})
 target_link_libraries(linq-netw-js 
-  linq-netw 
+  linq-netw-static
   linq-netw-cpp-binding
   czmq
   zmq
