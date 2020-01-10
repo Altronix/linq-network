@@ -97,3 +97,21 @@ if(BUILD_STATIC)
           ARCHIVE DESTINATION lib
           PUBLIC_HEADER DESTINATION include/altronix)
 endif()
+
+if(BUILD_SHARED)
+  add_library(linq-netw SHARED
+    ${SOURCES}
+    ${HEADERS}
+    ${SOURCES_SYS}
+    ${HEADERS_SYS})
+  target_link_libraries(linq-netw ${LIBS} ${CMAKE_THREAD_LIBS_INIT})
+  target_compile_definitions(linq-netw PUBLIC ${definitions})
+  target_include_directories(linq-netw PUBLIC ${INCS})
+  target_include_directories(linq-netw PRIVATE sys/unix)
+  target_include_directories(linq-netw PRIVATE ./)
+  set_target_properties(linq-netw PROPERTIES PUBLIC_HEADER "${INSTALL_HEADERS}")
+  install(TARGETS linq-netw
+          LIBRARY DESTINATION lib
+          ARCHIVE DESTINATION lib
+          PUBLIC_HEADER DESTINATION include/altronix)
+endif()
