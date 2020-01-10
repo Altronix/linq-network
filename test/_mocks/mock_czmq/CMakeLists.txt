@@ -5,7 +5,7 @@ add_library(mock-czmq mock_zmsg.c mock_zsock.c mock_zpoll.c)
 target_link_libraries(mock-czmq
                       linq-netw-test-static
                       czmq-static
-                      zmq
+                      zmq-static
 		      stdc++
 		      uuid)
 target_include_directories(mock-czmq PUBLIC .)

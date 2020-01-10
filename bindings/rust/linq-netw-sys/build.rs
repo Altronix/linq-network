@@ -31,7 +31,7 @@ fn gen_header() {
 
 fn print_windows(out: &std::path::Display<'_>) {
     // Parse the name of libzmq library and remove the extention.
-    let libzmq = format!("{}/build/libzmq-loc.txt", out);
+    let libzmq = format!("{}/build/libzmq-static-loc.txt", out);
     let libzmq = fs::read(libzmq).unwrap();
     let libzmq = String::from_utf8(libzmq).unwrap();
     let libzmq = libzmq.split(".").collect::<Vec<&str>>()[0];

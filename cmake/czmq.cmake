@@ -26,7 +26,8 @@ IF(NOT MSVC)
   set(czmq_shared_LIBRARY ${install_dir}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}czmq${CMAKE_SHARED_LIBRARY_SUFFIX})
 ELSE()
   set(czmq_static_LIBRARY ${install_dir}/lib/libczmq${CMAKE_STATIC_LIBRARY_SUFFIX})
-  set(czmq_shared_LIBRARY ${install_dir}/lib/libczmq${CMAKE_SHARED_LIBRARY_SUFFIX})
+  set(czmq_shared_LIBRARY ${install_dir}/bin/libczmq${CMAKE_SHARED_LIBRARY_SUFFIX})
+  message(STATUS "czmq_shared_LIBRARY: ${czmq_shared_LIBRARY}")
 ENDIF()
 
 # czmq-static

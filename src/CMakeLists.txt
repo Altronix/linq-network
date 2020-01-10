@@ -68,7 +68,7 @@ if(ENABLE_TESTING)
               ${HEADERS_SYS_MOCK})
   target_link_libraries(linq-netw-test-static
     czmq-static
-    zmq #TODO -static
+    zmq-static
     ${LIBS}
     ${CMAKE_THREAD_LIBS_INIT})
   target_compile_definitions(linq-netw-test-static PUBLIC ${definitions})
@@ -86,7 +86,7 @@ if(BUILD_STATIC)
     ${HEADERS_SYS})
   target_link_libraries(linq-netw-static
     czmq-static
-    zmq #TODO -static
+    zmq-static
     ${LIBS}
     ${CMAKE_THREAD_LIBS_INIT})
   target_compile_definitions(linq-netw-static PUBLIC ${definitions})
@@ -108,11 +108,20 @@ if(BUILD_SHARED)
     ${HEADERS}
     ${SOURCES_SYS}
     ${HEADERS_SYS})
-  target_link_libraries(linq-netw 
-    czmq-shared 
-    zmq  #TODO -shared
-    ${LIBS} 
-    ${CMAKE_THREAD_LIBS_INIT})
+  if(MSVC)
+    #TODO - https://stackoverflow.com/questions/33062728/cmake-link-shared-library-on-windows/41618677
+    target_link_libraries(linq-netw
+      czmq-static
+      zmq-static
+      ${LIBS}
+      ${CMAKE_THREAD_LIBS_INIT})
+  else()
+    target_link_libraries(linq-netw
+      czmq-shared
+      zmq-shared
+      ${LIBS}
+      ${CMAKE_THREAD_LIBS_INIT})
+  endif()
   target_compile_definitions(linq-netw PUBLIC ${definitions})
   target_include_directories(linq-netw PUBLIC ${INCS})
   target_include_directories(linq-netw PRIVATE sys/unix)

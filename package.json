@@ -5,11 +5,10 @@
   "main": "./build/install/lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "native-build": "cmake-js --CDCMAKE_INSTALL_PREFIX=./ --CDWITH_NODEJS_BINDING build --target=install",
-    "native-compile": "cmake-js --CDCMAKE_INSTALL_PREFIX=./ --CDWITH_NODEJS_BINDING compile --target=install",
+    "native-build": "cmake-js --CDCMAKE_INSTALL_PREFIX=./ --CDWITH_NODEJS_BINDING --CDCMAKE_BUILD_TYPE=MinSizeRel build --target=install",
     "native-clean": "cmake-js clean",
     "build": "npm run native-build && tsc -p ./bindings/nodejs/lib",
-    "install": "npm run native-compile && tsc -p ./bindings/nodejs/lib"
+    "install": "npm run native-build && tsc -p ./bindings/nodejs/lib"
   },
   "repository": {
     "type": "git",
