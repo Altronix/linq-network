@@ -115,7 +115,6 @@ if(ENABLE_TESTING)
   # add test coverage
   APPEND_COVERAGE_COMPILER_FLAGS()
   set(COVERAGE_LCOV_EXCLUDES 
-    '${PROJECT_SOURCE_DIR}/examples/*' 
     '${PROJECT_SOURCE_DIR}/src/base64.*'   # external copy/pasted
     '${PROJECT_SOURCE_DIR}/src/mongoose.*' # external copy/pasted
     '${PROJECT_SOURCE_DIR}/src/sqlite3.*'  # external copy/pasted
@@ -136,8 +135,13 @@ if(ENABLE_TESTING)
 endif()
 
 add_subdirectory(src)
-add_subdirectory(examples/server)
 add_subdirectory(bindings/cpp)
+
+option(BUILD_EXAMPLES "Whether or not to build the examples" OFF)
+if(BUILD_EXAMPLES)
+  add_subdirectory(examples/server)
+endif()
+
 option(WITH_NODEJS_BINDING "Build the NODEJS bindings" OFF)
 if(WITH_NODEJS_BINDING)
   message(STATUS "Building NODEJS binding")

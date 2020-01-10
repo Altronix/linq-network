@@ -9,7 +9,7 @@ ExternalProject_Add(czmq-project
 		cmake
 		--build .
 		--target install
-		--config Release
+		--config MinSizeRel
 	LIST_SEPARATOR |
 	CMAKE_ARGS 
 		-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>

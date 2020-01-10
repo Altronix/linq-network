@@ -9,7 +9,7 @@ ExternalProject_Add(zmq-project
 		cmake
 		--build .
 		--target install
-		--config Release
+		--config MinSizeRel
 	LIST_SEPARATOR |
 	CMAKE_ARGS 
 		-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
@@ -20,6 +20,7 @@ ExternalProject_Add(zmq-project
 		-DBUILD_TESTS:BOOL=OFF 
 		-DBUILD_STATIC:BOOL=ON
 		-DBUILD_SHARED:BOOL=ON
+		-DWITH_DOCS:BOOL=OFF
 		-DWITH_PERF_TOOL:BOOL=OFF
 	)
 
