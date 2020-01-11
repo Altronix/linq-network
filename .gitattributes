@@ -1,5 +1,5 @@
-src/mongoose.c linguist-vendored=true
-src/mongoose.h linguist-vendored=true
-src/sqlite3.c linguist-vendored=true
-src/sqlite3.h linguist-vendored=true
-test/* linguist-vendored
+* linguist-vendored=true
+bindings linguist-vendored=false
+src linguist-vendored=false
+src/mongoose.* linguist-vendored=true
+src/sqlite3.* linguist-vendored=true
