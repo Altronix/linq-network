@@ -2,4 +2,4 @@ src/mongoose.c linguist-vendored=true
 src/mongoose.h linguist-vendored=true
 src/sqlite3.c linguist-vendored=true
 src/sqlite3.h linguist-vendored=true
-test
+test/*
