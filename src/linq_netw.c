@@ -254,7 +254,7 @@ linq_netw_listen(linq_netw_s* l, const char* ep)
         }
 #endif
     } else {
-        log_info("(HTTP) Listening... [%s]", ep);
+        log_info("(ZMTP) Listening... [%s]", ep);
         return zmtp_listen(&l->zmtp, ep);
     }
 }
