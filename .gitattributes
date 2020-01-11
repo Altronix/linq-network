@@ -1,3 +1,2 @@
-* linguist-vendored=false
 ./src/mongoose.* linguist-vendored=true
 ./src/sqlite3.* linguist-vendored=true
