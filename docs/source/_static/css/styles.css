@@ -1,0 +1,11 @@
+.sdk-feature-container {
+  padding: 0 10px;
+  float: left;
+  width: 33%;
+  height: 260px;
+  text-align: left;
+}
+
+.sdk-feature-container img {
+  margin-bottom: 10px;
+}
