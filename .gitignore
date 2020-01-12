@@ -24,7 +24,9 @@ config.status
 **/*vgcore*
 
 #cmake
-build*
+build/
+build-linux/
+build-windows/
 target
 
 #ctags
