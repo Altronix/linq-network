@@ -36,6 +36,7 @@ Getting Help
    ========== ==================
    Sales      sales@altronix.com
    Developers thomas@altronix.com
+   Chat       **TODO**
    ========== ==================
 
 .. toctree::

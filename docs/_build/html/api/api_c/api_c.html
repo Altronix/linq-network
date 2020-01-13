@@ -267,6 +267,18 @@
   <ul class="md-nav__list" data-md-scrollfix="">
         <li class="md-nav__item"><a href="#api-api-c-api-c--page-root" class="md-nav__link">C API</a><nav class="md-nav">
               <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#linq-netw" class="md-nav__link">linq_netw</a>
+        </li>
+        <li class="md-nav__item"><a href="#linq-netw-error" class="md-nav__link">linq_netw_error</a>
+        </li>
+        <li class="md-nav__item"><a href="#linq-netw-socket" class="md-nav__link">linq_netw_socket</a>
+        </li>
+        <li class="md-nav__item"><a href="#linq-netw-callbacks" class="md-nav__link">linq_netw_callbacks</a>
+        </li>
+        <li class="md-nav__item"><a href="#linq-netw-alert" class="md-nav__link">linq_netw_alert</a>
+        </li>
+        <li class="md-nav__item"><a href="#linq-netw-email" class="md-nav__link">linq_netw_email</a>
+        </li>
         <li class="md-nav__item"><a href="#linq-netw-create" class="md-nav__link">linq_netw_create</a>
         </li>
         <li class="md-nav__item"><a href="#linq-netw-destroy" class="md-nav__link">linq_netw_destroy</a>
@@ -323,6 +335,18 @@
   <ul class="md-nav__list" data-md-scrollfix="">
         <li class="md-nav__item"><a href="#api-api-c-api-c--page-root" class="md-nav__link">C API</a><nav class="md-nav">
               <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#linq-netw" class="md-nav__link">linq_netw</a>
+        </li>
+        <li class="md-nav__item"><a href="#linq-netw-error" class="md-nav__link">linq_netw_error</a>
+        </li>
+        <li class="md-nav__item"><a href="#linq-netw-socket" class="md-nav__link">linq_netw_socket</a>
+        </li>
+        <li class="md-nav__item"><a href="#linq-netw-callbacks" class="md-nav__link">linq_netw_callbacks</a>
+        </li>
+        <li class="md-nav__item"><a href="#linq-netw-alert" class="md-nav__link">linq_netw_alert</a>
+        </li>
+        <li class="md-nav__item"><a href="#linq-netw-email" class="md-nav__link">linq_netw_email</a>
+        </li>
         <li class="md-nav__item"><a href="#linq-netw-create" class="md-nav__link">linq_netw_create</a>
         </li>
         <li class="md-nav__item"><a href="#linq-netw-destroy" class="md-nav__link">linq_netw_destroy</a>
@@ -347,6 +371,46 @@
             
   
 <span id="ref-api-c"></span><h1 id="api-api-c-api-c--page-root">C API<a class="headerlink" href="#api-api-c-api-c--page-root" title="Permalink to this headline">¶</a></h1>
+
+<span id="ref-api-c-linq-netw"></span><h2 id="linq-netw">linq_netw<a class="headerlink" href="#linq-netw" title="Permalink to this headline">¶</a></h2>
+<dl class="type">
+<dt>
+<code class="descname">linq_netw;</code></dt>
+<dd></dd></dl>
+<p>Main class of the LinQ Network Library. This is an opaque data structure with no public members. This data structure is returned from <em>linq_netw_create()</em> routine.</p>
+<p><em>See also</em></p>
+<p><a class="reference internal" href="#ref-api-c-linq-netw-create"><span class="std std-ref">linq_netw_create</span></a></p>
+
+
+<span id="ref-api-c-linq-netw-error"></span><h2 id="linq-netw-error">linq_netw_error<a class="headerlink" href="#linq-netw-error" title="Permalink to this headline">¶</a></h2>
+<dl class="type">
+<dt>
+<code class="descname">linq_netw_error;</code></dt>
+<dd></dd></dl>
+<p>Many LinQ Network Library routines return a status code representing the result of the routines execution. The status code is defined by the linq_netw_error enum.</p>
+<dl class="member">
+<dt>
+<code class="descname">linq_netw_error LINQ_ERROR_OK;</code></dt>
+<dd></dd></dl>
+<p>No error has occured.</p>
+<dl class="member">
+<dt>
+<code class="descname">linq_netw_error LINQ_ERROR_OOM;</code></dt>
+<dd></dd></dl>
+<p>The function could not complete as intended because the system is (O)ut (O)f (M)emory.</p>
+
+
+<span id="ref-api-c-linq-netw-socket"></span><h2 id="linq-netw-socket">linq_netw_socket<a class="headerlink" href="#linq-netw-socket" title="Permalink to this headline">¶</a></h2>
+
+
+<span id="ref-api-c-linq-netw-callbacks"></span><h2 id="linq-netw-callbacks">linq_netw_callbacks<a class="headerlink" href="#linq-netw-callbacks" title="Permalink to this headline">¶</a></h2>
+
+
+<span id="ref-api-c-linq-netw-alert"></span><h2 id="linq-netw-alert">linq_netw_alert<a class="headerlink" href="#linq-netw-alert" title="Permalink to this headline">¶</a></h2>
+
+
+<span id="ref-api-c-linq-netw-email"></span><h2 id="linq-netw-email">linq_netw_email<a class="headerlink" href="#linq-netw-email" title="Permalink to this headline">¶</a></h2>
+
 
 <span id="ref-api-c-linq-netw-create"></span><h2 id="linq-netw-create">linq_netw_create<a class="headerlink" href="#linq-netw-create" title="Permalink to this headline">¶</a></h2>
 <dl class="function">

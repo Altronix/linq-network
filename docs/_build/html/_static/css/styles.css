@@ -11,3 +11,8 @@
 .margin-bottom-20 {
   margin-bottom: 20px
 }
+
+.api-doc-header {
+  font: bold;
+  color: #337ab7;
+}
