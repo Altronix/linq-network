@@ -218,6 +218,8 @@
         <li class="md-nav__item"><a href="#getting-started-linux--page-root" class="md-nav__link">Linux</a><nav class="md-nav">
               <ul class="md-nav__list">
         <li class="md-nav__item"><a href="#required-packages" class="md-nav__link">Required Packages</a>
+        </li>
+        <li class="md-nav__item"><a href="#installation" class="md-nav__link">Installation</a>
         </li></ul>
             </nav>
         </li>
@@ -325,6 +327,8 @@
         <li class="md-nav__item"><a href="#getting-started-linux--page-root" class="md-nav__link">Linux</a><nav class="md-nav">
               <ul class="md-nav__list">
         <li class="md-nav__item"><a href="#required-packages" class="md-nav__link">Required Packages</a>
+        </li>
+        <li class="md-nav__item"><a href="#installation" class="md-nav__link">Installation</a>
         </li></ul>
             </nav>
         </li>
@@ -344,8 +348,41 @@
             
   
 <span id="ref-getting-started-linux"></span><h1 id="getting-started-linux--page-root">Linux<a class="headerlink" href="#getting-started-linux--page-root" title="Permalink to this headline">¶</a></h1>
+<p>Setting up your development enviorment for the Linux OS is used to build LinQ Networking Applications that run Linx Host machines as well as Embedded Linux Target systems. The Linux Host enviorment is also used to run the LinQ Network test framework.</p>
 
 <h2 id="required-packages">Required Packages<a class="headerlink" href="#required-packages" title="Permalink to this headline">¶</a></h2>
+<p>The following packages are required to get your Linux OS up and running.</p>
+<blockquote>
+<div><em>If you find any packages are missing, please add them to the list by submitting a PR</em></div></blockquote>
+<ol class="arabic simple">
+<li>Git</li>
+<li>clang and LLVM</li>
+<li>gcc</li>
+<li>lcov</li>
+<li><a class="reference external" href="https://docs.docker.com/install">Docker Community</a> (Recommended for development using hardware containers)</li>
+<li><a class="reference external" href="https://rustup.rs">Rust</a> (Recommended for building  the command line utilities and Rust bindings)</li>
+<li><a class="reference external" href="https://nodejs.org">NodeJS + NPM</a> (Recommended for building the NodeJS bindings)</li>
+<li><a class="reference external" href="https://golang.org">Go</a> (Recommended for building the Go bindings)</li>
+<li><a class="reference external" href="https://python.org">Python</a> (Recommended for building the Python bindings)</li>
+</ol>
+
+
+<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>The following terminal commands show how to build and install the linq-network library to the linq-network/build-linux/install directory.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone https://bitbucket.org/Altronix/linq-network
+<span class="nb">cd</span> linq-network
+git submodule update --init
+mkdir build-linux
+<span class="nb">cd</span> build-linux
+cmake -DCMAKE_INSTALL_PREFIX<span class="o">=</span>./install -DENABLE_TESTING<span class="o">={</span>ON<span class="p">|</span>OFF<span class="o">}</span> -DCMAKE_BUILD_TYPE<span class="o">=</span>MinSizeRel ..
+make
+make install
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For a list of configuration options, use cmake -LH command.  See a description of the configuration parameters here: <a class="reference internal" href="configuration.html#ref-getting-started-configuration"><span class="std std-ref">Configuration</span></a></p>
+</div>
 
 
 

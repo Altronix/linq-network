@@ -1,3 +1,6 @@
+.. role:: blue
+   :class: blue
+
 .. role:: api-struct
    :class: api api-struct
 

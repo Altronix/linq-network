@@ -12,6 +12,14 @@
   margin-bottom: 20px;
 }
 
+.blue {
+  color: #337ab7;
+}
+
+.font-small {
+  font-size: small;
+}
+
 .api {
   padding: 8px;
   color: white;
@@ -28,7 +36,6 @@
 .api-struct {
   background-color: #337ab7;
 }
-
 
 .api-type {
   background-color: green;

@@ -223,6 +223,8 @@
         <li class="md-nav__item"><a href="#getting-started-buildroot--page-root" class="md-nav__link">Buildroot</a><nav class="md-nav">
               <ul class="md-nav__list">
         <li class="md-nav__item"><a href="#required-packages" class="md-nav__link">Required Packages</a>
+        </li>
+        <li class="md-nav__item"><a href="#optional-packages" class="md-nav__link">Optional Packages</a>
         </li></ul>
             </nav>
         </li>
@@ -325,6 +327,8 @@
         <li class="md-nav__item"><a href="#getting-started-buildroot--page-root" class="md-nav__link">Buildroot</a><nav class="md-nav">
               <ul class="md-nav__list">
         <li class="md-nav__item"><a href="#required-packages" class="md-nav__link">Required Packages</a>
+        </li>
+        <li class="md-nav__item"><a href="#optional-packages" class="md-nav__link">Optional Packages</a>
         </li></ul>
             </nav>
         </li>
@@ -344,8 +348,53 @@
             
   
 <span id="ref-getting-started-buildroot"></span><h1 id="getting-started-buildroot--page-root">Buildroot<a class="headerlink" href="#getting-started-buildroot--page-root" title="Permalink to this headline">¶</a></h1>
+<p>Buildroot is used to build Embedded Linux Systems that can be cross compiled for unique hardware targets such as the Altronix LinQ Master module or the Microchip Sama5D27 SOM1 Module. Buildroot has it’s own user manual and the Altronix LinQ Network User Guide is only meant as a companion guide. Users should read the Buildroot User Manual in its entirety, paying closer attention to the Section 8.5 - Building Out of tree <span class="blue">[1]</span>, Section 8.6 - Enviorment Variables <span class="blue">[2]</span>, Section 8.12 - Advanced Usage <span class="blue">[3]</span>, Section 9 - Project specific customization <span class="blue">[4]</span>, and Section III - developer guide <span class="blue">[5]</span>.</p>
+<div class="font-small docutils container">
+<ol class="arabic simple">
+<li><a class="reference external" href="https://buildroot.org/downloads/manual/manual.html#_building_out_of_tree">Section 8.5 - Building Out of Tree</a></li>
+<li><a class="reference external" href="https://buildroot.org/downloads/manual/manual.html#env-vars">Section 8.6 - Enviorment Variables</a></li>
+<li><a class="reference external" href="https://buildroot.org/downloads/manual/manual.html#_advanced_usage">Section 8.12 - Advanced Usage</a></li>
+<li><a class="reference external" href="https://buildroot.org/downloads/manual/manual.html#customize">Section 8.6 - Project Specific Customization</a></li>
+<li><a class="reference external" href="https://buildroot.org/downloads/manual/manual.html#_developer_guide">Section III - Developer Guide</a></li>
+<li><a class="reference external" href="https://buildroot.org/downloads/manual/manual.pdf">Buildroot User Manual PDF</a></li>
+</ol>
+</div>
 
 <h2 id="required-packages">Required Packages<a class="headerlink" href="#required-packages" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><em>If you find any packages are missing, please add them to the list by submitting a PR.</em></div></blockquote>
+<ol class="arabic simple">
+<li>which</li>
+<li>sed</li>
+<li>make (version 3.81 or any later)</li>
+<li>binutils</li>
+<li>build-essential (only for Debian based systems)</li>
+<li>gcc (version 4.8 or any later)</li>
+<li>g++ (version 4.8 or any later)</li>
+<li>bash</li>
+<li>patch</li>
+<li>gzip</li>
+<li>bzip2</li>
+<li>perl (version 5.8.7 or any later)</li>
+<li>tar</li>
+<li>cpio</li>
+<li>unzip</li>
+<li>rsync</li>
+<li>file (must be in /usr/bin/file)</li>
+<li>bc</li>
+<li>python (version 2.7 or any later)</li>
+</ol>
+
+
+<h2 id="optional-packages">Optional Packages<a class="headerlink" href="#optional-packages" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li>asciidoc, version 8.6.3 or higher</li>
+<li>w3m</li>
+<li>python with the argparse module (automatically present in 2.7+ and 3.2+)</li>
+<li>dblatex (required for the pdf manual only)</li>
+<li>graphviz to use graph-depends and &lt;pkg&gt;-graph-depends</li>
+<li>python-matplotlib to use graph-build</li>
+</ol>
 
 
 

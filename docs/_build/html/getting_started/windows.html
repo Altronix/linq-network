@@ -352,10 +352,18 @@
 
 <h2 id="required-packages">Required Packages<a class="headerlink" href="#required-packages" title="Permalink to this headline">¶</a></h2>
 <p>The following packages are required to get your Windows OS up and running.</p>
+<blockquote>
+<div><em>If you find any packages are missing please add them to the list by submitting a PR</em></div></blockquote>
 <ol class="arabic">
 <li><p class="first"><a class="reference external" href="https://git-scm.com/download/win">Git</a></p>
 </li>
-<li><p class="first"><a class="reference external" href="https://docs.docker.com/docker-for-windows/install/">Docker Community</a></p>
+<li><p class="first"><a class="reference external" href="https://visualstudio.microsoft.com/vs/community">Microsoft Visual Studio 2019 (Community Edition)</a></p>
+</li>
+<li><p class="first"><a class="reference external" href="https://releases.llvm.org/download.html">LLVM</a></p>
+</li>
+<li><p class="first"><a class="reference external" href="https://cmake.org/download">CMake</a></p>
+</li>
+<li><p class="first"><a class="reference external" href="https://docs.docker.com/docker-for-windows/install/">Docker Community</a> (Recommended for development using hardware containers)</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Configure your docker to run Linux Containers per the Windows Docker documentation</p>
@@ -365,23 +373,25 @@
 <p class="last">If docker does not support your Windows Installation well, try and use <a class="reference external" href="https://docs.docker.com/toolbox/toolbox_install_windows">Docker Toolbox</a></p>
 </div>
 </li>
-<li><p class="first"><a class="reference external" href="https://visualstudio.microsoft.com/vs/community">Microsoft Visual Studio 2019 (Community Edition)</a></p>
-</li>
-<li><p class="first"><a class="reference external" href="https://releases.llvm.org/download.html">LLVM</a></p>
-</li>
-<li><p class="first"><a class="reference external" href="https://cmake.org/download">CMake</a></p>
-</li>
 <li><p class="first"><a class="reference external" href="https://rustup.rs">Rust</a> (Recommended for building command line utilities and Rust bindings)</p>
+</li>
+<li><p class="first"><a class="reference external" href="https://nodejs.org">NodeJS + NPM</a> (Recommended for building the NodeJS bindings)</p>
+</li>
+<li><p class="first"><a class="reference external" href="https://golang.org">Go</a> (Recommended for building the Go bindings)</p>
+</li>
+<li><p class="first"><a class="reference external" href="https://python.org">Python</a> (Recommended for building the Python bindings)</p>
 </li>
 </ol>
 
 
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<p>The following terminal commands give example for how to build and install the linq-network library to the linq-network/build-windows/install directory.</p>
+<p>The following terminal commands show how to build and install the linq-network library to the linq-network/build-windows/install directory.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://bitbucket.org/Altronix/linq-network
-git submodule update --init
 <span class="nb">cd</span> linq-network
-cmake -Bbuild-windows -S . -DCMAKE_ISNTALL_PREFIX<span class="o">=</span>./build-windows/install
+git submodule update --init
+mkdir build-windows
+<span class="nb">cd</span> build-windows
+cmake -DCMAKE_ISNTALL_PREFIX<span class="o">=</span>./build-windows/install ..
 cmake --build ./build-windows --target install --config MinSizeRel
 </pre></div>
 </div>
