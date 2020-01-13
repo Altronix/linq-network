@@ -1,5 +1,7 @@
-linq_netw_destroy
------------------
+.. include:: ../../roles.rst
+
+:api-function:`Function`:api-header:`linq_netw_destroy`
+-------------------------------------------------------
 
 .. c:function:: linq_netw_destroy(linq_netw**);
 

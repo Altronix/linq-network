@@ -1,5 +1,7 @@
-linq_netw_create
-----------------
+.. include:: ../../roles.rst
+
+:api-function:`Function`:api-header:`linq_netw_create`
+------------------------------------------------------
 
 .. c:function:: linq_netw_create(const linq_netw_callbacks*, void*);
 

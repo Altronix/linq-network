@@ -2,17 +2,42 @@
 }
 
 .align-center {
-  text-align: center
+  text-align: center;
 }
 .margin-bottom-10 {
-  margin-bottom: 10px
+  margin-bottom: 10px;
 }
 
 .margin-bottom-20 {
-  margin-bottom: 20px
+  margin-bottom: 20px;
 }
 
-.api-doc-header {
-  font: bold;
-  color: #337ab7;
+.api {
+  padding: 8px;
+  color: white;
+  border-bottom: 2px solid black;
+  border-radius: 10px 2px 0px 10px;
+  width: 200px;
+}
+
+.api-name {
+  padding: 8px;
+  border-bottom: 2px solid black;
+}
+
+.api-struct {
+  background-color: #337ab7;
+}
+
+
+.api-type {
+  background-color: green;
+}
+
+.api-enum {
+  background-color: purple;
+}
+
+.api-function {
+  background-color: red;
 }

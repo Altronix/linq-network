@@ -6,12 +6,6 @@ C API
 .. _ref_api_c_linq_netw:
 .. include:: api_c_linq_netw.rst
 
-.. _ref_api_c_linq_netw_error:
-.. include:: api_c_linq_netw_error.rst
-
-.. _ref-api_c-linq_netw_socket:
-.. include:: api_c_linq_netw_socket.rst
-
 .. _ref_api_c_linq_netw_callbacks:
 .. include:: api_c_linq_netw_callbacks.rst
 
@@ -20,6 +14,12 @@ C API
 
 .. _ref_api_c_linq_netw_email:
 .. include:: api_c_linq_netw_email.rst
+
+.. _ref_api_c_linq_netw_error:
+.. include:: api_c_linq_netw_error.rst
+
+.. _ref-api_c-linq_netw_socket:
+.. include:: api_c_linq_netw_socket.rst
 
 .. _ref_api_c_linq_netw_create:
 .. include:: api_c_linq_netw_create.rst
