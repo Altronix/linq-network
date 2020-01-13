@@ -225,6 +225,20 @@
         <li class="md-nav__item"><a href="#required-packages" class="md-nav__link">Required Packages</a>
         </li>
         <li class="md-nav__item"><a href="#optional-packages" class="md-nav__link">Optional Packages</a>
+        </li>
+        <li class="md-nav__item"><a href="#altronix-buildroot-packages" class="md-nav__link">Altronix Buildroot Packages</a>
+        </li>
+        <li class="md-nav__item"><a href="#altronix-demo-configuration" class="md-nav__link">Altronix Demo Configuration</a>
+        </li>
+        <li class="md-nav__item"><a href="#creating-a-custom-defconfig" class="md-nav__link">Creating A Custom DefConfig</a>
+        </li>
+        <li class="md-nav__item"><a href="#flashing-sd-card-onto-target-hardware" class="md-nav__link">Flashing SD Card onto target hardware</a>
+        </li>
+        <li class="md-nav__item"><a href="#adding-custom-package-c-c" class="md-nav__link">Adding Custom Package C/C++</a>
+        </li>
+        <li class="md-nav__item"><a href="#adding-custom-package-rust" class="md-nav__link">Adding Custom Package Rust</a>
+        </li>
+        <li class="md-nav__item"><a href="#adding-custom-package-go" class="md-nav__link">Adding Custom Package Go</a>
         </li></ul>
             </nav>
         </li>
@@ -329,6 +343,20 @@
         <li class="md-nav__item"><a href="#required-packages" class="md-nav__link">Required Packages</a>
         </li>
         <li class="md-nav__item"><a href="#optional-packages" class="md-nav__link">Optional Packages</a>
+        </li>
+        <li class="md-nav__item"><a href="#altronix-buildroot-packages" class="md-nav__link">Altronix Buildroot Packages</a>
+        </li>
+        <li class="md-nav__item"><a href="#altronix-demo-configuration" class="md-nav__link">Altronix Demo Configuration</a>
+        </li>
+        <li class="md-nav__item"><a href="#creating-a-custom-defconfig" class="md-nav__link">Creating A Custom DefConfig</a>
+        </li>
+        <li class="md-nav__item"><a href="#flashing-sd-card-onto-target-hardware" class="md-nav__link">Flashing SD Card onto target hardware</a>
+        </li>
+        <li class="md-nav__item"><a href="#adding-custom-package-c-c" class="md-nav__link">Adding Custom Package C/C++</a>
+        </li>
+        <li class="md-nav__item"><a href="#adding-custom-package-rust" class="md-nav__link">Adding Custom Package Rust</a>
+        </li>
+        <li class="md-nav__item"><a href="#adding-custom-package-go" class="md-nav__link">Adding Custom Package Go</a>
         </li></ul>
             </nav>
         </li>
@@ -395,6 +423,76 @@
 <li>graphviz to use graph-depends and &lt;pkg&gt;-graph-depends</li>
 <li>python-matplotlib to use graph-build</li>
 </ol>
+
+
+<h2 id="altronix-buildroot-packages">Altronix Buildroot Packages<a class="headerlink" href="#altronix-buildroot-packages" title="Permalink to this headline">¶</a></h2>
+<p>Buildroot offers the BR2_EXTERNAL enviorment variable as a convenient option to store packages outside of the mainline buildroot repository.  Altronix uses this enviorment variable to extend buildroot with Altronix specific packages such as the LinQ Network library and application demos.  To get started with buildroot, clone the altronix buildroot repository and the buildroot-external-altronix submodule into your development workspace.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone https://bitbucket.org/Altronix/buildroot-at91
+<span class="nb">cd</span> buildroot-at91
+git submodule update --init
+</pre></div>
+</div>
+<p>You are now ready to configure and compile your embedded linux system.</p>
+
+
+<h2 id="altronix-demo-configuration">Altronix Demo Configuration<a class="headerlink" href="#altronix-demo-configuration" title="Permalink to this headline">¶</a></h2>
+<p>From inside your buildroot-at91 workspace you can observe the following directory structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">buildroot</span><span class="o">-</span><span class="n">at91</span><span class="o">/</span>
+<span class="o">|--</span> <span class="n">arch</span><span class="o">/</span>
+<span class="o">|--</span> <span class="n">board</span><span class="o">/</span>
+<span class="o">|--</span> <span class="n">boot</span><span class="o">/</span>
+<span class="o">|--</span> <span class="n">configs</span><span class="o">/</span>
+<span class="o">|--</span> <span class="n">dl</span><span class="o">/</span>
+<span class="o">|--</span> <span class="n">docs</span><span class="o">/</span>
+<span class="o">|--</span> <span class="n">package</span><span class="o">/</span>
+<span class="o">|</span>   <span class="o">|--</span> <span class="o">...</span>                                          <span class="o">&lt;--</span> <span class="n">mainline</span> <span class="n">buildroot</span> <span class="n">packages</span>
+<span class="o">|--</span> <span class="n">external</span><span class="o">/</span>
+<span class="o">|</span>   <span class="o">|--</span> <span class="n">buildroot</span><span class="o">-</span><span class="n">external</span><span class="o">-</span><span class="n">altronix</span><span class="o">/</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">|--</span> <span class="n">board</span><span class="o">/</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">|--</span> <span class="n">configs</span><span class="o">/</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">|</span>   <span class="o">|--</span> <span class="n">sama5d27_som1_ek_headless_defconfig</span>  <span class="o">&lt;--</span> <span class="n">Microchip</span> <span class="n">Demo</span> <span class="n">Config</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">|</span>   <span class="o">|--</span> <span class="n">sama5d27_som1_ek_altronix_defconfig</span>  <span class="o">&lt;--</span> <span class="n">Altronix</span> <span class="n">Demo</span> <span class="n">Config</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">|</span>   <span class="o">|--</span> <span class="o">...</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">|--</span> <span class="n">package</span><span class="o">/</span>
+<span class="o">|</span>   <span class="o">|</span>   <span class="o">|</span>   <span class="o">|--</span> <span class="o">...</span>                                  <span class="o">&lt;--</span> <span class="n">Extra</span> <span class="n">Microchip</span> <span class="o">+</span> <span class="n">Altronix</span> <span class="n">Packages</span>
+</pre></div>
+</div>
+<p>In order to create your own Embedded Linux System you should start from a configuration that is most similar to your target hardware and software requirments.  To create. To explore the Altronix Demo Configuration, run the command from buildroot-at91 root directory:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>make menuconfig
+</pre></div>
+</div>
+<p>You should see the following menu.</p>
+<img alt="../_images/makemenu-config.jpg" src="../_images/makemenu-config.jpg"/>
+<p>From the initial menuconfig view, navigate to External -&gt; Altronix to view the Altronix specific package options.</p>
+<img alt="../_images/makemenu-config-external.jpg" src="../_images/makemenu-config-external.jpg"/>
+
+
+<h2 id="creating-a-custom-defconfig">Creating A Custom DefConfig<a class="headerlink" href="#creating-a-custom-defconfig" title="Permalink to this headline">¶</a></h2>
+<p>To create your own package configuration and save the configuration into the Altronix config folder. Run make menuconfig command. Make your changes and then select save.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This will save your configuration to buildroot-at91/.config and therefore will not overwrite the configuration you started from.</p>
+</div>
+<p>After you have made all the changes to your Embedded Linux System, run the following command to save your new configuration.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>make savedefconfig <span class="nv">BR2_DEFCONFIG</span><span class="o">=</span>./external/buildroot-external-altronix/configs/sama5d27_som1_ek_my_new_altronix_defconfig
+</pre></div>
+</div>
+
+
+<h2 id="flashing-sd-card-onto-target-hardware">Flashing SD Card onto target hardware<a class="headerlink" href="#flashing-sd-card-onto-target-hardware" title="Permalink to this headline">¶</a></h2>
+<p><em>todo</em></p>
+
+
+<h2 id="adding-custom-package-c-c">Adding Custom Package C/C++<a class="headerlink" href="#adding-custom-package-c-c" title="Permalink to this headline">¶</a></h2>
+<p><em>todo</em></p>
+
+
+<h2 id="adding-custom-package-rust">Adding Custom Package Rust<a class="headerlink" href="#adding-custom-package-rust" title="Permalink to this headline">¶</a></h2>
+<p><em>todo</em></p>
+
+
+<h2 id="adding-custom-package-go">Adding Custom Package Go<a class="headerlink" href="#adding-custom-package-go" title="Permalink to this headline">¶</a></h2>
+<p><em>todo</em></p>
 
 
 
