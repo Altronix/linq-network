@@ -1,7 +1,7 @@
 linq_netw_destroy
-=================
+-----------------
 
-.. c:function:: linq_netw_destroy(linq_netw**)
+.. c:function:: linq_netw_destroy(linq_netw**);
 
    Free the LinQ Network communication library resource from heap memory.
 

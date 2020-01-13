@@ -1,5 +1,5 @@
 linq_netw_create
-================
+----------------
 
 .. c:function:: linq_netw_create(const linq_netw_callbacks*, void*);
 
@@ -9,3 +9,32 @@ linq_netw_create
    :param void*: User data passed to each callback function.
 
 **Example**
+
+.. code-block:: c
+
+   // Declare some callbacks
+   static void on_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial);
+   static void on_alert(void* ctx, linq_netw_alert_s* alert, linq_netw_email_s* mail, device_s** d);
+   static void on_heartbeat(void* ctx, const char* serial, device_s** d);
+   static void on_ctrlc(void* ctx);
+
+   linq_netw_callbacks callbacks = { .err = on_error,
+                                     .alert = on_alert,
+                                     .hb = on_heartbeat,
+                                     .ctrc = on_ctrlc };
+   int main(int argc, char *argv[])
+   {
+     // Create some app specific thing you need!
+     app_context* app = app_context_create();
+
+     // Create some linq networking
+     linq_netw* netw = linq_netw_create(callbacks, app);
+
+     // Do some stuff 
+     // ...
+
+     // All done ...
+     linq_netw_destroy(&netw);
+   }
+
+

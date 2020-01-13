@@ -258,16 +258,6 @@
     </li>
     <li class="md-nav__item">
     
-      <a href="api_c.html#linq-netw-create" class="md-nav__link">linq_netw_create</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="api_c.html#linq-netw-destroy" class="md-nav__link">linq_netw_destroy</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
       <a href="../api_cpp/api_cpp.html" class="md-nav__link">C++ API</a>
       
     </li>
@@ -339,6 +329,32 @@
 </table>
 </dd></dl>
 <p><strong>Example</strong></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// Declare some callbacks</span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">on_error</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">E_LINQ_ERROR</span> <span class="n">e</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">what</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">serial</span><span class="p">);</span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">on_alert</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">linq_netw_alert_s</span><span class="o">*</span> <span class="n">alert</span><span class="p">,</span> <span class="n">linq_netw_email_s</span><span class="o">*</span> <span class="n">mail</span><span class="p">,</span> <span class="n">device_s</span><span class="o">**</span> <span class="n">d</span><span class="p">);</span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">on_heartbeat</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ctx</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">serial</span><span class="p">,</span> <span class="n">device_s</span><span class="o">**</span> <span class="n">d</span><span class="p">);</span>
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">on_ctrlc</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ctx</span><span class="p">);</span>
+
+<span class="n">linq_netw_callbacks</span> <span class="n">callbacks</span> <span class="o">=</span> <span class="p">{</span> <span class="p">.</span><span class="n">err</span> <span class="o">=</span> <span class="n">on_error</span><span class="p">,</span>
+                                  <span class="p">.</span><span class="n">alert</span> <span class="o">=</span> <span class="n">on_alert</span><span class="p">,</span>
+                                  <span class="p">.</span><span class="n">hb</span> <span class="o">=</span> <span class="n">on_heartbeat</span><span class="p">,</span>
+                                  <span class="p">.</span><span class="n">ctrc</span> <span class="o">=</span> <span class="n">on_ctrlc</span> <span class="p">};</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+  <span class="c1">// Create some app specific thing you need!</span>
+  <span class="n">app_context</span><span class="o">*</span> <span class="n">app</span> <span class="o">=</span> <span class="n">app_context_create</span><span class="p">();</span>
+
+  <span class="c1">// Create some linq networking</span>
+  <span class="n">linq_netw</span><span class="o">*</span> <span class="n">netw</span> <span class="o">=</span> <span class="n">linq_netw_create</span><span class="p">(</span><span class="n">callbacks</span><span class="p">,</span> <span class="n">app</span><span class="p">);</span>
+
+  <span class="c1">// Do some stuff</span>
+  <span class="c1">// ...</span>
+
+  <span class="c1">// All done ...</span>
+  <span class="n">linq_netw_destroy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">netw</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 
 
 
