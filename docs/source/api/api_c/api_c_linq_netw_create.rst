@@ -3,12 +3,12 @@ linq_netw_create
 
 .. c:function:: linq_netw_create(const linq_netw_callbacks*, void*);
 
-   Initialize the LinQ Network communication library.
+   Initialize the LinQ Network communication library. Optionally pass in a struct with function pointers to receive notifications of network events. Also optionally pass a context that will be passed to your applications callback function during linq network events.
 
    :param const linq_netw_callbacks*: struct of function pointers to process linq network events. 
    :param void*: User data passed to each callback function.
 
-**Example**
+**Example with callbacks**
 
 .. code-block:: c
 
@@ -30,11 +30,30 @@ linq_netw_create
      // Create some linq networking
      linq_netw* netw = linq_netw_create(callbacks, app);
 
-     // Do some stuff 
-     // ...
+     // Process Network IO
+     while (sys_running()) linq_netw_poll(netw, 5);
 
      // All done ...
      linq_netw_destroy(&netw);
    }
 
+**Example with out callbacks**
 
+.. code-block:: c
+
+   int main(int argc, char *argv[])
+   {
+      linq_netw* netw = linq_netw_create(NULL, NULL);
+
+     // Process Network IO
+     while (sys_running()) linq_netw_poll(netw, 5);
+
+      // All done ...
+      linq_netw_destroy(&netw);
+   }
+
+*See also*
+
+:ref:`linq_netw_destroy <ref_api_c_linq_netw_destroy>`
+
+:ref:`linq_netw_poll<ref_api_c_linq_netw_poll>`

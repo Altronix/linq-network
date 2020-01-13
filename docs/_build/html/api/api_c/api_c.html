@@ -270,6 +270,8 @@
         <li class="md-nav__item"><a href="#linq-netw-create" class="md-nav__link">linq_netw_create</a>
         </li>
         <li class="md-nav__item"><a href="#linq-netw-destroy" class="md-nav__link">linq_netw_destroy</a>
+        </li>
+        <li class="md-nav__item"><a href="#linq-netw-poll" class="md-nav__link">linq_netw_poll</a>
         </li></ul>
             </nav>
         </li>
@@ -324,6 +326,8 @@
         <li class="md-nav__item"><a href="#linq-netw-create" class="md-nav__link">linq_netw_create</a>
         </li>
         <li class="md-nav__item"><a href="#linq-netw-destroy" class="md-nav__link">linq_netw_destroy</a>
+        </li>
+        <li class="md-nav__item"><a href="#linq-netw-poll" class="md-nav__link">linq_netw_poll</a>
         </li></ul>
             </nav>
         </li>
@@ -344,11 +348,11 @@
   
 <span id="ref-api-c"></span><h1 id="api-api-c-api-c--page-root">C API<a class="headerlink" href="#api-api-c-api-c--page-root" title="Permalink to this headline">¶</a></h1>
 
-<h2 id="linq-netw-create">linq_netw_create<a class="headerlink" href="#linq-netw-create" title="Permalink to this headline">¶</a></h2>
+<span id="ref-api-c-linq-netw-create"></span><h2 id="linq-netw-create">linq_netw_create<a class="headerlink" href="#linq-netw-create" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt>
 <code class="descname">linq_netw_create(const linq_netw_callbacks*, void*);</code></dt>
-<dd><p>Initialize the LinQ Network communication library.</p>
+<dd><p>Initialize the LinQ Network communication library. Optionally pass in a struct with function pointers to receive notifications of network events. Also optionally pass a context that will be passed to your applications callback function during linq network events.</p>
 <table frame="void" rules="none">
 <col class="field-name"/>
 <col class="field-body"/>
@@ -362,7 +366,7 @@
 </tbody>
 </table>
 </dd></dl>
-<p><strong>Example</strong></p>
+<p><strong>Example with callbacks</strong></p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// Declare some callbacks</span>
 <span class="k">static</span> <span class="kt">void</span> <span class="nf">on_error</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">E_LINQ_ERROR</span> <span class="n">e</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">what</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">serial</span><span class="p">);</span>
 <span class="k">static</span> <span class="kt">void</span> <span class="nf">on_alert</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">linq_netw_alert_s</span><span class="o">*</span> <span class="n">alert</span><span class="p">,</span> <span class="n">linq_netw_email_s</span><span class="o">*</span> <span class="n">mail</span><span class="p">,</span> <span class="n">device_s</span><span class="o">**</span> <span class="n">d</span><span class="p">);</span>
@@ -381,17 +385,33 @@
   <span class="c1">// Create some linq networking</span>
   <span class="n">linq_netw</span><span class="o">*</span> <span class="n">netw</span> <span class="o">=</span> <span class="n">linq_netw_create</span><span class="p">(</span><span class="n">callbacks</span><span class="p">,</span> <span class="n">app</span><span class="p">);</span>
 
-  <span class="c1">// Do some stuff</span>
-  <span class="c1">// ...</span>
+  <span class="c1">// Process Network IO</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">sys_running</span><span class="p">())</span> <span class="n">linq_netw_poll</span><span class="p">(</span><span class="n">netw</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
 
   <span class="c1">// All done ...</span>
   <span class="n">linq_netw_destroy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">netw</span><span class="p">);</span>
 <span class="p">}</span>
 </pre></div>
 </div>
+<p><strong>Example with out callbacks</strong></p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+   <span class="n">linq_netw</span><span class="o">*</span> <span class="n">netw</span> <span class="o">=</span> <span class="n">linq_netw_create</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+
+  <span class="c1">// Process Network IO</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">sys_running</span><span class="p">())</span> <span class="n">linq_netw_poll</span><span class="p">(</span><span class="n">netw</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
+
+   <span class="c1">// All done ...</span>
+   <span class="n">linq_netw_destroy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">netw</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><em>See also</em></p>
+<p><a class="reference internal" href="#ref-api-c-linq-netw-destroy"><span class="std std-ref">linq_netw_destroy</span></a></p>
+<p><a class="reference internal" href="#ref-api-c-linq-netw-poll"><span class="std std-ref">linq_netw_poll</span></a></p>
 
 
-<h2 id="linq-netw-destroy">linq_netw_destroy<a class="headerlink" href="#linq-netw-destroy" title="Permalink to this headline">¶</a></h2>
+<span id="ref-api-c-linq-netw-destroy"></span><h2 id="linq-netw-destroy">linq_netw_destroy<a class="headerlink" href="#linq-netw-destroy" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt>
 <code class="descname">linq_netw_destroy(linq_netw**);</code></dt>
@@ -415,11 +435,17 @@
 <p><strong>Example</strong></p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">linq_netw</span> <span class="o">*</span><span class="n">netw</span> <span class="o">=</span> <span class="n">linq_netw_create</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
 
+<span class="c1">// Do some stuff</span>
 <span class="c1">// ...</span>
 
 <span class="n">linq_netw_destroy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">netw</span><span class="p">);</span>
 </pre></div>
 </div>
+<p><em>See also</em></p>
+<p><a class="reference internal" href="#ref-api-c-linq-netw-destroy"><span class="std std-ref">linq_netw_create</span></a></p>
+
+
+<span id="ref-api-c-linq-netw-poll"></span><h2 id="linq-netw-poll">linq_netw_poll<a class="headerlink" href="#linq-netw-poll" title="Permalink to this headline">¶</a></h2>
 
 
 
