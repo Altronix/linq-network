@@ -3,8 +3,40 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Linq Network User Guide's documentation!
-===================================================
+.. rst-class:: align-center margin-bottom-20 
+.. container::
+
+  .. image:: _static/img/altronix_logo.png
+     :scale: 150%
+     :align: center
+
+LinQ Network Documentation
+==========================
+   
+.. image:: _static/img/login.jpg
+   :width: 100%
+   :align: center
+
+About
+-----
+
+.. image:: https://travis-ci.com/TomzBench/linq-network.svg?branch=master
+    :target: https://travis-ci.com/TomzBench/linq-network
+.. image:: https://codecov.io/gh/TomzBench/linq-network/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/TomzBench/linq-network
+
+The Altronix LinQ Network SDK provides libraries for interfacing with Altronix LinQ enabled products in C, C++, Rust, Go, Python and NodeJS languages.
+
+Getting Help
+------------
+
+.. table::
+   :align: left
+
+   ========== ==================
+   Sales      sales@altronix.com
+   Developers thomas@altronix.com
+   ========== ==================
 
 .. toctree::
    :maxdepth: 2
