@@ -1,0 +1,13 @@
+# Target labels
+ czmq-project
+# Source files and their labels
+/home/thomas/Git/altronix/cloud/linq-network/CMakeFiles/czmq-project
+/home/thomas/Git/altronix/cloud/linq-network/CMakeFiles/czmq-project.rule
+/home/thomas/Git/altronix/cloud/linq-network/CMakeFiles/czmq-project-complete.rule
+/home/thomas/Git/altronix/cloud/linq-network/czmq-project-prefix/src/czmq-project-stamp/czmq-project-install.rule
+/home/thomas/Git/altronix/cloud/linq-network/czmq-project-prefix/src/czmq-project-stamp/czmq-project-mkdir.rule
+/home/thomas/Git/altronix/cloud/linq-network/czmq-project-prefix/src/czmq-project-stamp/czmq-project-download.rule
+/home/thomas/Git/altronix/cloud/linq-network/czmq-project-prefix/src/czmq-project-stamp/czmq-project-update.rule
+/home/thomas/Git/altronix/cloud/linq-network/czmq-project-prefix/src/czmq-project-stamp/czmq-project-patch.rule
+/home/thomas/Git/altronix/cloud/linq-network/czmq-project-prefix/src/czmq-project-stamp/czmq-project-configure.rule
+/home/thomas/Git/altronix/cloud/linq-network/czmq-project-prefix/src/czmq-project-stamp/czmq-project-build.rule

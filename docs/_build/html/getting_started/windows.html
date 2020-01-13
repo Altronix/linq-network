@@ -213,6 +213,8 @@
         <li class="md-nav__item"><a href="#getting-started-windows--page-root" class="md-nav__link">Windows</a><nav class="md-nav">
               <ul class="md-nav__list">
         <li class="md-nav__item"><a href="#required-packages" class="md-nav__link">Required Packages</a>
+        </li>
+        <li class="md-nav__item"><a href="#installation" class="md-nav__link">Installation</a>
         </li></ul>
             </nav>
         </li>
@@ -230,6 +232,11 @@
     <li class="md-nav__item">
     
       <a href="buildroot.html" class="md-nav__link">Buildroot</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="configuration.html" class="md-nav__link">Configuration</a>
       
     </li>
     <li class="md-nav__item">
@@ -320,6 +327,8 @@
         <li class="md-nav__item"><a href="#getting-started-windows--page-root" class="md-nav__link">Windows</a><nav class="md-nav">
               <ul class="md-nav__list">
         <li class="md-nav__item"><a href="#required-packages" class="md-nav__link">Required Packages</a>
+        </li>
+        <li class="md-nav__item"><a href="#installation" class="md-nav__link">Installation</a>
         </li></ul>
             </nav>
         </li>
@@ -339,8 +348,51 @@
             
   
 <span id="ref-getting-started-windows"></span><h1 id="getting-started-windows--page-root">Windows<a class="headerlink" href="#getting-started-windows--page-root" title="Permalink to this headline">¶</a></h1>
+<p>Setting up your development enviorment for the Windows OS is used to build LinQ Networking Applications that run on Windows 10 operating system. The Windows Development enviorment does not support running the test framework and is only supported for application development. The Windows Development enviorment may be used to build embedded linux distributions but this is not supported. For Embedded Linux target installations, please refer to setting up your Linux host machine.</p>
 
 <h2 id="required-packages">Required Packages<a class="headerlink" href="#required-packages" title="Permalink to this headline">¶</a></h2>
+<p>The following packages are required to get your Windows OS up and running.</p>
+<ol class="arabic">
+<li><p class="first"><a class="reference external" href="https://git-scm.com/download/win">Git</a></p>
+</li>
+<li><p class="first"><a class="reference external" href="https://docs.docker.com/docker-for-windows/install/">Docker Community</a></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Configure your docker to run Linux Containers per the Windows Docker documentation</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">If docker does not support your Windows Installation well, try and use <a class="reference external" href="https://docs.docker.com/toolbox/toolbox_install_windows">Docker Toolbox</a></p>
+</div>
+</li>
+<li><p class="first"><a class="reference external" href="https://visualstudio.microsoft.com/vs/community">Microsoft Visual Studio 2019 (Community Edition)</a></p>
+</li>
+<li><p class="first"><a class="reference external" href="https://releases.llvm.org/download.html">LLVM</a></p>
+</li>
+<li><p class="first"><a class="reference external" href="https://cmake.org/download">CMake</a></p>
+</li>
+<li><p class="first"><a class="reference external" href="https://rustup.rs">Rust</a> (Recommended for building command line utilities and Rust bindings)</p>
+</li>
+</ol>
+
+
+<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>The following terminal commands give example for how to build and install the linq-network library to the linq-network/build-windows/install directory.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://bitbucket.org/Altronix/linq-network
+git submodule update --init
+<span class="nb">cd</span> linq-network
+cmake -Bbuild-windows -S . -DCMAKE_ISNTALL_PREFIX<span class="o">=</span>./build-windows/install
+cmake --build ./build-windows --target install --config MinSizeRel
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Windows does not support the CMAKE_BUILD_TYPE flag during configuration step.  To configure the BUILD_TYPE use the –config switch during the compilation step.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For a list of configuration options, use cmake -LH command.  See a description of the configuration parameters here: <a class="reference internal" href="configuration.html#ref-getting-started-configuration"><span class="std std-ref">Configuration</span></a></p>
+</div>
 
 
 

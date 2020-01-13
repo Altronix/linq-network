@@ -1,0 +1,19 @@
+# Hashes of file build rules.
+947c4e248d9b1ddae7d9f8c35dc68488 CMakeFiles/czmq-project
+ee10e9f22f86f11059b4509af1eabe37 CMakeFiles/czmq-project-complete
+947c4e248d9b1ddae7d9f8c35dc68488 CMakeFiles/zmq-project
+a1d783c405f9babbe5e8c26a936b6619 CMakeFiles/zmq-project-complete
+1c3432ab5f6160defb8858d2097fe41d czmq-project-prefix/src/czmq-project-stamp/czmq-project-build
+1129e968e2ccc98b46a4de5e1c199355 czmq-project-prefix/src/czmq-project-stamp/czmq-project-configure
+457edb22daceb016d0427c1459425d5e czmq-project-prefix/src/czmq-project-stamp/czmq-project-download
+5a7684ce572f0de2a38654d1044c1530 czmq-project-prefix/src/czmq-project-stamp/czmq-project-install
+a55a40e1599793705c3136a5dd87caae czmq-project-prefix/src/czmq-project-stamp/czmq-project-mkdir
+83d27a206c9113e75f6ccf37b6f59b22 czmq-project-prefix/src/czmq-project-stamp/czmq-project-patch
+b08ab7cf12a5b82f5c39c194be8bb0f4 czmq-project-prefix/src/czmq-project-stamp/czmq-project-update
+ce12a02d9efdb1298378f08edd941573 zmq-project-prefix/src/zmq-project-stamp/zmq-project-build
+7b33c2d1c2925c33c2bad4fcf3292254 zmq-project-prefix/src/zmq-project-stamp/zmq-project-configure
+1ac439887080936be24c2420d212c0d2 zmq-project-prefix/src/zmq-project-stamp/zmq-project-download
+5722feb04dc371ac2502e61e2f94be61 zmq-project-prefix/src/zmq-project-stamp/zmq-project-install
+6338d6c49b28c00cd4bb0d1530373df1 zmq-project-prefix/src/zmq-project-stamp/zmq-project-mkdir
+f2a0c4dd5289938d6b2d6cb224675f3d zmq-project-prefix/src/zmq-project-stamp/zmq-project-patch
+fc67bb9caa01a3b2de8081bcdca1ce0f zmq-project-prefix/src/zmq-project-stamp/zmq-project-update

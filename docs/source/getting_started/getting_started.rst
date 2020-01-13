@@ -9,6 +9,7 @@ Getting Started
    windows.rst
    linux.rst
    buildroot.rst
+   configuration.rst
    device_setup.rst
    quickstart_c.rst
    quickstart_cpp.rst

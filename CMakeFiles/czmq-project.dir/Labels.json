@@ -1,0 +1,43 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/thomas/Git/altronix/cloud/linq-network/CMakeFiles/czmq-project"
+		},
+		{
+			"file" : "/home/thomas/Git/altronix/cloud/linq-network/CMakeFiles/czmq-project.rule"
+		},
+		{
+			"file" : "/home/thomas/Git/altronix/cloud/linq-network/CMakeFiles/czmq-project-complete.rule"
+		},
+		{
+			"file" : "/home/thomas/Git/altronix/cloud/linq-network/czmq-project-prefix/src/czmq-project-stamp/czmq-project-install.rule"
+		},
+		{
+			"file" : "/home/thomas/Git/altronix/cloud/linq-network/czmq-project-prefix/src/czmq-project-stamp/czmq-project-mkdir.rule"
+		},
+		{
+			"file" : "/home/thomas/Git/altronix/cloud/linq-network/czmq-project-prefix/src/czmq-project-stamp/czmq-project-download.rule"
+		},
+		{
+			"file" : "/home/thomas/Git/altronix/cloud/linq-network/czmq-project-prefix/src/czmq-project-stamp/czmq-project-update.rule"
+		},
+		{
+			"file" : "/home/thomas/Git/altronix/cloud/linq-network/czmq-project-prefix/src/czmq-project-stamp/czmq-project-patch.rule"
+		},
+		{
+			"file" : "/home/thomas/Git/altronix/cloud/linq-network/czmq-project-prefix/src/czmq-project-stamp/czmq-project-configure.rule"
+		},
+		{
+			"file" : "/home/thomas/Git/altronix/cloud/linq-network/czmq-project-prefix/src/czmq-project-stamp/czmq-project-build.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"czmq-project"
+		],
+		"name" : "czmq-project"
+	}
+}
