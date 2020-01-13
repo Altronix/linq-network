@@ -1,5 +1,5 @@
-linq_netw_destroy()
-===================
+linq_netw_destroy
+=================
 
 .. c:function:: linq_netw_destroy(linq_netw**)
 
@@ -9,8 +9,8 @@ linq_netw_destroy()
 
    :param linq_netw**: Pointer to the linq_netw context
 
-Example
--------
+
+**Example**
 
 .. code-block:: c
 

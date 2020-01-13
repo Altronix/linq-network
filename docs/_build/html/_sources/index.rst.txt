@@ -11,12 +11,7 @@ Welcome to Linq Network User Guide's documentation!
    :caption: Contents:
 
    getting_started/getting_started.rst
-   api_c/api_c.rst
-   api_cpp/api_cpp.rst
-   api_rust/api_rust.rst
-   api_go/api_go.rst
-   api_python/api_python.rst
-   api_nodejs/api_nodejs.rst
+   api/api.rst
 
 Index
 =====
