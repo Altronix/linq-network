@@ -44,7 +44,12 @@ Getting Help
    :caption: Contents:
 
    getting_started/getting_started.rst
-   api/api.rst
+   api/api_c/api_c.rst
+   api/api_cpp/api_cpp.rst
+   api/api_rust/api_rust.rst
+   api/api_go/api_go.rst
+   api/api_python/api_python.rst
+   api/api_nodejs/api_nodejs.rst
 
 Index
 =====

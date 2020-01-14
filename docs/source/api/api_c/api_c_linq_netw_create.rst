@@ -56,8 +56,7 @@ Example Without Callbacks
       linq_netw_destroy(&netw);
    }
 
-See Also
---------
+.. rubric:: See Also
 
 :ref:`linq_netw_destroy <ref_api_c_linq_netw_destroy>`
 
