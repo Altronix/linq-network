@@ -4,7 +4,7 @@
 add_executable(test-linq-netw main.c)
 target_link_libraries(test-linq-netw
                       linq-netw-test-static
-		      czmq-static
+                      ${LIBCZMQ_STATIC_LIBS}
                       helpers
 		      cmocka)
 
