@@ -21,30 +21,34 @@
 }
 
 .api {
+  /*
   padding: 8px;
   color: white;
   border-bottom: 2px solid black;
   border-radius: 10px 2px 0px 10px;
   width: 200px;
+  */
 }
 
 .api-name {
+  /*
   padding: 8px;
   border-bottom: 2px solid black;
+  */
 }
 
 .api-struct {
-  background-color: #337ab7;
+  /* background-color: #337ab7; */
 }
 
 .api-type {
-  background-color: green;
+  /* background-color: green; */
 }
 
 .api-enum {
-  background-color: purple;
+  /* background-color: purple; */
 }
 
 .api-function {
-  background-color: red;
+  /* background-color: red; */
 }

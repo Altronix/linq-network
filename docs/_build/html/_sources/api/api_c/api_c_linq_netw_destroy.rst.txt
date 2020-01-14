@@ -1,9 +1,9 @@
 .. include:: ../../roles.rst
 
-:api-function:`Function`:api-header:`linq_netw_destroy`
--------------------------------------------------------
+linq_netw_destroy
+=================
 
-.. c:function:: linq_netw_destroy(linq_netw**);
+.. c:function:: void linq_netw_destroy(linq_netw**)
 
    Free the LinQ Network communication library resource from heap memory.
 
@@ -12,7 +12,8 @@
    :param linq_netw**: Pointer to the linq_netw context
 
 
-**Example**
+Example
+-------
 
 .. code-block:: c
 
@@ -23,6 +24,7 @@
 
    linq_netw_destroy(&netw);
 
-*See also*
+See Also
+--------
 
 :ref:`linq_netw_create <ref_api_c_linq_netw_destroy>`

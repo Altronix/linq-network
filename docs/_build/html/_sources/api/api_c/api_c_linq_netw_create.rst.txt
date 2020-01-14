@@ -1,16 +1,17 @@
 .. include:: ../../roles.rst
 
-:api-function:`Function`:api-header:`linq_netw_create`
-------------------------------------------------------
+linq_netw_create
+================
 
-.. c:function:: linq_netw_create(const linq_netw_callbacks*, void*);
+.. c:function:: linq_netw linq_netw_create(const linq_netw_callbacks *, void *)
 
    Initialize the LinQ Network communication library. Optionally pass in a struct with function pointers to receive notifications of network events. Also optionally pass a context that will be passed to your applications callback function during linq network events.
 
    :param const linq_netw_callbacks*: struct of function pointers to process linq network events. 
    :param void*: User data passed to each callback function.
 
-**Example with callbacks**
+Example With Callbacks
+----------------------
 
 .. code-block:: c
 
@@ -39,7 +40,8 @@
      linq_netw_destroy(&netw);
    }
 
-**Example with out callbacks**
+Example Without Callbacks
+-------------------------
 
 .. code-block:: c
 
@@ -54,7 +56,8 @@
       linq_netw_destroy(&netw);
    }
 
-*See also*
+See Also
+--------
 
 :ref:`linq_netw_destroy <ref_api_c_linq_netw_destroy>`
 

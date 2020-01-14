@@ -1,5 +1,5 @@
-Device Setup
-============
+Setting Up Network Devices
+==========================
 
 The following settings describe how to connect your Altronix LinQ enabled product to the Altronix Dashboard Software.
 

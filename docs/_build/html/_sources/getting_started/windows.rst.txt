@@ -1,7 +1,7 @@
 .. _ref_getting_started_windows:
 
-Windows
-=======
+Windows Enviorment
+==================
 
 Setting up your development enviorment for the Windows OS is used to build LinQ Networking Applications that run on Windows 10 operating system. The Windows Development enviorment does not support running the test framework and is only supported for application development. The Windows Development enviorment may be used to build embedded linux distributions but this is not supported. For Embedded Linux target installations, please refer to setting up your Linux host machine.
 

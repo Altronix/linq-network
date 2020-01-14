@@ -1,4 +1,6 @@
 .. include:: ../../roles.rst
 
-:api-struct:`Struct`:api-header:`linq_netw_alert`
--------------------------------------------------
+linq_netw_alert
+===============
+
+.. c:type:: linq_netw_alert

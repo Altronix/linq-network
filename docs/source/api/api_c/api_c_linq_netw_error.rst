@@ -1,9 +1,9 @@
 .. include:: ../../roles.rst
 
-:api-enum:`Enum`:api-header:`linq_netw_error`
----------------------------------------------
+linq_netw_error
+===============
 
-.. c:type:: linq_netw_error;
+.. c:type:: E_LINQ_ERROR
 
 Many LinQ Network Library routines return a status code representing the result of the routines execution. The status code is defined by the linq_netw_error enum.
 

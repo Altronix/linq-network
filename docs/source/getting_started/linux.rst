@@ -1,7 +1,7 @@
 .. _ref_getting_started_linux:
 
-Linux
-=====
+Linux Enviorment
+================
 
 Setting up your development enviorment for the Linux OS is used to build LinQ Networking Applications that run Linx Host machines as well as Embedded Linux Target systems. The Linux Host enviorment is also used to run the LinQ Network test framework.
 

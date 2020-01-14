@@ -1,4 +1,6 @@
 .. include:: ../../roles.rst
 
-:api-struct:`Struct`:api-header:`linq_netw_email`
--------------------------------------------------
+linq_netw_email
+===============
+
+.. c:type:: linq_netw_email
