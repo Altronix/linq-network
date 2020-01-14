@@ -456,6 +456,7 @@
 <li>file (must be in /usr/bin/file)</li>
 <li>bc</li>
 <li>python (version 2.7 or any later)</li>
+<li><a class="reference external" href="https://www.balena.io/etcher">Etcher</a></li>
 </ol>
 
 
@@ -525,7 +526,34 @@ git submodule update --init
 
 
 <h2 id="flashing-sd-card-onto-target-hardware">Flashing SD Card onto target hardware<a class="headerlink" href="#flashing-sd-card-onto-target-hardware" title="Permalink to this headline">¶</a></h2>
-<p><em>todo</em></p>
+<p>After you have finished customizing your Embedded Linux System you can build the system by running the command make. In summary:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>make sama5d27_som1_ek_altronix_defconfig
+make menuconfig
+
+<span class="c1"># ... Customize your build</span>
+
+make savedefconfig BR2_DEFCONFIG external/buildroot-external-altronix/configs/sama5d27_som1_ek_my_new_altronix_defconfig
+make
+</pre></div>
+</div>
+<div class="admonition attention">
+<p class="first admonition-title">Attention</p>
+<p class="last">Note that making the Embedded Linux System can take between 45 minutes to 2 hours depending on your host hardware situation.</p>
+</div>
+<p>When your root file system is finially ready you will have a SD card image located in:</p>
+<blockquote>
+<div>output/images/sdcard.img</div></blockquote>
+<ol class="arabic simple">
+<li>Plug an SD card into your computer and open up the Etcher program.</li>
+</ol>
+<img alt="../_images/etcher.jpg" src="../_images/etcher.jpg"/>
+<ol class="arabic simple" start="2">
+<li>Navigate to your new sdcard.img file and select flash.</li>
+</ol>
+<div class="admonition attention">
+<p class="first admonition-title">Attention</p>
+<p class="last">You may need administrator or root access in order for Etech to access your SD card</p>
+</div>
 
 
 <h2 id="adding-custom-package-c-c">Adding Custom Package C/C++<a class="headerlink" href="#adding-custom-package-c-c" title="Permalink to this headline">¶</a></h2>

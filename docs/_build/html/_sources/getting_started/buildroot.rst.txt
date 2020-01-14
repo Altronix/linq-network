@@ -65,6 +65,8 @@ Required Packages
 
 19. python (version 2.7 or any later) 
 
+20. `Etcher <https://www.balena.io/etcher>`_
+
 Optional Packages
 ------------------
 
@@ -150,7 +152,31 @@ After you have made all the changes to your Embedded Linux System, run the follo
 Flashing SD Card onto target hardware
 -------------------------------------
 
-*todo*
+After you have finished customizing your Embedded Linux System you can build the system by running the command make. In summary:
+
+.. code-block:: shell
+   
+   make sama5d27_som1_ek_altronix_defconfig
+   make menuconfig
+
+   # ... Customize your build
+
+   make savedefconfig BR2_DEFCONFIG external/buildroot-external-altronix/configs/sama5d27_som1_ek_my_new_altronix_defconfig
+   make
+
+.. attention:: Note that making the Embedded Linux System can take between 45 minutes to 2 hours depending on your host hardware situation.
+
+When your root file system is finially ready you will have a SD card image located in: 
+
+   output/images/sdcard.img
+
+1. Plug an SD card into your computer and open up the Etcher program.
+
+.. image:: ../_static/img/etcher.jpg
+
+2. Navigate to your new sdcard.img file and select flash.
+
+.. attention:: You may need administrator or root access in order for Etech to access your SD card
 
 Adding Custom Package C/C++
 -------------------------------
