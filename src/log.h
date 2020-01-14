@@ -120,9 +120,9 @@ extern "C"
 #define BACKGROUND_LIGHT_WHITE "\x1b[107m"
 
 #define FMT_STRING_DEBUG                                                       \
-    WHITE "=> " RESET "%3ld %s%s " RESET MAGENTA "%12s:%04d " RESET
+    WHITE "=> " RESET "%3d %s%s " RESET MAGENTA "%12s:%04d " RESET
 
-#define FMT_STRING WHITE "=> " RESET "%3ld %s%s " RESET
+#define FMT_STRING WHITE "=> " RESET "%3d %s%s " RESET
 
     static const char* level_names[] = { "TRACE", "DEBUG", "INFO ",
                                          "WARN ", "ERROR", "FATAL" };
@@ -139,7 +139,7 @@ extern "C"
 
         // clang-format off
 #ifdef NDEBUG
-        fprintf(stdout, FMT_STRING, sys_tick(), code, level_names[level]);
+        fprintf(stdout, FMT_STRING, sys_tick(), level_colors[level], level_names[level]);
 #else
         fprintf(
             stdout,

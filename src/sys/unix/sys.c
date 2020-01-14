@@ -6,7 +6,7 @@
 #include "sys.h"
 #include <time.h>
 
-int64_t
+int32_t
 sys_tick()
 {
     struct timespec ts;

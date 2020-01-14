@@ -5,10 +5,10 @@
 #include "sys.h"
 #include <time.h>
 
-static int64_t tick = 0;
+static int32_t tick = 0;
 
 void
-spy_sys_set_tick(int64_t t)
+spy_sys_set_tick(int32_t t)
 {
     tick = t;
 }
@@ -19,7 +19,7 @@ spy_sys_reset()
     tick = 0;
 }
 
-int64_t
+int32_t
 sys_tick()
 {
     return tick;

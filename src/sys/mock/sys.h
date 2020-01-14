@@ -7,8 +7,8 @@
 
 #include <assert.h>
 #include <stdarg.h>
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,8 +26,8 @@ extern "C"
 {
 #endif
 
-    int64_t sys_tick();
-    void spy_sys_set_tick(int64_t t);
+    int32_t sys_tick();
+    void spy_sys_set_tick(int32_t t);
     void spy_sys_reset();
 
 #ifdef __cplusplus
