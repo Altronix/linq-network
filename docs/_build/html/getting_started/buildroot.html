@@ -234,6 +234,8 @@
         </li>
         <li class="md-nav__item"><a href="#flashing-sd-card-onto-target-hardware" class="md-nav__link">Flashing SD Card onto target hardware</a>
         </li>
+        <li class="md-nav__item"><a href="#running-demo" class="md-nav__link">Running Demo</a>
+        </li>
         <li class="md-nav__item"><a href="#adding-custom-package-c-c" class="md-nav__link">Adding Custom Package C/C++</a>
         </li>
         <li class="md-nav__item"><a href="#adding-custom-package-rust" class="md-nav__link">Adding Custom Package Rust</a>
@@ -275,6 +277,11 @@
     <li class="md-nav__item">
     
       <a href="#flashing-sd-card-onto-target-hardware" class="md-nav__link">Flashing SD Card onto target hardware</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="#running-demo" class="md-nav__link">Running Demo</a>
       
     </li>
     <li class="md-nav__item">
@@ -396,6 +403,8 @@
         <li class="md-nav__item"><a href="#creating-a-custom-defconfig" class="md-nav__link">Creating A Custom DefConfig</a>
         </li>
         <li class="md-nav__item"><a href="#flashing-sd-card-onto-target-hardware" class="md-nav__link">Flashing SD Card onto target hardware</a>
+        </li>
+        <li class="md-nav__item"><a href="#running-demo" class="md-nav__link">Running Demo</a>
         </li>
         <li class="md-nav__item"><a href="#adding-custom-package-c-c" class="md-nav__link">Adding Custom Package C/C++</a>
         </li>
@@ -553,6 +562,32 @@ make
 <div class="admonition attention">
 <p class="first admonition-title">Attention</p>
 <p class="last">You may need administrator or root access in order for Etech to access your SD card</p>
+</div>
+
+
+<h2 id="running-demo">Running Demo<a class="headerlink" href="#running-demo" title="Permalink to this headline">¶</a></h2>
+<p>After you flash your target hardware with your configured Embedded Linux system you can log into the device and run the demo.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>use dmesg to find the usb port your target hardware is using</p>
+<div class="last highlight-shell notranslate"><div class="highlight"><pre><span></span>dmesg
+</pre></div>
+</div>
+</div>
+<ol class="arabic simple">
+<li>Connect to your target hardware using a terminal emulator (IE:)</li>
+</ol>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo picocom --baud <span class="m">115200</span> --databits <span class="m">8</span> --parity none --stop <span class="m">1</span> --flow none /dev/ttyACM1
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li>After logging into the terminal run the demo application. You should see the following output.</li>
+</ol>
+<img alt="../_images/running-demo.png" src="../_images/running-demo.png"/>
+<p>Your target hardware is now listening for incoming devices…</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If SQLITE is enabled then you can log into the HTTP server</p>
 </div>
 
 

@@ -178,6 +178,31 @@ When your root file system is finially ready you will have a SD card image locat
 
 .. attention:: You may need administrator or root access in order for Etech to access your SD card
 
+Running Demo
+------------
+
+After you flash your target hardware with your configured Embedded Linux system you can log into the device and run the demo.
+
+.. note:: use dmesg to find the usb port your target hardware is using
+
+   .. code-block:: shell
+
+      dmesg
+
+1. Connect to your target hardware using a terminal emulator (IE:)
+
+.. code-block:: shell
+
+   sudo picocom --baud 115200 --databits 8 --parity none --stop 1 --flow none /dev/ttyACM1
+
+2. After logging into the terminal run the demo application. You should see the following output.
+
+.. image:: ../_static/img/running-demo.png
+
+Your target hardware is now listening for incoming devices...
+
+.. note:: If SQLITE is enabled then you can log into the HTTP server
+
 Adding Custom Package C/C++
 -------------------------------
 
