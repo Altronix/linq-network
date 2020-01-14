@@ -75,8 +75,10 @@ extern "C"
 #define log_fatal(...)
 #endif
 
-#define FMT_STRING                                                             \
+#define FMT_STRING_DEBUG                                                       \
     "\x1b[37m=>\x1b[0m %3ld %s%s\x1b[0m \x1b[35m%12s:%04d\x1b[0m "
+
+#define FMT_STRING "\x1b[37m=>\x1b[0m %3ld %s%s\x1b[0m "
 
     static const char* level_names[] = { "TRACE", "DEBUG", "INFO ",
                                          "WARN ", "ERROR", "FATAL" };
@@ -89,14 +91,24 @@ extern "C"
         while ((!(file[flen] == '/' || file[flen] == '\\')) && flen) { flen--; }
         file = flen > 1 ? &file[flen + 1] : file;
         va_list args;
+
+#ifdef NDEBUG
         fprintf(
             stdout,
             FMT_STRING,
             sys_tick(),
             level_colors[level],
-            level_names[level],
-            file,
-            line);
+            level_names[level]);
+#else
+    fprintf(
+        stdout,
+        FMT_STRING_DEBUG,
+        sys_tick(),
+        level_colors[level],
+        level_names[level],
+        file,
+        line);
+#endif
         va_start(args, fmt);
         vfprintf(stdout, fmt, args);
         va_end(args);
