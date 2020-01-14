@@ -1,7 +1,7 @@
 .. _ref-api-nodejs:
 
-NodeJS API
-==========
+NodeJS API Reference
+====================
 
 .. toctree::
    :maxdepth: 2

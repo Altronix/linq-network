@@ -49,6 +49,7 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
+    'sphinxcontrib.httpdomain',
 ]
 extensions.append('sphinx_material')
 

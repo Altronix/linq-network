@@ -40,7 +40,7 @@ Getting Help
    ========== ==================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    getting_started/getting_started.rst
@@ -50,6 +50,7 @@ Getting Help
    api/api_go/api_go.rst
    api/api_python/api_python.rst
    api/api_nodejs/api_nodejs.rst
+   api/api_http/api_http.rst
 
 Index
 =====

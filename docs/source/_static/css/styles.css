@@ -20,35 +20,14 @@
   font-size: small;
 }
 
-.api {
-  /*
-  padding: 8px;
-  color: white;
-  border-bottom: 2px solid black;
-  border-radius: 10px 2px 0px 10px;
-  width: 200px;
-  */
+.underline {
+  text-decoration: underline;
 }
 
-.api-name {
-  /*
-  padding: 8px;
-  border-bottom: 2px solid black;
-  */
+h1 {
+  border-bottom: 1px solid #ddd;
 }
 
-.api-struct {
-  /* background-color: #337ab7; */
-}
-
-.api-type {
-  /* background-color: green; */
-}
-
-.api-enum {
-  /* background-color: purple; */
-}
-
-.api-function {
-  /* background-color: red; */
+h2 {
+  border-bottom: 1px solid #ddd;
 }

@@ -15,3 +15,6 @@
 
 .. role:: api-header
    :class: api-name
+
+.. role:: underline
+   :class: underline

@@ -1,7 +1,7 @@
 .. _ref-api-go:
 
-Go API
-======
+Go API Reference
+================
 
 .. toctree::
    :maxdepth: 2

@@ -1,7 +1,7 @@
 .. _ref-api-rust:
 
-Rust API
-========
+Rust API Reference
+==================
 
 .. toctree::
    :maxdepth: 2

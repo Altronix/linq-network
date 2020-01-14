@@ -1,7 +1,7 @@
 .. _ref-api-c:
 
-C API
-=====
+C API Reference
+===============
 
 .. _ref_api_c_linq_netw_callbacks:
 .. _ref_api_c_linq_netw_alert:
