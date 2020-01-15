@@ -119,10 +119,8 @@ extern "C"
 #define BACKGROUND_LIGHT_CYAN "\x1b[106m"
 #define BACKGROUND_LIGHT_WHITE "\x1b[107m"
 
-#define FMT_STRING_DEBUG                                                       \
+#define FMT_STRING                                                             \
     WHITE "=> " RESET "%3d %s%s " RESET MAGENTA "%12s:%04d " RESET
-
-#define FMT_STRING WHITE "=> " RESET "%3d %s%s " RESET
 
     static const char* level_names[] = { "TRACE", "DEBUG", "INFO ",
                                          "WARN ", "ERROR", "FATAL" };
@@ -137,20 +135,14 @@ extern "C"
         file = flen > 1 ? &file[flen + 1] : file;
         va_list args;
 
-        // clang-format off
-#ifdef NDEBUG
-        fprintf(stdout, FMT_STRING, sys_tick(), level_colors[level], level_names[level]);
-#else
         fprintf(
             stdout,
-            FMT_STRING_DEBUG,
+            FMT_STRING,
             sys_tick(),
             level_colors[level],
             level_names[level],
             file,
             line);
-#endif
-        // clang-format on
 
         va_start(args, fmt);
         vfprintf(stdout, fmt, args);
