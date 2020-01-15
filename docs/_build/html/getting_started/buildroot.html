@@ -236,11 +236,21 @@
         </li>
         <li class="md-nav__item"><a href="#running-demo" class="md-nav__link">Running Demo</a>
         </li>
-        <li class="md-nav__item"><a href="#adding-custom-package-c-c" class="md-nav__link">Adding Custom Package C/C++</a>
+        <li class="md-nav__item"><a href="#development-workflow" class="md-nav__link">Development Workflow</a>
         </li>
-        <li class="md-nav__item"><a href="#adding-custom-package-rust" class="md-nav__link">Adding Custom Package Rust</a>
+        <li class="md-nav__item"><a href="#adding-custom-package" class="md-nav__link">Adding Custom Package</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#config-in" class="md-nav__link">Config.in</a>
         </li>
-        <li class="md-nav__item"><a href="#adding-custom-package-go" class="md-nav__link">Adding Custom Package Go</a>
+        <li class="md-nav__item"><a href="#makefile-for-a-c-c-package" class="md-nav__link">Makefile for a C/C++ package</a>
+        </li>
+        <li class="md-nav__item"><a href="#makefile-for-a-rust-package" class="md-nav__link">Makefile for a Rust Package</a>
+        </li>
+        <li class="md-nav__item"><a href="#makefile-for-a-go-package" class="md-nav__link">Makefile for a Go Package</a>
+        </li>
+        <li class="md-nav__item"><a href="#other" class="md-nav__link">Other</a>
+        </li></ul>
+            </nav>
         </li></ul>
             </nav>
         </li>
@@ -286,17 +296,12 @@
     </li>
     <li class="md-nav__item">
     
-      <a href="#adding-custom-package-c-c" class="md-nav__link">Adding Custom Package C/C++</a>
+      <a href="#development-workflow" class="md-nav__link">Development Workflow</a>
       
     </li>
     <li class="md-nav__item">
     
-      <a href="#adding-custom-package-rust" class="md-nav__link">Adding Custom Package Rust</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="#adding-custom-package-go" class="md-nav__link">Adding Custom Package Go</a>
+      <a href="#adding-custom-package" class="md-nav__link">Adding Custom Package</a>
       
     </li></ul>
     </li>
@@ -406,11 +411,21 @@
         </li>
         <li class="md-nav__item"><a href="#running-demo" class="md-nav__link">Running Demo</a>
         </li>
-        <li class="md-nav__item"><a href="#adding-custom-package-c-c" class="md-nav__link">Adding Custom Package C/C++</a>
+        <li class="md-nav__item"><a href="#development-workflow" class="md-nav__link">Development Workflow</a>
         </li>
-        <li class="md-nav__item"><a href="#adding-custom-package-rust" class="md-nav__link">Adding Custom Package Rust</a>
+        <li class="md-nav__item"><a href="#adding-custom-package" class="md-nav__link">Adding Custom Package</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#config-in" class="md-nav__link">Config.in</a>
         </li>
-        <li class="md-nav__item"><a href="#adding-custom-package-go" class="md-nav__link">Adding Custom Package Go</a>
+        <li class="md-nav__item"><a href="#makefile-for-a-c-c-package" class="md-nav__link">Makefile for a C/C++ package</a>
+        </li>
+        <li class="md-nav__item"><a href="#makefile-for-a-rust-package" class="md-nav__link">Makefile for a Rust Package</a>
+        </li>
+        <li class="md-nav__item"><a href="#makefile-for-a-go-package" class="md-nav__link">Makefile for a Go Package</a>
+        </li>
+        <li class="md-nav__item"><a href="#other" class="md-nav__link">Other</a>
+        </li></ul>
+            </nav>
         </li></ul>
             </nav>
         </li>
@@ -591,16 +606,96 @@ make
 </div>
 
 
-<h2 id="adding-custom-package-c-c">Adding Custom Package C/C++<a class="headerlink" href="#adding-custom-package-c-c" title="Permalink to this headline">¶</a></h2>
-<p><em>todo</em></p>
+<h2 id="development-workflow">Development Workflow<a class="headerlink" href="#development-workflow" title="Permalink to this headline">¶</a></h2>
+<p>Buildroot is designed to build Embedded Linux Systems by default.  Package dependencies are downloaded during the build process.  When you run <cite>make clean</cite> the packages you have downloaded will be downloaded again. This is not convenient when you are working on developing your library or application.  In order to work on your source  code with in Buildroot, Buildroot provides a special <cite>make</cite> variable called ${PROJECT_NAME}_OVERRIDE_SRCDIR and expects to find these override locations located in a file called <cite>local.mk</cite> located at the root of your buildroot repository.</p>
+<p>For example, if you would like to make some changes to the source code for linq-network-buildroot-demo-c project, you would perform the following steps.</p>
+<ol class="arabic">
+<li><p class="first">Inside local.mk.</p>
+<div class="highlight-make notranslate"><div class="highlight"><pre><span></span><span class="nv">LINQ_NETWORK_DEMO_C_OVERRIDE_SRCDIR</span> <span class="o">=</span> /path/to/my/workspace/project
+</pre></div>
+</div>
+</li>
+<li><p class="first">Edit project source files.</p>
+</li>
+<li><p class="first">Rebuild your project.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>make <span class="o">{</span>project-name<span class="o">}</span>-rebuild
+</pre></div>
+</div>
+<div class="admonition attention">
+<p class="first admonition-title">Attention</p>
+<p class="last">Buildroot does not track if any dependencies must need to be rebuilt after you make your changes. When in doubt, rebuild any related projects to your changes as well.</p>
+</div>
+</li>
+<li><p class="first">Rebuild your Embedded Linux System</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>make
+</pre></div>
+</div>
+</li>
+</ol>
 
 
-<h2 id="adding-custom-package-rust">Adding Custom Package Rust<a class="headerlink" href="#adding-custom-package-rust" title="Permalink to this headline">¶</a></h2>
-<p><em>todo</em></p>
+<h2 id="adding-custom-package">Adding Custom Package<a class="headerlink" href="#adding-custom-package" title="Permalink to this headline">¶</a></h2>
+<p>To add a C/C++ package to your Buildroot system, first you must create a Config.in and a {project_name}.mk file located in the buildroot-external-altronix package folder.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">buildroot</span><span class="o">-</span><span class="n">at91</span>\
+  <span class="o">|--</span> <span class="n">external</span>\
+  <span class="o">|</span>   <span class="o">|--</span> <span class="n">external</span><span class="o">-</span><span class="n">buildroot</span><span class="o">-</span><span class="n">altronix</span>\
+  <span class="o">|</span>   <span class="o">|</span>   <span class="o">|--</span> <span class="n">Config</span><span class="o">.</span><span class="ow">in</span>              <span class="o">&lt;--</span> <span class="n">Root</span> <span class="n">buildroot</span><span class="o">-</span><span class="n">external</span><span class="o">-</span><span class="n">altronix</span> <span class="n">Config</span> <span class="n">file</span>
+  <span class="o">|</span>   <span class="o">|</span>   <span class="o">|--</span> <span class="n">package</span>\
+  <span class="o">|</span>   <span class="o">|</span>   <span class="o">|</span>   <span class="o">|--</span> <span class="n">my</span><span class="o">-</span><span class="n">project</span>\
+  <span class="o">|</span>   <span class="o">|</span>   <span class="o">|</span>   <span class="o">|</span>   <span class="o">|--</span> <span class="n">Config</span><span class="o">.</span><span class="ow">in</span>      <span class="o">&lt;--</span> <span class="n">Your</span> <span class="n">project</span> <span class="n">config</span> <span class="n">file</span>
+  <span class="o">|</span>   <span class="o">|</span>   <span class="o">|</span>   <span class="o">|</span>   <span class="o">|--</span> <span class="n">my</span><span class="o">-</span><span class="n">project</span><span class="o">.</span><span class="n">mk</span>  <span class="o">&lt;--</span> <span class="n">Your</span> <span class="n">project</span> <span class="n">make</span> <span class="n">file</span>
+</pre></div>
+</div>
+<p>To add your project to Buildroot menu configuration, add your project to buildroot-external-altronix config file.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>menu "Altronix"
+     source "$BR2_EXTERNAL_ATX_PATH/package/linq-network/Config.in"
+     source "$BR2_EXTERNAL_ATX_PATH/package/linq-network-demo-c/Config.in"
+     source "$BR2_EXTERNAL_ATX_PATH/package/linq-network-demo-cpp/Config.in"
+     source "$BR2_EXTERNAL_ATX_PATH/package/linq-network-demo-rust/Config.in"
+     source "$BR2_EXTERNAL_ATX_PATH/package/linq-network-demo-go/Config.in"
+     source "$BR2_EXTERNAL_ATX_PATH/package/linq-network-demo-nodejs/Config.in"
+
+     # Your project here
+     source "$BR2_EXTERNAL_ATX_PATH/package/my-project/Config.in"
+endmenu
+</pre></div>
+</div>
+
+<h3 id="config-in">Config.in<a class="headerlink" href="#config-in" title="Permalink to this headline">¶</a></h3>
+<p>The Config.in file is used to inform Buildroot about your project dependencies and configuration options and also provides help information about your package.</p>
+<p>If your project has any dependencies or configuration options, refer to <a class="reference external" href="https://buildroot.org/downloads/manual/manual.html#adding-packages">Buildroot User Guide Section 17</a></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>config BR2_PACKAGE_MY_PROJECT
+bool "my-project"
+help
+  This is a minimal package.
+
+  https://bitbucket.org/Altronix/my-project
+</pre></div>
+</div>
+<div class="admonition attention">
+<p class="first admonition-title">Attention</p>
+<p class="last">When adding your package to buildroot, you are creating an Embedded Linux Distribution, and your installation files are installed into system directories. To make sure you install your packages efficiently, you should link your dependencies using shared libraries.</p>
+</div>
 
 
-<h2 id="adding-custom-package-go">Adding Custom Package Go<a class="headerlink" href="#adding-custom-package-go" title="Permalink to this headline">¶</a></h2>
-<p><em>todo</em></p>
+<h3 id="makefile-for-a-c-c-package">Makefile for a C/C++ package<a class="headerlink" href="#makefile-for-a-c-c-package" title="Permalink to this headline">¶</a></h3>
+<p>Buildroot hooks into building your C/C++ project by invoking your C/C++ package build system such as Autotools or CMake. Refer to <a class="reference external" href="https://buildroot.org/downloads/manual/manual.html#_infrastructure_for_cmake_based_packages">Buildroot User Guide Section 17.7</a> for how to add your CMake package to your Embedded Linux System.</p>
+<p>Refer to the linq-network-demo-c package for an example of how to add your CMake package to your Embedded Linux System.</p>
+
+
+<h3 id="makefile-for-a-rust-package">Makefile for a Rust Package<a class="headerlink" href="#makefile-for-a-rust-package" title="Permalink to this headline">¶</a></h3>
+<p>Buildroot hooks into building your Rust project by invoking Cargo from the buildroot make system. Refer to <a class="reference external" href="https://buildroot.org/downloads/manual/manual.html#_integration_of_cargo_based_packages">Buildroot User Guide Section 17.16</a> for how to add your rust package to your Embedded Linux System.</p>
+<p>Refer to the linq-network-demo-rust package for an example of how to add your rust package to your Embedded Linux System.</p>
+
+
+<h3 id="makefile-for-a-go-package">Makefile for a Go Package<a class="headerlink" href="#makefile-for-a-go-package" title="Permalink to this headline">¶</a></h3>
+<p>Buildroot hooks into building your Go project by invoking golang-package from the buildroot make system. Refer to <a class="reference external" href="https://buildroot.org/downloads/manual/manual.html#_infrastructure_for_go_based_packages">Buildroot User Guide Section 17.17</a> for how to add your go package to your Embedded Linux System.</p>
+<p>Refer to the linq-network-demo-go package for an example of how to add your go package to your Embedded Linux System.</p>
+
+
+<h3 id="other">Other<a class="headerlink" href="#other" title="Permalink to this headline">¶</a></h3>
+<p>Interpretted languages such as NodeJS and python do not need to be compiled and therefore do not have a make file requirment to add to your Embedded Linux System.</p>
+
 
 
 

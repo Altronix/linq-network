@@ -203,17 +203,107 @@ Your target hardware is now listening for incoming devices...
 
 .. note:: If SQLITE is enabled then you can log into the HTTP server
 
-Adding Custom Package C/C++
--------------------------------
+Development Workflow
+--------------------
 
-*todo*
+Buildroot is designed to build Embedded Linux Systems by default.  Package dependencies are downloaded during the build process.  When you run `make clean` the packages you have downloaded will be downloaded again. This is not convenient when you are working on developing your library or application.  In order to work on your source  code with in Buildroot, Buildroot provides a special `make` variable called ${PROJECT_NAME}_OVERRIDE_SRCDIR and expects to find these override locations located in a file called `local.mk` located at the root of your buildroot repository.
 
-Adding Custom Package Rust
-------------------------------
+For example, if you would like to make some changes to the source code for linq-network-buildroot-demo-c project, you would perform the following steps.
 
-*todo*
+1. Inside local.mk.
 
-Adding Custom Package Go
-----------------------------
+   .. code-block:: make
 
-*todo*
+      LINQ_NETWORK_DEMO_C_OVERRIDE_SRCDIR = /path/to/my/workspace/project
+
+2. Edit project source files.
+
+3. Rebuild your project.
+
+   .. code-block:: shell
+
+      make {project-name}-rebuild
+
+   .. attention:: Buildroot does not track if any dependencies must need to be rebuilt after you make your changes. When in doubt, rebuild any related projects to your changes as well.
+
+4. Rebuild your Embedded Linux System
+
+   .. code-block:: shell
+
+      make
+
+Adding Custom Package
+---------------------
+
+To add a C/C++ package to your Buildroot system, first you must create a Config.in and a {project_name}.mk file located in the buildroot-external-altronix package folder.
+
+::
+
+   buildroot-at91\
+     |-- external\
+     |   |-- external-buildroot-altronix\
+     |   |   |-- Config.in              <-- Root buildroot-external-altronix Config file
+     |   |   |-- package\
+     |   |   |   |-- my-project\
+     |   |   |   |   |-- Config.in      <-- Your project config file
+     |   |   |   |   |-- my-project.mk  <-- Your project make file
+
+To add your project to Buildroot menu configuration, add your project to buildroot-external-altronix config file.
+
+.. code-block:: text
+
+   menu "Altronix"
+   	source "$BR2_EXTERNAL_ATX_PATH/package/linq-network/Config.in"
+   	source "$BR2_EXTERNAL_ATX_PATH/package/linq-network-demo-c/Config.in"
+   	source "$BR2_EXTERNAL_ATX_PATH/package/linq-network-demo-cpp/Config.in"
+   	source "$BR2_EXTERNAL_ATX_PATH/package/linq-network-demo-rust/Config.in"
+   	source "$BR2_EXTERNAL_ATX_PATH/package/linq-network-demo-go/Config.in"
+   	source "$BR2_EXTERNAL_ATX_PATH/package/linq-network-demo-nodejs/Config.in"
+
+        # Your project here
+   	source "$BR2_EXTERNAL_ATX_PATH/package/my-project/Config.in"
+   endmenu
+
+Config.in
+~~~~~~~~~
+
+The Config.in file is used to inform Buildroot about your project dependencies and configuration options and also provides help information about your package.
+
+If your project has any dependencies or configuration options, refer to `Buildroot User Guide Section 17 <https://buildroot.org/downloads/manual/manual.html#adding-packages>`_
+
+.. code-block:: text
+
+   config BR2_PACKAGE_MY_PROJECT
+   bool "my-project"
+   help
+     This is a minimal package.
+
+     https://bitbucket.org/Altronix/my-project
+
+.. attention:: When adding your package to buildroot, you are creating an Embedded Linux Distribution, and your installation files are installed into system directories. To make sure you install your packages efficiently, you should link your dependencies using shared libraries. 
+
+Makefile for a C/C++ package
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Buildroot hooks into building your C/C++ project by invoking your C/C++ package build system such as Autotools or CMake. Refer to `Buildroot User Guide Section 17.7 <https://buildroot.org/downloads/manual/manual.html#_infrastructure_for_cmake_based_packages>`_ for how to add your CMake package to your Embedded Linux System. 
+
+Refer to the linq-network-demo-c package for an example of how to add your CMake package to your Embedded Linux System.
+
+Makefile for a Rust Package
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Buildroot hooks into building your Rust project by invoking Cargo from the buildroot make system. Refer to `Buildroot User Guide Section 17.16 <https://buildroot.org/downloads/manual/manual.html#_integration_of_cargo_based_packages>`_ for how to add your rust package to your Embedded Linux System.  
+
+Refer to the linq-network-demo-rust package for an example of how to add your rust package to your Embedded Linux System.
+
+Makefile for a Go Package
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Buildroot hooks into building your Go project by invoking golang-package from the buildroot make system. Refer to `Buildroot User Guide Section 17.17 <https://buildroot.org/downloads/manual/manual.html#_infrastructure_for_go_based_packages>`_ for how to add your go package to your Embedded Linux System.  
+
+Refer to the linq-network-demo-go package for an example of how to add your go package to your Embedded Linux System.
+
+Other
+~~~~~
+
+Interpretted languages such as NodeJS and python do not need to be compiled and therefore do not have a make file requirment to add to your Embedded Linux System.
