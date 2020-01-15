@@ -113,6 +113,8 @@ html_theme_options = {
     'repo_url': 'https://github.com/tomzbench/linq-network/',
     'repo_name': 'linq-network',
 
+    'logo_icon': '&#x1f48e',
+
     # Visible levels of the global TOC; -1 means unlimited
     'globaltoc_depth': 3,
     # If False, expand all TOC entries
