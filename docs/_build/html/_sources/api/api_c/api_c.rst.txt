@@ -3,15 +3,6 @@
 C API Reference
 ===============
 
-.. _ref_api_c_linq_netw_callbacks:
-.. _ref_api_c_linq_netw_alert:
-.. _ref_api_c_linq_netw_email:
-.. _ref_api_c_linq_netw_error:
-.. _ref-api_c-linq_netw_socket:
-.. _ref_api_c_linq_netw_create:
-.. _ref_api_c_linq_netw_destroy:
-.. _ref_api_c_linq_netw_poll:
-
 .. toctree::
    :maxdepth: 1
 

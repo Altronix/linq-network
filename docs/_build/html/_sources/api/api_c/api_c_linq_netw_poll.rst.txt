@@ -1,4 +1,5 @@
 .. include:: ../../roles.rst
+.. _ref_api_c_linq_netw_poll:
 
 linq_netw_poll
 ==============
