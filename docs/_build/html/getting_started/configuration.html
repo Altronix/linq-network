@@ -330,6 +330,187 @@
             
   
 <span id="ref-getting-started-configuration"></span><h1 id="getting-started-configuration--page-root">Library Configuration Options<a class="headerlink" href="#getting-started-configuration--page-root" title="Permalink to this headline">¶</a></h1>
+<p>The LinQ Network Library has compile options to customize your build for your particular enviorment and or needs.  Below is a list of configuration options.</p>
+<ol class="arabic">
+<li><p class="first"><strong>LINQ_LOG_LEVEL:STRING</strong> <em>Default INFO</em></p>
+<p>The LinQ Network Library supports traditional logging levels to control how verbose LinQ Network Library will behave while running. LINQ_LOG_LEVEL supports the following options.</p>
+<table border="1">
+<colgroup>
+<col width="4%"/>
+<col width="96%"/>
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Option</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>TRACE</td>
+<td>Each function call will produce a time stamped output that is useful for extensive debugging</td>
+</tr>
+<tr class="row-odd"><td>DEBUG</td>
+<td>Important events that warrent developer interest but not normal user concern will be reported</td>
+</tr>
+<tr class="row-even"><td>WARN</td>
+<td>Important events that are not typically expected and may represent potential issue. (IE a device failed to respond to a request)</td>
+</tr>
+<tr class="row-odd"><td>INFO</td>
+<td>Normal operation behaving as expected</td>
+</tr>
+<tr class="row-even"><td>ERROR</td>
+<td>Something very unexpected has happened, but the system is able to recover and continue operating as normal</td>
+</tr>
+<tr class="row-odd"><td>FATAL</td>
+<td>Something detected during runtime is preventing the system from continuing. A FATAL message will be the last message before faulting</td>
+</tr>
+<tr class="row-even"><td>NONE</td>
+<td>No output to the console will ever be generated</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">A LINQ_LOG_LEVEL of higher verbosity will also include all the logging output from the lesser verbose options</p>
+</div>
+</li>
+<li><p class="first"><strong>LINQ_USE_SYSTEM_DEPENDENCIES:BOOL</strong> <em>Default OFF</em></p>
+<p>In order to support reproducable builds, the LinQ Network Library can be configured to build and compile the LinQ Network dependencies locally to your workspace.  In order to support Embedded Linux distributions, the LinQ Network Library can be configured to use system resources to resolve LinQ Network dependencies.</p>
+<p>LINQ_USE_SYSTEM_DEPENDENICES has 2 options</p>
+<table border="1">
+<colgroup>
+<col width="8%"/>
+<col width="92%"/>
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Option</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>ON</td>
+<td>Link with dependencies located in the system installation folders (IE /usr/lib)</td>
+</tr>
+<tr class="row-odd"><td>OFF</td>
+<td>Build dependencies locally</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p class="first"><strong>LINQ_BUILD_EXAMPLES</strong> <em>Default OFF</em></p>
+<p>Any example applications will be compiled as well.  LINQ_BUILD_EXAMPLES has 2 options</p>
+<table border="1">
+<colgroup>
+<col width="17%"/>
+<col width="83%"/>
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Option</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>ON</td>
+<td>All examples will be compiled</td>
+</tr>
+<tr class="row-odd"><td>OFF</td>
+<td>No examples will be compiled</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p class="first"><strong>BUILD_STATIC</strong> <em>Default ON</em></p>
+<p>Build the static library for your target application.</p>
+<table border="1">
+<colgroup>
+<col width="17%"/>
+<col width="83%"/>
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Option</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>ON</td>
+<td>Build a static library</td>
+</tr>
+<tr class="row-odd"><td>OFF</td>
+<td>Do not build a static library</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p class="first"><strong>BUILD_SHARED</strong> <em>Default ON</em></p>
+<p>Build the shared library for your target application.</p>
+<table border="1">
+<colgroup>
+<col width="17%"/>
+<col width="83%"/>
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Option</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>ON</td>
+<td>Build a shared library</td>
+</tr>
+<tr class="row-odd"><td>OFF</td>
+<td>Do not build a shared library</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p class="first"><strong>LINQ_DISABLE_SQLITE</strong> <em>Default OFF</em></p>
+<p>The LinQ library can optionally be configured with a database and a HTTP server that will service external applications and users. To disable HTTP and Database support.</p>
+<table border="1">
+<colgroup>
+<col width="13%"/>
+<col width="87%"/>
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Option</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>OFF</td>
+<td>Database and HTTP server will be enabled</td>
+</tr>
+<tr class="row-odd"><td>ON</td>
+<td>Database and HTTP server will be disabled</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">By default the HTTP server will not be made available until the caller initializes the HTTP server.</p>
+</div>
+</li>
+<li><p class="first"><strong>ENABLE_TESTING</strong> <em>Default OFF</em></p>
+<p>The LinQ Library has extensive testing driven by ctest and cmocka test framework.  Enable testing will compile the test applications needed by the ctest program.</p>
+<table border="1">
+<colgroup>
+<col width="25%"/>
+<col width="75%"/>
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Option</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>OFF</td>
+<td>Do not build tests</td>
+</tr>
+<tr class="row-odd"><td>On</td>
+<td>Build tests</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ol>
 
 
 
