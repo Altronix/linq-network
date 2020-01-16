@@ -20,6 +20,9 @@ LinQ Network Documentation
 About
 -----
 
+.. Note The badges won't compile when in PDF mode so comment we comment out
+   when making a PDF. (Hopefully fix soon?)
+
 .. .. image:: https://travis-ci.com/TomzBench/linq-network.svg?branch=master
 ..    :target: https://travis-ci.com/TomzBench/linq-network
 .. .. image:: https://codecov.io/gh/TomzBench/linq-network/branch/master/graph/badge.svg
@@ -40,13 +43,18 @@ Getting Help
    ========== ==================
 
 
+.. Note that when generating PDF we use maxdepth as 3 and when generating
+   html we use maxdepth as 2, because the HTML generator doesn't seem to count
+   the index.rst titles as depth, where the PDF generator does...
+   (Hopefully fix soon?)
+
 .. _ref-getting_started:
 
 Getting Started
 ===============
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    getting_started/windows.rst
    getting_started/linux.rst
@@ -62,7 +70,7 @@ API Reference
 =============
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    api/api_c/api_c.rst
    api/api_http/api_http.rst
