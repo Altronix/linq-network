@@ -206,6 +206,11 @@
       <ul class="md-nav__list"> 
     <li class="md-nav__item">
     
+      <a href="api_c_linq_str.html" class="md-nav__link">linq_str</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
       <a href="api_c_linq_netw.html" class="md-nav__link">linq_netw</a>
       
     </li>
@@ -238,12 +243,31 @@
       
         
 <nav class="md-nav md-nav--secondary">
+    <label class="md-nav__title" for="__toc">Contents</label>
   <ul class="md-nav__list" data-md-scrollfix="">
+        <li class="md-nav__item"><a href="#api-api-c-api-c-linq-netw-socket--page-root" class="md-nav__link">linq_netw_socket</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#members" class="md-nav__link">Members</a>
+        </li>
+        <li class="md-nav__item"><a href="#example" class="md-nav__link">Example</a>
+        </li></ul>
+            </nav>
+        </li>
     
 <li class="md-nav__item"><a class="md-nav__extra_link" href="../../_sources/api/api_c/api_c_linq_netw_socket.rst.txt">Show Source</a> </li>
 
   </ul>
-</nav>
+</nav><ul class="md-nav__list"> 
+    <li class="md-nav__item">
+    
+      <a href="#members" class="md-nav__link">Members</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="#example" class="md-nav__link">Example</a>
+      
+    </li></ul>
     </li>
     <li class="md-nav__item">
     
@@ -293,7 +317,16 @@
               <div class="md-sidebar__inner">
                 
 <nav class="md-nav md-nav--secondary">
+    <label class="md-nav__title" for="__toc">Contents</label>
   <ul class="md-nav__list" data-md-scrollfix="">
+        <li class="md-nav__item"><a href="#api-api-c-api-c-linq-netw-socket--page-root" class="md-nav__link">linq_netw_socket</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#members" class="md-nav__link">Members</a>
+        </li>
+        <li class="md-nav__item"><a href="#example" class="md-nav__link">Example</a>
+        </li></ul>
+            </nav>
+        </li>
     
 <li class="md-nav__item"><a class="md-nav__extra_link" href="../../_sources/api/api_c/api_c_linq_netw_socket.rst.txt">Show Source</a> </li>
 
@@ -313,7 +346,35 @@
 <dl class="type">
 <dt id="c.linq_netw_socket">
 <code class="descname">linq_netw_socket</code><a class="headerlink" href="#c.linq_netw_socket" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A socket handle used to represent a specific connection.</p>
+</dd></dl>
+
+<h2 id="members">Members<a class="headerlink" href="#members" title="Permalink to this headline">¶</a></h2>
+<p>The linq_netw_socket is a simple integer used to LinQ Network to index the specific connection.</p>
+
+
+<h2 id="example">Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">linq_netw_socket</span> <span class="n">s</span> <span class="o">=</span> <span class="n">linq_netw_listen</span><span class="p">(</span><span class="n">netw</span><span class="p">,</span> <span class="s">"tcp://*:33455"</span><span class="p">);</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">s</span> <span class="o">==</span> <span class="n">LINQ_ERROR_SOCKET</span><span class="p">)</span> <span class="p">{</span>
+   <span class="c1">// Socket error ...</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+   <span class="c1">// Do something with socket</span>
+   <span class="c1">// ...</span>
+
+   <span class="c1">// Close socket</span>
+   <span class="n">linq_netw_close_router</span><span class="p">(</span><span class="n">netw</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="font-small docutils container">
+<p><strong>See Also</strong></p>
+<ol class="arabic simple">
+<li>linq_netw_connect</li>
+<li>linq_netw_listen</li>
+</ol>
+</div>
+
 
 
 

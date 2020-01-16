@@ -4,6 +4,9 @@
 linq_netw_error
 ===============
 
+Synopsis
+--------
+
 .. c:type:: E_LINQ_ERROR
 
 Many LinQ Network Library routines return a status code representing the result of the routines execution. The status code is defined by the linq_netw_error enum.

@@ -206,6 +206,11 @@
       <ul class="md-nav__list"> 
     <li class="md-nav__item">
     
+      <a href="api_c_linq_str.html" class="md-nav__link">linq_str</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
       <a href="api_c_linq_netw.html" class="md-nav__link">linq_netw</a>
       
     </li>
@@ -218,12 +223,34 @@
       
         
 <nav class="md-nav md-nav--secondary">
+    <label class="md-nav__title" for="__toc">Contents</label>
   <ul class="md-nav__list" data-md-scrollfix="">
+        <li class="md-nav__item"><a href="#api-api-c-api-c-linq-netw-callbacks--page-root" class="md-nav__link">linq_netw_callbacks</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#members" class="md-nav__link">Members</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#linq-netw-error-fn" class="md-nav__link">linq_netw_error_fn</a>
+        </li>
+        <li class="md-nav__item"><a href="#linq-netw-heartbeat-fn" class="md-nav__link">linq_netw_heartbeat_fn</a>
+        </li>
+        <li class="md-nav__item"><a href="#linq-netw-alert-fn" class="md-nav__link">linq_netw_alert_fn</a>
+        </li>
+        <li class="md-nav__item"><a href="#linq-netw-ctrlc-fn" class="md-nav__link">linq_netw_ctrlc_fn</a>
+        </li></ul>
+            </nav>
+        </li></ul>
+            </nav>
+        </li>
     
 <li class="md-nav__item"><a class="md-nav__extra_link" href="../../_sources/api/api_c/api_c_linq_netw_callbacks.rst.txt">Show Source</a> </li>
 
   </ul>
-</nav>
+</nav><ul class="md-nav__list"> 
+    <li class="md-nav__item">
+    
+      <a href="#members" class="md-nav__link">Members</a>
+      
+    </li></ul>
     </li>
     <li class="md-nav__item">
     
@@ -293,7 +320,24 @@
               <div class="md-sidebar__inner">
                 
 <nav class="md-nav md-nav--secondary">
+    <label class="md-nav__title" for="__toc">Contents</label>
   <ul class="md-nav__list" data-md-scrollfix="">
+        <li class="md-nav__item"><a href="#api-api-c-api-c-linq-netw-callbacks--page-root" class="md-nav__link">linq_netw_callbacks</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#members" class="md-nav__link">Members</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#linq-netw-error-fn" class="md-nav__link">linq_netw_error_fn</a>
+        </li>
+        <li class="md-nav__item"><a href="#linq-netw-heartbeat-fn" class="md-nav__link">linq_netw_heartbeat_fn</a>
+        </li>
+        <li class="md-nav__item"><a href="#linq-netw-alert-fn" class="md-nav__link">linq_netw_alert_fn</a>
+        </li>
+        <li class="md-nav__item"><a href="#linq-netw-ctrlc-fn" class="md-nav__link">linq_netw_ctrlc_fn</a>
+        </li></ul>
+            </nav>
+        </li></ul>
+            </nav>
+        </li>
     
 <li class="md-nav__item"><a class="md-nav__extra_link" href="../../_sources/api/api_c/api_c_linq_netw_callbacks.rst.txt">Show Source</a> </li>
 
@@ -314,6 +358,66 @@
 <dt id="c.linq_netw_callbacks">
 <code class="descname">linq_netw_callbacks</code><a class="headerlink" href="#c.linq_netw_callbacks" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">linq_netw_callbacks</span>
+<span class="p">{</span>
+    <span class="n">linq_netw_error_fn</span> <span class="n">err</span><span class="p">;</span>
+    <span class="n">linq_netw_heartbeat_fn</span> <span class="n">hb</span><span class="p">;</span>
+    <span class="n">linq_netw_alert_fn</span> <span class="n">alert</span><span class="p">;</span>
+    <span class="n">linq_netw_ctrlc_fn</span> <span class="n">ctrlc</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">linq_netw_callbacks</span><span class="p">;</span>
+</pre></div>
+</div>
+
+<h2 id="members">Members<a class="headerlink" href="#members" title="Permalink to this headline">¶</a></h2>
+
+<h3 id="linq-netw-error-fn">linq_netw_error_fn<a class="headerlink" href="#linq-netw-error-fn" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="n">linq_netw_error_fn</span><span class="p">)(</span><span class="kt">void</span><span class="o">*</span> <span class="n">context</span><span class="p">,</span>
+                                   <span class="n">E_LINQ_ERROR</span> <span class="n">error</span><span class="p">,</span>
+                                   <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">description</span><span class="p">,</span>
+                                   <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">serial</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>A function pointer to be called when the LinQ Network Library has detected an error.</p>
+</div></blockquote>
+
+
+<h3 id="linq-netw-heartbeat-fn">linq_netw_heartbeat_fn<a class="headerlink" href="#linq-netw-heartbeat-fn" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="n">linq_netw_heartbeat_fn</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="n">context</span><span class="p">,</span>
+                                       <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">serial</span><span class="p">,</span>
+                                       <span class="n">device_s</span><span class="o">**</span> <span class="n">device_p</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>A function pointer to be called when the LinQ Network Libary has received a heartbeat from a LinQ enabled product.</p>
+</div></blockquote>
+
+
+<h3 id="linq-netw-alert-fn">linq_netw_alert_fn<a class="headerlink" href="#linq-netw-alert-fn" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="nf">void</span> <span class="p">(</span><span class="o">*</span><span class="n">linq_netw_alert_fn</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="n">context</span><span class="p">,</span>
+                                   <span class="n">linq_netw_alert_s</span> <span class="o">*</span><span class="n">alert</span><span class="p">,</span>
+                                   <span class="n">linq_netw_email_s</span> <span class="o">*</span><span class="n">email</span><span class="p">,</span>
+                                   <span class="n">device_s</span><span class="o">**</span> <span class="n">device_p</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>A function pointer to be called when the LinQ Network Libary has received an alert from a LinQ enabled product.</p>
+</div></blockquote>
+
+
+<h3 id="linq-netw-ctrlc-fn">linq_netw_ctrlc_fn<a class="headerlink" href="#linq-netw-ctrlc-fn" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">linq_netw_ctrlc_fn</span><span class="p">)(</span><span class="kt">void</span><span class="o">*</span> <span class="n">context</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A function pointer to be called when the LinQ Network Library is shutting down.</p>
+</div></blockquote>
+<p class="rubric">See Also</p>
+<p><a class="reference internal" href="api_c_linq_netw_create.html#ref-api-c-linq-netw-create"><span class="std std-ref">linq_netw_create</span></a></p>
+<p><a class="reference internal" href="api_c_linq_netw_alert.html#ref-api-c-linq-netw-alert"><span class="std std-ref">linq_netw_alert</span></a></p>
+<p><a class="reference internal" href="api_c_linq_netw_email.html#ref-api-c-linq-netw-email"><span class="std std-ref">linq_netw_email</span></a></p>
+
+
 
 
 
