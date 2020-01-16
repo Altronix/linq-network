@@ -1,5 +1,0 @@
-src/mongoose.* linguist-vendored=true
-src/sqlite3.* linguist-vendored=true
-src/klib/* linguist-vendored=true
-src/jsmn.h linguist-vendored=true
-test/* linguist-vendored=true
