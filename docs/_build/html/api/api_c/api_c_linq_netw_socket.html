@@ -283,22 +283,12 @@
     
       <a href="api_c_linq_netw_poll.html" class="md-nav__link">linq_netw_poll</a>
       
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_c_linq_netw_listen.html" class="md-nav__link">linq_netw_listen</a>
+      
     </li></ul>
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="../api_cpp/api_cpp.html" class="md-nav__link">C++ API Reference</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="../api_rust/api_rust.html" class="md-nav__link">Rust API Reference</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="../api_nodejs/api_nodejs.html" class="md-nav__link">NodeJS API Reference</a>
-      
     </li>
     <li class="md-nav__item">
     
@@ -359,8 +349,7 @@
 <span class="k">if</span> <span class="p">(</span><span class="n">s</span> <span class="o">==</span> <span class="n">LINQ_ERROR_SOCKET</span><span class="p">)</span> <span class="p">{</span>
    <span class="c1">// Socket error ...</span>
 <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-   <span class="c1">// Do something with socket</span>
-   <span class="c1">// ...</span>
+   <span class="c1">// Listening on port 33455 ...</span>
 
    <span class="c1">// Close socket</span>
    <span class="n">linq_netw_close_router</span><span class="p">(</span><span class="n">netw</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>
@@ -370,7 +359,7 @@
 <div class="font-small docutils container">
 <p><strong>See Also</strong></p>
 <ol class="arabic simple">
-<li>linq_netw_connect</li>
+<li><a class="reference internal" href="api_c_linq_netw_listen.html#ref-api-c-linq-netw-listen"><span class="std std-ref">linq_netw_listen</span></a></li>
 <li>linq_netw_listen</li>
 </ol>
 </div>

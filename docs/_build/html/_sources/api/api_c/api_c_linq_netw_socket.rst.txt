@@ -23,8 +23,7 @@ Example
    if (s == LINQ_ERROR_SOCKET) {
       // Socket error ...
    } else {
-      // Do something with socket
-      // ...
+      // Listening on port 33455 ...
 
       // Close socket
       linq_netw_close_router(netw, s);
@@ -35,6 +34,6 @@ Example
 
    **See Also**
 
-   1. linq_netw_connect
+   1. :ref:`ref_api_c_linq_netw_listen`
 
    2. linq_netw_listen

@@ -4,6 +4,8 @@
 linq_netw_email
 ===============
 
+.. c::type linq_netw_email
+
 .. code-block:: c
 
    typedef struct linq_netw_email_s

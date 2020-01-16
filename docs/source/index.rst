@@ -21,7 +21,7 @@ About
 -----
 
 .. image:: https://travis-ci.com/TomzBench/linq-network.svg?branch=master
-    :target: https://travis-ci.com/TomzBench/linq-network
+..     :target: https://travis-ci.com/TomzBench/linq-network
 .. image:: https://codecov.io/gh/TomzBench/linq-network/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/TomzBench/linq-network
 
@@ -45,9 +45,6 @@ Getting Help
 
    getting_started/getting_started.rst
    api/api_c/api_c.rst
-   api/api_cpp/api_cpp.rst
-   api/api_rust/api_rust.rst
-   api/api_nodejs/api_nodejs.rst
    api/api_http/api_http.rst
 
 Index
