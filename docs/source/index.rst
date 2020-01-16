@@ -20,10 +20,10 @@ LinQ Network Documentation
 About
 -----
 
-.. image:: https://travis-ci.com/TomzBench/linq-network.svg?branch=master
-..     :target: https://travis-ci.com/TomzBench/linq-network
-.. image:: https://codecov.io/gh/TomzBench/linq-network/branch/master/graph/badge.svg
-  :target: https://codecov.io/gh/TomzBench/linq-network
+.. .. image:: https://travis-ci.com/TomzBench/linq-network.svg?branch=master
+..    :target: https://travis-ci.com/TomzBench/linq-network
+.. .. image:: https://codecov.io/gh/TomzBench/linq-network/branch/master/graph/badge.svg
+..    :target: https://codecov.io/gh/TomzBench/linq-network
 
 The Altronix LinQ Network SDK provides libraries for interfacing with Altronix LinQ enabled products in C, C++, Rust, Go, Python and NodeJS languages.
 
@@ -39,11 +39,31 @@ Getting Help
    Chat       **TODO**
    ========== ==================
 
+
+.. _ref-getting_started:
+
+Getting Started
+===============
+
 .. toctree::
    :maxdepth: 1
-   :caption: Contents:
 
-   getting_started/getting_started.rst
+   getting_started/windows.rst
+   getting_started/linux.rst
+   getting_started/buildroot.rst
+   getting_started/configuration.rst
+   getting_started/device_setup.rst
+   getting_started/quickstart_c.rst
+   getting_started/quickstart_cpp.rst
+   getting_started/quickstart_rust.rst
+   getting_started/quickstart_nodejs.rst
+
+API Reference
+=============
+
+.. toctree::
+   :maxdepth: 1
+
    api/api_c/api_c.rst
    api/api_http/api_http.rst
 
