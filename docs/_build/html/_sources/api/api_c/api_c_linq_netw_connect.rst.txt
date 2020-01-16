@@ -63,9 +63,9 @@ IPC      ipc://local    Connect to a local IPC socket on the host system
 
    2. :ref:`ref_api_c_linq_netw_listen`
 
-   3. linq_netw_close_router
+   3. :ref:`ref_api_c_linq_netw_close_router`
 
-   4. linq_netw_close_dealer
+   4. :ref:`ref_api_c_linq_netw_close_dealer`
 
-   5. linq_netw_close_http
+   5. :ref:`ref_api_c_linq_netw_close_http`
 
