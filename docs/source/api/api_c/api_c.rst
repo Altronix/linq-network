@@ -21,3 +21,5 @@ C API Reference
    api_c_linq_netw_close_router.rst
    api_c_linq_netw_close_dealer.rst
    api_c_linq_netw_close_http.rst
+   api_c_linq_netw_device_count.rst
+   api_c_linq_netw_node_count.rst
