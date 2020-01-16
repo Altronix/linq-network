@@ -15,4 +15,4 @@ This is an opaque data structure with no public members.
 
 .. rubric:: See Also
 
-:ref:`linq_netw_create <ref_api_c_linq_netw_create>`
+:ref:`ref_api_c_linq_netw_create`
