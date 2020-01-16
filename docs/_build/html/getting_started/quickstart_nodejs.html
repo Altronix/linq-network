@@ -69,7 +69,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="C API Reference" href="../api/api_c/api_c.html" />
-    <link rel="prev" title="Quick Start (Python) - TODO" href="quickstart_python.html" />
+    <link rel="prev" title="Quick Start (Rust)" href="quickstart_rust.html" />
   
    
   
@@ -241,16 +241,6 @@
     </li>
     <li class="md-nav__item">
     
-      <a href="quickstart_go.html" class="md-nav__link">Quick Start (Go) - TODO</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="quickstart_python.html" class="md-nav__link">Quick Start (Python) - TODO</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
     <label class="md-nav__link md-nav__link--active" for="__toc"> Quick Start (NodeJS) </label>
     
@@ -264,6 +254,8 @@
               <ul class="md-nav__list">
         <li class="md-nav__item"><a href="#project-setup" class="md-nav__link">Project Setup</a>
         </li>
+        <li class="md-nav__item"><a href="#event-emitter" class="md-nav__link">Event Emitter</a>
+        </li>
         <li class="md-nav__item"><a href="#complete-application" class="md-nav__link">Complete Application</a>
         </li></ul>
             </nav>
@@ -276,6 +268,11 @@
     <li class="md-nav__item">
     
       <a href="#project-setup" class="md-nav__link">Project Setup</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="#event-emitter" class="md-nav__link">Event Emitter</a>
       
     </li>
     <li class="md-nav__item">
@@ -298,16 +295,6 @@
     <li class="md-nav__item">
     
       <a href="../api/api_rust/api_rust.html" class="md-nav__link">Rust API Reference</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="../api/api_go/api_go.html" class="md-nav__link">Go API Reference</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="../api/api_python/api_python.html" class="md-nav__link">Python API Reference</a>
       
     </li>
     <li class="md-nav__item">
@@ -338,6 +325,8 @@
               <ul class="md-nav__list">
         <li class="md-nav__item"><a href="#project-setup" class="md-nav__link">Project Setup</a>
         </li>
+        <li class="md-nav__item"><a href="#event-emitter" class="md-nav__link">Event Emitter</a>
+        </li>
         <li class="md-nav__item"><a href="#complete-application" class="md-nav__link">Complete Application</a>
         </li></ul>
             </nav>
@@ -358,11 +347,12 @@
             
   
 <h1 id="getting-started-quickstart-nodejs--page-root">Quick Start (NodeJS)<a class="headerlink" href="#getting-started-quickstart-nodejs--page-root" title="Permalink to this headline">¶</a></h1>
+<p>The LinQ Network NodeJS binding uses cmake-js to compile the native module into your project. cmake-js supports nodejs runtime, electron runtime and nw runtime enviorments. To select your runtime enviorment, include a cmake-js option inside your package.json file.</p>
 
 <h2 id="project-setup">Project Setup<a class="headerlink" href="#project-setup" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">`bash</span>
-<span class="pre">npm</span> <span class="pre">install</span> <span class="pre">@altronix/linq-network-js</span>
-<span class="pre">`</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>npm install @altronix/linq-network-js
+</pre></div>
+</div>
 <p>package.json</p>
 <div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="c1">// ...</span>
@@ -376,7 +366,38 @@
 </div>
 
 
+<h2 id="event-emitter">Event Emitter<a class="headerlink" href="#event-emitter" title="Permalink to this headline">¶</a></h2>
+<p>The LinQ Network NodeJS binding uses the event emitter to notify your application of incoming LinQ Network events.</p>
+<p><em>Event emitter keys</em></p>
+<table border="1">
+<colgroup>
+<col width="20%"/>
+<col width="80%"/>
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Event</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>heartbeat</td>
+<td>A device has sent a heartbeat</td>
+</tr>
+<tr class="row-odd"><td>error</td>
+<td>The library detected a runtime error</td>
+</tr>
+<tr class="row-even"><td>ctrlc</td>
+<td>The LinQ Network is shutting down</td>
+</tr>
+<tr class="row-odd"><td>alert</td>
+<td>A device has sent an alert</td>
+</tr>
+</tbody>
+</table>
+
+
 <h2 id="complete-application">Complete Application<a class="headerlink" href="#complete-application" title="Permalink to this headline">¶</a></h2>
+<p><em>Listen for incoming heartbeats and request the ABOUT data</em></p>
 <div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">let</span> <span class="nx">netw</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">"@altronix/linq-network-js"</span><span class="p">).</span><span class="k">default</span><span class="p">;</span>
 
 <span class="nx">netw</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="s2">"tcp://*:33455"</span><span class="p">);</span>
@@ -403,7 +424,7 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
           
-            <a href="quickstart_python.html" title="Material"
+            <a href="quickstart_rust.html" title="Material"
                class="md-flex md-footer-nav__link md-footer-nav__link--prev"
                rel="prev">
               <div class="md-flex__cell md-flex__cell--shrink">
@@ -412,7 +433,7 @@
               <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
                 <span class="md-flex__ellipsis">
                   <span
-                      class="md-footer-nav__direction"> Previous </span> Quick Start (Python) - TODO </span>
+                      class="md-footer-nav__direction"> Previous </span> Quick Start (Rust) </span>
               </div>
             </a>
           

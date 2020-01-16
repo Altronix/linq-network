@@ -47,8 +47,6 @@ Getting Help
    api/api_c/api_c.rst
    api/api_cpp/api_cpp.rst
    api/api_rust/api_rust.rst
-   api/api_go/api_go.rst
-   api/api_python/api_python.rst
    api/api_nodejs/api_nodejs.rst
    api/api_http/api_http.rst
 

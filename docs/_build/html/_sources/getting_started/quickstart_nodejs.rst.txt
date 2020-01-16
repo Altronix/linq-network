@@ -1,12 +1,14 @@
 Quick Start (NodeJS)
 ====================
 
+The LinQ Network NodeJS binding uses cmake-js to compile the native module into your project. cmake-js supports nodejs runtime, electron runtime and nw runtime enviorments. To select your runtime enviorment, include a cmake-js option inside your package.json file.
+
 Project Setup
 -------------
 
-```bash
-npm install @altronix/linq-network-js
-```
+.. code-block:: bash
+
+   npm install @altronix/linq-network-js
 
 package.json
 
@@ -21,8 +23,26 @@ package.json
      }
    }
 
+Event Emitter
+-------------
+
+The LinQ Network NodeJS binding uses the event emitter to notify your application of incoming LinQ Network events.
+
+*Event emitter keys*
+
+========= ===========
+Event     Description
+========= ===========
+heartbeat A device has sent a heartbeat
+error     The library detected a runtime error
+ctrlc     The LinQ Network is shutting down
+alert     A device has sent an alert
+========= ===========
+
 Complete Application
 --------------------
+
+*Listen for incoming heartbeats and request the ABOUT data*
 
 .. code-block:: javascript
 
