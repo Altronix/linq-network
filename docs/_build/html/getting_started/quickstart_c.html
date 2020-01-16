@@ -477,8 +477,6 @@ make install
 <ol class="arabic simple">
 <li><a class="reference internal" href="../api/api_c/api_c_linq_netw_callbacks.html#ref-api-c-linq-netw-callbacks"><span class="std std-ref">linq_netw_callbacks</span></a></li>
 <li><a class="reference internal" href="../api/api_c/api_c_linq_netw_alert.html#ref-api-c-linq-netw-alert"><span class="std std-ref">linq_netw_alert</span></a></li>
-</ol>
-<ol class="arabic simple" start="4">
 <li><a class="reference internal" href="../api/api_c/api_c_linq_netw_email.html#ref-api-c-linq-netw-email"><span class="std std-ref">linq_netw_email</span></a></li>
 </ol>
 </div>
@@ -538,6 +536,33 @@ make install
 
 
 <h2 id="process-network-io">Process Network IO<a class="headerlink" href="#process-network-io" title="Permalink to this headline">¶</a></h2>
+<p>The LinQ Network library performs non-blocking IO inside of your thread. To process LinQ Network IO you must call the <a class="reference internal" href="../api/api_c/api_c_linq_netw_poll.html#ref-api-c-linq-netw-poll"><span class="std std-ref">linq_netw_poll</span></a> routine from inside of your main loop.  linq_netw_poll() will call any callbacks you have provided from the same thread context as your main application.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span>
+<span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+   <span class="c1">// Initialize your app</span>
+   <span class="c1">// ...</span>
+
+   <span class="k">while</span><span class="p">(</span><span class="n">sys_running</span><span class="p">())</span>
+   <span class="p">{</span>
+     <span class="n">linq_netw_poll</span><span class="p">(</span><span class="n">linq</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
+   <span class="p">}</span>
+
+   <span class="c1">// ...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For multi threaded support, use one of the higher level language bindings that provide thread safe wrappers, or create your own IPC scheme per your applications needs.</p>
+</div>
+<div class="font-small docutils container">
+<p><strong>See Also</strong></p>
+<ol class="arabic simple">
+<li><a class="reference internal" href="../api/api_c/api_c_linq_netw_poll.html#ref-api-c-linq-netw-poll"><span class="std std-ref">linq_netw_poll</span></a></li>
+<li>sys_running</li>
+</ol>
+</div>
 
 
 <h2 id="complete-application">Complete Application<a class="headerlink" href="#complete-application" title="Permalink to this headline">¶</a></h2>

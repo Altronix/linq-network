@@ -93,7 +93,7 @@ The "Alert Callback" is called from the LinQ Network library when a LinQ Enabled
 
    2. :ref:`ref_api_c_linq_netw_alert`
 
-   4. :ref:`ref_api_c_linq_netw_email`
+   3. :ref:`ref_api_c_linq_netw_email`
 
 
 Heartbeat Callback
@@ -161,6 +161,35 @@ The "Ctrlc Callback" is called from the LinQ Network library when the LinQ Netwo
 
 Process Network IO
 ------------------
+
+The LinQ Network library performs non-blocking IO inside of your thread. To process LinQ Network IO you must call the :ref:`ref_api_c_linq_netw_poll` routine from inside of your main loop.  linq_netw_poll() will call any callbacks you have provided from the same thread context as your main application.
+
+.. code-block:: c
+
+   int
+   main(int argc, char* argv[])
+   {
+      // Initialize your app
+      // ...
+
+      while(sys_running())
+      {
+        linq_netw_poll(linq, 5);
+      }
+
+      // ...
+   }
+
+.. note:: For multi threaded support, use one of the higher level language bindings that provide thread safe wrappers, or create your own IPC scheme per your applications needs.
+
+.. rst-class:: font-small
+.. container::
+
+   **See Also**
+
+   1. :ref:`ref_api_c_linq_netw_poll`
+
+   2. sys_running
 
 Complete Application
 --------------------

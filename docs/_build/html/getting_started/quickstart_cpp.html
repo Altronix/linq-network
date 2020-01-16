@@ -242,7 +242,27 @@
   <ul class="md-nav__list" data-md-scrollfix="">
         <li class="md-nav__item"><a href="#getting-started-quickstart-cpp--page-root" class="md-nav__link">Quick Start (C++)</a><nav class="md-nav">
               <ul class="md-nav__list">
-        <li class="md-nav__item"><a href="#project-setup" class="md-nav__link">Project Setup</a>
+        <li class="md-nav__item"><a href="#project-setup" class="md-nav__link">Project Setup</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#cmakelists-txt-with-system-depenencies" class="md-nav__link">CMakeLists.txt with system depenencies</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmakelists-txt-for-reproducible-builds" class="md-nav__link">CMakeLists.txt for reproducible builds</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#process-network-events-optional" class="md-nav__link">Process Network Events <em>(Optional)</em></a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#alert" class="md-nav__link">Alert</a>
+        </li>
+        <li class="md-nav__item"><a href="#heartbeat" class="md-nav__link">Heartbeat</a>
+        </li>
+        <li class="md-nav__item"><a href="#error" class="md-nav__link">Error</a>
+        </li>
+        <li class="md-nav__item"><a href="#ctrlc" class="md-nav__link">Ctrlc</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#process-network-io" class="md-nav__link">Process Network IO</a>
         </li>
         <li class="md-nav__item"><a href="#complete-application" class="md-nav__link">Complete Application</a>
         </li></ul>
@@ -256,6 +276,16 @@
     <li class="md-nav__item">
     
       <a href="#project-setup" class="md-nav__link">Project Setup</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="#process-network-events-optional" class="md-nav__link">Process Network Events <em>(Optional)</em></a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="#process-network-io" class="md-nav__link">Process Network IO</a>
       
     </li>
     <li class="md-nav__item">
@@ -336,7 +366,27 @@
   <ul class="md-nav__list" data-md-scrollfix="">
         <li class="md-nav__item"><a href="#getting-started-quickstart-cpp--page-root" class="md-nav__link">Quick Start (C++)</a><nav class="md-nav">
               <ul class="md-nav__list">
-        <li class="md-nav__item"><a href="#project-setup" class="md-nav__link">Project Setup</a>
+        <li class="md-nav__item"><a href="#project-setup" class="md-nav__link">Project Setup</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#cmakelists-txt-with-system-depenencies" class="md-nav__link">CMakeLists.txt with system depenencies</a>
+        </li>
+        <li class="md-nav__item"><a href="#cmakelists-txt-for-reproducible-builds" class="md-nav__link">CMakeLists.txt for reproducible builds</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#process-network-events-optional" class="md-nav__link">Process Network Events <em>(Optional)</em></a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#alert" class="md-nav__link">Alert</a>
+        </li>
+        <li class="md-nav__item"><a href="#heartbeat" class="md-nav__link">Heartbeat</a>
+        </li>
+        <li class="md-nav__item"><a href="#error" class="md-nav__link">Error</a>
+        </li>
+        <li class="md-nav__item"><a href="#ctrlc" class="md-nav__link">Ctrlc</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#process-network-io" class="md-nav__link">Process Network IO</a>
         </li>
         <li class="md-nav__item"><a href="#complete-application" class="md-nav__link">Complete Application</a>
         </li></ul>
@@ -358,18 +408,130 @@
             
   
 <h1 id="getting-started-quickstart-cpp--page-root">Quick Start (C++)<a class="headerlink" href="#getting-started-quickstart-cpp--page-root" title="Permalink to this headline">¶</a></h1>
-<p>TODO Describe configure C++ App with CMake</p>
 
 <h2 id="project-setup">Project Setup<a class="headerlink" href="#project-setup" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nb">add_executable</span><span class="p">(</span><span class="s">server</span> <span class="s">main.c</span><span class="p">)</span>
+<p>This example project setup uses CMake to build your project.  In order to use system dependencies you must first install linq-network and it’s dependencies into your system.  For example on how to compile and install linq-network and it’s dependencies, see <a class="reference internal" href="configuration.html#ref-getting-started-configuration"><span class="std std-ref">Library Configuration Options</span></a></p>
+
+<h3 id="cmakelists-txt-with-system-depenencies">CMakeLists.txt with system depenencies<a class="headerlink" href="#cmakelists-txt-with-system-depenencies" title="Permalink to this headline">¶</a></h3>
+<p><em>CMakeLists.txt</em></p>
+<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nb">add_executable</span><span class="p">(</span><span class="s">server</span> <span class="s">main.cpp</span><span class="p">)</span>
 <span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">server</span> <span class="s">linq-netw</span><span class="p">)</span>
 <span class="nb">install</span><span class="p">(</span><span class="s">TARGETS</span> <span class="s">server</span> <span class="s">DESTINATION</span> <span class="o">${</span><span class="nv">CMAKE_INSTALL_PREFIX</span><span class="o">}</span><span class="s">/bin</span><span class="p">)</span>
 </pre></div>
 </div>
+<p><em>Build application</em></p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir build
+<span class="nb">cd</span> build
+cmake -DLINQ_USE_SYSTEM_DEPENDENCIES:BOOL<span class="o">=</span>ON ..
+make
+make install
+</pre></div>
+</div>
+
+
+<h3 id="cmakelists-txt-for-reproducible-builds">CMakeLists.txt for reproducible builds<a class="headerlink" href="#cmakelists-txt-for-reproducible-builds" title="Permalink to this headline">¶</a></h3>
+<p><em>Download dependencies</em></p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git submodule add https://bitbucket.org/Altronix/linq-network external/linq-network
+git submodule add https://github.com/zeromq/libzmq external/libzmq
+git submodule add https://github.com/zeromq/czmq external/czmq
+</pre></div>
+</div>
+<p><em>CMakeLists.txt</em></p>
+<div class="highlight-cmake notranslate"><div class="highlight"><pre><span></span><span class="nb">add_subdirectory</span><span class="p">(</span><span class="s">external/linq-network</span><span class="p">)</span>
+<span class="nb">add_subdirectory</span><span class="p">(</span><span class="s">external/libzmq</span><span class="p">)</span>
+<span class="nb">add_subdirectory</span><span class="p">(</span><span class="s">external/czmq</span><span class="p">)</span>
+<span class="nb">add_executable</span><span class="p">(</span><span class="s">server</span> <span class="s">main.cpp</span><span class="p">)</span>
+<span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">server</span> <span class="s">linq-netw</span><span class="p">)</span>
+<span class="nb">install</span><span class="p">(</span><span class="s">TARGETS</span> <span class="s">server</span> <span class="s">DESTINATION</span> <span class="o">${</span><span class="nv">CMAKE_INSTALL_PREFIX</span><span class="o">}</span><span class="s">/bin</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><em>Build application</em></p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir build
+<span class="nb">cd</span> build
+cmake -DCMAKE_INSTALL_PREFIX<span class="o">=</span>./install ..
+make
+make install
+</pre></div>
+</div>
+
+
+
+<h2 id="process-network-events-optional">Process Network Events <em>(Optional)</em><a class="headerlink" href="#process-network-events-optional" title="Permalink to this headline">¶</a></h2>
+<p>The LinQ Network C++ binding uses a lambda style API to listen for incoming network events.</p>
+
+<h3 id="alert">Alert<a class="headerlink" href="#alert" title="Permalink to this headline">¶</a></h3>
+<p>The “Alert Callback” is called from the LinQ Network library when a LinQ Enabled device generates an alert. An optional application context, <a class="reference internal" href="../api/api_c/api_c_linq_netw_alert.html#ref-api-c-linq-netw-alert"><span class="std std-ref">alert struct</span></a>, and a <a class="reference internal" href="../api/api_c/api_c_linq_netw_email.html#ref-api-c-linq-netw-email"><span class="std std-ref">email struct</span></a> are passed into your application alert callback function.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="n">linq_netw_alert_s</span><span class="o">*</span><span class="p">,</span> <span class="n">linq_netw_email_s</span><span class="o">*</span><span class="p">,</span> <span class="n">Device</span><span class="o">&amp;</span><span class="p">)</span><span class="o">&gt;</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="font-small docutils container">
+<p><strong>See Also</strong></p>
+<ol class="arabic simple">
+<li><a class="reference internal" href="../api/api_c/api_c_linq_netw_alert.html#ref-api-c-linq-netw-alert"><span class="std std-ref">linq_netw_alert</span></a></li>
+<li><a class="reference internal" href="../api/api_c/api_c_linq_netw_email.html#ref-api-c-linq-netw-email"><span class="std std-ref">linq_netw_email</span></a></li>
+</ol>
+</div>
+
+
+<h3 id="heartbeat">Heartbeat<a class="headerlink" href="#heartbeat" title="Permalink to this headline">¶</a></h3>
+<p>The “Heartbeat Callback” is called from the LinQ Network library when a LinQ Enabled device sends a heartbeat. An optional application context, and the device serial number are passed into your application heartbeat callback function.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span><span class="p">,</span> <span class="n">Device</span><span class="o">&amp;</span><span class="p">)</span><span class="o">&gt;</span><span class="p">;</span>
+</pre></div>
+</div>
+
+
+<h3 id="error">Error<a class="headerlink" href="#error" title="Permalink to this headline">¶</a></h3>
+<p>The “Error Callback” is called from the LinQ Network library when the LinQ Network library detects a runtime error. An optional application context, and an <a class="reference internal" href="../api/api_c/api_c_linq_netw_error.html#ref-api-c-linq-netw-error"><span class="std std-ref">linq_netw_error</span></a> are passed into your application error callback function.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="n">E_LINQ_ERROR</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">error_</span><span class="p">;</span>
+</pre></div>
+</div>
+<div class="font-small docutils container">
+<p><strong>See Also</strong></p>
+<ol class="arabic simple">
+<li><a class="reference internal" href="../api/api_c/api_c_linq_netw_error.html#ref-api-c-linq-netw-error"><span class="std std-ref">linq_netw_error</span></a></li>
+</ol>
+</div>
+
+
+<h3 id="ctrlc">Ctrlc<a class="headerlink" href="#ctrlc" title="Permalink to this headline">¶</a></h3>
+<p>The “Ctrlc Callback” is called from the LinQ Network library when the LinQ Network library is about to shutdown. An optional application context is passed into your application ctrlc callback function.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">()</span><span class="o">&gt;</span> <span class="n">ctrlc_</span><span class="p">;</span>
+</pre></div>
+</div>
+
+
+
+<h2 id="process-network-io">Process Network IO<a class="headerlink" href="#process-network-io" title="Permalink to this headline">¶</a></h2>
+<p>The LinQ Network library performs non-blocking IO inside of your thread. To process LinQ Network IO you must call the <a class="reference internal" href="../api/api_c/api_c_linq_netw_poll.html#ref-api-c-linq-netw-poll"><span class="std std-ref">linq_netw_poll</span></a> routine from inside of your main loop.  linq_netw_poll() will call any callbacks you have provided from the same thread context as your main application.</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span>
+<span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+   <span class="c1">// Initialize your app</span>
+   <span class="n">altronix</span><span class="o">::</span><span class="n">linq</span> <span class="n">linq</span><span class="p">{};</span>
+
+   <span class="k">while</span><span class="p">(</span><span class="n">sys_running</span><span class="p">())</span>
+   <span class="p">{</span>
+     <span class="n">linq</span><span class="p">.</span><span class="n">poll</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>
+   <span class="p">}</span>
+
+   <span class="c1">// ...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For multi threaded support, use one of the higher level language bindings that provide thread safe wrappers, or create your own IPC scheme per your applications needs.</p>
+</div>
+<div class="font-small docutils container">
+<p><strong>See Also</strong></p>
+<ol class="arabic simple">
+<li><a class="reference internal" href="../api/api_c/api_c_linq_netw_poll.html#ref-api-c-linq-netw-poll"><span class="std std-ref">linq_netw_poll</span></a></li>
+<li>sys_running</li>
+</ol>
+</div>
 
 
 <h2 id="complete-application">Complete Application<a class="headerlink" href="#complete-application" title="Permalink to this headline">¶</a></h2>
-<p>TODO Describe Source Code</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">"altronix/linq_netw.hpp"</span><span class="cp"></span>
 
 <span class="kt">int</span>
