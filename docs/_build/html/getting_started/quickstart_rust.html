@@ -243,12 +243,66 @@
       
         
 <nav class="md-nav md-nav--secondary">
+    <label class="md-nav__title" for="__toc">Contents</label>
   <ul class="md-nav__list" data-md-scrollfix="">
+        <li class="md-nav__item"><a href="#getting-started-quickstart-rust--page-root" class="md-nav__link">Quick Start (Rust)</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#project-setup" class="md-nav__link">Project Setup</a>
+        </li>
+        <li class="md-nav__item"><a href="#configuration-options" class="md-nav__link">Configuration Options</a>
+        </li>
+        <li class="md-nav__item"><a href="#single-threaded" class="md-nav__link">Single-Threaded</a>
+        </li>
+        <li class="md-nav__item"><a href="#multi-threaded-async" class="md-nav__link">Multi-Threaded Async</a>
+        </li>
+        <li class="md-nav__item"><a href="#event-stream" class="md-nav__link">Event Stream</a>
+        </li>
+        <li class="md-nav__item"><a href="#complete-example" class="md-nav__link">Complete Example</a>
+        </li>
+        <li class="md-nav__item"><a href="#complete-example-async" class="md-nav__link">Complete Example (Async)</a>
+        </li></ul>
+            </nav>
+        </li>
     
 <li class="md-nav__item"><a class="md-nav__extra_link" href="../_sources/getting_started/quickstart_rust.rst.txt">Show Source</a> </li>
 
   </ul>
-</nav>
+</nav><ul class="md-nav__list"> 
+    <li class="md-nav__item">
+    
+      <a href="#project-setup" class="md-nav__link">Project Setup</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="#configuration-options" class="md-nav__link">Configuration Options</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="#single-threaded" class="md-nav__link">Single-Threaded</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="#multi-threaded-async" class="md-nav__link">Multi-Threaded Async</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="#event-stream" class="md-nav__link">Event Stream</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="#complete-example" class="md-nav__link">Complete Example</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="#complete-example-async" class="md-nav__link">Complete Example (Async)</a>
+      
+    </li></ul>
     </li>
     <li class="md-nav__item">
     
@@ -313,7 +367,26 @@
               <div class="md-sidebar__inner">
                 
 <nav class="md-nav md-nav--secondary">
+    <label class="md-nav__title" for="__toc">Contents</label>
   <ul class="md-nav__list" data-md-scrollfix="">
+        <li class="md-nav__item"><a href="#getting-started-quickstart-rust--page-root" class="md-nav__link">Quick Start (Rust)</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#project-setup" class="md-nav__link">Project Setup</a>
+        </li>
+        <li class="md-nav__item"><a href="#configuration-options" class="md-nav__link">Configuration Options</a>
+        </li>
+        <li class="md-nav__item"><a href="#single-threaded" class="md-nav__link">Single-Threaded</a>
+        </li>
+        <li class="md-nav__item"><a href="#multi-threaded-async" class="md-nav__link">Multi-Threaded Async</a>
+        </li>
+        <li class="md-nav__item"><a href="#event-stream" class="md-nav__link">Event Stream</a>
+        </li>
+        <li class="md-nav__item"><a href="#complete-example" class="md-nav__link">Complete Example</a>
+        </li>
+        <li class="md-nav__item"><a href="#complete-example-async" class="md-nav__link">Complete Example (Async)</a>
+        </li></ul>
+            </nav>
+        </li>
     
 <li class="md-nav__item"><a class="md-nav__extra_link" href="../_sources/getting_started/quickstart_rust.rst.txt">Show Source</a> </li>
 
@@ -330,6 +403,146 @@
             
   
 <h1 id="getting-started-quickstart-rust--page-root">Quick Start (Rust)<a class="headerlink" href="#getting-started-quickstart-rust--page-root" title="Permalink to this headline">¶</a></h1>
+<p>The LinQ Network Library provides a Rust crate with idiomatic Rust API, using an async/.await API to process network events and to send and receive device requests.</p>
+
+<h2 id="project-setup">Project Setup<a class="headerlink" href="#project-setup" title="Permalink to this headline">¶</a></h2>
+<p>To get started with the Rust binding, add the linq-netw crate to your Cargo.toml file.</p>
+<p><em>Cargo.toml</em></p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">package</span><span class="p">]</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s">"example-project"</span>
+<span class="n">version</span> <span class="o">=</span> <span class="s">"0.0.1"</span>
+<span class="n">edition</span> <span class="o">=</span> <span class="s">"2018"</span>
+
+<span class="c1"># See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html</span>
+
+<span class="p">[</span><span class="n">dependencies</span><span class="p">]</span>
+<span class="n">linq-netw</span> <span class="o">=</span> <span class="s">"0.0.1"</span>
+</pre></div>
+</div>
+
+
+<h2 id="configuration-options">Configuration Options<a class="headerlink" href="#configuration-options" title="Permalink to this headline">¶</a></h2>
+<div class="admonition attention">
+<p class="first admonition-title">Attention</p>
+<p class="last">TODO</p>
+</div>
+
+
+<h2 id="single-threaded">Single-Threaded<a class="headerlink" href="#single-threaded" title="Permalink to this headline">¶</a></h2>
+<p>LinQ Network can share the same process as your application, or provides a thread safe wrapper to use in multi-threaded applications. To get started with a single-threaded project, initialize LinQ Network using the <em>Polling</em> Context.</p>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">linq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">linq_netw</span>::<span class="n">polling</span>::<span class="n">Context</span>::<span class="n">new</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="n">linq</span><span class="p">.</span><span class="n">listen</span><span class="p">(</span><span class="n">Endpoint</span>::<span class="n">Tcp</span><span class="p">(</span><span class="n">PORT</span><span class="p">));</span><span class="w"></span>
+</pre></div>
+</div>
+
+
+<h2 id="multi-threaded-async">Multi-Threaded Async<a class="headerlink" href="#multi-threaded-async" title="Permalink to this headline">¶</a></h2>
+<p>LinQ Network can share the same process as your application, or provides a thread safe wrapper to use in multi-threaded applications. To get started with a multi-threaded project, initialize LinQ Network using the <em>Arc</em> Context.</p>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="cp">#[async_attributes::main]</span><span class="w"></span>
+<span class="n">async</span><span class="w"> </span><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span><span class="w"> </span><span class="nb">Box</span><span class="o">&lt;</span><span class="n">dyn</span><span class="w"> </span><span class="n">std</span>::<span class="n">error</span>::<span class="n">Error</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">linq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">linq_netw</span>::<span class="n">arc</span>::<span class="n">Context</span>::<span class="n">new</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="n">linq</span><span class="p">.</span><span class="n">listen</span><span class="p">(</span><span class="n">Endpoint</span>::<span class="n">Tcp</span><span class="p">(</span><span class="n">PORT</span><span class="p">));</span><span class="w"></span>
+</pre></div>
+</div>
+
+
+<h2 id="event-stream">Event Stream<a class="headerlink" href="#event-stream" title="Permalink to this headline">¶</a></h2>
+<p>The LinQ Network Rust binding uses a stream API to process incoming events. Use the events() method to get a handle to the event stream. Then use std future methods to process the incoming stream.</p>
+<p><em>Example - Listen for a single heartbeat and get the serial number</em></p>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="kd">let</span><span class="w"> </span><span class="p">(</span><span class="n">serial</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">linq</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">events</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">filter_map</span><span class="p">(</span><span class="o">|</span><span class="n">e</span><span class="o">|</span><span class="w"> </span><span class="k">match</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">linq</span>::<span class="n">netw</span>::<span class="n">Event</span>::<span class="n">Heartbeat</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">future</span>::<span class="n">ready</span><span class="p">(</span><span class="nb">Some</span><span class="p">(</span><span class="n">s</span><span class="p">)),</span><span class="w"></span>
+<span class="w">        </span><span class="n">_</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">future</span>::<span class="n">ready</span><span class="p">(</span><span class="nb">None</span><span class="p">),</span><span class="w"></span>
+<span class="w">    </span><span class="p">})</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">take</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">into_future</span><span class="p">()</span><span class="w"></span>
+<span class="w">    </span><span class="p">.</span><span class="n">await</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+
+
+<h2 id="complete-example">Complete Example<a class="headerlink" href="#complete-example" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="cp">#![feature(proc_macro_hygiene)]</span><span class="w"></span>
+<span class="cp">#![feature(decl_macro)]</span><span class="w"></span>
+<span class="cp">#![feature(async_closure)]</span><span class="w"></span>
+
+<span class="k">extern</span><span class="w"> </span><span class="k">crate</span><span class="w"> </span><span class="n">linq_netw</span><span class="p">;</span><span class="w"></span>
+<span class="k">use</span><span class="w"> </span><span class="n">linq_netw</span>::<span class="p">{</span><span class="n">Endpoint</span><span class="p">,</span><span class="w"> </span><span class="n">Event</span><span class="p">};</span><span class="w"></span>
+
+<span class="k">use</span><span class="w"> </span><span class="n">futures</span>::<span class="n">executor</span>::<span class="n">block_on</span><span class="p">;</span><span class="w"></span>
+<span class="k">use</span><span class="w"> </span><span class="n">futures</span>::<span class="n">future</span>::<span class="n">join</span><span class="p">;</span><span class="w"></span>
+<span class="k">use</span><span class="w"> </span><span class="n">futures</span>::<span class="n">prelude</span>::<span class="o">*</span><span class="p">;</span><span class="w"></span>
+<span class="k">use</span><span class="w"> </span><span class="n">futures</span>::<span class="n">stream</span>::<span class="n">StreamExt</span><span class="p">;</span><span class="w"></span>
+<span class="k">use</span><span class="w"> </span><span class="n">std</span>::<span class="n">time</span>::<span class="n">Duration</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">static</span><span class="w"> </span><span class="n">PORT</span>: <span class="kt">u32</span> <span class="o">=</span><span class="w"> </span><span class="mi">33455</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">linq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">linq_netw</span>::<span class="n">polling</span>::<span class="n">Context</span>::<span class="n">new</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="n">linq</span><span class="p">.</span><span class="n">listen</span><span class="p">(</span><span class="n">Endpoint</span>::<span class="n">Tcp</span><span class="p">(</span><span class="n">PORT</span><span class="p">));</span><span class="w"></span>
+
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">events</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">linq</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">events</span><span class="p">()</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">take_while</span><span class="p">(</span><span class="o">|</span><span class="n">e</span><span class="o">|</span><span class="w"> </span><span class="n">future</span>::<span class="n">ready</span><span class="p">(</span><span class="o">*</span><span class="n">e</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">Event</span>::<span class="n">Ctrlc</span><span class="p">))</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">for_each</span><span class="p">(</span><span class="n">async</span><span class="w"> </span><span class="k">move</span><span class="w"> </span><span class="o">|</span><span class="n">e</span><span class="o">|</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="k">match</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="n">Event</span>::<span class="n">Heartbeat</span><span class="p">(</span><span class="n">_serial</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">(),</span><span class="w"></span>
+<span class="w">                </span><span class="n">Event</span>::<span class="n">Alert</span><span class="p">(</span><span class="n">_serial</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">(),</span><span class="w"></span>
+<span class="w">                </span><span class="n">Event</span>::<span class="n">Error</span><span class="p">(</span><span class="n">_</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">(),</span><span class="w"></span>
+<span class="w">                </span><span class="n">_</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">(),</span><span class="w"></span>
+<span class="w">            </span><span class="p">};</span><span class="w"></span>
+<span class="w">        </span><span class="p">});</span><span class="w"></span>
+
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">linq_poller</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">async_std</span>::<span class="n">task</span>::<span class="n">spawn</span><span class="p">(</span><span class="n">async</span><span class="w"> </span><span class="k">move</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="n">linq_netw</span>::<span class="n">running</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="n">futures_timer</span>::<span class="n">Delay</span>::<span class="n">new</span><span class="p">(</span><span class="n">Duration</span>::<span class="n">from_millis</span><span class="p">(</span><span class="mi">50</span><span class="p">)).</span><span class="n">await</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="n">linq</span><span class="p">.</span><span class="n">poll</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">});</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">block_on</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">events</span><span class="p">,</span><span class="w"> </span><span class="n">linq_poller</span><span class="p">));</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+
+
+<h2 id="complete-example-async">Complete Example (Async)<a class="headerlink" href="#complete-example-async" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="cp">#![feature(proc_macro_hygiene)]</span><span class="w"></span>
+<span class="cp">#![feature(rustc_private)]</span><span class="w"></span>
+<span class="cp">#![feature(decl_macro)]</span><span class="w"></span>
+<span class="cp">#![feature(async_closure)]</span><span class="w"></span>
+
+<span class="k">extern</span><span class="w"> </span><span class="k">crate</span><span class="w"> </span><span class="n">linq_netw</span><span class="p">;</span><span class="w"></span>
+<span class="k">use</span><span class="w"> </span><span class="n">linq_netw</span>::<span class="p">{</span><span class="n">Endpoint</span><span class="p">,</span><span class="w"> </span><span class="n">Event</span><span class="p">};</span><span class="w"></span>
+
+<span class="k">use</span><span class="w"> </span><span class="n">futures</span>::<span class="n">prelude</span>::<span class="o">*</span><span class="p">;</span><span class="w"></span>
+<span class="k">use</span><span class="w"> </span><span class="n">futures</span>::<span class="n">stream</span>::<span class="n">StreamExt</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">static</span><span class="w"> </span><span class="n">PORT</span>: <span class="kt">u32</span> <span class="o">=</span><span class="w"> </span><span class="mi">33455</span><span class="p">;</span><span class="w"></span>
+
+<span class="cp">#[async_attributes::main]</span><span class="w"></span>
+<span class="n">async</span><span class="w"> </span><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span><span class="w"> </span><span class="nb">Box</span><span class="o">&lt;</span><span class="n">dyn</span><span class="w"> </span><span class="n">std</span>::<span class="n">error</span>::<span class="n">Error</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">linq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">linq_netw</span>::<span class="n">arc</span>::<span class="n">Context</span>::<span class="n">new</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="n">linq</span><span class="p">.</span><span class="n">listen</span><span class="p">(</span><span class="n">Endpoint</span>::<span class="n">Tcp</span><span class="p">(</span><span class="n">PORT</span><span class="p">));</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">linq</span><span class="p">.</span><span class="n">events</span><span class="p">()</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">take_while</span><span class="p">(</span><span class="o">|</span><span class="n">e</span><span class="o">|</span><span class="w"> </span><span class="n">future</span>::<span class="n">ready</span><span class="p">(</span><span class="o">*</span><span class="n">e</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">Event</span>::<span class="n">Ctrlc</span><span class="p">))</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">for_each</span><span class="p">(</span><span class="n">async</span><span class="w"> </span><span class="k">move</span><span class="w"> </span><span class="o">|</span><span class="n">e</span><span class="o">|</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="k">match</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="n">Event</span>::<span class="n">Heartbeat</span><span class="p">(</span><span class="n">_serial</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">(),</span><span class="w"></span>
+<span class="w">                </span><span class="n">Event</span>::<span class="n">Alert</span><span class="p">(</span><span class="n">_serial</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">(),</span><span class="w"></span>
+<span class="w">                </span><span class="n">Event</span>::<span class="n">Error</span><span class="p">(</span><span class="n">_</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">(),</span><span class="w"></span>
+<span class="w">                </span><span class="n">_</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">(),</span><span class="w"></span>
+<span class="w">            </span><span class="p">};</span><span class="w"></span>
+<span class="w">        </span><span class="p">})</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">await</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="nb">Ok</span><span class="p">(())</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+
 
 
 
