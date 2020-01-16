@@ -9,7 +9,7 @@ Synopsis
 
 .. c:function:: linq_netw_socket linq_netw_listen(linq_netw, const char \*ep)
 
-   This routine will will listen for incoming connections (via IPC, or TCP) depending on the format string passed into the second argument.  Using the linq_netw_listen and linq_netw_close\_... api's you can dynamically change the port numbers during runtime.
+   This routine will listen for incoming connections (via IPC, or TCP) depending on the format string passed as the second argument.  Using the linq_netw_listen and linq_netw_close\_... api's you can dynamically change the port numbers you are listening to during runtime.
 
    .. note:: You must enable the LinQ Library Configuration **WITH_SQLITE** to use the HTTP endpoint
 
@@ -64,7 +64,7 @@ IPC      ipc://local    Listen for incoming connections on IPC "local" of the cu
 
    1. :ref:`ref_api_c_linq_netw_socket`
 
-   2. linq_netw_connect
+   2. :ref:`ref_api_c_linq_netw_connect`
 
    3. linq_netw_close_router
 

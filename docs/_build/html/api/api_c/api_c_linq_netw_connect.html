@@ -57,7 +57,7 @@
   <script async src='https://www.google-analytics.com/analytics.js'></script>
   
   
-    <title>linq_netw_poll &#8212; Linq Network User Guide 0.0.1 documentation</title>
+    <title>linq_netw_connect &#8212; Linq Network User Guide 0.0.1 documentation</title>
     <link rel="stylesheet" href="../../_static/material.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/styles.css" />
@@ -68,8 +68,8 @@
     <script type="text/javascript" src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="linq_netw_listen" href="api_c_linq_netw_listen.html" />
-    <link rel="prev" title="linq_netw_destroy" href="api_c_linq_netw_destroy.html" />
+    <link rel="next" title="HTTP API Reference" href="../api_http/api_http.html" />
+    <link rel="prev" title="linq_netw_listen" href="api_c_linq_netw_listen.html" />
   
    
   
@@ -97,7 +97,7 @@
   <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer">
   <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search">
   <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
-  <a href="#api/api_c/api_c_linq_netw_poll" tabindex="1" class="md-skip"> Skip to content </a>
+  <a href="#api/api_c/api_c_linq_netw_connect" tabindex="1" class="md-skip"> Skip to content </a>
   <header class="md-header" data-md-component="header">
   <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
@@ -115,7 +115,7 @@
       <div class="md-flex__cell md-flex__cell--stretch">
         <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
           <span class="md-header-nav__topic">LinQ Network User Guide</span>
-          <span class="md-header-nav__topic"> linq_netw_poll </span>
+          <span class="md-header-nav__topic"> linq_netw_connect </span>
         </div>
       </div>
       <div class="md-flex__cell md-flex__cell--shrink">
@@ -251,25 +251,35 @@
     </li>
     <li class="md-nav__item">
     
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-    <label class="md-nav__link md-nav__link--active" for="__toc"> linq_netw_poll </label>
+      <a href="api_c_linq_netw_poll.html" class="md-nav__link">linq_netw_poll</a>
+      
+    </li>
+    <li class="md-nav__item">
     
-      <a href="#" class="md-nav__link md-nav__link--active">linq_netw_poll</a>
+      <a href="api_c_linq_netw_listen.html" class="md-nav__link">linq_netw_listen</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    <label class="md-nav__link md-nav__link--active" for="__toc"> linq_netw_connect </label>
+    
+      <a href="#" class="md-nav__link md-nav__link--active">linq_netw_connect</a>
       
         
 <nav class="md-nav md-nav--secondary">
     <label class="md-nav__title" for="__toc">Contents</label>
   <ul class="md-nav__list" data-md-scrollfix="">
-        <li class="md-nav__item"><a href="#api-api-c-api-c-linq-netw-poll--page-root" class="md-nav__link">linq_netw_poll</a><nav class="md-nav">
+        <li class="md-nav__item"><a href="#api-api-c-api-c-linq-netw-connect--page-root" class="md-nav__link">linq_netw_connect</a><nav class="md-nav">
               <ul class="md-nav__list">
         <li class="md-nav__item"><a href="#synopsis" class="md-nav__link">Synopsis</a>
         </li>
-        <li class="md-nav__item"><a href="#example" class="md-nav__link">Example</a>
+        <li class="md-nav__item"><a href="#examples" class="md-nav__link">Examples</a>
         </li></ul>
             </nav>
         </li>
     
-<li class="md-nav__item"><a class="md-nav__extra_link" href="../../_sources/api/api_c/api_c_linq_netw_poll.rst.txt">Show Source</a> </li>
+<li class="md-nav__item"><a class="md-nav__extra_link" href="../../_sources/api/api_c/api_c_linq_netw_connect.rst.txt">Show Source</a> </li>
 
   </ul>
 </nav><ul class="md-nav__list"> 
@@ -280,19 +290,9 @@
     </li>
     <li class="md-nav__item">
     
-      <a href="#example" class="md-nav__link">Example</a>
+      <a href="#examples" class="md-nav__link">Examples</a>
       
     </li></ul>
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="api_c_linq_netw_listen.html" class="md-nav__link">linq_netw_listen</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="api_c_linq_netw_connect.html" class="md-nav__link">linq_netw_connect</a>
-      
     </li></ul>
     </li>
     <li class="md-nav__item">
@@ -314,16 +314,16 @@
 <nav class="md-nav md-nav--secondary">
     <label class="md-nav__title" for="__toc">Contents</label>
   <ul class="md-nav__list" data-md-scrollfix="">
-        <li class="md-nav__item"><a href="#api-api-c-api-c-linq-netw-poll--page-root" class="md-nav__link">linq_netw_poll</a><nav class="md-nav">
+        <li class="md-nav__item"><a href="#api-api-c-api-c-linq-netw-connect--page-root" class="md-nav__link">linq_netw_connect</a><nav class="md-nav">
               <ul class="md-nav__list">
         <li class="md-nav__item"><a href="#synopsis" class="md-nav__link">Synopsis</a>
         </li>
-        <li class="md-nav__item"><a href="#example" class="md-nav__link">Example</a>
+        <li class="md-nav__item"><a href="#examples" class="md-nav__link">Examples</a>
         </li></ul>
             </nav>
         </li>
     
-<li class="md-nav__item"><a class="md-nav__extra_link" href="../../_sources/api/api_c/api_c_linq_netw_poll.rst.txt">Show Source</a> </li>
+<li class="md-nav__item"><a class="md-nav__extra_link" href="../../_sources/api/api_c/api_c_linq_netw_connect.rst.txt">Show Source</a> </li>
 
 <li id="searchbox" class="md-nav__item"></li>
 
@@ -337,36 +337,86 @@
           <article class="md-content__inner md-typeset" role="main">
             
   
-<span id="ref-api-c-linq-netw-poll"></span><h1 id="api-api-c-api-c-linq-netw-poll--page-root">linq_netw_poll<a class="headerlink" href="#api-api-c-api-c-linq-netw-poll--page-root" title="Permalink to this headline">¶</a></h1>
+<span id="ref-api-c-linq-netw-connect"></span><h1 id="api-api-c-api-c-linq-netw-connect--page-root">linq_netw_connect<a class="headerlink" href="#api-api-c-api-c-linq-netw-connect--page-root" title="Permalink to this headline">¶</a></h1>
 
 <h2 id="synopsis">Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt id="c.linq_netw_poll">
-<a class="reference internal" href="api_c_linq_netw_error.html#c.E_LINQ_ERROR" title="E_LINQ_ERROR">E_LINQ_ERROR</a> <code class="descname">linq_netw_poll</code><span class="sig-paren">(</span><a class="reference internal" href="api_c_linq_netw.html#c.linq_netw" title="linq_netw">linq_netw</a><em> *netw</em>, uint32_t<em> ms</em><span class="sig-paren">)</span><a class="headerlink" href="#c.linq_netw_poll" title="Permalink to this definition">¶</a></dt>
-<dd><p>Process LinQ Network IO. The LinQ Network Library performs non-blocking IO inside of your thread. To process LinQ Network IO you must call linq_netw_poll routine inside of your main task loop. linq_netw_poll will call any callbacks you have provided from the same thread context as your main application.</p>
+<dt id="c.linq_netw_connect">
+<a class="reference internal" href="api_c_linq_netw_socket.html#c.linq_netw_socket" title="linq_netw_socket">linq_netw_socket</a> <code class="descname">linq_netw_connect</code><span class="sig-paren">(</span><a class="reference internal" href="api_c_linq_netw.html#c.linq_netw" title="linq_netw">linq_netw</a>, const char<em> *ep</em><span class="sig-paren">)</span><a class="headerlink" href="#c.linq_netw_connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>This routine will connect to a remote endpoint via IPC, or TCP, depending on the format string passed as the second argument.  Using the linq_netw_connect and linq_netw_close_… api’s you can dynamically change the port numbers you are connected to during runtime.</p>
+<table frame="void" rules="none">
+<col class="field-name"/>
+<col class="field-body"/>
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>linq_netw</strong> – Main context of the LinQ Network Library required for all routines</li>
+<li><strong>char* ep</strong> (<em>const</em>) – String describing the endpoint for the LinQ Network Libary should connect to.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 
-<h2 id="example">Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span>
-<span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
-<span class="p">{</span>
-   <span class="c1">// Initialize your app</span>
-   <span class="c1">// ...</span>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p class="rubric">Example Endpoints</p>
+<table border="1">
+<colgroup>
+<col width="11%"/>
+<col width="20%"/>
+<col width="69%"/>
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Endpoint</th>
+<th class="head">Example</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>TCP</td>
+<td><a class="reference external" href="tcp://*:33455">tcp://*:33455</a></td>
+<td>Connect to TCP port 33455</td>
+</tr>
+<tr class="row-odd"><td>IPC</td>
+<td>ipc://local</td>
+<td>Connect to a local IPC socket on the host system</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Connect to other instances of LinQ Network</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">linq_netw_socket</span> <span class="n">s</span> <span class="o">=</span> <span class="n">linq_netw_connect</span><span class="p">(</span><span class="n">netw</span><span class="p">,</span> <span class="s">"tcp://*:33455"</span><span class="p">);</span>
 
-   <span class="k">while</span><span class="p">(</span><span class="n">sys_running</span><span class="p">())</span>
-   <span class="p">{</span>
-     <span class="n">linq_netw_poll</span><span class="p">(</span><span class="n">linq</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
-   <span class="p">}</span>
-
-   <span class="c1">// ...</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">s</span> <span class="o">==</span> <span class="n">LINQ_ERROR_SOCKET</span><span class="p">)</span> <span class="p">{</span>
+   <span class="c1">// Socket error ...</span>
+   <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
 <span class="p">}</span>
+
+<span class="c1">// Connected to port 33455</span>
+
+<span class="c1">// Close socket and connect to a different port number</span>
+<span class="n">linq_netw_close_dealer</span><span class="p">(</span><span class="n">netw</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">linq_netw_connect</span><span class="p">(</span><span class="n">netw</span><span class="p">,</span> <span class="s">"tcp://*:33456"</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">s</span> <span class="o">==</span> <span class="n">LINQ_ERROR_SOCKET</span><span class="p">)</span> <span class="p">{</span>
+   <span class="c1">// Socket error ...</span>
+   <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Connected to port 33456</span>
+
+<span class="c1">// Clean up LinQ Network</span>
+<span class="n">linq_netw_destroy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">netw</span><span class="p">);</span>
 </pre></div>
 </div>
 <div class="font-small docutils container">
 <p><strong>See Also</strong></p>
 <ol class="arabic simple">
-<li>sys_running</li>
+<li><a class="reference internal" href="api_c_linq_netw_socket.html#ref-api-c-linq-netw-socket"><span class="std std-ref">linq_netw_socket</span></a></li>
+<li><a class="reference internal" href="api_c_linq_netw_listen.html#ref-api-c-linq-netw-listen"><span class="std std-ref">linq_netw_listen</span></a></li>
+<li>linq_netw_close_router</li>
+<li>linq_netw_close_dealer</li>
+<li>linq_netw_close_http</li>
 </ol>
 </div>
 
@@ -382,7 +432,7 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
           
-            <a href="api_c_linq_netw_destroy.html" title="Material"
+            <a href="api_c_linq_netw_listen.html" title="Material"
                class="md-flex md-footer-nav__link md-footer-nav__link--prev"
                rel="prev">
               <div class="md-flex__cell md-flex__cell--shrink">
@@ -391,17 +441,17 @@
               <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
                 <span class="md-flex__ellipsis">
                   <span
-                      class="md-footer-nav__direction"> Previous </span> linq_netw_destroy </span>
+                      class="md-footer-nav__direction"> Previous </span> linq_netw_listen </span>
               </div>
             </a>
           
           
-            <a href="api_c_linq_netw_listen.html" title="Admonition"
+            <a href="../api_http/api_http.html" title="Admonition"
                class="md-flex md-footer-nav__link md-footer-nav__link--next"
                rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title"><span
                 class="md-flex__ellipsis"> <span
-                class="md-footer-nav__direction"> Next </span> linq_netw_listen </span>
+                class="md-footer-nav__direction"> Next </span> HTTP API Reference </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink"><i
                 class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>

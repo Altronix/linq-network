@@ -17,3 +17,4 @@ C API Reference
    api_c_linq_netw_destroy.rst
    api_c_linq_netw_poll.rst
    api_c_linq_netw_listen.rst
+   api_c_linq_netw_connect.rst

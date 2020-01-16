@@ -68,7 +68,7 @@
     <script type="text/javascript" src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="HTTP API Reference" href="../api_http/api_http.html" />
+    <link rel="next" title="linq_netw_connect" href="api_c_linq_netw_connect.html" />
     <link rel="prev" title="linq_netw_poll" href="api_c_linq_netw_poll.html" />
   
    
@@ -288,6 +288,11 @@
       <a href="#examples" class="md-nav__link">Examples</a>
       
     </li></ul>
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_c_linq_netw_connect.html" class="md-nav__link">linq_netw_connect</a>
+      
     </li></ul>
     </li>
     <li class="md-nav__item">
@@ -338,7 +343,7 @@
 <dl class="function">
 <dt id="c.linq_netw_listen">
 <a class="reference internal" href="api_c_linq_netw_socket.html#c.linq_netw_socket" title="linq_netw_socket">linq_netw_socket</a> <code class="descname">linq_netw_listen</code><span class="sig-paren">(</span><a class="reference internal" href="api_c_linq_netw.html#c.linq_netw" title="linq_netw">linq_netw</a>, const char<em> *ep</em><span class="sig-paren">)</span><a class="headerlink" href="#c.linq_netw_listen" title="Permalink to this definition">¶</a></dt>
-<dd><p>This routine will will listen for incoming connections (via IPC, or TCP) depending on the format string passed into the second argument.  Using the linq_netw_listen and linq_netw_close_… api’s you can dynamically change the port numbers during runtime.</p>
+<dd><p>This routine will listen for incoming connections (via IPC, or TCP) depending on the format string passed as the second argument.  Using the linq_netw_listen and linq_netw_close_… api’s you can dynamically change the port numbers you are listening to during runtime.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">You must enable the LinQ Library Configuration <strong>WITH_SQLITE</strong> to use the HTTP endpoint</p>
@@ -416,7 +421,7 @@
 <p><strong>See Also</strong></p>
 <ol class="arabic simple">
 <li><a class="reference internal" href="api_c_linq_netw_socket.html#ref-api-c-linq-netw-socket"><span class="std std-ref">linq_netw_socket</span></a></li>
-<li>linq_netw_connect</li>
+<li><a class="reference internal" href="api_c_linq_netw_connect.html#ref-api-c-linq-netw-connect"><span class="std std-ref">linq_netw_connect</span></a></li>
 <li>linq_netw_close_router</li>
 <li>linq_netw_close_dealer</li>
 <li>linq_netw_close_http</li>
@@ -449,12 +454,12 @@
             </a>
           
           
-            <a href="../api_http/api_http.html" title="Admonition"
+            <a href="api_c_linq_netw_connect.html" title="Admonition"
                class="md-flex md-footer-nav__link md-footer-nav__link--next"
                rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title"><span
                 class="md-flex__ellipsis"> <span
-                class="md-footer-nav__direction"> Next </span> HTTP API Reference </span>
+                class="md-footer-nav__direction"> Next </span> linq_netw_connect </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink"><i
                 class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
