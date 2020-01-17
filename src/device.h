@@ -8,7 +8,7 @@
 // includes
 #include "containers.h"
 #include "czmq.h"
-#include "linq_netw_internal.h"
+#include "atx_net_internal.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -37,30 +37,30 @@ extern "C"
     void device_send_delete(
         device_s*,
         const char*,
-        linq_netw_request_complete_fn,
+        atx_net_request_complete_fn,
         void*);
     void device_send_delete_mem(
         device_s*,
         const char*,
         uint32_t,
-        linq_netw_request_complete_fn,
+        atx_net_request_complete_fn,
         void*);
     void device_send_get(
         device_s*,
         const char*,
-        linq_netw_request_complete_fn,
+        atx_net_request_complete_fn,
         void*);
     void device_send_get_mem(
         device_s*,
         const char*,
         uint32_t,
-        linq_netw_request_complete_fn,
+        atx_net_request_complete_fn,
         void*);
     void device_send_post(
         device_s*,
         const char*,
         const char*,
-        linq_netw_request_complete_fn,
+        atx_net_request_complete_fn,
         void*);
     void device_send_post_mem(
         device_s*,
@@ -68,13 +68,13 @@ extern "C"
         uint32_t,
         const char*,
         uint32_t,
-        linq_netw_request_complete_fn,
+        atx_net_request_complete_fn,
         void*);
     void device_send(
         device_s* d,
         const char* path,
         const char* json,
-        linq_netw_request_complete_fn fn,
+        atx_net_request_complete_fn fn,
         void* context);
     uint32_t device_request_sent_at(device_s* d);
     uint32_t device_request_retry_count(device_s* r);

@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "altronix/linq_netw.h"
+#include "altronix/atx_net.h"
 
 static bool received_response = false;
 
@@ -35,8 +35,8 @@ on_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 static void
 on_alert(
     void* ctx,
-    linq_netw_alert_s* alert,
-    linq_netw_email_s* mail,
+    atx_net_alert_s* alert,
+    atx_net_email_s* mail,
     device_s** d)
 {
     ((void)ctx);
@@ -52,12 +52,12 @@ on_heartbeat(void* ctx, const char* serial, device_s** d)
     ((void)serial);
     ((void)d);
     /*
-    linq_netw_s* linq = ctx;
-    linq_netw_device_send_get(linq, serial, "/ATX/test/504", on_response, NULL);
+    atx_net_s* linq = ctx;
+    atx_net_device_send_get(linq, serial, "/ATX/test/504", on_response, NULL);
     */
 }
 
-linq_netw_callbacks callbacks = { .err = on_error,
+atx_net_callbacks callbacks = { .err = on_error,
                                   .alert = on_alert,
                                   .hb = on_heartbeat };
 
@@ -77,28 +77,28 @@ main(int argc, char* argv[])
     ((void)argc);
     ((void)argv);
     int err = -1;
-    linq_netw_socket s, http;
+    atx_net_socket s, http;
 
-    linq_netw_s* server = linq_netw_create(&callbacks, NULL);
+    atx_net_s* server = atx_net_create(&callbacks, NULL);
     if (!server) { return -1; }
 
-    s = linq_netw_listen(server, "tcp://*:33455");
+    s = atx_net_listen(server, "tcp://*:33455");
     if (s == LINQ_ERROR_SOCKET) {
         printf("%s", "[S] Listen Failure!\n");
-        linq_netw_destroy(&server);
+        atx_net_destroy(&server);
         return -1;
     }
 
-    http = linq_netw_listen(server, "http://*:8000");
+    http = atx_net_listen(server, "http://*:8000");
     if (http == LINQ_ERROR_SOCKET) {
         printf("%s", "[S] HTTP Listen Failure!\n");
-        linq_netw_destroy(&server);
+        atx_net_destroy(&server);
         return -1;
     }
 
-    while (sys_running()) { err = linq_netw_poll(server, 5); }
+    while (sys_running()) { err = atx_net_poll(server, 5); }
 
-    linq_netw_destroy(&server);
+    atx_net_destroy(&server);
 
     return 0;
 }

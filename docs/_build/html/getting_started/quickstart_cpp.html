@@ -423,15 +423,15 @@ make install
 <p>The LinQ Network C++ binding uses a lambda style API to listen for incoming network events.</p>
 
 <h3 id="alert">Alert<a class="headerlink" href="#alert" title="Permalink to this headline">¶</a></h3>
-<p>The “Alert Callback” is called from the LinQ Network library when a LinQ Enabled device generates an alert. An optional application context, <a class="reference internal" href="../api/api_c/api_c_linq_netw_alert.html#ref-api-c-linq-netw-alert"><span class="std std-ref">alert struct</span></a>, and a <a class="reference internal" href="../api/api_c/api_c_linq_netw_email.html#ref-api-c-linq-netw-email"><span class="std std-ref">email struct</span></a> are passed into your application alert callback function.</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="n">linq_netw_alert_s</span><span class="o">*</span><span class="p">,</span> <span class="n">linq_netw_email_s</span><span class="o">*</span><span class="p">,</span> <span class="n">Device</span><span class="o">&amp;</span><span class="p">)</span><span class="o">&gt;</span><span class="p">;</span>
+<p>The “Alert Callback” is called from the LinQ Network library when a LinQ Enabled device generates an alert. An optional application context, <a class="reference internal" href="../api/api_c/api_c_atx_net_alert.html#ref-api-c-atx-net-alert"><span class="std std-ref">alert struct</span></a>, and a <a class="reference internal" href="../api/api_c/api_c_atx_net_email.html#ref-api-c-atx-net-email"><span class="std std-ref">email struct</span></a> are passed into your application alert callback function.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="n">atx_net_alert_s</span><span class="o">*</span><span class="p">,</span> <span class="n">atx_net_email_s</span><span class="o">*</span><span class="p">,</span> <span class="n">Device</span><span class="o">&amp;</span><span class="p">)</span><span class="o">&gt;</span><span class="p">;</span>
 </pre></div>
 </div>
 <div class="font-small docutils container">
 <p><strong>See Also</strong></p>
 <ol class="arabic simple">
-<li><a class="reference internal" href="../api/api_c/api_c_linq_netw_alert.html#ref-api-c-linq-netw-alert"><span class="std std-ref">linq_netw_alert</span></a></li>
-<li><a class="reference internal" href="../api/api_c/api_c_linq_netw_email.html#ref-api-c-linq-netw-email"><span class="std std-ref">linq_netw_email</span></a></li>
+<li><a class="reference internal" href="../api/api_c/api_c_atx_net_alert.html#ref-api-c-atx-net-alert"><span class="std std-ref">atx_net_alert</span></a></li>
+<li><a class="reference internal" href="../api/api_c/api_c_atx_net_email.html#ref-api-c-atx-net-email"><span class="std std-ref">atx_net_email</span></a></li>
 </ol>
 </div>
 
@@ -444,14 +444,14 @@ make install
 
 
 <h3 id="error">Error<a class="headerlink" href="#error" title="Permalink to this headline">¶</a></h3>
-<p>The “Error Callback” is called from the LinQ Network library when the LinQ Network library detects a runtime error. An optional application context, and an <a class="reference internal" href="../api/api_c/api_c_linq_netw_error.html#ref-api-c-linq-netw-error"><span class="std std-ref">linq_netw_error</span></a> are passed into your application error callback function.</p>
+<p>The “Error Callback” is called from the LinQ Network library when the LinQ Network library detects a runtime error. An optional application context, and an <a class="reference internal" href="../api/api_c/api_c_atx_net_error.html#ref-api-c-atx-net-error"><span class="std std-ref">atx_net_error</span></a> are passed into your application error callback function.</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="n">E_LINQ_ERROR</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">error_</span><span class="p">;</span>
 </pre></div>
 </div>
 <div class="font-small docutils container">
 <p><strong>See Also</strong></p>
 <ol class="arabic simple">
-<li><a class="reference internal" href="../api/api_c/api_c_linq_netw_error.html#ref-api-c-linq-netw-error"><span class="std std-ref">linq_netw_error</span></a></li>
+<li><a class="reference internal" href="../api/api_c/api_c_atx_net_error.html#ref-api-c-atx-net-error"><span class="std std-ref">atx_net_error</span></a></li>
 </ol>
 </div>
 
@@ -465,7 +465,7 @@ make install
 
 
 <h2 id="process-network-io">Process Network IO<a class="headerlink" href="#process-network-io" title="Permalink to this headline">¶</a></h2>
-<p>The LinQ Network library performs non-blocking IO inside of your thread. To process LinQ Network IO you must call the <a class="reference internal" href="../api/api_c/api_c_linq_netw_poll.html#ref-api-c-linq-netw-poll"><span class="std std-ref">linq_netw_poll</span></a> routine from inside of your main loop.  linq_netw_poll() will call any callbacks you have provided from the same thread context as your main application.</p>
+<p>The LinQ Network library performs non-blocking IO inside of your thread. To process LinQ Network IO you must call the <a class="reference internal" href="../api/api_c/api_c_atx_net_poll.html#ref-api-c-atx-net-poll"><span class="std std-ref">atx_net_poll</span></a> routine from inside of your main loop.  atx_net_poll() will call any callbacks you have provided from the same thread context as your main application.</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span>
 <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
 <span class="p">{</span>
@@ -488,14 +488,14 @@ make install
 <div class="font-small docutils container">
 <p><strong>See Also</strong></p>
 <ol class="arabic simple">
-<li><a class="reference internal" href="../api/api_c/api_c_linq_netw_poll.html#ref-api-c-linq-netw-poll"><span class="std std-ref">linq_netw_poll</span></a></li>
+<li><a class="reference internal" href="../api/api_c/api_c_atx_net_poll.html#ref-api-c-atx-net-poll"><span class="std std-ref">atx_net_poll</span></a></li>
 <li>sys_running</li>
 </ol>
 </div>
 
 
 <h2 id="complete-application">Complete Application<a class="headerlink" href="#complete-application" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">"altronix/linq_netw.hpp"</span><span class="cp"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">"altronix/atx_net.hpp"</span><span class="cp"></span>
 
 <span class="kt">int</span>
 <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>

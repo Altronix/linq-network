@@ -1,4 +1,4 @@
-#include "altronix/linq_netw.h"
+#include "altronix/atx_net.h"
 #include "sys.h"
 
 #include "jsmn.h"

@@ -52,8 +52,8 @@ LinqNetwork::LinqNetwork(const Napi::CallbackInfo& info)
             }
         })
         .on_alert([this](
-                      linq_netw_alert_s* alert,
-                      linq_netw_email_s* email,
+                      atx_net_alert_s* alert,
+                      atx_net_email_s* email,
                       altronix::Device& d) {
             ((void)alert);
             ((void)email);

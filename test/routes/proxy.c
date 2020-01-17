@@ -1,4 +1,4 @@
-#include "altronix/linq_netw.h"
+#include "altronix/atx_net.h"
 #include "helpers.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
@@ -26,16 +26,16 @@ test_route_proxy_get(void** context_p)
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
 
-    linq_netw_s* l = linq_netw_create(NULL, NULL);
-    linq_netw_listen(l, "tcp://*:32820");
-    linq_netw_listen(l, "http://*:8000");
-    linq_netw_poll(l, 5);
+    atx_net_s* l = atx_net_create(NULL, NULL);
+    atx_net_listen(l, "tcp://*:32820");
+    atx_net_listen(l, "http://*:8000");
+    atx_net_poll(l, 5);
     sqlite_spy_outgoing_statement_flush();
 
     mongoose_spy_event_request_push(
         "", "GET", "/api/v1/linq-lite/proxy/serial1234/ATX/about", NULL);
     czmq_spy_poll_set_incoming((0x00));
-    for (int i = 0; i < 4; i++) linq_netw_poll(l, -1);
+    for (int i = 0; i < 4; i++) atx_net_poll(l, -1);
 
     outgoing = czmq_spy_mesg_pop_outgoing();
     assert_non_null(outgoing);
@@ -53,7 +53,7 @@ test_route_proxy_get(void** context_p)
     zframe_destroy(&url);
     zmsg_destroy(&outgoing);
 
-    linq_netw_destroy(&l);
+    atx_net_destroy(&l);
     test_reset();
 }
 
@@ -73,10 +73,10 @@ test_route_proxy_post(void** context_p)
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
 
-    linq_netw_s* l = linq_netw_create(NULL, NULL);
-    linq_netw_listen(l, "tcp://*:32820");
-    linq_netw_listen(l, "http://*:8000");
-    linq_netw_poll(l, 5);
+    atx_net_s* l = atx_net_create(NULL, NULL);
+    atx_net_listen(l, "tcp://*:32820");
+    atx_net_listen(l, "http://*:8000");
+    atx_net_poll(l, 5);
     sqlite_spy_outgoing_statement_flush();
 
     mongoose_spy_event_request_push(
@@ -85,7 +85,7 @@ test_route_proxy_post(void** context_p)
         "/api/v1/linq-lite/proxy/serial1234/ATX/about",
         "{\"test\":\"data\"}");
     czmq_spy_poll_set_incoming((0x00));
-    for (int i = 0; i < 4; i++) linq_netw_poll(l, -1);
+    for (int i = 0; i < 4; i++) atx_net_poll(l, -1);
 
     outgoing = czmq_spy_mesg_pop_outgoing();
     assert_non_null(outgoing);
@@ -106,7 +106,7 @@ test_route_proxy_post(void** context_p)
     zframe_destroy(&dat);
     zmsg_destroy(&outgoing);
 
-    linq_netw_destroy(&l);
+    atx_net_destroy(&l);
     test_reset();
 }
 
@@ -119,10 +119,10 @@ test_route_proxy_404(void** context_p)
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
-    linq_netw_s* l = linq_netw_create(NULL, NULL);
-    linq_netw_listen(l, "tcp://*:32820");
-    linq_netw_listen(l, "http://*:8000");
-    linq_netw_poll(l, 5);
+    atx_net_s* l = atx_net_create(NULL, NULL);
+    atx_net_listen(l, "tcp://*:32820");
+    atx_net_listen(l, "http://*:8000");
+    atx_net_poll(l, 5);
     sqlite_spy_outgoing_statement_flush();
 
     mongoose_spy_event_request_push(
@@ -131,14 +131,14 @@ test_route_proxy_404(void** context_p)
         "/api/v1/linq-lite/proxy/serial1234/ATX/about",
         "{\"test\":\"data\"}");
     czmq_spy_poll_set_incoming((0x00));
-    for (int i = 0; i < 4; i++) linq_netw_poll(l, -1);
+    for (int i = 0; i < 4; i++) atx_net_poll(l, -1);
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
     assert_non_null(response);
     assert_memory_equal(response->body, "{\"error\":\"Device not found\"}", 28);
     mock_mongoose_response_destroy(&response);
 
-    linq_netw_destroy(&l);
+    atx_net_destroy(&l);
     test_reset();
 }
 
@@ -151,22 +151,22 @@ test_route_proxy_400_too_short(void** context_p)
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
-    linq_netw_s* l = linq_netw_create(NULL, NULL);
-    linq_netw_listen(l, "tcp://*:32820");
-    linq_netw_listen(l, "http://*:8000");
-    linq_netw_poll(l, 5);
+    atx_net_s* l = atx_net_create(NULL, NULL);
+    atx_net_listen(l, "tcp://*:32820");
+    atx_net_listen(l, "http://*:8000");
+    atx_net_poll(l, 5);
     sqlite_spy_outgoing_statement_flush();
 
     mongoose_spy_event_request_push(
         "", "GET", "/api/v1/linq-lite/proxy/1234", NULL);
     czmq_spy_poll_set_incoming((0x00));
-    for (int i = 0; i < 4; i++) linq_netw_poll(l, -1);
+    for (int i = 0; i < 4; i++) atx_net_poll(l, -1);
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
     assert_non_null(response);
     assert_memory_equal(response->body, "{\"error\":\"Bad request\"}", 23);
     mock_mongoose_response_destroy(&response);
 
-    linq_netw_destroy(&l);
+    atx_net_destroy(&l);
     test_reset();
 }

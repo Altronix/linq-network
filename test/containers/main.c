@@ -2,7 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "altronix/linq_netw.h"
+#include "altronix/atx_net.h"
 #include "containers.h"
 #include "helpers.h"
 
@@ -24,7 +24,7 @@ item_free(item** p)
 {
     item* t = *p;
     *p = NULL;
-    linq_netw_free(t);
+    atx_net_free(t);
 }
 
 void
@@ -32,7 +32,7 @@ car_free(car** p)
 {
     car* c = *p;
     *p = NULL;
-    linq_netw_free(c);
+    atx_net_free(c);
 }
 
 LIST_INIT(item, item, item_free);
@@ -46,9 +46,9 @@ test_container_list_create(void** context_p)
 {
     ((void)context_p);
     item_list_s* list = item_list_create();
-    item* item0 = linq_netw_malloc(sizeof(item));
-    item* item1 = linq_netw_malloc(sizeof(item));
-    item* item2 = linq_netw_malloc(sizeof(item));
+    item* item0 = atx_net_malloc(sizeof(item));
+    item* item1 = atx_net_malloc(sizeof(item));
+    item* item2 = atx_net_malloc(sizeof(item));
 
     item_list_push(list, &item0);
     assert_null(item0);
@@ -64,7 +64,7 @@ test_container_list_create(void** context_p)
     item0 = item_list_pop(list);
 
     assert_int_equal(2, item_list_size(list));
-    linq_netw_free(item0);
+    atx_net_free(item0);
 
     item_list_destroy(&list);
     assert_null(list);
@@ -75,9 +75,9 @@ test_container_map_create(void** context_p)
 {
     ((void)context_p);
     item_map_s* hash = item_map_create();
-    item* item0 = linq_netw_malloc(sizeof(item));
-    item* item1 = linq_netw_malloc(sizeof(item));
-    item* item2 = linq_netw_malloc(sizeof(item));
+    item* item0 = atx_net_malloc(sizeof(item));
+    item* item1 = atx_net_malloc(sizeof(item));
+    item* item2 = atx_net_malloc(sizeof(item));
 
     assert_non_null(hash);
 

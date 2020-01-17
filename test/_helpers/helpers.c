@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "helpers.h"
-#include "linq_netw_internal.h"
+#include "atx_net_internal.h"
 
 zmsg_t*
 helpers_make_heartbeat(

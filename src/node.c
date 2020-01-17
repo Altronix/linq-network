@@ -5,11 +5,11 @@
 #include "node.h"
 #include "containers.h"
 
-// main class struct (extends linq_netw_socket_s)
+// main class struct (extends atx_net_socket_s)
 typedef struct node_s
 {
-    zsock_t* sock;   // linq_netw_socket_s expects zsock_t to be first
-    router_s router; // linq_netw_socket_s expects router to be second
+    zsock_t* sock;   // atx_net_socket_s expects zsock_t to be first
+    router_s router; // atx_net_socket_s expects router to be second
     char serial[SID_LEN];
 } node_s;
 MAP_INIT(node, node_s, node_destroy);
@@ -21,7 +21,7 @@ node_create(
     uint32_t router_sz,
     const char* sid)
 {
-    node_s* node = linq_netw_malloc(sizeof(node_s));
+    node_s* node = atx_net_malloc(sizeof(node_s));
     if (node) {
         memset(node, 0, sizeof(node_s));
         node->sock = s;
@@ -37,7 +37,7 @@ node_destroy(node_s** node_p)
     node_s* node = *node_p;
     *node_p = NULL;
     memset(node, 0, sizeof(node_s));
-    linq_netw_free(node);
+    atx_net_free(node);
 }
 
 void

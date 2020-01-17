@@ -2,7 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "altronix/linq_netw.h"
+#include "altronix/atx_net.h"
 #include "helpers.h"
 #include "mock_zmsg.h"
 

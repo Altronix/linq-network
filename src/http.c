@@ -202,7 +202,7 @@ http_listen(http_s* http, const char* port)
     if (http->listener) {
         log_fatal("%10s", "HTTP can only listen to one server at a time!");
         log_fatal("%10s", "Please shutdown HTTP server before listening again");
-        linq_netw_assert(http->listener);
+        atx_net_assert(http->listener);
     }
     http->listener = mg_bind(&http->connections, port, http_ev_handler, http);
     mg_set_protocol_http_websocket(http->listener);
@@ -211,8 +211,8 @@ http_listen(http_s* http, const char* port)
 void
 http_use(http_s* http, const char* path, http_route_cb cb, void* context)
 {
-    http_route_context* route = linq_netw_malloc(sizeof(http_route_context));
-    linq_netw_assert(route);
+    http_route_context* route = atx_net_malloc(sizeof(http_route_context));
+    atx_net_assert(route);
     route->cb = cb;
     route->context = context;
     routes_map_add(http->routes, path, &route);

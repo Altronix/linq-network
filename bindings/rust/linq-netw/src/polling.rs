@@ -3,13 +3,13 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 extern crate futures;
-extern crate linq_netw_sys;
+extern crate atx_net_sys;
 
 use crate::error::{NetworkError, NetworkErrorKind};
 use crate::event;
 use crate::simple_future;
 
-use linq_netw_sys::*;
+use atx_net_sys::*;
 use simple_future::SimpleFuture;
 use std::collections::HashMap;
 use std::ffi::CStr;
@@ -24,8 +24,8 @@ pub fn running() -> bool {
 }
 
 pub enum Socket {
-    Server(linq_netw_socket),
-    Client(linq_netw_socket),
+    Server(atx_net_socket),
+    Client(atx_net_socket),
 }
 
 pub enum Request<'a> {
@@ -66,7 +66,7 @@ impl Endpoint {
 }
 
 pub struct Context {
-    c_ctx: *mut linq_netw_s,
+    c_ctx: *mut atx_net_s,
     events: Arc<Mutex<event::EventStreamState>>,
     c_events: *mut c_void,
 }
@@ -79,10 +79,10 @@ impl Context {
         let events = Arc::new(Mutex::new(event::EventStreamState::new()));
         let clone = Arc::clone(&events);
         let c_ctx = unsafe {
-            linq_netw_create(&event::CALLBACKS as *const _, null_mut())
+            atx_net_create(&event::CALLBACKS as *const _, null_mut())
         };
         let c_events = Arc::into_raw(clone) as *mut c_void;
-        unsafe { linq_netw_context_set(c_ctx, c_events) };
+        unsafe { atx_net_context_set(c_ctx, c_events) };
         Context {
             c_ctx,
             events,
@@ -93,7 +93,7 @@ impl Context {
     // Listen for incoming linq nodes or device nodes
     // TODO - return socket handle and remove socket hashmap
     pub fn listen(&self, ep: Endpoint) -> Socket {
-        let s = unsafe { linq_netw_listen(self.c_ctx, ep.to_c_str().as_ptr()) };
+        let s = unsafe { atx_net_listen(self.c_ctx, ep.to_c_str().as_ptr()) };
         Socket::Server(s)
     }
 
@@ -104,7 +104,7 @@ impl Context {
     // Connect to another linq node
     pub fn connect(&self, ep: Endpoint) -> Socket {
         let ep = ep.to_c_str().as_ptr();
-        let s = unsafe { linq_netw_connect(self.c_ctx, ep) };
+        let s = unsafe { atx_net_connect(self.c_ctx, ep) };
         Socket::Client(s)
     }
 
@@ -112,10 +112,10 @@ impl Context {
     pub fn close(&self, s: &Socket) -> &Self {
         match s {
             Socket::Server(s) => unsafe {
-                linq_netw_close_router(self.c_ctx, *s);
+                atx_net_close_router(self.c_ctx, *s);
             },
             Socket::Client(s) => unsafe {
-                linq_netw_close_dealer(self.c_ctx, *s);
+                atx_net_close_dealer(self.c_ctx, *s);
             },
         };
         self
@@ -123,7 +123,7 @@ impl Context {
 
     // Run background tasks (handle Context IO)
     pub fn poll(&self, ms: i32) -> E_LINQ_ERROR {
-        unsafe { linq_netw_poll(self.c_ctx, ms) }
+        unsafe { atx_net_poll(self.c_ctx, ms) }
     }
 
     // Same as poll accept will block on socket read
@@ -161,7 +161,7 @@ impl Context {
         future
     }
 
-    // We call linq_netw_device_send... which accepts a callback for response.
+    // We call atx_net_device_send... which accepts a callback for response.
     // We store response as heap enclosure (fn on_response)
     pub fn send_cb<F>(&self, r: Request, sid: &str, cb: F) -> ()
     where
@@ -183,7 +183,7 @@ impl Context {
             Box::new(Box::new(cb));
         match r {
             Request::Get(path) => unsafe {
-                linq_netw_device_send_get(
+                atx_net_device_send_get(
                     self.c_ctx,
                     CString::new(sid).unwrap().as_ptr(),
                     CString::new(path).unwrap().as_ptr(),
@@ -192,7 +192,7 @@ impl Context {
                 );
             },
             Request::Post(path, data) => unsafe {
-                linq_netw_device_send_post(
+                atx_net_device_send_post(
                     self.c_ctx,
                     CString::new(sid).unwrap().as_ptr(),
                     CString::new(path).unwrap().as_ptr(),
@@ -202,7 +202,7 @@ impl Context {
                 );
             },
             Request::Delete(path) => unsafe {
-                linq_netw_device_send_delete(
+                atx_net_device_send_delete(
                     self.c_ctx,
                     CString::new(sid).unwrap().as_ptr(),
                     CString::new(path).unwrap().as_ptr(),
@@ -214,7 +214,7 @@ impl Context {
     }
 
     pub fn device_count(&self) -> u32 {
-        unsafe { linq_netw_device_count(self.c_ctx) }
+        unsafe { atx_net_device_count(self.c_ctx) }
     }
 
     pub fn devices(&self) -> HashMap<String, String> {
@@ -231,12 +231,12 @@ impl Context {
             let pid = unsafe { CStr::from_ptr(pid).to_str().unwrap() };
             map.insert(sid.to_owned(), pid.to_owned());
         }
-        unsafe { linq_netw_devices_foreach(self.c_ctx, Some(foreach), ctx) };
+        unsafe { atx_net_devices_foreach(self.c_ctx, Some(foreach), ctx) };
         map
     }
 
     pub fn node_count(&self) -> u32 {
-        unsafe { linq_netw_node_count(self.c_ctx) }
+        unsafe { atx_net_node_count(self.c_ctx) }
     }
 }
 
@@ -245,7 +245,7 @@ impl Drop for Context {
         // Destroy c context and memory we passed to c library
         // Summon Arc pointer from raw so that it will free on drop
         use event::EventsLock;
-        unsafe { linq_netw_destroy(&mut self.c_ctx) };
+        unsafe { atx_net_destroy(&mut self.c_ctx) };
         let _e: EventsLock = unsafe { Arc::from_raw(self.c_events as *mut _) };
     }
 }

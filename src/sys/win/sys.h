@@ -12,13 +12,13 @@
 #include <stdio.h>
 #include <string.h>
 
-#define linq_netw_malloc_fn malloc
-#define linq_netw_free_fn free
-#define linq_netw_assert_fn assert
+#define atx_net_malloc_fn malloc
+#define atx_net_free_fn free
+#define atx_net_assert_fn assert
 
-#define linq_netw_malloc(x) linq_netw_malloc_fn(x)
-#define linq_netw_free(x) linq_netw_free_fn(x)
-#define linq_netw_assert(x) linq_netw_assert_fn(x)
+#define atx_net_malloc(x) atx_net_malloc_fn(x)
+#define atx_net_free(x) atx_net_free_fn(x)
+#define atx_net_assert(x) atx_net_assert_fn(x)
 
 #ifdef __cplusplus
 extern "C"

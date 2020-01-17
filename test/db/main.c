@@ -2,9 +2,9 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "altronix/linq_netw.h"
+#include "altronix/atx_net.h"
 #include "database/database.h"
-#include "linq_netw_internal.h"
+#include "atx_net_internal.h"
 #include "mock_sqlite.h"
 
 #include <cmocka.h>
@@ -33,7 +33,7 @@ test_db_row_exists(void** context_p)
 
     // Remove any outgoing statements generated from init()
     while ((statement = sqlite_spy_outgoing_statement_pop())) {
-        linq_netw_free(statement);
+        atx_net_free(statement);
     }
 
     database_row_exists(&d, "devices", "device_id", "test");
@@ -41,7 +41,7 @@ test_db_row_exists(void** context_p)
     statement = sqlite_spy_outgoing_statement_pop();
     assert_non_null(statement);
     assert_string_equal(expect, statement->data);
-    linq_netw_free(statement);
+    atx_net_free(statement);
 
     statement = sqlite_spy_outgoing_statement_pop();
     assert_null(statement);
@@ -80,7 +80,7 @@ test_db_insert(void** context_p)
 
     // Remove any outgoing statements generated from init()
     while ((statement = sqlite_spy_outgoing_statement_pop())) {
-        linq_netw_free(statement);
+        atx_net_free(statement);
     }
 
     // clang-format off
@@ -99,7 +99,7 @@ test_db_insert(void** context_p)
     statement = sqlite_spy_outgoing_statement_pop();
     assert_non_null(statement);
     assert_string_equal(expect, statement->data);
-    linq_netw_free(statement);
+    atx_net_free(statement);
 
     statement = sqlite_spy_outgoing_statement_pop();
     assert_null(statement);
@@ -138,7 +138,7 @@ test_db_insert_n(void** context_p)
 
     // Remove any outgoing statements generated from init()
     while ((statement = sqlite_spy_outgoing_statement_pop())) {
-        linq_netw_free(statement);
+        atx_net_free(statement);
     }
 
     // clang-format off
@@ -157,7 +157,7 @@ test_db_insert_n(void** context_p)
     statement = sqlite_spy_outgoing_statement_pop();
     assert_non_null(statement);
     assert_string_equal(expect, statement->data);
-    linq_netw_free(statement);
+    atx_net_free(statement);
 
     statement = sqlite_spy_outgoing_statement_pop();
     assert_null(statement);
@@ -195,7 +195,7 @@ test_db_insert_raw(void** context_p)
 
     // Remove any outgoing statements generated from init()
     while ((statement = sqlite_spy_outgoing_statement_pop())) {
-        linq_netw_free(statement);
+        atx_net_free(statement);
     }
 
     database_insert_raw(
@@ -207,7 +207,7 @@ test_db_insert_raw(void** context_p)
     statement = sqlite_spy_outgoing_statement_pop();
     assert_non_null(statement);
     assert_string_equal(expect, statement->data);
-    linq_netw_free(statement);
+    atx_net_free(statement);
 
     statement = sqlite_spy_outgoing_statement_pop();
     assert_null(statement);
@@ -246,7 +246,7 @@ test_db_insert_raw_n(void** context_p)
 
     // Remove any outgoing statements generated from init()
     while ((statement = sqlite_spy_outgoing_statement_pop())) {
-        linq_netw_free(statement);
+        atx_net_free(statement);
     }
 
     uint32_t keys_len = snprintf(
@@ -265,7 +265,7 @@ test_db_insert_raw_n(void** context_p)
     statement = sqlite_spy_outgoing_statement_pop();
     assert_non_null(statement);
     assert_string_equal(expect, statement->data);
-    linq_netw_free(statement);
+    atx_net_free(statement);
 
     statement = sqlite_spy_outgoing_statement_pop();
     assert_null(statement);

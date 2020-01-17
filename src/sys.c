@@ -2,7 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "linq_netw_internal.h"
+#include "atx_net_internal.h"
 
 extern volatile int zsys_interrupted;
 

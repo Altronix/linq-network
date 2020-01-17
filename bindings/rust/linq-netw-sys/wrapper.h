@@ -28,8 +28,8 @@ extern "C"
 #endif
 
     typedef struct device_s device_s;
-    typedef struct linq_netw_s linq_netw_s;
-    typedef uint32_t linq_netw_socket;
+    typedef struct atx_net_s atx_net_s;
+    typedef uint32_t atx_net_socket;
 
     typedef struct linq_str
     {
@@ -54,7 +54,7 @@ extern "C"
         LINQ_ERROR_504 = 504,
     } E_LINQ_ERROR;
 
-    typedef struct linq_netw_alert_s
+    typedef struct atx_net_alert_s
     {
         linq_str who;
         linq_str what;
@@ -63,9 +63,9 @@ extern "C"
         linq_str mesg;
         linq_str email[5];
         char* data;
-    } linq_netw_alert_s;
+    } atx_net_alert_s;
 
-    typedef struct linq_netw_email_s
+    typedef struct atx_net_email_s
     {
         linq_str to0;
         linq_str to1;
@@ -80,93 +80,93 @@ extern "C"
         linq_str port;
         linq_str device;
         char* data;
-    } linq_netw_email_s;
+    } atx_net_email_s;
 
-    typedef void (*linq_netw_request_complete_fn)(
+    typedef void (*atx_net_request_complete_fn)(
         void*,
         E_LINQ_ERROR e,
         const char* json,
         device_s**);
     typedef void (
-        *linq_netw_error_fn)(void*, E_LINQ_ERROR, const char*, const char*);
-    typedef void (*linq_netw_heartbeat_fn)(void*, const char*, device_s**);
-    typedef void (*linq_netw_alert_fn)(
+        *atx_net_error_fn)(void*, E_LINQ_ERROR, const char*, const char*);
+    typedef void (*atx_net_heartbeat_fn)(void*, const char*, device_s**);
+    typedef void (*atx_net_alert_fn)(
         void*,
-        linq_netw_alert_s*,
-        linq_netw_email_s*,
+        atx_net_alert_s*,
+        atx_net_email_s*,
         device_s**);
-    typedef void (*linq_netw_ctrlc_fn)(void*);
+    typedef void (*atx_net_ctrlc_fn)(void*);
     typedef void (
-        *linq_netw_devices_foreach_fn)(void* ctx, const char*, const char*);
-    typedef struct linq_netw_callbacks
+        *atx_net_devices_foreach_fn)(void* ctx, const char*, const char*);
+    typedef struct atx_net_callbacks
     {
-        linq_netw_error_fn err;
-        linq_netw_heartbeat_fn hb;
-        linq_netw_alert_fn alert;
-        linq_netw_ctrlc_fn ctrlc;
-    } linq_netw_callbacks;
+        atx_net_error_fn err;
+        atx_net_heartbeat_fn hb;
+        atx_net_alert_fn alert;
+        atx_net_ctrlc_fn ctrlc;
+    } atx_net_callbacks;
 
     // Linq API
-    linq_netw_s* linq_netw_create(const linq_netw_callbacks*, void*);
-    void linq_netw_destroy(linq_netw_s**);
-    void linq_netw_init(linq_netw_s*, const linq_netw_callbacks*, void*);
-    void linq_netw_deinit(linq_netw_s*);
-    void linq_netw_context_set(linq_netw_s* linq, void* ctx);
-    linq_netw_socket linq_netw_listen(linq_netw_s*, const char* ep);
-    linq_netw_socket linq_netw_connect(linq_netw_s* l, const char* ep);
-    E_LINQ_ERROR linq_netw_close_router(linq_netw_s*, linq_netw_socket);
-    E_LINQ_ERROR linq_netw_close_dealer(linq_netw_s*, linq_netw_socket);
-    E_LINQ_ERROR linq_netw_close_http(linq_netw_s*, linq_netw_socket);
-    E_LINQ_ERROR linq_netw_poll(linq_netw_s* l, int32_t ms);
-    device_s** linq_netw_device(const linq_netw_s*, const char*);
-    uint32_t linq_netw_device_count(const linq_netw_s*);
-    void linq_netw_devices_foreach(
-        const linq_netw_s* l,
-        linq_netw_devices_foreach_fn,
+    atx_net_s* atx_net_create(const atx_net_callbacks*, void*);
+    void atx_net_destroy(atx_net_s**);
+    void atx_net_init(atx_net_s*, const atx_net_callbacks*, void*);
+    void atx_net_deinit(atx_net_s*);
+    void atx_net_context_set(atx_net_s* linq, void* ctx);
+    atx_net_socket atx_net_listen(atx_net_s*, const char* ep);
+    atx_net_socket atx_net_connect(atx_net_s* l, const char* ep);
+    E_LINQ_ERROR atx_net_close_router(atx_net_s*, atx_net_socket);
+    E_LINQ_ERROR atx_net_close_dealer(atx_net_s*, atx_net_socket);
+    E_LINQ_ERROR atx_net_close_http(atx_net_s*, atx_net_socket);
+    E_LINQ_ERROR atx_net_poll(atx_net_s* l, int32_t ms);
+    device_s** atx_net_device(const atx_net_s*, const char*);
+    uint32_t atx_net_device_count(const atx_net_s*);
+    void atx_net_devices_foreach(
+        const atx_net_s* l,
+        atx_net_devices_foreach_fn,
         void*);
-    uint32_t linq_netw_node_count(const linq_netw_s* linq);
-    E_LINQ_ERROR linq_netw_device_send_get(
-        const linq_netw_s*,
+    uint32_t atx_net_node_count(const atx_net_s* linq);
+    E_LINQ_ERROR atx_net_device_send_get(
+        const atx_net_s*,
         const char*,
         const char*,
-        linq_netw_request_complete_fn,
+        atx_net_request_complete_fn,
         void*);
-    E_LINQ_ERROR linq_netw_device_send_post(
-        const linq_netw_s*,
+    E_LINQ_ERROR atx_net_device_send_post(
+        const atx_net_s*,
         const char*,
         const char*,
         const char*,
-        linq_netw_request_complete_fn,
+        atx_net_request_complete_fn,
         void*);
-    E_LINQ_ERROR linq_netw_device_send_delete(
-        const linq_netw_s*,
+    E_LINQ_ERROR atx_net_device_send_delete(
+        const atx_net_s*,
         const char*,
         const char*,
-        linq_netw_request_complete_fn,
+        atx_net_request_complete_fn,
         void*);
 
     // Device API
     void device_send_delete(
         device_s*,
         const char*,
-        linq_netw_request_complete_fn,
+        atx_net_request_complete_fn,
         void*);
     void device_send_get(
         device_s*,
         const char*,
-        linq_netw_request_complete_fn,
+        atx_net_request_complete_fn,
         void*);
     void device_send_post(
         device_s*,
         const char*,
         const char*,
-        linq_netw_request_complete_fn,
+        atx_net_request_complete_fn,
         void*);
     void device_send(
         device_s* d,
         const char* path,
         const char* json,
-        linq_netw_request_complete_fn fn,
+        atx_net_request_complete_fn fn,
         void* context);
     const char* device_serial(device_s* d);
 

@@ -1,24 +1,24 @@
 set(SOURCES
     base64.c
-    linq_netw.c
+    atx_net.c
     device.c
     node.c
     jsmn_helpers.c
     sys.c
     zmtp.c)
   set(HEADERS
-    ../include/altronix/linq_netw.h
+    ../include/altronix/atx_net.h
     base64.h
     containers.h
     jsmn.h
     jsmn_helpers.h
-    linq_netw_internal.h
+    atx_net_internal.h
     log.h
     device.h
     node.h
     zmtp.h)
 
-set(INSTALL_HEADERS ../include/altronix/linq_netw.h)
+set(INSTALL_HEADERS ../include/altronix/atx_net.h)
 set(INCS ../include)
 set(SOURCES_SYS_MOCK sys/mock/sys.c)
 set(HEADERS_SYS_MOCK sys/mock/sys.h)

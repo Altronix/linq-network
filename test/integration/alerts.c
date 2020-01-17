@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "altronix/linq_netw.h"
+#include "altronix/atx_net.h"
 #include "fixture.h"
 
 static bool received_new_device = false;
@@ -27,8 +27,8 @@ on_error(void* count, E_LINQ_ERROR e, const char* what, const char* serial)
 static void
 on_alert(
     void* count,
-    linq_netw_alert_s* alert,
-    linq_netw_email_s* mail,
+    atx_net_alert_s* alert,
+    atx_net_email_s* mail,
     device_s** d)
 {
     (*(uint32_t*)count)++;
@@ -49,7 +49,7 @@ on_heartbeat(void* count, const char* serial, device_s** d)
     printf("%s", "[S] Received new device\n");
 }
 
-linq_netw_callbacks callbacks = { .err = on_error,
+atx_net_callbacks callbacks = { .err = on_error,
                                   .alert = on_alert,
                                   .hb = on_heartbeat };
 
@@ -61,26 +61,26 @@ main(int argc, char* argv[])
 
     uint32_t count = 0;
     int err;
-    linq_netw_socket s = 0;
+    atx_net_socket s = 0;
     fixture_context* fixture = fixture_create("serial", 32820);
     if (!fixture) return -1;
 
-    linq_netw_s* linq = linq_netw_create(&callbacks, &count);
-    s = linq_netw_listen(linq, "tcp://127.0.0.1:32820");
+    atx_net_s* linq = atx_net_create(&callbacks, &count);
+    s = atx_net_listen(linq, "tcp://127.0.0.1:32820");
     if (s == LINQ_ERROR_SOCKET) {
         printf("%s", "[S] Listen Failure!\n");
         fixture_destroy(&fixture);
-        linq_netw_destroy(&linq);
+        atx_net_destroy(&linq);
         return -1;
     }
 
     while (!(received_new_device && received_alert)) {
         fixture_poll(fixture);
-        err = linq_netw_poll(linq, 5);
+        err = atx_net_poll(linq, 5);
         if (err) break;
     }
 
     fixture_destroy(&fixture);
-    linq_netw_destroy(&linq);
+    atx_net_destroy(&linq);
     return received_new_device && received_alert ? 0 : -1;
 }

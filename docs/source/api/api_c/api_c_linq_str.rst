@@ -33,8 +33,8 @@ Example
    static void
    on_alert(
        void* ctx,
-       linq_netw_alert_s* alert,
-       linq_netw_email_s* mail,
+       atx_net_alert_s* alert,
+       atx_net_email_s* mail,
        device_s** d)
    {
       // Print out the alert message using format string
@@ -44,4 +44,4 @@ Example
    
 .. rubric:: See Also
 
-:ref:`ref_api_c_linq_netw_alert`
+:ref:`ref_api_c_atx_net_alert`

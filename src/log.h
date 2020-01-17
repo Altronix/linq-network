@@ -5,7 +5,7 @@
 #ifndef LOG_H
 #define LOG_H
 
-#include "linq_netw_internal.h"
+#include "atx_net_internal.h"
 #include "sys.h"
 
 #ifdef __cplusplus

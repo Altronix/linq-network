@@ -48,7 +48,7 @@ mock_mongoose_event_destroy(mock_mongoose_event** ev_p)
 {
     mock_mongoose_event* event = *ev_p;
     *ev_p = NULL;
-    linq_netw_free(event);
+    atx_net_free(event);
 }
 
 // Linked list of mock events
@@ -60,7 +60,7 @@ mock_mongoose_outgoing_data_destroy(mock_mongoose_outgoing_data** data_p)
 {
     mock_mongoose_outgoing_data* data = *data_p;
     *data_p = NULL;
-    linq_netw_free(data);
+    atx_net_free(data);
 }
 // Linked list of outgoing data
 LIST_INIT(
@@ -99,14 +99,14 @@ mock_mongoose_response_destroy(mock_mongoose_response** resp_p)
 {
     mock_mongoose_response* resp = *resp_p;
     *resp_p = NULL;
-    linq_netw_free(resp);
+    atx_net_free(resp);
 }
 
 static mock_mongoose_event*
 event_copy(mock_mongoose_event* src, int ev)
 {
-    mock_mongoose_event* dst = linq_netw_malloc(sizeof(mock_mongoose_event));
-    linq_netw_assert(dst);
+    mock_mongoose_event* dst = atx_net_malloc(sizeof(mock_mongoose_event));
+    atx_net_assert(dst);
     memcpy(dst, src, sizeof(mock_mongoose_event));
     dst->ev = ev;
     return dst;
@@ -126,8 +126,8 @@ mongoose_spy_event_request_push(
     http_parser parser;
 
     // Init the event context
-    mock_mongoose_event* r = linq_netw_malloc(sizeof(mock_mongoose_event));
-    linq_netw_assert(r);
+    mock_mongoose_event* r = atx_net_malloc(sizeof(mock_mongoose_event));
+    atx_net_assert(r);
     memset(r, 0, sizeof(mock_mongoose_event));
     mongoose_parser_init(&parser, r, HTTP_REQUEST);
 
@@ -164,8 +164,8 @@ void
 mongoose_spy_event_close_push(int handle)
 {
     ((void)handle);
-    mock_mongoose_event* event = linq_netw_malloc(sizeof(mock_mongoose_event));
-    linq_netw_assert(event);
+    mock_mongoose_event* event = atx_net_malloc(sizeof(mock_mongoose_event));
+    atx_net_assert(event);
     memset(event, 0, sizeof(mock_mongoose_event));
     event->ev = MG_EV_CLOSE;
     event_list_push(incoming_events, &event);
@@ -182,7 +182,7 @@ mongoose_spy_outgoing_data_pop(int i)
         i--;
         while (i--) {
             n = outgoing_data_list_pop(outgoing_data);
-            linq_netw_assert(spot + n->l < sizeof(d->mem));
+            atx_net_assert(spot + n->l < sizeof(d->mem));
             snprintf(&d->mem[spot], sizeof(d->mem) - spot, n->mem, n->l);
             spot += n->l;
             d->l += n->l;
@@ -199,13 +199,13 @@ mongoose_spy_response_pop()
 
     // Allocate return
     mongoose_parser_context* ctx =
-        linq_netw_malloc(sizeof(mongoose_parser_context));
-    linq_netw_assert(ctx);
+        atx_net_malloc(sizeof(mongoose_parser_context));
+    atx_net_assert(ctx);
 
     // Prepare to parse outgoing data
     mongoose_parser_init(&parser, ctx, HTTP_RESPONSE);
     mock_mongoose_outgoing_data* d = mongoose_spy_outgoing_data_pop(2);
-    linq_netw_assert(d);
+    atx_net_assert(d);
     mongoose_parser_parse(&parser, d->mem, d->l);
     mock_mongoose_outgoing_data_destroy(&d);
     return ctx;
@@ -267,8 +267,8 @@ __wrap_mg_printf(struct mg_connection* c, const char* fmt, ...)
     va_list list;
 
     mock_mongoose_outgoing_data* d =
-        linq_netw_malloc(sizeof(mock_mongoose_outgoing_data));
-    linq_netw_assert(d);
+        atx_net_malloc(sizeof(mock_mongoose_outgoing_data));
+    atx_net_assert(d);
     va_start(list, fmt);
     d->l = vsnprintf(d->mem, sizeof(d->mem), fmt, list);
     va_end(list);
@@ -281,8 +281,8 @@ __wrap_mg_vprintf(struct mg_connection* c, const char* fmt, va_list list)
 {
     ((void)c);
     mock_mongoose_outgoing_data* d =
-        linq_netw_malloc(sizeof(mock_mongoose_outgoing_data));
-    linq_netw_assert(d);
+        atx_net_malloc(sizeof(mock_mongoose_outgoing_data));
+    atx_net_assert(d);
     d->l = vsnprintf(d->mem, sizeof(d->mem), fmt, list);
     outgoing_data_list_push(outgoing_data, &d);
     return 0;

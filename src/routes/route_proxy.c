@@ -23,12 +23,12 @@ route_proxy(
     char serial[64];
     uint32_t plen;
     const char *url = &ctx->curr_message->uri.p[API_URI_LEN], *ptr = url;
-    linq_netw_s* linq = ctx->context;
+    atx_net_s* linq = ctx->context;
     ptr = memchr(url, '/', ctx->curr_message->uri.len - API_URI_LEN);
     if (!ptr) ptr = memchr(url, '\\', ctx->curr_message->uri.len - API_URI_LEN);
     if (ptr) {
         snprintf(serial, sizeof(serial), "%.*s", (int)(ptr - url), url);
-        device_s** d_p = linq_netw_device(linq, serial);
+        device_s** d_p = atx_net_device(linq, serial);
         if (d_p) {
             plen =
                 ctx->curr_message->uri.len - (ptr - ctx->curr_message->uri.p);

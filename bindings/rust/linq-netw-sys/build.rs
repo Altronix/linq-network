@@ -24,7 +24,7 @@ fn find_root() -> String {
 }
 
 fn gen_header() {
-    let header = format!("{}/include/altronix/linq_netw.h", find_root());
+    let header = format!("{}/include/altronix/atx_net.h", find_root());
     let header = fs::read(header).unwrap();
     fs::write("./wrapper.h", header).unwrap();
 }
