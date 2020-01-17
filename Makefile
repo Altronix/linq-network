@@ -183,30 +183,30 @@ zmq-project/fast:
 .PHONY : zmq-project/fast
 
 #=============================================================================
-# Target rules for targets named linq-netw
+# Target rules for targets named atx-net
 
 # Build rule for target.
-linq-netw: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 linq-netw
-.PHONY : linq-netw
+atx-net: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 atx-net
+.PHONY : atx-net
 
 # fast build rule for target.
-linq-netw/fast:
-	$(MAKE) -f src/CMakeFiles/linq-netw.dir/build.make src/CMakeFiles/linq-netw.dir/build
-.PHONY : linq-netw/fast
+atx-net/fast:
+	$(MAKE) -f src/CMakeFiles/atx-net.dir/build.make src/CMakeFiles/atx-net.dir/build
+.PHONY : atx-net/fast
 
 #=============================================================================
-# Target rules for targets named linq-netw-static
+# Target rules for targets named atx-net-static
 
 # Build rule for target.
-linq-netw-static: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 linq-netw-static
-.PHONY : linq-netw-static
+atx-net-static: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 atx-net-static
+.PHONY : atx-net-static
 
 # fast build rule for target.
-linq-netw-static/fast:
-	$(MAKE) -f src/CMakeFiles/linq-netw-static.dir/build.make src/CMakeFiles/linq-netw-static.dir/build
-.PHONY : linq-netw-static/fast
+atx-net-static/fast:
+	$(MAKE) -f src/CMakeFiles/atx-net-static.dir/build.make src/CMakeFiles/atx-net-static.dir/build
+.PHONY : atx-net-static/fast
 
 # Help Target
 help:
@@ -222,8 +222,8 @@ help:
 	@echo "... edit_cache"
 	@echo "... install"
 	@echo "... list_install_components"
-	@echo "... linq-netw"
-	@echo "... linq-netw-static"
+	@echo "... atx-net"
+	@echo "... atx-net-static"
 .PHONY : help
 
 

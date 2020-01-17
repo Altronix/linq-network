@@ -1,7 +1,7 @@
 {
-  "name": "linq-network-events",
+  "name": "atx-net-events",
   "version": "0.0.1",
-  "description": "demonstrate linq-network-js",
+  "description": "demonstrate atx-net-js",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,6 +9,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@altronix/linq-network-js": "file:../../../.."
+    "@altronix/atx-net-js": "file:../../../.."
   }
 }

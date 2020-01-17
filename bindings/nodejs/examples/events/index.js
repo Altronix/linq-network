@@ -1,4 +1,4 @@
-let netw = require("@altronix/linq-network-js").default;
+let netw = require("@altronix/atx-net-js").default;
 
 netw.listen("tcp://*:33455");
 netw.listen("http://*:8000");

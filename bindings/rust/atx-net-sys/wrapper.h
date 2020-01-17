@@ -151,11 +151,8 @@ extern "C"
         const char*,
         atx_net_request_complete_fn,
         void*);
-    void device_send_get(
-        device_s*,
-        const char*,
-        atx_net_request_complete_fn,
-        void*);
+    void
+    device_send_get(device_s*, const char*, atx_net_request_complete_fn, void*);
     void device_send_post(
         device_s*,
         const char*,

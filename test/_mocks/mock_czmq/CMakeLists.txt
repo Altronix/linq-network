@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 add_library(mock-czmq mock_zmsg.c mock_zsock.c mock_zpoll.c)
 target_link_libraries(mock-czmq
-                      linq-netw-test-static
+                      atx-net-test-static
                       ${LIBCZMQ_STATIC_LIBS}
                       ${LIBZMQ_STATIC_LIBS}
 		      stdc++
@@ -38,7 +38,7 @@ target_link_libraries(test-mock-czmq
                       mock-czmq
                       cmocka
                       helpers
-                      linq-netw-test-static
+                      atx-net-test-static
 		      mock-czmq)
 add_test(NAME test-mock-czmq COMMAND test-mock-czmq)
 install(TARGETS test-mock-czmq DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

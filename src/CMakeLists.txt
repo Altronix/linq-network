@@ -61,73 +61,73 @@ else()
 endif()
 
 if(ENABLE_TESTING)
-  add_library(linq-netw-test-static STATIC
+  add_library(atx-net-test-static STATIC
               ${SOURCES}
               ${HEADERS}
               ${SOURCES_SYS_MOCK}
               ${HEADERS_SYS_MOCK})
-  target_link_libraries(linq-netw-test-static
+  target_link_libraries(atx-net-test-static
     ${LIBCZMQ_STATIC_LIBS}
     ${LIBZMQ_STATIC_LIBS}
     ${LIBS}
     ${CMAKE_THREAD_LIBS_INIT})
-  target_compile_definitions(linq-netw-test-static PUBLIC ${definitions})
-  target_include_directories(linq-netw-test-static PUBLIC ${INCS})
-  target_include_directories(linq-netw-test-static PUBLIC ../include)
-  target_include_directories(linq-netw-test-static PUBLIC ./sys/mock)
-  target_include_directories(linq-netw-test-static PUBLIC ./)
+  target_compile_definitions(atx-net-test-static PUBLIC ${definitions})
+  target_include_directories(atx-net-test-static PUBLIC ${INCS})
+  target_include_directories(atx-net-test-static PUBLIC ../include)
+  target_include_directories(atx-net-test-static PUBLIC ./sys/mock)
+  target_include_directories(atx-net-test-static PUBLIC ./)
 endif()
 
 if(BUILD_STATIC)
-  add_library(linq-netw-static STATIC
+  add_library(atx-net-static STATIC
     ${SOURCES}
     ${HEADERS}
     ${SOURCES_SYS}
     ${HEADERS_SYS})
-  target_link_libraries(linq-netw-static
+  target_link_libraries(atx-net-static
     ${LIBCZMQ_STATIC_LIBS}
     ${LIBZMQ_STATIC_LIBS}
     ${LIBS}
     ${CMAKE_THREAD_LIBS_INIT})
-  target_compile_definitions(linq-netw-static PUBLIC ${definitions})
-  target_include_directories(linq-netw-static PUBLIC ${INCS})
-  target_include_directories(linq-netw-static PRIVATE sys/unix)
-  target_include_directories(linq-netw-static PRIVATE ./)
-  set_target_properties(linq-netw-static PROPERTIES 
+  target_compile_definitions(atx-net-static PUBLIC ${definitions})
+  target_include_directories(atx-net-static PUBLIC ${INCS})
+  target_include_directories(atx-net-static PRIVATE sys/unix)
+  target_include_directories(atx-net-static PRIVATE ./)
+  set_target_properties(atx-net-static PROPERTIES 
     PUBLIC_HEADER "${INSTALL_HEADERS}"
-    OUTPUT_NAME "linq-netw")
-  install(TARGETS linq-netw-static
+    OUTPUT_NAME "atx-net")
+  install(TARGETS atx-net-static
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib
           PUBLIC_HEADER DESTINATION include/altronix)
 endif()
 
 if(BUILD_SHARED)
-  add_library(linq-netw SHARED
+  add_library(atx-net SHARED
     ${SOURCES}
     ${HEADERS}
     ${SOURCES_SYS}
     ${HEADERS_SYS})
   if(MSVC)
     #TODO - https://stackoverflow.com/questions/33062728/cmake-link-shared-library-on-windows/41618677
-    target_link_libraries(linq-netw
+    target_link_libraries(atx-net
       ${LIBCZMQ_STATIC_LIBS}
       ${LIBZMQ_STATIC_LIBS}
       ${LIBS}
       ${CMAKE_THREAD_LIBS_INIT})
   else()
-    target_link_libraries(linq-netw
+    target_link_libraries(atx-net
       ${LIBCZMQ_SHARED_LIBS}
       ${LIBZMQ_SHARED_LIBS}
       ${LIBS}
       ${CMAKE_THREAD_LIBS_INIT})
   endif()
-  target_compile_definitions(linq-netw PUBLIC ${definitions})
-  target_include_directories(linq-netw PUBLIC ${INCS})
-  target_include_directories(linq-netw PRIVATE sys/unix)
-  target_include_directories(linq-netw PRIVATE ./)
-  set_target_properties(linq-netw PROPERTIES PUBLIC_HEADER "${INSTALL_HEADERS}")
-  install(TARGETS linq-netw
+  target_compile_definitions(atx-net PUBLIC ${definitions})
+  target_include_directories(atx-net PUBLIC ${INCS})
+  target_include_directories(atx-net PRIVATE sys/unix)
+  target_include_directories(atx-net PRIVATE ./)
+  set_target_properties(atx-net PROPERTIES PUBLIC_HEADER "${INSTALL_HEADERS}")
+  install(TARGETS atx-net
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib
           PUBLIC_HEADER DESTINATION include/altronix)

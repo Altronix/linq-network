@@ -11,7 +11,7 @@ add_executable(test-routes
                       proxy.c
                       proxy.h)
 target_link_libraries(test-routes
-                      linq-netw-test-static
+                      atx-net-test-static
                       ${LIBCZMQ_STATIC_LIBS}
                       helpers
 		      cmocka)
