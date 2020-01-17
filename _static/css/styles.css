@@ -20,6 +20,11 @@
   color: red;
 }
 
+.incomplete {
+  color: red;
+  text-decoration: line-through;
+}
+
 .font-small {
   font-size: small;
 }
