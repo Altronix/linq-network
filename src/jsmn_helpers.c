@@ -53,7 +53,7 @@ map_key_to_value(
     while (c >= 2) {
         c -= 2;
         cmp = va_arg(list, char*);
-        linq_str* result = va_arg(list, linq_str*);
+        atx_str* result = va_arg(list, atx_str*);
         if (keylen == strlen(cmp) && !memcmp(key, cmp, keylen)) {
             result->len = value_len;
             result->p = value;
@@ -73,7 +73,7 @@ jsmn_parse_tokens(
     ...)
 {
     uint32_t n_tokens, i = 0;
-    linq_str tag = { .p = NULL, .len = 0 };
+    atx_str tag = { .p = NULL, .len = 0 };
     jsmn_parser p;
     jsmn_init(&p);
     uint32_t count = 0;

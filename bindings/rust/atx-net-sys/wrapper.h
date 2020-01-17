@@ -31,11 +31,11 @@ extern "C"
     typedef struct atx_net_s atx_net_s;
     typedef uint32_t atx_net_socket;
 
-    typedef struct linq_str
+    typedef struct atx_str
     {
         const char* p;
         uint32_t len;
-    } linq_str;
+    } atx_str;
 
     typedef enum
     {
@@ -56,29 +56,29 @@ extern "C"
 
     typedef struct atx_net_alert_s
     {
-        linq_str who;
-        linq_str what;
-        linq_str where;
-        linq_str when;
-        linq_str mesg;
-        linq_str email[5];
+        atx_str who;
+        atx_str what;
+        atx_str where;
+        atx_str when;
+        atx_str mesg;
+        atx_str email[5];
         char* data;
     } atx_net_alert_s;
 
     typedef struct atx_net_email_s
     {
-        linq_str to0;
-        linq_str to1;
-        linq_str to2;
-        linq_str to3;
-        linq_str to4;
-        linq_str from;
-        linq_str subject;
-        linq_str user;
-        linq_str password;
-        linq_str server;
-        linq_str port;
-        linq_str device;
+        atx_str to0;
+        atx_str to1;
+        atx_str to2;
+        atx_str to3;
+        atx_str to4;
+        atx_str from;
+        atx_str subject;
+        atx_str user;
+        atx_str password;
+        atx_str server;
+        atx_str port;
+        atx_str device;
         char* data;
     } atx_net_email_s;
 

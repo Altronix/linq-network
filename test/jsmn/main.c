@@ -67,7 +67,7 @@ test_parse_obj(void** context_p)
     ((void)context_p);
 
     int count = 0;
-    linq_str values[5];
+    atx_str values[5];
     jsmntok_t t[30];
 
     // clang-format off
@@ -103,7 +103,7 @@ test_parse_path(void** context_p)
     ((void)context_p);
 
     int count = 0;
-    linq_str values[5];
+    atx_str values[5];
     jsmntok_t t[150];
 
     // clang-format off
@@ -237,7 +237,7 @@ test_parse_about(void** context_p)
     ((void)context_p);
 
     int count = 0;
-    linq_str values[5];
+    atx_str values[5];
     jsmntok_t t[250];
 
     // clang-format off

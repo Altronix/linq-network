@@ -26,7 +26,7 @@ Example
       // Listening on port 33455 ...
 
       // Close socket
-      atx_net_close_router(netw, s);
+      atx_net_close(netw, s);
    }
 
 .. rst-class:: font-small

@@ -1,15 +1,15 @@
 .. include:: ../../roles.rst
-.. _ref_api_c_linq_str:
+.. _ref_api_c_atx_str:
 
-linq_str
+atx_str
 ========
 
 .. code-block:: c
 
-   typedef struct linq_str {
+   typedef struct atx_str {
       const char* p;
       uint32_t len;
-   } linq_str;
+   } atx_str;
 
 Members
 -------

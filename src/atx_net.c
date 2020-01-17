@@ -47,7 +47,7 @@ on_heartbeat_response(
     device_s** d)
 {
     atx_net_s* l = ctx;
-    linq_str sid, product, prj_version, atx_version, web_version, mac;
+    atx_str sid, product, prj_version, atx_version, web_version, mac;
     const char* ser = device_serial(*d);
     uint32_t count;
     jsmntok_t t[64];
