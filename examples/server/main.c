@@ -53,7 +53,7 @@ on_heartbeat(void* ctx, const char* serial, device_s** d)
     ((void)d);
     /*
     atx_net_s* linq = ctx;
-    atx_net_device_send_get(linq, serial, "/ATX/test/504", on_response, NULL);
+    atx_net_send_get(linq, serial, "/ATX/test/504", on_response, NULL);
     */
 }
 

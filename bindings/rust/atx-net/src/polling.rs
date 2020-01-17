@@ -161,7 +161,7 @@ impl Context {
         future
     }
 
-    // We call atx_net_device_send... which accepts a callback for response.
+    // We call atx_net_send... which accepts a callback for response.
     // We store response as heap enclosure (fn on_response)
     pub fn send_cb<F>(&self, r: Request, sid: &str, cb: F) -> ()
     where
@@ -183,7 +183,7 @@ impl Context {
             Box::new(Box::new(cb));
         match r {
             Request::Get(path) => unsafe {
-                atx_net_device_send_get(
+                atx_net_send_get(
                     self.c_ctx,
                     CString::new(sid).unwrap().as_ptr(),
                     CString::new(path).unwrap().as_ptr(),
@@ -192,7 +192,7 @@ impl Context {
                 );
             },
             Request::Post(path, data) => unsafe {
-                atx_net_device_send_post(
+                atx_net_send_post(
                     self.c_ctx,
                     CString::new(sid).unwrap().as_ptr(),
                     CString::new(path).unwrap().as_ptr(),
@@ -202,7 +202,7 @@ impl Context {
                 );
             },
             Request::Delete(path) => unsafe {
-                atx_net_device_send_delete(
+                atx_net_send_delete(
                     self.c_ctx,
                     CString::new(sid).unwrap().as_ptr(),
                     CString::new(path).unwrap().as_ptr(),

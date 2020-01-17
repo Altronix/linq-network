@@ -125,20 +125,20 @@ extern "C"
         atx_net_devices_foreach_fn,
         void*);
     uint32_t atx_net_node_count(const atx_net_s* linq);
-    E_LINQ_ERROR atx_net_device_send_get(
+    E_LINQ_ERROR atx_net_send_get(
         const atx_net_s*,
         const char*,
         const char*,
         atx_net_request_complete_fn,
         void*);
-    E_LINQ_ERROR atx_net_device_send_post(
+    E_LINQ_ERROR atx_net_send_post(
         const atx_net_s*,
         const char*,
         const char*,
         const char*,
         atx_net_request_complete_fn,
         void*);
-    E_LINQ_ERROR atx_net_device_send_delete(
+    E_LINQ_ERROR atx_net_send_delete(
         const atx_net_s*,
         const char*,
         const char*,
@@ -151,11 +151,8 @@ extern "C"
         const char*,
         atx_net_request_complete_fn,
         void*);
-    void device_send_get(
-        device_s*,
-        const char*,
-        atx_net_request_complete_fn,
-        void*);
+    void
+    device_send_get(device_s*, const char*, atx_net_request_complete_fn, void*);
     void device_send_post(
         device_s*,
         const char*,

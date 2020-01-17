@@ -57,7 +57,7 @@ main(int argc, char* argv[])
         fixture_poll(fixture);
         if (atx_net_poll(server, 0)) break;
         if (!request_sent && atx_net_device_count(server)) {
-            atx_net_device_send_get(
+            atx_net_send_get(
                 server, "dummy", "/ATX/test_504", on_request_complete, &pass);
             request_sent = true;
             printf("%s", "[C] Request Sent!");

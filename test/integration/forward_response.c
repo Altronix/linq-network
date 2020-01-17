@@ -126,7 +126,7 @@ main(int argc, char* argv[])
 
         if (!request_sent && atx_net_device_count(client)) {
             printf("%s", "[C] Request Sent!");
-            atx_net_device_send_get(
+            atx_net_send_get(
                 client, "dummy", "/ATX/hello", on_request_complete, &pass);
             request_sent = true;
         }

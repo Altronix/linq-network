@@ -422,7 +422,7 @@ test_atx_net_receive_response_ok(void** context_p)
     atx_net_s* l = atx_net_create(&callbacks, (void*)&pass);
     atx_net_listen(l, "tcp://*:32820");
     atx_net_poll(l, 5);
-    atx_net_device_send_get(l, serial, "/ATX/test", on_response_ok, &pass);
+    atx_net_send_get(l, serial, "/ATX/test", on_response_ok, &pass);
     atx_net_poll(l, 5);
     assert_true(pass);
 
@@ -1000,7 +1000,7 @@ test_atx_net_forward_client_request(void** context_p)
 
     atx_net_poll(l, 5); // add a device
 
-    atx_net_device_send_get(l, "device123", "/ATX/hello", NULL, NULL);
+    atx_net_send_get(l, "device123", "/ATX/hello", NULL, NULL);
     outgoing = czmq_spy_mesg_pop_outgoing();
     assert_non_null(outgoing);
     zmsg_destroy(&outgoing); // delete outgoing hello frames

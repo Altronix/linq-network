@@ -356,7 +356,7 @@ atx_net_node_count(const atx_net_s* l)
 
 // send a get request to a device connected to us
 E_LINQ_ERROR
-atx_net_device_send_get(
+atx_net_send_get(
     const atx_net_s* linq,
     const char* serial,
     const char* path,
@@ -368,7 +368,7 @@ atx_net_device_send_get(
 
 // send a post request to a device connected to us
 E_LINQ_ERROR
-atx_net_device_send_post(
+atx_net_send_post(
     const atx_net_s* linq,
     const char* serial,
     const char* path,
@@ -381,7 +381,7 @@ atx_net_device_send_post(
 
 // send a delete request to a device connected to us
 E_LINQ_ERROR
-atx_net_device_send_delete(
+atx_net_send_delete(
     const atx_net_s* linq,
     const char* serial,
     const char* path,

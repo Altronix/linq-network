@@ -111,7 +111,7 @@ class Linq
     {
         Response* response = new Response{ LINQ_ERROR_OK, "", fn };
         if (meth == "POST" || meth == "PUT") {
-            atx_net_device_send_post(
+            atx_net_send_post(
                 this->atx_net_,
                 serial.c_str(),
                 path.c_str(),
@@ -119,14 +119,14 @@ class Linq
                 on_response,
                 response);
         } else if (meth == "DELETE") {
-            atx_net_device_send_delete(
+            atx_net_send_delete(
                 this->atx_net_,
                 serial.c_str(),
                 path.c_str(),
                 on_response,
                 response);
         } else {
-            atx_net_device_send_get(
+            atx_net_send_get(
                 this->atx_net_,
                 serial.c_str(),
                 path.c_str(),
