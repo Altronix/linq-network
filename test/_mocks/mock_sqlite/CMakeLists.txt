@@ -4,7 +4,7 @@
 add_library(mock-sqlite sqlite3.c sqlite3.h mock_sqlite.c)
 
 target_link_libraries(mock-sqlite
-  linq-netw-test-static
+  atx-net-test-static
   cmocka
   stdc++)
 

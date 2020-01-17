@@ -7,7 +7,7 @@ add_library(mock-mongoose
   parse_http.h)
 
 target_link_libraries(mock-mongoose
-  linq-netw-test-static
+  atx-net-test-static
   http-parser
   cmocka
   stdc++)

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.11)
-project(linq-netw)
+project(atx-net)
 
 # dependency install
 include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
@@ -76,7 +76,7 @@ option(BUILD_DEPENDENCIES "Whether or not to build the tests" ON)
 option(LINQ_USE_SYSTEM_DEPENDENCIES "find dependencies on system" ON)
 set(LINQ_BUILD_DEPENDENCIES
     ${BUILD_DEPENDENCIES}
-    CACHE BOOL "Build the external directory for linq-netw")
+    CACHE BOOL "Build the external directory for atx-net")
 if(LINQ_BUILD_DEPENDENCIES)
   include(cmake/libzmq.cmake)
   include(cmake/czmq.cmake)
@@ -118,7 +118,7 @@ if(ENABLE_TESTING)
   add_subdirectory(test/_mocks/mock_sqlite)
   add_subdirectory(test/db)
   add_subdirectory(test/containers)
-  add_subdirectory(test/linq-netw)
+  add_subdirectory(test/atx-net)
   add_subdirectory(test/device)
   add_subdirectory(test/devices)
   add_subdirectory(test/http)
@@ -137,14 +137,14 @@ if(ENABLE_TESTING)
 
   setup_target_for_coverage_lcov(NAME test-coverage
     EXECUTABLE test-containers
-    COMMAND test-linq-netw
+    COMMAND test-atx-net
     COMMAND test-device
     COMMAND test-devices
     COMMAND test-http
     COMMAND test-db
     COMMAND test-jsmn
     COMMAND test-routes
-    COMMAND binding-linq-netw-cpp-test)
+    COMMAND binding-atx-net-cpp-test)
 
 endif()
 

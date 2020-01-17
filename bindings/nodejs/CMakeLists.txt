@@ -10,26 +10,26 @@ string(REPLACE "\n" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
 string(REPLACE "\"" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
 
 ###############################################################################
-# Build linq-netw-js
+# Build atx-net-js
 ###############################################################################
-add_library(linq-netw-js SHARED 
+add_library(atx-net-js SHARED 
   ./src/binding.cc
-  ./src/linqnetwork.h
-  ./src/linqnetwork.cc)
-set_target_properties(linq-netw-js PROPERTIES 
+  ./src/atxnet.h
+  ./src/atxnet.cc)
+set_target_properties(atx-net-js PROPERTIES 
   PREFIX "" 
   SUFFIX ".node")
-target_include_directories(linq-netw-js PRIVATE ${CMAKE_JS_INC} ${NODE_ADDON_API_DIR})
-target_link_libraries(linq-netw-js 
-  linq-netw-static
-  linq-netw-cpp-binding
+target_include_directories(atx-net-js PRIVATE ${CMAKE_JS_INC} ${NODE_ADDON_API_DIR})
+target_link_libraries(atx-net-js 
+  atx-net-static
+  atx-net-cpp-binding
   ${LIBCZMQ_STATIC_LIBS}
   ${LIBZMQ_STATIC_LIBS}
   ${CMAKE_JS_LIB}
   uuid
   )
 
-install(TARGETS linq-netw-js
+install(TARGETS atx-net-js
         LIBRARY DESTINATION . #bindings-js looks in root build folder (not in lib folder)
         ARCHIVE DESTINATION .
         PUBLIC_HEADER DESTINATION include/altronix)

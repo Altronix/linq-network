@@ -36,7 +36,7 @@ fn print_windows(out: &std::path::Display<'_>) {
     let libzmq = String::from_utf8(libzmq).unwrap();
     let libzmq = libzmq.split(".").collect::<Vec<&str>>()[0];
     println!("cargo:rustc-link-search=native={}/lib", out);
-    println!("cargo:rustc-link-lib=static=linq-netw");
+    println!("cargo:rustc-link-lib=static=atx-net");
     println!("cargo:rustc-link-lib=static=libczmq");
     println!("cargo:rustc-link-lib=static={}", libzmq);
     println!("cargo:rustc-link-lib=uuid");
@@ -49,7 +49,7 @@ fn print_linux(out: &std::path::Display<'_>) {
     println!("cargo:rustc-link-lib=static=zmq");
     println!("cargo:rustc-link-search=native={}/lib", out);
     println!("cargo:rustc-link-search=native={}/lib64", out);
-    println!("cargo:rustc-link-lib=static=linq-netw");
+    println!("cargo:rustc-link-lib=static=atx-net");
     println!("cargo:rustc-link-lib=static=czmq");
     println!("cargo:rustc-link-lib=static=zmq");
     println!("cargo:rustc-link-lib=uuid");
