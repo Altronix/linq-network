@@ -33,10 +33,10 @@ Examples
 
    assert(atx_net_node_count(netw) == 2);
 
-   atx_net_close_dealer(netw, ipc);
+   atx_net_close(netw, ipc);
 
    assert(atx_net_node_count(netw) == 1);
 
-   atx_net_close_dealer(netw, tcp);
+   atx_net_close(netw, tcp);
 
    assert(atx_net_node_count(netw) == 0);
