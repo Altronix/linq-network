@@ -10,18 +10,18 @@ atx_net_email
 
    typedef struct atx_net_email_s
    {
-       linq_str to0;
-       linq_str to1;
-       linq_str to2;
-       linq_str to3;
-       linq_str to4;
-       linq_str from;
-       linq_str subject;
-       linq_str user;
-       linq_str password;
-       linq_str server;
-       linq_str port;
-       linq_str device;
+       atx_str to0;
+       atx_str to1;
+       atx_str to2;
+       atx_str to3;
+       atx_str to4;
+       atx_str from;
+       atx_str subject;
+       atx_str user;
+       atx_str password;
+       atx_str server;
+       atx_str port;
+       atx_str device;
        char* data;
    } atx_net_email_s;
 
@@ -31,42 +31,42 @@ When a device connected to the LinQ Network Library generates an alert message, 
 Members
 -------
 
-linq_str to[0..4]
+atx_str to[0..4]
 ~~~~~~~~~~~~~~~~~
 
 Destination email address *(ie john.smith@office.com)*
 
-linq_str from
+atx_str from
 ~~~~~~~~~~~~~
 
 Source email address
 
-linq_str subject
+atx_str subject
 ~~~~~~~~~~~~~~~~
 
 Email Subject Line
 
-linq_str user
+atx_str user
 ~~~~~~~~~~~~~
 
 Account holder of email service provider
 
-linq_str password
+atx_str password
 ~~~~~~~~~~~~~~~~~
 
 Password for user of email service provider
 
-linq_str server
+atx_str server
 ~~~~~~~~~~~~~~~
 
 SMTP server IP address
 
-linq_str port
+atx_str port
 ~~~~~~~~~~~~~
 
 SMTP Port number
 
-linq_str device
+atx_str device
 ~~~~~~~~~~~~~~~
 
 Serial number of the device

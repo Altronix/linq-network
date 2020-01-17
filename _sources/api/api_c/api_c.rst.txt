@@ -6,7 +6,7 @@ C API Reference
 .. toctree::
    :maxdepth: 1
 
-   api_c_linq_str.rst
+   api_c_atx_str.rst
    api_c_atx_net.rst
    api_c_atx_net_callbacks.rst
    api_c_atx_net_alert.rst

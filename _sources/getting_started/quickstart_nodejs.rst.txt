@@ -8,7 +8,7 @@ Project Setup
 
 .. code-block:: bash
 
-   npm install @altronix/linq-network-js
+   npm install @altronix/atx-net-js
 
 package.json
 
@@ -46,7 +46,7 @@ Complete Application
 
 .. code-block:: javascript
 
-   let netw = require("@altronix/linq-network-js").default;
+   let netw = require("@altronix/atx-net-js").default;
    
    netw.listen("tcp://*:33455");
    netw.listen("http://*:8000");
