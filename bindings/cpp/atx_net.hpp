@@ -19,8 +19,7 @@ class Device;
 
 static void on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
 static void on_heartbeat_fn(void*, const char*, device_s**);
-static void
-on_alert_fn(void*, atx_net_alert_s*, atx_net_email_s*, device_s**);
+static void on_alert_fn(void*, atx_net_alert_s*, atx_net_email_s*, device_s**);
 static void on_ctrlc_fn(void*);
 
 using namespace std::placeholders;
@@ -70,23 +69,7 @@ class Linq
         return atx_net_connect(atx_net_, str);
     }
 
-    // shutdown a listener
-    void close_router(atx_net_socket s)
-    {
-        atx_net_close_router(atx_net_, s);
-    }
-
-    // close connection to a remote node
-    void close_dealer(atx_net_socket s)
-    {
-        atx_net_close_dealer(atx_net_, s);
-    }
-
-    //
-    void close_http(atx_net_socket socket)
-    {
-        atx_net_close_http(atx_net_, socket);
-    }
+    void close(atx_net_socket s) { atx_net_close(atx_net_, s); }
 
     // process io
     E_LINQ_ERROR poll(uint32_t ms) { return atx_net_poll(atx_net_, ms); }

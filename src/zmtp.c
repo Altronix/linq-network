@@ -471,7 +471,9 @@ zmtp_listen(zmtp_s* zmtp, const char* ep)
     zsock_t* socket = zsock_new_router(ep);
     if (socket) {
         socket_map_add(zmtp->routers, ep, &socket);
-        return socket_map_key(zmtp->routers, ep);
+        int key = socket_map_key(zmtp->routers, ep);
+        key |= ATX_NET_SOCKET_TYPE_ROUTER << 0x08;
+        return key;
     } else {
         return LINQ_ERROR_SOCKET;
     }
@@ -489,7 +491,9 @@ zmtp_connect(zmtp_s* zmtp, const char* ep)
             node_send_hello(n);
             node_map_add(*zmtp->nodes_p, ep, &n);
         }
-        return socket_map_key(zmtp->dealers, ep);
+        int key = socket_map_key(zmtp->dealers, ep);
+        key |= ATX_NET_SOCKET_TYPE_DEALER << 0x08;
+        return key;
     }
     return LINQ_ERROR_SOCKET;
 }
@@ -533,10 +537,11 @@ remove_nodes(zsock_t** s, node_map_s* nodes)
 E_LINQ_ERROR
 zmtp_close_router(zmtp_s* zmtp, atx_net_socket handle)
 {
-    zsock_t** s = socket_map_resolve(zmtp->routers, handle);
+    int socket = ATX_NET_SOCKET(handle);
+    zsock_t** s = socket_map_resolve(zmtp->routers, socket);
     if (s) {
         remove_devices(s, *zmtp->devices_p);
-        socket_map_remove_iter(zmtp->routers, handle);
+        socket_map_remove_iter(zmtp->routers, socket);
         return LINQ_ERROR_OK;
     } else {
         return LINQ_ERROR_BAD_ARGS;
@@ -546,11 +551,12 @@ zmtp_close_router(zmtp_s* zmtp, atx_net_socket handle)
 E_LINQ_ERROR
 zmtp_close_dealer(zmtp_s* zmtp, atx_net_socket handle)
 {
-    zsock_t** s = socket_map_resolve(zmtp->dealers, handle);
+    int socket = ATX_NET_SOCKET(handle);
+    zsock_t** s = socket_map_resolve(zmtp->dealers, socket);
     if (s) {
         remove_devices(s, *zmtp->devices_p);
         remove_nodes(s, *zmtp->nodes_p);
-        socket_map_remove_iter(zmtp->dealers, handle);
+        socket_map_remove_iter(zmtp->dealers, socket);
         return LINQ_ERROR_OK;
     } else {
         return LINQ_ERROR_BAD_ARGS;

@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-extern crate futures;
 extern crate atx_net_sys;
+extern crate futures;
 
 use crate::error::{NetworkError, NetworkErrorKind};
 use crate::event;
@@ -110,14 +110,7 @@ impl Context {
 
     // Opposite of listen or connect. You do not need to close on clean up.
     pub fn close(&self, s: &Socket) -> &Self {
-        match s {
-            Socket::Server(s) => unsafe {
-                atx_net_close_router(self.c_ctx, *s);
-            },
-            Socket::Client(s) => unsafe {
-                atx_net_close_dealer(self.c_ctx, *s);
-            },
-        };
+        atx_net_close(self.c_ctx, *s);
         self
     }
 

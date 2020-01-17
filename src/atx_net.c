@@ -267,23 +267,19 @@ atx_net_connect(atx_net_s* l, const char* ep)
 }
 
 E_LINQ_ERROR
-atx_net_close_router(atx_net_s* l, atx_net_socket handle)
+atx_net_close(atx_net_s* l, atx_net_socket handle)
 {
-    return zmtp_close_router(&l->zmtp, handle);
-}
-
-E_LINQ_ERROR
-atx_net_close_dealer(atx_net_s* l, atx_net_socket handle)
-{
-    return zmtp_close_dealer(&l->zmtp, handle);
-}
-
-E_LINQ_ERROR
-atx_net_close_http(atx_net_s* l, atx_net_socket sock)
-{
-    ((void)l);
-    ((void)sock);
-    return LINQ_ERROR_OK;
+    E_LINQ_ERROR e = LINQ_ERROR_OK;
+    if (ATX_NET_SOCKET_TYPE_IS_ROUTER(handle)) {
+        zmtp_close_router(&l->zmtp, handle);
+    } else if (ATX_NET_SOCKET_TYPE_IS_DEALER(handle)) {
+        zmtp_close_dealer(&l->zmtp, handle);
+    } else if (ATX_NET_SOCKET_TYPE_IS_HTTP(handle)) {
+        // TODO
+    } else {
+        e = LINQ_ERROR_SOCKET;
+    }
+    return e;
 }
 
 // poll network socket file handles

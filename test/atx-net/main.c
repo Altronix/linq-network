@@ -3,9 +3,9 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "altronix/atx_net.h"
+#include "atx_net_internal.h"
 #include "device.h"
 #include "helpers.h"
-#include "atx_net_internal.h"
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
 #ifdef WITH_SQLITE
@@ -91,8 +91,8 @@ atx_net_on_alert_fn(
 }
 
 atx_net_callbacks callbacks = { .err = atx_net_on_error_fn,
-                                  .hb = atx_net_on_heartbeat_fn,
-                                  .alert = atx_net_on_alert_fn };
+                                .hb = atx_net_on_heartbeat_fn,
+                                .alert = atx_net_on_alert_fn };
 
 static void
 test_atx_net_create(void** context_p)
@@ -1092,14 +1092,14 @@ test_atx_net_close_router(void** context_p)
     atx_net_poll(linq, 5);
     atx_net_poll(linq, 5);
     assert_int_equal(atx_net_device_count(linq), 8);
-    atx_net_close_router(linq, l0);
+    atx_net_close(linq, l0);
     assert_int_equal(atx_net_device_count(linq), 6);
-    atx_net_close_router(linq, l1);
+    atx_net_close(linq, l1);
     assert_int_equal(atx_net_device_count(linq), 4);
-    atx_net_close_dealer(linq, c0);
+    atx_net_close(linq, c0);
     assert_int_equal(atx_net_device_count(linq), 2);
     assert_int_equal(atx_net_node_count(linq), 1);
-    atx_net_close_dealer(linq, c1);
+    atx_net_close(linq, c1);
     assert_int_equal(atx_net_device_count(linq), 0);
     assert_int_equal(atx_net_node_count(linq), 0);
 

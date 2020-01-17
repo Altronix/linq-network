@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE on)
 
 # Note buildroot sets BUILD_SHARED_LIBS
+# TODO CMAKE_EXPORT_COMPILE_COMMANDS=ON
 option(BUILD_SHARED "Whether or not to build the shared object"  ON)
 option(BUILD_STATIC "Whether or not to build the static archive" ON)
 

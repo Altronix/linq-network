@@ -21,9 +21,7 @@ LinqNetwork::Init(Napi::Env env, Napi::Object exports)
             InstanceMethod("isRunning", &LinqNetwork::IsRunning),
             InstanceMethod("poll", &LinqNetwork::Poll),
             InstanceMethod("listen", &LinqNetwork::Listen),
-            InstanceMethod("closeRouter", &LinqNetwork::CloseRouter),
-            InstanceMethod("closeDealer", &LinqNetwork::CloseDealer),
-            InstanceMethod("closeHttp", &LinqNetwork::CloseHttp),
+            InstanceMethod("close", &LinqNetwork::Close),
             InstanceMethod("deviceCount", &LinqNetwork::DeviceCount),
             InstanceMethod("nodeCount", &LinqNetwork::NodeCount),
             InstanceMethod("send", &LinqNetwork::Send),
@@ -119,35 +117,13 @@ LinqNetwork::Listen(const Napi::CallbackInfo& info)
 }
 
 Napi::Value
-LinqNetwork::CloseRouter(const Napi::CallbackInfo& info)
+LinqNetwork::Close(const Napi::CallbackInfo& info)
 {
     Napi::Env env = info.Env();
     if (!(info.Length())) _NTHROW(env, "Incorrect number of arguments!");
     if (!(info[0].IsNumber())) _NTHROW(env, "Expect arg[0] as Number!");
     uint32_t arg0 = info[0].ToNumber();
-    this->linq_.close_router(arg0);
-    return info.Env().Null();
-}
-
-Napi::Value
-LinqNetwork::CloseDealer(const Napi::CallbackInfo& info)
-{
-    Napi::Env env = info.Env();
-    if (!(info.Length())) _NTHROW(env, "Incorrect number of arguments!");
-    if (!(info[0].IsNumber())) _NTHROW(env, "Expect arg[0] as Number!");
-    uint32_t arg0 = info[0].ToNumber();
-    this->linq_.close_dealer(arg0);
-    return info.Env().Null();
-}
-
-Napi::Value
-LinqNetwork::CloseHttp(const Napi::CallbackInfo& info)
-{
-    Napi::Env env = info.Env();
-    if (!(info.Length())) _NTHROW(env, "Incorrect number of arguments!");
-    if (!(info[0].IsNumber())) _NTHROW(env, "Expect arg[0] as Number!");
-    uint32_t arg0 = info[0].ToNumber();
-    this->linq_.close_http(arg0);
+    this->linq_.close(arg0);
     return info.Env().Null();
 }
 

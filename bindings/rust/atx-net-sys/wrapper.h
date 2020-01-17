@@ -114,9 +114,7 @@ extern "C"
     void atx_net_context_set(atx_net_s* linq, void* ctx);
     atx_net_socket atx_net_listen(atx_net_s*, const char* ep);
     atx_net_socket atx_net_connect(atx_net_s* l, const char* ep);
-    E_LINQ_ERROR atx_net_close_router(atx_net_s*, atx_net_socket);
-    E_LINQ_ERROR atx_net_close_dealer(atx_net_s*, atx_net_socket);
-    E_LINQ_ERROR atx_net_close_http(atx_net_s*, atx_net_socket);
+    E_LINQ_ERROR atx_net_close(atx_net_s*, atx_net_socket);
     E_LINQ_ERROR atx_net_poll(atx_net_s* l, int32_t ms);
     device_s** atx_net_device(const atx_net_s*, const char*);
     uint32_t atx_net_device_count(const atx_net_s*);

@@ -71,6 +71,18 @@
 // Maximum sockets
 #define MAX_CONNECTIONS 10
 
+#define ATX_NET_SOCKET(socket) ((0x00FF) & socket)
+#define ATX_NET_SOCKET_TYPE(socket) ((socket & 0xFF00) >> 0x08)
+#define ATX_NET_SOCKET_TYPE_ROUTER (0x01)
+#define ATX_NET_SOCKET_TYPE_DEALER (0x02)
+#define ATX_NET_SOCKET_TYPE_HTTP (0x03)
+#define ATX_NET_SOCKET_TYPE_IS_ROUTER(socket)                                  \
+    (ATX_NET_SOCKET_TYPE(socket) == ATX_NET_SOCKET_TYPE_ROUTER)
+#define ATX_NET_SOCKET_TYPE_IS_DEALER(socket)                                  \
+    (ATX_NET_SOCKET_TYPE(socket) == ATX_NET_SOCKET_TYPE_DEALER)
+#define ATX_NET_SOCKET_TYPE_IS_HTTP(socket)                                    \
+    (ATX_NET_SOCKET_TYPE(socket) == ATX_NET_SOCKET_TYPE_HTTP)
+
 #ifdef __cplusplus
 extern "C"
 {

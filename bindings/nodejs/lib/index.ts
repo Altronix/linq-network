@@ -24,19 +24,9 @@ export class LinqNetwork extends Events.EventEmitter {
     this.netw.connect(port);
   }
 
-  // closeRouter
-  closeRouter(idx: number) {
-    this.netw.closeRouter(idx);
-  }
-
-  // closeDealer
-  closeDealer(idx: number) {
-    this.netw.closeDealer(idx);
-  }
-
-  // closeHttp
-  closeHttp(idx: number) {
-    this.netw.closeHttp(idx);
+  // close
+  close(idx: number) {
+    this.netw.close(idx);
   }
 
   // devices
