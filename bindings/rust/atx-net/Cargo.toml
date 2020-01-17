@@ -1,5 +1,5 @@
 [package]
-name = "linq-netw"
+name = "atx-net"
 version = "0.1.0"
 authors = ["thomas <thomas.chiantia@gmail.com>"]
 edition = "2018"
@@ -7,5 +7,5 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-linq-netw-sys = { path = "../linq-netw-sys" }
+atx-net-sys = { path = "../atx-net-sys" }
 futures = "0.3.1"

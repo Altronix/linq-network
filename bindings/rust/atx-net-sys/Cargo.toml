@@ -1,5 +1,5 @@
 [package]
-name = "linq-netw-sys"
+name = "atx-net-sys"
 version = "0.1.0"
 authors = ["thomas <thomas.chiantia@gmail.com>"]
 edition = "2018"
