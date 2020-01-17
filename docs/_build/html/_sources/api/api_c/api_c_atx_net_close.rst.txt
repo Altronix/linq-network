@@ -1,13 +1,13 @@
 .. include:: ../../roles.rst
-.. _ref_api_c_atx_net_close_router:
+.. _ref_api_c_atx_net_close:
 
-atx_net_close_router
-======================
+atx_net_close
+=============
 
 Synopsis
 --------
 
-.. c:function:: atx_net_socket atx_net_close_router(atx_net, atx_net_socket socket)
+.. c:function:: atx_net_socket atx_net_close(atx_net, atx_net_socket socket)
 
    This routine will close a connection to a remote endpoint.
 

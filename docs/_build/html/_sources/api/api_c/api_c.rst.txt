@@ -18,8 +18,6 @@ C API Reference
    api_c_atx_net_poll.rst
    api_c_atx_net_listen.rst
    api_c_atx_net_connect.rst
-   api_c_atx_net_close_router.rst
-   api_c_atx_net_close_dealer.rst
-   api_c_atx_net_close_http.rst
+   api_c_atx_net_close.rst
    api_c_atx_net_device_count.rst
    api_c_atx_net_node_count.rst

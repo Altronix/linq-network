@@ -16,6 +16,10 @@
   color: #337ab7;
 }
 
+.red {
+  color: red;
+}
+
 .font-small {
   font-size: small;
 }
@@ -30,4 +34,10 @@ h1 {
 
 h2 {
   border-bottom: 1px solid #ddd;
+}
+
+img.align-center {
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
 }

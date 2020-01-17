@@ -66,8 +66,4 @@ IPC      ipc://local    Listen for incoming connections on IPC "local" of the cu
 
    2. :ref:`ref_api_c_atx_net_connect`
 
-   3. :ref:`ref_api_c_atx_net_close_router`
-
-   4. :ref:`ref_api_c_atx_net_close_dealer`
-
-   5. :ref:`ref_api_c_atx_net_close_http`
+   3. :ref:`ref_api_c_atx_net_close`
