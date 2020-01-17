@@ -4,6 +4,9 @@
 .. role:: red
    :class: red
 
+.. role:: incomplete
+   :class: incomplete
+
 .. role:: api-struct
    :class: api api-struct
 

@@ -1,8 +1,8 @@
 .. include:: ../../roles.rst
 .. _ref-api-nodejs:
 
-:red:`NodeJS API Reference`
-===========================
+:incomplete:`NodeJS API Reference` (pending)
+============================================
 
 .. image:: ../../_static/img/use-the-source.jpg
    :align: center
