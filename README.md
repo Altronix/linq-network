@@ -1,9 +1,9 @@
 ### Linq-network ###
-[![Build Status](https://travis-ci.com/TomzBench/linq-network.svg?branch=master)](https://travis-ci.com/TomzBench/linq-network)
-[![codecov](https://codecov.io/gh/TomzBench/linq-network/branch/master/graph/badge.svg)](https://codecov.io/gh/TomzBench/linq-network)
+[![Build Status](https://travis-ci.com/Altronix/linq-network.svg?branch=master)](https://travis-ci.com/Altronix/linq-network)
+[![codecov](https://codecov.io/gh/Altronix/linq-network/branch/master/graph/badge.svg)](https://codecov.io/gh/Altronix/linq-network)
 
 ### Docs ###
-https://tomzbench.github.io/linq-network/#/
+https://altronix.github.io/linq-network/#/
 
 ### Platforms Supported with CI ###
 

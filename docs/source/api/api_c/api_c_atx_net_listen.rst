@@ -44,7 +44,7 @@ IPC      ipc://local    Listen for incoming connections on IPC "local" of the cu
    // Listening on port 33455...
 
    // Close socket and change the port number
-   atx_net_close_router(netw, s);
+   atx_net_close(netw, s);
 
    s = atx_net_listen(netw, "tcp://*:33456");
    if (s == LINQ_ERROR_SOCKET) {
