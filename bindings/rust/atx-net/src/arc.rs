@@ -5,7 +5,7 @@
 use crate::event;
 use crate::polling;
 use crate::simple_future::SimpleFuture;
-use polling::{Endpoint, Request, Response, Socket};
+use polling::{atx_net_socket, Endpoint, Request, Response};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
@@ -38,7 +38,7 @@ impl Context {
         Context { mutex, thread }
     }
 
-    pub fn listen(&self, ep: Endpoint) -> Socket {
+    pub fn listen(&self, ep: Endpoint) -> atx_net_socket {
         self.mutex.lock().unwrap().context.listen(ep)
     }
 
@@ -46,11 +46,11 @@ impl Context {
         self.mutex.lock().unwrap().context.events()
     }
 
-    pub fn connect(&self, ep: Endpoint) -> Socket {
+    pub fn connect(&self, ep: Endpoint) -> atx_net_socket {
         self.mutex.lock().unwrap().context.connect(ep)
     }
 
-    pub fn close(&self, s: &Socket) -> &Self {
+    pub fn close(&self, s: &atx_net_socket) -> &Self {
         self.mutex.lock().unwrap().context.close(s);
         self
     }

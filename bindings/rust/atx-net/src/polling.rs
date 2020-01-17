@@ -19,13 +19,10 @@ use std::os::raw::c_void;
 use std::ptr::null_mut;
 use std::sync::{Arc, Mutex};
 
+pub use atx_net_sys::atx_net_socket;
+
 pub fn running() -> bool {
     unsafe { sys_running() }
-}
-
-pub enum Socket {
-    Server(atx_net_socket),
-    Client(atx_net_socket),
 }
 
 pub enum Request<'a> {
@@ -92,9 +89,9 @@ impl Context {
 
     // Listen for incoming linq nodes or device nodes
     // TODO - return socket handle and remove socket hashmap
-    pub fn listen(&self, ep: Endpoint) -> Socket {
+    pub fn listen(&self, ep: Endpoint) -> atx_net_socket {
         let s = unsafe { atx_net_listen(self.c_ctx, ep.to_c_str().as_ptr()) };
-        Socket::Server(s)
+        s
     }
 
     pub fn events(&self) -> event::EventStream {
@@ -102,15 +99,15 @@ impl Context {
     }
 
     // Connect to another linq node
-    pub fn connect(&self, ep: Endpoint) -> Socket {
+    pub fn connect(&self, ep: Endpoint) -> atx_net_socket {
         let ep = ep.to_c_str().as_ptr();
         let s = unsafe { atx_net_connect(self.c_ctx, ep) };
-        Socket::Client(s)
+        s
     }
 
     // Opposite of listen or connect. You do not need to close on clean up.
-    pub fn close(&self, s: &Socket) -> &Self {
-        atx_net_close(self.c_ctx, *s);
+    pub fn close(&self, s: &atx_net_socket) -> &Self {
+        unsafe { atx_net_close(self.c_ctx, *s) };
         self
     }
 
