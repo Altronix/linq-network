@@ -272,6 +272,8 @@
               <ul class="md-nav__list">
         <li class="md-nav__item"><a href="#synopsis" class="md-nav__link">Synopsis</a>
         </li>
+        <li class="md-nav__item"><a href="#parameters" class="md-nav__link">Parameters</a>
+        </li>
         <li class="md-nav__item"><a href="#examples" class="md-nav__link">Examples</a>
         </li></ul>
             </nav>
@@ -284,6 +286,11 @@
     <li class="md-nav__item">
     
       <a href="#synopsis" class="md-nav__link">Synopsis</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="#parameters" class="md-nav__link">Parameters</a>
       
     </li>
     <li class="md-nav__item">
@@ -366,6 +373,8 @@
               <ul class="md-nav__list">
         <li class="md-nav__item"><a href="#synopsis" class="md-nav__link">Synopsis</a>
         </li>
+        <li class="md-nav__item"><a href="#parameters" class="md-nav__link">Parameters</a>
+        </li>
         <li class="md-nav__item"><a href="#examples" class="md-nav__link">Examples</a>
         </li></ul>
             </nav>
@@ -388,23 +397,32 @@
 <span id="ref-api-c-atx-net-connect"></span><h1 id="api-api-c-api-c-atx-net-connect--page-root">atx_net_connect<a class="headerlink" href="#api-api-c-api-c-atx-net-connect--page-root" title="Permalink to this headline">¶</a></h1>
 
 <h2 id="synopsis">Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="c.atx_net_connect">
-<a class="reference internal" href="api_c_atx_net_socket.html#c.atx_net_socket" title="atx_net_socket">atx_net_socket</a> <code class="descname">atx_net_connect</code><span class="sig-paren">(</span><a class="reference internal" href="api_c_atx_net.html#c.atx_net" title="atx_net">atx_net</a>, const char<em> *ep</em><span class="sig-paren">)</span><a class="headerlink" href="#c.atx_net_connect" title="Permalink to this definition">¶</a></dt>
-<dd><p>This routine will connect to a remote endpoint via IPC, or TCP, depending on the format string passed as the second argument.  Using the atx_net_connect and atx_net_close_… api’s you can dynamically change the port numbers you are connected to during runtime.</p>
-<table frame="void" rules="none">
-<col class="field-name"/>
-<col class="field-body"/>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">atx_net_socket</span> <span class="nf">atx_net_connect</span><span class="p">(</span><span class="n">atx_net_s</span><span class="o">*</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">ep</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This routine will connect to a remote endpoint via IPC, or TCP, depending on the format string passed as the second argument.  Using the atx_net_connect and atx_net_close_… api’s you can dynamically change the port numbers you are connected to during runtime.</p>
+
+
+<h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<table border="1">
+<colgroup>
+<col width="16%"/>
+<col width="84%"/>
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>atx_net</strong> – Main context of the LinQ Network Library required for all routines</li>
-<li><strong>char* ep</strong> (<em>const</em>) – String describing the endpoint for the LinQ Network Libary should connect to.</li>
-</ul>
-</td>
+<tr class="row-even"><td>atx_net</td>
+<td>Main context of the LinQ Network Library passed to all atx_net routines.</td>
+</tr>
+<tr class="row-odd"><td>const char* ep</td>
+<td>String describing the endpoint the LinQ Network Library should connect to.</td>
 </tr>
 </tbody>
 </table>
-</dd></dl>
 
 
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>

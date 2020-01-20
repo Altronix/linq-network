@@ -4,8 +4,6 @@
 atx_net_alert
 ===============
 
-.. c:type:: atx_net_alert
-
 .. code-block:: c
 
    typedef struct atx_net_alert_s

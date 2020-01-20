@@ -7,11 +7,21 @@ atx_net_device_count
 Synopsis
 --------
 
-.. c:function:: uint32_t atx_net_device_count(atx_net\* netw)
+.. code-block:: c
 
-   Return the number of devices connected to your LinQ Network context.
+   uint32_t atx_net_device_count(const atx_net_s*);
 
-   :param atx_net\*: Main context of LinQ Network Library required for all routines.
+
+Return the number of devices connected to your LinQ Network context.
+
+Parameters
+----------
+
+========== ===========
+Parameter  Description
+========== ===========
+atx_net_s* Main context of the LinQ Network Library passed to all atx_net routines.
+========== ===========
 
 Examples
 --------

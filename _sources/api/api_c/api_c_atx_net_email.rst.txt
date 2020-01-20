@@ -4,8 +4,6 @@
 atx_net_email
 ===============
 
-.. c::type atx_net_email
-
 .. code-block:: c
 
    typedef struct atx_net_email_s

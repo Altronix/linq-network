@@ -7,14 +7,22 @@ atx_net_destroy
 Synopsis
 --------
 
-.. c:function:: void atx_net_destroy(atx_net**)
+.. code-block:: c
 
-   Free the LinQ Network communication library resource from heap memory.
+   void atx_net_destroy(atx_net_s**);
 
-   .. warning:: This will shutdown all connections to remote devices.
+Free the LinQ Network communication library resource from heap memory.
 
-   :param atx_net**: Pointer to the atx_net context
+.. warning:: This will shutdown all connections to remote devices.
 
+Parameters
+----------
+
+========= ===========
+Parameter Description
+========= ===========
+atx_net** Pointer to the atx_net_s context (returned from atx_net_create)
+========= ===========
 
 Example
 -------

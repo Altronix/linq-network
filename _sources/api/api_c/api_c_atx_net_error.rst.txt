@@ -7,8 +7,10 @@ atx_net_error
 Synopsis
 --------
 
-.. c:type:: E_LINQ_ERROR
+.. code-block:: c
 
+   typedef enum E_LINQ_ERROR;
+   
 Many LinQ Network Library routines return a status code representing the result of the routines execution. The status code is defined by the atx_net_error enum.
 
 .. table::

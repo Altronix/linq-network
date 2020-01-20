@@ -7,12 +7,22 @@ atx_net_connect
 Synopsis
 --------
 
-.. c:function:: atx_net_socket atx_net_connect(atx_net, const char \*ep)
+.. code-block:: c
 
-   This routine will connect to a remote endpoint via IPC, or TCP, depending on the format string passed as the second argument.  Using the atx_net_connect and atx_net_close\_... api's you can dynamically change the port numbers you are connected to during runtime.
+   atx_net_socket atx_net_connect(atx_net_s*, const char* ep);
 
-   :param atx_net: Main context of the LinQ Network Library required for all routines
-   :param const char\* ep: String describing the endpoint for the LinQ Network Libary should connect to.
+This routine will connect to a remote endpoint via IPC, or TCP, depending on the format string passed as the second argument.  Using the atx_net_connect and atx_net_close\_... api's you can dynamically change the port numbers you are connected to during runtime.
+
+
+Parameters
+----------
+
+============== ===========
+Parameter      Description
+============== ===========
+atx_net        Main context of the LinQ Network Library passed to all atx_net routines.
+const char* ep String describing the endpoint the LinQ Network Library should connect to.
+============== ===========
 
 
 Examples
