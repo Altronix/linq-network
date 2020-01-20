@@ -4,8 +4,6 @@
 atx_net_callbacks
 ===================
 
-.. c:type:: atx_net_callbacks
-
 .. code-block:: c
 
    typedef struct atx_net_callbacks

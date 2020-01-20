@@ -7,12 +7,22 @@ atx_net_create
 Synopsis
 --------
 
-.. c:function:: atx_net atx_net_create(const atx_net_callbacks *, void *)
 
-   Initialize the LinQ Network communication library. Optionally pass in a struct with function pointers to receive notifications of network events. Also optionally pass a context that will be passed to your applications callback function during linq network events.
+.. code-block:: c
 
-   :param const atx_net_callbacks*: struct of function pointers to process linq network events. 
-   :param void*: User data passed to each callback function.
+   atx_net_s* atx_net_create(const atx_net_callbacks*, void*);
+
+Initialize the LinQ Network communication library. Optionally pass in a struct with function pointers to receive notifications of network events. Also optionally pass a context that will be passed to your applications callback function during linq network events.
+
+Parameters
+----------
+
+======================== ===========
+Parameter                Description
+======================== ===========
+const atx_net_callbacks* Struct of function pointers to process events
+void*                    User data passed to each callback function to process events.
+======================== ===========
 
 Examples
 --------

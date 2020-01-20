@@ -7,12 +7,22 @@ atx_net_close
 Synopsis
 --------
 
-.. c:function:: atx_net_socket atx_net_close(atx_net, atx_net_socket socket)
+.. code-block:: c
+    
+   E_LINQ_ERROR atx_net_close(atx_net_s*, atx_net_socket);
 
-   This routine will close a connection to a remote endpoint.
+This routine will close a connection.
 
-   :param atx_net: Main context of the LinQ Network Library required for all routines
-   :param atx_net_socket socket: socket handle returned from atx_net_listen
+
+Parameters
+----------
+
+============== ==========
+Parameter      Description
+============== ==========
+atx_net        Main context of the LinQ Network Library passed to all atx_net routines.
+atx_net_socket socket to close. (Returned from atx_net_listen() or atx_net_connect()
+============== ==========
 
 
 Examples

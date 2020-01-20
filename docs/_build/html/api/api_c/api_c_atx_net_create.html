@@ -252,6 +252,8 @@
               <ul class="md-nav__list">
         <li class="md-nav__item"><a href="#synopsis" class="md-nav__link">Synopsis</a>
         </li>
+        <li class="md-nav__item"><a href="#parameters" class="md-nav__link">Parameters</a>
+        </li>
         <li class="md-nav__item"><a href="#examples" class="md-nav__link">Examples</a>
         </li></ul>
             </nav>
@@ -264,6 +266,11 @@
     <li class="md-nav__item">
     
       <a href="#synopsis" class="md-nav__link">Synopsis</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="#parameters" class="md-nav__link">Parameters</a>
       
     </li>
     <li class="md-nav__item">
@@ -366,6 +373,8 @@
               <ul class="md-nav__list">
         <li class="md-nav__item"><a href="#synopsis" class="md-nav__link">Synopsis</a>
         </li>
+        <li class="md-nav__item"><a href="#parameters" class="md-nav__link">Parameters</a>
+        </li>
         <li class="md-nav__item"><a href="#examples" class="md-nav__link">Examples</a>
         </li></ul>
             </nav>
@@ -388,23 +397,32 @@
 <span id="ref-api-c-atx-net-create"></span><h1 id="api-api-c-api-c-atx-net-create--page-root">atx_net_create<a class="headerlink" href="#api-api-c-api-c-atx-net-create--page-root" title="Permalink to this headline">¶</a></h1>
 
 <h2 id="synopsis">Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="c.atx_net_create">
-<a class="reference internal" href="api_c_atx_net.html#c.atx_net" title="atx_net">atx_net</a> <code class="descname">atx_net_create</code><span class="sig-paren">(</span>const <a class="reference internal" href="api_c_atx_net_callbacks.html#c.atx_net_callbacks" title="atx_net_callbacks">atx_net_callbacks</a><em> *</em>, void<em> *</em><span class="sig-paren">)</span><a class="headerlink" href="#c.atx_net_create" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize the LinQ Network communication library. Optionally pass in a struct with function pointers to receive notifications of network events. Also optionally pass a context that will be passed to your applications callback function during linq network events.</p>
-<table frame="void" rules="none">
-<col class="field-name"/>
-<col class="field-body"/>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">atx_net_s</span><span class="o">*</span> <span class="nf">atx_net_create</span><span class="p">(</span><span class="k">const</span> <span class="n">atx_net_callbacks</span><span class="o">*</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Initialize the LinQ Network communication library. Optionally pass in a struct with function pointers to receive notifications of network events. Also optionally pass a context that will be passed to your applications callback function during linq network events.</p>
+
+
+<h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<table border="1">
+<colgroup>
+<col width="28%"/>
+<col width="72%"/>
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>atx_net_callbacks*</strong> (<em>const</em>) – struct of function pointers to process linq network events.</li>
-<li><strong>void*</strong> – User data passed to each callback function.</li>
-</ul>
-</td>
+<tr class="row-even"><td>const atx_net_callbacks*</td>
+<td>Struct of function pointers to process events</td>
+</tr>
+<tr class="row-odd"><td>void*</td>
+<td>User data passed to each callback function to process events.</td>
 </tr>
 </tbody>
 </table>
-</dd></dl>
 
 
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>

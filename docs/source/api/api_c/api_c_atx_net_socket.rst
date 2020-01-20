@@ -2,16 +2,13 @@
 .. _ref_api_c_atx_net_socket:
 
 atx_net_socket
-================
+==============
 
-.. c:type:: atx_net_socket
+.. code-block:: c
 
-   A socket handle used to represent a specific connection.
+   typedef uint32_t atx_net_socket;
 
-Members
--------
-
-The atx_net_socket is a simple integer used to LinQ Network to index the specific connection.
+A socket handle used to represent a specific connection.
 
 Example
 -------

@@ -7,11 +7,20 @@ atx_net_node_count
 Synopsis
 --------
 
-.. c:function:: uint32_t atx_net_node_count(atx_net\* netw)
+.. code-block:: c
 
-   Return the number of nodes connected to your LinQ Network context.
+   uint32_t atx_net_node_count(atx_net_s* netw);
 
-   :param atx_net\*: Main context of LinQ Network Library required for all routines.
+Return the number of nodes connected to your LinQ Network context.
+
+Parameters
+----------
+
+========= ===========
+Parameter Description
+========= ===========
+atx_net   Main context of the LinQ Network Library passed to all atx_net routines.
+========= ===========
 
 Examples
 --------
