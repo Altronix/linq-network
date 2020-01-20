@@ -143,28 +143,6 @@ extern "C"
         atx_net_request_complete_fn,
         void*);
 
-    // Device API
-    void device_send_delete(
-        device_s*,
-        const char*,
-        atx_net_request_complete_fn,
-        void*);
-    void
-    device_send_get(device_s*, const char*, atx_net_request_complete_fn, void*);
-    void device_send_post(
-        device_s*,
-        const char*,
-        const char*,
-        atx_net_request_complete_fn,
-        void*);
-    void device_send(
-        device_s* d,
-        const char* path,
-        const char* json,
-        atx_net_request_complete_fn fn,
-        void* context);
-    const char* device_serial(device_s* d);
-
     // Sys API
     bool sys_running();
 #ifdef __cplusplus
