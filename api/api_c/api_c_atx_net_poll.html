@@ -306,6 +306,21 @@
     
       <a href="api_c_atx_net_node_count.html" class="md-nav__link">atx_net_node_count</a>
       
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_c_atx_net_send_get.html" class="md-nav__link">atx_net_send_get</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_c_atx_net_send_post.html" class="md-nav__link">atx_net_send_post</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_c_atx_net_send_delete.html" class="md-nav__link">atx_net_send_delete</a>
+      
     </li></ul>
     </li>
     <li class="md-nav__item">
@@ -375,7 +390,7 @@
 <h2 id="synopsis">Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="c.atx_net_poll">
-<a class="reference internal" href="api_c_atx_net_error.html#c.E_LINQ_ERROR" title="E_LINQ_ERROR">E_LINQ_ERROR</a> <code class="descname">atx_net_poll</code><span class="sig-paren">(</span><a class="reference internal" href="api_c_atx_net.html#c.atx_net" title="atx_net">atx_net</a><em> *netw</em>, uint32_t<em> ms</em><span class="sig-paren">)</span><a class="headerlink" href="#c.atx_net_poll" title="Permalink to this definition">¶</a></dt>
+E_LINQ_ERROR <code class="descname">atx_net_poll</code><span class="sig-paren">(</span><a class="reference internal" href="api_c_atx_net.html#c.atx_net" title="atx_net">atx_net</a><em> *netw</em>, uint32_t<em> ms</em><span class="sig-paren">)</span><a class="headerlink" href="#c.atx_net_poll" title="Permalink to this definition">¶</a></dt>
 <dd><p>Process LinQ Network IO. The LinQ Network Library performs non-blocking IO inside of your thread. To process LinQ Network IO you must call atx_net_poll routine inside of your main task loop. atx_net_poll will call any callbacks you have provided from the same thread context as your main application.</p>
 </dd></dl>
 

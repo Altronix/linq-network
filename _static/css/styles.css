@@ -46,3 +46,11 @@ img.align-center {
   margin-right: auto;
   display: block;
 }
+
+.wide {
+  width: 100%;
+}
+
+.md-typeset__table {
+  width: 100%;
+}
