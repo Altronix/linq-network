@@ -301,6 +301,8 @@
         <li class="md-nav__item"><a href="#api-api-c-api-c-atx-net-send-delete--page-root" class="md-nav__link">atx_net_send_delete</a><nav class="md-nav">
               <ul class="md-nav__list">
         <li class="md-nav__item"><a href="#synopsis" class="md-nav__link">Synopsis</a>
+        </li>
+        <li class="md-nav__item"><a href="#parameters" class="md-nav__link">Parameters</a>
         </li></ul>
             </nav>
         </li>
@@ -312,6 +314,11 @@
     <li class="md-nav__item">
     
       <a href="#synopsis" class="md-nav__link">Synopsis</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="#parameters" class="md-nav__link">Parameters</a>
       
     </li></ul>
     </li></ul>
@@ -358,6 +365,8 @@
         <li class="md-nav__item"><a href="#api-api-c-api-c-atx-net-send-delete--page-root" class="md-nav__link">atx_net_send_delete</a><nav class="md-nav">
               <ul class="md-nav__list">
         <li class="md-nav__item"><a href="#synopsis" class="md-nav__link">Synopsis</a>
+        </li>
+        <li class="md-nav__item"><a href="#parameters" class="md-nav__link">Parameters</a>
         </li></ul>
             </nav>
         </li>
@@ -389,6 +398,62 @@
     <span class="kt">void</span><span class="o">*</span> <span class="n">context</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="k">return</span> <span class="n">zmtp_device_send_delete</span><span class="p">(</span><span class="o">&amp;</span><span class="n">linq</span><span class="o">-&gt;</span><span class="n">zmtp</span><span class="p">,</span> <span class="n">serial</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">context</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Send a DELETE request to a device.</p>
+
+
+<h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<table border="1">
+<colgroup>
+<col width="30%"/>
+<col width="70%"/>
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>atx_net_s* linq</td>
+<td>Main context of the LinQ Network Library passed to all atx_net routines</td>
+</tr>
+<tr class="row-odd"><td>const char* serial</td>
+<td>Serial number of the product for which to receive the request</td>
+</tr>
+<tr class="row-even"><td>const char* path</td>
+<td>URL of the request</td>
+</tr>
+<tr class="row-odd"><td>atx_net_request_complete_fn fn</td>
+<td>Callback function with response from the request</td>
+</tr>
+<tr class="row-even"><td>void* context</td>
+<td>Application data passed to the callback</td>
+</tr>
+</tbody>
+</table>
+<p>Examples</p>
+<p class="rubric">Delete a user from the device</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">void</span>
+<span class="nf">on_receive_response</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">context</span><span class="p">,</span> <span class="n">E_LINQ_ERROR</span> <span class="n">error</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">response</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">error</span> <span class="o">==</span> <span class="n">LINQ_ERROR_OK</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Received %s from the device</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">response</span><span class="p">);</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Received error %d from the device</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="kt">void</span>
+<span class="nf">remove_user</span><span class="p">(</span><span class="n">atx_net_s</span><span class="o">*</span> <span class="n">netw</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="n">atx_net_send_delete</span><span class="p">(</span>
+      <span class="n">net</span><span class="p">,</span>
+      <span class="s">"B3445ED2CDr2AC33298CXdd443"</span><span class="p">,</span>
+      <span class="s">"/ATX/userManagement/users/john_smith"</span><span class="p">,</span>
+      <span class="n">on_receive_response</span><span class="p">,</span>
+      <span class="nb">NULL</span><span class="p">);</span>
 <span class="p">}</span>
 </pre></div>
 </div>

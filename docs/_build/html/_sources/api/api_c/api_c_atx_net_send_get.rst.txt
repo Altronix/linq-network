@@ -26,7 +26,7 @@ Parameters
 =============================== ===========
 Parameter                       Description
 =============================== ===========
-atx_net_s* linq                 Main context of the LinQ Network Library passed to all routines
+atx_net_s* linq                 Main context of the LinQ Network Library passed to all atx_net routines
 const char* serial              Serial number of the product for which to receive the request
 const char* path                URL of the request
 atx_net_request_complete_fn fn  Callback function with response from the request
