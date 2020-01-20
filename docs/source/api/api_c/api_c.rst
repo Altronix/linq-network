@@ -21,3 +21,6 @@ C API Reference
    api_c_atx_net_close.rst
    api_c_atx_net_device_count.rst
    api_c_atx_net_node_count.rst
+   api_c_atx_net_send_get.rst
+   api_c_atx_net_send_post.rst
+   api_c_atx_net_send_delete.rst
