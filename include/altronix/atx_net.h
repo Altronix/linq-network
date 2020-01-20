@@ -143,6 +143,8 @@ extern "C"
         atx_net_request_complete_fn,
         void*);
 
+    const char* device_serial(device_s* device);
+
     // Sys API
     bool sys_running();
 #ifdef __cplusplus
