@@ -16,3 +16,13 @@ Modules
    api_rust_arc.rst
    api_rust_polling.rst
    api_rust_error.rst
+
+Enums
+-----
+
+.. toctree::
+   :maxdepth: 5
+
+   api_rust_event.rst
+   api_rust_endpoint.rst
+   api_rust_request.rst
