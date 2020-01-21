@@ -68,7 +68,7 @@
     <script type="text/javascript" src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="C++ API Reference (pending)" href="../api_cpp/api_cpp.html" />
+    <link rel="next" title="C++ API Reference" href="../api_cpp/api_cpp.html" />
     <link rel="prev" title="atx_net_send_post" href="api_c_atx_net_send_post.html" />
   
    
@@ -325,7 +325,7 @@
     </li>
     <li class="md-nav__item">
     
-      <a href="../api_cpp/api_cpp.html" class="md-nav__link"><span class="incomplete">C++ API Reference</span> (pending)</a>
+      <a href="../api_cpp/api_cpp.html" class="md-nav__link">C++ API Reference</a>
       
     </li>
     <li class="md-nav__item">
@@ -436,7 +436,11 @@
 <p>Examples</p>
 <p class="rubric">Delete a user from the device</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="k">static</span> <span class="kt">void</span>
-<span class="nf">on_receive_response</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">context</span><span class="p">,</span> <span class="n">E_LINQ_ERROR</span> <span class="n">error</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">response</span><span class="p">)</span>
+<span class="nf">on_receive_response</span><span class="p">(</span>
+    <span class="kt">void</span><span class="o">*</span> <span class="n">context</span><span class="p">,</span>
+    <span class="n">E_LINQ_ERROR</span> <span class="n">error</span><span class="p">,</span>
+    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">response</span>
+    <span class="n">device_s</span><span class="o">**</span> <span class="n">device</span><span class="p">)</span>
 <span class="p">{</span>
   <span class="k">if</span> <span class="p">(</span><span class="n">error</span> <span class="o">==</span> <span class="n">LINQ_ERROR_OK</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">printf</span><span class="p">(</span><span class="s">"Received %s from the device</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">response</span><span class="p">);</span>
@@ -489,7 +493,7 @@
                rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title"><span
                 class="md-flex__ellipsis"> <span
-                class="md-footer-nav__direction"> Next </span> <span class="incomplete">C++ API Reference</span> (pending) </span>
+                class="md-footer-nav__direction"> Next </span> C++ API Reference </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink"><i
                 class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>

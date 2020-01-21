@@ -21,7 +21,7 @@ Parameters
 Parameter      Description
 ============== ==========
 atx_net        Main context of the LinQ Network Library passed to all atx_net routines.
-atx_net_socket socket to close. (Returned from atx_net_listen() or atx_net_connect()
+atx_net_socket socket to close. (Returned from atx_net_listen or atx_net_connect)
 ============== ==========
 
 

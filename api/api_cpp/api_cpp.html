@@ -57,7 +57,7 @@
   <script async src='https://www.google-analytics.com/analytics.js'></script>
   
   
-    <title>C++ API Reference (pending) &#8212; Linq Network User Guide 0.0.1 documentation</title>
+    <title>C++ API Reference &#8212; Linq Network User Guide 0.0.1 documentation</title>
     <link rel="stylesheet" href="../../_static/material.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/styles.css" />
@@ -68,7 +68,7 @@
     <script type="text/javascript" src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Rust API Reference (pending)" href="../api_rust/api_rust.html" />
+    <link rel="next" title="AtxNet" href="api_cpp_atx_net.html" />
     <link rel="prev" title="atx_net_send_delete" href="../api_c/api_c_atx_net_send_delete.html" />
   
    
@@ -115,7 +115,7 @@
       <div class="md-flex__cell md-flex__cell--stretch">
         <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
           <span class="md-header-nav__topic">LinQ Network User Guide</span>
-          <span class="md-header-nav__topic"> C++ API Reference (pending) </span>
+          <span class="md-header-nav__topic"> C++ API Reference </span>
         </div>
       </div>
       <div class="md-flex__cell md-flex__cell--shrink">
@@ -205,9 +205,9 @@
     <li class="md-nav__item">
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-    <label class="md-nav__link md-nav__link--active" for="__toc"> <span class="incomplete">C++ API Reference</span> (pending) </label>
+    <label class="md-nav__link md-nav__link--active" for="__toc"> C++ API Reference </label>
     
-      <a href="#" class="md-nav__link md-nav__link--active"><span class="incomplete">C++ API Reference</span> (pending)</a>
+      <a href="#" class="md-nav__link md-nav__link--active">C++ API Reference</a>
       
         
 <nav class="md-nav md-nav--secondary">
@@ -216,7 +216,82 @@
 <li class="md-nav__item"><a class="md-nav__extra_link" href="../../_sources/api/api_cpp/api_cpp.rst.txt">Show Source</a> </li>
 
   </ul>
-</nav>
+</nav><ul class="md-nav__list"> 
+    <li class="md-nav__item">
+    
+      <a href="api_cpp_atx_net.html" class="md-nav__link">AtxNet</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_cpp_atx_net_listen.html" class="md-nav__link">listen</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_cpp_atx_net_connect.html" class="md-nav__link">connect</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_cpp_atx_net_close.html" class="md-nav__link">close</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_cpp_atx_net_poll.html" class="md-nav__link">poll</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_cpp_atx_net_send.html" class="md-nav__link">send</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_cpp_atx_net_get.html" class="md-nav__link">get</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_cpp_atx_net_post.html" class="md-nav__link">post</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_cpp_atx_net_del.html" class="md-nav__link">del</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_cpp_atx_net_device_count.html" class="md-nav__link">device_count</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_cpp_atx_net_node_count.html" class="md-nav__link">node_count</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_cpp_atx_net_on_heartbeat.html" class="md-nav__link">on_heartbeat</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_cpp_atx_net_on_alert.html" class="md-nav__link">on_alert</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_cpp_atx_net_on_error.html" class="md-nav__link">on_error</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_cpp_atx_net_on_ctrlc.html" class="md-nav__link">on_ctrlc</a>
+      
+    </li></ul>
     </li>
     <li class="md-nav__item">
     
@@ -266,8 +341,26 @@
           <article class="md-content__inner md-typeset" role="main">
             
   
-<span id="ref-api-cpp"></span><h1 id="api-api-cpp-api-cpp--page-root"><span class="incomplete">C++ API Reference</span> (pending)<a class="headerlink" href="#api-api-cpp-api-cpp--page-root" title="Permalink to this headline">¶</a></h1>
-<img alt="../../_images/use-the-source.jpg" class="align-center" src="../../_images/use-the-source.jpg"/>
+<span id="ref-api-cpp"></span><h1 id="api-api-cpp-api-cpp--page-root">C++ API Reference<a class="headerlink" href="#api-api-cpp-api-cpp--page-root" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_cpp_atx_net.html">AtxNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_cpp_atx_net_listen.html">listen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_cpp_atx_net_connect.html">connect</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_cpp_atx_net_close.html">close</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_cpp_atx_net_poll.html">poll</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_cpp_atx_net_send.html">send</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_cpp_atx_net_get.html">get</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_cpp_atx_net_post.html">post</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_cpp_atx_net_del.html">del</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_cpp_atx_net_device_count.html">device_count</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_cpp_atx_net_node_count.html">node_count</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_cpp_atx_net_on_heartbeat.html">on_heartbeat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_cpp_atx_net_on_alert.html">on_alert</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_cpp_atx_net_on_error.html">on_error</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_cpp_atx_net_on_ctrlc.html">on_ctrlc</a></li>
+</ul>
+</div>
 
 
 
@@ -294,12 +387,12 @@
             </a>
           
           
-            <a href="../api_rust/api_rust.html" title="Admonition"
+            <a href="api_cpp_atx_net.html" title="Admonition"
                class="md-flex md-footer-nav__link md-footer-nav__link--next"
                rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title"><span
                 class="md-flex__ellipsis"> <span
-                class="md-footer-nav__direction"> Next </span> <span class="incomplete">Rust API Reference</span> (pending) </span>
+                class="md-footer-nav__direction"> Next </span> AtxNet </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink"><i
                 class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
