@@ -1,7 +1,7 @@
 .. _ref_api_rust_polling_context_new:
 
-new
-===
+polling::Context::new
+=====================
 
 Synopsis
 --------

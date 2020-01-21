@@ -1,7 +1,7 @@
 .. _ref_api_rust_arc_context_new:
 
-new
-===
+arc::Context::new
+=================
 
 Synopsis
 --------
