@@ -1,8 +1,10 @@
 .. include:: ../../roles.rst
 .. _ref-api-rust:
 
-:incomplete:`Rust API Reference` (pending)
-==========================================
+Rust API Reference
+==================
 
-.. image:: ../../_static/img/use-the-source.jpg
-   :align: center
+.. toctree::
+   :maxdepth: 1
+
+   api_rust_atx_net.rst

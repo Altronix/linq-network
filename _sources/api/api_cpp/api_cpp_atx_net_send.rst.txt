@@ -6,6 +6,7 @@ send
 Synopsis
 --------
 
+Send a request to a device connected to the LinQ Network. Pass in a lamda argument to receive a callback when the response is ready.
 
 Parameters
 ----------
