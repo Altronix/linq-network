@@ -54,3 +54,7 @@ img.align-center {
 .md-typeset__table {
   width: 100%;
 }
+
+.x-small {
+  font-size: x-small;
+}
