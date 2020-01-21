@@ -38,12 +38,12 @@ impl Context {
         Context { mutex, thread }
     }
 
-    pub fn listen(&self, ep: Endpoint) -> atx_net_socket {
-        self.mutex.lock().unwrap().context.listen(ep)
-    }
-
     pub fn events(&self) -> event::EventStream {
         self.mutex.lock().unwrap().context.events()
+    }
+
+    pub fn listen(&self, ep: Endpoint) -> atx_net_socket {
+        self.mutex.lock().unwrap().context.listen(ep)
     }
 
     pub fn connect(&self, ep: Endpoint) -> atx_net_socket {
@@ -71,16 +71,16 @@ impl Context {
         self.mutex.lock().unwrap().context.send(r, sid)
     }
 
+    pub fn node_count(&self) -> u32 {
+        self.mutex.lock().unwrap().context.node_count()
+    }
+
     pub fn device_count(&self) -> u32 {
         self.mutex.lock().unwrap().context.device_count()
     }
 
     pub fn devices(&self) -> HashMap<String, String> {
         self.mutex.lock().unwrap().context.devices()
-    }
-
-    pub fn node_count(&self) -> u32 {
-        self.mutex.lock().unwrap().context.node_count()
     }
 
     fn shutdown(&self) {
