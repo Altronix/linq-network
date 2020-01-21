@@ -24,3 +24,6 @@
 
 .. role:: underline
    :class: underline
+
+.. role:: x-small
+   :class: x-small
