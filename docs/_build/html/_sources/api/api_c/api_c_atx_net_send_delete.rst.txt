@@ -42,7 +42,11 @@ Examples
 .. code-block:: c
 
    static void
-   on_receive_response(void* context, E_LINQ_ERROR error, const char *response)
+   on_receive_response(
+       void* context,
+       E_LINQ_ERROR error,
+       const char *response
+       device_s** device)
    {
      if (error == LINQ_ERROR_OK) {
        printf("Received %s from the device\n", response);
