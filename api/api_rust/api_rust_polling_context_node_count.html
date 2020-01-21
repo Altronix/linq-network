@@ -57,7 +57,7 @@
   <script async src='https://www.google-analytics.com/analytics.js'></script>
   
   
-    <title>Rust API Reference &#8212; Linq Network User Guide 0.0.1 documentation</title>
+    <title>node_count &#8212; Linq Network User Guide 0.0.1 documentation</title>
     <link rel="stylesheet" href="../../_static/material.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/styles.css" />
@@ -68,8 +68,8 @@
     <script type="text/javascript" src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="arc" href="api_rust_arc.html" />
-    <link rel="prev" title="on_ctrlc" href="../api_cpp/api_cpp_atx_net_on_ctrlc.html" />
+    <link rel="next" title="device_count" href="api_rust_polling_context_device_count.html" />
+    <link rel="prev" title="send" href="api_rust_polling_context_send.html" />
   
    
   
@@ -97,7 +97,7 @@
   <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer">
   <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search">
   <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
-  <a href="#api/api_rust/api_rust" tabindex="1" class="md-skip"> Skip to content </a>
+  <a href="#api/api_rust/api_rust_polling_context_node_count" tabindex="1" class="md-skip"> Skip to content </a>
   <header class="md-header" data-md-component="header">
   <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
@@ -115,7 +115,7 @@
       <div class="md-flex__cell md-flex__cell--stretch">
         <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
           <span class="md-header-nav__topic">LinQ Network User Guide</span>
-          <span class="md-header-nav__topic"> Rust API Reference </span>
+          <span class="md-header-nav__topic"> node_count </span>
         </div>
       </div>
       <div class="md-flex__cell md-flex__cell--shrink">
@@ -153,6 +153,9 @@
     <div class="md-tabs__inner md-grid">
       <ul class="md-tabs__list">
           <li class="md-tabs__item"><a href="../../index.html" class="md-tabs__link">Linq Network User Guide 0.0.1 documentation</a></li>
+          <li class="md-tabs__item"><a href="api_rust.html" class="md-tabs__link">Rust API Reference</a></li>
+          <li class="md-tabs__item"><a href="api_rust_polling.html" class="md-tabs__link">polling</a></li>
+          <li class="md-tabs__item"><a href="api_rust_polling_context.html" class="md-tabs__link">Context</a></li>
       </ul>
     </div>
   </nav>
@@ -209,29 +212,11 @@
     </li>
     <li class="md-nav__item">
     
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-    <label class="md-nav__link md-nav__link--active" for="__toc"> Rust API Reference </label>
-    
-      <a href="#" class="md-nav__link md-nav__link--active">Rust API Reference</a>
-      
-        
-<nav class="md-nav md-nav--secondary">
-    <label class="md-nav__title" for="__toc">Contents</label>
-  <ul class="md-nav__list" data-md-scrollfix="">
-        <li class="md-nav__item"><a href="#api-api-rust-api-rust--page-root" class="md-nav__link">Rust API Reference</a><nav class="md-nav">
-              <ul class="md-nav__list">
-        <li class="md-nav__item"><a href="#modules" class="md-nav__link">Modules</a>
-        </li></ul>
-            </nav>
-        </li>
-    
-<li class="md-nav__item"><a class="md-nav__extra_link" href="../../_sources/api/api_rust/api_rust.rst.txt">Show Source</a> </li>
-
-  </ul>
-</nav><ul class="md-nav__list"> 
+      <a href="api_rust.html" class="md-nav__link">Rust API Reference</a>
+      <ul class="md-nav__list"> 
     <li class="md-nav__item">
     
-      <a href="#modules" class="md-nav__link">Modules</a>
+      <a href="api_rust.html#modules" class="md-nav__link">Modules</a>
       <ul class="md-nav__list"> 
     <li class="md-nav__item">
     
@@ -277,16 +262,9 @@
               <div class="md-sidebar__inner">
                 
 <nav class="md-nav md-nav--secondary">
-    <label class="md-nav__title" for="__toc">Contents</label>
   <ul class="md-nav__list" data-md-scrollfix="">
-        <li class="md-nav__item"><a href="#api-api-rust-api-rust--page-root" class="md-nav__link">Rust API Reference</a><nav class="md-nav">
-              <ul class="md-nav__list">
-        <li class="md-nav__item"><a href="#modules" class="md-nav__link">Modules</a>
-        </li></ul>
-            </nav>
-        </li>
     
-<li class="md-nav__item"><a class="md-nav__extra_link" href="../../_sources/api/api_rust/api_rust.rst.txt">Show Source</a> </li>
+<li class="md-nav__item"><a class="md-nav__extra_link" href="../../_sources/api/api_rust/api_rust_polling_context_node_count.rst.txt">Show Source</a> </li>
 
 <li id="searchbox" class="md-nav__item"></li>
 
@@ -300,65 +278,7 @@
           <article class="md-content__inner md-typeset" role="main">
             
   
-<span id="ref-api-rust"></span><h1 id="api-api-rust-api-rust--page-root">Rust API Reference<a class="headerlink" href="#api-api-rust-api-rust--page-root" title="Permalink to this headline">¶</a></h1>
-<p>The LinQ Network Library provides a Rust crate with idiomatic Rust API, using an async/.await API to process network events and to send and receive device requests.There is a thread safe API to process network IO in a seperate thread using the atx_net::arc module, and a lower level single threaded API using the atx_net::polling module.</p>
-
-<h2 id="modules">Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="api_rust_arc.html">arc</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api_rust_arc.html#structs">Structs</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api_rust_arc_context.html">Context</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api_rust_arc_context.html#functions">functions</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_arc_context_new.html">new</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_arc_context_events.html">events</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_arc_context_listen.html">listen</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_arc_context_connect.html">connect</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_arc_context_close.html">close</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_arc_context_get.html">get</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_arc_context_post.html">post</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_arc_context_delete.html">delete</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_arc_context_send.html">send</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_arc_context_node_count.html">node_count</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_arc_context_device_count.html">device_count</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_arc_context_devices.html">devices</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_arc_context_shutdown.html">shutdown</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="api_rust_polling.html">polling</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api_rust_polling.html#structs">Structs</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api_rust_polling_context.html">Context</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api_rust_polling_context.html#functions">functions</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_polling_context_new.html">new</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_polling_context_events.html">events</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_polling_context_listen.html">listen</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_polling_context_connect.html">connect</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_polling_context_close.html">close</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_polling_context_get.html">get</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_polling_context_post.html">post</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_polling_context_delete.html">delete</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_polling_context_send.html">send</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_polling_context_node_count.html">node_count</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_polling_context_device_count.html">device_count</a></li>
-<li class="toctree-l5"><a class="reference internal" href="api_rust_polling_context_devices.html">devices</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="api_rust_error.html">error</a></li>
-</ul>
-</div>
-
+<span id="ref-api-rust-polling-context-node-count"></span><h1 id="api-api-rust-api-rust-polling-context-node-count--page-root">node_count<a class="headerlink" href="#api-api-rust-api-rust-polling-context-node-count--page-root" title="Permalink to this headline">¶</a></h1>
 
 
 
@@ -371,7 +291,7 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
           
-            <a href="../api_cpp/api_cpp_atx_net_on_ctrlc.html" title="Material"
+            <a href="api_rust_polling_context_send.html" title="Material"
                class="md-flex md-footer-nav__link md-footer-nav__link--prev"
                rel="prev">
               <div class="md-flex__cell md-flex__cell--shrink">
@@ -380,17 +300,17 @@
               <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
                 <span class="md-flex__ellipsis">
                   <span
-                      class="md-footer-nav__direction"> Previous </span> on_ctrlc </span>
+                      class="md-footer-nav__direction"> Previous </span> send </span>
               </div>
             </a>
           
           
-            <a href="api_rust_arc.html" title="Admonition"
+            <a href="api_rust_polling_context_device_count.html" title="Admonition"
                class="md-flex md-footer-nav__link md-footer-nav__link--next"
                rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title"><span
                 class="md-flex__ellipsis"> <span
-                class="md-footer-nav__direction"> Next </span> arc </span>
+                class="md-footer-nav__direction"> Next </span> device_count </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink"><i
                 class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
