@@ -267,7 +267,18 @@
               <div class="md-sidebar__inner">
                 
 <nav class="md-nav md-nav--secondary">
+    <label class="md-nav__title" for="__toc">Contents</label>
   <ul class="md-nav__list" data-md-scrollfix="">
+        <li class="md-nav__item"><a href="#api-api-rust-api-rust-polling-context-listen--page-root" class="md-nav__link">listen</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#synopsis" class="md-nav__link">Synopsis</a>
+        </li>
+        <li class="md-nav__item"><a href="#parameters" class="md-nav__link">Parameters</a>
+        </li>
+        <li class="md-nav__item"><a href="#examples" class="md-nav__link">Examples</a>
+        </li></ul>
+            </nav>
+        </li>
     
 <li class="md-nav__item"><a class="md-nav__extra_link" href="../../_sources/api/api_rust/api_rust_polling_context_listen.rst.txt">Show Source</a> </li>
 
@@ -284,6 +295,49 @@
             
   
 <span id="ref-api-rust-polling-context-listen"></span><h1 id="api-api-rust-api-rust-polling-context-listen--page-root">listen<a class="headerlink" href="#api-api-rust-api-rust-polling-context-listen--page-root" title="Permalink to this headline">¶</a></h1>
+
+<h2 id="synopsis">Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">listen</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">ep</span>: <span class="nc">Endpoint</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">atx_net_socket</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>This routine will listen for incoming connections (via IPC, or TCP) depending on the endpoint argument.  Using the listen and close api you can dynamically change the port numbers you are listening to during runtime.</p>
+
+
+<h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<table border="1">
+<colgroup>
+<col width="13%"/>
+<col width="87%"/>
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Endpoint</td>
+<td>Endpoint location for the LinQ Network Library to listen too.</td>
+</tr>
+</tbody>
+</table>
+
+
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p class="rubric">listen on port 33455</p>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="kd">let</span><span class="w"> </span><span class="n">net</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">atx_net</span>::<span class="n">polling</span>::<span class="n">Context</span>::<span class="n">new</span><span class="p">();</span><span class="w"></span>
+<span class="n">net</span><span class="p">.</span><span class="n">listen</span><span class="p">(</span><span class="n">atx_net</span>::<span class="n">Endpoint</span>::<span class="n">Tcp</span><span class="p">(</span><span class="mi">33455</span><span class="p">));</span><span class="w"></span>
+</pre></div>
+</div>
+<p class="rubric">listen on IPC “channel” on the current working directory</p>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="kd">let</span><span class="w"> </span><span class="n">net</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">atx_net</span>::<span class="n">polling</span>::<span class="n">Context</span>::<span class="n">new</span><span class="p">();</span><span class="w"></span>
+<span class="n">net</span><span class="p">.</span><span class="n">listen</span><span class="p">(</span><span class="n">atx_net</span>::<span class="n">Endpoint</span>::<span class="n">Ipc</span><span class="p">(</span><span class="s">"local"</span><span class="p">));</span><span class="w"></span>
+</pre></div>
+</div>
+<p class="rubric">See also</p>
+<ol class="arabic simple">
+<li><a class="reference internal" href="api_rust_endpoint.html#ref-api-rust-endpoint"><span class="std std-ref">Endpoint</span></a></li>
+</ol>
+
 
 
 

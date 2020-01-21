@@ -1,4 +1,4 @@
-.. _ref_api_rust_polling_request:
+.. _ref_api_rust_request:
 
 Request
 =======
