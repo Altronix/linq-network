@@ -57,7 +57,7 @@
   <script async src='https://www.google-analytics.com/analytics.js'></script>
   
   
-    <title>Context &#8212; Linq Network User Guide 0.0.1 documentation</title>
+    <title>polling::Context &#8212; Linq Network User Guide 0.0.1 documentation</title>
     <link rel="stylesheet" href="../../_static/material.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/styles.css" />
@@ -68,7 +68,7 @@
     <script type="text/javascript" src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="new" href="api_rust_polling_context_new.html" />
+    <link rel="next" title="polling::Context::new" href="api_rust_polling_context_new.html" />
     <link rel="prev" title="polling" href="api_rust_polling.html" />
   
    
@@ -115,7 +115,7 @@
       <div class="md-flex__cell md-flex__cell--stretch">
         <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
           <span class="md-header-nav__topic">LinQ Network User Guide</span>
-          <span class="md-header-nav__topic"> Context </span>
+          <span class="md-header-nav__topic"> polling::Context </span>
         </div>
       </div>
       <div class="md-flex__cell md-flex__cell--shrink">
@@ -154,7 +154,6 @@
       <ul class="md-tabs__list">
           <li class="md-tabs__item"><a href="../../index.html" class="md-tabs__link">Linq Network User Guide 0.0.1 documentation</a></li>
           <li class="md-tabs__item"><a href="api_rust.html" class="md-tabs__link">Rust API Reference</a></li>
-          <li class="md-tabs__item"><a href="api_rust_polling.html" class="md-tabs__link">polling</a></li>
       </ul>
     </div>
   </nav>
@@ -212,7 +211,198 @@
     <li class="md-nav__item">
     
       <a href="api_rust.html" class="md-nav__link">Rust API Reference</a>
+      <ul class="md-nav__list"> 
+    <li class="md-nav__item">
+    
+      <a href="api_rust.html#modules" class="md-nav__link">Modules</a>
       
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust.html#enums" class="md-nav__link">Enums</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust.html#reference" class="md-nav__link">Reference</a>
+      <ul class="md-nav__list"> 
+    <li class="md-nav__item">
+    
+      <a href="api_rust_arc.html" class="md-nav__link">arc</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_arc_context.html" class="md-nav__link">arc::Context</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_arc_context_new.html" class="md-nav__link">arc::Context::new</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_arc_context_events.html" class="md-nav__link">arc::Context::events</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_arc_context_listen.html" class="md-nav__link">arc::Context::listen</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_arc_context_connect.html" class="md-nav__link">arc::Context::connect</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_arc_context_close.html" class="md-nav__link">arc::Context::close</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_arc_context_get.html" class="md-nav__link">arc::Context::get</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_arc_context_post.html" class="md-nav__link">arc::Context::post</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_arc_context_delete.html" class="md-nav__link">arc::Context::delete</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_arc_context_send.html" class="md-nav__link">arc::Context::send</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_arc_context_node_count.html" class="md-nav__link">arc::Context::node_count</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_arc_context_device_count.html" class="md-nav__link">arc::Context::device_count</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_arc_context_devices.html" class="md-nav__link">arc::Context::devices</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_arc_context_shutdown.html" class="md-nav__link">arc::Context::shutdown</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_polling.html" class="md-nav__link">polling</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    <label class="md-nav__link md-nav__link--active" for="__toc"> polling::Context </label>
+    
+      <a href="#" class="md-nav__link md-nav__link--active">polling::Context</a>
+      
+        
+<nav class="md-nav md-nav--secondary">
+  <ul class="md-nav__list" data-md-scrollfix="">
+    
+<li class="md-nav__item"><a class="md-nav__extra_link" href="../../_sources/api/api_rust/api_rust_polling_context.rst.txt">Show Source</a> </li>
+
+  </ul>
+</nav>
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_polling_context_new.html" class="md-nav__link">polling::Context::new</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_polling_context_events.html" class="md-nav__link">polling::Context::events</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_polling_context_listen.html" class="md-nav__link">polling::Context::listen</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_polling_context_connect.html" class="md-nav__link">polling::Context::connect</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_polling_context_close.html" class="md-nav__link">polling::Context::close</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_polling_context_get.html" class="md-nav__link">polling::Context::get</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_polling_context_post.html" class="md-nav__link">polling::Context::post</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_polling_context_delete.html" class="md-nav__link">polling::Context::delete</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_polling_context_send.html" class="md-nav__link">polling::Context::send</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_polling_context_node_count.html" class="md-nav__link">polling::Context::node_count</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_polling_context_device_count.html" class="md-nav__link">polling::Context::device_count</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_polling_context_devices.html" class="md-nav__link">polling::Context::devices</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_error.html" class="md-nav__link">error</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_event.html" class="md-nav__link">Event</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_endpoint.html" class="md-nav__link">Endpoint</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_rust_request.html" class="md-nav__link">Request</a>
+      
+    </li></ul>
+    </li></ul>
     </li>
     <li class="md-nav__item">
     
@@ -241,14 +431,7 @@
               <div class="md-sidebar__inner">
                 
 <nav class="md-nav md-nav--secondary">
-    <label class="md-nav__title" for="__toc">Contents</label>
   <ul class="md-nav__list" data-md-scrollfix="">
-        <li class="md-nav__item"><a href="#api-api-rust-api-rust-polling-context--page-root" class="md-nav__link">Context</a><nav class="md-nav">
-              <ul class="md-nav__list">
-        <li class="md-nav__item"><a href="#functions" class="md-nav__link">functions</a>
-        </li></ul>
-            </nav>
-        </li>
     
 <li class="md-nav__item"><a class="md-nav__extra_link" href="../../_sources/api/api_rust/api_rust_polling_context.rst.txt">Show Source</a> </li>
 
@@ -264,26 +447,7 @@
           <article class="md-content__inner md-typeset" role="main">
             
   
-<h1 id="api-api-rust-api-rust-polling-context--page-root">Context<a class="headerlink" href="#api-api-rust-api-rust-polling-context--page-root" title="Permalink to this headline">¶</a></h1>
-
-<h2 id="functions">functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="api_rust_polling_context_new.html">new</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api_rust_polling_context_events.html">events</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api_rust_polling_context_listen.html">listen</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api_rust_polling_context_connect.html">connect</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api_rust_polling_context_close.html">close</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api_rust_polling_context_get.html">get</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api_rust_polling_context_post.html">post</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api_rust_polling_context_delete.html">delete</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api_rust_polling_context_send.html">send</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api_rust_polling_context_node_count.html">node_count</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api_rust_polling_context_device_count.html">device_count</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api_rust_polling_context_devices.html">devices</a></li>
-</ul>
-</div>
-
+<span id="ref-api-rust-polling-context"></span><h1 id="api-api-rust-api-rust-polling-context--page-root">polling::Context<a class="headerlink" href="#api-api-rust-api-rust-polling-context--page-root" title="Permalink to this headline">¶</a></h1>
 
 
 
@@ -315,7 +479,7 @@
                rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title"><span
                 class="md-flex__ellipsis"> <span
-                class="md-footer-nav__direction"> Next </span> new </span>
+                class="md-footer-nav__direction"> Next </span> polling::Context::new </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink"><i
                 class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>

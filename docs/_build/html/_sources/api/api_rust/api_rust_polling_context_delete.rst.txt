@@ -1,4 +1,4 @@
 .. _ref_api_rust_polling_context_delete:
 
-delete
-======
+polling::Context::delete
+========================
