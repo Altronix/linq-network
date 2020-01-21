@@ -1,4 +1,4 @@
-.. _ref_api_rust_polling_endpoint:
+.. _ref_api_rust_endpoint:
 
 Endpoint
 ========

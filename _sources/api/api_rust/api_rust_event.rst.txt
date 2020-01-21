@@ -1,4 +1,4 @@
-.. _ref_api_rust_polling_event:
+.. _ref_api_rust_event:
 
 Event
 =====
