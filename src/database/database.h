@@ -9,6 +9,8 @@ extern "C"
 {
 #endif
 
+#define NUM_DATABASES 3
+
     typedef struct database_s
     {
         sqlite3* db;

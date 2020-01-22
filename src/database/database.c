@@ -132,11 +132,9 @@ database_init(database_s* d)
     {
         const char* table;
         const char* schema;
-    } databases[] = { { .table = "devices", .schema = DATABASE_DEVICES },
-                      { .table = "alerts", .schema = DATABASE_ALERTS },
-                      { .table = "users", .schema = DATABASE_USERS },
-                      { .table = NULL, .schema = NULL } },
-      *p = databases;
+    } db[NUM_DATABASES] = { { .table = "devices", .schema = DATABASE_DEVICES },
+                            { .table = "alerts", .schema = DATABASE_ALERTS },
+                            { .table = "users", .schema = DATABASE_USERS } };
     memset(d, 0, sizeof(database_s));
 
     // Open database
@@ -150,14 +148,18 @@ database_init(database_s* d)
 
     // Enable FOREIGN_KEYS
     database_assert_command(d, "PRAGMA FOREIGN_KEYS = ON;");
-    while (p->table) {
-        if (!table_exists(d, p->table)) {
-            log_info("(DATA) %s table not found! Creating table...", p->table);
-            create_table(d, p->table, p->schema);
+
+    // Create databases
+    for (int i = 0; i < NUM_DATABASES; i++) {
+        if (!table_exists(d, db[i].table)) {
+            log_info(
+                "(DATA) %s database not found! Creating %s database...",
+                db[i].table,
+                db[i].table);
+            create_table(d, db[i].table, db[i].schema);
         } else {
-            log_info("(DATA) %s database found!", p->table);
+            log_info("(DATA) %s database found!", db[i].table);
         }
-        p++;
     }
 }
 
