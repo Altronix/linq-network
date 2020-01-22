@@ -43,7 +43,6 @@ Reference
    api_rust_arc_context_node_count.rst
    api_rust_arc_context_device_count.rst
    api_rust_arc_context_devices.rst
-   api_rust_arc_context_shutdown.rst
    api_rust_error.rst
    api_rust_event.rst
    api_rust_endpoint.rst
