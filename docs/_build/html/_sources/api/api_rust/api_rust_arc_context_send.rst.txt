@@ -3,6 +3,9 @@
 arc::Context::send
 ==================
 
+Synopsis
+--------
+
 .. code-block:: rust
 
    pub fn send(&self, r: Request, sid: &str) -> SimpleFuture<Response>;

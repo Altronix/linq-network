@@ -3,6 +3,9 @@
 arc::Context::post
 ==================
 
+Synopsis
+--------
+
 .. code-block:: rust
 
    pub fn post(&self, path: &str, data: &str, sid: &str) -> SimpleFuture<Response>;

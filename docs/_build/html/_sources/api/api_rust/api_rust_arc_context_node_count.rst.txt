@@ -3,6 +3,9 @@
 arc::Context::node_count
 ========================
 
+Synopsis
+--------
+
 .. code-block:: rust
    
    pub fn node_count(&self) -> u32;
