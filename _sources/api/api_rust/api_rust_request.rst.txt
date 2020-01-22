@@ -52,7 +52,7 @@ Examples
       let (serial, _) = net
           .events()
           .filter_map(|e| match e {
-              net::Event::Heartbeat(s) => future::ready(Some(s)),
+              atx_net::Event::Heartbeat(s) => future::ready(Some(s)),
               _ => future::ready(None),
           })
           .take(1)
