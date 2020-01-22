@@ -152,10 +152,10 @@ database_init(database_s* d)
     database_assert_command(d, "PRAGMA FOREIGN_KEYS = ON;");
     while (p->table) {
         if (!table_exists(d, p->table)) {
-            log_info("(DATA) %s not found! Creating database...", p->table);
+            log_info("(DATA) %s table not found! Creating table...", p->table);
             create_table(d, p->table, p->schema);
         } else {
-            log_info("(DATA) %s database found!");
+            log_info("(DATA) %s database found!", p->table);
         }
         p++;
     }
