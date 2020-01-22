@@ -24,14 +24,21 @@
     "FOREIGN KEY(device_id) REFERENCES devices(device_id)"                     \
     ");"
 
+#define DATABASE_USERS                                                         \
+    "CREATE TABLE %s("                                                         \
+    "user_id TEXT PRIMARY KEY,"                                                \
+    "name TEXT,"                                                               \
+    "role INTEGER"                                                             \
+    ");"
+
 #define database_assert_command(__database, __command)                         \
     do {                                                                       \
         int err;                                                               \
         sqlite3_stmt* sql;                                                     \
         err = sqlite3_prepare_v2(__database->db, __command, -1, &sql, NULL);   \
-        atx_net_assert(err == SQLITE_OK);                                    \
+        atx_net_assert(err == SQLITE_OK);                                      \
         err = sqlite3_step(sql);                                               \
-        atx_net_assert(err == SQLITE_DONE);                                  \
+        atx_net_assert(err == SQLITE_DONE);                                    \
         sqlite3_finalize(sql);                                                 \
     } while (0);
 
@@ -121,6 +128,15 @@ create_table(database_s* d, const char* name, const char* database)
 void
 database_init(database_s* d)
 {
+    struct
+    {
+        const char* table;
+        const char* schema;
+    } databases[] = { { .table = "devices", .schema = DATABASE_DEVICES },
+                      { .table = "alerts", .schema = DATABASE_ALERTS },
+                      { .table = "users", .schema = DATABASE_USERS },
+                      { .table = NULL, .schema = NULL } },
+      *p = databases;
     memset(d, 0, sizeof(database_s));
 
     // Open database
@@ -134,28 +150,21 @@ database_init(database_s* d)
 
     // Enable FOREIGN_KEYS
     database_assert_command(d, "PRAGMA FOREIGN_KEYS = ON;");
-
-    if (!table_exists(d, "devices")) {
-        log_info("(DATA) \"devices\" database Not found! Creating database...");
-        create_table(d, "devices", DATABASE_DEVICES);
-        log_info("(DATA) \"devices\" database created success!");
-    } else {
-        log_info("(DATA) \"devices\" database found!");
-    }
-
-    if (!table_exists(d, "alerts")) {
-        log_info("(DATA) \"alerts\" database Not found! Creating database...");
-        create_table(d, "alerts", DATABASE_ALERTS);
-        log_info("(DATA) \"alerts\" database created success!");
-    } else {
-        log_info("(DATA) \"alerts\" database found!");
+    while (p->table) {
+        if (!table_exists(d, p->table)) {
+            log_info("(DATA) %s not found! Creating database...", p->table);
+            create_table(d, p->table, p->schema);
+        } else {
+            log_info("(DATA) %s database found!");
+        }
+        p++;
     }
 }
 
 void
 database_deinit(database_s* d)
 {
-    int err = sqlite3_close(d->db);     // NOTE db can be busy, but we
+    int err = sqlite3_close(d->db);   // NOTE db can be busy, but we
     atx_net_assert(err == SQLITE_OK); // shouldn't be if shutdown properly
     ((void)err);
 }
