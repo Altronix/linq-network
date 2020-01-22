@@ -3,6 +3,9 @@
 arc::Context::get
 =================
 
+Synopsis
+--------
+
 .. code-block:: rust
 
    pub fn get(&self, path: &str, sid: &str) -> SimpleFuture<Response>;

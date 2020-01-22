@@ -3,6 +3,9 @@
 arc::Context::delete
 ====================
 
+Synopsis
+--------
+
 .. code-block:: rust
 
    pub fn delete(&self, path: &str, data: &str, sid: &str) -> SimpleFuture<Response>;
