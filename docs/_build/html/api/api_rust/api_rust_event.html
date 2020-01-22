@@ -69,7 +69,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Endpoint" href="api_rust_endpoint.html" />
-    <link rel="prev" title="error" href="api_rust_error.html" />
+    <link rel="prev" title="NetworkErrorKind" href="api_rust_error.html" />
   
    
   
@@ -298,12 +298,12 @@
     </li>
     <li class="md-nav__item">
     
-      <a href="api_rust_arc_context_shutdown.html" class="md-nav__link">arc::Context::shutdown</a>
+      <a href="api_rust_error.html" class="md-nav__link">NetworkErrorKind</a>
       
     </li>
     <li class="md-nav__item">
     
-      <a href="api_rust_error.html" class="md-nav__link">error</a>
+      <a href="api_rust_error.html#networkerror" class="md-nav__link">NetworkError</a>
       
     </li>
     <li class="md-nav__item">
@@ -315,7 +315,20 @@
       
         
 <nav class="md-nav md-nav--secondary">
+    <label class="md-nav__title" for="__toc">Contents</label>
   <ul class="md-nav__list" data-md-scrollfix="">
+        <li class="md-nav__item"><a href="#api-api-rust-api-rust-event--page-root" class="md-nav__link">Event</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#synopsis" class="md-nav__link">Synopsis</a>
+        </li>
+        <li class="md-nav__item"><a href="#variants" class="md-nav__link">Variants</a>
+        </li>
+        <li class="md-nav__item"><a href="#methods" class="md-nav__link">Methods</a>
+        </li>
+        <li class="md-nav__item"><a href="#examples" class="md-nav__link">Examples</a>
+        </li></ul>
+            </nav>
+        </li>
     
 <li class="md-nav__item"><a class="md-nav__extra_link" href="../../_sources/api/api_rust/api_rust_event.rst.txt">Show Source</a> </li>
 
@@ -361,7 +374,20 @@
               <div class="md-sidebar__inner">
                 
 <nav class="md-nav md-nav--secondary">
+    <label class="md-nav__title" for="__toc">Contents</label>
   <ul class="md-nav__list" data-md-scrollfix="">
+        <li class="md-nav__item"><a href="#api-api-rust-api-rust-event--page-root" class="md-nav__link">Event</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#synopsis" class="md-nav__link">Synopsis</a>
+        </li>
+        <li class="md-nav__item"><a href="#variants" class="md-nav__link">Variants</a>
+        </li>
+        <li class="md-nav__item"><a href="#methods" class="md-nav__link">Methods</a>
+        </li>
+        <li class="md-nav__item"><a href="#examples" class="md-nav__link">Examples</a>
+        </li></ul>
+            </nav>
+        </li>
     
 <li class="md-nav__item"><a class="md-nav__extra_link" href="../../_sources/api/api_rust/api_rust_event.rst.txt">Show Source</a> </li>
 
@@ -378,6 +404,70 @@
             
   
 <span id="ref-api-rust-event"></span><h1 id="api-api-rust-api-rust-event--page-root">Event<a class="headerlink" href="#api-api-rust-api-rust-event--page-root" title="Permalink to this headline">¶</a></h1>
+
+<h2 id="synopsis">Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="cp">#[derive(PartialEq)]</span><span class="w"></span>
+<span class="k">pub</span><span class="w"> </span><span class="k">enum</span> <span class="nc">Event</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The atx_net stream API returns a stream of Events. The event is represented as an enum variant which is bound to event specific data.</p>
+
+
+<h2 id="variants">Variants<a class="headerlink" href="#variants" title="Permalink to this headline">¶</a></h2>
+<table border="1">
+<colgroup>
+<col width="15%"/>
+<col width="85%"/>
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Variant</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Heartbeat(String)</td>
+<td>A heartbeat event and assosiated serial ID accountable for the heartbeat</td>
+</tr>
+<tr class="row-odd"><td>Alert(String)</td>
+<td>TODO</td>
+</tr>
+<tr class="row-even"><td>Error(E_LINQ_ERROR, String)</td>
+<td>A error event, and assosicated error code. If a device is associated with the error, then the serial number of the device is also passed to the enum.</td>
+</tr>
+<tr class="row-odd"><td>Ctrlc</td>
+<td>A Control-C event, or a shutdown signal, has occured.</td>
+</tr>
+</tbody>
+</table>
+
+
+<h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permalink to this headline">¶</a></h2>
+<p>None.</p>
+
+
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p class="rubric">listen for events and process events as they occur</p>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="cp">#[async_attributes::main]</span><span class="w"></span>
+<span class="n">async</span><span class="w"> </span><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span><span class="w"> </span><span class="nb">Box</span><span class="o">&lt;</span><span class="n">dyn</span><span class="w"> </span><span class="n">std</span>::<span class="n">error</span>::<span class="n">Error</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">net</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">atx_net</span>::<span class="n">arc</span>::<span class="n">Context</span>::<span class="n">new</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="n">net</span><span class="p">.</span><span class="n">listen</span><span class="p">(</span><span class="n">Endpoint</span>::<span class="n">Tcp</span><span class="p">(</span><span class="n">PORT</span><span class="p">));</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">net</span><span class="p">.</span><span class="n">events</span><span class="p">()</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">take_while</span><span class="p">(</span><span class="o">|</span><span class="n">e</span><span class="o">|</span><span class="w"> </span><span class="n">future</span>::<span class="n">ready</span><span class="p">(</span><span class="o">*</span><span class="n">e</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">Event</span>::<span class="n">Ctrlc</span><span class="p">))</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">for_each</span><span class="p">(</span><span class="n">async</span><span class="w"> </span><span class="k">move</span><span class="w"> </span><span class="o">|</span><span class="n">e</span><span class="o">|</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="k">match</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="n">Event</span>::<span class="n">Heartbeat</span><span class="p">(</span><span class="n">serial</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">process_heartbeat</span><span class="p">(</span><span class="n">serial</span><span class="p">),</span><span class="w"></span>
+<span class="w">                </span><span class="n">Event</span>::<span class="n">Alert</span><span class="p">(</span><span class="n">serial</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">process_alert</span><span class="p">(</span><span class="n">serial</span><span class="p">),</span><span class="w"></span>
+<span class="w">                </span><span class="n">Event</span>::<span class="n">Error</span><span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="w"> </span><span class="n">serial</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">process_error</span><span class="p">(</span><span class="n">error</span><span class="p">,</span><span class="w"> </span><span class="n">serial</span><span class="p">),</span><span class="w"></span>
+<span class="w">                </span><span class="n">_</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">(),</span><span class="w"></span>
+<span class="w">            </span><span class="p">};</span><span class="w"></span>
+<span class="w">        </span><span class="p">})</span><span class="w"></span>
+<span class="w">        </span><span class="p">.</span><span class="n">await</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="nb">Ok</span><span class="p">(())</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+
 
 
 
@@ -399,7 +489,7 @@
               <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
                 <span class="md-flex__ellipsis">
                   <span
-                      class="md-footer-nav__direction"> Previous </span> error </span>
+                      class="md-footer-nav__direction"> Previous </span> NetworkErrorKind </span>
               </div>
             </a>
           

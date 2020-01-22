@@ -57,7 +57,7 @@
   <script async src='https://www.google-analytics.com/analytics.js'></script>
   
   
-    <title>error &#8212; Linq Network User Guide 0.0.1 documentation</title>
+    <title>NetworkErrorKind &#8212; Linq Network User Guide 0.0.1 documentation</title>
     <link rel="stylesheet" href="../../_static/material.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/styles.css" />
@@ -69,7 +69,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Event" href="api_rust_event.html" />
-    <link rel="prev" title="arc::Context::shutdown" href="api_rust_arc_context_shutdown.html" />
+    <link rel="prev" title="arc::Context::devices" href="api_rust_arc_context_devices.html" />
   
    
   
@@ -115,7 +115,7 @@
       <div class="md-flex__cell md-flex__cell--stretch">
         <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
           <span class="md-header-nav__topic">LinQ Network User Guide</span>
-          <span class="md-header-nav__topic"> error </span>
+          <span class="md-header-nav__topic"> NetworkErrorKind </span>
         </div>
       </div>
       <div class="md-flex__cell md-flex__cell--shrink">
@@ -298,24 +298,49 @@
     </li>
     <li class="md-nav__item">
     
-      <a href="api_rust_arc_context_shutdown.html" class="md-nav__link">arc::Context::shutdown</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-    <label class="md-nav__link md-nav__link--active" for="__toc"> error </label>
+    <label class="md-nav__link md-nav__link--active" for="__toc"> NetworkErrorKind </label>
     
-      <a href="#" class="md-nav__link md-nav__link--active">error</a>
+      <a href="#" class="md-nav__link md-nav__link--active">NetworkErrorKind</a>
       
         
 <nav class="md-nav md-nav--secondary">
+    <label class="md-nav__title" for="__toc">Contents</label>
   <ul class="md-nav__list" data-md-scrollfix="">
+        <li class="md-nav__item"><a href="#api-api-rust-api-rust-error--page-root" class="md-nav__link">NetworkErrorKind</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#synopsis" class="md-nav__link">Synopsis</a>
+        </li>
+        <li class="md-nav__item"><a href="#variants" class="md-nav__link">Variants</a>
+        </li>
+        <li class="md-nav__item"><a href="#methods" class="md-nav__link">Methods</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#networkerror" class="md-nav__link">NetworkError</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#id1" class="md-nav__link">Synopsis</a>
+        </li>
+        <li class="md-nav__item"><a href="#id2" class="md-nav__link">Methods</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#to-http" class="md-nav__link">to_http</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#examples" class="md-nav__link">Examples</a>
+        </li></ul>
+            </nav>
+        </li>
     
 <li class="md-nav__item"><a class="md-nav__extra_link" href="../../_sources/api/api_rust/api_rust_error.rst.txt">Show Source</a> </li>
 
   </ul>
 </nav>
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="#networkerror" class="md-nav__link">NetworkError</a>
+      
     </li>
     <li class="md-nav__item">
     
@@ -361,7 +386,32 @@
               <div class="md-sidebar__inner">
                 
 <nav class="md-nav md-nav--secondary">
+    <label class="md-nav__title" for="__toc">Contents</label>
   <ul class="md-nav__list" data-md-scrollfix="">
+        <li class="md-nav__item"><a href="#api-api-rust-api-rust-error--page-root" class="md-nav__link">NetworkErrorKind</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#synopsis" class="md-nav__link">Synopsis</a>
+        </li>
+        <li class="md-nav__item"><a href="#variants" class="md-nav__link">Variants</a>
+        </li>
+        <li class="md-nav__item"><a href="#methods" class="md-nav__link">Methods</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#networkerror" class="md-nav__link">NetworkError</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#id1" class="md-nav__link">Synopsis</a>
+        </li>
+        <li class="md-nav__item"><a href="#id2" class="md-nav__link">Methods</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#to-http" class="md-nav__link">to_http</a>
+        </li></ul>
+            </nav>
+        </li>
+        <li class="md-nav__item"><a href="#examples" class="md-nav__link">Examples</a>
+        </li></ul>
+            </nav>
+        </li>
     
 <li class="md-nav__item"><a class="md-nav__extra_link" href="../../_sources/api/api_rust/api_rust_error.rst.txt">Show Source</a> </li>
 
@@ -377,8 +427,106 @@
           <article class="md-content__inner md-typeset" role="main">
             
   
-<span id="ref-api-rust-error"></span><h1 id="api-api-rust-api-rust-error--page-root">error<a class="headerlink" href="#api-api-rust-api-rust-error--page-root" title="Permalink to this headline">¶</a></h1>
-<p>Error types</p>
+<span id="ref-api-rust-error"></span><h1 id="api-api-rust-api-rust-error--page-root">NetworkErrorKind<a class="headerlink" href="#api-api-rust-api-rust-error--page-root" title="Permalink to this headline">¶</a></h1>
+
+<h2 id="synopsis">Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="cp">#[derive(Debug, Copy, Clone, PartialEq)]</span><span class="w"></span>
+<span class="k">pub</span><span class="w"> </span><span class="k">enum</span> <span class="nc">NetworkErrorKind</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+
+
+<h2 id="variants">Variants<a class="headerlink" href="#variants" title="Permalink to this headline">¶</a></h2>
+<table border="1">
+<colgroup>
+<col width="14%"/>
+<col width="86%"/>
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>OK</td>
+<td>No error has occured.</td>
+</tr>
+<tr class="row-odd"><td>OutOfMemory</td>
+<td>The function could not complete as intended because the system is (O)ut (O)f (M)emory.</td>
+</tr>
+<tr class="row-even"><td>BadArgs</td>
+<td>Caller has called the routine with invalid parameters.</td>
+</tr>
+<tr class="row-odd"><td>Protocol</td>
+<td>The system returned an IO error (Either from file read or network IO).</td>
+</tr>
+<tr class="row-even"><td>DeviceNotFound</td>
+<td>The routine could not complete as intended because the device is not connected.</td>
+</tr>
+<tr class="row-odd"><td>Timeout</td>
+<td>The routine is taking too long to complete and has decided to return an error.</td>
+</tr>
+<tr class="row-even"><td>ShuttingDown</td>
+<td>The LinQ Network Library is in the process of shutting down and therefore cannot perform this routine.</td>
+</tr>
+<tr class="row-odd"><td>HttpBadRequest</td>
+<td>A response from the device has returned a 400 error code (Client API error)</td>
+</tr>
+<tr class="row-even"><td>HttpUnauthorized</td>
+<td>A response from the device has returned a 403 error code (Unauthorized)</td>
+</tr>
+<tr class="row-odd"><td>HttpNotFound</td>
+<td>A response from the device has returned a 404 error code (Not Found)</td>
+</tr>
+<tr class="row-even"><td>HttpServerError</td>
+<td>A response from the device has returned a 500 error code (Internal Server Error)</td>
+</tr>
+<tr class="row-odd"><td>HttpTryAgainLater</td>
+<td>A response from the device has returned a 504 error code (Try again later)</td>
+</tr>
+</tbody>
+</table>
+
+
+<h2 id="methods">Methods<a class="headerlink" href="#methods" title="Permalink to this headline">¶</a></h2>
+<p>None.</p>
+
+
+
+<h1 id="networkerror">NetworkError<a class="headerlink" href="#networkerror" title="Permalink to this headline">¶</a></h1>
+
+<h2 id="id1">Synopsis<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="cp">#[derive(Debug, Clone)]</span><span class="w"></span>
+<span class="k">pub</span><span class="w"> </span><span class="k">struct</span> <span class="nc">NetworkError</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+
+
+<h2 id="id2">Methods<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+
+<h3 id="to-http">to_http<a class="headerlink" href="#to-http" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">to_http</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="kt">u16</span>
+</pre></div>
+</div>
+<p>Convert a NetworkErrorKind into an HTTP error code</p>
+
+
+
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p class="rubric">If network send error, convert error to http code and send response</p>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="cp">#[post(</span><span class="s">"/proxy/&lt;id&gt;/about"</span><span class="cp">, format = </span><span class="s">"json"</span><span class="cp">)]</span><span class="w"></span>
+<span class="n">async</span><span class="w"> </span><span class="k">fn</span> <span class="nf">proxy_route</span><span class="p">(</span><span class="n">net</span>: <span class="nc">State</span><span class="o">&lt;</span><span class="na">'_</span><span class="p">,</span><span class="w"> </span><span class="n">AtxNet</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">id</span>:<span class="nb">String</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nb">Result</span><span class="o">&lt;</span><span class="n">content</span>::<span class="n">Json</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">Status</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">   </span><span class="k">match</span><span class="w"> </span><span class="n">net</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">"/ATX/about"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">id</span><span class="p">).</span><span class="n">await</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nb">Ok</span><span class="p">(</span><span class="n">response</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">match</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">result</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">         </span><span class="nb">Ok</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">Ok</span><span class="p">(</span><span class="n">content</span>::<span class="n">Json</span><span class="p">(</span><span class="n">v</span><span class="p">)),</span><span class="w"></span>
+<span class="w">         </span><span class="nb">Err</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">Err</span><span class="p">(</span><span class="n">Status</span>::<span class="n">new</span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">to_http</span><span class="p">(),</span><span class="w"> </span><span class="s">""</span><span class="p">)),</span><span class="w"></span>
+<span class="w">      </span><span class="p">},</span><span class="w"></span>
+<span class="w">      </span><span class="nb">Err</span><span class="p">(</span><span class="n">_</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="nb">Err</span><span class="p">(</span><span class="n">Status</span>::<span class="n">new</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span><span class="s">""</span><span class="p">)),</span><span class="w"></span>
+<span class="w">   </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+
 
 
 
@@ -391,7 +539,7 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
           
-            <a href="api_rust_arc_context_shutdown.html" title="Material"
+            <a href="api_rust_arc_context_devices.html" title="Material"
                class="md-flex md-footer-nav__link md-footer-nav__link--prev"
                rel="prev">
               <div class="md-flex__cell md-flex__cell--shrink">
@@ -400,7 +548,7 @@
               <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
                 <span class="md-flex__ellipsis">
                   <span
-                      class="md-footer-nav__direction"> Previous </span> arc::Context::shutdown </span>
+                      class="md-footer-nav__direction"> Previous </span> arc::Context::devices </span>
               </div>
             </a>
           
