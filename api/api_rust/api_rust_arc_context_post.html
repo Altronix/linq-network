@@ -275,7 +275,16 @@
       
         
 <nav class="md-nav md-nav--secondary">
+    <label class="md-nav__title" for="__toc">Contents</label>
   <ul class="md-nav__list" data-md-scrollfix="">
+        <li class="md-nav__item"><a href="#api-api-rust-api-rust-arc-context-post--page-root" class="md-nav__link">arc::Context::post</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#parameters" class="md-nav__link">Parameters</a>
+        </li>
+        <li class="md-nav__item"><a href="#examples" class="md-nav__link">Examples</a>
+        </li></ul>
+            </nav>
+        </li>
     
 <li class="md-nav__item"><a class="md-nav__extra_link" href="../../_sources/api/api_rust/api_rust_arc_context_post.rst.txt">Show Source</a> </li>
 
@@ -310,76 +319,6 @@
     <li class="md-nav__item">
     
       <a href="api_rust_arc_context_shutdown.html" class="md-nav__link">arc::Context::shutdown</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="api_rust_polling.html" class="md-nav__link">polling</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="api_rust_polling_context.html" class="md-nav__link">polling::Context</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="api_rust_polling_context_new.html" class="md-nav__link">polling::Context::new</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="api_rust_polling_context_events.html" class="md-nav__link">polling::Context::events</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="api_rust_polling_context_listen.html" class="md-nav__link">polling::Context::listen</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="api_rust_polling_context_connect.html" class="md-nav__link">polling::Context::connect</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="api_rust_polling_context_close.html" class="md-nav__link">polling::Context::close</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="api_rust_polling_context_get.html" class="md-nav__link">polling::Context::get</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="api_rust_polling_context_post.html" class="md-nav__link">polling::Context::post</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="api_rust_polling_context_delete.html" class="md-nav__link">polling::Context::delete</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="api_rust_polling_context_send.html" class="md-nav__link">polling::Context::send</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="api_rust_polling_context_node_count.html" class="md-nav__link">polling::Context::node_count</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="api_rust_polling_context_device_count.html" class="md-nav__link">polling::Context::device_count</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="api_rust_polling_context_devices.html" class="md-nav__link">polling::Context::devices</a>
       
     </li>
     <li class="md-nav__item">
@@ -431,7 +370,16 @@
               <div class="md-sidebar__inner">
                 
 <nav class="md-nav md-nav--secondary">
+    <label class="md-nav__title" for="__toc">Contents</label>
   <ul class="md-nav__list" data-md-scrollfix="">
+        <li class="md-nav__item"><a href="#api-api-rust-api-rust-arc-context-post--page-root" class="md-nav__link">arc::Context::post</a><nav class="md-nav">
+              <ul class="md-nav__list">
+        <li class="md-nav__item"><a href="#parameters" class="md-nav__link">Parameters</a>
+        </li>
+        <li class="md-nav__item"><a href="#examples" class="md-nav__link">Examples</a>
+        </li></ul>
+            </nav>
+        </li>
     
 <li class="md-nav__item"><a class="md-nav__extra_link" href="../../_sources/api/api_rust/api_rust_arc_context_post.rst.txt">Show Source</a> </li>
 
@@ -448,6 +396,79 @@
             
   
 <span id="ref-api-rust-arc-context-post"></span><h1 id="api-api-rust-api-rust-arc-context-post--page-root">arc::Context::post<a class="headerlink" href="#api-api-rust-api-rust-arc-context-post--page-root" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">post</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">path</span>: <span class="kp">&amp;</span><span class="kt">str</span><span class="p">,</span><span class="w"> </span><span class="n">data</span>: <span class="kp">&amp;</span><span class="kt">str</span><span class="p">,</span><span class="w"> </span><span class="n">sid</span>: <span class="kp">&amp;</span><span class="kt">str</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">SimpleFuture</span><span class="o">&lt;</span><span class="n">Response</span><span class="o">&gt;</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Send a POST request to a connected device</p>
+
+<h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<table border="1">
+<colgroup>
+<col width="14%"/>
+<col width="86%"/>
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>path: &amp;str</td>
+<td>URL of the request</td>
+</tr>
+<tr class="row-odd"><td>data: &amp;str</td>
+<td>Body of the request</td>
+</tr>
+<tr class="row-even"><td>sid: &amp;str</td>
+<td>Serial number of the device for which to receive the request</td>
+</tr>
+</tbody>
+</table>
+
+
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p class="rubric">Example using executor</p>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="cp">#![feature(rustc_private)]</span><span class="w"></span>
+<span class="cp">#![feature(proc_macro_hygiene)]</span><span class="w"></span>
+<span class="cp">#![feature(decl_macro)]</span><span class="w"></span>
+<span class="cp">#![feature(async_closure)]</span><span class="w"></span>
+
+<span class="k">use</span><span class="w"> </span><span class="n">futures</span>::<span class="n">prelude</span>::<span class="o">*</span><span class="p">;</span><span class="w"></span>
+<span class="k">use</span><span class="w"> </span><span class="n">futures</span>::<span class="n">stream</span>::<span class="n">StreamExt</span><span class="p">;</span><span class="w"></span>
+<span class="k">use</span><span class="w"> </span><span class="n">std</span>::<span class="n">error</span>::<span class="n">Error</span><span class="p">;</span><span class="w"></span>
+
+<span class="cp">#[async_attributes::main]</span><span class="w"></span>
+<span class="n">async</span><span class="w"> </span><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span><span class="w"> </span><span class="nb">Box</span><span class="o">&lt;</span><span class="n">dyn</span><span class="w"> </span><span class="n">Error</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">   </span><span class="kd">let</span><span class="w"> </span><span class="n">net</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">atx_net</span>::<span class="n">arc</span>::<span class="n">Context</span>::<span class="n">new</span><span class="p">();</span><span class="w"></span>
+
+<span class="w">   </span><span class="c1">// Get a serial number from a connected device</span>
+<span class="w">   </span><span class="kd">let</span><span class="w"> </span><span class="p">(</span><span class="n">serial</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">net</span><span class="w"></span>
+<span class="w">       </span><span class="p">.</span><span class="n">events</span><span class="p">()</span><span class="w"></span>
+<span class="w">       </span><span class="p">.</span><span class="n">filter_map</span><span class="p">(</span><span class="o">|</span><span class="n">e</span><span class="o">|</span><span class="w"> </span><span class="k">match</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">           </span><span class="n">net</span>::<span class="n">Event</span>::<span class="n">Heartbeat</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">future</span>::<span class="n">ready</span><span class="p">(</span><span class="nb">Some</span><span class="p">(</span><span class="n">s</span><span class="p">)),</span><span class="w"></span>
+<span class="w">           </span><span class="n">_</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">future</span>::<span class="n">ready</span><span class="p">(</span><span class="nb">None</span><span class="p">),</span><span class="w"></span>
+<span class="w">       </span><span class="p">})</span><span class="w"></span>
+<span class="w">       </span><span class="p">.</span><span class="n">take</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">       </span><span class="p">.</span><span class="n">into_future</span><span class="p">()</span><span class="w"></span>
+<span class="w">       </span><span class="p">.</span><span class="n">await</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">   </span><span class="c1">// Change the SiteID</span>
+<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="kd">let</span><span class="w"> </span><span class="nb">Some</span><span class="p">(</span><span class="n">serial</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">serial</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">       </span><span class="kd">let</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">net</span><span class="w"></span>
+<span class="w">           </span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="s">"/ATX/about"</span><span class="p">,</span><span class="w"> </span><span class="s">"{</span><span class="se">\"</span><span class="s">siteId</span><span class="se">\"</span><span class="s">:</span><span class="se">\"</span><span class="s">New Site ID</span><span class="se">\"</span><span class="s">}"</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">serial</span><span class="p">)</span><span class="w"></span>
+<span class="w">           </span><span class="p">.</span><span class="n">await</span><span class="o">?</span><span class="w"></span>
+<span class="w">           </span><span class="p">.</span><span class="n">result</span><span class="o">?</span><span class="p">;</span><span class="w"></span>
+<span class="w">   </span><span class="p">}</span><span class="w"></span>
+
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p class="rubric">See also</p>
+<ol class="arabic simple">
+<li><a class="reference internal" href="api_rust_arc_context_get.html#ref-api-rust-arc-context-get"><span class="std std-ref">arc::Context::get</span></a></li>
+<li><a class="reference internal" href="api_rust_arc_context_send.html#ref-api-rust-arc-context-send"><span class="std std-ref">arc::Context::send</span></a></li>
+</ol>
+
 
 
 
