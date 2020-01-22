@@ -11,7 +11,7 @@ Synopsis
 
    uint32_t atx_net_node_count(atx_net_s* netw);
 
-Return the number of nodes connected to your LinQ Network context.
+Return the number of nodes connected to your LinQ Network context. Any time you connect to a remote atx_net instance, the node count will increase by 1. Anytime you close a connection to a remote atx_net instance, the node count will decrease by 1.
 
 Parameters
 ----------

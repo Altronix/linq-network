@@ -400,7 +400,7 @@
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">uint32_t</span> <span class="nf">atx_net_node_count</span><span class="p">(</span><span class="n">atx_net_s</span><span class="o">*</span> <span class="n">netw</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>Return the number of nodes connected to your LinQ Network context.</p>
+<p>Return the number of nodes connected to your LinQ Network context. Any time you connect to a remote atx_net instance, the node count will increase by 1. Anytime you close a connection to a remote atx_net instance, the node count will decrease by 1.</p>
 
 
 <h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
