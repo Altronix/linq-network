@@ -29,8 +29,11 @@ test_init()
     mongoose_spy_init();
     sqlite_spy_init();
     sqlite_spy_step_return_push(SQLITE_DONE); // PRAGMA
+
+    // TODO use header to define how many tables there are
     sqlite_spy_step_return_push(SQLITE_ROW);  // device database OK
-    sqlite_spy_step_return_push(SQLITE_ROW);  // device database OK
+    sqlite_spy_step_return_push(SQLITE_ROW);  // alert database OK
+    sqlite_spy_step_return_push(SQLITE_ROW);  // users database OK
 #endif
 }
 

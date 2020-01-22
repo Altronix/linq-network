@@ -2,13 +2,13 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "device.h"
 #include "atx_net.hpp"
+#include "device.h"
 
 extern "C"
 {
-#include "helpers.h"
 #include "atx_net_internal.h"
+#include "helpers.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
 #include "mock_zmsg.h"
@@ -26,8 +26,11 @@ test_init()
     mongoose_spy_init();
     sqlite_spy_init();
     sqlite_spy_step_return_push(SQLITE_DONE); // PRAGMA
-    sqlite_spy_step_return_push(SQLITE_ROW);  // device database OK
-    sqlite_spy_step_return_push(SQLITE_ROW);  // device database OK
+
+    // TODO use header to define how many tables there are
+    sqlite_spy_step_return_push(SQLITE_ROW); // device database OK
+    sqlite_spy_step_return_push(SQLITE_ROW); // alert database OK
+    sqlite_spy_step_return_push(SQLITE_ROW); // users database OK
 }
 
 static void
