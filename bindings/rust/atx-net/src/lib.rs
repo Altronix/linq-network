@@ -9,5 +9,5 @@ pub mod arc;
 pub mod error;
 pub mod polling;
 
-pub use event::Event;
-pub use polling::{running, Endpoint, Request};
+pub use event::{Event, EventStream};
+pub use polling::{atx_net_socket, running, Endpoint, Request};
