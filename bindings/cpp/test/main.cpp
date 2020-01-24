@@ -23,23 +23,13 @@ extern "C"
 static void
 test_init()
 {
-    mongoose_spy_init();
-    sqlite_spy_init();
-    sqlite_spy_step_return_push(SQLITE_DONE); // PRAGMA
-
-    // TODO use header to define how many tables there are
-    sqlite_spy_step_return_push(SQLITE_ROW); // device database OK
-    sqlite_spy_step_return_push(SQLITE_ROW); // alert database OK
-    sqlite_spy_step_return_push(SQLITE_ROW); // users database OK
+    helpers_test_init("unsafe_user", "unsafe_password");
 }
 
 static void
 test_reset()
 {
-    czmq_spy_mesg_reset();
-    czmq_spy_poll_reset();
-    mongoose_spy_deinit();
-    sqlite_spy_deinit();
+    helpers_test_reset();
 }
 
 static void

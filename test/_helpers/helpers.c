@@ -5,6 +5,35 @@
 #include "helpers.h"
 #include "atx_net_internal.h"
 
+#include "database/database.h"
+#include "mock_mongoose.h"
+#include "mock_sqlite.h"
+#include "mock_zmsg.h"
+#include "mock_zpoll.h"
+
+void
+helpers_test_init(const char* user, const char* password)
+{
+    ((void)user);
+    ((void)password);
+    mongoose_spy_init();
+    sqlite_spy_init();
+    sqlite_spy_step_return_push(SQLITE_DONE); // PRAGMA
+
+    for (int i = 0; i < NUM_DATABASES; i++) {
+        sqlite_spy_step_return_push(SQLITE_ROW);
+    }
+}
+
+void
+helpers_test_reset()
+{
+    czmq_spy_mesg_reset();
+    czmq_spy_poll_reset();
+    mongoose_spy_deinit();
+    sqlite_spy_deinit();
+}
+
 zmsg_t*
 helpers_make_heartbeat(
     const char* rid,

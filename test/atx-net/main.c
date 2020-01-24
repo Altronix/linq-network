@@ -6,12 +6,10 @@
 #include "atx_net_internal.h"
 #include "device.h"
 #include "helpers.h"
-#include "mock_zmsg.h"
-#include "mock_zpoll.h"
-#ifdef WITH_SQLITE
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
-#endif
+#include "mock_zmsg.h"
+#include "mock_zpoll.h"
 
 #include <setjmp.h>
 
@@ -25,16 +23,7 @@ static const char* expect_sid = "";
 static void
 test_init()
 {
-#ifdef WITH_SQLITE
-    mongoose_spy_init();
-    sqlite_spy_init();
-    sqlite_spy_step_return_push(SQLITE_DONE); // PRAGMA
-
-    // TODO use header to define how many tables there are
-    sqlite_spy_step_return_push(SQLITE_ROW);  // device database OK
-    sqlite_spy_step_return_push(SQLITE_ROW);  // alert database OK
-    sqlite_spy_step_return_push(SQLITE_ROW);  // users database OK
-#endif
+    helpers_test_init("unsafe_user", "unsafe_password");
 }
 
 static void
@@ -43,12 +32,7 @@ test_reset()
     expect_error = LINQ_ERROR_OK;
     expect_what = empty;
     expect_sid = empty;
-    czmq_spy_mesg_reset();
-    czmq_spy_poll_reset();
-#ifdef WITH_SQLITE
-    mongoose_spy_deinit();
-    sqlite_spy_deinit();
-#endif
+    helpers_test_reset();
 }
 
 static void

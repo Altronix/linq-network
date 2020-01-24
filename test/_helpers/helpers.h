@@ -67,6 +67,8 @@ extern "C"
 {
 #endif
 
+    void helpers_test_init(const char* user, const char* password);
+    void helpers_test_reset();
     zmsg_t* helpers_make_heartbeat(
         const char* router,
         const char* serial,
