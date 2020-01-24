@@ -14,16 +14,20 @@
 #include "devices.h"
 #include "proxy.h"
 
-void
-test_init()
+helpers_test_context_s*
+test_init(
+    atx_net_callbacks* callbacks,
+    void* context,
+    const char* user,
+    const char* password)
 {
-    helpers_test_init("unsafe_user", "unsafe_password");
+    return helpers_test_context_create(callbacks, context, user, password);
 }
 
 void
-test_reset()
+test_reset(helpers_test_context_s** test_p)
 {
-    helpers_test_reset();
+    helpers_test_context_destroy(test_p);
 }
 
 int
