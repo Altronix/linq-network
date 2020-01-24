@@ -4,8 +4,8 @@
 
 #include "helpers.h"
 #include "atx_net_internal.h"
-
 #include "database/database.h"
+
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
 #include "mock_zmsg.h"
@@ -32,6 +32,29 @@ helpers_test_reset()
     czmq_spy_poll_reset();
     mongoose_spy_deinit();
     sqlite_spy_deinit();
+}
+
+helpers_test_context_s*
+helpers_test_context_create(
+    atx_net_callbacks* callbacks,
+    void* context,
+    const char* user,
+    const char* password)
+{
+    helpers_test_context_s* ctx =
+        atx_net_malloc(sizeof(helpers_test_context_s));
+    atx_net_assert(ctx);
+    helpers_test_init(user, password);
+    return ctx;
+}
+
+void
+helpers_test_context_destroy(helpers_test_context_s** ctx_p)
+{
+    helpers_test_context_s* ctx = *ctx_p;
+    *ctx_p = NULL;
+    atx_net_destroy(&ctx->net);
+    atx_net_free(ctx);
 }
 
 zmsg_t*

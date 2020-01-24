@@ -14,6 +14,9 @@
 
 #include "cmocka.h"
 
+#include "atx_net_internal.h"
+#include "database/database.h"
+
 #include "czmq.h"
 #undef closesocket    // Mongoose and czmq both define these
 #undef INVALID_SOCKET // Mongoose and czmq both define these
@@ -67,8 +70,20 @@ extern "C"
 {
 #endif
 
+    typedef struct helpers_test_context_s
+    {
+        atx_net_s* net;
+    } helpers_test_context_s;
+
     void helpers_test_init(const char* user, const char* password);
     void helpers_test_reset();
+
+    helpers_test_context_s* helpers_test_context_create(
+        atx_net_callbacks* callbacks,
+        void* context,
+        const char* user,
+        const char* password);
+    void helpers_test_context_destroy(helpers_test_context_s** ctx_p);
     zmsg_t* helpers_make_heartbeat(
         const char* router,
         const char* serial,
