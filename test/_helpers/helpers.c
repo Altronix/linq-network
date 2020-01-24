@@ -45,6 +45,7 @@ helpers_test_context_create(
         atx_net_malloc(sizeof(helpers_test_context_s));
     atx_net_assert(ctx);
     helpers_test_init(user, password);
+    ctx->net = atx_net_create(callbacks, context);
     return ctx;
 }
 
@@ -55,6 +56,7 @@ helpers_test_context_destroy(helpers_test_context_s** ctx_p)
     *ctx_p = NULL;
     atx_net_destroy(&ctx->net);
     atx_net_free(ctx);
+    helpers_test_reset();
 }
 
 zmsg_t*

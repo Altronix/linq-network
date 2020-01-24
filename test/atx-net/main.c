@@ -85,12 +85,10 @@ static void
 test_atx_net_create(void** context_p)
 {
     ((void)context_p);
-    test_init();
-    atx_net_s* l = atx_net_create(NULL, NULL);
-    assert_non_null(l);
-    atx_net_destroy(&l);
-    assert_null(l);
-    test_reset();
+    helpers_test_context_s* test = helpers_test_context_create(
+        NULL, NULL, "unsafe_user", "unsafe_password");
+    assert_non_null(test->net);
+    helpers_test_context_destroy(&test);
 }
 
 static void
