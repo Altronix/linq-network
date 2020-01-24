@@ -101,11 +101,11 @@ test_atx_net_receive_protocol_error_short(void** context_p)
     zmsg_t* m = helpers_create_message_str(2, "too", "short");
 
     test_init();
+    atx_net_s* l = atx_net_create(&callbacks, (void*)&pass);
     expect_error = LINQ_ERROR_PROTOCOL;
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
 
-    atx_net_s* l = atx_net_create(&callbacks, (void*)&pass);
     atx_net_listen(l, "tcp://*:32820");
     atx_net_poll(l, 5);
 
@@ -126,12 +126,12 @@ test_atx_net_receive_protocol_error_serial(void** context_p)
         6, "rid", 3, "\x0", 1, "\x0", 1, sid, SID_LEN + 1, "pid", 3, "site", 4);
 
     test_init();
+    atx_net_s* l = atx_net_create(&callbacks, &pass);
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
 
     expect_error = LINQ_ERROR_PROTOCOL;
 
-    atx_net_s* l = atx_net_create(&callbacks, &pass);
     atx_net_listen(l, "tcp://*:32820");
     atx_net_poll(l, 5);
 
@@ -152,12 +152,12 @@ test_atx_net_receive_protocol_error_router(void** context_p)
         6, rid, RID_LEN + 1, "\x0", 1, "\x0", 1, "sid", 3, "pid", 3, "site", 4);
 
     test_init();
+    atx_net_s* l = atx_net_create(&callbacks, &pass);
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
 
     expect_error = LINQ_ERROR_PROTOCOL;
 
-    atx_net_s* l = atx_net_create(&callbacks, &pass);
     atx_net_listen(l, "tcp://*:32820");
     atx_net_poll(l, 5);
 
@@ -177,6 +177,7 @@ test_atx_net_receive_heartbeat_ok(void** context_p)
     zmsg_t* hb1 = helpers_make_heartbeat("rid00", serial, "product", "site");
 
     test_init();
+    atx_net_s* l = atx_net_create(&callbacks, (void*)&pass);
 
     // Push some incoming heartbeats
     czmq_spy_mesg_push_incoming(&hb0);
@@ -185,7 +186,6 @@ test_atx_net_receive_heartbeat_ok(void** context_p)
     spy_sys_set_tick(100);
 
     // Receive a heartbeat
-    atx_net_s* l = atx_net_create(&callbacks, (void*)&pass);
     atx_net_listen(l, "tcp://*:32820");
     atx_net_poll(l, 5);
     device_s** d = atx_net_device(l, serial);
@@ -240,6 +240,7 @@ test_atx_net_receive_heartbeat_ok_insert_device(void** context_p)
     outgoing_statement* statement = NULL;
 
     test_init();
+    atx_net_s* l = atx_net_create(&callbacks, (void*)&pass);
 
     // Push some incoming heartbeats
     czmq_spy_mesg_push_incoming(&hb0);
@@ -250,7 +251,6 @@ test_atx_net_receive_heartbeat_ok_insert_device(void** context_p)
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(0);
 
-    atx_net_s* l = atx_net_create(&callbacks, (void*)&pass);
     atx_net_listen(l, "tcp://*:32820");
     sqlite_spy_outgoing_statement_flush();
 
@@ -284,12 +284,12 @@ test_atx_net_receive_heartbeat_error_short(void** context_p)
         4, "router", 6, "\x0", 1, "\x0", 1, "product", 7);
 
     test_init();
+    atx_net_s* l = atx_net_create(&callbacks, (void*)&pass);
 
     expect_error = LINQ_ERROR_PROTOCOL;
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
 
-    atx_net_s* l = atx_net_create(&callbacks, (void*)&pass);
     atx_net_listen(l, "tcp://*:32820");
     atx_net_poll(l, 5);
 
@@ -309,13 +309,13 @@ test_atx_net_receive_alert_ok(void** context_p)
     zmsg_t* alert = helpers_make_alert("rid", sid, "pid");
 
     test_init();
+    atx_net_s* l = atx_net_create(&callbacks, (void*)&pass);
 
     // Push some incoming messages
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_mesg_push_incoming(&alert);
     czmq_spy_poll_set_incoming((0x01));
 
-    atx_net_s* l = atx_net_create(&callbacks, (void*)&pass);
     atx_net_listen(l, "tcp://*:32820");
     atx_net_poll(l, 5);
     pass = false;
@@ -344,13 +344,13 @@ test_atx_net_receive_alert_insert(void** context_p)
     outgoing_statement* statement;
 
     test_init();
+    atx_net_s* l = atx_net_create(&callbacks, (void*)&pass);
 
     // Push some incoming messages
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_mesg_push_incoming(&alert);
     czmq_spy_poll_set_incoming((0x01));
 
-    atx_net_s* l = atx_net_create(&callbacks, (void*)&pass);
     atx_net_listen(l, "tcp://*:32820");
     atx_net_poll(l, 5);
     sqlite_spy_outgoing_statement_flush();
@@ -395,6 +395,7 @@ test_atx_net_receive_response_ok(void** context_p)
     zmsg_t* r = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
 
     test_init();
+    atx_net_s* l = atx_net_create(&callbacks, (void*)&pass);
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
@@ -406,7 +407,6 @@ test_atx_net_receive_response_ok(void** context_p)
     // Send a get request
     // receive get response
     // make sure callback is as expect
-    atx_net_s* l = atx_net_create(&callbacks, (void*)&pass);
     atx_net_listen(l, "tcp://*:32820");
     atx_net_poll(l, 5);
     atx_net_send_get(l, serial, "/ATX/test", on_response_ok, &pass);
@@ -438,6 +438,7 @@ test_atx_net_receive_response_error_timeout(void** context_p)
     zmsg_t* r = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
 
     test_init();
+    atx_net_s* l = atx_net_create(&callbacks, &pass);
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
@@ -446,7 +447,6 @@ test_atx_net_receive_response_error_timeout(void** context_p)
 
     // Receive a new device @t=0
     spy_sys_set_tick(0);
-    atx_net_s* l = atx_net_create(&callbacks, &pass);
     atx_net_listen(l, "tcp://*:32820");
     atx_net_poll(l, 5);
     d = atx_net_device(l, serial);
@@ -499,6 +499,7 @@ test_atx_net_receive_response_error_codes(void** context_p)
     for (int i = 0; i < 5; i++) {
         // Setup incoming network (1st poll heartbeat, 2nd poll response)
         test_init();
+        atx_net_s* l = atx_net_create(NULL, NULL);
         sqlite_spy_step_return_push(SQLITE_ROW);
         sqlite_spy_column_int_return_push(1);
 
@@ -512,7 +513,6 @@ test_atx_net_receive_response_error_codes(void** context_p)
         czmq_spy_poll_set_incoming((0x01));
 
         // Setup code under test
-        atx_net_s* l = atx_net_create(NULL, NULL);
         atx_net_listen(l, "tcp://*:32820");
         atx_net_poll(l, 0);
         d = atx_net_device(l, serial);
@@ -562,11 +562,11 @@ test_atx_net_receive_response_error_504(void** context_p)
     zmsg_t* outgoing = NULL;
 
     test_init();
+    atx_net_s* l = atx_net_create(&callbacks, &pass);
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
     // Setup code under test
-    atx_net_s* l = atx_net_create(&callbacks, &pass);
     atx_net_listen(l, "tcp://*:32820");
 
     // Receive a new device @t=0
@@ -646,11 +646,11 @@ test_atx_net_receive_response_ok_504(void** context_p)
     zmsg_t* outgoing = NULL;
 
     test_init();
+    atx_net_s* l = atx_net_create(NULL, NULL);
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
     // Setup code under test
-    atx_net_s* l = atx_net_create(NULL, NULL);
     atx_net_listen(l, "tcp://*:32820");
 
     // Receive a new device @t=0
@@ -707,11 +707,11 @@ test_atx_net_receive_hello(void** context_p)
     ((void)context_p);
 
     test_init();
+    atx_net_s* l = atx_net_create(NULL, NULL);
 
     zmsg_t* m = helpers_make_hello("router", "node");
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
-    atx_net_s* l = atx_net_create(NULL, NULL);
     atx_net_listen(l, "tcp://*:32820");
 
     assert_int_equal(atx_net_node_count(l), 0);
@@ -730,12 +730,12 @@ test_atx_net_receive_hello_double_id(void** context_p)
     zmsg_t* m1 = helpers_make_hello("router", "node");
 
     test_init();
+    atx_net_s* l = atx_net_create(NULL, NULL);
 
     czmq_spy_mesg_push_incoming(&m0);
     czmq_spy_mesg_push_incoming(&m1);
     czmq_spy_poll_set_incoming((0x01));
 
-    atx_net_s* l = atx_net_create(NULL, NULL);
     atx_net_listen(l, "tcp://*:32820");
     assert_int_equal(atx_net_node_count(l), 0);
     atx_net_poll(l, 5);
@@ -754,7 +754,6 @@ test_atx_net_broadcast_heartbeat_receive(void** context_p)
     zmsg_t* hb = helpers_make_heartbeat(NULL, "serial", "product", "site");
 
     test_init();
-
     atx_net_s* linq = atx_net_create(NULL, NULL);
 
     atx_net_connect(linq, "ipc:///123");
@@ -779,6 +778,7 @@ test_atx_net_broadcast_heartbeat(void** context_p)
     zmsg_t* outgoing;
 
     test_init();
+    atx_net_s* l = atx_net_create(NULL, NULL);
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
@@ -788,7 +788,6 @@ test_atx_net_broadcast_heartbeat(void** context_p)
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
 
-    atx_net_s* l = atx_net_create(NULL, NULL);
     atx_net_listen(l, "tcp://*:32820");
     atx_net_poll(l, 5); // receive hello
     atx_net_poll(l, 5); // recieve hello
@@ -839,6 +838,7 @@ test_atx_net_broadcast_alert(void** context_p)
     zmsg_t* outgoing;
 
     test_init();
+    atx_net_s* l = atx_net_create(NULL, NULL);
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
@@ -849,7 +849,6 @@ test_atx_net_broadcast_alert(void** context_p)
     czmq_spy_mesg_push_incoming(&alert);
     czmq_spy_poll_set_incoming((0x01));
 
-    atx_net_s* l = atx_net_create(NULL, NULL);
     atx_net_listen(l, "tcp://*:32820");
     atx_net_poll(l, 5); // receive heartbeat
     atx_net_poll(l, 5); // receive hello
@@ -904,6 +903,7 @@ test_atx_net_forward_request(void** context_p)
     response = helpers_make_response("router-d", "device123", 0, "world");
 
     test_init();
+    atx_net_s* l = atx_net_create(NULL, NULL);
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
@@ -913,7 +913,6 @@ test_atx_net_forward_request(void** context_p)
     czmq_spy_mesg_push_incoming(&response); // device response
     czmq_spy_poll_set_incoming((0x01));
 
-    atx_net_s* l = atx_net_create(NULL, NULL);
     atx_net_listen(l, "tcp://*:32820");
     atx_net_poll(l, 5);
     atx_net_poll(l, 5);
@@ -976,13 +975,13 @@ test_atx_net_forward_client_request(void** context_p)
     zmsg_t* outgoing = NULL;
 
     test_init();
+    atx_net_s* l = atx_net_create(NULL, NULL);
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming(0x01);
 
-    atx_net_s* l = atx_net_create(NULL, NULL);
     atx_net_connect(l, "ipc:///test");
 
     atx_net_poll(l, 5); // add a device
@@ -1019,7 +1018,6 @@ test_atx_net_connect(void** context_p)
     atx_net_socket s;
 
     test_init();
-
     atx_net_s* linq = atx_net_create(NULL, NULL);
 
     s = atx_net_connect(linq, "ipc:///filex");
@@ -1052,8 +1050,8 @@ test_atx_net_close_router(void** context_p)
     ((void)context_p);
 
     test_init();
-
     atx_net_s* linq = atx_net_create(NULL, NULL);
+
     atx_net_socket l0 = atx_net_listen(linq, "tcp://1.2.3.4:8080");
     atx_net_socket l1 = atx_net_listen(linq, "tcp://5.6.7.8:8080");
     atx_net_socket c0 = atx_net_connect(linq, "tcp://11.22.33.44:8888");
@@ -1111,8 +1109,8 @@ test_atx_net_devices_foreach(void** context_p)
     ((void)context_p);
 
     test_init();
-
     atx_net_s* linq = atx_net_create(NULL, NULL);
+
     atx_net_listen(linq, "tcp://1.2.3.4:8080");
     atx_net_listen(linq, "tcp://5.6.7.8:8080");
     atx_net_connect(linq, "tcp://11.22.33.44:8888");

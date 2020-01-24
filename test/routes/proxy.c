@@ -23,10 +23,11 @@ test_route_proxy_get(void** context_p)
     zframe_t *rid, *ver, *typ, *url;
 
     test_init();
+    atx_net_s* l = atx_net_create(NULL, NULL);
+
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
 
-    atx_net_s* l = atx_net_create(NULL, NULL);
     atx_net_listen(l, "tcp://*:32820");
     atx_net_listen(l, "http://*:8000");
     atx_net_poll(l, 5);
@@ -68,12 +69,13 @@ test_route_proxy_post(void** context_p)
     zframe_t *rid, *ver, *typ, *url, *dat;
 
     test_init();
+    atx_net_s* l = atx_net_create(NULL, NULL);
+
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
 
-    atx_net_s* l = atx_net_create(NULL, NULL);
     atx_net_listen(l, "tcp://*:32820");
     atx_net_listen(l, "http://*:8000");
     atx_net_poll(l, 5);
@@ -116,10 +118,11 @@ test_route_proxy_404(void** context_p)
     ((void)context_p);
 
     test_init();
+    atx_net_s* l = atx_net_create(NULL, NULL);
+
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
-    atx_net_s* l = atx_net_create(NULL, NULL);
     atx_net_listen(l, "tcp://*:32820");
     atx_net_listen(l, "http://*:8000");
     atx_net_poll(l, 5);
@@ -148,10 +151,11 @@ test_route_proxy_400_too_short(void** context_p)
     ((void)context_p);
 
     test_init();
+    atx_net_s* l = atx_net_create(NULL, NULL);
+
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
-    atx_net_s* l = atx_net_create(NULL, NULL);
     atx_net_listen(l, "tcp://*:32820");
     atx_net_listen(l, "http://*:8000");
     atx_net_poll(l, 5);
