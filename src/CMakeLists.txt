@@ -20,6 +20,9 @@ set(SOURCES
 
 set(INSTALL_HEADERS ../include/altronix/atx_net.h)
 set(INCS ../include)
+set(LIBS ${CMAKE_THREAD_LIBS_INIT})
+set(LIBS_STATIC ${LIBCZMQ_STATIC_LIBS} ${LIBZMQ_STATIC_LIBS})
+set(LIBS_SHARED ${LIBCZMQ_SHARED_LIBS} ${LIBZMQ_SHARED_LIBS})
 set(SOURCES_SYS_MOCK sys/mock/sys.c)
 set(HEADERS_SYS_MOCK sys/mock/sys.h)
 
@@ -67,10 +70,8 @@ if(ENABLE_TESTING)
               ${SOURCES_SYS_MOCK}
               ${HEADERS_SYS_MOCK})
   target_link_libraries(atx-net-test-static
-    ${LIBCZMQ_STATIC_LIBS}
-    ${LIBZMQ_STATIC_LIBS}
-    ${LIBS}
-    ${CMAKE_THREAD_LIBS_INIT})
+    ${LIBS_STATIC}
+    ${LIBS})
   target_compile_definitions(atx-net-test-static PUBLIC ${definitions})
   target_include_directories(atx-net-test-static PUBLIC ${INCS})
   target_include_directories(atx-net-test-static PUBLIC ../include)
@@ -85,10 +86,8 @@ if(BUILD_STATIC)
     ${SOURCES_SYS}
     ${HEADERS_SYS})
   target_link_libraries(atx-net-static
-    ${LIBCZMQ_STATIC_LIBS}
-    ${LIBZMQ_STATIC_LIBS}
-    ${LIBS}
-    ${CMAKE_THREAD_LIBS_INIT})
+    ${LIBS_STATIC}
+    ${LIBS})
   target_compile_definitions(atx-net-static PUBLIC ${definitions})
   target_include_directories(atx-net-static PUBLIC ${INCS})
   target_include_directories(atx-net-static PRIVATE sys/unix)
@@ -111,16 +110,12 @@ if(BUILD_SHARED)
   if(MSVC)
     #TODO - https://stackoverflow.com/questions/33062728/cmake-link-shared-library-on-windows/41618677
     target_link_libraries(atx-net
-      ${LIBCZMQ_STATIC_LIBS}
-      ${LIBZMQ_STATIC_LIBS}
-      ${LIBS}
-      ${CMAKE_THREAD_LIBS_INIT})
+      ${LIBS_STATIC}
+      ${LIBS})
   else()
     target_link_libraries(atx-net
-      ${LIBCZMQ_SHARED_LIBS}
-      ${LIBZMQ_SHARED_LIBS}
-      ${LIBS}
-      ${CMAKE_THREAD_LIBS_INIT})
+      ${LIBS_SHARED}
+      ${LIBS})
   endif()
   target_compile_definitions(atx-net PUBLIC ${definitions})
   target_include_directories(atx-net PUBLIC ${INCS})

@@ -11,6 +11,7 @@ before_install:
         - git submodule update --init ./external/czmq
         - git submodule update --init ./external/cmocka
         - git clone https://github.com/nodejs/http-parser ./external/http_parser
+        - git clone https://github.com/wolfssl/wolfssl ./external/wolfssl
 
 matrix:
         include:
