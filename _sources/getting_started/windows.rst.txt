@@ -15,6 +15,12 @@ The following packages are required to get your Windows OS up and running.
 
 1. `Git <https://git-scm.com/download/win>`_
 
+   .. note:: Config your git to play nice with others
+
+      .. code-block:: bash
+
+         git config --global core.eol=lf
+
 2. `Microsoft Visual Studio 2019 (Community Edition) <https://visualstudio.microsoft.com/vs/community>`_
 
 3. `LLVM <https://releases.llvm.org/download.html>`_
