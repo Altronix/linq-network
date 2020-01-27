@@ -56,6 +56,7 @@ matrix:
                   name: Windows/C/VS/Debug
                   language: c
                   script: 
+                          - choco install openssl
                           - cmake -DCMAKE_INSTALL_PREFIX:PATH=./build/install .
                           - cmake --build ./ --target install
                 - os: windows
@@ -66,6 +67,7 @@ matrix:
                   rust: 
                           - nightly
                   script:
+                          - choco install openssl
                           - cargo build --all --verbose
                 - os: windows
                   name: Windows/Node
@@ -73,5 +75,6 @@ matrix:
                   node_js:
                           - 10
                   script:
+                          - choco install openssl
                           - cd bindings/nodejs/examples/events
                           - npm install
