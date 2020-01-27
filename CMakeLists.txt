@@ -11,7 +11,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE on)
 
 # Note buildroot sets BUILD_SHARED_LIBS
-# TODO CMAKE_EXPORT_COMPILE_COMMANDS=ON
 option(BUILD_SHARED "Whether or not to build the shared object"  ON)
 option(BUILD_STATIC "Whether or not to build the static archive" ON)
 
@@ -42,7 +41,6 @@ endfunction()
 
 option(WITH_SQLITE "Include database support" ON)
 if(WITH_SQLITE)
-  include(cmake/wolfssl.cmake)
   function(append_sqlite_compiler_flags dst)
     list(APPEND definitions "-DWITH_SQLITE")
     list(APPEND definitions "-DSQLITE_CORE")
@@ -101,6 +99,7 @@ endif()
 
 if(ENABLE_TESTING)
   set(CMAKE_BUILD_TYPE Debug)
+  set(CMAKE_EXPORT_COMPILE_COMMANDS on)
   enable_testing()
   include(CTest)
   include(cmake/cmocka.cmake)
@@ -109,6 +108,7 @@ if(ENABLE_TESTING)
   if(EXISTS "${CMAKE_SOURCE_DIR}/external/linq-common/CMakeLists.txt")
     MESSAGE(STATUS "linq-common found!")
     MESSAGE(STATUS "Building linq-common integration test")
+    include(cmake/wolfssl.cmake)
     include(cmake/test-fixture.cmake)
     add_subdirectory(test/integration)
     add_subdirectory(test/_fixture)
