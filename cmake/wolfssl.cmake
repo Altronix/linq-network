@@ -29,16 +29,17 @@ if(NOT MSVC)
   set(wolfssl_static_LIBRARY ${INSTALL_DIR}/lib/${wolfssl_static_LIBRARY})
   set(wolfssl_shared_LIBRARY ${INSTALL_DIR}/lib/${wolfssl_shared_LIBRARY})
 else()
-  # TODO add msvc_project
-  message(STATUS "Building wolfssl-fips.sln")
-  include_external_msproject(wolfssl-project ${wolfssl_SOURCE_DIR}/IDE/WIN10/wolfssl-fips.vcxproj)
-  set(wolfssl_INCLUDE_DIR ${INSTALL_DIR}/include)
-  FILE(MAKE_DIRECTORY ${INSTALL_DIR}/include)
-  set(wolfssl_static_LIBRARY ${CMAKE_STATIC_LIBRARY_PREFIX}wolfssl${CMAKE_STATIC_LIBRARY_SUFFIX})
-  set(wolfssl_static_LIBRARY ${CMAKE_STATIC_LIBRARY_PREFIX}wolfssl${CMAKE_STATIC_LIBRARY_SUFFIX})
-  set(wolfssl_shared_LIBRARY ${CMAKE_SHARED_LIBRARY_PREFIX}wolfssl${CMAKE_SHARED_LIBRARY_SUFFIX})
-  set(wolfssl_static_LIBRARY ${INSTALL_DIR}/lib/${wolfssl_static_LIBRARY})
-  set(wolfssl_shared_LIBRARY ${INSTALL_DIR}/lib/${wolfssl_shared_LIBRARY})
+  # WolfSSL not supported on Windows - we only use wolfssl as part of the test suite that only runs on linux.
+
+  # message(STATUS "Building wolfssl-fips.sln")
+  # include_external_msproject(wolfssl-project ${wolfssl_SOURCE_DIR}/IDE/WIN10/wolfssl-fips.vcxproj)
+  # set(wolfssl_INCLUDE_DIR ${INSTALL_DIR}/include)
+  # FILE(MAKE_DIRECTORY ${INSTALL_DIR}/include)
+  # set(wolfssl_static_LIBRARY ${CMAKE_STATIC_LIBRARY_PREFIX}wolfssl${CMAKE_STATIC_LIBRARY_SUFFIX})
+  # set(wolfssl_static_LIBRARY ${CMAKE_STATIC_LIBRARY_PREFIX}wolfssl${CMAKE_STATIC_LIBRARY_SUFFIX})
+  # set(wolfssl_shared_LIBRARY ${CMAKE_SHARED_LIBRARY_PREFIX}wolfssl${CMAKE_SHARED_LIBRARY_SUFFIX})
+  # set(wolfssl_static_LIBRARY ${INSTALL_DIR}/lib/${wolfssl_static_LIBRARY})
+  # set(wolfssl_shared_LIBRARY ${INSTALL_DIR}/lib/${wolfssl_shared_LIBRARY})
 endif()
 
 # wolfssl-static
