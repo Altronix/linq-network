@@ -21,7 +21,6 @@
 }
 
 .incomplete {
-  color: red;
   text-decoration: line-through;
 }
 
