@@ -19,7 +19,8 @@ The following packages are required to get your Windows OS up and running.
 
       .. code-block:: bash
 
-         git config --global core.eol=lf
+         git config --global core.eol lf
+         git config --global core.filemode false
 
 2. `Microsoft Visual Studio 2019 (Community Edition) <https://visualstudio.microsoft.com/vs/community>`_
 
