@@ -43,6 +43,8 @@ The following packages are required to get your Windows OS up and running.
 
 9. `Python <https://python.org>`_ (Recommended for building the Python bindings)
 
+10. `Openssl <https://www.openssl.org>` (Recommended for building HTTP server with OpenSSL as TLS backend)
+
 Installation
 ------------
 
