@@ -24,11 +24,12 @@ else()
         SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/openssl
         INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
         UPDATE_COMMAND ""
-        CONFIGURE_COMMAND ./config VC_WIN64A no-deprecated no-tests no-asm --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR>/ssl
+        CONFIGURE_COMMAND perl ./Configure VC-WIN64A no-asm no-tests --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR>/ssl
         BUILD_COMMAND nmake
         INSTALL_COMMAND nmake install_sw
         BUILD_IN_SOURCE ON
     )
+    message(STATUS "CMAKE_PROGRAM_PATH: ${CMAKE_PROGRAM_PATH}")
     ExternalProject_Get_Property(openssl-project INSTALL_DIR)
     set(ssl_static_LIBRARY ${CMAKE_STATIC_LIBRARY_PREFIX}ssl${CMAKE_STATIC_LIBRARY_SUFFIX})
     set(ssl_shared_LIBRARY ${CMAKE_SHARED_LIBRARY_PREFIX}ssl${CMAKE_SHARED_LIBRARY_SUFFIX})
