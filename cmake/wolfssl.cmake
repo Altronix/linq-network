@@ -17,7 +17,7 @@ if(NOT MSVC)
   		--enable-keygen
   		--enable-certgen
   		--enable-testcert
-                --enable-opensslextra
+                # --enable-opensslextra
   	BUILD_COMMAND make
   	INSTALL_COMMAND make install
   	EXCLUDE_FROM_ALL true)

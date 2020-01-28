@@ -16,3 +16,6 @@
 [submodule "external/wolfssl"]
 	path = external/wolfssl
 	url = https://bitbucket.org/Altronix/wolfssl
+[submodule "external/openssl"]
+	path = external/openssl
+	url = https://github.com/openssl/openssl
