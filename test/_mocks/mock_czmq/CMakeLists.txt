@@ -4,7 +4,6 @@
 add_library(mock-czmq mock_zmsg.c mock_zsock.c mock_zpoll.c)
 target_link_libraries(mock-czmq
                       atx-net-test-static
-                      ${LIBCZMQ_STATIC_LIBS}
                       ${LIBZMQ_STATIC_LIBS}
 		      stdc++
 		      uuid)

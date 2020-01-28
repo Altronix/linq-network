@@ -8,7 +8,7 @@ add_executable(test-device main.c)
 
 target_link_libraries(test-device
                       atx-net-test-static
-                      ${LIBCZMQ_STATIC_LIBS}
+                      ${LIBZMQ_STATIC_LIBS}
                       helpers
                       cmocka)
 
