@@ -1,7 +1,5 @@
 set(mbedtls_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/mbedtls)
 
-add_definitions("-DMBEDTLS_X509_CRT_PARSE_C")
-
 if(NOT MSVC)
   ### Build Wolfssl ###
   ExternalProject_Add(mbedtls-project
