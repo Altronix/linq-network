@@ -29,13 +29,18 @@ else()
         INSTALL_COMMAND nmake install_sw
         BUILD_IN_SOURCE ON
     )
-    message(STATUS "CMAKE_PROGRAM_PATH: ${CMAKE_PROGRAM_PATH}")
     message(STATUS "PERL_EXECUTABLE: ${PERL_EXECUTABLE}")
     ExternalProject_Get_Property(openssl-project INSTALL_DIR)
+
     set(ssl_static_LIBRARY ${CMAKE_STATIC_LIBRARY_PREFIX}ssl${CMAKE_STATIC_LIBRARY_SUFFIX})
     set(ssl_shared_LIBRARY ${CMAKE_SHARED_LIBRARY_PREFIX}ssl${CMAKE_SHARED_LIBRARY_SUFFIX})
     set(crypto_static_LIBRARY ${CMAKE_STATIC_LIBRARY_PREFIX}crypto${CMAKE_STATIC_LIBRARY_SUFFIX})
     set(crypto_shared_LIBRARY ${CMAKE_SHARED_LIBRARY_PREFIX}crypto${CMAKE_SHARED_LIBRARY_SUFFIX})
+
+    set(ssl_static_LIBRARY ${INSTALL_DIR}/lib/${ssl_static_LIBRARY})
+    set(ssl_shared_LIBRARY ${INSTALL_DIR}/lib/${ssl_shared_LIBRARY})
+    set(crypto_static_LIBRARY ${INSTALL_DIR}/lib/${crypto_static_LIBRARY})
+    set(crypto_shared_LIBRARY ${INSTALL_DIR}/lib/${crypto_shared_LIBRARY})
 endif()
 
 set(openssl_INCLUDE_DIR ${INSTALL_DIR}/include)
