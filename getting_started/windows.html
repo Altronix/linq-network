@@ -357,6 +357,14 @@ git config --global core.filemode <span class="nb">false</span>
 </pre></div>
 </div>
 </div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>Git For Windows does not bundle a proper version of perl that supports Windows and does not support Windows file path syntax correctly. See reference to issue <a class="reference external" href="https://kitware.com/cmake/cmake/issues/18766">here</a></p>
+<p>As a workaround - you should pass a proper perl binary when compiling LinQ Network with OPENSSL ssl backend. IE:</p>
+<div class="last highlight-bash notranslate"><div class="highlight"><pre><span></span>cmake -DPERL_EXECUTABLE<span class="o">=</span>/c/Strawberry/perl/bin/perl.exe -DBUILD_EXAMPLES<span class="o">=</span>ON -DCMAKE_INSTALL_PREFIX<span class="o">=</span>./install
+</pre></div>
+</div>
+</div>
 </li>
 <li><p class="first"><a class="reference external" href="https://visualstudio.microsoft.com/vs/community">Microsoft Visual Studio 2019 (Community Edition)</a></p>
 </li>
@@ -381,6 +389,8 @@ git config --global core.filemode <span class="nb">false</span>
 <li><p class="first"><a class="reference external" href="https://golang.org">Go</a> (Recommended for building the Go bindings)</p>
 </li>
 <li><p class="first"><a class="reference external" href="https://python.org">Python</a> (Recommended for building the Python bindings)</p>
+</li>
+<li><p class="first"><a class="reference external" href="https://www.openssl.org">Openssl</a> (Recommended for building HTTP server with OpenSSL as TLS backend)</p>
 </li>
 </ol>
 

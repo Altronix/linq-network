@@ -22,6 +22,14 @@ The following packages are required to get your Windows OS up and running.
          git config --global core.eol lf
          git config --global core.filemode false
 
+   .. warning:: Git For Windows does not bundle a proper version of perl that supports Windows and does not support Windows file path syntax correctly. See reference to issue `here <https://kitware.com/cmake/cmake/issues/18766>`_
+
+      As a workaround - you should pass a proper perl binary when compiling LinQ Network with OPENSSL ssl backend. IE:
+
+      .. code-block:: bash
+
+         cmake -DPERL_EXECUTABLE=/c/Strawberry/perl/bin/perl.exe -DBUILD_EXAMPLES=ON -DCMAKE_INSTALL_PREFIX=./install
+
 2. `Microsoft Visual Studio 2019 (Community Edition) <https://visualstudio.microsoft.com/vs/community>`_
 
 3. `LLVM <https://releases.llvm.org/download.html>`_
@@ -42,6 +50,8 @@ The following packages are required to get your Windows OS up and running.
 8. `Go <https://golang.org>`_ (Recommended for building the Go bindings)
 
 9. `Python <https://python.org>`_ (Recommended for building the Python bindings)
+
+10. `Openssl <https://www.openssl.org>`_ (Recommended for building HTTP server with OpenSSL as TLS backend)
 
 Installation
 ------------
