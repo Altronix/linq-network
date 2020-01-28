@@ -20,6 +20,15 @@ if(NOT MSVC)
     set(crypto_static_LIBRARY ${INSTALL_DIR}/lib/${crypto_static_LIBRARY})
     set(crypto_shared_LIBRARY ${INSTALL_DIR}/lib/${crypto_shared_LIBRARY})
 else()
+    ExternalProject_Add(openssl-project
+        SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/openssl
+        INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
+        UPDATE_COMMAND ""
+        CONFIGURE_COMMAND ./config VC_WIN64A no-deprecated no-tests no-asm --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR>/ssl
+        BUILD_COMMAND nmake
+        INSTALL_COMMAND nmake install_sw
+        BUILD_IN_SOURCE ON
+    )
     ExternalProject_Get_Property(openssl-project INSTALL_DIR)
     set(ssl_static_LIBRARY ${CMAKE_STATIC_LIBRARY_PREFIX}ssl${CMAKE_STATIC_LIBRARY_SUFFIX})
     set(ssl_shared_LIBRARY ${CMAKE_SHARED_LIBRARY_PREFIX}ssl${CMAKE_SHARED_LIBRARY_SUFFIX})
