@@ -75,6 +75,16 @@ if(WITH_SQLITE)
   endfunction()
 endif()
 
+option(USE_SYSTEM_ZMQ "Look for libzmq and libczmq on your host machine." OFF)
+if(USE_SYSTEM_ZMQ)
+else()
+endif()
+
+option(USE_SYSTEM_OPENSSL "Look for openssl on your host machine." OFF)
+if(USE_SYSTEM_OPENSSL)
+else()
+endif()
+
 option(BUILD_DEPENDENCIES "Whether or not to build the tests" ON)
 set(LINQ_BUILD_DEPENDENCIES
     ${BUILD_DEPENDENCIES}
