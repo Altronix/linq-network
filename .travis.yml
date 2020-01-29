@@ -14,7 +14,6 @@ before_install:
         - git submodule update --init ./external/libjwt
         - git clone https://github.com/nodejs/http-parser ./external/http_parser
         - git clone https://github.com/wolfssl/wolfssl ./external/wolfssl
-        - git clone https://github.com/openssl/openssl ./external/openssl
 
 matrix:
         include:
@@ -61,6 +60,7 @@ matrix:
                   script: 
                           - choco install openssl
                           - choco install strawberryperl
+                          - source ~/.bashrc
                           - cmake -DCMAKE_INSTALL_PREFIX:PATH=./build/install .
                           - cmake --build ./ --target install
                 - os: windows
@@ -73,6 +73,7 @@ matrix:
                   script:
                           - choco install openssl
                           - choco install strawberryperl
+                          - source ~/.bashrc
                           - cargo build --all --verbose
                 - os: windows
                   name: Windows/Node
@@ -82,5 +83,6 @@ matrix:
                   script:
                           - choco install openssl
                           - choco install strawberryperl
+                          - source ~/.bashrc
                           - cd bindings/nodejs/examples/events
                           - npm install
