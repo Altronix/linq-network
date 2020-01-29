@@ -75,6 +75,7 @@ fn print(out: &std::path::Display<'_>) {
 }
 
 fn generator() -> Option<String> {
+    // -A "x64"
     match env::var("GENERATOR").as_ref() {
         Ok(r) => Some(r.to_string()),
         _ => None,
