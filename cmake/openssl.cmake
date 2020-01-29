@@ -20,6 +20,8 @@ if(NOT MSVC)
     set(crypto_static_LIBRARY ${INSTALL_DIR}/lib/${crypto_static_LIBRARY})
     set(crypto_shared_LIBRARY ${INSTALL_DIR}/lib/${crypto_shared_LIBRARY})
 else()
+    include(cmake/FindPerl.cmake)
+    message(STATUS "PERL_EXECUTABLE: ${PERL_EXECUTABLE}")
     ExternalProject_Add(openssl-project
         SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/openssl
         INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
@@ -29,7 +31,6 @@ else()
         INSTALL_COMMAND nmake install_sw
         BUILD_IN_SOURCE ON
     )
-    message(STATUS "PERL_EXECUTABLE: ${PERL_EXECUTABLE}")
     ExternalProject_Get_Property(openssl-project INSTALL_DIR)
 
     set(ssl_static_LIBRARY ${CMAKE_STATIC_LIBRARY_PREFIX}libssl${CMAKE_STATIC_LIBRARY_SUFFIX})
