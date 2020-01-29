@@ -22,6 +22,7 @@ if(NOT MSVC)
 else()
     include(cmake/FindPerl.cmake)
     message(STATUS "PERL_EXECUTABLE: ${PERL_EXECUTABLE}")
+    message(STATUS "PERL_VERSION_STRING: ${PERL_VERSION_STRING}")
     ExternalProject_Add(openssl-project
         SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/openssl
         INSTALL_DIR ${CMAKE_INSTALL_PREFIX}

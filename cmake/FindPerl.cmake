@@ -16,18 +16,13 @@ this module looks for Perl
   PERL_VERSION_STRING - version of perl found (since CMake 2.8.8)
 #]=======================================================================]
 
-include(${CMAKE_ROOT}/Modules/FindCygwin.cmake)
-
-set(PERL_POSSIBLE_BIN_PATHS
-  ${CYGWIN_INSTALL_PATH}/bin
-  )
-
 if(WIN32)
+  list(APPEND CMAKE_IGNORE_PATH "C:/cygwin64/bin")
   get_filename_component(
     ActivePerl_CurrentVersion
     "[HKEY_LOCAL_MACHINE\\SOFTWARE\\ActiveState\\ActivePerl;CurrentVersion]"
     NAME)
-  set(PERL_POSSIBLE_BIN_PATHS ${PERL_POSSIBLE_BIN_PATHS}
+  set(PERL_POSSIBLE_BIN_PATHS
     "C:/Strawberry/perl/bin"
     "C:/Perl/bin"
     [HKEY_LOCAL_MACHINE\\SOFTWARE\\ActiveState\\ActivePerl\\${ActivePerl_CurrentVersion}]/bin
@@ -36,8 +31,7 @@ endif()
 
 find_program(PERL_EXECUTABLE
   NAMES perl
-  HINTS ${PERL_POSSIBLE_BIN_PATHS}
-  NO_DEFAULT_PATH
+  PATHS ${PERL_POSSIBLE_BIN_PATHS}
   )
 
 if(PERL_EXECUTABLE)
