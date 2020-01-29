@@ -57,7 +57,7 @@
   <script async src='https://www.google-analytics.com/analytics.js'></script>
   
   
-    <title>NodeJS API Reference (pending) &#8212; Linq Network User Guide 0.0.1 documentation</title>
+    <title>NodeJS API Reference &#8212; Linq Network User Guide 0.0.1 documentation</title>
     <link rel="stylesheet" href="../../_static/material.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/styles.css" />
@@ -68,8 +68,8 @@
     <script type="text/javascript" src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="HTTP API Reference" href="../api_http/api_http.html" />
-    <link rel="prev" title="Go API Reference (pending)" href="../api_go/api_go.html" />
+    <link rel="next" title="AtxNet" href="api_nodejs_atxnet.html" />
+    <link rel="prev" title="Request" href="../api_rust/api_rust_request.html" />
   
    
   
@@ -115,7 +115,7 @@
       <div class="md-flex__cell md-flex__cell--stretch">
         <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
           <span class="md-header-nav__topic">LinQ Network User Guide</span>
-          <span class="md-header-nav__topic"> NodeJS API Reference (pending) </span>
+          <span class="md-header-nav__topic"> NodeJS API Reference </span>
         </div>
       </div>
       <div class="md-flex__cell md-flex__cell--shrink">
@@ -214,15 +214,10 @@
     </li>
     <li class="md-nav__item">
     
-      <a href="../api_go/api_go.html" class="md-nav__link"><span class="incomplete">Go API Reference</span> (pending)</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-    <label class="md-nav__link md-nav__link--active" for="__toc"> <span class="incomplete">NodeJS API Reference</span> (pending) </label>
+    <label class="md-nav__link md-nav__link--active" for="__toc"> NodeJS API Reference </label>
     
-      <a href="#" class="md-nav__link md-nav__link--active"><span class="incomplete">NodeJS API Reference</span> (pending)</a>
+      <a href="#" class="md-nav__link md-nav__link--active">NodeJS API Reference</a>
       
         
 <nav class="md-nav md-nav--secondary">
@@ -231,7 +226,72 @@
 <li class="md-nav__item"><a class="md-nav__extra_link" href="../../_sources/api/api_nodejs/api_nodejs.rst.txt">Show Source</a> </li>
 
   </ul>
-</nav>
+</nav><ul class="md-nav__list"> 
+    <li class="md-nav__item">
+    
+      <a href="api_nodejs_atxnet.html" class="md-nav__link">AtxNet</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_nodejs_atxnet_listen.html" class="md-nav__link">listen</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_nodejs_atxnet_connect.html" class="md-nav__link">connect</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_nodejs_atxnet_close.html" class="md-nav__link">close</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_nodejs_atxnet_get.html" class="md-nav__link">get</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_nodejs_atxnet_post.html" class="md-nav__link">post</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_nodejs_atxnet_delete.html" class="md-nav__link">delete</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_nodejs_atxnet_send.html" class="md-nav__link">send</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_nodejs_atxnet_node_count.html" class="md-nav__link">node_count</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_nodejs_atxnet_device_count.html" class="md-nav__link">device_count</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_nodejs_atxnet_devices.html" class="md-nav__link">devices</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_nodejs_atxnet_on.html" class="md-nav__link">on</a>
+      
+    </li>
+    <li class="md-nav__item">
+    
+      <a href="api_nodejs_atxnet_run.html" class="md-nav__link">run</a>
+      
+    </li></ul>
     </li>
     <li class="md-nav__item">
     
@@ -266,8 +326,29 @@
           <article class="md-content__inner md-typeset" role="main">
             
   
-<span id="ref-api-nodejs"></span><h1 id="api-api-nodejs-api-nodejs--page-root"><span class="incomplete">NodeJS API Reference</span> (pending)<a class="headerlink" href="#api-api-nodejs-api-nodejs--page-root" title="Permalink to this headline">¶</a></h1>
-<img alt="../../_images/use-the-source1.jpg" class="align-center" src="../../_images/use-the-source1.jpg"/>
+<span id="ref-api-nodejs"></span><h1 id="api-api-nodejs-api-nodejs--page-root">NodeJS API Reference<a class="headerlink" href="#api-api-nodejs-api-nodejs--page-root" title="Permalink to this headline">¶</a></h1>
+<p>The LinQ Network Library provides a NPM package.</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">let</span> <span class="nx">linq</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">"@altronix/atx-net-js"</span><span class="p">).</span><span class="k">default</span><span class="p">;</span>
+<span class="nx">linq</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="s2">"tcp://*:33455"</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_nodejs_atxnet.html">AtxNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_nodejs_atxnet_listen.html">listen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_nodejs_atxnet_connect.html">connect</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_nodejs_atxnet_close.html">close</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_nodejs_atxnet_get.html">get</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_nodejs_atxnet_post.html">post</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_nodejs_atxnet_delete.html">delete</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_nodejs_atxnet_send.html">send</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_nodejs_atxnet_node_count.html">node_count</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_nodejs_atxnet_device_count.html">device_count</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_nodejs_atxnet_devices.html">devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_nodejs_atxnet_on.html">on</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_nodejs_atxnet_run.html">run</a></li>
+</ul>
+</div>
 
 
 
@@ -280,7 +361,7 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
           
-            <a href="../api_go/api_go.html" title="Material"
+            <a href="../api_rust/api_rust_request.html" title="Material"
                class="md-flex md-footer-nav__link md-footer-nav__link--prev"
                rel="prev">
               <div class="md-flex__cell md-flex__cell--shrink">
@@ -289,17 +370,17 @@
               <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
                 <span class="md-flex__ellipsis">
                   <span
-                      class="md-footer-nav__direction"> Previous </span> <span class="incomplete">Go API Reference</span> (pending) </span>
+                      class="md-footer-nav__direction"> Previous </span> Request </span>
               </div>
             </a>
           
           
-            <a href="../api_http/api_http.html" title="Admonition"
+            <a href="api_nodejs_atxnet.html" title="Admonition"
                class="md-flex md-footer-nav__link md-footer-nav__link--next"
                rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title"><span
                 class="md-flex__ellipsis"> <span
-                class="md-footer-nav__direction"> Next </span> HTTP API Reference </span>
+                class="md-footer-nav__direction"> Next </span> AtxNet </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink"><i
                 class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
