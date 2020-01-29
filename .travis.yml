@@ -10,6 +10,8 @@ before_install:
         - git submodule update --init ./external/libzmq
         - git submodule update --init ./external/czmq
         - git submodule update --init ./external/cmocka
+        - git submodule update --init ./external/jansson
+        - git submodule update --init ./external/libjwt
         - git clone https://github.com/nodejs/http-parser ./external/http_parser
         - git clone https://github.com/wolfssl/wolfssl ./external/wolfssl
         - git clone https://github.com/openssl/openssl ./external/openssl
