@@ -38,6 +38,23 @@ get_method(struct http_message* m)
     }
 }
 
+static inline struct mg_str*
+get_jwt(struct http_message* m)
+{
+    struct mg_str* token;
+    if (((token = mg_get_http_header(m, "Authorization")) ||
+         (token = mg_get_http_header(m, "authorization"))) &&
+        (token->len > 6) &&
+        ((!memcmp(token->p, "Bearer", 6)) ||
+         (!memcmp(token->p, "bearer", 6)))) {
+        token->p += 6;
+        token->len -= 6;
+    } else {
+        token = NULL;
+    }
+    return token;
+}
+
 static inline const char*
 get_uri(struct http_message* m)
 {

@@ -34,6 +34,7 @@ if (WITH_SQLITE)
     ./sqlite3.c 
     ./mongoose.c
     ./http.c
+    ./routes/route_users.c
     ./routes/route_alerts.c
     ./routes/route_devices.c
     ./routes/route_proxy.c
@@ -75,6 +76,7 @@ if(ENABLE_TESTING)
     ${LIBS_STATIC}
     ${LIBS})
   target_compile_definitions(atx-net-test-static PUBLIC ${definitions})
+  target_compile_definitions(atx-net-test-static PRIVATE "-DTESTING")
   target_include_directories(atx-net-test-static PUBLIC ${INCS})
   target_include_directories(atx-net-test-static PUBLIC ../include)
   target_include_directories(atx-net-test-static PUBLIC ./sys/mock)

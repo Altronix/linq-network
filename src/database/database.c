@@ -27,7 +27,9 @@
 #define DATABASE_USERS                                                         \
     "CREATE TABLE %s("                                                         \
     "user_id TEXT PRIMARY KEY,"                                                \
-    "name TEXT,"                                                               \
+    "user TEXT,"                                                               \
+    "pass TEXT,"                                                               \
+    "salt BLOB,"                                                               \
     "role INTEGER"                                                             \
     ");"
 

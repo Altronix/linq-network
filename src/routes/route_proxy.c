@@ -49,12 +49,10 @@ route_proxy(
                     *d_p, ptr, plen, on_response, ctx->curr_connection);
             }
         } else {
-            http_printf_json(
-                ctx->curr_connection, 404, "{\"error\":\"Device not found\"}");
+            http_printf_json(ctx->curr_connection, 404, JERROR_404);
         }
     } else {
-        http_printf_json(
-            ctx->curr_connection, 400, "{\"error\":\"Bad request\"}");
+        http_printf_json(ctx->curr_connection, 400, JERROR_400);
     }
     // ctx->curr_message->
     // http_printf_json(ctx, 504, "{\"TODO\":\"TODO\"}");
