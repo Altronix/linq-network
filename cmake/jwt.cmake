@@ -14,6 +14,7 @@ ExternalProject_Add(jwt-project-shared
     CMAKE_ARGS
 	    -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
             -DBUILD_SHARED_LIBS:BOOL=ON
+            -DBUILD_EXAMPLES:BOOL=OFF
             -DENABLE_PIC:BOOL=ON
             -DJANSSON_LIBRARY:PATH=${jansson_static_LIBRARY}
             -DJANSSON_INCLUDE_DIR:PATH=${jansson_INCLUDE_DIR})
@@ -32,6 +33,7 @@ ExternalProject_Add(jwt-project-static
     CMAKE_ARGS
 	    -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
             -DBUILD_SHARED_LIBS:BOOL=OFF
+            -DBUILD_EXAMPLES:BOOL=OFF
             -DENABLE_PIC:BOOL=ON
             -DJANSSON_LIBRARY:PATH=${jansson_static_LIBRARY}
             -DJANSSON_INCLUDE_DIR:PATH=${jansson_INCLUDE_DIR})
