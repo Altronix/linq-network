@@ -190,11 +190,15 @@ atx_net_create(const atx_net_callbacks* cb, void* context)
         l->context = context ? context : l;
         zmtp_init(&l->zmtp, &l->devices, &l->nodes, &zmtp_callbacks, l);
 #if WITH_SQLITE
+#define ADD_ROUTE(linq, path, fn, ctx) http_use(&(linq)->http, path, fn, ctx)
         database_init(&l->database);
         http_init(&l->http);
-        http_use(&l->http, "/api/v1/linq-lite/devices", route_devices, l);
-        http_use(&l->http, "/api/v1/linq-lite/alerts", route_alerts, l);
-        http_use(&l->http, "/api/v1/linq-lite/proxy/...", route_proxy, l);
+        ADD_ROUTE(l, "/api/v1/linq-lite/create_admin", route_create_admin, l);
+        ADD_ROUTE(l, "/api/v1/linq-lite/login", route_login, l);
+        ADD_ROUTE(l, "/api/v1/linq-lite/users", route_users, l);
+        ADD_ROUTE(l, "/api/v1/linq-lite/devices", route_devices, l);
+        ADD_ROUTE(l, "/api/v1/linq-lite/alerts", route_alerts, l);
+        ADD_ROUTE(l, "/api/v1/linq-lite/proxy/...", route_proxy, l);
 #endif
     }
     return l;
