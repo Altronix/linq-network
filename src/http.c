@@ -133,12 +133,12 @@ http_ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
 {
     switch (ev) {
         case MG_EV_POLL: break;
-        case MG_EV_ACCEPT: log_info("%06s %04s", "(HTTP)", "Accept"); break;
-        case MG_EV_CONNECT: log_info("%06s %04s", "(HTTP)", "Connect"); break;
-        case MG_EV_RECV: log_info("%06s %04s", "(HTTP)", "Recv"); break;
-        case MG_EV_SEND: log_info("%06s %04s", "(HTTP)", "Send"); break;
-        case MG_EV_CLOSE: log_info("%06s %04s", "(HTTP)", "Close"); break;
-        case MG_EV_TIMER: log_info("%06s %04s", "(HTTP)", "Timer"); break;
+        case MG_EV_ACCEPT: log_trace("%06s %04s", "(HTTP)", "Accept"); break;
+        case MG_EV_CONNECT: log_trace("%06s %04s", "(HTTP)", "Connect"); break;
+        case MG_EV_RECV: log_trace("%06s %04s", "(HTTP)", "Recv"); break;
+        case MG_EV_SEND: log_trace("%06s %04s", "(HTTP)", "Send"); break;
+        case MG_EV_CLOSE: log_trace("%06s %04s", "(HTTP)", "Close"); break;
+        case MG_EV_TIMER: log_trace("%06s %04s", "(HTTP)", "Timer"); break;
         case MG_EV_HTTP_REQUEST: {
             http_s* http = user_data;
             struct http_message* m = (struct http_message*)p;
@@ -153,20 +153,20 @@ http_ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
                 c_printf_json(c, 404, "{\"error\":\"%s\"}", "not found");
             }
         } break;
-        case MG_EV_HTTP_REPLY: log_info("%06s %04s", "(HTTP)", "Reply"); break;
-        case MG_EV_HTTP_CHUNK: log_info("%06s %04s", "(HTTP)", "Chunk"); break;
+        case MG_EV_HTTP_REPLY: log_trace("%06s %04s", "(HTTP)", "Reply"); break;
+        case MG_EV_HTTP_CHUNK: log_trace("%06s %04s", "(HTTP)", "Chunk"); break;
         case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST:
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE:
         case MG_EV_WEBSOCKET_FRAME:
         case MG_EV_WEBSOCKET_CONTROL_FRAME:
-            log_info("%06s %04s", "(HTTP)", "Websocket ctrl frame");
+            log_trace("%06s %04s", "(HTTP)", "Websocket ctrl frame");
             break;
         case MG_EV_HTTP_MULTIPART_REQUEST:
         case MG_EV_HTTP_PART_BEGIN:
         case MG_EV_HTTP_PART_DATA:
         case MG_EV_HTTP_PART_END:
         case MG_EV_HTTP_MULTIPART_REQUEST_END:
-            log_info("%06s %04s", "(HTTP)", "Recv");
+            log_trace("%06s %04s", "(HTTP)", "Recv");
             break;
         default:
             log_error("%06s %04s %s (%d)", "(HTTP)", "Recv", "Unkown", ev);
