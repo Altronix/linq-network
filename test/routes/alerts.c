@@ -49,7 +49,6 @@ test_route_alerts(void** context_p)
 
     atx_net_listen(test->net, "tcp://*:32820");
     atx_net_listen(test->net, "http://*:8000");
-    sqlite_spy_outgoing_statement_flush();
 
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_step_return_push(SQLITE_ROW);

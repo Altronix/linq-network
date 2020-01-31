@@ -116,7 +116,7 @@ row_insert(
     atx_net_assert(err == SQLITE_OK);
     err = sqlite3_step(sql);
     sqlite3_finalize(sql);
-    return err;
+    return err == SQLITE_DONE ? 0 : -1;
 }
 
 static void

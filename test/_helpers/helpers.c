@@ -34,6 +34,21 @@ helpers_test_reset()
     sqlite_spy_deinit();
 }
 
+void
+helpers_test_create_admin(
+    helpers_test_context_s* test,
+    const char* user,
+    const char* pass)
+{
+    const char* req_path = "/api/v1/linq-lite/create_admin";
+    char b[128];
+    int l;
+    l = snprintf(b, sizeof(b), "{\"user\":\"%s\",\"pass\":\"%s\"}", user, pass);
+
+    mongoose_spy_event_request_push("", "POST", req_path, b);
+    for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
+}
+
 helpers_test_context_s*
 helpers_test_context_create(
     atx_net_callbacks* callbacks,
@@ -46,6 +61,7 @@ helpers_test_context_create(
     atx_net_assert(ctx);
     helpers_test_init(user, password);
     ctx->net = atx_net_create(callbacks, context);
+    sqlite_spy_outgoing_statement_flush();
     return ctx;
 }
 

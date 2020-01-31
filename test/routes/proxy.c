@@ -133,7 +133,7 @@ test_route_proxy_404(void** context_p)
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
     assert_non_null(response);
-    assert_memory_equal(response->body, "{\"error\":\"Device not found\"}", 28);
+    assert_memory_equal(response->body, "{\"error\":\"Not found\"}", 21);
     mock_mongoose_response_destroy(&response);
 
     test_reset(&test);

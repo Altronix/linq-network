@@ -38,10 +38,9 @@ get_method(struct http_message* m)
     }
 }
 
-static inline struct mg_str*
-get_jwt(struct http_message* m)
+static inline void
+get_jwt(struct http_message* m, struct mg_str* token)
 {
-    struct mg_str* token;
     if (((token = mg_get_http_header(m, "Authorization")) ||
          (token = mg_get_http_header(m, "authorization"))) &&
         (token->len > 6) &&
@@ -50,9 +49,9 @@ get_jwt(struct http_message* m)
         token->p += 6;
         token->len -= 6;
     } else {
-        token = NULL;
+        token->p = NULL;
+        token->len = 0;
     }
-    return token;
 }
 
 static inline const char*
@@ -108,6 +107,16 @@ c_printf(void* connection, int code, const char* type, const char* fmt, ...)
     va_start(ap, fmt);
     c_vprintf(connection, code, type, l, fmt, ap);
     va_end(ap);
+}
+
+static bool
+is_authorized(atx_net_s* net, struct mg_connection* c, struct http_message* m)
+{
+    struct mg_str token;
+    get_jwt(m, &token);
+    // TODO
+
+    return false;
 }
 
 typedef struct foreach_route_check_path_context

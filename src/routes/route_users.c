@@ -5,8 +5,10 @@
 
 #include "openssl/sha.h"
 
-#define PASSWORD_MAX_LEN 48
-#define PASSWORD_MIN_LEN 12
+#define UUID_MAX_LEN 32
+#define USER_MAX_LEN 24
+#define PASS_MAX_LEN 48
+#define PASS_MIN_LEN 12
 #define SALT_LEN 16
 #define HASH_LEN 65
 
@@ -16,6 +18,13 @@ gen_salt(char* dst)
 {
     memcpy(dst, "0123456789ABCDEF", 16);
 }
+static void
+gen_uuid(char* dst)
+{
+    static int count = 0;
+    memset(dst, 0, UUID_MAX_LEN);
+    snprintf(dst, UUID_MAX_LEN, "%s%d", "user_id", count++);
+}
 #else
 static void
 gen_salt(char* dst)
@@ -23,10 +32,17 @@ gen_salt(char* dst)
     // TODO
     memcpy(dst, "0123456789ABCDEF", 16);
 }
+static void
+gen_uuid(char* dst)
+{
+    zuuid_t* uid = zuuid_new();
+    snprintf(dst, UUID_MAX_LEN, "%s", zuuid_str(uid));
+    zuuid_destroy(&uid);
+}
 #endif
 
 static void
-hash_256(const char* data, uint32_t dlen, char buffer[HASH_LEN])
+hash_256(const char* data, uint32_t dlen, char* buffer)
 {
     unsigned char hash[SHA256_DIGEST_LENGTH];
     SHA256_CTX sha;
@@ -41,19 +57,17 @@ hash_256(const char* data, uint32_t dlen, char buffer[HASH_LEN])
 
 static int
 gen_password_hash(
-    char dst[HASH_LEN],
+    char* dst,
     char salt[SALT_LEN],
     const char* pass,
     uint32_t len)
 {
-    char hasher[HASH_LEN];
-    char concat[PASSWORD_MAX_LEN + SALT_LEN];
+    char concat[PASS_MAX_LEN + SALT_LEN];
     int l;
 #ifdef TESTING
     log_warn("(HTTP) generating unsafe debug hash!");
 #endif
-    if (!(len < PASSWORD_MAX_LEN && len >= PASSWORD_MIN_LEN)) return -1;
-    atx_net_assert(len < PASSWORD_MAX_LEN);
+    if (!(len < PASS_MAX_LEN && len >= PASS_MIN_LEN)) return -1;
     gen_salt(salt);
     l = snprintf(concat, sizeof(concat), "%.*s%.*s", len, pass, SALT_LEN, salt);
     hash_256(concat, l, dst);
@@ -80,10 +94,9 @@ static void
 process_create_admin(http_route_context* ctx, uint32_t l, const char* body)
 {
     database_s* db = atx_net_database(ctx->context);
-    char k[128], v[256], h[HASH_LEN], s[SALT_LEN];
+    char k[128], v[256], h[HASH_LEN], s[SALT_LEN], u[UUID_MAX_LEN];
     uint32_t klen, vlen;
     int count, err;
-    zuuid_t* uid = zuuid_new();
     atx_str user, pass;
     jsmntok_t t[20];
 
@@ -92,31 +105,37 @@ process_create_admin(http_route_context* ctx, uint32_t l, const char* body)
         t, 20,
         body, l,
         2,
-        "user", user,
-        "pass", pass);
+        "user", &user,
+        "pass", &pass);
     // clang-format on
 
     if (!(count == 2)) {
         http_printf_json(ctx->curr_connection, 400, JERROR_400);
     } else {
         log_info("(DATA) creating admin account %.*s", user.len, user.p);
-        gen_password_hash(h, s, pass.p, pass.len);
-        // clang-format off
-        klen = snprintf(k, sizeof(k), "%s", "user_id,user,pass,salt,role");
-        vlen = snprintf(
-            v,
-            sizeof(v),
-            "%s,%.*s,%.*s,%.*s,%d",
-            zuuid_str(uid),
-            user.len,
-            user.p,
-            HASH_LEN,
-            h,
-            SALT_LEN,
-            s,
-            3);
-        // clang-format on
-        err = database_insert_raw_n(db, "users", k, klen, v, vlen);
+        gen_uuid(u);
+        err = gen_password_hash(h, s, pass.p, pass.len);
+        if (!err) {
+            // clang-format off
+            klen = snprintf(k, sizeof(k), "%s", "user_id,user,pass,salt,role");
+            vlen = snprintf(
+                v,
+                sizeof(v),
+                "\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",%d",
+                UUID_MAX_LEN,
+                u,
+                user.len,
+                user.p,
+                HASH_LEN,
+                h,
+                SALT_LEN,
+                s,
+                0);
+            // clang-format on
+            err = database_insert_raw_n(db, "users", k, klen, v, vlen);
+        } else {
+            http_printf_json(ctx->curr_connection, 400, JERROR_400);
+        }
         if (!err) {
             http_printf_json(ctx->curr_connection, 200, JERROR_200);
         } else {

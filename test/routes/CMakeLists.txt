@@ -9,7 +9,9 @@ add_executable(test-routes
                       devices.c
                       devices.h
                       proxy.c
-                      proxy.h)
+                      proxy.h
+                      create_admin.c
+                      create_admin.h)
 target_link_libraries(test-routes
                       atx-net-test-static
                       ${LIBZMQ_STATIC_LIBS}

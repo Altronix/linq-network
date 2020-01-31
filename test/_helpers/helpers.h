@@ -75,8 +75,18 @@ extern "C"
         atx_net_s* net;
     } helpers_test_context_s;
 
+    typedef struct helpers_test_config_s
+    {
+        const char* user;
+        const char* pass;
+    } helpers_test_config_s;
+
     void helpers_test_init(const char* user, const char* password);
     void helpers_test_reset();
+    void helpers_test_create_admin(
+        helpers_test_context_s*,
+        const char* user,
+        const char* password);
 
     helpers_test_context_s* helpers_test_context_create(
         atx_net_callbacks* callbacks,
