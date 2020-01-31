@@ -52,12 +52,23 @@ helpers_test_create_admin(
 helpers_test_context_s*
 helpers_test_context_create(helpers_test_config_s* config)
 {
+    char endpoint[64];
     helpers_test_context_s* ctx =
         atx_net_malloc(sizeof(helpers_test_context_s));
     atx_net_assert(ctx);
     helpers_test_init(config->user, config->pass);
     ctx->net = atx_net_create(config->callbacks, config->context);
     sqlite_spy_outgoing_statement_flush();
+
+    if (config->zmtp) {
+        snprintf(endpoint, sizeof(endpoint), "tcp://*:%d", config->zmtp);
+        atx_net_listen(ctx->net, endpoint);
+    }
+
+    if (config->http) {
+        snprintf(endpoint, sizeof(endpoint), "http://*:%d", config->zmtp);
+        atx_net_listen(ctx->net, endpoint);
+    }
     return ctx;
 }
 

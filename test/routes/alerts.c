@@ -16,8 +16,8 @@ test_route_alerts(void** context_p)
     ((void)context_p);
     helpers_test_config_s config = { .callbacks = NULL,
                                      .context = NULL,
-                                     .zmtp = 0,
-                                     .http = 0,
+                                     .zmtp = 32820,
+                                     .http = 8000,
                                      .user = USER,
                                      .pass = PASS };
     const char* body_expect = "{"
@@ -52,9 +52,6 @@ test_route_alerts(void** context_p)
                               "]}";
 
     helpers_test_context_s* test = test_init(&config);
-
-    atx_net_listen(test->net, "tcp://*:32820");
-    atx_net_listen(test->net, "http://*:8000");
 
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_step_return_push(SQLITE_ROW);
@@ -98,15 +95,13 @@ test_route_alerts_response_too_large(void** context_p)
     ((void)context_p);
     helpers_test_config_s config = { .callbacks = NULL,
                                      .context = NULL,
-                                     .zmtp = 0,
-                                     .http = 0,
+                                     .zmtp = 32820,
+                                     .http = 8000,
                                      .user = USER,
                                      .pass = PASS };
     const char* body_expect = "{\"error\":\"Response too large\"}";
 
     helpers_test_context_s* test = test_init(&config);
-    atx_net_listen(test->net, "tcp://*:32820");
-    atx_net_listen(test->net, "http://*:8000");
     sqlite_spy_outgoing_statement_flush();
 
     for (int i = 0; i < 10000; i++) sqlite_spy_step_return_push(SQLITE_ROW);
@@ -128,15 +123,13 @@ test_route_alerts_response_get_only(void** context_p)
     ((void)context_p);
     helpers_test_config_s config = { .callbacks = NULL,
                                      .context = NULL,
-                                     .zmtp = 0,
-                                     .http = 0,
+                                     .zmtp = 32820,
+                                     .http = 8000,
                                      .user = USER,
                                      .pass = PASS };
     const char* body_expect = "{\"error\":\"Bad request\"}";
 
     helpers_test_context_s* test = test_init(&config);
-    atx_net_listen(test->net, "tcp://*:32820");
-    atx_net_listen(test->net, "http://*:8000");
     sqlite_spy_outgoing_statement_flush();
 
     sqlite_spy_column_text_return_push("A");
@@ -158,15 +151,13 @@ test_route_alerts_response_empty(void** context_p)
     ((void)context_p);
     helpers_test_config_s config = { .callbacks = NULL,
                                      .context = NULL,
-                                     .zmtp = 0,
-                                     .http = 0,
+                                     .zmtp = 32820,
+                                     .http = 8000,
                                      .user = USER,
                                      .pass = PASS };
     const char* body_expect = "{\"alerts\":[]}";
 
     helpers_test_context_s* test = test_init(&config);
-    atx_net_listen(test->net, "tcp://*:32820");
-    atx_net_listen(test->net, "http://*:8000");
     sqlite_spy_outgoing_statement_flush();
 
     sqlite_spy_step_return_push(SQLITE_DONE);

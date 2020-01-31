@@ -18,8 +18,8 @@ test_route_proxy_get(void** context_p)
     ((void)context_p);
     helpers_test_config_s config = { .callbacks = NULL,
                                      .context = NULL,
-                                     .zmtp = 0,
-                                     .http = 0,
+                                     .zmtp = 32820,
+                                     .http = 8000,
                                      .user = USER,
                                      .pass = PASS };
 
@@ -33,8 +33,6 @@ test_route_proxy_get(void** context_p)
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
 
-    atx_net_listen(test->net, "tcp://*:32820");
-    atx_net_listen(test->net, "http://*:8000");
     atx_net_poll(test->net, 5);
     sqlite_spy_outgoing_statement_flush();
 
@@ -68,8 +66,8 @@ test_route_proxy_post(void** context_p)
     ((void)context_p);
     helpers_test_config_s config = { .callbacks = NULL,
                                      .context = NULL,
-                                     .zmtp = 0,
-                                     .http = 0,
+                                     .zmtp = 32820,
+                                     .http = 8000,
                                      .user = USER,
                                      .pass = PASS };
 
@@ -85,8 +83,6 @@ test_route_proxy_post(void** context_p)
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
 
-    atx_net_listen(test->net, "tcp://*:32820");
-    atx_net_listen(test->net, "http://*:8000");
     atx_net_poll(test->net, 5);
     sqlite_spy_outgoing_statement_flush();
 
@@ -126,8 +122,8 @@ test_route_proxy_404(void** context_p)
     ((void)context_p);
     helpers_test_config_s config = { .callbacks = NULL,
                                      .context = NULL,
-                                     .zmtp = 0,
-                                     .http = 0,
+                                     .zmtp = 32820,
+                                     .http = 8000,
                                      .user = USER,
                                      .pass = PASS };
 
@@ -136,8 +132,6 @@ test_route_proxy_404(void** context_p)
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
-    atx_net_listen(test->net, "tcp://*:32820");
-    atx_net_listen(test->net, "http://*:8000");
     atx_net_poll(test->net, 5);
     sqlite_spy_outgoing_statement_flush();
 
@@ -163,8 +157,8 @@ test_route_proxy_400_too_short(void** context_p)
     ((void)context_p);
     helpers_test_config_s config = { .callbacks = NULL,
                                      .context = NULL,
-                                     .zmtp = 0,
-                                     .http = 0,
+                                     .zmtp = 32820,
+                                     .http = 8000,
                                      .user = USER,
                                      .pass = PASS };
 
@@ -173,8 +167,6 @@ test_route_proxy_400_too_short(void** context_p)
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
-    atx_net_listen(test->net, "tcp://*:32820");
-    atx_net_listen(test->net, "http://*:8000");
     atx_net_poll(test->net, 5);
     sqlite_spy_outgoing_statement_flush();
 
