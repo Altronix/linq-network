@@ -24,13 +24,9 @@ static const char* expect_what = "";
 static const char* expect_sid = "";
 
 static helpers_test_context_s*
-test_init(
-    atx_net_callbacks* callbacks,
-    void* context,
-    const char* user,
-    const char* password)
+test_init(helpers_test_config_s* config)
 {
-    return helpers_test_context_create(callbacks, context, user, password);
+    return helpers_test_context_create(config);
 }
 
 static void
@@ -93,8 +89,13 @@ static void
 test_atx_net_create(void** context_p)
 {
     ((void)context_p);
-    helpers_test_context_s* test = helpers_test_context_create(
-        NULL, NULL, "unsafe_user", "unsafe_password");
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
+    helpers_test_context_s* test = helpers_test_context_create(&config);
     assert_non_null(test->net);
     helpers_test_context_destroy(&test);
 }
@@ -104,9 +105,15 @@ test_atx_net_receive_protocol_error_short(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
+    helpers_test_config_s config = { .callbacks = &callbacks,
+                                     .context = &pass,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     zmsg_t* m = helpers_create_message_str(2, "too", "short");
 
-    helpers_test_context_s* test = test_init(&callbacks, &pass, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
     expect_error = LINQ_ERROR_PROTOCOL;
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
@@ -126,10 +133,16 @@ test_atx_net_receive_protocol_error_serial(void** context_p)
     bool pass = false;
     char sid[SID_LEN + 1];
     memset(sid, SID_LEN + 1, 'A');
+    helpers_test_config_s config = { .callbacks = &callbacks,
+                                     .context = &pass,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     zmsg_t* m = helpers_create_message_mem(
         6, "rid", 3, "\x0", 1, "\x0", 1, sid, SID_LEN + 1, "pid", 3, "site", 4);
 
-    helpers_test_context_s* test = test_init(&callbacks, &pass, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
 
@@ -150,10 +163,16 @@ test_atx_net_receive_protocol_error_router(void** context_p)
     bool pass = false;
     char rid[RID_LEN + 1];
     memset(rid, SID_LEN + 1, 'A');
+    helpers_test_config_s config = { .callbacks = &callbacks,
+                                     .context = &pass,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     zmsg_t* m = helpers_create_message_mem(
         6, rid, RID_LEN + 1, "\x0", 1, "\x0", 1, "sid", 3, "pid", 3, "site", 4);
 
-    helpers_test_context_s* test = test_init(&callbacks, &pass, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
 
@@ -173,10 +192,16 @@ test_atx_net_receive_heartbeat_ok(void** context_p)
     ((void)context_p);
     bool pass = false;
     const char* serial = expect_sid = "serial";
+    helpers_test_config_s config = { .callbacks = &callbacks,
+                                     .context = &pass,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     zmsg_t* hb0 = helpers_make_heartbeat("rid0", serial, "product", "site");
     zmsg_t* hb1 = helpers_make_heartbeat("rid00", serial, "product", "site");
 
-    helpers_test_context_s* test = test_init(&callbacks, &pass, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
 
     // Push some incoming heartbeats
     czmq_spy_mesg_push_incoming(&hb0);
@@ -218,6 +243,12 @@ test_atx_net_receive_heartbeat_ok_insert_device(void** context_p)
     ((void)context_p);
     bool pass = false;
     const char* serial = expect_sid = "serial";
+    helpers_test_config_s config = { .callbacks = &callbacks,
+                                     .context = &pass,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     const char* expect_query = "SELECT EXISTS(SELECT 1 FROM devices WHERE "
                                "device_id=\"serial\" LIMIT 1);";
     const char* expect_insert =
@@ -237,7 +268,7 @@ test_atx_net_receive_heartbeat_ok_insert_device(void** context_p)
     zmsg_t* about = helpers_make_response("rid0", serial, 0, response);
     outgoing_statement* statement = NULL;
 
-    helpers_test_context_s* test = test_init(&callbacks, &pass, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
 
     // Push some incoming heartbeats
     czmq_spy_mesg_push_incoming(&hb0);
@@ -276,10 +307,16 @@ test_atx_net_receive_heartbeat_error_short(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
+    helpers_test_config_s config = { .callbacks = &callbacks,
+                                     .context = &pass,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     zmsg_t* m = helpers_create_message_mem(
         4, "router", 6, "\x0", 1, "\x0", 1, "product", 7);
 
-    helpers_test_context_s* test = test_init(&callbacks, &pass, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
 
     expect_error = LINQ_ERROR_PROTOCOL;
     czmq_spy_mesg_push_incoming(&m);
@@ -298,11 +335,17 @@ test_atx_net_receive_alert_ok(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
+    helpers_test_config_s config = { .callbacks = &callbacks,
+                                     .context = &pass,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     const char* sid = expect_sid = "sid";
     zmsg_t* hb = helpers_make_heartbeat("rid", sid, "pid", "site");
     zmsg_t* alert = helpers_make_alert("rid", sid, "pid");
 
-    helpers_test_context_s* test = test_init(&callbacks, &pass, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
 
     // Push some incoming messages
     czmq_spy_mesg_push_incoming(&hb);
@@ -324,6 +367,12 @@ test_atx_net_receive_alert_insert(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
+    helpers_test_config_s config = { .callbacks = &callbacks,
+                                     .context = &pass,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     const char* sid = expect_sid = "sid";
     const char* expect_keys =
         "INSERT INTO "
@@ -335,7 +384,7 @@ test_atx_net_receive_alert_insert(void** context_p)
     zmsg_t* alert = helpers_make_alert("rid", sid, "pid");
     outgoing_statement* statement;
 
-    helpers_test_context_s* test = test_init(&callbacks, &pass, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
 
     // Push some incoming messages
     czmq_spy_mesg_push_incoming(&hb);
@@ -380,11 +429,17 @@ test_atx_net_receive_response_ok(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
+    helpers_test_config_s config = { .callbacks = &callbacks,
+                                     .context = &pass,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     const char* serial = expect_sid = "serial";
     zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
     zmsg_t* r = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
 
-    helpers_test_context_s* test = test_init(&callbacks, &pass, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
@@ -420,12 +475,18 @@ test_atx_net_receive_response_error_timeout(void** context_p)
     ((void)context_p);
 
     bool pass = false, response_pass = false;
+    helpers_test_config_s config = { .callbacks = &callbacks,
+                                     .context = &pass,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     const char* serial = expect_sid = "serial";
     device_s** d;
     zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
     zmsg_t* r = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
 
-    helpers_test_context_s* test = test_init(&callbacks, &pass, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
@@ -478,13 +539,19 @@ test_atx_net_receive_response_error_codes(void** context_p)
     ((void)context_p);
 
     bool pass = false;
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     const char* serial = expect_sid = "serial";
     device_s** d;
 
     int codes[] = { 0, 400, 403, 404, 500 };
     for (int i = 0; i < 5; i++) {
         // Setup incoming network (1st poll heartbeat, 2nd poll response)
-        helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+        helpers_test_context_s* test = test_init(&config);
         sqlite_spy_step_return_push(SQLITE_ROW);
         sqlite_spy_column_int_return_push(1);
 
@@ -531,6 +598,12 @@ test_atx_net_receive_response_error_504(void** context_p)
     // Same as receive_response_ok_504 accept we add an extra 504 to incoming
     ((void)context_p);
     bool pass = false;
+    helpers_test_config_s config = { .callbacks = &callbacks,
+                                     .context = &pass,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     uint32_t t = 0;
     const char* serial = expect_sid = "serial";
     device_s** d;
@@ -545,7 +618,7 @@ test_atx_net_receive_response_error_504(void** context_p)
     };
     zmsg_t* outgoing = NULL;
 
-    helpers_test_context_s* test = test_init(&callbacks, &pass, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
@@ -613,6 +686,12 @@ test_atx_net_receive_response_ok_504(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     uint32_t t = 0;
     const char* serial = expect_sid = "serial";
     device_s** d;
@@ -627,7 +706,7 @@ test_atx_net_receive_response_ok_504(void** context_p)
     };
     zmsg_t* outgoing = NULL;
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
@@ -685,8 +764,14 @@ static void
 test_atx_net_receive_hello(void** context_p)
 {
     ((void)context_p);
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
 
     zmsg_t* m = helpers_make_hello("router", "node");
     czmq_spy_mesg_push_incoming(&m);
@@ -706,8 +791,14 @@ test_atx_net_receive_hello_double_id(void** context_p)
     ((void)context_p);
     zmsg_t* m0 = helpers_make_hello("router", "node");
     zmsg_t* m1 = helpers_make_hello("router", "node");
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
 
     czmq_spy_mesg_push_incoming(&m0);
     czmq_spy_mesg_push_incoming(&m1);
@@ -728,8 +819,14 @@ test_atx_net_broadcast_heartbeat_receive(void** context_p)
 {
     ((void)context_p);
     zmsg_t* hb = helpers_make_heartbeat(NULL, "serial", "product", "site");
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
 
     atx_net_connect(test->net, "ipc:///123");
 
@@ -745,13 +842,19 @@ static void
 test_atx_net_broadcast_heartbeat(void** context_p)
 {
     ((void)context_p);
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
 
     zmsg_t* hb = helpers_make_heartbeat("rid0", "serial", "product", "site");
     zmsg_t* m0 = helpers_make_hello("client-router0", "node0");
     zmsg_t* m1 = helpers_make_hello("client-router1", "node1");
     zmsg_t* outgoing;
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
@@ -802,6 +905,12 @@ static void
 test_atx_net_broadcast_alert(void** context_p)
 {
     ((void)context_p);
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
 
     zmsg_t* hb = helpers_make_heartbeat("rid0", "sid", "pid", "site");
     zmsg_t* alert = helpers_make_alert("rid", "sid", "pid");
@@ -809,7 +918,7 @@ test_atx_net_broadcast_alert(void** context_p)
     zmsg_t* m1 = helpers_make_hello("client-router1", "node1");
     zmsg_t* outgoing;
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
@@ -865,6 +974,12 @@ static void
 test_atx_net_forward_request(void** context_p)
 {
     ((void)context_p);
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     zmsg_t *hb, *hello, *request, *response, *outgoing;
     zframe_t *rid, *ver, *typ, *sid, *url, *err, *dat;
     hb = helpers_make_heartbeat("router-d", "device123", "pid", "site");
@@ -872,7 +987,7 @@ test_atx_net_forward_request(void** context_p)
     request = helpers_make_request("router-c", "device123", "GET /hello", NULL);
     response = helpers_make_response("router-d", "device123", 0, "world");
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
@@ -938,11 +1053,17 @@ static void
 test_atx_net_forward_client_request(void** context_p)
 {
     ((void)context_p);
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     zframe_t *ver, *typ, *sid, *url;
     zmsg_t* hb = helpers_make_heartbeat(NULL, "device123", "pid", "site");
     zmsg_t* outgoing = NULL;
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
@@ -983,7 +1104,13 @@ test_atx_net_connect(void** context_p)
     ((void)context_p);
     atx_net_socket s;
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
+    helpers_test_context_s* test = test_init(&config);
 
     s = atx_net_connect(test->net, "ipc:///filex");
     assert_true(!(LINQ_ERROR_OK == s));
@@ -1012,8 +1139,14 @@ static void
 test_atx_net_close_router(void** context_p)
 {
     ((void)context_p);
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, USER);
+    helpers_test_context_s* test = test_init(&config);
 
     atx_net_socket l0 = atx_net_listen(test->net, "tcp://1.2.3.4:8080");
     atx_net_socket l1 = atx_net_listen(test->net, "tcp://5.6.7.8:8080");
@@ -1069,8 +1202,14 @@ static void
 test_atx_net_devices_foreach(void** context_p)
 {
     ((void)context_p);
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
 
     atx_net_listen(test->net, "tcp://1.2.3.4:8080");
     atx_net_listen(test->net, "tcp://5.6.7.8:8080");

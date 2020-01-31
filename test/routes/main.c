@@ -11,18 +11,14 @@
 #include <cmocka.h>
 
 #include "alerts.h"
+#include "create_admin.h"
 #include "devices.h"
 #include "proxy.h"
-#include "create_admin.h"
 
 helpers_test_context_s*
-test_init(
-    atx_net_callbacks* callbacks,
-    void* context,
-    const char* user,
-    const char* password)
+test_init(helpers_test_config_s* config)
 {
-    return helpers_test_context_create(callbacks, context, user, password);
+    return helpers_test_context_create(config);
 }
 
 void

@@ -14,6 +14,12 @@ void
 test_route_alerts(void** context_p)
 {
     ((void)context_p);
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     const char* body_expect = "{"
                               "\"alerts\":["
                               "{"
@@ -45,7 +51,7 @@ test_route_alerts(void** context_p)
                               "}"
                               "]}";
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
 
     atx_net_listen(test->net, "tcp://*:32820");
     atx_net_listen(test->net, "http://*:8000");
@@ -90,9 +96,15 @@ void
 test_route_alerts_response_too_large(void** context_p)
 {
     ((void)context_p);
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     const char* body_expect = "{\"error\":\"Response too large\"}";
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
     atx_net_listen(test->net, "tcp://*:32820");
     atx_net_listen(test->net, "http://*:8000");
     sqlite_spy_outgoing_statement_flush();
@@ -114,9 +126,15 @@ void
 test_route_alerts_response_get_only(void** context_p)
 {
     ((void)context_p);
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     const char* body_expect = "{\"error\":\"Bad request\"}";
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
     atx_net_listen(test->net, "tcp://*:32820");
     atx_net_listen(test->net, "http://*:8000");
     sqlite_spy_outgoing_statement_flush();
@@ -138,9 +156,15 @@ void
 test_route_alerts_response_empty(void** context_p)
 {
     ((void)context_p);
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     const char* body_expect = "{\"alerts\":[]}";
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
     atx_net_listen(test->net, "tcp://*:32820");
     atx_net_listen(test->net, "http://*:8000");
     sqlite_spy_outgoing_statement_flush();

@@ -15,6 +15,12 @@ void
 test_route_create_admin_ok(void** context_p)
 {
     ((void)context_p);
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     const char* req_path = "/api/v1/linq-lite/create_admin";
     const char* req_body = "{\"user\":\"admin\",\"pass\":\"password1234\"}";
     const char* expect_insert =
@@ -30,7 +36,7 @@ test_route_create_admin_ok(void** context_p)
     outgoing_statement* statement = NULL;
 
     // Setup uut
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
     atx_net_listen(test->net, "tcp://*:32820");
     atx_net_listen(test->net, "http://*:8000");
 

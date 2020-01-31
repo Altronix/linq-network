@@ -14,6 +14,12 @@ void
 test_route_devices(void** context_p)
 {
     ((void)context_p);
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     const char* body_expect =
         "{"
         "\"devices\":{"
@@ -22,7 +28,7 @@ test_route_devices(void** context_p)
         "\"A\":{\"product\":\"B\",\"prj_version\":\"C\",\"atx_version\":\"D\"}"
         "}}";
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
     atx_net_listen(test->net, "tcp://*:32820");
     atx_net_listen(test->net, "http://*:8000");
     sqlite_spy_outgoing_statement_flush();
@@ -58,9 +64,15 @@ void
 test_route_devices_response_too_large(void** context_p)
 {
     ((void)context_p);
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     const char* body_expect = "{\"error\":\"Response too large\"}";
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
     atx_net_listen(test->net, "tcp://*:32820");
     atx_net_listen(test->net, "http://*:8000");
     sqlite_spy_outgoing_statement_flush();
@@ -82,9 +94,15 @@ void
 test_route_devices_response_get_only(void** context_p)
 {
     ((void)context_p);
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     const char* body_expect = "{\"error\":\"Bad request\"}";
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
     atx_net_listen(test->net, "tcp://*:32820");
     atx_net_listen(test->net, "http://*:8000");
     sqlite_spy_outgoing_statement_flush();
@@ -106,9 +124,15 @@ void
 test_route_devices_response_empty(void** context_p)
 {
     ((void)context_p);
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
     const char* body_expect = "{\"devices\":{}}";
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
     atx_net_listen(test->net, "tcp://*:32820");
     atx_net_listen(test->net, "http://*:8000");
     sqlite_spy_outgoing_statement_flush();

@@ -50,17 +50,13 @@ helpers_test_create_admin(
 }
 
 helpers_test_context_s*
-helpers_test_context_create(
-    atx_net_callbacks* callbacks,
-    void* context,
-    const char* user,
-    const char* password)
+helpers_test_context_create(helpers_test_config_s* config)
 {
     helpers_test_context_s* ctx =
         atx_net_malloc(sizeof(helpers_test_context_s));
     atx_net_assert(ctx);
-    helpers_test_init(user, password);
-    ctx->net = atx_net_create(callbacks, context);
+    helpers_test_init(config->user, config->pass);
+    ctx->net = atx_net_create(config->callbacks, config->context);
     sqlite_spy_outgoing_statement_flush();
     return ctx;
 }

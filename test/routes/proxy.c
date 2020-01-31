@@ -16,13 +16,19 @@ void
 test_route_proxy_get(void** context_p)
 {
     ((void)context_p);
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
 
     const char* serial = "serial1234";
     zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "product", "site");
     zmsg_t* outgoing;
     zframe_t *rid, *ver, *typ, *url;
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
 
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
@@ -60,13 +66,19 @@ void
 test_route_proxy_post(void** context_p)
 {
     ((void)context_p);
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
 
     const char* serial = "serial1234";
     zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "product", "site");
     zmsg_t* outgoing;
     zframe_t *rid, *ver, *typ, *url, *dat;
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
 
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
@@ -112,8 +124,14 @@ void
 test_route_proxy_404(void** context_p)
 {
     ((void)context_p);
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
 
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
@@ -143,8 +161,14 @@ void
 test_route_proxy_400_too_short(void** context_p)
 {
     ((void)context_p);
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
 
-    helpers_test_context_s* test = test_init(NULL, NULL, USER, PASS);
+    helpers_test_context_s* test = test_init(&config);
 
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);

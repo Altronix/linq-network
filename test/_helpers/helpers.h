@@ -77,6 +77,10 @@ extern "C"
 
     typedef struct helpers_test_config_s
     {
+        atx_net_callbacks* callbacks;
+        void* context;
+        uint32_t zmtp;
+        uint32_t http;
         const char* user;
         const char* pass;
     } helpers_test_config_s;
@@ -89,10 +93,7 @@ extern "C"
         const char* password);
 
     helpers_test_context_s* helpers_test_context_create(
-        atx_net_callbacks* callbacks,
-        void* context,
-        const char* user,
-        const char* password);
+        helpers_test_config_s* config);
     void helpers_test_context_destroy(helpers_test_context_s** ctx_p);
     zmsg_t* helpers_make_heartbeat(
         const char* router,
