@@ -93,6 +93,23 @@ mongoose_spy_deinit()
     if (incoming_events) event_list_destroy(&incoming_events);
     if (outgoing_data) outgoing_data_list_destroy(&outgoing_data);
 }
+void
+mongoose_spy_incoming_events_flush()
+{
+    mock_mongoose_event* ev = NULL;
+    while ((ev = event_list_pop(incoming_events))) {
+        mock_mongoose_event_destroy(&ev);
+    }
+}
+
+void
+mongoose_spy_outgoing_data_flush()
+{
+    mock_mongoose_outgoing_data* data = NULL;
+    while ((data = outgoing_data_list_pop(outgoing_data))) {
+        mock_mongoose_outgoing_data_destroy(&data);
+    }
+}
 
 void
 mock_mongoose_response_destroy(mock_mongoose_response** resp_p)

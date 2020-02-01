@@ -21,9 +21,8 @@ gen_salt(char* dst)
 static void
 gen_uuid(char* dst)
 {
-    static int count = 0;
     memset(dst, 0, UUID_MAX_LEN);
-    snprintf(dst, UUID_MAX_LEN, "%s%d", "user_id", count++);
+    snprintf(dst, UUID_MAX_LEN, "%s", "user_id01234");
 }
 #else
 static void
@@ -133,13 +132,13 @@ process_create_admin(http_route_context* ctx, uint32_t l, const char* body)
                 0);
             // clang-format on
             err = database_insert_raw_n(db, "users", k, klen, v, vlen);
+            if (!err) {
+                http_printf_json(ctx->curr_connection, 200, JERROR_200);
+            } else {
+                http_printf_json(ctx->curr_connection, 500, JERROR_500);
+            }
         } else {
             http_printf_json(ctx->curr_connection, 400, JERROR_400);
-        }
-        if (!err) {
-            http_printf_json(ctx->curr_connection, 200, JERROR_200);
-        } else {
-            http_printf_json(ctx->curr_connection, 500, JERROR_500);
         }
     }
 }

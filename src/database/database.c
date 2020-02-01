@@ -196,6 +196,22 @@ database_row_exists_str(
 }
 
 int
+database_count(database_s* d, const char* table)
+{
+    char stmt[256];
+    sqlite3_stmt* sql;
+    int ret = -1, err,
+        n = snprintf(stmt, sizeof(stmt), "SELECT COUNT(*) FROM %s;", table);
+    atx_net_assert(n + 1 <= sizeof(stmt));
+    err = sqlite3_prepare_v2(d->db, stmt, n + 1, &sql, NULL);
+    atx_net_assert(err == SQLITE_OK);
+    err = sqlite3_step(sql);
+    if (err == SQLITE_DONE) { ret = sqlite3_column_int(sql, 0) ? true : false; }
+    sqlite3_finalize(sql);
+    return ret;
+}
+
+int
 database_insert(database_s* d, const char* table, int n_columns, ...)
 {
     char keys[512];  // TODO

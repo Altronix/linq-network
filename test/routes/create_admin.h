@@ -9,6 +9,7 @@ extern "C"
 #endif
 
     void test_route_create_admin_ok(void** context_p);
+    void test_route_create_admin_fail_exists(void** context_p);
 
 #ifdef __cplusplus
 }

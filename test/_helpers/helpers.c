@@ -42,8 +42,7 @@ helpers_test_create_admin(
 {
     const char* req_path = "/api/v1/linq-lite/create_admin";
     char b[128];
-    int l;
-    l = snprintf(b, sizeof(b), "{\"user\":\"%s\",\"pass\":\"%s\"}", user, pass);
+    snprintf(b, sizeof(b), "{\"user\":\"%s\",\"pass\":\"%s\"}", user, pass);
 
     mongoose_spy_event_request_push("", "POST", req_path, b);
     for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
@@ -58,7 +57,6 @@ helpers_test_context_create(helpers_test_config_s* config)
     atx_net_assert(ctx);
     helpers_test_init(config->user, config->pass);
     ctx->net = atx_net_create(config->callbacks, config->context);
-    sqlite_spy_outgoing_statement_flush();
 
     if (config->zmtp) {
         snprintf(endpoint, sizeof(endpoint), "tcp://*:%d", config->zmtp);
@@ -69,6 +67,14 @@ helpers_test_context_create(helpers_test_config_s* config)
         snprintf(endpoint, sizeof(endpoint), "http://*:%d", config->zmtp);
         atx_net_listen(ctx->net, endpoint);
     }
+
+    if (config->user) {
+        helpers_test_create_admin(ctx, config->user, config->pass);
+    }
+
+    sqlite_spy_outgoing_statement_flush();
+    mongoose_spy_incoming_events_flush();
+    mongoose_spy_outgoing_data_flush();
     return ctx;
 }
 

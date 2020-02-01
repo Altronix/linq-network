@@ -37,6 +37,8 @@ extern "C"
 
     void mongoose_spy_init();
     void mongoose_spy_deinit();
+    void mongoose_spy_incoming_events_flush();
+    void mongoose_spy_outgoing_data_flush();
 
     void mongoose_spy_event_request_push(
         const char* auth,

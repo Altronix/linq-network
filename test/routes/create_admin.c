@@ -19,15 +19,15 @@ test_route_create_admin_ok(void** context_p)
                                      .context = NULL,
                                      .zmtp = 0,
                                      .http = 0,
-                                     .user = USER,
-                                     .pass = PASS };
+                                     .user = NULL,
+                                     .pass = NULL };
     const char* req_path = "/api/v1/linq-lite/create_admin";
     const char* req_body = "{\"user\":\"admin\",\"pass\":\"password1234\"}";
     const char* expect_insert =
         "INSERT INTO "
         "users(user_id,user,pass,salt,role) "
         "VALUES("
-        "\"user_id0\","
+        "\"user_id01234\","
         "\"admin\","
         "\"3EE9F302E6119FA253BA057A2D49D82CDE32A0D39EC502987851366EF2A47921\","
         "\"0123456789ABCDEF\","
@@ -63,4 +63,33 @@ test_route_create_admin_ok(void** context_p)
 
 void
 test_route_create_admin_fail_exists(void** context_p)
-{}
+{
+    ((void)context_p);
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = NULL,
+                                     .pass = NULL };
+    const char* req_path = "/api/v1/linq-lite/create_admin";
+    const char* req_body = "{\"user\":\"admin\",\"pass\":\"password1234\"}";
+
+    // Setup uut
+    helpers_test_context_s* test = test_init(&config);
+    atx_net_listen(test->net, "tcp://*:32820");
+    atx_net_listen(test->net, "http://*:8000");
+
+    // Simulate http request
+    mongoose_spy_event_request_push("", "POST", req_path, req_body);
+    for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
+
+    // Process request
+    mongoose_parser_context* response = mongoose_spy_response_pop();
+    assert_non_null(response);
+    // assert_memory_equal(response->body, JERROR_503, strlen(JERROR_503));
+    mock_mongoose_response_destroy(&response);
+
+    // Expect user added in database and response OK
+
+    test_reset(&test);
+}
