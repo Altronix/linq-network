@@ -17,8 +17,8 @@ test_route_create_admin_ok(void** context_p)
     ((void)context_p);
     helpers_test_config_s config = { .callbacks = NULL,
                                      .context = NULL,
-                                     .zmtp = 0,
-                                     .http = 0,
+                                     .zmtp = 32820,
+                                     .http = 8000,
                                      .user = NULL,
                                      .pass = NULL };
     const char* req_path = "/api/v1/linq-lite/create_admin";
@@ -37,8 +37,6 @@ test_route_create_admin_ok(void** context_p)
 
     // Setup uut
     helpers_test_context_s* test = test_init(&config);
-    atx_net_listen(test->net, "tcp://*:32820");
-    atx_net_listen(test->net, "http://*:8000");
 
     // Simulate http request
     mongoose_spy_event_request_push("", "POST", req_path, req_body);
@@ -64,20 +62,20 @@ test_route_create_admin_ok(void** context_p)
 void
 test_route_create_admin_fail_exists(void** context_p)
 {
+    // TODO add check to not create admin if a user exists and add new behavior
+    // to test helper context create
     ((void)context_p);
     helpers_test_config_s config = { .callbacks = NULL,
                                      .context = NULL,
-                                     .zmtp = 0,
-                                     .http = 0,
-                                     .user = NULL,
-                                     .pass = NULL };
+                                     .zmtp = 32820,
+                                     .http = 8000,
+                                     .user = USER,
+                                     .pass = PASS };
     const char* req_path = "/api/v1/linq-lite/create_admin";
     const char* req_body = "{\"user\":\"admin\",\"pass\":\"password1234\"}";
 
     // Setup uut
     helpers_test_context_s* test = test_init(&config);
-    atx_net_listen(test->net, "tcp://*:32820");
-    atx_net_listen(test->net, "http://*:8000");
 
     // Simulate http request
     mongoose_spy_event_request_push("", "POST", req_path, req_body);
