@@ -37,7 +37,7 @@ test_route_proxy_get(void** context_p)
     sqlite_spy_outgoing_statement_flush();
 
     mongoose_spy_event_request_push(
-        "", "GET", "/api/v1/linq-lite/proxy/serial1234/ATX/about", NULL);
+        "", "GET", "/api/v1/proxy/serial1234/ATX/about", NULL);
     czmq_spy_poll_set_incoming((0x00));
     for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
 
@@ -89,7 +89,7 @@ test_route_proxy_post(void** context_p)
     mongoose_spy_event_request_push(
         "",
         "POST",
-        "/api/v1/linq-lite/proxy/serial1234/ATX/about",
+        "/api/v1/proxy/serial1234/ATX/about",
         "{\"test\":\"data\"}");
     czmq_spy_poll_set_incoming((0x00));
     for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
@@ -138,7 +138,7 @@ test_route_proxy_404(void** context_p)
     mongoose_spy_event_request_push(
         "",
         "POST",
-        "/api/v1/linq-lite/proxy/serial1234/ATX/about",
+        "/api/v1/proxy/serial1234/ATX/about",
         "{\"test\":\"data\"}");
     czmq_spy_poll_set_incoming((0x00));
     for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
@@ -170,8 +170,7 @@ test_route_proxy_400_too_short(void** context_p)
     atx_net_poll(test->net, 5);
     sqlite_spy_outgoing_statement_flush();
 
-    mongoose_spy_event_request_push(
-        "", "GET", "/api/v1/linq-lite/proxy/1234", NULL);
+    mongoose_spy_event_request_push("", "GET", "/api/v1/proxy/1234", NULL);
     czmq_spy_poll_set_incoming((0x00));
     for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
 

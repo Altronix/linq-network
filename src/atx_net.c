@@ -193,12 +193,12 @@ atx_net_create(const atx_net_callbacks* cb, void* context)
 #define ADD_ROUTE(linq, path, fn, ctx) http_use(&(linq)->http, path, fn, ctx)
         database_init(&l->database);
         http_init(&l->http);
-        ADD_ROUTE(l, "/api/v1/linq-lite/create_admin", route_create_admin, l);
-        ADD_ROUTE(l, "/api/v1/linq-lite/login", route_login, l);
-        ADD_ROUTE(l, "/api/v1/linq-lite/users", route_users, l);
-        ADD_ROUTE(l, "/api/v1/linq-lite/devices", route_devices, l);
-        ADD_ROUTE(l, "/api/v1/linq-lite/alerts", route_alerts, l);
-        ADD_ROUTE(l, "/api/v1/linq-lite/proxy/...", route_proxy, l);
+        ADD_ROUTE(l, "/api/v1/public/create_admin", route_create_admin, l);
+        ADD_ROUTE(l, "/api/v1/login", route_login, l);
+        ADD_ROUTE(l, "/api/v1/users", route_users, l);
+        ADD_ROUTE(l, "/api/v1/devices", route_devices, l);
+        ADD_ROUTE(l, "/api/v1/alerts", route_alerts, l);
+        ADD_ROUTE(l, "/api/v1/proxy/...", route_proxy, l);
 #endif
     }
     return l;

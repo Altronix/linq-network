@@ -2,7 +2,7 @@
 
 #include "device.h"
 
-#define API_URI "/api/v1/linq-lite/proxy/"
+#define API_URI "/api/v1/proxy/"
 #define API_URI_LEN (sizeof(API_URI) - 1)
 
 static void

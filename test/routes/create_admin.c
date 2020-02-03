@@ -21,7 +21,7 @@ test_route_create_admin_ok(void** context_p)
                                      .http = 8000,
                                      .user = NULL,
                                      .pass = NULL };
-    const char* req_path = "/api/v1/linq-lite/create_admin";
+    const char* req_path = "/api/v1/public/create_admin";
     const char* req_body = "{\"user\":\"admin\",\"pass\":\"password1234\"}";
     const char* expect_count = "SELECT COUNT(*) FROM users;";
     const char* expect_insert =
@@ -79,7 +79,7 @@ test_route_create_admin_fail_exists(void** context_p)
                                      .http = 8000,
                                      .user = USER,
                                      .pass = PASS };
-    const char* req_path = "/api/v1/linq-lite/create_admin";
+    const char* req_path = "/api/v1/public/create_admin";
     const char* req_body = "{\"user\":\"admin\",\"pass\":\"password1234\"}";
 
     // Setup uut
