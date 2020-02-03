@@ -23,6 +23,7 @@ extern "C"
         int ev;
         void* p;
         struct http_message message;
+        uint32_t curr_header_idx;
         char request[2048];
     } mock_mongoose_event;
 

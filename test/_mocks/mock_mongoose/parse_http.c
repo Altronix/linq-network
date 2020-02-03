@@ -12,6 +12,8 @@ int http_response_on_url(http_parser* p, const char* at, size_t len);
 int http_response_on_body(http_parser* p, const char* at, size_t len);
 int http_response_on_status(http_parser* p, const char* at, size_t len);
 
+int http_request_on_header_field(http_parser* p, const char* at, size_t len);
+int http_request_on_header_value(http_parser* p, const char* at, size_t len);
 int http_request_on_url(http_parser* p, const char* at, size_t len);
 int http_request_on_body(http_parser* p, const char* at, size_t len);
 int http_request_on_status(http_parser* p, const char* at, size_t len);
@@ -30,8 +32,8 @@ http_parser_settings parse_http_settings_response = {
 };
 
 http_parser_settings parse_http_settings_request = {
-    .on_header_field = NULL,
-    .on_header_value = NULL,
+    .on_header_field = http_request_on_header_field,
+    .on_header_value = http_request_on_header_value,
     .on_url = http_request_on_url,
     .on_body = http_request_on_body,
     .on_status = http_request_on_status,
@@ -144,6 +146,25 @@ http_response_on_status(http_parser* p, const char* at, size_t len)
     ((void)p);
     ((void)at);
     ((void)len);
+    return 0;
+}
+
+int
+http_request_on_header_field(http_parser* p, const char* at, size_t len)
+{
+    mock_mongoose_event* ev = p->data;
+    ev->message.header_names[ev->curr_header_idx].p = at;
+    ev->message.header_names[ev->curr_header_idx].len = len;
+    return 0;
+}
+
+int
+http_request_on_header_value(http_parser* p, const char* at, size_t len)
+{
+    mock_mongoose_event* ev = p->data;
+    ev->message.header_values[ev->curr_header_idx].p = at;
+    ev->message.header_values[ev->curr_header_idx].len = len;
+    ev->curr_header_idx++;
     return 0;
 }
 
