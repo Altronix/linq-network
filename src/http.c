@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "http.h"
+#include "jwt.h"
 #include "log.h"
 #include "routes/routes.h"
 
@@ -98,13 +99,34 @@ c_printf(void* connection, int code, const char* type, const char* fmt, ...)
 }
 
 static bool
-is_authorized(atx_net_s* net, struct mg_connection* c, struct http_message* m)
+valid_user(const char* iss, const char* exp, const char* sub)
 {
-    struct mg_str token;
-    get_jwt(m, &token);
     // TODO
+    return true;
+}
 
-    return false;
+static bool
+is_authorized(struct mg_connection* c, struct http_message* m)
+{
+    jwt_t* jwt;
+    struct mg_str token;
+    int err = -1;
+    char t[256];
+    const char *iss, *exp, *sub;
+    return true;
+    get_jwt(m, &token);
+    if (token.len && token.len < sizeof(t)) {
+        snprintf(t, sizeof(t), "%.*s", (uint32_t)token.len, token.p);
+        err = jwt_decode(&jwt, t, NULL, 0);
+        if (!err) {
+            iss = jwt_get_grant(jwt, "iss");
+            exp = jwt_get_grant(jwt, "exp");
+            sub = jwt_get_grant(jwt, "sub");
+            err = valid_user(iss, exp, sub) ? 0 : -1;
+            jwt_free(jwt);
+        }
+    }
+    return err ? false : true;
 }
 
 typedef struct foreach_route_check_path_context
@@ -177,11 +199,19 @@ http_ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
                     !(memcmp(UNSECURE_API, path->p, UNSECURE_API_LEN))) {
                     process_route(r, c, m);
                 } else {
-                    // TODO Check AUTH
-                    process_route(r, c, m);
+                    if (is_authorized(c, m)) {
+                        process_route(r, c, m);
+                    } else {
+                        log_warn(
+                            "%06s %04s %s [%s]",
+                            "(HTTP)",
+                            "Req.",
+                            "(503)",
+                            path);
+                    }
                 }
             } else {
-                log_info("%06s %04s %s [%s]", "(HTTP)", "Req.", "(404)", path);
+                log_warn("%06s %04s %s [%s]", "(HTTP)", "Req.", "(404)", path);
                 c_printf_json(c, 404, "{\"error\":\"%s\"}", "not found");
             }
         } break;
