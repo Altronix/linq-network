@@ -13,7 +13,7 @@
 #define HEADERS                                                                \
     "GET %s HTTP/1.1\r\n"                                                      \
     "Host: 0.0.0.0:33000\r\n"                                                  \
-    "Authorization: Basic %s\r\n"                                              \
+    "Authorization: Bearer %s\r\n"                                             \
     "User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) "             \
     "Gecko/2008061015 Firefox/3.0\r\n"                                         \
     "Accept: "                                                                 \
@@ -28,7 +28,7 @@
 #define HEADERS_DATA                                                           \
     "POST %s HTTP/1.1\r\n"                                                     \
     "Host: 0.0.0.0:33000\r\n"                                                  \
-    "Authorization: Basic %s\r\n"                                              \
+    "Authorization: Bearer %s\r\n"                                             \
     "User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) "             \
     "Gecko/2008061015 Firefox/3.0\r\n"                                         \
     "Accept: "                                                                 \
@@ -137,9 +137,7 @@ mongoose_spy_event_request_push(
     const char* data)
 {
     // Basic auth string
-    uint8_t authb64[96];
-    size_t l = sizeof(authb64);
-    b64_encode(authb64, &l, (uint8_t*)auth, strlen((char*)auth));
+    size_t l;
     http_parser parser;
 
     // Init the event context

@@ -37,7 +37,7 @@ test_route_proxy_get(void** context_p)
     sqlite_spy_outgoing_statement_flush();
 
     mongoose_spy_event_request_push(
-        "", "GET", "/api/v1/proxy/serial1234/ATX/about", NULL);
+        UNSAFE_TOKEN, "GET", "/api/v1/proxy/serial1234/ATX/about", NULL);
     czmq_spy_poll_set_incoming((0x00));
     for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
 
@@ -87,7 +87,7 @@ test_route_proxy_post(void** context_p)
     sqlite_spy_outgoing_statement_flush();
 
     mongoose_spy_event_request_push(
-        "",
+        UNSAFE_TOKEN,
         "POST",
         "/api/v1/proxy/serial1234/ATX/about",
         "{\"test\":\"data\"}");
@@ -136,7 +136,7 @@ test_route_proxy_404(void** context_p)
     sqlite_spy_outgoing_statement_flush();
 
     mongoose_spy_event_request_push(
-        "",
+        UNSAFE_TOKEN,
         "POST",
         "/api/v1/proxy/serial1234/ATX/about",
         "{\"test\":\"data\"}");
@@ -170,7 +170,8 @@ test_route_proxy_400_too_short(void** context_p)
     atx_net_poll(test->net, 5);
     sqlite_spy_outgoing_statement_flush();
 
-    mongoose_spy_event_request_push("", "GET", "/api/v1/proxy/1234", NULL);
+    mongoose_spy_event_request_push(
+        UNSAFE_TOKEN, "GET", "/api/v1/proxy/1234", NULL);
     czmq_spy_poll_set_incoming((0x00));
     for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
 

@@ -55,12 +55,6 @@ get_jwt(struct http_message* m, struct mg_str* token)
     }
 }
 
-static inline struct mg_str*
-get_uri(struct http_message* m)
-{
-    return &m->uri;
-}
-
 // Write to connection
 static void
 c_vprintf(
@@ -176,7 +170,7 @@ http_ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
         case MG_EV_HTTP_REQUEST: {
             http_s* http = user_data;
             struct http_message* m = (struct http_message*)p;
-            struct mg_str* path = get_uri(m);
+            struct mg_str* path = &m->uri;
             http_route_context** r = resolve_route(http, path);
             if (r) {
                 if (path->len >= UNSECURE_API_LEN &&

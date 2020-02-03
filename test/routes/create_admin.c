@@ -41,7 +41,7 @@ test_route_create_admin_ok(void** context_p)
     sqlite_spy_column_int_return_push(0);
 
     // Simulate http request
-    mongoose_spy_event_request_push("", "POST", req_path, req_body);
+    mongoose_spy_event_request_push(UNSAFE_TOKEN, "POST", req_path, req_body);
     for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
 
     // Process request
@@ -87,7 +87,7 @@ test_route_create_admin_fail_exists(void** context_p)
     sqlite_spy_column_int_return_push(1);
 
     // Simulate http request
-    mongoose_spy_event_request_push("", "POST", req_path, req_body);
+    mongoose_spy_event_request_push(UNSAFE_TOKEN, "POST", req_path, req_body);
     for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
 
     // Process request
