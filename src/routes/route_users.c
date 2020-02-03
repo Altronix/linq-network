@@ -150,8 +150,8 @@ route_create_admin(
     uint32_t l,
     const char* body)
 {
-    // TODO - check if a user already exists
-    if (false) {
+    database_s* db = atx_net_database(ctx->context);
+    if (database_count(db, "users")) {
         http_printf_json(ctx->curr_connection, 503, JERROR_503);
     } else {
         process_create_admin(ctx, l, body);

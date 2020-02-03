@@ -23,6 +23,7 @@ test_route_create_admin_ok(void** context_p)
                                      .pass = NULL };
     const char* req_path = "/api/v1/linq-lite/create_admin";
     const char* req_body = "{\"user\":\"admin\",\"pass\":\"password1234\"}";
+    const char* expect_count = "SELECT COUNT(*) FROM users;";
     const char* expect_insert =
         "INSERT INTO "
         "users(user_id,user,pass,salt,role) "
@@ -37,6 +38,7 @@ test_route_create_admin_ok(void** context_p)
 
     // Setup uut
     helpers_test_context_s* test = test_init(&config);
+    sqlite_spy_column_int_return_push(0);
 
     // Simulate http request
     mongoose_spy_event_request_push("", "POST", req_path, req_body);
@@ -48,12 +50,18 @@ test_route_create_admin_ok(void** context_p)
     assert_memory_equal(response->body, JERROR_200, strlen(JERROR_200));
     mock_mongoose_response_destroy(&response);
 
+    // Expect checking if user exists in database
+    statement = sqlite_spy_outgoing_statement_pop();
+    assert_non_null(statement);
+    assert_int_equal(strlen(expect_count) + 1, statement->len);
+    assert_memory_equal(expect_count, statement->data, statement->len);
+    atx_net_free(statement);
+
     // Expect user added in database and response OK
     statement = sqlite_spy_outgoing_statement_pop();
     assert_non_null(statement);
     assert_int_equal(strlen(expect_insert) + 1, statement->len);
     assert_memory_equal(expect_insert, statement->data, statement->len);
-
     atx_net_free(statement);
 
     test_reset(&test);
@@ -76,6 +84,7 @@ test_route_create_admin_fail_exists(void** context_p)
 
     // Setup uut
     helpers_test_context_s* test = test_init(&config);
+    sqlite_spy_column_int_return_push(1);
 
     // Simulate http request
     mongoose_spy_event_request_push("", "POST", req_path, req_body);
@@ -84,7 +93,7 @@ test_route_create_admin_fail_exists(void** context_p)
     // Process request
     mongoose_parser_context* response = mongoose_spy_response_pop();
     assert_non_null(response);
-    // assert_memory_equal(response->body, JERROR_503, strlen(JERROR_503));
+    assert_memory_equal(response->body, JERROR_503, strlen(JERROR_503));
     mock_mongoose_response_destroy(&response);
 
     // Expect user added in database and response OK
