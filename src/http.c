@@ -4,6 +4,7 @@
 
 #include "http.h"
 #include "log.h"
+#include "routes/routes.h"
 
 #define HTTP_FORMAT_HEADERS                                                    \
     "HTTP/1.0 %d \r\n"                                                         \
@@ -54,17 +55,10 @@ get_jwt(struct http_message* m, struct mg_str* token)
     }
 }
 
-static inline const char*
+static inline struct mg_str*
 get_uri(struct http_message* m)
 {
-    static char path[128];
-    if (!(m->uri.len < sizeof(path))) {
-        return NULL;
-    } else {
-        path[m->uri.len] = '\0';
-        memcpy(path, m->uri.p, m->uri.len);
-        return path;
-    }
+    return &m->uri;
 }
 
 // Write to connection
@@ -145,13 +139,27 @@ foreach_route_check_path(
 }
 
 static http_route_context**
-resolve_route(http_s* http, const char* path)
+resolve_route(http_s* http, struct mg_str* uri)
 {
+    static char path[128];
+    atx_net_assert(uri->len < sizeof(path));
     http_route_context** r_p = NULL;
+    snprintf(path, sizeof(path), "%.*s", (uint32_t)uri->len, uri->p);
     foreach_route_check_path_context ctx = { .path = path, .found_p = &r_p };
-    if (path) r_p = routes_map_get(http->routes, path);
+    r_p = routes_map_get(http->routes, path);
     if (!r_p) routes_map_foreach(http->routes, foreach_route_check_path, &ctx);
     return r_p;
+}
+
+static void
+process_route(
+    http_route_context** r,
+    struct mg_connection* c,
+    struct http_message* m)
+{
+    (*r)->curr_connection = c;
+    (*r)->curr_message = m;
+    (*r)->cb(*r, get_method(m), m->body.len, m->body.p);
 }
 
 static void
@@ -168,12 +176,16 @@ http_ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
         case MG_EV_HTTP_REQUEST: {
             http_s* http = user_data;
             struct http_message* m = (struct http_message*)p;
-            const char* path = get_uri(m);
+            struct mg_str* path = get_uri(m);
             http_route_context** r = resolve_route(http, path);
             if (r) {
-                (*r)->curr_connection = c;
-                (*r)->curr_message = m;
-                (*r)->cb(*r, get_method(m), m->body.len, m->body.p);
+                if (path->len >= UNSECURE_API_LEN &&
+                    !(memcmp(UNSECURE_API, path->p, UNSECURE_API_LEN))) {
+                    process_route(r, c, m);
+                } else {
+                    // TODO Check AUTH
+                    process_route(r, c, m);
+                }
             } else {
                 log_info("%06s %04s %s [%s]", "(HTTP)", "Req.", "(404)", path);
                 c_printf_json(c, 404, "{\"error\":\"%s\"}", "not found");

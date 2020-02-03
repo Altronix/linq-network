@@ -15,6 +15,9 @@ extern "C"
 #define JERROR_503 "{\"error\":\"Unauthorized\"}"
 #define JERROR_504 "{\"error\":\"Server busy\"}"
 
+#define UNSECURE_API "/api/v1/public"
+#define UNSECURE_API_LEN (sizeof(UNSECURE_API) - 1)
+
 #define PROTO_ARGS                                                             \
     http_route_context *, HTTP_METHOD meth, uint32_t, const char *
 
