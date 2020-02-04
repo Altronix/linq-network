@@ -51,6 +51,10 @@ test_http_simple_get(void** context_p)
     http_listen(&http, "80");
     http_use(&http, "/hello", test_http_hello_route, &pass);
 
+    // Mock sqlite database response
+    sqlite_spy_step_return_push(SQLITE_ROW); // user exists
+    sqlite_spy_column_int_return_push(1);    // user exists
+
     // Generate some events
     mongoose_spy_event_request_push(UNSAFE_TOKEN, "GET", "/hello", NULL);
     while (http_poll(&http, 0)) {};
@@ -117,6 +121,10 @@ test_http_simple_query(void** context_p)
     http_listen(&http, "80");
     http_use(&http, "/hello", test_http_query_route, &pass);
 
+    // Mock sqlite database response
+    sqlite_spy_step_return_push(SQLITE_ROW); // user exists
+    sqlite_spy_column_int_return_push(1);    // user exists
+
     // Generate some events
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "GET", "/hello?a=1&param=echo&start=22&b=2", NULL);
@@ -174,6 +182,10 @@ test_http_invalid_query(void** context_p)
     http_init(&http, &db);
     http_listen(&http, "80");
     http_use(&http, "/hello", test_http_invalid_query_route, &pass);
+
+    // Mock sqlite database response
+    sqlite_spy_step_return_push(SQLITE_ROW); // user exists
+    sqlite_spy_column_int_return_push(1);    // user exists
 
     // Generate some events
     mongoose_spy_event_request_push(

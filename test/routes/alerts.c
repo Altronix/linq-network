@@ -52,6 +52,8 @@ test_route_alerts(void** context_p)
                               "]}";
 
     helpers_test_context_s* test = test_init(&config);
+
+    // Mock sqlite database response
     sqlite_spy_step_return_push(SQLITE_ROW); // user exists
     sqlite_spy_column_int_return_push(1);    // user exists
 
@@ -106,6 +108,10 @@ test_route_alerts_response_too_large(void** context_p)
     helpers_test_context_s* test = test_init(&config);
     sqlite_spy_outgoing_statement_flush();
 
+    // Mock sqlite database response
+    sqlite_spy_step_return_push(SQLITE_ROW); // user exists
+    sqlite_spy_column_int_return_push(1);    // user exists
+
     for (int i = 0; i < 10000; i++) sqlite_spy_step_return_push(SQLITE_ROW);
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "GET", "/api/v1/alerts", NULL);
@@ -134,6 +140,10 @@ test_route_alerts_response_get_only(void** context_p)
     helpers_test_context_s* test = test_init(&config);
     sqlite_spy_outgoing_statement_flush();
 
+    // Mock sqlite database response
+    sqlite_spy_step_return_push(SQLITE_ROW); // user exists
+    sqlite_spy_column_int_return_push(1);    // user exists
+
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "POST", "/api/v1/alerts", "{\"blah\":\"blah\"}");
     for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
@@ -160,6 +170,10 @@ test_route_alerts_response_empty(void** context_p)
 
     helpers_test_context_s* test = test_init(&config);
     sqlite_spy_outgoing_statement_flush();
+
+    // Mock sqlite database response
+    sqlite_spy_step_return_push(SQLITE_ROW); // user exists
+    sqlite_spy_column_int_return_push(1);    // user exists
 
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "GET", "/api/v1/alerts", NULL);

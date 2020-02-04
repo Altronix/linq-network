@@ -102,12 +102,8 @@ c_printf(void* connection, int code, const char* type, const char* fmt, ...)
 static bool
 valid_user(http_s* http, int iss, int exp, const char* sub)
 {
-    // TODO
-    if (sys_unix() < exp &&
-        database_row_exists_str(http->db, "users", "user", sub)) {
-    } else {
-    }
-    return true;
+    return sys_unix() < exp &&
+           database_row_exists_str(http->db, "users", "user", sub);
 }
 
 static bool

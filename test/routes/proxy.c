@@ -36,6 +36,10 @@ test_route_proxy_get(void** context_p)
     atx_net_poll(test->net, 5);
     sqlite_spy_outgoing_statement_flush();
 
+    // Mock sqlite database response
+    sqlite_spy_step_return_push(SQLITE_ROW); // user exists
+    sqlite_spy_column_int_return_push(1);    // user exists
+
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "GET", "/api/v1/proxy/serial1234/ATX/about", NULL);
     czmq_spy_poll_set_incoming((0x00));
@@ -86,6 +90,10 @@ test_route_proxy_post(void** context_p)
     atx_net_poll(test->net, 5);
     sqlite_spy_outgoing_statement_flush();
 
+    // Mock sqlite database response
+    sqlite_spy_step_return_push(SQLITE_ROW); // user exists
+    sqlite_spy_column_int_return_push(1);    // user exists
+
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN,
         "POST",
@@ -135,6 +143,10 @@ test_route_proxy_404(void** context_p)
     atx_net_poll(test->net, 5);
     sqlite_spy_outgoing_statement_flush();
 
+    // Mock sqlite database response
+    sqlite_spy_step_return_push(SQLITE_ROW); // user exists
+    sqlite_spy_column_int_return_push(1);    // user exists
+
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN,
         "POST",
@@ -169,6 +181,10 @@ test_route_proxy_400_too_short(void** context_p)
 
     atx_net_poll(test->net, 5);
     sqlite_spy_outgoing_statement_flush();
+
+    // Mock sqlite database response
+    sqlite_spy_step_return_push(SQLITE_ROW); // user exists
+    sqlite_spy_column_int_return_push(1);    // user exists
 
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "GET", "/api/v1/proxy/1234", NULL);

@@ -30,6 +30,8 @@ test_route_devices(void** context_p)
 
     helpers_test_context_s* test = test_init(&config);
     sqlite_spy_outgoing_statement_flush();
+
+    // Mock sqlite database response
     sqlite_spy_step_return_push(SQLITE_ROW); // user exists
     sqlite_spy_column_int_return_push(1);    // user exists
 
@@ -75,6 +77,10 @@ test_route_devices_response_too_large(void** context_p)
     helpers_test_context_s* test = test_init(&config);
     sqlite_spy_outgoing_statement_flush();
 
+    // Mock sqlite database response
+    sqlite_spy_step_return_push(SQLITE_ROW); // user exists
+    sqlite_spy_column_int_return_push(1);    // user exists
+
     for (int i = 0; i < 10000; i++) sqlite_spy_step_return_push(SQLITE_ROW);
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "GET", "/api/v1/devices", NULL);
@@ -103,6 +109,10 @@ test_route_devices_response_get_only(void** context_p)
     helpers_test_context_s* test = test_init(&config);
     sqlite_spy_outgoing_statement_flush();
 
+    // Mock sqlite database response
+    sqlite_spy_step_return_push(SQLITE_ROW); // user exists
+    sqlite_spy_column_int_return_push(1);    // user exists
+
     sqlite_spy_column_text_return_push("A");
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "POST", "/api/v1/devices", "{\"blah\":\"blah\"}");
@@ -130,6 +140,10 @@ test_route_devices_response_empty(void** context_p)
 
     helpers_test_context_s* test = test_init(&config);
     sqlite_spy_outgoing_statement_flush();
+
+    // Mock sqlite database response
+    sqlite_spy_step_return_push(SQLITE_ROW); // user exists
+    sqlite_spy_column_int_return_push(1);    // user exists
 
     sqlite_spy_step_return_push(SQLITE_DONE);
     mongoose_spy_event_request_push(
