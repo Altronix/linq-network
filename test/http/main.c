@@ -3,8 +3,9 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "altronix/atx_net.h"
-#include "http.h"
 #include "atx_net_internal.h"
+#include "helpers.h"
+#include "http.h"
 #include "mock_mongoose.h"
 
 #include <cmocka.h>
@@ -47,7 +48,7 @@ test_http_simple_get(void** context_p)
     http_use(&http, "/hello", test_http_hello_route, &pass);
 
     // Generate some events
-    mongoose_spy_event_request_push("admin:admin", "GET", "/hello", NULL);
+    mongoose_spy_event_request_push(UNSAFE_TOKEN, "GET", "/hello", NULL);
     while (http_poll(&http, 0)) {};
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
@@ -111,7 +112,7 @@ test_http_simple_query(void** context_p)
 
     // Generate some events
     mongoose_spy_event_request_push(
-        "admin:admin", "GET", "/hello?a=1&param=echo&start=22&b=2", NULL);
+        UNSAFE_TOKEN, "GET", "/hello?a=1&param=echo&start=22&b=2", NULL);
     while (http_poll(&http, 0)) {};
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
@@ -166,7 +167,7 @@ test_http_invalid_query(void** context_p)
 
     // Generate some events
     mongoose_spy_event_request_push(
-        "admin:admin", "GET", "/hello?invalid&alsoinvalid", NULL);
+        UNSAFE_TOKEN, "GET", "/hello?invalid&alsoinvalid", NULL);
     while (http_poll(&http, 0)) {};
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
