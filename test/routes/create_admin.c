@@ -22,13 +22,16 @@ test_route_create_admin_ok(void** context_p)
                                      .user = NULL,
                                      .pass = NULL };
     const char* req_path = "/api/v1/public/create_admin";
-    const char* req_body = "{\"user\":\"admin\",\"pass\":\"password1234\"}";
+    const char* req_body = "{"
+                           "\"user\":\"" UNSAFE_USER "\","
+                           "\"pass\":\"" UNSAFE_PASS "\""
+                           "}";
     const char* expect_count = "SELECT COUNT(*) FROM users;";
     const char* expect_insert = "INSERT INTO "
                                 "users(user_id,user,pass,salt,role) "
                                 "VALUES("
                                 "\"user_id01234\","
-                                "\"admin\","
+                                "\"" UNSAFE_USER "\","
                                 "\"" UNSAFE_HASH "\","
                                 "\"" UNSAFE_SALT "\","
                                 "0);";

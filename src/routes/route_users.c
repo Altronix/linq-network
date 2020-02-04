@@ -12,7 +12,36 @@ route_login(
     HTTP_METHOD meth,
     uint32_t l,
     const char* body)
-{}
+{
+    jwt_t* token = NULL;
+    database_s* db = atx_net_database(ctx->context);
+    char user_str[USER_MAX_LEN];
+    char pass_str[PASS_MAX_LEN];
+    int count, err;
+    atx_str user, pass;
+    jsmntok_t t[20];
+
+    // clang-format off
+    count = jsmn_parse_tokens(
+        t, 20,
+        body, l,
+        2,
+        "user", &user,
+        "pass", &pass);
+    // clang-format on
+    if (count == 2 && user.len < USER_MAX_LEN && pass.len < PASS_MAX_LEN) {
+        snprintf(user_str, sizeof(user_str), "%.*s", user.len, user.p);
+        snprintf(pass_str, sizeof(pass_str), "%.*s", pass.len, pass.p);
+        token = http_auth_login(db, user_str, pass_str);
+        if (token) {
+            http_printf_json(ctx->curr_connection, 200, JERROR_200);
+        } else {
+            http_printf_json(ctx->curr_connection, 503, JERROR_503);
+        }
+    } else {
+        http_printf_json(ctx->curr_connection, 400, JERROR_400);
+    }
+}
 
 void
 route_users(

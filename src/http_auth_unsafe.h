@@ -22,6 +22,8 @@ Data generated from https://jwt.io (signed with "unsafe_secret")
 }.Base64(sig)
 
 */
+
+// TODO note the case sensitive tests
 #define UNSAFE_IAT 1580601600
 #define UNSAFE_EXP 1580602200
 #define UNSAFE_SECRET "unsafe_secret"
@@ -29,8 +31,8 @@ Data generated from https://jwt.io (signed with "unsafe_secret")
 #define UNSAFE_UUID "user_id01234"
 #define UNSAFE_SALT "0123456789ABCDEF"
 #define UNSAFE_HASH                                                            \
-    "3EE9F302E6119FA253BA057A2D49D82CDE32A0D39EC502987851366EF2A47921"
-#define UNSAFE_PASS "unsafe_pass"
+    "392C3B8FCEEEDCDC47060BD17DB8E7ACD818D22BBAFF4CBBFBE134E8249DA4DC"
+#define UNSAFE_PASS "unsafe_password"
 #define UNSAFE_HEADER "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
 #define UNSAFE_PAYLOAD                                                         \
     "eyJzdWIiOiJ1bnNhZmVfdXNlciIsImlhdCI6MTU4MDYwMTYwMCwiZXhwIjoxNTgwNjAyMjAw" \

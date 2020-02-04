@@ -194,6 +194,7 @@ atx_net_create(const atx_net_callbacks* cb, void* context)
         database_init(&l->database);
         http_init(&l->http, &l->database);
         ADD_ROUTE(l, "/api/v1/public/create_admin", route_create_admin, l);
+        ADD_ROUTE(l, "/api/v1/public/login", route_login, l);
         ADD_ROUTE(l, "/api/v1/login", route_login, l);
         ADD_ROUTE(l, "/api/v1/users", route_users, l);
         ADD_ROUTE(l, "/api/v1/devices", route_devices, l);

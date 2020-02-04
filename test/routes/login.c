@@ -22,6 +22,10 @@ test_route_login_ok(void** context_p)
                                      .http = 8000,
                                      .user = USER,
                                      .pass = PASS };
+    const char* body = "{"
+                       "\"user\":\"" UNSAFE_USER "\","
+                       "\"pass\":\"" UNSAFE_PASS "\""
+                       "}";
     char token_expect[2048];
     l = snprintf(
         token_expect, sizeof(token_expect), "{\"token\":\"%s\"}", UNSAFE_TOKEN);
@@ -32,11 +36,11 @@ test_route_login_ok(void** context_p)
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_text_return_push(UNSAFE_UUID);
     sqlite_spy_column_text_return_push(UNSAFE_USER);
-    sqlite_spy_column_text_return_push("UNSAFE_HASH_TODO");
+    sqlite_spy_column_text_return_push(UNSAFE_HASH);
     sqlite_spy_column_text_return_push(UNSAFE_SALT);
 
     mongoose_spy_event_request_push(
-        UNSAFE_TOKEN, "GET", "/api/v1/public/login", NULL);
+        UNSAFE_TOKEN, "POST", "/api/v1/public/login", body);
     for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
 
     mongoose_parser_context* response = mongoose_spy_response_pop();

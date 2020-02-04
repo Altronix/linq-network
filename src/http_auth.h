@@ -18,7 +18,7 @@
 #define PASS_MAX_LEN 48
 #define PASS_MIN_LEN 12
 #define SALT_LEN 16
-#define HASH_LEN 65
+#define HASH_LEN 64
 #define SECRET_LEN 64
 
 #ifdef __cplusplus

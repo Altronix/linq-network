@@ -2,10 +2,11 @@
 #define MAIN_H
 
 #include "helpers.h"
+#include "http_auth_unsafe.h"
 #include "sys.h"
 
-#define USER "unsafe_user"
-#define PASS "unsafe_pass"
+#define USER UNSAFE_USER
+#define PASS UNSAFE_PASS
 
 #ifdef __cplusplus
 extern "C"
