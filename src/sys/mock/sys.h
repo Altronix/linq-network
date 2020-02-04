@@ -27,7 +27,9 @@ extern "C"
 #endif
 
     int32_t sys_tick();
+    uint32_t sys_unix();
     void spy_sys_set_tick(int32_t t);
+    void spy_sys_set_unix(uint32_t t);
     void spy_sys_reset();
 
 #ifdef __cplusplus

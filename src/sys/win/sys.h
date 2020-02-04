@@ -7,8 +7,8 @@
 
 #include <assert.h>
 #include <stdarg.h>
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -26,6 +26,7 @@ extern "C"
 #endif
 
     int32_t sys_tick();
+    uint32_t sys_unix();
 
 #ifdef __cplusplus
 }

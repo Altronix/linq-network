@@ -9,3 +9,9 @@ sys_tick()
 {
     return 0;
 }
+
+uint32_t
+sys_unix()
+{
+    return 0;
+}

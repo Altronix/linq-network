@@ -30,6 +30,8 @@ test_route_devices(void** context_p)
 
     helpers_test_context_s* test = test_init(&config);
     sqlite_spy_outgoing_statement_flush();
+    sqlite_spy_step_return_push(SQLITE_ROW); // user exists
+    sqlite_spy_column_int_return_push(1);    // user exists
 
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_step_return_push(SQLITE_ROW);

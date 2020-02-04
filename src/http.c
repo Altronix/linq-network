@@ -100,14 +100,18 @@ c_printf(void* connection, int code, const char* type, const char* fmt, ...)
 }
 
 static bool
-valid_user(int iss, int exp, const char* sub)
+valid_user(http_s* http, int iss, int exp, const char* sub)
 {
     // TODO
+    if (sys_unix() < exp &&
+        database_row_exists_str(http->db, "users", "user", sub)) {
+    } else {
+    }
     return true;
 }
 
 static bool
-is_authorized(struct mg_connection* c, struct http_message* m)
+is_authorized(http_s* http, struct mg_connection* c, struct http_message* m)
 {
     jwt_t* jwt;
     struct mg_str token;
@@ -123,7 +127,7 @@ is_authorized(struct mg_connection* c, struct http_message* m)
             iat = jwt_get_grant_int(jwt, "iat");
             exp = jwt_get_grant_int(jwt, "exp");
             sub = jwt_get_grant(jwt, "sub");
-            err = valid_user(iat, exp, sub) ? 0 : -1;
+            err = valid_user(http, iat, exp, sub) ? 0 : -1;
             jwt_free(jwt);
         }
     }
@@ -200,7 +204,7 @@ http_ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
                     !(memcmp(UNSECURE_API, path->p, UNSECURE_API_LEN))) {
                     process_route(r, c, m);
                 } else {
-                    if (is_authorized(c, m)) {
+                    if (is_authorized(http, c, m)) {
                         process_route(r, c, m);
                     } else {
                         log_warn(

@@ -28,6 +28,7 @@ extern "C"
 #endif
 
     int32_t sys_tick();
+    uint32_t sys_unix();
 
 #ifdef __cplusplus
 }

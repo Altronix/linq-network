@@ -7,6 +7,7 @@
 #include "helpers.h"
 #include "http.h"
 #include "mock_mongoose.h"
+#include "mock_sqlite.h"
 
 #include <cmocka.h>
 #include <setjmp.h>
@@ -41,6 +42,7 @@ test_http_simple_get(void** context_p)
     ((void)context_p);
     database_s db;
     mongoose_spy_init();
+    sqlite_spy_init();
     bool pass = false;
 
     // Init http
@@ -62,6 +64,7 @@ test_http_simple_get(void** context_p)
     assert_true(pass);
     http_deinit(&http);
     mongoose_spy_deinit();
+    sqlite_spy_deinit();
 }
 
 static void
@@ -105,6 +108,7 @@ test_http_simple_query(void** context_p)
     ((void)context_p);
     database_s db;
     mongoose_spy_init();
+    sqlite_spy_init();
     bool pass = false;
 
     // Init http
@@ -127,6 +131,7 @@ test_http_simple_query(void** context_p)
     assert_true(pass);
     http_deinit(&http);
     mongoose_spy_deinit();
+    sqlite_spy_deinit();
 }
 
 static void
@@ -161,6 +166,7 @@ test_http_invalid_query(void** context_p)
     ((void)context_p);
     database_s db;
     mongoose_spy_init();
+    sqlite_spy_init();
     int pass = 0;
 
     // Init http
@@ -183,6 +189,7 @@ test_http_invalid_query(void** context_p)
     assert_int_equal(pass, 1);
     http_deinit(&http);
     mongoose_spy_deinit();
+    sqlite_spy_deinit();
 }
 
 int
