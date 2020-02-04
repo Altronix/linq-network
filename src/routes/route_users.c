@@ -1,77 +1,10 @@
 #include "atx_net_internal.h"
+#include "http_auth.h"
 #include "jsmn_helpers.h"
 #include "log.h"
 #include "routes.h"
 
 #include "openssl/sha.h"
-
-#define UUID_MAX_LEN 32
-#define USER_MAX_LEN 24
-#define PASS_MAX_LEN 48
-#define PASS_MIN_LEN 12
-#define SALT_LEN 16
-#define HASH_LEN 65
-
-#ifdef TESTING
-static void
-gen_salt(char dst[SALT_LEN])
-{
-    memcpy(dst, "0123456789ABCDEF", SALT_LEN);
-}
-static void
-gen_uuid(char dst[UUID_MAX_LEN])
-{
-    memset(dst, 0, UUID_MAX_LEN);
-    snprintf(dst, UUID_MAX_LEN, "%s", "user_id01234");
-}
-#else
-static void
-gen_salt(char dst[SALT_LEN])
-{
-    // TODO
-    memcpy(dst, "0123456789ABCDEF", 16);
-}
-static void
-gen_uuid(char dst[UUID_MAX_LEN])
-{
-    zuuid_t* uid = zuuid_new();
-    snprintf(dst, UUID_MAX_LEN, "%s", zuuid_str(uid));
-    zuuid_destroy(&uid);
-}
-#endif
-
-static void
-hash_256(const char* data, uint32_t dlen, char buffer[HASH_LEN])
-{
-    unsigned char hash[SHA256_DIGEST_LENGTH];
-    SHA256_CTX sha;
-    SHA256_Init(&sha);
-    SHA256_Update(&sha, data, dlen);
-    SHA256_Final(hash, &sha);
-    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-        sprintf(buffer + (i * 2), "%02X", hash[i]);
-    }
-    buffer[64] = 0;
-}
-
-static int
-gen_password_hash(
-    char hash[HASH_LEN],
-    char salt[SALT_LEN],
-    const char* pass,
-    uint32_t len)
-{
-    char concat[PASS_MAX_LEN + SALT_LEN];
-    int l;
-#ifdef TESTING
-    log_warn("(HTTP) generating unsafe debug hash!");
-#endif
-    if (!(len < PASS_MAX_LEN && len >= PASS_MIN_LEN)) return -1;
-    gen_salt(salt);
-    l = snprintf(concat, sizeof(concat), "%.*s%.*s", len, pass, SALT_LEN, salt);
-    hash_256(concat, l, hash);
-    return 0;
-}
 
 void
 route_login(
@@ -112,8 +45,8 @@ process_create_admin(http_route_context* ctx, uint32_t l, const char* body)
         http_printf_json(ctx->curr_connection, 400, JERROR_400);
     } else {
         log_info("(DATA) creating admin account %.*s", user.len, user.p);
-        gen_uuid(u);
-        err = gen_password_hash(h, s, pass.p, pass.len);
+        http_auth_generate_uuid(u);
+        err = http_auth_generate_password_hash(h, s, (char*)pass.p, pass.len);
         if (!err) {
             // clang-format off
             klen = snprintf(k, sizeof(k), "%s", "user_id,user,pass,salt,role");
