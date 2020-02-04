@@ -26,7 +26,7 @@ gen_salt(char dst[SALT_LEN])
 static void
 gen_uuid(char dst[UUID_MAX_LEN])
 {
-    /// TESTING - generated a fixed user ID for consistent testing
+    /// TESTING - generated a fixed user ID for  testing
     memset(dst, 0, UUID_MAX_LEN);
     snprintf(dst, UUID_MAX_LEN, "%s", "user_id01234");
 }
@@ -38,6 +38,25 @@ gen_uuid(char dst[UUID_MAX_LEN])
     zuuid_t* uid = zuuid_new();
     snprintf(dst, UUID_MAX_LEN, "%s", zuuid_str(uid));
     zuuid_destroy(&uid);
+}
+#endif
+
+#ifdef TESTING
+static void
+get_secret(char secret[SECRET_LEN])
+{
+    log_warn("(HTTP) validating tokens with debugger Secret!");
+    memset(secret, 0, SECRET_LEN);
+    snprintf(secret, SECRET_LEN, "%s", UNSAFE_SECRET);
+}
+#else
+static void
+get_secret(char secret[SECRET_LEN])
+{
+    // TODO
+    log_warn("(HTTP) TODO - Using UNSAFE secret in production!");
+    memset(secret, 0, SECRET_LEN);
+    snprintf(secret, SECRET_LEN, "%s", UNSAFE_SECRET);
 }
 #endif
 
@@ -94,13 +113,22 @@ http_auth_is_authorized(
     struct mg_str token;
     int err = -1;
     char t[256];
+    unsigned char secret[SECRET_LEN];
     const char* sub;
     int iat, exp;
     get_jwt(m, &token);
     if (token.len && token.len < sizeof(t)) {
         snprintf(t, sizeof(t), "%.*s", (uint32_t)token.len, token.p);
-        err = jwt_decode(&jwt, t, NULL, 0); // TODO validate token
+        get_secret((char*)secret);
+        // Note we validate alg after decode as per
+        // https://github.com/benmcollins/libjwt/issues/58
+        err = jwt_decode(&jwt, t, secret, SECRET_LEN);
+        if (!err) err = jwt_get_alg(jwt) == JWT_ALG_HS256 ? 0 : -1;
         if (!err) {
+            // TODO other tokens
+            // nbf - not before
+            // iss - issuer
+            // aud - audience
             iat = jwt_get_grant_int(jwt, "iat");
             exp = jwt_get_grant_int(jwt, "exp");
             sub = jwt_get_grant(jwt, "sub");

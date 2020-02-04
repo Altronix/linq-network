@@ -22,7 +22,7 @@
 #undef INVALID_SOCKET // Mongoose and czmq both define these
 
 /*
-Data generated from https://jwt.io
+Data generated from https://jwt.io (signed with "unsafe_secret")
 {
     "alg": "HS256",
     "typ":"jwt"
