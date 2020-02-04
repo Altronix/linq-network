@@ -70,9 +70,7 @@ process_create_admin(http_route_context* ctx, uint32_t l, const char* body)
         "pass", &pass);
     // clang-format on
 
-    if (!(count == 2)) {
-        http_printf_json(ctx->curr_connection, 400, JERROR_400);
-    } else {
+    if (count == 2) {
         log_info("(DATA) creating admin account %.*s", user.len, user.p);
         http_auth_generate_uuid(u);
         err = http_auth_generate_password_hash(h, s, (char*)pass.p, pass.len);
@@ -102,6 +100,8 @@ process_create_admin(http_route_context* ctx, uint32_t l, const char* body)
         } else {
             http_printf_json(ctx->curr_connection, 400, JERROR_400);
         }
+    } else {
+        http_printf_json(ctx->curr_connection, 400, JERROR_400);
     }
 }
 
