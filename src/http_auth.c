@@ -95,8 +95,18 @@ get_jwt(struct http_message* m, struct mg_str* ret)
 
 /// check_token_access() - Check that user exists in the database
 static bool
-check_token_access(database_s* db, int iss, int exp, const char* sub)
+check_token_access(database_s* db, jwt_t* token)
 {
+
+    // NOTE other potential standard tokens are
+    // nbf - not before
+    // iss - issuer
+    // aud - audience
+    int iat, exp;
+    const char* sub;
+    iat = jwt_get_grant_int(token, "iat");
+    exp = jwt_get_grant_int(token, "exp");
+    sub = jwt_get_grant(token, "sub");
     return sys_unix() < exp &&
            database_row_exists_str(db, "users", "user", sub);
 }
@@ -123,16 +133,9 @@ http_auth_is_authorized(
         // Note we validate alg after decode as per
         // https://github.com/benmcollins/libjwt/issues/58
         err = jwt_decode(&jwt, t, secret, SECRET_LEN);
-        if (!err) err = jwt_get_alg(jwt) == JWT_ALG_HS256 ? 0 : -1;
-        if (!err) {
-            // NOTE other potential standard tokens are
-            // nbf - not before
-            // iss - issuer
-            // aud - audience
-            iat = jwt_get_grant_int(jwt, "iat");
-            exp = jwt_get_grant_int(jwt, "exp");
-            sub = jwt_get_grant(jwt, "sub");
-            err = check_token_access(db, iat, exp, sub) ? 0 : -1;
+        if (!err && jwt) {
+            err = jwt_get_alg(jwt) == JWT_ALG_HS256 ? 0 : -1;
+            if (!err) err = check_token_access(db, jwt) ? 0 : -1;
             jwt_free(jwt);
         }
     }
