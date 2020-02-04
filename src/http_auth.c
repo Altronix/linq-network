@@ -93,9 +93,9 @@ get_jwt(struct http_message* m, struct mg_str* ret)
     }
 }
 
-/// valid_user() - Check that user exists in the database
+/// check_token_access() - Check that user exists in the database
 static bool
-valid_user(database_s* db, int iss, int exp, const char* sub)
+check_token_access(database_s* db, int iss, int exp, const char* sub)
 {
     return sys_unix() < exp &&
            database_row_exists_str(db, "users", "user", sub);
@@ -132,7 +132,7 @@ http_auth_is_authorized(
             iat = jwt_get_grant_int(jwt, "iat");
             exp = jwt_get_grant_int(jwt, "exp");
             sub = jwt_get_grant(jwt, "sub");
-            err = valid_user(db, iat, exp, sub) ? 0 : -1;
+            err = check_token_access(db, iat, exp, sub) ? 0 : -1;
             jwt_free(jwt);
         }
     }
