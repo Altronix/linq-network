@@ -20,7 +20,6 @@
 #define SALT_LEN 16
 #define HASH_LEN 65
 #define SECRET_LEN 64
-#define UNSAFE_SECRET "unsafe_secret"
 
 #ifdef __cplusplus
 extern "C"

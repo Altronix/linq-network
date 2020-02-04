@@ -2,6 +2,8 @@
 #include "jwt.h"
 #include "log.h"
 
+#include "http_auth_unsafe.h"
+
 #define QUERY                                                                  \
     "SELECT user_id,user,pass,salt "                                           \
     "FROM users "                                                              \

@@ -45,6 +45,7 @@ if (WITH_SQLITE)
     ./mongoose.h
     ./http.h
     ./http_auth.h
+    ./http_auth_unsafe.h # TODO remove
     ./routes/routes.h
     ./database/database.h)
   append_mongoose_compiler_flags(definitions)

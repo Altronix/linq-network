@@ -5,6 +5,7 @@
 #ifndef HELPERS_H_
 #define HELPERS_H_
 
+#include "http_auth_unsafe.h"
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -20,37 +21,6 @@
 #include "czmq.h"
 #undef closesocket    // Mongoose and czmq both define these
 #undef INVALID_SOCKET // Mongoose and czmq both define these
-
-/*
-Data generated from https://jwt.io (signed with "unsafe_secret")
-{
-    "alg": "HS256",
-    "typ":"jwt"
-}.{
-    "sub":"unsafe_user",
-    "iat":1580601600,
-    "exp":1580602200
-}.sig
-
-{
-    "alg": "HS256",
-    "typ":"jwt"
-}.{
-    "sub":"unsafe_user",
-    "iat":1580601600,
-    "exp":1580602200
-}.Base64(sig)
-
-*/
-
-#define UNSAFE_HEADER "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
-#define UNSAFE_PAYLOAD                                                         \
-    "eyJzdWIiOiJ1bnNhZmVfdXNlciIsImlhdCI6MTU4MDYwMTYwMCwiZXhwIjoxNTgwNjAyMjAw" \
-    "fQ"
-#define UNSAFE_SIG "G9qxf3_PQ-H_uabAVeVnHb6lg06uJvC8Wli2m5gCIJQ"
-#define UNSAFE_SIG_B64 "qyfM4kzDJ3Nmfw_lKQNqZ4ViCq32PVGmzBNoC17hQvw"
-
-#define UNSAFE_TOKEN UNSAFE_HEADER "." UNSAFE_PAYLOAD "." UNSAFE_SIG
 
 #define TEST_ALERT_LEGACY                                                      \
     ("{"                                                                       \
