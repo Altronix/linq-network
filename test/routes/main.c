@@ -13,6 +13,7 @@
 #include "alerts.h"
 #include "create_admin.h"
 #include "devices.h"
+#include "login.h"
 #include "proxy.h"
 
 helpers_test_context_s*
@@ -47,7 +48,9 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_route_proxy_404),
         cmocka_unit_test(test_route_proxy_400_too_short),
         cmocka_unit_test(test_route_create_admin_ok),
-        cmocka_unit_test(test_route_create_admin_fail_exists)
+        cmocka_unit_test(test_route_create_admin_fail_exists),
+        cmocka_unit_test(test_route_login_ok),
+        cmocka_unit_test(test_route_login_bad_pass),
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
