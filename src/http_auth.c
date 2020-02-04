@@ -2,6 +2,12 @@
 #include "jwt.h"
 #include "log.h"
 
+#define QUERY                                                                  \
+    "SELECT user_id,user,pass,salt "                                           \
+    "FROM users "                                                              \
+    "WHERE user=\"%s\" "                                                       \
+    "LIMIT 1"
+
 #include "openssl/sha.h"
 
 /// gen_salt() - Generate randomness to concat with password for hashing
@@ -111,6 +117,46 @@ check_token_access(database_s* db, jwt_t* token)
            database_row_exists_str(db, "users", "user", sub);
 }
 
+/// http_auth_login() - Check the supplied credentials against the database and
+/// issue a token
+jwt_t*
+http_auth_login(database_s* db, const char* user, const char* pass)
+{
+    jwt_t* jwt = NULL;
+    sqlite3_stmt* stmt;
+    int err = -1, l;
+    char query[256];
+    char test[HASH_LEN];
+    char concat[PASS_MAX_LEN + SALT_LEN];
+    const char *uuid, *name, *hash, *salt;
+
+    l = snprintf(query, sizeof(query), QUERY, user);
+    atx_net_assert(l < sizeof(query));
+    err = sqlite3_prepare_v2(db->db, query, l + 1, &stmt, NULL);
+    atx_net_assert(err == SQLITE_OK);
+    err = sqlite3_step(stmt);
+    if (err == SQLITE_ROW) {
+        uuid = (const char*)sqlite3_column_text(stmt, 0),
+        name = (const char*)sqlite3_column_text(stmt, 1),
+        hash = (const char*)sqlite3_column_text(stmt, 2),
+        salt = (const char*)sqlite3_column_text(stmt, 3);
+        uint32_t plen = strlen(pass);
+        uint32_t slen = strlen(salt);
+        uint32_t hlen = strlen(hash);
+        atx_net_assert(slen == SALT_LEN);
+        atx_net_assert(hlen == HASH_LEN);
+        l = snprintf(
+            concat, sizeof(concat), "%.*s%.*s", plen, pass, slen, salt);
+        if (l <= sizeof(concat)) {
+            hash_256(concat, l, test);
+            err = memcmp(hash, test, HASH_LEN);
+            // TODO issue a token
+        }
+    }
+    sqlite3_finalize(stmt);
+    return jwt;
+}
+
 /// http_auth_is_authorized() - Check a user exists in the database and has a
 /// valid web token.
 bool
@@ -158,7 +204,6 @@ http_auth_generate_password_hash(
     char* pass,
     uint32_t len)
 {
-
     char concat[PASS_MAX_LEN + SALT_LEN];
     int l;
 #ifdef TESTING
