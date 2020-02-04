@@ -124,9 +124,10 @@ check_token_access(database_s* db, jwt_t* token)
 jwt_t*
 http_auth_login(database_s* db, const char* user, const char* pass)
 {
-    jwt_t* jwt = NULL;
+    jwt_t* t = NULL;
     sqlite3_stmt* stmt;
     int err = -1, l;
+    uint32_t now;
     char query[256];
     char test[HASH_LEN];
     char concat[PASS_MAX_LEN + SALT_LEN];
@@ -152,11 +153,24 @@ http_auth_login(database_s* db, const char* user, const char* pass)
         if (l <= sizeof(concat)) {
             hash_256(concat, l, test);
             err = memcmp(hash, test, HASH_LEN);
-            // TODO issue a token
+            now = sys_unix();
+            if (!err && !(err = jwt_new(&t)) && t) {
+                // Allocated a Json Web Token
+                unsigned char s[SECRET_LEN];
+                get_secret((char*)s);
+                if (!(!(err = jwt_add_grant_int(t, "iat", now)) &&
+                      !(err = jwt_add_grant_int(t, "exp", now + 600)) &&
+                      !(err = jwt_add_grant(t, "sub", user)) &&
+                      !(err = jwt_set_alg(t, JWT_ALG_HS256, s, SECRET_LEN)))) {
+                    // But failed to add grants... (Not no error ova here)
+                    jwt_free(t);
+                    t = NULL;
+                }
+            }
         }
     }
     sqlite3_finalize(stmt);
-    return jwt;
+    return t;
 }
 
 /// http_auth_is_authorized() - Check a user exists in the database and has a

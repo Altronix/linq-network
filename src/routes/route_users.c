@@ -1,6 +1,7 @@
 #include "atx_net_internal.h"
 #include "http_auth.h"
 #include "jsmn_helpers.h"
+#include "jwt.h"
 #include "log.h"
 #include "routes.h"
 
@@ -17,6 +18,8 @@ route_login(
     database_s* db = atx_net_database(ctx->context);
     char user_str[USER_MAX_LEN];
     char pass_str[PASS_MAX_LEN];
+    char* token_str = NULL;
+    char response[2048];
     int count, err;
     atx_str user, pass;
     jsmntok_t t[20];
@@ -34,11 +37,26 @@ route_login(
         snprintf(pass_str, sizeof(pass_str), "%.*s", pass.len, pass.p);
         token = http_auth_login(db, user_str, pass_str);
         if (token) {
-            http_printf_json(ctx->curr_connection, 200, JERROR_200);
+            if ((token_str = jwt_encode_str(token))) {
+                l = snprintf(
+                    response,
+                    sizeof(response),
+                    "{\"token\":\"%s\"}",
+                    token_str);
+                // Send token
+                http_printf_json(ctx->curr_connection, 200, response);
+                atx_net_free(token_str);
+            } else {
+                // Authorized OK but failed to create a token
+                http_printf_json(ctx->curr_connection, 500, JERROR_500);
+            }
+            jwt_free(token);
         } else {
+            // Unauthorized
             http_printf_json(ctx->curr_connection, 503, JERROR_503);
         }
     } else {
+        // Bad arguments
         http_printf_json(ctx->curr_connection, 400, JERROR_400);
     }
 }

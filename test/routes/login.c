@@ -1,5 +1,7 @@
 #include "altronix/atx_net.h"
 #include "helpers.h"
+#include "jsmn_helpers.h"
+#include "jwt.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
 #include "routes/routes.h"
@@ -26,9 +28,6 @@ test_route_login_ok(void** context_p)
                        "\"user\":\"" UNSAFE_USER "\","
                        "\"pass\":\"" UNSAFE_PASS "\""
                        "}";
-    char token_expect[2048];
-    l = snprintf(
-        token_expect, sizeof(token_expect), "{\"token\":\"%s\"}", UNSAFE_TOKEN);
 
     helpers_test_context_s* test = test_init(&config);
     spy_sys_set_unix(UNSAFE_IAT); // unsafe "issued at"
@@ -44,8 +43,31 @@ test_route_login_ok(void** context_p)
     for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
-    mock_mongoose_response_destroy(&response);
 
+    char buffer[2048];
+    jsmntok_t t[20];
+    jwt_t* jwt = NULL;
+    atx_str token;
+    int count, len, err;
+
+    // clang-format off
+    count = jsmn_parse_tokens(
+        t, 20,
+        response->body, response->content_length,
+        1,
+        "token", &token);
+    // clang-format on
+
+    assert_int_equal(count, 1);
+    len = snprintf(buffer, sizeof(buffer), "%.*s", token.len, token.p);
+    err = jwt_decode(&jwt, buffer, NULL, 0);
+    assert_int_equal(err, 0);
+    assert_int_equal(UNSAFE_IAT, jwt_get_grant_int(jwt, "iat"));
+    assert_int_equal(UNSAFE_IAT + 600, jwt_get_grant_int(jwt, "exp"));
+    assert_string_equal(UNSAFE_USER, jwt_get_grant(jwt, "sub"));
+
+    jwt_free(jwt);
+    mock_mongoose_response_destroy(&response);
     test_reset(&test);
 }
 
