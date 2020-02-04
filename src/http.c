@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "http.h"
+#include "http_auth.h"
 #include "jwt.h"
 #include "log.h"
 #include "routes/routes.h"
@@ -37,23 +38,6 @@ get_method(struct http_message* m)
         return HTTP_METHOD_DELETE;
     } else {
         return HTTP_METHOD_GET;
-    }
-}
-
-static inline void
-get_jwt(struct http_message* m, struct mg_str* ret)
-{
-    struct mg_str* token;
-    if (((token = mg_get_http_header(m, "Authorization")) ||
-         (token = mg_get_http_header(m, "authorization"))) &&
-        (token->len > 6) &&
-        ((!memcmp(token->p, "Bearer ", 7)) ||
-         (!memcmp(token->p, "bearer ", 7)))) {
-        ret->p = token->p += 7;
-        ret->len = token->len -= 7;
-    } else {
-        ret->p = NULL;
-        ret->len = 0;
     }
 }
 
@@ -97,37 +81,6 @@ c_printf(void* connection, int code, const char* type, const char* fmt, ...)
     va_start(ap, fmt);
     c_vprintf(connection, code, type, l, fmt, ap);
     va_end(ap);
-}
-
-static bool
-valid_user(http_s* http, int iss, int exp, const char* sub)
-{
-    return sys_unix() < exp &&
-           database_row_exists_str(http->db, "users", "user", sub);
-}
-
-static bool
-is_authorized(http_s* http, struct mg_connection* c, struct http_message* m)
-{
-    jwt_t* jwt;
-    struct mg_str token;
-    int err = -1;
-    char t[256];
-    const char* sub;
-    int iat, exp;
-    get_jwt(m, &token);
-    if (token.len && token.len < sizeof(t)) {
-        snprintf(t, sizeof(t), "%.*s", (uint32_t)token.len, token.p);
-        err = jwt_decode(&jwt, t, NULL, 0);
-        if (!err) {
-            iat = jwt_get_grant_int(jwt, "iat");
-            exp = jwt_get_grant_int(jwt, "exp");
-            sub = jwt_get_grant(jwt, "sub");
-            err = valid_user(http, iat, exp, sub) ? 0 : -1;
-            jwt_free(jwt);
-        }
-    }
-    return err ? false : true;
 }
 
 typedef struct foreach_route_check_path_context
@@ -200,7 +153,7 @@ http_ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
                     !(memcmp(UNSECURE_API, path->p, UNSECURE_API_LEN))) {
                     process_route(r, c, m);
                 } else {
-                    if (is_authorized(http, c, m)) {
+                    if (http_auth_is_authorized(http->db, c, m)) {
                         process_route(r, c, m);
                     } else {
                         log_warn(

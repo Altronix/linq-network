@@ -34,6 +34,7 @@ if (WITH_SQLITE)
     ./sqlite3.c 
     ./mongoose.c
     ./http.c
+    ./http_auth.c
     ./routes/route_users.c
     ./routes/route_alerts.c
     ./routes/route_devices.c
@@ -43,6 +44,7 @@ if (WITH_SQLITE)
     ./sqlite3.h
     ./mongoose.h
     ./http.h
+    ./http_auth.h
     ./routes/routes.h
     ./database/database.h)
   append_mongoose_compiler_flags(definitions)

@@ -14,25 +14,25 @@
 
 #ifdef TESTING
 static void
-gen_salt(char* dst)
+gen_salt(char dst[SALT_LEN])
 {
-    memcpy(dst, "0123456789ABCDEF", 16);
+    memcpy(dst, "0123456789ABCDEF", SALT_LEN);
 }
 static void
-gen_uuid(char* dst)
+gen_uuid(char dst[UUID_MAX_LEN])
 {
     memset(dst, 0, UUID_MAX_LEN);
     snprintf(dst, UUID_MAX_LEN, "%s", "user_id01234");
 }
 #else
 static void
-gen_salt(char* dst)
+gen_salt(char dst[SALT_LEN])
 {
     // TODO
     memcpy(dst, "0123456789ABCDEF", 16);
 }
 static void
-gen_uuid(char* dst)
+gen_uuid(char dst[UUID_MAX_LEN])
 {
     zuuid_t* uid = zuuid_new();
     snprintf(dst, UUID_MAX_LEN, "%s", zuuid_str(uid));
@@ -41,7 +41,7 @@ gen_uuid(char* dst)
 #endif
 
 static void
-hash_256(const char* data, uint32_t dlen, char* buffer)
+hash_256(const char* data, uint32_t dlen, char buffer[HASH_LEN])
 {
     unsigned char hash[SHA256_DIGEST_LENGTH];
     SHA256_CTX sha;
@@ -56,7 +56,7 @@ hash_256(const char* data, uint32_t dlen, char* buffer)
 
 static int
 gen_password_hash(
-    char* dst,
+    char hash[HASH_LEN],
     char salt[SALT_LEN],
     const char* pass,
     uint32_t len)
@@ -69,7 +69,7 @@ gen_password_hash(
     if (!(len < PASS_MAX_LEN && len >= PASS_MIN_LEN)) return -1;
     gen_salt(salt);
     l = snprintf(concat, sizeof(concat), "%.*s%.*s", len, pass, SALT_LEN, salt);
-    hash_256(concat, l, dst);
+    hash_256(concat, l, hash);
     return 0;
 }
 
