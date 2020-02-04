@@ -192,7 +192,7 @@ atx_net_create(const atx_net_callbacks* cb, void* context)
 #if WITH_SQLITE
 #define ADD_ROUTE(linq, path, fn, ctx) http_use(&(linq)->http, path, fn, ctx)
         database_init(&l->database);
-        http_init(&l->http);
+        http_init(&l->http, &l->database);
         ADD_ROUTE(l, "/api/v1/public/create_admin", route_create_admin, l);
         ADD_ROUTE(l, "/api/v1/login", route_login, l);
         ADD_ROUTE(l, "/api/v1/users", route_users, l);

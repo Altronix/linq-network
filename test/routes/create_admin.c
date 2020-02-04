@@ -38,6 +38,7 @@ test_route_create_admin_ok(void** context_p)
 
     // Setup uut
     helpers_test_context_s* test = test_init(&config);
+    sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(0);
 
     // Simulate http request
@@ -84,6 +85,7 @@ test_route_create_admin_fail_exists(void** context_p)
 
     // Setup uut
     helpers_test_context_s* test = test_init(&config);
+    sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
     // Simulate http request

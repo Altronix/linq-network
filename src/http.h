@@ -7,6 +7,7 @@
 
 #include "altronix/atx_net.h"
 #include "containers.h"
+#include "database/database.h"
 #include "sys.h"
 
 #include "mongoose.h"
@@ -50,10 +51,11 @@ extern "C"
         struct mg_connection* listener;
         struct mg_mgr connections;
         routes_map_s* routes;
+        database_s* db;
     } http_s;
 
     // Public methods (internal to this library)
-    void http_init(http_s* http);
+    void http_init(http_s* http, database_s* db);
     void http_deinit(http_s* http);
     E_LINQ_ERROR http_poll(http_s*, int32_t);
     void http_listen(http_s* http, const char* port);

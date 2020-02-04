@@ -206,7 +206,7 @@ database_count(database_s* d, const char* table)
     err = sqlite3_prepare_v2(d->db, stmt, n + 1, &sql, NULL);
     atx_net_assert(err == SQLITE_OK);
     err = sqlite3_step(sql);
-    if (err == SQLITE_DONE) { ret = sqlite3_column_int(sql, 0) ? true : false; }
+    if (err == SQLITE_ROW) { ret = sqlite3_column_int(sql, 0) ? true : false; }
     sqlite3_finalize(sql);
     return ret;
 }

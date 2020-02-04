@@ -238,11 +238,12 @@ http_ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
 }
 
 void
-http_init(http_s* http)
+http_init(http_s* http, database_s* db)
 {
     memset(http, 0, sizeof(http_s));
     mg_mgr_init(&http->connections, http);
     http->routes = routes_map_create();
+    http->db = db;
 }
 
 void
