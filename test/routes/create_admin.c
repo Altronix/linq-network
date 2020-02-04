@@ -24,15 +24,14 @@ test_route_create_admin_ok(void** context_p)
     const char* req_path = "/api/v1/public/create_admin";
     const char* req_body = "{\"user\":\"admin\",\"pass\":\"password1234\"}";
     const char* expect_count = "SELECT COUNT(*) FROM users;";
-    const char* expect_insert =
-        "INSERT INTO "
-        "users(user_id,user,pass,salt,role) "
-        "VALUES("
-        "\"user_id01234\","
-        "\"admin\","
-        "\"3EE9F302E6119FA253BA057A2D49D82CDE32A0D39EC502987851366EF2A47921\","
-        "\"0123456789ABCDEF\","
-        "0);";
+    const char* expect_insert = "INSERT INTO "
+                                "users(user_id,user,pass,salt,role) "
+                                "VALUES("
+                                "\"user_id01234\","
+                                "\"admin\","
+                                "\"" UNSAFE_HASH "\","
+                                "\"" UNSAFE_SALT "\","
+                                "0);";
 
     outgoing_statement* statement = NULL;
 

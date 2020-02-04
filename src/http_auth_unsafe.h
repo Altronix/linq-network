@@ -26,6 +26,10 @@ Data generated from https://jwt.io (signed with "unsafe_secret")
 #define UNSAFE_EXP 1580602200
 #define UNSAFE_SECRET "unsafe_secret"
 #define UNSAFE_USER "unsafe_user"
+#define UNSAFE_UUID "user_id01234"
+#define UNSAFE_SALT "0123456789ABCDEF"
+#define UNSAFE_HASH                                                            \
+    "3EE9F302E6119FA253BA057A2D49D82CDE32A0D39EC502987851366EF2A47921"
 #define UNSAFE_PASS "unsafe_pass"
 #define UNSAFE_HEADER "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
 #define UNSAFE_PAYLOAD                                                         \

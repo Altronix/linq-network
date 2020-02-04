@@ -18,14 +18,14 @@ static void
 gen_salt(char dst[SALT_LEN])
 {
     /// TESTING generate unsafe salt value for testing
-    memcpy(dst, "0123456789ABCDEF", SALT_LEN);
+    memcpy(dst, UNSAFE_SALT, SALT_LEN);
 }
 #else
 static void
 gen_salt(char dst[SALT_LEN])
 {
     /// TODO - Generate randomness to salt the password hash
-    memcpy(dst, "0123456789ABCDEF", SALT_LEN);
+    memcpy(dst, UNSAFE_SALT, SALT_LEN);
 }
 #endif
 
@@ -36,7 +36,7 @@ gen_uuid(char dst[UUID_MAX_LEN])
 {
     /// TESTING - generated a fixed user ID for  testing
     memset(dst, 0, UUID_MAX_LEN);
-    snprintf(dst, UUID_MAX_LEN, "%s", "user_id01234");
+    snprintf(dst, UUID_MAX_LEN, "%s", UNSAFE_UUID);
 }
 #else
 static void
