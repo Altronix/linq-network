@@ -125,7 +125,7 @@ http_auth_is_authorized(
         err = jwt_decode(&jwt, t, secret, SECRET_LEN);
         if (!err) err = jwt_get_alg(jwt) == JWT_ALG_HS256 ? 0 : -1;
         if (!err) {
-            // TODO other tokens
+            // NOTE other potential standard tokens are
             // nbf - not before
             // iss - issuer
             // aud - audience
