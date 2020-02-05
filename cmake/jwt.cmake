@@ -64,7 +64,7 @@ add_dependencies(jwt-static jwt-project-static)
 add_dependencies(jwt-static jansson-project)
 
 # jwt-shared
-add_library(jwt-shared STATIC IMPORTED)
+add_library(jwt-shared SHARED IMPORTED)
 set_property(TARGET jwt-shared PROPERTY IMPORTED_LOCATION ${jwt_shared_LIBRARY})
 set_property(TARGET jwt-shared PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${jwt_INCLUDE_DIR})
 add_dependencies(jwt-shared jwt-project-shared)
