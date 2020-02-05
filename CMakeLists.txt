@@ -104,7 +104,7 @@ if(USE_SYSTEM_JWT)
 else()
   include(cmake/jansson.cmake)
   include(cmake/jwt.cmake)
-  set(JWT_SHARED_LIBS jwt-shared jansson-static)
+  set(JWT_SHARED_LIBS jwt-static jansson-static)
   set(JWT_STATIC_LIBS jwt-static jansson-static)
 endif()
 
