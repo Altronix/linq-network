@@ -59,7 +59,7 @@ matrix:
                   language: c
                   script: 
                           - choco install openssl
-                          - choco install strawberryperl
+                          # - choco install strawberryperl
                           - source ~/.bashrc
                           - cmake -DCMAKE_INSTALL_PREFIX:PATH=./build/install .
                           - cmake --build ./ --target install
@@ -72,7 +72,7 @@ matrix:
                           - nightly
                   script:
                           - choco install openssl
-                          - choco install strawberryperl
+                          # - choco install strawberryperl
                           - source ~/.bashrc
                           - cargo build --all --verbose
                 - os: windows
@@ -82,7 +82,7 @@ matrix:
                           - 10
                   script:
                           - choco install openssl
-                          - choco install strawberryperl
+                          # - choco install strawberryperl
                           - source ~/.bashrc
                           - cd bindings/nodejs/examples/events
                           - npm install
