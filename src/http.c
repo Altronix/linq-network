@@ -162,6 +162,7 @@ http_ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
                             "Req.",
                             "(503)",
                             path);
+                        c_printf_json(c, 503, JERROR_503);
                     }
                 }
             } else {
