@@ -101,9 +101,9 @@ get_jwt(struct http_message* m, struct mg_str* ret)
     }
 }
 
-/// check_token_access() - Check that user exists in the database
+/// token_ok() - Check that user exists in the database
 static bool
-check_token_access(database_s* db, jsmn_token_decode_s* token)
+token_ok(database_s* db, jsmn_token_decode_s* token)
 {
 
     // NOTE other potential standard tokens are
@@ -112,13 +112,15 @@ check_token_access(database_s* db, jsmn_token_decode_s* token)
     // aud - audience
     int err, iat, exp;
     jsmn_value sub;
-    return (!jsmn_token_get_claim_int(token, "iat", &iat) &&
-            !jsmn_token_get_claim_int(token, "exp", &exp) &&
-            !jsmn_token_get_claim_str(token, "sub", &sub) &&
-            sys_unix() < exp && // token not expired
-            database_row_exists_mem(db, "users", "user", sub.p, sub.len))
-               ? true
-               : false;
+    if (!jsmn_token_get_claim_int(token, "iat", &iat) &&
+        !jsmn_token_get_claim_int(token, "exp", &exp) &&
+        !jsmn_token_get_claim_str(token, "sub", &sub) &&
+        sys_unix() < exp && // token not expired
+        database_row_exists_mem(db, "users", "user", sub.p, sub.len)) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 /// http_auth_login() - Check the supplied credentials against the database and
@@ -162,7 +164,7 @@ http_auth_login(
             if (!err && !(err = jsmn_token_init(
                               token,
                               JSMN_ALG_HS256,
-                              "{\"sub\":\"%s\",\"iat\":%d,\"exp\":\"%s\"}",
+                              "{\"sub\":\"%s\",\"iat\":%d,\"exp\":\"%d\"}",
                               user,
                               now,
                               now + 600))) {
@@ -185,29 +187,14 @@ http_auth_is_authorized(
     struct mg_connection* c,
     struct http_message* m)
 {
-    // jwt_t* jwt;
+    jsmn_token_decode_s jwt;
     struct mg_str token;
     int err = -1;
-    char t[256];
-    unsigned char secret[SECRET_LEN];
-    const char* sub;
-    int iat, exp;
+    char key[SECRET_LEN];
     get_jwt(m, &token);
-    if (token.len && token.len < sizeof(t)) {
-        snprintf(t, sizeof(t), "%.*s", (uint32_t)token.len, token.p);
-        get_secret((char*)secret);
-        // Note we validate alg after decode as per
-        // https://github.com/benmcollins/libjwt/issues/58
-        /*
-        err = jwt_decode(&jwt, t, secret, SECRET_LEN);
-        if (!err && jwt) {
-            err = jwt_get_alg(jwt) == JWT_ALG_HS256 ? 0 : -1;
-            if (!err) err = check_token_access(db, jwt) ? 0 : -1;
-            jwt_free(jwt);
-        }
-        */
-    }
-    return err ? false : true;
+    get_secret((char*)key);
+    err = jsmn_token_decode(&jwt, key, JSMN_ALG_HS256, token.p, token.len);
+    return err ? false : token_ok(db, &jwt);
 }
 
 /// http_auth_generate_uuid() - Generate a unique user id

@@ -40,7 +40,7 @@ helpers_test_create_admin(
     const char* user,
     const char* pass)
 {
-    const char* req_path = "/api/v1/linq-lite/create_admin";
+    const char* req_path = "/api/v1/public/create_admin";
     char b[128];
     snprintf(b, sizeof(b), "{\"user\":\"%s\",\"pass\":\"%s\"}", user, pass);
 

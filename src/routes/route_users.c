@@ -20,6 +20,7 @@ route_login(
     char response[2048];
     int count, err;
     atx_str user, pass;
+    jsmn_token_s token;
     jsmntok_t t[20];
 
     // clang-format off
@@ -33,28 +34,21 @@ route_login(
     if (count == 2 && user.len < USER_MAX_LEN && pass.len < PASS_MAX_LEN) {
         snprintf(user_str, sizeof(user_str), "%.*s", user.len, user.p);
         snprintf(pass_str, sizeof(pass_str), "%.*s", pass.len, pass.p);
-        /*
-        token = http_auth_login(db, user_str, pass_str);
-        if (token) {
-            if ((token_str = jwt_encode_str(token))) {
-                l = snprintf(
-                    response,
-                    sizeof(response),
-                    "{\"token\":\"%s\"}",
-                    token_str);
-                // Send token
-                http_printf_json(ctx->curr_connection, 200, response);
-                atx_net_free(token_str);
-            } else {
-                // Authorized OK but failed to create a token
-                http_printf_json(ctx->curr_connection, 500, JERROR_500);
-            }
-            jwt_free(token);
+        err = http_auth_login(db, user_str, pass_str, &token);
+        if (!err) {
+            l = snprintf(
+                response,
+                sizeof(response),
+                "{\"token\":\"%.*s\"}",
+                token.len,
+                token.b);
+            // Send token
+            http_printf_json(ctx->curr_connection, 200, response);
+            atx_net_free(token_str);
         } else {
             // Unauthorized
             http_printf_json(ctx->curr_connection, 503, JERROR_503);
         }
-        */
     } else {
         // Bad arguments
         http_printf_json(ctx->curr_connection, 400, JERROR_400);
