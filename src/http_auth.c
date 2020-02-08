@@ -1,5 +1,4 @@
 #include "http_auth.h"
-#include "jwt.h"
 #include "log.h"
 
 #include "http_auth_unsafe.h"
@@ -102,6 +101,7 @@ get_jwt(struct http_message* m, struct mg_str* ret)
 }
 
 /// check_token_access() - Check that user exists in the database
+/*
 static bool
 check_token_access(database_s* db, jwt_t* token)
 {
@@ -118,9 +118,11 @@ check_token_access(database_s* db, jwt_t* token)
     return sys_unix() < exp &&
            database_row_exists_str(db, "users", "user", sub);
 }
+*/
 
 /// http_auth_login() - Check the supplied credentials against the database and
 /// issue a token
+/*
 jwt_t*
 http_auth_login(database_s* db, const char* user, const char* pass)
 {
@@ -172,6 +174,7 @@ http_auth_login(database_s* db, const char* user, const char* pass)
     sqlite3_finalize(stmt);
     return t;
 }
+*/
 
 /// http_auth_is_authorized() - Check a user exists in the database and has a
 /// valid web token.
@@ -181,7 +184,7 @@ http_auth_is_authorized(
     struct mg_connection* c,
     struct http_message* m)
 {
-    jwt_t* jwt;
+    // jwt_t* jwt;
     struct mg_str token;
     int err = -1;
     char t[256];
@@ -194,12 +197,14 @@ http_auth_is_authorized(
         get_secret((char*)secret);
         // Note we validate alg after decode as per
         // https://github.com/benmcollins/libjwt/issues/58
+        /*
         err = jwt_decode(&jwt, t, secret, SECRET_LEN);
         if (!err && jwt) {
             err = jwt_get_alg(jwt) == JWT_ALG_HS256 ? 0 : -1;
             if (!err) err = check_token_access(db, jwt) ? 0 : -1;
             jwt_free(jwt);
         }
+        */
     }
     return err ? false : true;
 }

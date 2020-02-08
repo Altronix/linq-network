@@ -6,7 +6,6 @@
 #define HTTP_AUTH_H
 
 #include "database/database.h"
-#include "jwt.h"
 #include "sys.h"
 
 #include "mongoose.h"
@@ -39,10 +38,12 @@ extern "C"
 
     void http_auth_generate_uuid(char uuid[UUID_MAX_LEN]);
 
+    /*
     jwt_t* http_auth_login(
         database_s* database,
         const char* user,
         const char* password);
+        */
 
 #ifdef __cplusplus
 }

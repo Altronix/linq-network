@@ -4,7 +4,6 @@
 
 #include "http.h"
 #include "http_auth.h"
-#include "jwt.h"
 #include "log.h"
 #include "routes/routes.h"
 

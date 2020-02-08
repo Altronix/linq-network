@@ -16,3 +16,6 @@
 [submodule "external/wolfssl"]
 	path = external/wolfssl
 	url = https://bitbucket.org/Altronix/wolfssl
+[submodule "external/jsmn-web-tokens"]
+	path = external/jsmn-web-tokens
+	url = https://github.com/TomzBench/jsmn-web-tokens

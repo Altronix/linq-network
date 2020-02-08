@@ -1,7 +1,6 @@
 #include "atx_net_internal.h"
 #include "http_auth.h"
 #include "jsmn_helpers.h"
-#include "jwt.h"
 #include "log.h"
 #include "routes.h"
 
@@ -14,7 +13,6 @@ route_login(
     uint32_t l,
     const char* body)
 {
-    jwt_t* token = NULL;
     database_s* db = atx_net_database(ctx->context);
     char user_str[USER_MAX_LEN];
     char pass_str[PASS_MAX_LEN];
@@ -35,6 +33,7 @@ route_login(
     if (count == 2 && user.len < USER_MAX_LEN && pass.len < PASS_MAX_LEN) {
         snprintf(user_str, sizeof(user_str), "%.*s", user.len, user.p);
         snprintf(pass_str, sizeof(pass_str), "%.*s", pass.len, pass.p);
+        /*
         token = http_auth_login(db, user_str, pass_str);
         if (token) {
             if ((token_str = jwt_encode_str(token))) {
@@ -55,6 +54,7 @@ route_login(
             // Unauthorized
             http_printf_json(ctx->curr_connection, 503, JERROR_503);
         }
+        */
     } else {
         // Bad arguments
         http_printf_json(ctx->curr_connection, 400, JERROR_400);
