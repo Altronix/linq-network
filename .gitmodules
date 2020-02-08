@@ -16,9 +16,3 @@
 [submodule "external/wolfssl"]
 	path = external/wolfssl
 	url = https://bitbucket.org/Altronix/wolfssl
-[submodule "external/jansson"]
-	path = external/jansson
-	url = https://github.com/akheron/jansson
-[submodule "external/libjwt"]
-	path = external/libjwt
-	url = https://github.com/tomzbench/libjwt
