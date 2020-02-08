@@ -1,6 +1,6 @@
 #include "altronix/atx_net.h"
 #include "helpers.h"
-#include "jsmn_helpers.h"
+#include "jsmn/jsmn_helpers.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
 #include "routes/routes.h"

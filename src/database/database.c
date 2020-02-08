@@ -195,6 +195,19 @@ database_row_exists_str(
     return row_exists(d, table, key, val_str);
 }
 
+bool
+database_row_exists_mem(
+    database_s* d,
+    const char* table,
+    const char* key,
+    const char* val,
+    uint32_t val_len)
+{
+    char val_str[256];
+    snprintf(val_str, sizeof(val_str), "\"%.*s\"", val_len, val);
+    return row_exists(d, table, key, val_str);
+}
+
 int
 database_count(database_s* d, const char* table)
 {

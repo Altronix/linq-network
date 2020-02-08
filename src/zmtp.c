@@ -8,7 +8,7 @@
 #include "log.h"
 #include "sys.h"
 
-#include "jsmn_helpers.h"
+#include "jsmn/jsmn_helpers.h"
 
 MAP_INIT(socket, zsock_t, zsock_destroy);
 

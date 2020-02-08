@@ -6,6 +6,7 @@
 #define HTTP_AUTH_H
 
 #include "database/database.h"
+#include "jsmn/jsmn_tokens.h"
 #include "sys.h"
 
 #include "mongoose.h"
@@ -19,6 +20,8 @@
 #define SALT_LEN 16
 #define HASH_LEN 64
 #define SECRET_LEN 64
+
+#define HTTP_AUTH_TOKEN_FMT "{\"sub\":\"%s\",\"iat\":%d,\"exp\":%d}"
 
 #ifdef __cplusplus
 extern "C"
@@ -38,12 +41,11 @@ extern "C"
 
     void http_auth_generate_uuid(char uuid[UUID_MAX_LEN]);
 
-    /*
-    jwt_t* http_auth_login(
+    int http_auth_login(
         database_s* database,
         const char* user,
-        const char* password);
-        */
+        const char* password,
+        jsmn_token_s* token);
 
 #ifdef __cplusplus
 }

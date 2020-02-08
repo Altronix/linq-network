@@ -3,15 +3,12 @@ set(SOURCES
     atx_net.c
     device.c
     node.c
-    jsmn_helpers.c
     sys.c
     zmtp.c)
   set(HEADERS
     ../include/altronix/atx_net.h
     base64.h
     containers.h
-    jsmn.h
-    jsmn_helpers.h
     atx_net_internal.h
     log.h
     device.h

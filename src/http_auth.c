@@ -1,4 +1,5 @@
 #include "http_auth.h"
+#include "jsmn/jsmn_tokens.h"
 #include "log.h"
 
 #include "http_auth_unsafe.h"
@@ -101,32 +102,34 @@ get_jwt(struct http_message* m, struct mg_str* ret)
 }
 
 /// check_token_access() - Check that user exists in the database
-/*
 static bool
-check_token_access(database_s* db, jwt_t* token)
+check_token_access(database_s* db, jsmn_token_decode_s* token)
 {
 
     // NOTE other potential standard tokens are
     // nbf - not before
     // iss - issuer
     // aud - audience
-    int iat, exp;
-    const char* sub;
-    iat = jwt_get_grant_int(token, "iat");
-    exp = jwt_get_grant_int(token, "exp");
-    sub = jwt_get_grant(token, "sub");
-    return sys_unix() < exp &&
-           database_row_exists_str(db, "users", "user", sub);
+    int err, iat, exp;
+    jsmn_value sub;
+    return (!jsmn_token_get_claim_int(token, "iat", &iat) &&
+            !jsmn_token_get_claim_int(token, "exp", &exp) &&
+            !jsmn_token_get_claim_str(token, "sub", &sub) &&
+            sys_unix() < exp && // token not expired
+            database_row_exists_mem(db, "users", "user", sub.p, sub.len))
+               ? true
+               : false;
 }
-*/
 
 /// http_auth_login() - Check the supplied credentials against the database and
 /// issue a token
-/*
-jwt_t*
-http_auth_login(database_s* db, const char* user, const char* pass)
+int
+http_auth_login(
+    database_s* db,
+    const char* user,
+    const char* pass,
+    jsmn_token_s* token)
 {
-    jwt_t* t = NULL;
     sqlite3_stmt* stmt;
     int err = -1, l;
     uint32_t now;
@@ -153,28 +156,26 @@ http_auth_login(database_s* db, const char* user, const char* pass)
         l = snprintf(
             concat, sizeof(concat), "%.*s%.*s", plen, pass, slen, salt);
         if (l <= sizeof(concat)) {
+            now = sys_unix();
             hash_256(concat, l, test);
             err = memcmp(hash, test, HASH_LEN);
-            now = sys_unix();
-            if (!err && !(err = jwt_new(&t)) && t) {
-                // Allocated a Json Web Token
-                unsigned char s[SECRET_LEN];
-                get_secret((char*)s);
-                if (!(!(err = jwt_add_grant_int(t, "iat", now)) &&
-                      !(err = jwt_add_grant_int(t, "exp", now + 600)) &&
-                      !(err = jwt_add_grant(t, "sub", user)) &&
-                      !(err = jwt_set_alg(t, JWT_ALG_HS256, s, SECRET_LEN)))) {
-                    // But failed to add grants... (Not no error ova here)
-                    jwt_free(t);
-                    t = NULL;
-                }
+            if (!err && !(err = jsmn_token_init(
+                              token,
+                              JSMN_ALG_HS256,
+                              "{\"sub\":\"%s\",\"iat\":%d,\"exp\":\"%s\"}",
+                              user,
+                              now,
+                              now + 600))) {
+                char s[SECRET_LEN];
+                get_secret(s);
+                jsmn_token_sign(token, s, SECRET_LEN);
+                memset(s, 0, SECRET_LEN);
             }
         }
     }
     sqlite3_finalize(stmt);
-    return t;
+    return err;
 }
-*/
 
 /// http_auth_is_authorized() - Check a user exists in the database and has a
 /// valid web token.

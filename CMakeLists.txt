@@ -139,7 +139,6 @@ if(ENABLE_TESTING)
   add_subdirectory(test/devices)
   add_subdirectory(test/http)
   add_subdirectory(test/routes)
-  add_subdirectory(test/jsmn)
   add_subdirectory(bindings/cpp/test)
 
   # add test coverage
@@ -158,7 +157,6 @@ if(ENABLE_TESTING)
     COMMAND test-devices
     COMMAND test-http
     COMMAND test-db
-    COMMAND test-jsmn
     COMMAND test-routes
     COMMAND binding-atx-net-cpp-test)
 
