@@ -18,3 +18,12 @@ matrix:
                           BUILD_EXAMPLES=ON
                   script:
                           - ./scripts/ci/build-c.sh
+                - os: linux
+                  dist: bionic
+                  language: c
+                  env:
+                          - WITH_SQLITE=OFF
+                            ENABLE_TESTING=OFF
+                            BUILD_EXAMPLES=ON
+                  script:
+                          - ./scripts/ci/build-c.sh
