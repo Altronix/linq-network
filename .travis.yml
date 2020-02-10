@@ -1,22 +1,15 @@
-os: linux
-dist: bionic
 matrix:
         include:
-                - env:
-                        - WITH_SQLITE=ON ENABLE_TESTING=ON
-                        - WITH_SQLITE=OFF ENABLE_TESTING=OFF
-
-                - language: c
+                - os: linux
+                  language: c
+                  addons:
+                          apt:
+                                  packages:
+                                          - lcov
+                                          - valgrind
+                  env: 
+                        - WITH_SQLITE=ON
+                          ENABLE_TESTING=ON
+                          BUILD_EXAMPLES=ON
                   script:
-                          - cmake -DCMAKE_INSTALL_PREFIX=./install
-                            -DBUILD_EXAMPLES=ON
-                            -DWITH_SQLITE=$WITH_SQLITE
-                            -DENABLE_TESTING=$ENABLE_TESTING .
-                          - cmake --build . --target install
-                          - if [ $ENABLE_TESTING ]; then
-                            ctest -T memcheck &&
-                            make test-coverage &&
-                            bash <(curl -s https://codecov.io/bash) 
-                                 -f test-coverage.info;
-                            fi
-
+                          - ./scripts/ci/build-c.sh
