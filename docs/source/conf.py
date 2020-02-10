@@ -103,14 +103,14 @@ html_theme_options = {
 
     # Specify a base_url used to generate sitemap.xml. If not
     # specified, then no sitemap will be built.
-    'base_url': 'https://project.github.io/tomzbench/linq-network',
+    'base_url': 'https://project.github.io/altronix/linq-network',
 
     # Set the color and the accent color
     'color_primary': 'blue',
     'color_accent': 'light-blue',
 
     # Set the repo location to get a badge with stats
-    'repo_url': 'https://github.com/tomzbench/linq-network/',
+    'repo_url': 'https://github.com/altronix/linq-network/',
     'repo_name': 'linq-network',
 
     'logo_icon': '&#x1f48e',

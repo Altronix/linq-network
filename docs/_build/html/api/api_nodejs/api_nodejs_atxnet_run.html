@@ -125,7 +125,7 @@
       
         <div class="md-flex__cell md-flex__cell--shrink">
           <div class="md-header-nav__source">
-            <a href="https://github.com/tomzbench/linq-network/" title="Go to repository" class="md-source" data-md-source="github">
+            <a href="https://github.com/altronix/linq-network/" title="Go to repository" class="md-source" data-md-source="github">
 
     <div class="md-source__icon">
       <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24" width="28" height="28">
@@ -174,7 +174,7 @@
        title="Linq Network User Guide 0.0.1 documentation">LinQ Network User Guide</a>
   </label>
     <div class="md-nav__source">
-      <a href="https://github.com/tomzbench/linq-network/" title="Go to repository" class="md-source" data-md-source="github">
+      <a href="https://github.com/altronix/linq-network/" title="Go to repository" class="md-source" data-md-source="github">
 
     <div class="md-source__icon">
       <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24" width="28" height="28">
@@ -367,13 +367,37 @@
 <span id="ref-api-nodejs-atxnet-run"></span><h1 id="api-api-nodejs-api-nodejs-atxnet-run--page-root">run<a class="headerlink" href="#api-api-nodejs-api-nodejs-atxnet-run--page-root" title="Permalink to this headline">¶</a></h1>
 
 <h2 id="synopsis">Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">run</span><span class="p">(</span><span class="nx">ms</span><span class="o">:</span> <span class="nx">number</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The NodeJS runtime environment is a single threaded event loop. The LinQ Network Library operates in this environment with a non blocking poll routine to process network IO. To periodically allow LinQ Network Library to process network IO, call the run function with a value in milliseconds for how frequently to poll network sockets.</p>
 
 
 <h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<table border="1">
+<colgroup>
+<col width="25%"/>
+<col width="75%"/>
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>ms: number</td>
+<td>Frequency in milliseconds to process network IO</td>
+</tr>
+</tbody>
+</table>
 
 
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
-<p class="rubric">See Also</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">let</span> <span class="nx">netw</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">"@altronix/atx-net-js"</span><span class="p">).</span><span class="k">default</span><span class="p">;</span>
+
+<span class="nx">netw</span><span class="p">.</span><span class="nx">run</span><span class="p">(</span><span class="mi">50</span><span class="p">);</span>
+</pre></div>
+</div>
 
 
 
