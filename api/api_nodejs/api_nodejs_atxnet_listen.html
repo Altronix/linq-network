@@ -238,8 +238,6 @@
         <li class="md-nav__item"><a href="#synopsis" class="md-nav__link">Synopsis</a>
         </li>
         <li class="md-nav__item"><a href="#parameters" class="md-nav__link">Parameters</a>
-        </li>
-        <li class="md-nav__item"><a href="#example" class="md-nav__link">Example</a>
         </li></ul>
             </nav>
         </li>
@@ -256,11 +254,6 @@
     <li class="md-nav__item">
     
       <a href="#parameters" class="md-nav__link">Parameters</a>
-      
-    </li>
-    <li class="md-nav__item">
-    
-      <a href="#example" class="md-nav__link">Example</a>
       
     </li></ul>
     </li>
@@ -344,8 +337,6 @@
         <li class="md-nav__item"><a href="#synopsis" class="md-nav__link">Synopsis</a>
         </li>
         <li class="md-nav__item"><a href="#parameters" class="md-nav__link">Parameters</a>
-        </li>
-        <li class="md-nav__item"><a href="#example" class="md-nav__link">Example</a>
         </li></ul>
             </nav>
         </li>
@@ -367,13 +358,62 @@
 <span id="ref-api-nodejs-atxnet-listen"></span><h1 id="api-api-nodejs-api-nodejs-atxnet-listen--page-root">listen<a class="headerlink" href="#api-api-nodejs-api-nodejs-atxnet-listen--page-root" title="Permalink to this headline">¶</a></h1>
 
 <h2 id="synopsis">Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">listen</span><span class="p">(</span><span class="nx">port</span><span class="o">:</span> <span class="nx">string</span><span class="p">)</span> <span class="o">:</span> <span class="nx">socket</span>
+</pre></div>
+</div>
+<p>This routine will listen for incoming connections via IPC, or TCP depending on the format string passed as the first argument.  Using the listen and close API’s you can dynamically change the port numbers you are listening to during runtime.</p>
 
 
 <h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
-
-
-<h2 id="example">Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<table border="1">
+<colgroup>
+<col width="16%"/>
+<col width="84%"/>
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>port: string</td>
+<td>String describing the endpoint the LinQ Network Library should listen on.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Example Endpoints</p>
+<table border="1">
+<colgroup>
+<col width="6%"/>
+<col width="11%"/>
+<col width="83%"/>
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Endpoint</th>
+<th class="head">Example</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>TCP</td>
+<td><a class="reference external" href="tcp://*:33455">tcp://*:33455</a></td>
+<td>Listen incoming connections on the network port 33455</td>
+</tr>
+<tr class="row-odd"><td>HTTP</td>
+<td><a class="reference external" href="http://*:8080">http://*:8080</a></td>
+<td>Listen for incoming HTTP connections on port 8080</td>
+</tr>
+<tr class="row-even"><td>IPC</td>
+<td>ipc://local</td>
+<td>Listen for incoming connections on IPC “local” of the current working directory of the running application.</td>
+</tr>
+</tbody>
+</table>
 <p class="rubric">See Also</p>
+<ol class="arabic simple">
+<li><a class="reference internal" href="api_nodejs_atxnet_connect.html#ref-api-nodejs-atxnet-connect"><span class="std std-ref">connect</span></a></li>
+<li><a class="reference internal" href="api_nodejs_atxnet_close.html#ref-api-nodejs-atxnet-close"><span class="std std-ref">close</span></a></li>
+</ol>
 
 
 
