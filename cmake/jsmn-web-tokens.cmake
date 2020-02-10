@@ -8,7 +8,7 @@ else()
     if(GIT_FOUND AND NOT EXISTS "${JSMN_WEB_TOKENS_TEST_FILE}")
         message(STATUS "Downloading jsmn-web-tokens submodule")
         execute_process(
-            COMMAND ${GIT_EXECUTABLE} submodule update --init jsmn-web-tokens
+            COMMAND ${GIT_EXECUTABLE} submodule update --init external/jsmn-web-tokens
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             RESULT_VARIABLE JSMN_WEB_TOKENS_GIT_CLONE_RESULT)
         message(STATUS "jsmn-web-tokens download result: ${JSMN_WEB_TOKENS_GIT_CLONE_RESULT}")
