@@ -34,7 +34,7 @@ IPC      ipc://local    Listen for incoming connections on IPC "local" of the cu
 Example
 -------
 
-See :ref:`ref_api_c_atx_net_listen`
+See :ref:`ref_api_nodejs_atxnet_listen`
 
 .. rubric:: See Also
 
