@@ -1,13 +1,15 @@
 os: linux
 dist: bionic
-env:
-        - WITH_SQLITE=ON ENABLE_TESTING=ON
-        - WITH_SQLITE=OFF
 matrix:
         include:
+                - env:
+                        - WITH_SQLITE=ON ENABLE_TESTING=ON
+                        - WITH_SQLITE=OFF ENABLE_TESTING=OFF
+
                 - language: c
                   script:
                           - cmake -DCMAKE_INSTALL_PREFIX=./install
+                            -DBUILD_EXAMPLES=ON
                             -DWITH_SQLITE=$WITH_SQLITE
                             -DENABLE_TESTING=$ENABLE_TESTING .
                           - cmake --build . --target install
