@@ -367,13 +367,42 @@
 <span id="ref-api-nodejs-atxnet-post"></span><h1 id="api-api-nodejs-api-nodejs-atxnet-post--page-root">post<a class="headerlink" href="#api-api-nodejs-api-nodejs-atxnet-post--page-root" title="Permalink to this headline">¶</a></h1>
 
 <h2 id="synopsis">Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">post</span><span class="o">&lt;</span><span class="nx">T</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">serial</span><span class="o">:</span> <span class="nx">string</span><span class="p">,</span> <span class="nx">path</span><span class="o">:</span> <span class="nx">string</span><span class="p">,</span> <span class="nx">data</span><span class="o">:</span> <span class="nx">T</span><span class="p">)</span> <span class="o">:</span> <span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">Response</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>Send a POST request to a LinQ device connected to LinQ Network Library. This routine is basically a thin wrapper around <a class="reference internal" href="api_nodejs_atxnet_send.html#ref-api-nodejs-atxnet-send"><span class="std std-ref">send</span></a>.</p>
 
 
 <h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<table border="1">
+<colgroup>
+<col width="26%"/>
+<col width="74%"/>
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>serial: string</td>
+<td>Serial number of the device to receive request</td>
+</tr>
+<tr class="row-odd"><td>path: string</td>
+<td>The URL of the request (IE: “/ATX/about”)</td>
+</tr>
+</tbody>
+</table>
 
 
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p>See <a class="reference internal" href="api_nodejs_atxnet_send.html#ref-api-nodejs-atxnet-send"><span class="std std-ref">send</span></a></p>
 <p class="rubric">See Also</p>
+<ol class="arabic simple">
+<li><a class="reference internal" href="api_nodejs_atxnet_get.html#ref-api-nodejs-atxnet-get"><span class="std std-ref">get</span></a></li>
+<li><a class="reference internal" href="api_nodejs_atxnet_delete.html#ref-api-nodejs-atxnet-delete"><span class="std std-ref">delete</span></a></li>
+<li><a class="reference internal" href="api_nodejs_atxnet_send.html#ref-api-nodejs-atxnet-send"><span class="std std-ref">send</span></a></li>
+</ol>
 
 
 
