@@ -45,7 +45,7 @@ extern "C"
         database_s* database,
         const char* user,
         const char* password,
-        jsmn_token_s* token);
+        jsmn_token_encode_s* token);
 
 #ifdef __cplusplus
 }
