@@ -130,7 +130,7 @@ http_auth_login(
     database_s* db,
     const char* user,
     const char* pass,
-    jsmn_token_s* token)
+    jsmn_token_encode_s* token)
 {
     sqlite3_stmt* stmt;
     int err = -1, l;

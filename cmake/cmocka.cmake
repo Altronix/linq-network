@@ -4,7 +4,7 @@ set(CMOCKA_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/cmocka)
 
 if(NOT EXISTS ${CMOCKA_SOURCE_DIR}/CMakeLists.txt)
 	execute_process(
-		COMMAND ${GIT_EXECUTABLE} submodule update --init cmocka
+		COMMAND ${GIT_EXECUTABLE} submodule update --init external/cmocka
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 		RESULT_VARIABLE GIT_CLONE_CMOCKA_RESULT)
 	message(STATUS "GIT_CLONE_CMOCKA_RESULT: ${GIT_CLONE_CMOCKA_RESULT}")

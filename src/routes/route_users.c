@@ -20,7 +20,7 @@ route_login(
     char response[2048];
     int count, err;
     atx_str user, pass;
-    jsmn_token_s token;
+    jsmn_token_encode_s token;
     jsmntok_t t[20];
 
     // clang-format off
