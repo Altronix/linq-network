@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 cmake \
 	-DCMAKE_INSTALL_PREFIX=./build/install \
@@ -11,6 +11,5 @@ cmake --build . --target install
 if [ $ENABLE_TESTING ]; then
 	ctest -T memcheck &&
 		make test-coverage &&
-          	curl -s https://codecov.io/bash -f test-coverage.info;
+		bash <(curl -s https://codecov.io/bash) -f test-coverage.info;
 fi
-
