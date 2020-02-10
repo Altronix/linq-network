@@ -1,88 +1,20 @@
-git:
-        submodules: false
-
+os: linux
 dist: bionic
-
-notifications:
-        emails: false
-
-before_install:
-        - git submodule update --init ./external/libzmq
-        - git submodule update --init ./external/czmq
-        - git submodule update --init ./external/cmocka
-        - git submodule update --init ./external/jansson
-        - git submodule update --init ./external/libjwt
-        - git clone https://github.com/nodejs/http-parser ./external/http_parser
-        - git clone https://github.com/wolfssl/wolfssl ./external/wolfssl
-
+env:
+        - WITH_SQLITE=ON ENABLE_TESTING=ON
+        - WITH_SQLITE=OFF
 matrix:
         include:
-                - os: linux
-                  name: Linux/C/CMake/Debug
-                  language: c
+                - language: c
                   script:
-                          - cmake -DCMAKE_INSTALL_PREFIX=./build/install . 
-                          - cmake --build ./ --target install
-                - os: linux
-                  name: Linux/C/CMake/Test
-                  dist: bionic
-                  language: c
-                  addons:
-                          apt:
-                                  packages:
-                                  - lcov
-                                  - valgrind
-                  script:
-                          - cmake -DCMAKE_INSTALL_PREFIX=./build/install -DENABLE_TESTING=ON . 
-                          - cmake --build ./ --target install
-                          - ctest -T memcheck
-                          - make test-coverage
-                  after_success:
-                          - bash <(curl -s https://codecov.io/bash) -f test-coverage.info.cleaned
-                - os: linux
-                  name: Linux/Rust/Cargo/Debug
-                  language: rust
-                  rust:
-                          - nightly
-                  script:
-                          - cargo build --verbose --all
-                - os: linux
-                  name: Linux/Node
-                  language: node_js
-                  node_js:
-                          - 10
-                  script:
-                          - cd bindings/nodejs/examples/events
-                          - npm install
-                - os: windows
-                  name: Windows/C/VS/Debug
-                  language: c
-                  script: 
-                          - choco install openssl
-                          # - choco install strawberryperl
-                          - source ~/.bashrc
-                          - cmake -DCMAKE_INSTALL_PREFIX:PATH=./build/install .
-                          - cmake --build ./ --target install
-                - os: windows
-                  env: GENERATOR="Visual Studio 15 2017"
-                  name: Windows/Rust/Cargo/Debug
-                  compiler: clang
-                  language: rust
-                  rust: 
-                          - nightly
-                  script:
-                          - choco install openssl
-                          # - choco install strawberryperl
-                          - source ~/.bashrc
-                          - cargo build --all --verbose
-                - os: windows
-                  name: Windows/Node
-                  language: node_js
-                  node_js:
-                          - 10
-                  script:
-                          - choco install openssl
-                          # - choco install strawberryperl
-                          - source ~/.bashrc
-                          - cd bindings/nodejs/examples/events
-                          - npm install
+                          - cmake -DCMAKE_INSTALL_PREFIX=./install
+                            -DWITH_SQLITE=$WITH_SQLITE
+                            -DENABLE_TESTING=$ENABLE_TESTING .
+                          - cmake --build . --target install
+                          - if [ $ENABLE_TESTING ]; then
+                            ctest -T memcheck &&
+                            make test-coverage &&
+                            bash <(curl -s https://codecov.io/bash) 
+                                 -f test-coverage.info;
+                            fi
+
