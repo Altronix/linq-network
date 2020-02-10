@@ -61,14 +61,14 @@ LinqNetwork::LinqNetwork(const Napi::CallbackInfo& info)
             int when{ std::stoi({ alert->when.p, alert->when.len }) };
             std::string where{ alert->where.p, alert->where.len };
             std::string mesg{ alert->mesg.p, alert->mesg.len };
-            auto serial = Napi::String::New(env, d.serial());
+            std::string sid{ d.serial() };
             obj.Set("who", who);
             obj.Set("what", what);
             obj.Set("where", where);
             obj.Set("when", when);
             obj.Set("mesg", mesg);
-            this->r_callback_.Call(
-                { Napi::String::New(env, "alert"), serial, obj });
+            obj.Set("serial", sid);
+            this->r_callback_.Call({ Napi::String::New(env, "alert"), obj });
         })
         .on_error(
             [this](E_LINQ_ERROR error, const char* serial, const char* err) {

@@ -9,8 +9,12 @@ netw
       .then(response => console.log("Response: %s", response))
       .catch(e => console.log(e))
   )
-  .on("alert", (sid, alert_data) => {
-    console.log("ALERT from [%s]", sid);
-    console.log("ALERT data [%s]", alert_data.mesg);
+  .on("alert", alert_data => {
+    console.log("ALERT from [%s]", alert_data.serial);
+    console.log("ALERT who [%s]", alert_data.who);
+    console.log("ALERT what [%s]", alert_data.what);
+    console.log("ALERT where [%s]", alert_data.where);
+    console.log("ALERT when [%s]", alert_data.when);
+    console.log("ALERT mesg [%s]", alert_data.mesg);
   });
 netw.run(50);
