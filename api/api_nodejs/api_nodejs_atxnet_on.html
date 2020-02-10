@@ -125,7 +125,7 @@
       
         <div class="md-flex__cell md-flex__cell--shrink">
           <div class="md-header-nav__source">
-            <a href="https://github.com/tomzbench/linq-network/" title="Go to repository" class="md-source" data-md-source="github">
+            <a href="https://github.com/altronix/linq-network/" title="Go to repository" class="md-source" data-md-source="github">
 
     <div class="md-source__icon">
       <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24" width="28" height="28">
@@ -174,7 +174,7 @@
        title="Linq Network User Guide 0.0.1 documentation">LinQ Network User Guide</a>
   </label>
     <div class="md-nav__source">
-      <a href="https://github.com/tomzbench/linq-network/" title="Go to repository" class="md-source" data-md-source="github">
+      <a href="https://github.com/altronix/linq-network/" title="Go to repository" class="md-source" data-md-source="github">
 
     <div class="md-source__icon">
       <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24" width="28" height="28">
@@ -367,12 +367,81 @@
 <span id="ref-api-nodejs-atxnet-on"></span><h1 id="api-api-nodejs-api-nodejs-atxnet-on--page-root">on<a class="headerlink" href="#api-api-nodejs-api-nodejs-atxnet-on--page-root" title="Permalink to this headline">¶</a></h1>
 
 <h2 id="synopsis">Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">on</span><span class="p">(</span><span class="nx">type</span><span class="o">:</span> <span class="nx">string</span><span class="p">,</span> <span class="p">...)</span><span class="o">:</span> <span class="nx">self</span>
+</pre></div>
+</div>
 
 
 <h2 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<p>The caller will receive specific alert data type depending on the type of alert. For example, a “heartbeat” alert will provide a serial number string. And an “alert” event will provide a Json object keyed with the alert properties. See below for the alert types.</p>
+<table border="1">
+<colgroup>
+<col width="16%"/>
+<col width="40%"/>
+<col width="45%"/>
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Event</th>
+<th class="head">Description</th>
+<th class="head">Data</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>heartbeat</td>
+<td>A LinQ Network Device will generate a heartbeat every 5-10 seconds when connected to a LinQ Network Service.</td>
+<td><div class="first last highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">serial</span><span class="o">:</span> <span class="nx">string</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td>alert</td>
+<td>A LinQ Network Device will generate asyncrounous alerts dependent on external triggers detected by the LinQ Network Device. On such a trigger the “alert” event is generated.</td>
+<td><div class="first last highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">alertData</span><span class="o">:</span> <span class="p">{</span>
+  <span class="nx">serial</span><span class="o">:</span> <span class="nx">string</span><span class="p">,</span>
+  <span class="nx">who</span><span class="o">:</span> <span class="nx">string</span><span class="p">,</span>
+  <span class="nx">what</span><span class="o">:</span> <span class="nx">string</span><span class="p">,</span>
+  <span class="nx">when</span><span class="o">:</span> <span class="nx">string</span><span class="p">,</span>
+  <span class="nx">where</span><span class="o">:</span> <span class="nx">string</span><span class="p">,</span>
+  <span class="nx">message</span><span class="o">:</span> <span class="nx">string</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td>erro</td>
+<td>The LinQ Network Library will generate an alert error when an exception occurs during runtime.</td>
+<td><div class="first last highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">error</span><span class="o">:</span> <span class="nx">string</span>
+</pre></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
 
 
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p class="rubric">Listen to heartbeats and alerts. Print serial numbers and alerts to console.</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">let</span> <span class="nx">netw</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">"@altronix/atx-net-js"</span><span class="p">).</span><span class="k">default</span><span class="p">;</span>
+
+<span class="nx">netw</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="s2">"tcp://*:33455"</span><span class="p">);</span>
+<span class="nx">netw</span>
+  <span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">"heartbeat"</span><span class="p">,</span> <span class="nx">sid</span> <span class="p">=&gt;</span>
+    <span class="nx">netw</span>
+      <span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">sid</span><span class="p">,</span> <span class="s2">"GET"</span><span class="p">,</span> <span class="s2">"/ATX/about"</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">response</span> <span class="p">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"Response: %s"</span><span class="p">,</span> <span class="nx">response</span><span class="p">))</span>
+      <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">e</span> <span class="p">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">e</span><span class="p">))</span>
+  <span class="p">)</span>
+  <span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">"alert"</span><span class="p">,</span> <span class="nx">alert_data</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"ALERT from [%s]"</span><span class="p">,</span> <span class="nx">alert_data</span><span class="p">.</span><span class="nx">serial</span><span class="p">);</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"ALERT who [%s]"</span><span class="p">,</span> <span class="nx">alert_data</span><span class="p">.</span><span class="nx">who</span><span class="p">);</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"ALERT what [%s]"</span><span class="p">,</span> <span class="nx">alert_data</span><span class="p">.</span><span class="nx">what</span><span class="p">);</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"ALERT where [%s]"</span><span class="p">,</span> <span class="nx">alert_data</span><span class="p">.</span><span class="nx">where</span><span class="p">);</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"ALERT when [%s]"</span><span class="p">,</span> <span class="nx">alert_data</span><span class="p">.</span><span class="nx">when</span><span class="p">);</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"ALERT mesg [%s]"</span><span class="p">,</span> <span class="nx">alert_data</span><span class="p">.</span><span class="nx">mesg</span><span class="p">);</span>
+  <span class="p">});</span>
+<span class="nx">netw</span><span class="p">.</span><span class="nx">run</span><span class="p">(</span><span class="mi">50</span><span class="p">);</span>
+</pre></div>
+</div>
 <p class="rubric">See Also</p>
 
 
