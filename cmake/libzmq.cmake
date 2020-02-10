@@ -1,6 +1,6 @@
 # libzmq
 
-set(LIBZMQ_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/czmq)
+set(LIBZMQ_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/libzmq)
 
 if(NOT EXISTS ${LIBZMQ_SOURCE_DIR}/CMakeLists.txt)
 	execute_process(
