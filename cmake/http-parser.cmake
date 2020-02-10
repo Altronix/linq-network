@@ -1,6 +1,16 @@
 ### Build http_parser ###
-set(http_parser_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/http_parser)
+set(HTTP_PARSER_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/http_parser)
+
+if(NOT EXISTS ${HTTP_PARSER_SOURCE_DIR}/http_parser.c)
+	execute_process(
+		COMMAND ${GIT_EXECUTABLE} submodule update --init cmocka
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+		RESULT_VARIABLE GIT_CLONE_HTTP_PARSER_RESULT)
+	message(STATUS "GIT_CLONE_HTTP_PARSER_RESULT: ${GIT_CLONE_HTTP_PARSER_RESULT}")
+endif()
+
+
 add_library(http-parser 
-	${http_parser_SOURCE_DIR}/http_parser.c 
-	${http_parser_SOURCE_DIR}/http_parser.h)
-target_include_directories(http-parser PUBLIC ${http_parser_SOURCE_DIR})
+	${HTTP_PARSER_SOURCE_DIR}/http_parser.c 
+	${HTTP_PARSER_SOURCE_DIR}/http_parser.h)
+target_include_directories(http-parser PUBLIC ${HTTP_PARSER_SOURCE_DIR})
