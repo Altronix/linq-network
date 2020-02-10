@@ -53,9 +53,22 @@ LinqNetwork::LinqNetwork(const Napi::CallbackInfo& info)
                       atx_net_alert_s* alert,
                       atx_net_email_s* email,
                       altronix::Device& d) {
-            ((void)alert);
             ((void)email);
-            ((void)d);
+            auto env = this->r_callback_.Env();
+            Napi::Object obj = Napi::Object::New(env);
+            std::string who{ alert->who.p, alert->who.len };
+            std::string what{ alert->what.p, alert->what.len };
+            int when{ std::stoi({ alert->when.p, alert->when.len }) };
+            std::string where{ alert->where.p, alert->where.len };
+            std::string mesg{ alert->mesg.p, alert->mesg.len };
+            auto serial = Napi::String::New(env, d.serial());
+            obj.Set("who", who);
+            obj.Set("what", what);
+            obj.Set("where", where);
+            obj.Set("when", when);
+            obj.Set("mesg", mesg);
+            this->r_callback_.Call(
+                { Napi::String::New(env, "alert"), serial, obj });
         })
         .on_error(
             [this](E_LINQ_ERROR error, const char* serial, const char* err) {

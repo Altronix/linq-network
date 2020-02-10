@@ -23,6 +23,7 @@ target_include_directories(atx-net-js PRIVATE ${CMAKE_JS_INC} ${NODE_ADDON_API_D
 target_link_libraries(atx-net-js 
   atx-net-static
   atx-net-cpp-binding
+  ${JSMN_WEB_TOKENS_STATIC_LIBS}
   ${LIBCZMQ_STATIC_LIBS}
   ${LIBZMQ_STATIC_LIBS}
   ${CMAKE_JS_LIB}
