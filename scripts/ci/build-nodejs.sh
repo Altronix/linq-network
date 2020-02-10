@@ -1,3 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
+cd bindings/nodejs/examples/events
 npm install

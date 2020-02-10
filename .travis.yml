@@ -13,9 +13,9 @@ matrix:
                                           - lcov
                                           - valgrind
                   env: 
-                        - WITH_SQLITE=ON
-                          ENABLE_TESTING=ON
-                          BUILD_EXAMPLES=ON
+                          - WITH_SQLITE=ON
+                            ENABLE_TESTING=ON
+                            BUILD_EXAMPLES=ON
                   script:
                           - ./scripts/ci/build-c.sh
                 - os: linux
@@ -27,3 +27,25 @@ matrix:
                             BUILD_EXAMPLES=ON
                   script:
                           - ./scripts/ci/build-c.sh
+                - os: linux
+                  dist: bionic
+                  language: node_js
+                  node_js:
+                          - 10
+                  env:
+                          - WITH_SQLITE=OFF
+                            ENABLE_TESTING=OFF
+                            BUILD_EXAMPLES=OFF
+                  script:
+                          - ./scripts/ci/build-nodejs.sh
+                - os: linux
+                  dist: bionic
+                  language: rust
+                  rust:
+                          - nightly
+                  env:
+                          - WITH_SQLITE=OFF
+                            ENABLE_TESTING=OFF
+                            BUILD_EXAMPLES=OFF
+                  script:
+                          - ./scripts/ci/build-rust.sh
