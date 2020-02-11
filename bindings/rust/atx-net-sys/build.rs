@@ -55,8 +55,7 @@ fn print_windows(out: &std::path::Display<'_>) {
     println!("cargo:rustc-link-lib=static=atx-net");
     println!("cargo:rustc-link-lib=static=libczmq");
     println!("cargo:rustc-link-lib=static={}", libzmq);
-    println!("cargo:rustc-link-lib=static=jwt");
-    println!("cargo:rustc-link-lib=static=jansson");
+    println!("cargo:rustc-link-lib=static=jsmn-web-tokens");
     print_openssl(); // TODO if openssl backend
     println!("cargo:rustc-link-lib=uuid");
     println!("cargo:rustc-link-lib=iphlpapi");
@@ -71,8 +70,7 @@ fn print_linux(out: &std::path::Display<'_>) {
     println!("cargo:rustc-link-lib=static=atx-net");
     println!("cargo:rustc-link-lib=static=czmq");
     println!("cargo:rustc-link-lib=static=zmq");
-    println!("cargo:rustc-link-lib=static=jwt");
-    println!("cargo:rustc-link-lib=static=jansson");
+    println!("cargo:rustc-link-lib=static=jsmn-web-tokens");
     // TODO if openssl backend
     println!("cargo:rustc-link-lib=dylib=ssl");
     println!("cargo:rustc-link-lib=dylib=crypto");
