@@ -313,7 +313,7 @@ http_broadcast_json(http_s* http, int code, const char* fmt, ...)
 
     if (len) {
         for (c = mg_next(&http->connections, NULL); c != NULL;
-             c = mg_next(&http->connections, NULL)) {
+             c = mg_next(&http->connections, c)) {
             mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mem, len);
         }
     }

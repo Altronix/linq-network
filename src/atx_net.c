@@ -18,7 +18,7 @@
 #define WEBSOCKET_NEW_FMT                                                      \
     "{"                                                                        \
     "\"type\":\"new\","                                                        \
-    "\"data\":\"{\","                                                          \
+    "\"data\":{"                                                               \
     "\"sid\":\"%.*s\","                                                        \
     "\"product\":\"%.*s\","                                                    \
     "\"prjVersion\":\"%.*s\","                                                 \
@@ -28,19 +28,19 @@
 #define WEBSOCKET_HEARTBEAT_FMT                                                \
     "{"                                                                        \
     "\"type\":\"heartbeat\","                                                  \
-    "\"data\":\"{\","                                                          \
+    "\"data\":{"                                                               \
     "\"sid\":\"%.*s\""                                                         \
     "}}"
 
 #define WEBSOCKET_ALERT_FMT                                                    \
     "{"                                                                        \
     "\"type\":\"alert\","                                                      \
-    "\"data\":\"{\","                                                          \
+    "\"data\":{"                                                               \
     "\"sid\":\"%.*s\","                                                        \
     "\"who\":\"%.*s\","                                                        \
     "\"what\":\"%.*s\","                                                       \
     "\"siteId\":\"%.*s\","                                                     \
-    "\"when\":\"%.*s\","                                                       \
+    "\"when\":%d,"                                                             \
     "\"mesg\":\"%.*s\""                                                        \
     "}}"
 
@@ -186,6 +186,20 @@ on_zmtp_alert(
     // clang-format on
     zuuid_destroy(&uid);
 #ifdef WITH_SQLITE
+    char when[32];
+    snprintf(when, sizeof(when), "%.*s", a->when.len, a->when.p);
+    // clang-format off
+    http_broadcast_json(
+        &l->http,
+        200,
+        WEBSOCKET_ALERT_FMT,
+        strlen(serial), serial,
+        a->who.len,     a->who.p,
+        a->what.len,    a->what.p,
+        a->where.len,   a->where.p,
+        atoi(when),
+        a->mesg.len,    a->mesg.p);
+    // clang-format on
     err = database_insert_raw_n(&l->database, "alerts", k, klen, v, vlen);
 #endif
     log_debug("(ZMTP) Database alert insert result (%d)", err);

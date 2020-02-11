@@ -4,22 +4,12 @@
     <title>Demo...</title>
   </head>
   <body>
-    <table style="width:100%">
-      <thead>
-        <tr>
-          <th>event</th>
-          <th>time</th>
-          <th>who</th>
-          <th>what</th>
-          <th>description</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <p id="msg"></p>
   </body>
 </html>
 <script>
   console.log("starting demo");
+  const msg = document.getElementById("msg");
   const socket = new WebSocket("ws://localhost:8000");
   socket.addEventListener("open", function(event) {
     console.log("Open");
@@ -31,6 +21,13 @@
     console.log(error.message);
   });
   socket.addEventListener("message", function(event) {
-    console.log(event.data);
+    try {
+      let data = JSON.parse(event.data);
+      msg.innerText = msg.innerText + "\n" + JSON.stringify(data);
+    } catch (e) {
+      console.log(e);
+    }
   });
+
+  msg.innerText = "Starting Demo...";
 </script>
