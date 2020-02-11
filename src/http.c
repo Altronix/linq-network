@@ -82,6 +82,19 @@ c_printf(void* connection, int code, const char* type, const char* fmt, ...)
     va_end(ap);
 }
 
+static inline bool
+is_websocket(const struct mg_connection* c)
+{
+    return c->flags & MG_F_IS_WEBSOCKET;
+}
+
+static inline void
+get_addr(const struct mg_connection* c, char* buff, uint32_t sbuff)
+{
+    mg_sock_addr_to_str(
+        &c->sa, buff, sbuff, MG_SOCK_STRINGIFY_IP | MG_SOCK_STRINGIFY_PORT);
+}
+
 typedef struct foreach_route_check_path_context
 {
     const char* path;
@@ -140,7 +153,11 @@ http_ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
         case MG_EV_CONNECT: log_trace("%06s %04s", "(HTTP)", "Connect"); break;
         case MG_EV_RECV: log_trace("%06s %04s", "(HTTP)", "Recv"); break;
         case MG_EV_SEND: log_trace("%06s %04s", "(HTTP)", "Send"); break;
-        case MG_EV_CLOSE: log_trace("%06s %04s", "(HTTP)", "Close"); break;
+        case MG_EV_CLOSE: {
+            char addr[48];
+            get_addr(c, addr, sizeof(addr));
+            log_info("(HTTP) (%s) Connection close", addr);
+        } break;
         case MG_EV_TIMER: log_trace("%06s %04s", "(HTTP)", "Timer"); break;
         case MG_EV_HTTP_REQUEST: {
             http_s* http = user_data;
@@ -171,9 +188,14 @@ http_ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
         } break;
         case MG_EV_HTTP_REPLY: log_trace("%06s %04s", "(HTTP)", "Reply"); break;
         case MG_EV_HTTP_CHUNK: log_trace("%06s %04s", "(HTTP)", "Chunk"); break;
-        case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST:
+        case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST: {
+            char addr[48];
+            get_addr(c, addr, sizeof(addr));
+            log_info("(HTTP) (%s) Received websocket request...", addr);
+        } break;
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE:
         case MG_EV_WEBSOCKET_FRAME:
+            log_trace("%06s %04s", "(HTTP)", "Websocket frame");
         case MG_EV_WEBSOCKET_CONTROL_FRAME:
             log_trace("%06s %04s", "(HTTP)", "Websocket ctrl frame");
             break;
