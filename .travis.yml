@@ -39,8 +39,8 @@ matrix:
                   addons:
                           apt:
                                   packages:
-                                          - libzmq-dev
-                                          - libczmq4-dev
+                                          - libzmq3-dev
+                                          - libczmq-dev
                   env:
                           - WITH_SQLITE=ON
                             ENABLE_TESTING=OFF
