@@ -16,21 +16,13 @@ matrix:
                           - WITH_SQLITE=ON
                             ENABLE_TESTING=ON
                             BUILD_EXAMPLES=ON
-                            USE_SYSTEM_ZMQ=OFF
-                            USE_SYSTEM_JSMN_WEB_TOKENS=OFF
-                            USE_SYSTEM_OPENSSL=ON
                   script:
                           - ./scripts/ci/build-c.sh
                 - os: linux
                   dist: bionic
                   language: c
                   env:
-                          - WITH_SQLITE=OFF
-                            ENABLE_TESTING=OFF
-                            BUILD_EXAMPLES=ON
-                            USE_SYSTEM_ZMQ=OFF
-                            USE_SYSTEM_JSMN_WEB_TOKENS=OFF
-                            USE_SYSTEM_OPENSSL=ON
+                          - BUILD_EXAMPLES=ON
                   script:
                           - ./scripts/ci/build-c.sh
                 - os: linux
@@ -43,11 +35,9 @@ matrix:
                                           - libczmq-dev
                   env:
                           - WITH_SQLITE=ON
-                            ENABLE_TESTING=OFF
                             BUILD_EXAMPLES=ON
                             USE_SYSTEM_ZMQ=ON
                             USE_SYSTEM_OPENSSL=ON
-                            USE_SYSTEM_JSMN_WEB_TOKENS=OFF
                   script:
                           - ./scripts/ci/build-c.sh
                 - os: linux
@@ -56,12 +46,7 @@ matrix:
                   node_js:
                           - 10
                   env:
-                          - WITH_SQLITE=OFF
-                            ENABLE_TESTING=OFF
-                            BUILD_EXAMPLES=OFF
-                            USE_SYSTEM_ZMQ=OFF
-                            USE_SYSTEM_JSMN_WEB_TOKENS=OFF
-                            USE_SYSTEM_OPENSSL=ON
+                          - USE_SYSTEM_OPENSSL=ON
                   script:
                           - ./scripts/ci/build-nodejs.sh
                 - os: linux
@@ -70,11 +55,6 @@ matrix:
                   rust:
                           - nightly
                   env:
-                          - WITH_SQLITE=OFF
-                            ENABLE_TESTING=OFF
-                            BUILD_EXAMPLES=OFF
-                            USE_SYSTEM_ZMQ=OFF
-                            USE_SYSTEM_JSMN_WEB_TOKENS=OFF
-                            USE_SYSTEM_OPENSSL=ON
+                          - USE_SYSTEM_OPENSSL=ON
                   script:
                           - ./scripts/ci/build-rust.sh
