@@ -48,6 +48,8 @@ matrix:
                             USE_SYSTEM_ZMQ=ON
                             USE_SYSTEM_OPENSSL=ON
                             USE_SYSTEM_JSMN_WEB_TOKENS=OFF
+                  script:
+                          - ./scripts/ci/build-c.sh
                 - os: linux
                   dist: bionic
                   language: node_js
