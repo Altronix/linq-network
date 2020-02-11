@@ -7,11 +7,11 @@ if [[ -z "${USE_SYSTEM_JSMN_WEB_TOKENS}" ]]; then USE_SYSTEM_JSMN_WEB_TOKENS=OFF
 if [[ -z "${USE_SYSTEM_OPENSSL}" ]]; then USE_SYSTEM_OPENSSL=OFF; fi
 if [[ -z "${BUILD_EXAMPLES}" ]]; then BUILD_EXAMPLES=OFF; fi
 
-echo "ENABLE_TESTING            : ${ENABLE_TESTING}"
-echo "WITH_SQLITE               : ${WITH_SQLITE}"
-echo "USE_SYSTEM_ZMQ            : ${USE_SYSTEM_ZMQ}"
-echo "USE_SYSTEM_JSMN_WEB_TOKENS: ${USE_SYSTEM_JSMN_WEB_TOKENS}"
-echo "BUILD_EXAMPLES            : ${BUILD_EXAMPLES}"
+# echo "ENABLE_TESTING            : ${ENABLE_TESTING}"
+# echo "WITH_SQLITE               : ${WITH_SQLITE}"
+# echo "USE_SYSTEM_ZMQ            : ${USE_SYSTEM_ZMQ}"
+# echo "USE_SYSTEM_JSMN_WEB_TOKENS: ${USE_SYSTEM_JSMN_WEB_TOKENS}"
+# echo "BUILD_EXAMPLES            : ${BUILD_EXAMPLES}"
 
  cmake \
  	-DCMAKE_INSTALL_PREFIX=./build/install \
