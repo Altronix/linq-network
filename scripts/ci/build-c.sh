@@ -8,7 +8,7 @@ cmake \
 
 cmake --build . --target install
 
-if [ $ENABLE_TESTING ]; then
+if [ "$ENABLE_TESTING" = "ON" ]; then
 	ctest -T memcheck &&
 		make test-coverage &&
 		bash <(curl -s https://codecov.io/bash) -f test-coverage.info;
