@@ -886,6 +886,12 @@ test_atx_net_broadcast_heartbeat(void** context_p)
 }
 
 static void
+test_atx_net_broadcast_heartbeat_websocket(void** context_p)
+{
+    // TODO
+}
+
+static void
 test_atx_net_broadcast_alert(void** context_p)
 {
     ((void)context_p);
@@ -1252,6 +1258,7 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_atx_net_receive_hello_double_id),
         cmocka_unit_test(test_atx_net_broadcast_heartbeat),
         cmocka_unit_test(test_atx_net_broadcast_heartbeat_receive),
+        cmocka_unit_test(test_atx_net_broadcast_heartbeat_websocket),
         cmocka_unit_test(test_atx_net_broadcast_alert),
         cmocka_unit_test(test_atx_net_forward_request),
         cmocka_unit_test(test_atx_net_forward_client_request),

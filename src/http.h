@@ -50,6 +50,7 @@ extern "C"
     {
         struct mg_connection* listener;
         struct mg_mgr connections;
+        struct mg_serve_http_opts serve_opts;
         routes_map_s* routes;
         database_s* db;
     } http_s;
@@ -60,11 +61,13 @@ extern "C"
     E_LINQ_ERROR http_poll(http_s*, int32_t);
     void http_listen(http_s* http, const char* port);
     void http_use(http_s* http, const char* path, http_route_cb, void*);
+    void http_serve(http_s* http, const char* path);
     void http_parse_query_str(
         http_route_context* c,
         const char* want,
         const char** result,
         uint32_t* l);
+    void http_broadcast_json(http_s* http, int code, const char* fmt, ...);
     void http_printf_json(
         struct mg_connection* connection,
         int code,

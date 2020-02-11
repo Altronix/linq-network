@@ -10,6 +10,10 @@
 
 #include "altronix/atx_net.h"
 
+#ifndef WWW_ROOT_DIR
+#define WWW_ROOT_DIR "./www"
+#endif
+
 static bool received_response = false;
 
 static void
@@ -33,11 +37,7 @@ on_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 }
 
 static void
-on_alert(
-    void* ctx,
-    atx_net_alert_s* alert,
-    atx_net_email_s* mail,
-    device_s** d)
+on_alert(void* ctx, atx_net_alert_s* alert, atx_net_email_s* mail, device_s** d)
 {
     ((void)ctx);
     ((void)alert);
@@ -58,8 +58,8 @@ on_heartbeat(void* ctx, const char* serial, device_s** d)
 }
 
 atx_net_callbacks callbacks = { .err = on_error,
-                                  .alert = on_alert,
-                                  .hb = on_heartbeat };
+                                .alert = on_alert,
+                                .hb = on_heartbeat };
 
 void
 on_request_complete(void* pass, E_LINQ_ERROR e, const char* json, device_s** d)
@@ -95,6 +95,8 @@ main(int argc, char* argv[])
         atx_net_destroy(&server);
         return -1;
     }
+
+    atx_net_serve(server, WWW_ROOT_DIR);
 
     while (sys_running()) { err = atx_net_poll(server, 5); }
 

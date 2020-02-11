@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Demo...</title>
+  </head>
+  <body>
+    <table style="width:100%">
+      <thead>
+        <tr>
+          <th>event</th>
+          <th>time</th>
+          <th>who</th>
+          <th>what</th>
+          <th>description</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </body>
+</html>
+<script>
+  console.log("starting demo");
+  const socket = new WebSocket("ws://localhost:8000");
+  socket.addEventListener("open", function(event) {
+    console.log("Open");
+  });
+  socket.addEventListener("close", function(event) {
+    console.log("Close");
+  });
+  socket.addEventListener("error", function(error) {
+    console.log(error.message);
+  });
+  socket.addEventListener("message", function(event) {
+    console.log(event.data);
+  });
+</script>

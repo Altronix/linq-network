@@ -15,6 +15,35 @@
 #include "routes/routes.h"
 #endif
 
+#define WEBSOCKET_NEW_FMT                                                      \
+    "{"                                                                        \
+    "\"type\":\"new\","                                                        \
+    "\"data\":\"{\","                                                          \
+    "\"sid\":\"%.*s\","                                                        \
+    "\"product\":\"%.*s\","                                                    \
+    "\"prjVersion\":\"%.*s\","                                                 \
+    "\"atxVersion\":\"%.*s\""                                                  \
+    "}}"
+
+#define WEBSOCKET_HEARTBEAT_FMT                                                \
+    "{"                                                                        \
+    "\"type\":\"heartbeat\","                                                  \
+    "\"data\":\"{\","                                                          \
+    "\"sid\":\"%.*s\""                                                         \
+    "}}"
+
+#define WEBSOCKET_ALERT_FMT                                                    \
+    "{"                                                                        \
+    "\"type\":\"alert\","                                                      \
+    "\"data\":\"{\","                                                          \
+    "\"sid\":\"%.*s\","                                                        \
+    "\"who\":\"%.*s\","                                                        \
+    "\"what\":\"%.*s\","                                                       \
+    "\"siteId\":\"%.*s\","                                                     \
+    "\"when\":\"%.*s\","                                                       \
+    "\"mesg\":\"%.*s\""                                                        \
+    "}}"
+
 // Main class
 typedef struct atx_net_s
 {
@@ -108,6 +137,8 @@ on_zmtp_heartbeat(void* ctx, const char* sid, device_s** d)
     // so there will be no request and response to flush through
     atx_net_s* l = ctx;
 #ifdef WITH_SQLITE
+    http_broadcast_json(
+        &l->http, 200, WEBSOCKET_HEARTBEAT_FMT, strlen(sid), sid);
     if (!database_row_exists_str(&l->database, "devices", "device_id", sid)) {
         log_info(
             "(ZMTP) [%.6s...] "
@@ -269,6 +300,12 @@ atx_net_socket
 atx_net_connect(atx_net_s* l, const char* ep)
 {
     return zmtp_connect(&l->zmtp, ep);
+}
+
+void
+atx_net_serve(atx_net_s* l, const char* path)
+{
+    http_serve(&l->http, path);
 }
 
 E_LINQ_ERROR

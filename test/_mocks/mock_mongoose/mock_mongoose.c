@@ -304,6 +304,23 @@ __wrap_mg_vprintf(struct mg_connection* c, const char* fmt, va_list list)
 }
 
 void
+__wrap_mg_send_websocket_frame(
+    struct mg_connection* nc,
+    int op,
+    const void* data,
+    size_t len)
+{
+    va_list list;
+
+    mock_mongoose_outgoing_data* d =
+        atx_net_malloc(sizeof(mock_mongoose_outgoing_data));
+    atx_net_assert(d);
+    atx_net_assert(len < sizeof(d->mem));
+    snprintf(d->mem, sizeof(d->mem), "%.*s", (int)len, data);
+    outgoing_data_list_push(outgoing_data, &d);
+}
+
+void
 __wrap_mg_printf_http_chunk(struct mg_connection* nc, const char* fmt, ...)
 {
     ((void)nc);
@@ -318,3 +335,4 @@ __wrap_mg_printf_html_escape(struct mg_connection* nc, const char* fmt, ...)
     ((void)fmt);
     assert_string_equal(NULL, "__wrap_mg_printf_html_escape() not implemented");
 }
+

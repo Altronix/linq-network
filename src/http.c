@@ -181,6 +181,8 @@ http_ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
                         c_printf_json(c, 503, JERROR_503);
                     }
                 }
+            } else if (http->serve_opts.document_root) {
+                mg_serve_http(c, m, http->serve_opts);
             } else {
                 log_warn("%06s %04s %s [%s]", "(HTTP)", "Req.", "(404)", path);
                 c_printf_json(c, 404, "{\"error\":\"%s\"}", "not found");
@@ -258,6 +260,13 @@ http_use(http_s* http, const char* path, http_route_cb cb, void* context)
 }
 
 void
+http_serve(http_s* http, const char* path)
+{
+    log_info("(HTTP) Serving... [%s]", path);
+    http->serve_opts.document_root = path;
+}
+
+void
 http_parse_query_str(
     http_route_context* c,
     const char* want,
@@ -286,6 +295,26 @@ http_parse_query_str(
         } else {
             *result = NULL;
             *l = 0;
+        }
+    }
+}
+
+void
+http_broadcast_json(http_s* http, int code, const char* fmt, ...)
+{
+    char mem[1024];
+    struct mg_connection* c;
+    int len;
+    va_list list;
+
+    va_start(list, fmt);
+    len = vsnprintf(mem, sizeof(mem), fmt, list);
+    va_end(list);
+
+    if (len) {
+        for (c = mg_next(&http->connections, NULL); c != NULL;
+             c = mg_next(&http->connections, NULL)) {
+            mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mem, len);
         }
     }
 }
