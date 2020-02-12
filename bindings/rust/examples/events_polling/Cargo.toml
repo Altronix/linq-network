@@ -7,7 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-atx-net = { path = "../../atx-net" }
+linq-network = { path = "../../linq-network" }
 futures = "0.3.1"
 futures-timer = "2.0.2"
 async-std = "1.1.0"

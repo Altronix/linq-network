@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-extern crate linq_network_sys;
 extern crate futures;
+extern crate linq_network_sys;
 
 use crate::error::{NetworkError, NetworkErrorKind};
 use crate::event;
@@ -90,7 +90,8 @@ impl Context {
     // Listen for incoming linq nodes or device nodes
     // TODO - return socket handle and remove socket hashmap
     pub fn listen(&self, ep: Endpoint) -> linq_network_socket {
-        let s = unsafe { linq_network_listen(self.c_ctx, ep.to_c_str().as_ptr()) };
+        let s =
+            unsafe { linq_network_listen(self.c_ctx, ep.to_c_str().as_ptr()) };
         s
     }
 

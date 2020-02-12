@@ -109,11 +109,13 @@ extern "C"
     // Linq API
     linq_network_s* linq_network_create(const linq_network_callbacks*, void*);
     void linq_network_destroy(linq_network_s**);
-    void linq_network_init(linq_network_s*, const linq_network_callbacks*, void*);
+    void
+    linq_network_init(linq_network_s*, const linq_network_callbacks*, void*);
     void linq_network_deinit(linq_network_s*);
     void linq_network_context_set(linq_network_s* linq, void* ctx);
     linq_network_socket linq_network_listen(linq_network_s*, const char* ep);
     linq_network_socket linq_network_connect(linq_network_s* l, const char* ep);
+    void linq_network_serve(linq_network_s* l, const char* path);
     E_LINQ_ERROR linq_network_close(linq_network_s*, linq_network_socket);
     E_LINQ_ERROR linq_network_poll(linq_network_s* l, int32_t ms);
     device_s** linq_network_device(const linq_network_s*, const char*);

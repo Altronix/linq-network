@@ -1,11 +1,13 @@
 [package]
-name = "atx-net"
+name = "linq-network-sys"
 version = "0.1.0"
 authors = ["thomas <thomas.chiantia@gmail.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[build-dependencies]
+cmake = "0.1.42"
+bindgen = "0.52.0"
+
 [dependencies]
-atx-net-sys = { path = "../atx-net-sys" }
-futures = "0.3.1"

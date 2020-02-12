@@ -319,7 +319,9 @@ linq_network_connect(linq_network_s* l, const char* ep)
 void
 linq_network_serve(linq_network_s* l, const char* path)
 {
+#ifdef WITH_SQLITE
     http_serve(&l->http, path);
+#endif
 }
 
 E_LINQ_ERROR
