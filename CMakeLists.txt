@@ -143,22 +143,22 @@ if(ENABLE_TESTING)
 
   # add test coverage
   APPEND_COVERAGE_COMPILER_FLAGS()
-  set(COVERAGE_LCOV_EXCLUDES 
-    '${PROJECT_SOURCE_DIR}/src/base64.*'   # external copy/pasted
-    '${PROJECT_SOURCE_DIR}/src/mongoose.*' # external copy/pasted
-    '${PROJECT_SOURCE_DIR}/src/sqlite3.*'  # external copy/pasted
-    '${PROJECT_SOURCE_DIR}/src/mock/*'
-    '${PROJECT_SOURCE_DIR}/external/*')
+  set(COVERAGE_EXCLUDES 
+    "${PROJECT_SOURCE_DIR}/src/base64.*"
+    "${PROJECT_SOURCE_DIR}/src/mongoose.*"
+    "${PROJECT_SOURCE_DIR}/src/sqlite3.*"
+    "${PROJECT_SOURCE_DIR}/src/mock/*"
+    "${PROJECT_SOURCE_DIR}/external/*")
 
   setup_target_for_coverage_lcov(NAME test-coverage
     EXECUTABLE test-containers
-    COMMAND test-atx-net
+    COMMAND test-linq-network
     COMMAND test-device
     COMMAND test-devices
     COMMAND test-http
     COMMAND test-db
     COMMAND test-routes
-    COMMAND binding-atx-net-cpp-test)
+    COMMAND binding-linq-network-cpp-test)
 
 endif()
 
