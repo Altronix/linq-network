@@ -45,6 +45,7 @@
       }
 
    :query string serial: (optional) return only data for a single serial number device
+   :query string search: (optional) Return only keys that match this search
    :query number start: (optional) return devices starting at a specific index
    :query number count: (optional) return a specified amount of devices
    :query string sort: (optional) sort result by a specific key

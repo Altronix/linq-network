@@ -303,6 +303,59 @@
             
   
 <h1 id="api-api-http-linq-service-linq-service-v1-proxy--page-root">/api/v1/proxy/…<a class="headerlink" href="#api-api-http-linq-service-linq-service-v1-proxy--page-root" title="Permalink to this headline">¶</a></h1>
+<dl class="get">
+<dt id="get--api-v1-proxy-...">
+<code class="descname">GET </code><code class="descname">/api/v1/proxy/...</code><a class="headerlink" href="#get--api-v1-proxy-..." title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward a HTTP request to a connected LinQ enabled device.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v1/proxy/4B_j7lZYk8UByAjU7vjyDB1Uam17wSzri5QMN11q_G8=/ATX/about</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.0</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">192.168.0.22</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json, text/javascript</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.0</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+  <span class="p">{</span>
+    <span class="nt">"siteId"</span><span class="p">:</span> <span class="s2">"LinQ2-Office"</span><span class="p">,</span>
+    <span class="nt">"product"</span><span class="p">:</span> <span class="s2">"LINQ2"</span><span class="p">,</span>
+    <span class="nt">"prjVersion"</span><span class="p">:</span> <span class="s2">"2.01.32"</span><span class="p">,</span>
+    <span class="nt">"mqxVersion"</span><span class="p">:</span> <span class="s2">"4.2.0"</span><span class="p">,</span>
+    <span class="nt">"atxVersion"</span><span class="p">:</span> <span class="s2">"2.02.01"</span><span class="p">,</span>
+    <span class="nt">"mac"</span><span class="p">:</span> <span class="s2">"CC:7F:39:86:E4:DE"</span><span class="p">,</span>
+    <span class="nt">"sid"</span><span class="p">:</span> <span class="s2">"4B_j7lZYk8UByAjU7vjyDB1Uam17wSzri5QMN11q_G8="</span><span class="p">,</span>
+    <span class="nt">"lastSeen"</span><span class="p">:</span> <span class="mi">1580601600</span>
+  <span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+<dl class="post">
+<dt id="post--api-v1-proxy-...">
+<code class="descname">POST </code><code class="descname">/api/v1/proxy/...</code><a class="headerlink" href="#post--api-v1-proxy-..." title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward a HTTP request to a connected LinQ enabled device.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">/api/v1/proxy/4B_j7lZYk8UByAjU7vjyDB1Uam17wSzri5QMN11q_G8=/ATX/about</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.0</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">192.168.0.22</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json, text/javascript</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+   <span class="nt">"siteId"</span><span class="p">:</span> <span class="s2">"Update Site Id"</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.0</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+  <span class="p">{</span>
+    <span class="nt">"error"</span><span class="p">:</span> <span class="mi">200</span>
+  <span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
 
 
 
