@@ -1,4 +1,4 @@
-.. _ref_api_cpp_atx_net_send:
+.. _ref_api_cpp_linq_network_send:
 
 send
 ====

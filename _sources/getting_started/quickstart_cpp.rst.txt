@@ -68,20 +68,20 @@ The LinQ Network C++ binding uses a lambda style API to listen for incoming netw
 Alert
 ~~~~~
 
-The "Alert Callback" is called from the LinQ Network library when a LinQ Enabled device generates an alert. An optional application context, :ref:`alert struct <ref_api_c_atx_net_alert>`, and a :ref:`email struct <ref_api_c_atx_net_email>` are passed into your application alert callback function.
+The "Alert Callback" is called from the LinQ Network library when a LinQ Enabled device generates an alert. An optional application context, :ref:`alert struct <ref_api_c_linq_network_alert>`, and a :ref:`email struct <ref_api_c_linq_network_email>` are passed into your application alert callback function.
 
 .. code-block:: cpp 
 
-   std::function<void(atx_net_alert_s*, atx_net_email_s*, Device&)>;
+   std::function<void(linq_network_alert_s*, linq_network_email_s*, Device&)>;
 
 .. rst-class:: font-small
 .. container::
 
    **See Also**
 
-   1. :ref:`ref_api_c_atx_net_alert`
+   1. :ref:`ref_api_c_linq_network_alert`
 
-   2. :ref:`ref_api_c_atx_net_email`
+   2. :ref:`ref_api_c_linq_network_email`
 
 
 Heartbeat
@@ -96,7 +96,7 @@ The "Heartbeat Callback" is called from the LinQ Network library when a LinQ Ena
 Error
 ~~~~~
 
-The "Error Callback" is called from the LinQ Network library when the LinQ Network library detects a runtime error. An optional application context, and an :ref:`ref_api_c_atx_net_error` are passed into your application error callback function.
+The "Error Callback" is called from the LinQ Network library when the LinQ Network library detects a runtime error. An optional application context, and an :ref:`ref_api_c_linq_network_error` are passed into your application error callback function.
 
 .. code-block:: cpp
 
@@ -107,7 +107,7 @@ The "Error Callback" is called from the LinQ Network library when the LinQ Netwo
 
    **See Also**
 
-   1. :ref:`ref_api_c_atx_net_error`
+   1. :ref:`ref_api_c_linq_network_error`
 
 Ctrlc
 ~~~~~
@@ -121,7 +121,7 @@ The "Ctrlc Callback" is called from the LinQ Network library when the LinQ Netwo
 Process Network IO
 ------------------
 
-The LinQ Network library performs non-blocking IO inside of your thread. To process LinQ Network IO you must call the :ref:`ref_api_c_atx_net_poll` routine from inside of your main loop.  atx_net_poll() will call any callbacks you have provided from the same thread context as your main application.
+The LinQ Network library performs non-blocking IO inside of your thread. To process LinQ Network IO you must call the :ref:`ref_api_c_linq_network_poll` routine from inside of your main loop.  linq_network_poll() will call any callbacks you have provided from the same thread context as your main application.
 
 .. code-block:: c
 
@@ -146,7 +146,7 @@ The LinQ Network library performs non-blocking IO inside of your thread. To proc
 
    **See Also**
 
-   1. :ref:`ref_api_c_atx_net_poll`
+   1. :ref:`ref_api_c_linq_network_poll`
 
    2. sys_running
 
@@ -156,7 +156,7 @@ Complete Application
 
 .. code-block:: cpp
 
-   #include "altronix/atx_net.hpp"
+   #include "altronix/linq_network.hpp"
    
    int
    main(int argc, char *argv[])

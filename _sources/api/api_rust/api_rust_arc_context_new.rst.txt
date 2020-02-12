@@ -23,7 +23,7 @@ Examples
 .. code-block:: rust
 
    fn main() {
-     let net = atx_net::arc::Context::new();
+     let net = linq_network::arc::Context::new();
 
      // ...
    }

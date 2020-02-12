@@ -24,7 +24,7 @@ socket         Socket handle to close. (Returned from listen or connect)
 Example
 -------
 
-See :ref:`ref_api_c_atx_net_listen`
+See :ref:`ref_api_c_linq_network_listen`
 
 .. rubric:: See Also
 

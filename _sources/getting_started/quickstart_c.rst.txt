@@ -69,15 +69,15 @@ To initialize the LinQ Network library you may optionally pass in function point
 Alert Callback
 ~~~~~~~~~~~~~~
 
-The "Alert Callback" is called from the LinQ Network library when a LinQ Enabled device generates an alert. An optional application context, :ref:`alert struct <ref_api_c_atx_net_alert>`, and a :ref:`email struct <ref_api_c_atx_net_email>` are passed into your application alert callback function.
+The "Alert Callback" is called from the LinQ Network library when a LinQ Enabled device generates an alert. An optional application context, :ref:`alert struct <ref_api_c_linq_network_alert>`, and a :ref:`email struct <ref_api_c_linq_network_email>` are passed into your application alert callback function.
 
 .. code-block:: c
 
    static void
    on_alert(
        void* ctx,
-       atx_net_alert_s* alert,
-       atx_net_email_s* mail,
+       linq_network_alert_s* alert,
+       linq_network_email_s* mail,
        device_s** d)
    {
      // ...
@@ -89,11 +89,11 @@ The "Alert Callback" is called from the LinQ Network library when a LinQ Enabled
 
    **See Also**
 
-   1. :ref:`ref_api_c_atx_net_callbacks`
+   1. :ref:`ref_api_c_linq_network_callbacks`
 
-   2. :ref:`ref_api_c_atx_net_alert`
+   2. :ref:`ref_api_c_linq_network_alert`
 
-   3. :ref:`ref_api_c_atx_net_email`
+   3. :ref:`ref_api_c_linq_network_email`
 
 
 Heartbeat Callback
@@ -115,12 +115,12 @@ The "Heartbeat Callback" is called from the LinQ Network library when a LinQ Ena
 
    **See Also**
 
-   1. :ref:`ref_api_c_atx_net_callbacks`
+   1. :ref:`ref_api_c_linq_network_callbacks`
 
 Error Callback
 ~~~~~~~~~~~~~~
 
-The "Error Callback" is called from the LinQ Network library when the LinQ Network library detects a runtime error. An optional application context, and an :ref:`ref_api_c_atx_net_error` are passed into your application error callback function.
+The "Error Callback" is called from the LinQ Network library when the LinQ Network library detects a runtime error. An optional application context, and an :ref:`ref_api_c_linq_network_error` are passed into your application error callback function.
 
 .. code-block:: c
 
@@ -135,9 +135,9 @@ The "Error Callback" is called from the LinQ Network library when the LinQ Netwo
 
    **See Also**
 
-   1. :ref:`ref_api_c_atx_net_callbacks`
+   1. :ref:`ref_api_c_linq_network_callbacks`
 
-   2. :ref:`ref_api_c_atx_net_error`
+   2. :ref:`ref_api_c_linq_network_error`
 
 CTRLC Callback
 ~~~~~~~~~~~~~~
@@ -157,12 +157,12 @@ The "Ctrlc Callback" is called from the LinQ Network library when the LinQ Netwo
 
    **See Also**
 
-   1. :ref:`ref_api_c_atx_net_callbacks`
+   1. :ref:`ref_api_c_linq_network_callbacks`
 
 Process Network IO
 ------------------
 
-The LinQ Network library performs non-blocking IO inside of your thread. To process LinQ Network IO you must call the :ref:`ref_api_c_atx_net_poll` routine from inside of your main loop.  atx_net_poll() will call any callbacks you have provided from the same thread context as your main application.
+The LinQ Network library performs non-blocking IO inside of your thread. To process LinQ Network IO you must call the :ref:`ref_api_c_linq_network_poll` routine from inside of your main loop.  linq_network_poll() will call any callbacks you have provided from the same thread context as your main application.
 
 .. code-block:: c
 
@@ -174,7 +174,7 @@ The LinQ Network library performs non-blocking IO inside of your thread. To proc
 
       while(sys_running())
       {
-        atx_net_poll(linq, 5);
+        linq_network_poll(linq, 5);
       }
 
       // ...
@@ -187,7 +187,7 @@ The LinQ Network library performs non-blocking IO inside of your thread. To proc
 
    **See Also**
 
-   1. :ref:`ref_api_c_atx_net_poll`
+   1. :ref:`ref_api_c_linq_network_poll`
 
    2. sys_running
 
@@ -197,35 +197,35 @@ Complete Application
 .. code-block:: c
 
    // Include the Altronix Header
-   #include "altronix/atx_net.h"
+   #include "altronix/linq_network.h"
    
    // Declare your application callbacks
    static void on_error(void* ctx, E_LINQ_ERROR e, const char *sid, device_s**d);
-   static void on_alert(void* ctx, atx_net_alert_s* alert, atx_net_email_s* mail);
+   static void on_alert(void* ctx, linq_network_alert_s* alert, linq_network_email_s* mail);
    static void on_heartbeat(void* ctx, const char *serial, device_s** d);
-   atx_net_callbacks callbacks = {.err = on_error, .alert = on_alert, .hb = on_heartbeat};
+   linq_network_callbacks callbacks = {.err = on_error, .alert = on_alert, .hb = on_heartbeat};
    
    int
    main(int argc, char *argv[])
    {
      int err = -1;
-     atx_net_socket s;
+     linq_network_socket s;
    
      // Create a linq-network context
-     atx_net_s *network = atx_net_create(&callbacks, NULL);
+     linq_network_s *network = linq_network_create(&callbacks, NULL);
      if(!server) return err;
    
      // Listen for incoming device connections...
-     s = atx_net_listen(server, "tcp://*:33455");
+     s = linq_network_listen(server, "tcp://*:33455");
    
      // Process Socket IO every 5ms
      while (sys_running())
      {
-       atx_net_poll(server, 5);
+       linq_network_poll(server, 5);
      }
    
      // Free linq-network context
-     atx_net_destroy(&server);
+     linq_network_destroy(&server);
    }
    
    static void 
@@ -235,7 +235,7 @@ Complete Application
    }
    
    static void 
-   on_alert(void* ctx, atx_net_alert_s* alert, atx_net_email_s* mail)
+   on_alert(void* ctx, linq_network_alert_s* alert, linq_network_email_s* mail)
    {
      // ...
    }

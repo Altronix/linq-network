@@ -26,13 +26,13 @@ Examples
 
    #[async_attributes::main]
    async fn main() -> Result<(), Box<dyn Error>> {
-       let net = atx_net::arc::Context::new();
-       net.listen(atx_net::Endpoint::Tcp(33455));
+       let net = linq_network::arc::Context::new();
+       net.listen(linq_network::Endpoint::Tcp(33455));
 
        let (serial, _) = net
            .events()
            .filter_map(|e| match e {
-               atx_net::Event::Heartbeat(s) => future::ready(Some(s)),
+               linq_network::Event::Heartbeat(s) => future::ready(Some(s)),
                _ => future::ready(None),
            })
            .take(1)

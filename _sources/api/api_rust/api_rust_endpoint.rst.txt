@@ -10,7 +10,7 @@ Synopsis
 
    pub enum Endpoint;
 
-When atx_net crate needs to listen or connect to a remote endpoint, an endpoint enum must be passed as an argument.
+When linq_network crate needs to listen or connect to a remote endpoint, an endpoint enum must be passed as an argument.
 
 Variants
 --------
@@ -34,5 +34,5 @@ Examples
 
 .. code-block:: rust
 
-   net = atx_net::arc::Context::new();
-   net.listen(atx_net::Endpoint::Tcp(33455));
+   net = linq_network::arc::Context::new();
+   net.listen(linq_network::Endpoint::Tcp(33455));

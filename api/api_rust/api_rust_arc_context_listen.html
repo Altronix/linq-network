@@ -397,7 +397,7 @@
 <span id="ref-api-rust-arc-context-listen"></span><h1 id="api-api-rust-api-rust-arc-context-listen--page-root">arc::Context::listen<a class="headerlink" href="#api-api-rust-api-rust-arc-context-listen--page-root" title="Permalink to this headline">¶</a></h1>
 
 <h2 id="synopsis">Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">listen</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">ep</span>: <span class="nc">Endpoint</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">atx_net_socket</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">listen</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">ep</span>: <span class="nc">Endpoint</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nc">linq_network_socket</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
 <p>This routine will listen for incoming connections (via IPC, or TCP) depending on the endpoint argument.  Using the listen and close api you can dynamically change the port numbers you are listening to during runtime.</p>
@@ -424,13 +424,13 @@
 
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <p class="rubric">listen on port 33455</p>
-<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="kd">let</span><span class="w"> </span><span class="n">net</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">atx_net</span>::<span class="n">arc</span>::<span class="n">Context</span>::<span class="n">new</span><span class="p">();</span><span class="w"></span>
-<span class="n">net</span><span class="p">.</span><span class="n">listen</span><span class="p">(</span><span class="n">atx_net</span>::<span class="n">Endpoint</span>::<span class="n">Tcp</span><span class="p">(</span><span class="mi">33455</span><span class="p">));</span><span class="w"></span>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="kd">let</span><span class="w"> </span><span class="n">net</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">linq_network</span>::<span class="n">arc</span>::<span class="n">Context</span>::<span class="n">new</span><span class="p">();</span><span class="w"></span>
+<span class="n">net</span><span class="p">.</span><span class="n">listen</span><span class="p">(</span><span class="n">linq_network</span>::<span class="n">Endpoint</span>::<span class="n">Tcp</span><span class="p">(</span><span class="mi">33455</span><span class="p">));</span><span class="w"></span>
 </pre></div>
 </div>
 <p class="rubric">listen on IPC “channel” on the current working directory</p>
-<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="kd">let</span><span class="w"> </span><span class="n">net</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">atx_net</span>::<span class="n">arc</span>::<span class="n">Context</span>::<span class="n">new</span><span class="p">();</span><span class="w"></span>
-<span class="n">net</span><span class="p">.</span><span class="n">listen</span><span class="p">(</span><span class="n">atx_net</span>::<span class="n">Endpoint</span>::<span class="n">Ipc</span><span class="p">(</span><span class="s">"local"</span><span class="p">));</span><span class="w"></span>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="kd">let</span><span class="w"> </span><span class="n">net</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">linq_network</span>::<span class="n">arc</span>::<span class="n">Context</span>::<span class="n">new</span><span class="p">();</span><span class="w"></span>
+<span class="n">net</span><span class="p">.</span><span class="n">listen</span><span class="p">(</span><span class="n">linq_network</span>::<span class="n">Endpoint</span>::<span class="n">Ipc</span><span class="p">(</span><span class="s">"local"</span><span class="p">));</span><span class="w"></span>
 </pre></div>
 </div>
 <p class="rubric">See also</p>

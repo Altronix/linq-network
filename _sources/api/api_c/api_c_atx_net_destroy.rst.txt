@@ -1,7 +1,7 @@
 .. include:: ../../roles.rst
-.. _ref_api_c_atx_net_destroy:
+.. _ref_api_c_linq_network_destroy:
 
-atx_net_destroy
+linq_network_destroy
 =================
 
 Synopsis
@@ -9,7 +9,7 @@ Synopsis
 
 .. code-block:: c
 
-   void atx_net_destroy(atx_net_s**);
+   void linq_network_destroy(linq_network_s**);
 
 Free the LinQ Network communication library resource from heap memory.
 
@@ -21,7 +21,7 @@ Parameters
 ========= ===========
 Parameter Description
 ========= ===========
-atx_net** Pointer to the atx_net_s context (returned from atx_net_create)
+linq_network** Pointer to the linq_network_s context (returned from linq_network_create)
 ========= ===========
 
 Example
@@ -29,13 +29,13 @@ Example
 
 .. code-block:: c
 
-   atx_net *netw = atx_net_create(NULL, NULL);
+   linq_network *netw = linq_network_create(NULL, NULL);
 
    // Do some stuff
    // ...
 
-   atx_net_destroy(&netw);
+   linq_network_destroy(&netw);
 
 .. rubric:: See Also
 
-:ref:`atx_net_create <ref_api_c_atx_net_destroy>`
+:ref:`linq_network_create <ref_api_c_linq_network_destroy>`

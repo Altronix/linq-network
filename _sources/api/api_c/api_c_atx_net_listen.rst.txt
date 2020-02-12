@@ -1,7 +1,7 @@
 .. include:: ../../roles.rst
-.. _ref_api_c_atx_net_listen:
+.. _ref_api_c_linq_network_listen:
 
-atx_net_listen
+linq_network_listen
 ================
 
 Synopsis
@@ -9,10 +9,10 @@ Synopsis
 
 .. code-block:: c
 
-   atx_net_socket atx_net_listen(atx_net_s* net, const char *ep);
+   linq_network_socket linq_network_listen(linq_network_s* net, const char *ep);
 
 
-This routine will listen for incoming connections (via IPC, or TCP) depending on the format string passed as the second argument.  Using the atx_net_listen and atx_net_close\_... api's you can dynamically change the port numbers you are listening to during runtime.
+This routine will listen for incoming connections (via IPC, or TCP) depending on the format string passed as the second argument.  Using the linq_network_listen and linq_network_close\_... api's you can dynamically change the port numbers you are listening to during runtime.
 
 .. note:: You must enable the LinQ Library Configuration **WITH_SQLITE** to use the HTTP endpoint
 
@@ -22,7 +22,7 @@ Parameters
 ============== ===========
 Parameter      Description
 ============== ===========
-atx_net_s      Main context of the LinQ Network Library passed to all atx_net routines.
+linq_network_s      Main context of the LinQ Network Library passed to all linq_network routines.
 const char* ep String describing the endpoint the LinQ Network Library should connect to.
 ============== ===========
 
@@ -44,7 +44,7 @@ IPC      ipc://local    Listen for incoming connections on IPC "local" of the cu
 
 .. code-block:: c
 
-   atx_net_socket s = atx_net_listen(netw, "tcp://*:33455");
+   linq_network_socket s = linq_network_listen(netw, "tcp://*:33455");
 
    if (s == LINQ_ERROR_SOCKET) {
       // Socket error ...
@@ -54,9 +54,9 @@ IPC      ipc://local    Listen for incoming connections on IPC "local" of the cu
    // Listening on port 33455...
 
    // Close socket and change the port number
-   atx_net_close(netw, s);
+   linq_network_close(netw, s);
 
-   s = atx_net_listen(netw, "tcp://*:33456");
+   s = linq_network_listen(netw, "tcp://*:33456");
    if (s == LINQ_ERROR_SOCKET) {
       // Socket error ...
       return -1;
@@ -65,15 +65,15 @@ IPC      ipc://local    Listen for incoming connections on IPC "local" of the cu
    // Listening on port 33456...
 
    // Clean up LinQ Network
-   atx_net_destroy(&netw);
+   linq_network_destroy(&netw);
 
 .. rst-class:: font-small
 .. container::
 
    **See Also**
 
-   1. :ref:`ref_api_c_atx_net_socket`
+   1. :ref:`ref_api_c_linq_network_socket`
 
-   2. :ref:`ref_api_c_atx_net_connect`
+   2. :ref:`ref_api_c_linq_network_connect`
 
-   3. :ref:`ref_api_c_atx_net_close`
+   3. :ref:`ref_api_c_linq_network_close`

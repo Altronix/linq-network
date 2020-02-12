@@ -1,7 +1,7 @@
 .. include:: ../../roles.rst
-.. _ref_api_c_atx_net_error:
+.. _ref_api_c_linq_network_error:
 
-atx_net_error
+linq_network_error
 ===============
 
 Synopsis
@@ -11,7 +11,7 @@ Synopsis
 
    typedef enum E_LINQ_ERROR;
    
-Many LinQ Network Library routines return a status code representing the result of the routines execution. The status code is defined by the atx_net_error enum.
+Many LinQ Network Library routines return a status code representing the result of the routines execution. The status code is defined by the linq_network_error enum.
 
 .. table::
    :align: left
