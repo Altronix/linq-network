@@ -45,6 +45,11 @@ extern "C"
         uint32_t keys_len,
         const char* vals,
         uint32_t vals_len);
+    int database_insert_device_from_about(
+        database_s* db,
+        const char* serial,
+        const char* about,
+        uint32_t about_len);
 
 #ifdef __cplusplus
 }

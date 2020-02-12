@@ -69,61 +69,18 @@ on_zmtp_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 }
 
 static void
-on_heartbeat_response(
-    void* ctx,
-    E_LINQ_ERROR e,
-    const char* response,
-    device_s** d)
+on_heartbeat_response(void* ctx, E_LINQ_ERROR e, const char* r, device_s** d)
 {
     linq_network_s* l = ctx;
     atx_str sid, product, prj_version, atx_version, web_version, mac;
-    const char* ser = device_serial(*d);
+    const char* serial = device_serial(*d);
     uint32_t count;
     jsmntok_t t[64];
     if (e) {
-        log_warn("(ZMTP) [%.6s...] (%.3d) About request failed!", ser, e);
+        log_warn("(ZMTP) [%.6s...] (%.3d) About request failed!", serial, e);
     } else {
 #ifdef WITH_SQLITE
-        char keys[128], vals[128];
-        // clang-format off
-        log_info(
-            "(ZMTP) [%.6s...] (%.3d) Adding device to database...",
-            ser,
-            e);
-        count = jsmn_parse_tokens_path(
-            "/about",
-            t,
-            64,
-            response,
-            strlen(response),
-            6,
-            "sid",        &sid,
-            "product",    &product,
-            "prjVersion", &prj_version,
-            "atxVersion", &atx_version,
-            "webVersion", &web_version,
-            "mac",        &mac);
-        if(count == 6){
-            uint32_t keylen = snprintf(
-                keys, sizeof(keys),
-                "%s",
-                "device_id,product,prj_version,atx_version,web_version,mac");
-            uint32_t vallen = snprintf(
-                vals, sizeof(vals),
-                "\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\"",
-                sid.len,         sid.p,
-                product.len,     product.p,
-                prj_version.len, prj_version.p,
-                atx_version.len, atx_version.p,
-                web_version.len, web_version.p,
-                mac.len,         mac.p);
-            // clang-format on
-            int err = database_insert_raw_n(
-                &l->database, "devices", keys, keylen, vals, vallen);
-            log_debug("(ZMTP) Database device insert result (%d)", err);
-        } else {
-            log_debug("(ZMTP) Heartbeat parser error");
-        }
+        database_insert_device_from_about(&l->database, serial, r, strlen(r));
 #endif
     }
 }

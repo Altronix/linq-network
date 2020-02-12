@@ -312,6 +312,7 @@ http_broadcast_json(http_s* http, int code, const char* fmt, ...)
     va_end(list);
 
     if (len) {
+        // TODO need __wrap_mg_next() to test broadcast output
         for (c = mg_next(&http->connections, NULL); c != NULL;
              c = mg_next(&http->connections, c)) {
             mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mem, len);

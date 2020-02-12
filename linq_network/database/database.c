@@ -1,4 +1,5 @@
 #include "database.h"
+#include "jsmn/jsmn_helpers.h"
 #include "log.h"
 
 #define DATABASE_DEVICES                                                       \
@@ -305,4 +306,56 @@ database_insert_raw_n(
     uint32_t vals_len)
 {
     return row_insert(d, table, keys, keys_len, vals, vals_len);
+}
+
+int
+database_insert_device_from_about(
+    database_s* db,
+    const char* serial,
+    const char* about,
+    uint32_t about_len)
+{
+    int err = -1;
+    atx_str sid, product, prj_version, atx_version, web_version, mac;
+    char vals[128];
+    const char* keys =
+        "device_id,product,prj_version,atx_version,web_version,mac";
+    uint32_t keylen = strlen(keys), count;
+    jsmntok_t t[64];
+
+    log_info("(DATA) [%.6s...] Adding device to database...", serial);
+    // clang-format off
+    count = jsmn_parse_tokens_path(
+        "/about",
+        t,
+        64,
+        about,
+        about_len,
+        6,
+        "sid",       &sid,
+        "product",   &product,
+        "prjVersion",&prj_version,
+        "atxVersion",&atx_version,
+        "webVersion",&web_version,
+        "mac",       &mac);
+    // clang-format on
+    if (count == 6) {
+        // clang-format off
+        uint32_t vallen = snprintf(
+            vals,
+            sizeof(vals),
+            "\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\"",
+            sid.len,         sid.p,
+            product.len,     product.p,
+            prj_version.len, prj_version.p,
+            atx_version.len, atx_version.p,
+            web_version.len, web_version.p,
+            mac.len,         mac.p);
+        // clang-format on
+        err = database_insert_raw_n(db, "devices", keys, keylen, vals, vallen);
+        log_debug("(DATA) Database device insert result (%d)", err);
+    } else {
+        log_debug("(DATA) Heartbeat parser error");
+    }
+    return err;
 }
