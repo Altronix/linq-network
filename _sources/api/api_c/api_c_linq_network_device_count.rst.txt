@@ -17,11 +17,11 @@ Return the number of devices connected to your LinQ Network context.
 Parameters
 ----------
 
-========== ===========
-Parameter  Description
-========== ===========
+=============== ===========
+Parameter       Description
+=============== ===========
 linq_network_s* Main context of the LinQ Network Library passed to all linq_network routines.
-========== ===========
+=============== ===========
 
 Examples
 --------

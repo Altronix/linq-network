@@ -17,12 +17,12 @@ This routine will close a connection.
 Parameters
 ----------
 
-============== ==========
-Parameter      Description
-============== ==========
+=================== ==========
+Parameter           Description
+=================== ==========
 linq_network        Main context of the LinQ Network Library passed to all linq_network routines.
 linq_network_socket socket to close. (Returned from linq_network_listen or linq_network_connect)
-============== ==========
+=================== ==========
 
 
 Examples

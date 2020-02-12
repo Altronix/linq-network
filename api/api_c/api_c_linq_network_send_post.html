@@ -409,6 +409,37 @@
 
 
 <h2 id="paremters">Paremters<a class="headerlink" href="#paremters" title="Permalink to this headline">¶</a></h2>
+<table border="1">
+<colgroup>
+<col width="30%"/>
+<col width="70%"/>
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>linq_network_s* linq</td>
+<td>Main context of the LinQ Network Library passed to all linq_network routines</td>
+</tr>
+<tr class="row-odd"><td>const char* serial</td>
+<td>Serial number of the product for which to receive the request</td>
+</tr>
+<tr class="row-even"><td>const char* path</td>
+<td>URL of the request</td>
+</tr>
+<tr class="row-odd"><td>const char* json</td>
+<td>Body of the request</td>
+</tr>
+<tr class="row-even"><td>linq_network_request_complete_fn</td>
+<td>fn  Callback function with response from the request</td>
+</tr>
+<tr class="row-odd"><td>void* context</td>
+<td>Application data passed to the callback</td>
+</tr>
+</tbody>
+</table>
 
 
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>

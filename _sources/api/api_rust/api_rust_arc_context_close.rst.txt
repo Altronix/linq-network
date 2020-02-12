@@ -15,11 +15,11 @@ This routine will close a connection created by :ref:`ref_api_rust_arc_context_l
 Parameters
 ----------
 
-=============== ===========
-Parameter       Description
-=============== ===========
+==================== ===========
+Parameter            Description
+==================== ===========
 &linq_network_socket socket handle representing the connection to close (returned from :ref:`ref_api_rust_arc_context_listen` and :ref:`ref_api_rust_arc_context_connect`
-=============== ===========
+==================== ===========
 
 Examples
 --------
