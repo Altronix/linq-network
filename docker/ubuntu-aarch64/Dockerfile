@@ -19,6 +19,7 @@ COPY ./include /tmp/include
 COPY ./cmake /tmp/cmake
 COPY ./CMakeLists.txt /tmp/CMakeLists.txt
 COPY ./external /tmp/external
+COPY ./docker/start.sh /opt/linq-network/bin/start.sh
 
 WORKDIR /tmp
 
@@ -37,4 +38,4 @@ RUN \
 
 EXPOSE 8000 8001 33455
 
-ENTRYPOINT ["./docker/start.sh"]
+ENTRYPOINT ["/opt/linq-network/bin/start.sh"]
