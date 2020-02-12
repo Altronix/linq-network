@@ -144,11 +144,12 @@ if(ENABLE_TESTING)
   # add test coverage
   APPEND_COVERAGE_COMPILER_FLAGS()
   set(COVERAGE_EXCLUDES 
-    "${PROJECT_SOURCE_DIR}/src/base64.*"
-    "${PROJECT_SOURCE_DIR}/src/mongoose.*"
-    "${PROJECT_SOURCE_DIR}/src/sqlite3.*"
-    "${PROJECT_SOURCE_DIR}/src/mock/*"
-    "${PROJECT_SOURCE_DIR}/external/*")
+    "examples/server/*"
+    "src/base64.*"
+    "src/mongoose.*"
+    "src/sqlite3.*"
+    "src/sys/mock/*"
+    "external/http_parser/*")
 
   setup_target_for_coverage_lcov(NAME test-coverage
     EXECUTABLE test-containers
