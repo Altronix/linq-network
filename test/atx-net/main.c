@@ -294,6 +294,8 @@ test_linq_network_receive_heartbeat_ok_insert_device(void** context_p)
     assert_memory_equal(expect_insert, statement->data, statement->len);
     linq_network_free(statement);
 
+    // TODO measure http broadcast
+
     test_reset(&test);
 }
 
@@ -397,6 +399,8 @@ test_linq_network_receive_alert_insert(void** context_p)
     ((void)expect_values); // TODO the uuid is random each test so we can't
                            // compare. (Mocking uuid is challenging)
     linq_network_free(statement);
+
+    // TODO verify websocket broadcast on mongoose outgoing
 
     test_reset(&test);
 }
@@ -887,12 +891,6 @@ test_linq_network_broadcast_heartbeat(void** context_p)
 }
 
 static void
-test_linq_network_broadcast_heartbeat_websocket(void** context_p)
-{
-    // TODO
-}
-
-static void
 test_linq_network_broadcast_alert(void** context_p)
 {
     ((void)context_p);
@@ -1267,7 +1265,6 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_network_receive_hello_double_id),
         cmocka_unit_test(test_linq_network_broadcast_heartbeat),
         cmocka_unit_test(test_linq_network_broadcast_heartbeat_receive),
-        cmocka_unit_test(test_linq_network_broadcast_heartbeat_websocket),
         cmocka_unit_test(test_linq_network_broadcast_alert),
         cmocka_unit_test(test_linq_network_forward_request),
         cmocka_unit_test(test_linq_network_forward_client_request),

@@ -145,10 +145,10 @@ if(ENABLE_TESTING)
   APPEND_COVERAGE_COMPILER_FLAGS()
   set(COVERAGE_EXCLUDES 
     "examples/server/*"
-    "src/base64.*"
-    "src/mongoose.*"
-    "src/sqlite3.*"
-    "src/sys/mock/*"
+    "linq_network/base64.*"
+    "linq_network/mongoose.*"
+    "linq_network/sqlite3.*"
+    "linq_network/sys/mock/*"
     "external/http_parser/*")
 
   setup_target_for_coverage_lcov(NAME test-coverage
@@ -163,7 +163,7 @@ if(ENABLE_TESTING)
 
 endif()
 
-add_subdirectory(src)
+add_subdirectory(linq_network)
 add_subdirectory(bindings/cpp)
 
 option(BUILD_EXAMPLES "Whether or not to build the examples" OFF)
