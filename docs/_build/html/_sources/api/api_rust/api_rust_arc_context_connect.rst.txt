@@ -8,9 +8,9 @@ Synopsis
 
 .. code-block:: rust
 
-   pub fn connect(&self, ep: Endpoint) -> atx_net_socket;
+   pub fn connect(&self, ep: Endpoint) -> linq_network_socket;
 
-This routine will connect to a remote instance of atx_net (via IPC, or TCP) depending on the endpoint argument.
+This routine will connect to a remote instance of linq_network (via IPC, or TCP) depending on the endpoint argument.
 
 Parameters
 ----------
@@ -28,15 +28,15 @@ Examples
 
 .. code-block:: rust
 
-   let net = atx_net::arc::Context::new();
-   net.connect(atx_net::Endpoint::Tcp(33455));
+   let net = linq_network::arc::Context::new();
+   net.connect(linq_network::Endpoint::Tcp(33455));
 
 .. rubric:: connect to IPC "channel" on the current working directory
 
 .. code-block:: rust
 
-   let net = atx_net::arc::Context::new();
-   net.connect(atx_net::Endpoint::Ipc("local"));
+   let net = linq_network::arc::Context::new();
+   net.connect(linq_network::Endpoint::Ipc("local"));
 
 .. rubric:: See also
 

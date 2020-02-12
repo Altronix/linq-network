@@ -2,12 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "atx_net.hpp"
+#include "linq_network.hpp"
 #include "device.h"
 
 extern "C"
 {
-#include "atx_net_internal.h"
+#include "linq_network_internal.h"
 #include "helpers.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
@@ -33,7 +33,7 @@ test_reset()
 }
 
 static void
-test_atx_net_create(void** context_p)
+test_linq_network_create(void** context_p)
 {
     ((void)context_p);
 
@@ -46,7 +46,7 @@ test_atx_net_create(void** context_p)
 }
 
 static void
-test_atx_net_device(void** context_p)
+test_linq_network_device(void** context_p)
 {
     ((void)context_p);
 
@@ -70,7 +70,7 @@ test_atx_net_device(void** context_p)
 }
 
 static void
-test_atx_net_devices(void** context_p)
+test_linq_network_devices(void** context_p)
 {
     ((void)context_p);
 
@@ -98,7 +98,7 @@ test_atx_net_devices(void** context_p)
 }
 
 static void
-test_atx_net_alert(void** context_p)
+test_linq_network_alert(void** context_p)
 {
     ((void)context_p);
 
@@ -117,8 +117,8 @@ test_atx_net_alert(void** context_p)
 
     l.listen("tcp://*:32820");
     l.on_alert([&alert_pass](
-                   atx_net_alert_s* alert,
-                   atx_net_email_s* email,
+                   linq_network_alert_s* alert,
+                   linq_network_email_s* email,
                    altronix::Device& d) {
         assert_string_equal(d.serial(), "serial");
         assert_memory_equal(alert->who.p, "TestUser", 8);
@@ -143,7 +143,7 @@ test_atx_net_alert(void** context_p)
 }
 
 void
-test_atx_net_send(void** context_p)
+test_linq_network_send(void** context_p)
 {
     ((void)context_p);
     zmsg_t* hb = helpers_make_heartbeat("rid0", "serial0", "pid", "sid");
@@ -180,11 +180,11 @@ main(int argc, char* argv[])
     ((void)argv);
     int err;
     const struct CMUnitTest tests[] = //
-        { cmocka_unit_test(test_atx_net_device),
-          cmocka_unit_test(test_atx_net_devices),
-          cmocka_unit_test(test_atx_net_create),
-          cmocka_unit_test(test_atx_net_alert),
-          cmocka_unit_test(test_atx_net_send) };
+        { cmocka_unit_test(test_linq_network_device),
+          cmocka_unit_test(test_linq_network_devices),
+          cmocka_unit_test(test_linq_network_create),
+          cmocka_unit_test(test_linq_network_alert),
+          cmocka_unit_test(test_linq_network_send) };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
     return err;

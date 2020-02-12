@@ -1,12 +1,12 @@
 .. include:: ../../roles.rst
-.. _ref_api_c_atx_net_socket:
+.. _ref_api_c_linq_network_socket:
 
-atx_net_socket
+linq_network_socket
 ==============
 
 .. code-block:: c
 
-   typedef uint32_t atx_net_socket;
+   typedef uint32_t linq_network_socket;
 
 A socket handle used to represent a specific connection.
 
@@ -15,7 +15,7 @@ Example
 
 .. code-block:: c
 
-   atx_net_socket s = atx_net_listen(netw, "tcp://*:33455");
+   linq_network_socket s = linq_network_listen(netw, "tcp://*:33455");
 
    if (s == LINQ_ERROR_SOCKET) {
       // Socket error ...
@@ -23,7 +23,7 @@ Example
       // Listening on port 33455 ...
 
       // Close socket
-      atx_net_close(netw, s);
+      linq_network_close(netw, s);
    }
 
 .. rst-class:: font-small
@@ -31,6 +31,6 @@ Example
 
    **See Also**
 
-   1. :ref:`ref_api_c_atx_net_listen`
+   1. :ref:`ref_api_c_linq_network_listen`
 
-   2. atx_net_listen
+   2. linq_network_listen

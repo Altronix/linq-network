@@ -107,7 +107,7 @@ pop_le(zmsg_t* msg, uint32_t le)
 
 // read incoming zmq frame and test valid json
 static zframe_t*
-pop_alert(zmsg_t* msg, atx_net_alert_s* alert)
+pop_alert(zmsg_t* msg, linq_network_alert_s* alert)
 {
     int count, sz;
     zframe_t* f = pop_le(msg, JSON_LEN);
@@ -132,7 +132,7 @@ pop_alert(zmsg_t* msg, atx_net_alert_s* alert)
 }
 
 static zframe_t*
-pop_email(zmsg_t* msg, atx_net_email_s* emails)
+pop_email(zmsg_t* msg, linq_network_email_s* emails)
 {
     int count, sz;
     zframe_t* f = pop_le(msg, JSON_LEN);
@@ -330,8 +330,8 @@ process_alert(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     char alert_data[JSON_LEN];
     char email_data[JSON_LEN];
-    atx_net_alert_s alert;
-    atx_net_email_s email;
+    linq_network_alert_s alert;
+    linq_network_email_s email;
     memset(&alert, 0, sizeof(alert));
     memset(&email, 0, sizeof(email));
     alert.data = alert_data;
@@ -465,7 +465,7 @@ zmtp_deinit(zmtp_s* zmtp)
     log_debug("(ZMTP) Context destroyed...");
 }
 
-atx_net_socket
+linq_network_socket
 zmtp_listen(zmtp_s* zmtp, const char* ep)
 {
     zsock_t* socket = zsock_new_router(ep);
@@ -479,7 +479,7 @@ zmtp_listen(zmtp_s* zmtp, const char* ep)
     }
 }
 
-atx_net_socket
+linq_network_socket
 zmtp_connect(zmtp_s* zmtp, const char* ep)
 {
     zsock_t* socket = zsock_new_dealer(ep);
@@ -506,7 +506,7 @@ foreach_device_remove_if_sock_eq(
     device_s** device_p)
 {
     zsock_t* eq = ctx;
-    atx_net_socket_s* socket = ((atx_net_socket_s*)*device_p);
+    linq_network_socket_s* socket = ((linq_network_socket_s*)*device_p);
     if (eq == socket->sock) device_map_remove(self, serial);
 }
 
@@ -518,7 +518,7 @@ foreach_node_remove_if_sock_eq(
     node_s** device_p)
 {
     zsock_t* eq = ctx;
-    atx_net_socket_s* socket = ((atx_net_socket_s*)*device_p);
+    linq_network_socket_s* socket = ((linq_network_socket_s*)*device_p);
     if (eq == socket->sock) node_map_remove(self, serial);
 }
 
@@ -535,7 +535,7 @@ remove_nodes(zsock_t** s, node_map_s* nodes)
 }
 
 E_LINQ_ERROR
-zmtp_close_router(zmtp_s* zmtp, atx_net_socket handle)
+zmtp_close_router(zmtp_s* zmtp, linq_network_socket handle)
 {
     int socket = ATX_NET_SOCKET(handle);
     zsock_t** s = socket_map_resolve(zmtp->routers, socket);
@@ -549,7 +549,7 @@ zmtp_close_router(zmtp_s* zmtp, atx_net_socket handle)
 }
 
 E_LINQ_ERROR
-zmtp_close_dealer(zmtp_s* zmtp, atx_net_socket handle)
+zmtp_close_dealer(zmtp_s* zmtp, linq_network_socket handle)
 {
     int socket = ATX_NET_SOCKET(handle);
     zsock_t** s = socket_map_resolve(zmtp->dealers, socket);
@@ -636,7 +636,7 @@ zmtp_poll(zmtp_s* zmtp, int32_t ms)
     zmq_pollitem_t items[MAX_CONNECTIONS], *ptr = items;
     int err, n_router = socket_map_size(zmtp->routers),
              n_dealer = socket_map_size(zmtp->dealers);
-    atx_net_assert(n_router + n_dealer < MAX_CONNECTIONS);
+    linq_network_assert(n_router + n_dealer < MAX_CONNECTIONS);
 
     memset(items, 0, sizeof(items));
     populate_sockets(zmtp->routers, &ptr);
@@ -666,7 +666,7 @@ zmtp_poll(zmtp_s* zmtp, int32_t ms)
 }
 
 static void
-send_error(atx_net_request_complete_fn fn, void* context, E_LINQ_ERROR e)
+send_error(linq_network_request_complete_fn fn, void* context, E_LINQ_ERROR e)
 {
     char err[32];
     if (fn) {
@@ -680,7 +680,7 @@ zmtp_device_send_get(
     const zmtp_s* zmtp,
     const char* serial,
     const char* path,
-    atx_net_request_complete_fn fn,
+    linq_network_request_complete_fn fn,
     void* context)
 {
     device_s** d = device_get(zmtp, serial);
@@ -699,7 +699,7 @@ zmtp_device_send_post(
     const char* serial,
     const char* path,
     const char* json,
-    atx_net_request_complete_fn fn,
+    linq_network_request_complete_fn fn,
     void* context)
 {
     device_s** d = device_get(zmtp, serial);
@@ -717,7 +717,7 @@ zmtp_device_send_delete(
     const zmtp_s* zmtp,
     const char* serial,
     const char* path,
-    atx_net_request_complete_fn fn,
+    linq_network_request_complete_fn fn,
     void* context)
 {
     device_s** d = device_get(zmtp, serial);

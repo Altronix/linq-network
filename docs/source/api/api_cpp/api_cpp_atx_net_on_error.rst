@@ -1,4 +1,4 @@
-.. _ref_api_cpp_atx_net_on_error:
+.. _ref_api_cpp_linq_network_on_error:
 
 on_error
 ========

@@ -2,7 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-extern crate atx_net_sys;
+extern crate linq_network_sys;
 use std::error;
 use std::fmt;
 
@@ -73,9 +73,9 @@ impl error::Error for NetworkError {
     }
 }
 
-impl From<atx_net_sys::E_LINQ_ERROR> for NetworkError {
-    fn from(err: atx_net_sys::E_LINQ_ERROR) -> NetworkError {
-        use atx_net_sys::*;
+impl From<linq_network_sys::E_LINQ_ERROR> for NetworkError {
+    fn from(err: linq_network_sys::E_LINQ_ERROR) -> NetworkError {
+        use linq_network_sys::*;
         match err {
             E_LINQ_ERROR_LINQ_ERROR_OK => NetworkError {
                 kind: NetworkErrorKind::Ok,

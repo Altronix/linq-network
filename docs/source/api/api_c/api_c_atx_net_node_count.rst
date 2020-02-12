@@ -1,7 +1,7 @@
 .. include:: ../../roles.rst
-.. _ref_api_c_atx_net_node_count:
+.. _ref_api_c_linq_network_node_count:
 
-atx_net_node_count
+linq_network_node_count
 ======================
 
 Synopsis
@@ -9,9 +9,9 @@ Synopsis
 
 .. code-block:: c
 
-   uint32_t atx_net_node_count(atx_net_s* netw);
+   uint32_t linq_network_node_count(linq_network_s* netw);
 
-Return the number of nodes connected to your LinQ Network context. Any time you connect to a remote atx_net instance, the node count will increase by 1. Anytime you close a connection to a remote atx_net instance, the node count will decrease by 1.
+Return the number of nodes connected to your LinQ Network context. Any time you connect to a remote linq_network instance, the node count will increase by 1. Anytime you close a connection to a remote linq_network instance, the node count will decrease by 1.
 
 Parameters
 ----------
@@ -19,7 +19,7 @@ Parameters
 ========= ===========
 Parameter Description
 ========= ===========
-atx_net   Main context of the LinQ Network Library passed to all atx_net routines.
+linq_network   Main context of the LinQ Network Library passed to all linq_network routines.
 ========= ===========
 
 Examples
@@ -29,23 +29,23 @@ Examples
 
 .. code-block:: c
 
-   atx_net* netw = atx_net_create(NULL, NULL);
+   linq_network* netw = linq_network_create(NULL, NULL);
    assert(netw);
 
-   assert(atx_net_node_count(netw) == 0);
+   assert(linq_network_node_count(netw) == 0);
 
-   atx_net_socket tcp = atx_net_connect(netw, "tcp://127.0.0.1:33455");
+   linq_network_socket tcp = linq_network_connect(netw, "tcp://127.0.0.1:33455");
    
-   assert(atx_net_node_count(netw) == 1);
+   assert(linq_network_node_count(netw) == 1);
 
-   atx_net_socket ipc = atx_net_connect(netw, "ipc://channel");
+   linq_network_socket ipc = linq_network_connect(netw, "ipc://channel");
 
-   assert(atx_net_node_count(netw) == 2);
+   assert(linq_network_node_count(netw) == 2);
 
-   atx_net_close(netw, ipc);
+   linq_network_close(netw, ipc);
 
-   assert(atx_net_node_count(netw) == 1);
+   assert(linq_network_node_count(netw) == 1);
 
-   atx_net_close(netw, tcp);
+   linq_network_close(netw, tcp);
 
-   assert(atx_net_node_count(netw) == 0);
+   assert(linq_network_node_count(netw) == 0);

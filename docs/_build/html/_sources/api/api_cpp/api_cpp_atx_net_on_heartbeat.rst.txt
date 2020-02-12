@@ -1,4 +1,4 @@
-.. _ref_api_cpp_atx_net_on_heartbeat:
+.. _ref_api_cpp_linq_network_on_heartbeat:
 
 on_heartbeat
 ============

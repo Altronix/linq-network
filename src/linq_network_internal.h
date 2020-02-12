@@ -14,7 +14,7 @@
 #undef INVALID_SOCKET // Mongoose and czmq both define these
 
 // project includes
-#include "altronix/atx_net.h"
+#include "altronix/linq_network.h"
 
 #if WITH_SQLITE
 #include "database/database.h"
@@ -97,7 +97,7 @@ extern "C"
     {
         zsock_t* sock;
         router_s* router;
-    } atx_net_socket_s;
+    } linq_network_socket_s;
 
     // helpful struct for maintaining frames
     typedef struct
@@ -116,7 +116,7 @@ extern "C"
     extern char g_frame_typ_hello;
 
 #ifdef WITH_SQLITE
-    database_s* atx_net_database(atx_net_s* l);
+    database_s* linq_network_database(linq_network_s* l);
 #endif
 
 #ifdef __cplusplus

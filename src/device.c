@@ -25,17 +25,17 @@ typedef struct request_s
     uint32_t retry_at;
     uint32_t retry_count;
     void* ctx;
-    atx_net_request_complete_fn on_complete;
+    linq_network_request_complete_fn on_complete;
     zframe_t* frames[FRAME_REQ_DATA_IDX + 1];
 } request_s;
 static void request_destroy(request_s** r_p);
 LIST_INIT(request, request_s, request_destroy);
 
-// main class struct (extends atx_net_socket_s)
+// main class struct (extends linq_network_socket_s)
 typedef struct device_s
 {
-    zsock_t* sock;   // atx_net_socket_s expects zsock_t* to be first
-    router_s router; // atx_net_socket_s expects router to be second
+    zsock_t* sock;   // linq_network_socket_s expects zsock_t* to be first
+    router_s router; // linq_network_socket_s expects router to be second
     char serial[SID_LEN];
     request_list_s* requests;
     request_s* request_pending;
@@ -88,13 +88,13 @@ request_alloc_mem(
     uint32_t plen,
     const char* d,
     uint32_t dlen,
-    atx_net_request_complete_fn fn,
+    linq_network_request_complete_fn fn,
     void* context)
 {
     bool hop = device_hops(device);
     const char* s = device_serial(device);
     uint32_t slen = strlen(s);
-    request_s* r = atx_net_malloc(sizeof(request_s));
+    request_s* r = linq_network_malloc(sizeof(request_s));
     if (r) {
         memset(r, 0, sizeof(request_s));
         r->on_complete = fn;
@@ -119,7 +119,7 @@ request_alloc(
     E_REQUEST_METHOD method,
     const char* path,
     const char* json,
-    atx_net_request_complete_fn on_complete,
+    linq_network_request_complete_fn on_complete,
     void* context)
 {
     return request_alloc_mem(
@@ -141,7 +141,7 @@ request_destroy(request_s** r_p)
     for (uint32_t i = 0; i < (sizeof(r->frames) / sizeof(zframe_t*)); i++) {
         if (r->frames[i]) zframe_destroy(&r->frames[i]);
     }
-    atx_net_free(r);
+    linq_network_free(r);
 }
 
 static void
@@ -149,7 +149,7 @@ request_router_id_set(request_s* r, uint8_t* rid, uint32_t rid_len)
 {
     if (r->frames[FRAME_RID_IDX]) zframe_destroy(&r->frames[FRAME_RID_IDX]);
     r->frames[FRAME_RID_IDX] = zframe_new(rid, rid_len);
-    atx_net_assert(r->frames[FRAME_RID_IDX]);
+    linq_network_assert(r->frames[FRAME_RID_IDX]);
 }
 
 static const char*
@@ -166,7 +166,7 @@ request_send(request_s* r, zsock_t* sock)
     while (c < FRAME_REQ_DATA_IDX) {
         if (r->frames[c]) {
             zframe_t* f = zframe_dup(r->frames[c]);
-            atx_net_assert(f);
+            linq_network_assert(f);
             zmsg_append(msg, &f);
         }
         c++;
@@ -186,7 +186,7 @@ device_create(
     const char* serial,
     const char* type)
 {
-    device_s* d = atx_net_malloc(sizeof(device_s));
+    device_s* d = linq_network_malloc(sizeof(device_s));
     if (d) {
         memset(d, 0, sizeof(device_s));
         d->sock = sock;
@@ -211,7 +211,7 @@ device_destroy(device_s** d_p)
     request_list_destroy(&d->requests);
     memset(d, 0, sizeof(device_s));
     *d_p = NULL;
-    atx_net_free(d);
+    linq_network_free(d);
 }
 
 const char*
@@ -283,7 +283,7 @@ send_method(
     uint32_t plen,
     const char* json,
     uint32_t jlen,
-    atx_net_request_complete_fn fn,
+    linq_network_request_complete_fn fn,
     void* context)
 {
     request_s* r =
@@ -300,7 +300,7 @@ void
 device_send_delete(
     device_s* d,
     const char* path,
-    atx_net_request_complete_fn fn,
+    linq_network_request_complete_fn fn,
     void* context)
 {
     uint32_t plen = strlen(path);
@@ -312,7 +312,7 @@ device_send_delete_mem(
     device_s* d,
     const char* path,
     uint32_t plen,
-    atx_net_request_complete_fn fn,
+    linq_network_request_complete_fn fn,
     void* context)
 {
     send_method(d, REQUEST_METHOD_DELETE, path, plen, NULL, 0, fn, context);
@@ -322,7 +322,7 @@ void
 device_send_get(
     device_s* d,
     const char* path,
-    atx_net_request_complete_fn fn,
+    linq_network_request_complete_fn fn,
     void* context)
 {
     uint32_t plen = strlen(path);
@@ -334,7 +334,7 @@ device_send_get_mem(
     device_s* d,
     const char* path,
     uint32_t plen,
-    atx_net_request_complete_fn fn,
+    linq_network_request_complete_fn fn,
     void* context)
 {
     send_method(d, REQUEST_METHOD_GET, path, plen, NULL, 0, fn, context);
@@ -345,7 +345,7 @@ device_send_post(
     device_s* d,
     const char* path,
     const char* json,
-    atx_net_request_complete_fn fn,
+    linq_network_request_complete_fn fn,
     void* context)
 {
     uint32_t plen = strlen(path), jlen = strlen(json);
@@ -359,7 +359,7 @@ device_send_post_mem(
     uint32_t plen,
     const char* json,
     uint32_t jlen,
-    atx_net_request_complete_fn fn,
+    linq_network_request_complete_fn fn,
     void* context)
 {
     send_method(d, REQUEST_METHOD_POST, path, plen, json, jlen, fn, context);
@@ -370,7 +370,7 @@ device_send(
     device_s* d,
     const char* path,
     const char* json,
-    atx_net_request_complete_fn fn,
+    linq_network_request_complete_fn fn,
     void* context)
 {
     uint32_t plen = strlen(path), jlen = json ? strlen(json) : 0;
@@ -386,21 +386,21 @@ device_request_sent_at(device_s* r)
 uint32_t
 device_request_retry_count(device_s* r)
 {
-    atx_net_assert(r->request_pending);
+    linq_network_assert(r->request_pending);
     return r->request_pending->retry_count;
 }
 
 uint32_t
 device_request_retry_at(device_s* r)
 {
-    atx_net_assert(r->request_pending);
+    linq_network_assert(r->request_pending);
     return r->request_pending->retry_at;
 }
 
 void
 device_request_retry_at_set(device_s* r, uint32_t set)
 {
-    atx_net_assert(r->request_pending);
+    linq_network_assert(r->request_pending);
     r->request_pending->retry_at = set;
 }
 
@@ -417,7 +417,7 @@ device_request_resolve(device_s* d, E_LINQ_ERROR err, const char* str)
 void
 device_request_flush(device_s* d)
 {
-    atx_net_assert(d->request_pending == NULL);
+    linq_network_assert(d->request_pending == NULL);
     request_s** r_p = &d->request_pending;
     *r_p = request_list_pop(d->requests);
     if (d->router.sz) request_router_id_set(*r_p, d->router.id, d->router.sz);
@@ -431,7 +431,7 @@ device_request_flush(device_s* d)
 void
 device_request_retry(device_s* d)
 {
-    atx_net_assert(d->request_pending);
+    linq_network_assert(d->request_pending);
     request_s** r_p = &d->request_pending;
     (*r_p)->retry_at = 0;
     (*r_p)->retry_count++;

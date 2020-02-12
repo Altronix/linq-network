@@ -1,4 +1,4 @@
-#include "altronix/atx_net.h"
+#include "altronix/linq_network.h"
 #include "helpers.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
@@ -45,7 +45,7 @@ test_route_create_admin_ok(void** context_p)
 
     // Simulate http request
     mongoose_spy_event_request_push(UNSAFE_TOKEN, "POST", req_path, req_body);
-    for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
+    for (int i = 0; i < 4; i++) linq_network_poll(test->net, -1);
 
     // Process request
     mongoose_parser_context* response = mongoose_spy_response_pop();
@@ -58,14 +58,14 @@ test_route_create_admin_ok(void** context_p)
     assert_non_null(statement);
     assert_int_equal(strlen(expect_count) + 1, statement->len);
     assert_memory_equal(expect_count, statement->data, statement->len);
-    atx_net_free(statement);
+    linq_network_free(statement);
 
     // Expect user added in database and response OK
     statement = sqlite_spy_outgoing_statement_pop();
     assert_non_null(statement);
     assert_int_equal(strlen(expect_insert) + 1, statement->len);
     assert_memory_equal(expect_insert, statement->data, statement->len);
-    atx_net_free(statement);
+    linq_network_free(statement);
 
     test_reset(&test);
 }
@@ -92,7 +92,7 @@ test_route_create_admin_fail_exists(void** context_p)
 
     // Simulate http request
     mongoose_spy_event_request_push(UNSAFE_TOKEN, "POST", req_path, req_body);
-    for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
+    for (int i = 0; i < 4; i++) linq_network_poll(test->net, -1);
 
     // Process request
     mongoose_parser_context* response = mongoose_spy_response_pop();

@@ -10,4 +10,4 @@ pub mod error;
 pub mod polling;
 
 pub use event::{Event, EventStream};
-pub use polling::{atx_net_socket, running, Endpoint, Request};
+pub use polling::{linq_network_socket, running, Endpoint, Request};

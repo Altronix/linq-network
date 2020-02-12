@@ -2,10 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "altronix/atx_net.h"
-#include "atx_net_internal.h"
+#include "altronix/linq_network.h"
 #include "helpers.h"
 #include "http.h"
+#include "linq_network_internal.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
 

@@ -141,9 +141,9 @@ http_auth_login(
     const char *uuid, *name, *hash, *salt;
 
     l = snprintf(query, sizeof(query), QUERY, user);
-    atx_net_assert(l < sizeof(query));
+    linq_network_assert(l < sizeof(query));
     err = sqlite3_prepare_v2(db->db, query, l + 1, &stmt, NULL);
-    atx_net_assert(err == SQLITE_OK);
+    linq_network_assert(err == SQLITE_OK);
     err = sqlite3_step(stmt);
     if (err == SQLITE_ROW) {
         uuid = (const char*)sqlite3_column_text(stmt, 0),
@@ -153,8 +153,8 @@ http_auth_login(
         uint32_t plen = strlen(pass);
         uint32_t slen = strlen(salt);
         uint32_t hlen = strlen(hash);
-        atx_net_assert(slen == SALT_LEN);
-        atx_net_assert(hlen == HASH_LEN);
+        linq_network_assert(slen == SALT_LEN);
+        linq_network_assert(hlen == HASH_LEN);
         l = snprintf(
             concat, sizeof(concat), "%.*s%.*s", plen, pass, slen, salt);
         if (l <= sizeof(concat)) {

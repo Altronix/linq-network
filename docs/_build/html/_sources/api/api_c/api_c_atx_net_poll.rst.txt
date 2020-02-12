@@ -1,7 +1,7 @@
 .. include:: ../../roles.rst
-.. _ref_api_c_atx_net_poll:
+.. _ref_api_c_linq_network_poll:
 
-atx_net_poll
+linq_network_poll
 ==============
 
 Synopsis
@@ -9,9 +9,9 @@ Synopsis
 
 .. code-block:: c
 
-   E_LINQ_ERROR atx_net_poll(atx_net_s*, uint32_t ms);
+   E_LINQ_ERROR linq_network_poll(linq_network_s*, uint32_t ms);
 
-Process LinQ Network IO. The LinQ Network Library performs non-blocking IO inside of your thread. To process LinQ Network IO you must call atx_net_poll routine inside of your main task loop. atx_net_poll will call any callbacks you have provided from the same thread context as your main application.
+Process LinQ Network IO. The LinQ Network Library performs non-blocking IO inside of your thread. To process LinQ Network IO you must call linq_network_poll routine inside of your main task loop. linq_network_poll will call any callbacks you have provided from the same thread context as your main application.
 
 Parameters
 ----------
@@ -19,7 +19,7 @@ Parameters
 =========== ===========
 Parameter   Description
 =========== ===========
-atx_net_s*  Main context of the LinQ Network Library passed to all atx_net routines.
+linq_network_s*  Main context of the LinQ Network Library passed to all linq_network routines.
 uint32_t ms Network IO Select timeout
 =========== ===========
 
@@ -36,7 +36,7 @@ Example
 
       while(sys_running())
       {
-        atx_net_poll(linq, 5);
+        linq_network_poll(linq, 5);
       }
 
       // ...

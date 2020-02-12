@@ -29,7 +29,7 @@ Example
 
 .. code-block:: javascript
 
-   let netw = require("@altronix/atx-net-js").default;
+   let netw = require("@altronix/linq-network-js").default;
 
    netw.listen("tcp://*:33455")
        .on("heartbeat", sid =>

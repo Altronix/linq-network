@@ -15,8 +15,8 @@
 
 #include "cmocka.h"
 
-#include "atx_net_internal.h"
 #include "database/database.h"
+#include "linq_network_internal.h"
 
 #include "czmq.h"
 #undef closesocket    // Mongoose and czmq both define these
@@ -73,12 +73,12 @@ extern "C"
 
     typedef struct helpers_test_context_s
     {
-        atx_net_s* net;
+        linq_network_s* net;
     } helpers_test_context_s;
 
     typedef struct helpers_test_config_s
     {
-        atx_net_callbacks* callbacks;
+        linq_network_callbacks* callbacks;
         void* context;
         uint32_t zmtp;
         uint32_t http;

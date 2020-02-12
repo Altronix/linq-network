@@ -12,13 +12,13 @@ extern crate rocket_contrib;
 extern crate serde_derive;
 
 extern crate futures_timer;
-extern crate atx_net;
+extern crate linq_network;
 
 use futures::executor::block_on;
 use futures::future::join;
 use futures::prelude::*;
 use futures::stream::StreamExt;
-use atx_net::{Endpoint, Event, Request};
+use linq_network::{Endpoint, Event, Request};
 use rocket::http::Status;
 use rocket::response::content;
 use rocket::{Rocket, State};
@@ -28,7 +28,7 @@ use std::time::Duration;
 
 static PORT: u32 = 33455;
 
-type LinqDb = Arc<Mutex<atx_net::polling::Context>>;
+type LinqDb = Arc<Mutex<linq_network::polling::Context>>;
 
 // Return a JSON map of all the connected devices
 #[get("/devices")]
@@ -108,7 +108,7 @@ fn rocket(linq: LinqDb) -> Rocket {
 
 fn main() -> Result<(), rocket::error::Error> {
     // Create LinQ instance
-    let linq = atx_net::polling::Context::new();
+    let linq = linq_network::polling::Context::new();
 
     // Listen to TCP endpoint tcp://*:PORT
     linq.listen(Endpoint::Tcp(PORT));
@@ -131,7 +131,7 @@ fn main() -> Result<(), rocket::error::Error> {
     let linq = Arc::new(Mutex::new(linq));
     let clone = Arc::clone(&linq);
     let linq_poller = async_std::task::spawn(async move {
-        while atx_net::running() {
+        while linq_network::running() {
             futures_timer::Delay::new(Duration::from_millis(50)).await;
             let linq = linq.lock().unwrap();
             linq.poll(0);

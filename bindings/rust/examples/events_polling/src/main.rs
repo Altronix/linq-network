@@ -6,8 +6,8 @@
 #![feature(decl_macro)]
 #![feature(async_closure)]
 
-extern crate atx_net;
-use atx_net::{Endpoint, Event};
+extern crate linq_network;
+use linq_network::{Endpoint, Event};
 
 use futures::executor::block_on;
 use futures::future::join;
@@ -18,7 +18,7 @@ use std::time::Duration;
 static PORT: u32 = 33455;
 
 fn main() {
-    let linq = atx_net::polling::Context::new();
+    let linq = linq_network::polling::Context::new();
     linq.listen(Endpoint::Tcp(PORT));
 
     let events = linq
@@ -34,7 +34,7 @@ fn main() {
         });
 
     let linq_poller = async_std::task::spawn(async move {
-        while atx_net::running() {
+        while linq_network::running() {
             futures_timer::Delay::new(Duration::from_millis(50)).await;
             linq.poll(0);
         }

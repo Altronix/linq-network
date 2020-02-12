@@ -8,7 +8,7 @@ The LinQ Network Library provides a NPM package.
 
 .. code-block:: javascript
 
-   let linq = require("@altronix/atx-net-js").default;
+   let linq = require("@altronix/linq-network-js").default;
    linq.listen("tcp://*:33455");
 
 .. toctree::

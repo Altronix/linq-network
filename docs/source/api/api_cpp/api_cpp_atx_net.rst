@@ -1,4 +1,4 @@
-.. _ref_api_cpp_atx_net:
+.. _ref_api_cpp_linq_network:
 
 AtxNet
 ======
@@ -13,7 +13,7 @@ Class
 Synopsis
 --------
 
-The Altronix AtxNet C++ binding is a header only wrapper around the atx_net API that provides a simple RAII interface to the C library.
+The Altronix AtxNet C++ binding is a header only wrapper around the linq_network API that provides a simple RAII interface to the C library.
 
 Members
 -------
@@ -24,7 +24,7 @@ Listen for incoming connections
 
 .. code-block:: c
 
-   atx_net_socket listen(const char* str);
+   linq_network_socket listen(const char* str);
 
 .. rubric:: connect
 
@@ -32,7 +32,7 @@ Connect to remote AtxNet node
 
 .. code-block:: c
 
-   atx_net_socket connect(const char* str);
+   linq_network_socket connect(const char* str);
 
 .. rubric:: close
 
@@ -40,7 +40,7 @@ Close a AtxNet connection
 
 .. code-block:: c
 
-   void close(atx_net_socket s);
+   void close(linq_network_socket s);
 
 .. rubric:: poll
 
@@ -133,7 +133,7 @@ Install function to be called every alert event on the network
 
 .. code-block:: c
 
-   AtxNet& on_alert(std::function<void(atx_net_alert_s*, atx_net_email_s*, Device&)> fn);
+   AtxNet& on_alert(std::function<void(linq_network_alert_s*, linq_network_email_s*, Device&)> fn);
 
 .. rubric:: on_error
 

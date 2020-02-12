@@ -7,7 +7,7 @@ find_package(Threads)
 add_executable(test-device main.c)
 
 target_link_libraries(test-device
-                      atx-net-test-static
+                      linq-network-test-static
                       ${LIBZMQ_STATIC_LIBS}
                       helpers
                       cmocka)

@@ -1,12 +1,12 @@
 .. include:: ../../roles.rst
-.. _ref_api_c_atx_net_email:
+.. _ref_api_c_linq_network_email:
 
-atx_net_email
+linq_network_email
 ===============
 
 .. code-block:: c
 
-   typedef struct atx_net_email_s
+   typedef struct linq_network_email_s
    {
        atx_str to0;
        atx_str to1;
@@ -21,7 +21,7 @@ atx_net_email
        atx_str port;
        atx_str device;
        char* data;
-   } atx_net_email_s;
+   } linq_network_email_s;
 
 
 When a device connected to the LinQ Network Library generates an alert message, the following data structure is passed to the application.
@@ -71,4 +71,4 @@ Serial number of the device
 
 .. rubric:: See Also
 
-:ref:`ref_api_c_atx_net_alert`
+:ref:`ref_api_c_linq_network_alert`

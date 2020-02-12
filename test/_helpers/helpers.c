@@ -3,8 +3,8 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "helpers.h"
-#include "atx_net_internal.h"
 #include "database/database.h"
+#include "linq_network_internal.h"
 
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
@@ -45,7 +45,7 @@ helpers_test_create_admin(
     snprintf(b, sizeof(b), "{\"user\":\"%s\",\"pass\":\"%s\"}", user, pass);
 
     mongoose_spy_event_request_push("", "POST", req_path, b);
-    for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
+    for (int i = 0; i < 4; i++) linq_network_poll(test->net, -1);
 }
 
 helpers_test_context_s*
@@ -53,19 +53,19 @@ helpers_test_context_create(helpers_test_config_s* config)
 {
     char endpoint[64];
     helpers_test_context_s* ctx =
-        atx_net_malloc(sizeof(helpers_test_context_s));
-    atx_net_assert(ctx);
+        linq_network_malloc(sizeof(helpers_test_context_s));
+    linq_network_assert(ctx);
     helpers_test_init(config->user, config->pass);
-    ctx->net = atx_net_create(config->callbacks, config->context);
+    ctx->net = linq_network_create(config->callbacks, config->context);
 
     if (config->zmtp) {
         snprintf(endpoint, sizeof(endpoint), "tcp://*:%d", config->zmtp);
-        atx_net_listen(ctx->net, endpoint);
+        linq_network_listen(ctx->net, endpoint);
     }
 
     if (config->http) {
         snprintf(endpoint, sizeof(endpoint), "http://*:%d", config->zmtp);
-        atx_net_listen(ctx->net, endpoint);
+        linq_network_listen(ctx->net, endpoint);
     }
 
     if (config->user) {
@@ -83,8 +83,8 @@ helpers_test_context_destroy(helpers_test_context_s** ctx_p)
 {
     helpers_test_context_s* ctx = *ctx_p;
     *ctx_p = NULL;
-    atx_net_destroy(&ctx->net);
-    atx_net_free(ctx);
+    linq_network_destroy(&ctx->net);
+    linq_network_free(ctx);
     helpers_test_reset();
 }
 

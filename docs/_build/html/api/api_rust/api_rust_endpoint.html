@@ -404,7 +404,7 @@
 <div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="k">pub</span><span class="w"> </span><span class="k">enum</span> <span class="nc">Endpoint</span><span class="p">;</span><span class="w"></span>
 </pre></div>
 </div>
-<p>When atx_net crate needs to listen or connect to a remote endpoint, an endpoint enum must be passed as an argument.</p>
+<p>When linq_network crate needs to listen or connect to a remote endpoint, an endpoint enum must be passed as an argument.</p>
 
 
 <h2 id="variants">Variants<a class="headerlink" href="#variants" title="Permalink to this headline">¶</a></h2>
@@ -435,8 +435,8 @@
 
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <p class="rubric">listen on endpoint 33455</p>
-<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="n">net</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">atx_net</span>::<span class="n">arc</span>::<span class="n">Context</span>::<span class="n">new</span><span class="p">();</span><span class="w"></span>
-<span class="n">net</span><span class="p">.</span><span class="n">listen</span><span class="p">(</span><span class="n">atx_net</span>::<span class="n">Endpoint</span>::<span class="n">Tcp</span><span class="p">(</span><span class="mi">33455</span><span class="p">));</span><span class="w"></span>
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><span class="n">net</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">linq_network</span>::<span class="n">arc</span>::<span class="n">Context</span>::<span class="n">new</span><span class="p">();</span><span class="w"></span>
+<span class="n">net</span><span class="p">.</span><span class="n">listen</span><span class="p">(</span><span class="n">linq_network</span>::<span class="n">Endpoint</span>::<span class="n">Tcp</span><span class="p">(</span><span class="mi">33455</span><span class="p">));</span><span class="w"></span>
 </pre></div>
 </div>
 

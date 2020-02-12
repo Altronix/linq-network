@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 add_executable(test-http main.c)
 target_link_libraries(test-http
-                      atx-net-test-static
+                      linq-network-test-static
                       helpers
 		      cmocka)
 

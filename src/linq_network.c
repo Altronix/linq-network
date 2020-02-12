@@ -2,7 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "altronix/atx_net.h"
+#include "altronix/linq_network.h"
 #include "jsmn/jsmn_helpers.h"
 #include "log.h"
 #include "node.h"
@@ -45,10 +45,10 @@
     "}}"
 
 // Main class
-typedef struct atx_net_s
+typedef struct linq_network_s
 {
     void* context;
-    const atx_net_callbacks* callbacks;
+    const linq_network_callbacks* callbacks;
     device_map_s* devices;
     node_map_s* nodes;
     zmtp_s zmtp;
@@ -56,13 +56,13 @@ typedef struct atx_net_s
     http_s http;
     database_s database;
 #endif
-} atx_net_s;
+} linq_network_s;
 
 static void
 on_zmtp_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 {
     log_error("(ZMTP) Event Error [%d]", e);
-    atx_net_s* l = ctx;
+    linq_network_s* l = ctx;
     if (l->callbacks && l->callbacks->err) {
         l->callbacks->err(l->context, e, what, serial);
     }
@@ -75,7 +75,7 @@ on_heartbeat_response(
     const char* response,
     device_s** d)
 {
-    atx_net_s* l = ctx;
+    linq_network_s* l = ctx;
     atx_str sid, product, prj_version, atx_version, web_version, mac;
     const char* ser = device_serial(*d);
     uint32_t count;
@@ -135,7 +135,7 @@ on_zmtp_heartbeat(void* ctx, const char* sid, device_s** d)
     // Therefore tests should also flush out the response, or mock database
     // query to make tests think device doesn't need to be added into database
     // so there will be no request and response to flush through
-    atx_net_s* l = ctx;
+    linq_network_s* l = ctx;
 #ifdef WITH_SQLITE
     http_broadcast_json(
         &l->http, 200, WEBSOCKET_HEARTBEAT_FMT, strlen(sid), sid);
@@ -157,17 +157,17 @@ on_zmtp_heartbeat(void* ctx, const char* sid, device_s** d)
 static void
 on_zmtp_alert(
     void* ctx,
-    atx_net_alert_s* a,
-    atx_net_email_s* email,
+    linq_network_alert_s* a,
+    linq_network_email_s* email,
     device_s** d)
 {
     int err;
     char k[128], v[256];
     uint32_t klen, vlen;
     const char* serial = device_serial(*d);
-    atx_net_s* l = ctx;
+    linq_network_s* l = ctx;
     zuuid_t* uid = zuuid_new();
-    atx_net_assert(uid);
+    linq_network_assert(uid);
     log_info("(ZMTP) [%.6s...] Event Alert", serial);
     klen =
         snprintf(k, sizeof(k), "alert_id,who,what,site_id,time,mesg,device_id");
@@ -212,7 +212,7 @@ static void
 on_zmtp_ctrlc(void* ctx)
 {
     log_info("(ZMTP) Received shutdown signal...");
-    atx_net_s* l = ctx;
+    linq_network_s* l = ctx;
     if (l->callbacks && l->callbacks->ctrlc) l->callbacks->ctrlc(l->context);
 }
 
@@ -224,10 +224,10 @@ static zmtp_callbacks_s zmtp_callbacks = {
 };
 
 // Create main context for the caller
-atx_net_s*
-atx_net_create(const atx_net_callbacks* cb, void* context)
+linq_network_s*
+linq_network_create(const linq_network_callbacks* cb, void* context)
 {
-    atx_net_s* l = atx_net_malloc(sizeof(atx_net_s));
+    linq_network_s* l = linq_network_malloc(sizeof(linq_network_s));
     if (l) {
         l->devices = device_map_create();
         l->nodes = node_map_create();
@@ -252,10 +252,10 @@ atx_net_create(const atx_net_callbacks* cb, void* context)
 
 // Free main context after use
 void
-atx_net_destroy(atx_net_s** atx_net_p)
+linq_network_destroy(linq_network_s** linq_network_p)
 {
-    atx_net_s* l = *atx_net_p;
-    *atx_net_p = NULL;
+    linq_network_s* l = *linq_network_p;
+    *linq_network_p = NULL;
     device_map_destroy(&l->devices);
     node_map_destroy(&l->nodes);
     zmtp_deinit(&l->zmtp);
@@ -263,26 +263,26 @@ atx_net_destroy(atx_net_s** atx_net_p)
     http_deinit(&l->http);
     database_deinit(&l->database);
 #endif
-    atx_net_free(l);
+    linq_network_free(l);
 }
 
 #ifdef WITH_SQLITE
 database_s*
-atx_net_database(atx_net_s* l)
+linq_network_database(linq_network_s* l)
 {
     return &l->database;
 }
 #endif
 
 void
-atx_net_context_set(atx_net_s* linq, void* ctx)
+linq_network_context_set(linq_network_s* linq, void* ctx)
 {
     linq->context = ctx;
 }
 
 // Listen for incoming device connections on "endpoint"
-atx_net_socket
-atx_net_listen(atx_net_s* l, const char* ep)
+linq_network_socket
+linq_network_listen(linq_network_s* l, const char* ep)
 {
     int ep_len = strlen(ep);
     if (ep_len > 4 && !memcmp(ep, "http", 4)) {
@@ -310,20 +310,20 @@ atx_net_listen(atx_net_s* l, const char* ep)
 }
 
 // connect to a remote linq and send hello frames
-atx_net_socket
-atx_net_connect(atx_net_s* l, const char* ep)
+linq_network_socket
+linq_network_connect(linq_network_s* l, const char* ep)
 {
     return zmtp_connect(&l->zmtp, ep);
 }
 
 void
-atx_net_serve(atx_net_s* l, const char* path)
+linq_network_serve(linq_network_s* l, const char* path)
 {
     http_serve(&l->http, path);
 }
 
 E_LINQ_ERROR
-atx_net_close(atx_net_s* l, atx_net_socket handle)
+linq_network_close(linq_network_s* l, linq_network_socket handle)
 {
     E_LINQ_ERROR e = LINQ_ERROR_OK;
     if (ATX_NET_SOCKET_TYPE_IS_ROUTER(handle)) {
@@ -340,7 +340,7 @@ atx_net_close(atx_net_s* l, atx_net_socket handle)
 
 // poll network socket file handles
 E_LINQ_ERROR
-atx_net_poll(atx_net_s* l, int32_t ms)
+linq_network_poll(linq_network_s* l, int32_t ms)
 {
     E_LINQ_ERROR err = zmtp_poll(&l->zmtp, ms);
     if (err) log_error("(ZMTP) polling error %d", err);
@@ -353,27 +353,27 @@ atx_net_poll(atx_net_s* l, int32_t ms)
 
 // get a device from the device map
 device_s**
-atx_net_device(const atx_net_s* l, const char* serial)
+linq_network_device(const linq_network_s* l, const char* serial)
 {
     return device_map_get(l->devices, serial);
 }
 
 // return how many devices are connected to linq
 uint32_t
-atx_net_device_count(const atx_net_s* l)
+linq_network_device_count(const linq_network_s* l)
 {
     return device_map_size(l->devices);
 }
 
-// Context used for atx_net_devices_foreach HOF (Higher Order Function)
+// Context used for linq_network_devices_foreach HOF (Higher Order Function)
 typedef struct
 {
-    const atx_net_s* l;
-    atx_net_devices_foreach_fn fn;
+    const linq_network_s* l;
+    linq_network_devices_foreach_fn fn;
     void* ctx;
 } foreach_device_print_sid_ctx;
 
-// atx_net_device_foreach HOF
+// linq_network_device_foreach HOF
 static void
 foreach_device_print_sid(
     device_map_s* self,
@@ -388,9 +388,9 @@ foreach_device_print_sid(
 
 // Print a list of serial numbers to caller
 void
-atx_net_devices_foreach(
-    const atx_net_s* l,
-    atx_net_devices_foreach_fn fn,
+linq_network_devices_foreach(
+    const linq_network_s* l,
+    linq_network_devices_foreach_fn fn,
     void* ctx)
 {
     foreach_device_print_sid_ctx foreach_ctx = { l,
@@ -401,18 +401,18 @@ atx_net_devices_foreach(
 
 // return how many nodes are connected to linq
 uint32_t
-atx_net_node_count(const atx_net_s* l)
+linq_network_node_count(const linq_network_s* l)
 {
     return node_map_size(l->nodes);
 }
 
 // send a get request to a device connected to us
 E_LINQ_ERROR
-atx_net_send_get(
-    const atx_net_s* linq,
+linq_network_send_get(
+    const linq_network_s* linq,
     const char* serial,
     const char* path,
-    atx_net_request_complete_fn fn,
+    linq_network_request_complete_fn fn,
     void* context)
 {
     return zmtp_device_send_get(&linq->zmtp, serial, path, fn, context);
@@ -420,12 +420,12 @@ atx_net_send_get(
 
 // send a post request to a device connected to us
 E_LINQ_ERROR
-atx_net_send_post(
-    const atx_net_s* linq,
+linq_network_send_post(
+    const linq_network_s* linq,
     const char* serial,
     const char* path,
     const char* json,
-    atx_net_request_complete_fn fn,
+    linq_network_request_complete_fn fn,
     void* context)
 {
     return zmtp_device_send_post(&linq->zmtp, serial, path, json, fn, context);
@@ -433,11 +433,11 @@ atx_net_send_post(
 
 // send a delete request to a device connected to us
 E_LINQ_ERROR
-atx_net_send_delete(
-    const atx_net_s* linq,
+linq_network_send_delete(
+    const linq_network_s* linq,
     const char* serial,
     const char* path,
-    atx_net_request_complete_fn fn,
+    linq_network_request_complete_fn fn,
     void* context)
 {
     return zmtp_device_send_delete(&linq->zmtp, serial, path, fn, context);

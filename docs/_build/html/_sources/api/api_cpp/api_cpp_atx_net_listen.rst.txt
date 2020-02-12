@@ -1,4 +1,4 @@
-.. _ref_api_cpp_atx_net_listen:
+.. _ref_api_cpp_linq_network_listen:
 
 listen
 ======
@@ -23,7 +23,7 @@ Example
 .. code-block:: cpp
 
    altronix::AtxNet net{};
-   atx_net_socket sock = net.listen("tcp://*:33455");
+   linq_network_socket sock = net.listen("tcp://*:33455");
 
    // ...
 
@@ -31,4 +31,4 @@ Example
 
 .. rubric:: See Also
 
-1. :ref:`ref_api_c_atx_net_listen`
+1. :ref:`ref_api_c_linq_network_listen`

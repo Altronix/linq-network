@@ -38,9 +38,9 @@
         int err;                                                               \
         sqlite3_stmt* sql;                                                     \
         err = sqlite3_prepare_v2(__database->db, __command, -1, &sql, NULL);   \
-        atx_net_assert(err == SQLITE_OK);                                      \
+        linq_network_assert(err == SQLITE_OK);                                 \
         err = sqlite3_step(sql);                                               \
-        atx_net_assert(err == SQLITE_DONE);                                    \
+        linq_network_assert(err == SQLITE_DONE);                               \
         sqlite3_finalize(sql);                                                 \
     } while (0);
 
@@ -57,9 +57,9 @@ row_exists(database_s* d, const char* table, const char* prop, const char* want)
                  table,
                  prop,
                  want);
-    atx_net_assert(len + 1 < 128);
+    linq_network_assert(len + 1 < 128);
     err = sqlite3_prepare_v2(d->db, stmt, len + 1, &sql, NULL);
-    atx_net_assert(err == SQLITE_OK);
+    linq_network_assert(err == SQLITE_OK);
     err = sqlite3_step(sql);
     if (err == SQLITE_ROW) {
         ret = sqlite3_column_int(sql, 0) ? true : false;
@@ -82,9 +82,9 @@ table_exists(database_s* d, const char* table)
             sizeof(stmt),
             "SELECT name FROM sqlite_master WHERE type='table' AND name='%s';",
             table);
-    atx_net_assert(len <= 128);
+    linq_network_assert(len <= 128);
     err = sqlite3_prepare_v2(d->db, stmt, len + 1, &result, NULL);
-    atx_net_assert(err == SQLITE_OK);
+    linq_network_assert(err == SQLITE_OK);
     err = sqlite3_step(result);
     if (err == SQLITE_ROW) ret = true;
     sqlite3_finalize(result);
@@ -111,9 +111,9 @@ row_insert(
                  table,
                  keys,
                  vals);
-    atx_net_assert(n + 1 <= sizeof(stmt));
+    linq_network_assert(n + 1 <= sizeof(stmt));
     err = sqlite3_prepare_v2(d->db, stmt, n + 1, &sql, NULL);
-    atx_net_assert(err == SQLITE_OK);
+    linq_network_assert(err == SQLITE_OK);
     err = sqlite3_step(sql);
     sqlite3_finalize(sql);
     return err == SQLITE_DONE ? 0 : -1;
@@ -145,7 +145,7 @@ database_init(database_s* d)
         &d->db,
         SQLITE_OPEN_URI | SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
         NULL);
-    atx_net_assert(err == SQLITE_OK);
+    linq_network_assert(err == SQLITE_OK);
     ((void)err);
 
     // Enable FOREIGN_KEYS
@@ -168,8 +168,8 @@ database_init(database_s* d)
 void
 database_deinit(database_s* d)
 {
-    int err = sqlite3_close(d->db);   // NOTE db can be busy, but we
-    atx_net_assert(err == SQLITE_OK); // shouldn't be if shutdown properly
+    int err = sqlite3_close(d->db);        // NOTE db can be busy, but we
+    linq_network_assert(err == SQLITE_OK); // shouldn't be if shutdown properly
     ((void)err);
 }
 
@@ -215,9 +215,9 @@ database_count(database_s* d, const char* table)
     sqlite3_stmt* sql;
     int ret = -1, err,
         n = snprintf(stmt, sizeof(stmt), "SELECT COUNT(*) FROM %s;", table);
-    atx_net_assert(n + 1 <= sizeof(stmt));
+    linq_network_assert(n + 1 <= sizeof(stmt));
     err = sqlite3_prepare_v2(d->db, stmt, n + 1, &sql, NULL);
-    atx_net_assert(err == SQLITE_OK);
+    linq_network_assert(err == SQLITE_OK);
     err = sqlite3_step(sql);
     if (err == SQLITE_ROW) { ret = sqlite3_column_int(sql, 0) ? true : false; }
     sqlite3_finalize(sql);
@@ -267,7 +267,7 @@ database_insert_n(database_s* d, const char* table, int n_columns, ...)
         key = va_arg(list, const char*);
         val = va_arg(list, const char*);
         val_len = va_arg(list, int);
-        atx_net_assert(sizeof(vals) - sv > sv + val_len + 1);
+        linq_network_assert(sizeof(vals) - sv > sv + val_len + 1);
         if (n) {
             sk += snprintf(&keys[sk], sizeof(keys) - sk, "%s,", key);
             memcpy(&vals[sv], val, val_len);

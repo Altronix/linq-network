@@ -11,7 +11,7 @@ Synopsis
    #[derive(PartialEq)]
    pub enum Event;
 
-The atx_net stream API returns a stream of Events. The event is represented as an enum variant which is bound to event specific data.
+The linq_network stream API returns a stream of Events. The event is represented as an enum variant which is bound to event specific data.
 
 Variants
 --------
@@ -39,7 +39,7 @@ Examples
 
    #[async_attributes::main]
    async fn main() -> Result<(), Box<dyn std::error::Error>> {
-       let net = atx_net::arc::Context::new();
+       let net = linq_network::arc::Context::new();
        net.listen(Endpoint::Tcp(PORT));
    
        net.events()

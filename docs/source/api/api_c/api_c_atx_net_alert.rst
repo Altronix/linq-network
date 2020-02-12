@@ -1,12 +1,12 @@
 .. include:: ../../roles.rst
-.. _ref_api_c_atx_net_alert:
+.. _ref_api_c_linq_network_alert:
 
-atx_net_alert
+linq_network_alert
 ===============
 
 .. code-block:: c
 
-   typedef struct atx_net_alert_s
+   typedef struct linq_network_alert_s
    {
        atx_str who;
        atx_str what;
@@ -15,7 +15,7 @@ atx_net_alert
        atx_str mesg;
        atx_str email[5];
        char* data;
-   } atx_net_alert_s;
+   } linq_network_alert_s;
 
 When a device connected to the LinQ Network Library generates an alert message, the following data structure is passed to the application.
 

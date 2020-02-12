@@ -20,7 +20,7 @@ extern "C"
     {                                                                          \
         type* ctx = *ctx_p;                                                    \
         *ctx_p = NULL;                                                         \
-        atx_net_free(ctx);                                                   \
+        linq_network_free(ctx);                                                \
     }
 
     static inline void __list_free_fn(void* ctx) { ((void)ctx); }
@@ -131,7 +131,7 @@ extern "C"
         type* node = *node_p;                                                  \
         *node_p = NULL;                                                        \
         khiter_t k = kh_put_##tag(nodes, key, &ret);                           \
-        atx_net_assert(ret >= 0);                                            \
+        linq_network_assert(ret >= 0);                                         \
         kh_val(nodes, k) = node;                                               \
         return &kh_val(nodes, k);                                              \
     }                                                                          \

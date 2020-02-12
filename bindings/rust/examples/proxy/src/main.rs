@@ -12,12 +12,12 @@ extern crate rocket_contrib;
 extern crate serde_derive;
 
 extern crate futures_timer;
-extern crate atx_net;
+extern crate linq_network;
 
 use futures::executor::block_on;
 use futures::prelude::*;
 use futures::stream::StreamExt;
-use atx_net::{Endpoint, Event, Request};
+use linq_network::{Endpoint, Event, Request};
 use rocket::http::Status;
 use rocket::response::content;
 use rocket::{Rocket, State};
@@ -26,7 +26,7 @@ use std::sync::{Arc, Mutex};
 
 static PORT: u32 = 33455;
 
-type LinqDb = Arc<Mutex<atx_net::arc::Context>>;
+type LinqDb = Arc<Mutex<linq_network::arc::Context>>;
 
 // Return a JSON map of all the connected devices
 #[get("/devices")]
@@ -106,7 +106,7 @@ fn rocket(linq: LinqDb) -> Rocket {
 
 fn main() -> Result<(), rocket::error::Error> {
     // Create LinQ instance
-    let linq = atx_net::arc::Context::new();
+    let linq = linq_network::arc::Context::new();
 
     // Listen to TCP endpoint tcp://*:PORT
     linq.listen(Endpoint::Tcp(PORT));

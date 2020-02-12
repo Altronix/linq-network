@@ -1,4 +1,4 @@
-.. _ref_api_cpp_atx_net_post:
+.. _ref_api_cpp_linq_network_post:
 
 post
 ====
@@ -43,4 +43,4 @@ Example
 
 .. rubric:: See Also
 
-1. :ref:`ref_api_cpp_atx_net_send`
+1. :ref:`ref_api_cpp_linq_network_send`

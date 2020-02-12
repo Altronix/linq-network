@@ -35,7 +35,7 @@ LinQ Network can share the same process as your application, or provides a threa
 .. code-block:: rust
 
    fn main() {
-       let linq = atx_net::polling::Context::new();
+       let linq = linq_network::polling::Context::new();
        linq.listen(Endpoint::Tcp(PORT));
 
 Multi-Threaded Async
@@ -47,7 +47,7 @@ LinQ Network can share the same process as your application, or provides a threa
 
    #[async_attributes::main]
    async fn main() -> Result<(), Box<dyn std::error::Error>> {
-       let linq = atx_net::arc::Context::new();
+       let linq = linq_network::arc::Context::new();
        linq.listen(Endpoint::Tcp(PORT));
 
 Event Stream
@@ -79,8 +79,8 @@ Complete Example
    #![feature(decl_macro)]
    #![feature(async_closure)]
    
-   extern crate atx_net;
-   use atx_net::{Endpoint, Event};
+   extern crate linq_network;
+   use linq_network::{Endpoint, Event};
    
    use futures::executor::block_on;
    use futures::future::join;
@@ -91,7 +91,7 @@ Complete Example
    static PORT: u32 = 33455;
    
    fn main() {
-       let linq = atx_net::polling::Context::new();
+       let linq = linq_network::polling::Context::new();
        linq.listen(Endpoint::Tcp(PORT));
    
        let events = linq
@@ -107,7 +107,7 @@ Complete Example
            });
    
        let linq_poller = async_std::task::spawn(async move {
-           while atx_net::running() {
+           while linq_network::running() {
                futures_timer::Delay::new(Duration::from_millis(50)).await;
                linq.poll(0);
            }
@@ -127,8 +127,8 @@ Complete Example (Async)
    #![feature(decl_macro)]
    #![feature(async_closure)]
    
-   extern crate atx_net;
-   use atx_net::{Endpoint, Event};
+   extern crate linq_network;
+   use linq_network::{Endpoint, Event};
    
    use futures::prelude::*;
    use futures::stream::StreamExt;
@@ -137,7 +137,7 @@ Complete Example (Async)
    
    #[async_attributes::main]
    async fn main() -> Result<(), Box<dyn std::error::Error>> {
-       let linq = atx_net::arc::Context::new();
+       let linq = linq_network::arc::Context::new();
        linq.listen(Endpoint::Tcp(PORT));
    
        linq.events()

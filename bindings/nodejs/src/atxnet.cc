@@ -50,8 +50,8 @@ LinqNetwork::LinqNetwork(const Napi::CallbackInfo& info)
             }
         })
         .on_alert([this](
-                      atx_net_alert_s* alert,
-                      atx_net_email_s* email,
+                      linq_network_alert_s* alert,
+                      linq_network_email_s* email,
                       altronix::Device& d) {
             ((void)email);
             auto env = this->r_callback_.Env();

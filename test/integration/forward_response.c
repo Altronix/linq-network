@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "altronix/atx_net.h"
+#include "altronix/linq_network.h"
 #include "fixture.h"
 
 static void
@@ -24,8 +24,8 @@ on_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 static void
 on_alert(
     void* ctx,
-    atx_net_alert_s* alert,
-    atx_net_email_s* mail,
+    linq_network_alert_s* alert,
+    linq_network_email_s* mail,
     device_s** d)
 {
     ((void)ctx);
@@ -44,9 +44,9 @@ on_heartbeat(void* ctx, const char* serial, device_s** d)
     printf("%s", "[C] Received new device\n");
 }
 
-atx_net_callbacks callbacks = { .err = on_error,
-                                  .alert = on_alert,
-                                  .hb = on_heartbeat };
+linq_network_callbacks callbacks = { .err = on_error,
+                                     .alert = on_alert,
+                                     .hb = on_heartbeat };
 
 void
 on_request_complete(void* pass, E_LINQ_ERROR e, const char* json, device_s** d)
@@ -68,7 +68,7 @@ main(int argc, char* argv[])
     ((void)argc);
     ((void)argv);
     int err = -1;
-    atx_net_socket s;
+    linq_network_socket s;
     bool pass = false;
 
     err = 0; // TODO
@@ -76,57 +76,57 @@ main(int argc, char* argv[])
     fixture_context* fixture = fixture_create("dummy", 32820);
     if (!fixture) return -1;
 
-    atx_net_s* server = atx_net_create(NULL, NULL);
+    linq_network_s* server = linq_network_create(NULL, NULL);
     if (!server) {
         fixture_destroy(&fixture);
         return -1;
     }
 
-    atx_net_s* client = atx_net_create(&callbacks, NULL);
+    linq_network_s* client = linq_network_create(&callbacks, NULL);
     if (!client) {
         fixture_destroy(&fixture);
-        atx_net_destroy(&server);
+        linq_network_destroy(&server);
         return -1;
     }
 
-    s = atx_net_listen(server, "tcp://127.0.0.1:32820");
+    s = linq_network_listen(server, "tcp://127.0.0.1:32820");
     if (s == LINQ_ERROR_SOCKET) {
         printf("%s", "[S] Listen Failure!\n");
         fixture_destroy(&fixture);
-        atx_net_destroy(&server);
-        atx_net_destroy(&client);
+        linq_network_destroy(&server);
+        linq_network_destroy(&client);
         return -1;
     }
 
-    s = atx_net_listen(server, "ipc:///tmp/request");
+    s = linq_network_listen(server, "ipc:///tmp/request");
     if (s == LINQ_ERROR_SOCKET) {
         printf("%s", "[S] Listen Failure!\n");
         fixture_destroy(&fixture);
-        atx_net_destroy(&server);
-        atx_net_destroy(&client);
+        linq_network_destroy(&server);
+        linq_network_destroy(&client);
         return -1;
     }
 
-    s = atx_net_connect(client, "ipc:///tmp/request");
+    s = linq_network_connect(client, "ipc:///tmp/request");
     if (s == LINQ_ERROR_SOCKET) {
         printf("%s", "[C] Connect Failure!\n");
         fixture_destroy(&fixture);
-        atx_net_destroy(&server);
-        atx_net_destroy(&client);
+        linq_network_destroy(&server);
+        linq_network_destroy(&client);
         return -1;
     }
 
     bool request_sent = false;
     while (!(pass)) {
         fixture_poll(fixture);
-        err = atx_net_poll(server, 5);
+        err = linq_network_poll(server, 5);
         if (err) break;
-        err = atx_net_poll(client, 5);
+        err = linq_network_poll(client, 5);
         if (err) break;
 
-        if (!request_sent && atx_net_device_count(client)) {
+        if (!request_sent && linq_network_device_count(client)) {
             printf("%s", "[C] Request Sent!");
-            atx_net_send_get(
+            linq_network_send_get(
                 client, "dummy", "/ATX/hello", on_request_complete, &pass);
             request_sent = true;
         }
@@ -135,8 +135,8 @@ main(int argc, char* argv[])
     err = pass ? 0 : -1;
 
     fixture_destroy(&fixture);
-    atx_net_destroy(&server);
-    atx_net_destroy(&client);
+    linq_network_destroy(&server);
+    linq_network_destroy(&client);
 
     return err;
 }

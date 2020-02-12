@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "altronix/atx_net.h"
+#include "altronix/linq_network.h"
 
 #ifndef WWW_ROOT_DIR
 #define WWW_ROOT_DIR "./www"
@@ -37,7 +37,11 @@ on_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 }
 
 static void
-on_alert(void* ctx, atx_net_alert_s* alert, atx_net_email_s* mail, device_s** d)
+on_alert(
+    void* ctx,
+    linq_network_alert_s* alert,
+    linq_network_email_s* mail,
+    device_s** d)
 {
     ((void)ctx);
     ((void)alert);
@@ -52,14 +56,14 @@ on_heartbeat(void* ctx, const char* serial, device_s** d)
     ((void)serial);
     ((void)d);
     /*
-    atx_net_s* linq = ctx;
-    atx_net_send_get(linq, serial, "/ATX/test/504", on_response, NULL);
+    linq_network_s* linq = ctx;
+    linq_network_send_get(linq, serial, "/ATX/test/504", on_response, NULL);
     */
 }
 
-atx_net_callbacks callbacks = { .err = on_error,
-                                .alert = on_alert,
-                                .hb = on_heartbeat };
+linq_network_callbacks callbacks = { .err = on_error,
+                                     .alert = on_alert,
+                                     .hb = on_heartbeat };
 
 void
 on_request_complete(void* pass, E_LINQ_ERROR e, const char* json, device_s** d)
@@ -77,30 +81,30 @@ main(int argc, char* argv[])
     ((void)argc);
     ((void)argv);
     int err = -1;
-    atx_net_socket s, http;
+    linq_network_socket s, http;
 
-    atx_net_s* server = atx_net_create(&callbacks, NULL);
+    linq_network_s* server = linq_network_create(&callbacks, NULL);
     if (!server) { return -1; }
 
-    s = atx_net_listen(server, "tcp://*:33455");
+    s = linq_network_listen(server, "tcp://*:33455");
     if (s == LINQ_ERROR_SOCKET) {
         printf("%s", "[S] Listen Failure!\n");
-        atx_net_destroy(&server);
+        linq_network_destroy(&server);
         return -1;
     }
 
-    http = atx_net_listen(server, "http://*:8000");
+    http = linq_network_listen(server, "http://*:8000");
     if (http == LINQ_ERROR_SOCKET) {
         printf("%s", "[S] HTTP Listen Failure!\n");
-        atx_net_destroy(&server);
+        linq_network_destroy(&server);
         return -1;
     }
 
-    atx_net_serve(server, WWW_ROOT_DIR);
+    linq_network_serve(server, WWW_ROOT_DIR);
 
-    while (sys_running()) { err = atx_net_poll(server, 5); }
+    while (sys_running()) { err = linq_network_poll(server, 5); }
 
-    atx_net_destroy(&server);
+    linq_network_destroy(&server);
 
     return 0;
 }

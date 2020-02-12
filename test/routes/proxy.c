@@ -1,4 +1,4 @@
-#include "altronix/atx_net.h"
+#include "altronix/linq_network.h"
 #include "helpers.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
@@ -33,7 +33,7 @@ test_route_proxy_get(void** context_p)
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
 
-    atx_net_poll(test->net, 5);
+    linq_network_poll(test->net, 5);
     sqlite_spy_outgoing_statement_flush();
 
     // Mock sqlite database response
@@ -43,7 +43,7 @@ test_route_proxy_get(void** context_p)
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "GET", "/api/v1/proxy/serial1234/ATX/about", NULL);
     czmq_spy_poll_set_incoming((0x00));
-    for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
+    for (int i = 0; i < 4; i++) linq_network_poll(test->net, -1);
 
     outgoing = czmq_spy_mesg_pop_outgoing();
     assert_non_null(outgoing);
@@ -87,7 +87,7 @@ test_route_proxy_post(void** context_p)
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
 
-    atx_net_poll(test->net, 5);
+    linq_network_poll(test->net, 5);
     sqlite_spy_outgoing_statement_flush();
 
     // Mock sqlite database response
@@ -100,7 +100,7 @@ test_route_proxy_post(void** context_p)
         "/api/v1/proxy/serial1234/ATX/about",
         "{\"test\":\"data\"}");
     czmq_spy_poll_set_incoming((0x00));
-    for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
+    for (int i = 0; i < 4; i++) linq_network_poll(test->net, -1);
 
     outgoing = czmq_spy_mesg_pop_outgoing();
     assert_non_null(outgoing);
@@ -140,7 +140,7 @@ test_route_proxy_404(void** context_p)
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
-    atx_net_poll(test->net, 5);
+    linq_network_poll(test->net, 5);
     sqlite_spy_outgoing_statement_flush();
 
     // Mock sqlite database response
@@ -153,7 +153,7 @@ test_route_proxy_404(void** context_p)
         "/api/v1/proxy/serial1234/ATX/about",
         "{\"test\":\"data\"}");
     czmq_spy_poll_set_incoming((0x00));
-    for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
+    for (int i = 0; i < 4; i++) linq_network_poll(test->net, -1);
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
     assert_non_null(response);
@@ -179,7 +179,7 @@ test_route_proxy_400_too_short(void** context_p)
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
-    atx_net_poll(test->net, 5);
+    linq_network_poll(test->net, 5);
     sqlite_spy_outgoing_statement_flush();
 
     // Mock sqlite database response
@@ -189,7 +189,7 @@ test_route_proxy_400_too_short(void** context_p)
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "GET", "/api/v1/proxy/1234", NULL);
     czmq_spy_poll_set_incoming((0x00));
-    for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
+    for (int i = 0; i < 4; i++) linq_network_poll(test->net, -1);
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
     assert_non_null(response);

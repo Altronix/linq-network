@@ -124,7 +124,7 @@ static http_route_context**
 resolve_route(http_s* http, struct mg_str* uri)
 {
     static char path[128];
-    atx_net_assert(uri->len < sizeof(path));
+    linq_network_assert(uri->len < sizeof(path));
     http_route_context** r_p = NULL;
     snprintf(path, sizeof(path), "%.*s", (uint32_t)uri->len, uri->p);
     foreach_route_check_path_context ctx = { .path = path, .found_p = &r_p };
@@ -243,7 +243,7 @@ http_listen(http_s* http, const char* port)
     if (http->listener) {
         log_fatal("%10s", "HTTP can only listen to one server at a time!");
         log_fatal("%10s", "Please shutdown HTTP server before listening again");
-        atx_net_assert(http->listener);
+        linq_network_assert(http->listener);
     }
     http->listener = mg_bind(&http->connections, port, http_ev_handler, http);
     mg_set_protocol_http_websocket(http->listener);
@@ -252,8 +252,8 @@ http_listen(http_s* http, const char* port)
 void
 http_use(http_s* http, const char* path, http_route_cb cb, void* context)
 {
-    http_route_context* route = atx_net_malloc(sizeof(http_route_context));
-    atx_net_assert(route);
+    http_route_context* route = linq_network_malloc(sizeof(http_route_context));
+    linq_network_assert(route);
     route->cb = cb;
     route->context = context;
     routes_map_add(http->routes, path, &route);

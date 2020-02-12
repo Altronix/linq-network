@@ -1,7 +1,7 @@
 .. include:: ../../roles.rst
-.. _ref_api_c_atx_net_device_count:
+.. _ref_api_c_linq_network_device_count:
 
-atx_net_device_count
+linq_network_device_count
 ======================
 
 Synopsis
@@ -9,7 +9,7 @@ Synopsis
 
 .. code-block:: c
 
-   uint32_t atx_net_device_count(const atx_net_s*);
+   uint32_t linq_network_device_count(const linq_network_s*);
 
 
 Return the number of devices connected to your LinQ Network context.
@@ -20,7 +20,7 @@ Parameters
 ========== ===========
 Parameter  Description
 ========== ===========
-atx_net_s* Main context of the LinQ Network Library passed to all atx_net routines.
+linq_network_s* Main context of the LinQ Network Library passed to all linq_network routines.
 ========== ===========
 
 Examples
@@ -30,7 +30,7 @@ Examples
 
 .. code-block:: c
 
-   atx_net* netw = atx_net_create(NULL, NULL);
+   linq_network* netw = linq_network_create(NULL, NULL);
    assert(netw);
 
-   printf("There are %d devices connected to LinQ Network\n", atx_net_device_count(netw);
+   printf("There are %d devices connected to LinQ Network\n", linq_network_device_count(netw);

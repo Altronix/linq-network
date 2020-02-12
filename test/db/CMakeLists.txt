@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 add_executable(test-db main.c)
 target_link_libraries(test-db
-                      atx-net-test-static
+                      linq-network-test-static
                       mock-sqlite
                       helpers
 		      cmocka)

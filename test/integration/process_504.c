@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "altronix/atx_net.h"
+#include "altronix/linq_network.h"
 #include "fixture.h"
 
 void
@@ -26,7 +26,7 @@ main(int argc, char* argv[])
 {
     ((void)argc);
     ((void)argv);
-    atx_net_socket s;
+    linq_network_socket s;
     bool pass = false;
 
     // Create test fixture
@@ -34,7 +34,7 @@ main(int argc, char* argv[])
     if (!fixture) return -1;
 
     // Create server
-    atx_net_s* server = atx_net_create(NULL, NULL);
+    linq_network_s* server = linq_network_create(NULL, NULL);
     if (!server) {
         fixture_destroy(&fixture);
         return -1;
@@ -43,10 +43,10 @@ main(int argc, char* argv[])
     // Listen to port
     char endpoint[32];
     snprintf(endpoint, sizeof(endpoint), "tcp://127.0.0.1:%d", PORT);
-    s = atx_net_listen(server, endpoint);
+    s = linq_network_listen(server, endpoint);
     if (s == LINQ_ERROR_SOCKET) {
         fixture_destroy(&fixture);
-        atx_net_destroy(&server);
+        linq_network_destroy(&server);
         return -1;
     }
 
@@ -55,9 +55,9 @@ main(int argc, char* argv[])
     bool request_sent = false;
     while (!pass) {
         fixture_poll(fixture);
-        if (atx_net_poll(server, 0)) break;
-        if (!request_sent && atx_net_device_count(server)) {
-            atx_net_send_get(
+        if (linq_network_poll(server, 0)) break;
+        if (!request_sent && linq_network_device_count(server)) {
+            linq_network_send_get(
                 server, "dummy", "/ATX/test_504", on_request_complete, &pass);
             request_sent = true;
             printf("%s", "[C] Request Sent!");
@@ -65,6 +65,6 @@ main(int argc, char* argv[])
     }
 
     fixture_destroy(&fixture);
-    atx_net_destroy(&server);
+    linq_network_destroy(&server);
     return pass ? 0 : -1;
 }

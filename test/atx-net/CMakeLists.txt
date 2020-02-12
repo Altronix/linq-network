@@ -1,9 +1,9 @@
 # --------------------------------------------------------------------------
-# Build test-atx-net
+# Build test-linq-network
 # --------------------------------------------------------------------------
-add_executable(test-atx-net main.c)
-target_link_libraries(test-atx-net
-                      atx-net-test-static
+add_executable(test-linq-network main.c)
+target_link_libraries(test-linq-network
+                      linq-network-test-static
                       ${LIBCZMQ_STATIC_LIBS}
                       helpers
 		      cmocka)
@@ -11,6 +11,6 @@ target_link_libraries(test-atx-net
 mock_czmq_linker_flags(czmq_link_flags)
 mock_sqlite_linker_flags(sqlite_link_flags)
 set(wrap_flags "${czmq_link_flags} ${sqlite_link_flags}")
-set_target_properties(test-atx-net PROPERTIES LINK_FLAGS ${wrap_flags})
-add_test(NAME test-atx-net COMMAND test-atx-net)
-install(TARGETS test-atx-net DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+set_target_properties(test-linq-network PROPERTIES LINK_FLAGS ${wrap_flags})
+add_test(NAME test-linq-network COMMAND test-linq-network)
+install(TARGETS test-linq-network DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

@@ -2,10 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-extern crate atx_net_sys;
+extern crate linq_network_sys;
 
 use futures::stream::Stream;
-use atx_net_sys::*;
+use linq_network_sys::*;
 use std::collections::VecDeque;
 use std::ffi::CStr;
 use std::os::raw;
@@ -14,7 +14,7 @@ use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 use std::task::{Context, Poll, Waker};
 
-// All events from atx_net match this signature
+// All events from linq_network match this signature
 #[derive(PartialEq)]
 pub enum Event {
     Heartbeat(String),
@@ -117,8 +117,8 @@ extern "C" fn on_heartbeat(
 // Calback from c library when alert
 extern "C" fn on_alert(
     ctx: *mut raw::c_void,
-    _arg2: *mut atx_net_alert_s,
-    _arg3: *mut atx_net_email_s,
+    _arg2: *mut linq_network_alert_s,
+    _arg3: *mut linq_network_email_s,
     device: *mut *mut device_s,
 ) -> () {
     let cstr = unsafe { CStr::from_ptr(device_serial(*device)) };
@@ -131,7 +131,7 @@ extern "C" fn on_ctrlc(ctx: *mut raw::c_void) -> () {
     load_event(ctx, Event::Ctrlc);
 }
 
-pub static CALLBACKS: atx_net_callbacks = atx_net_callbacks {
+pub static CALLBACKS: linq_network_callbacks = linq_network_callbacks {
     err: Some(on_error),
     hb: Some(on_heartbeat),
     alert: Some(on_alert),

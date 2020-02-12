@@ -1,4 +1,4 @@
-#include "altronix/atx_net.h"
+#include "altronix/linq_network.h"
 #include "helpers.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
@@ -52,7 +52,7 @@ test_route_devices(void** context_p)
     sqlite_spy_column_text_return_push("D");
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "GET", "/api/v1/devices", NULL);
-    for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
+    for (int i = 0; i < 4; i++) linq_network_poll(test->net, -1);
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
     assert_non_null(response);
@@ -84,7 +84,7 @@ test_route_devices_response_too_large(void** context_p)
     for (int i = 0; i < 10000; i++) sqlite_spy_step_return_push(SQLITE_ROW);
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "GET", "/api/v1/devices", NULL);
-    for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
+    for (int i = 0; i < 4; i++) linq_network_poll(test->net, -1);
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
     assert_non_null(response);
@@ -116,7 +116,7 @@ test_route_devices_response_get_only(void** context_p)
     sqlite_spy_column_text_return_push("A");
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "POST", "/api/v1/devices", "{\"blah\":\"blah\"}");
-    for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
+    for (int i = 0; i < 4; i++) linq_network_poll(test->net, -1);
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
     assert_non_null(response);
@@ -148,7 +148,7 @@ test_route_devices_response_empty(void** context_p)
     sqlite_spy_step_return_push(SQLITE_DONE);
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "GET", "/api/v1/devices", NULL);
-    for (int i = 0; i < 4; i++) atx_net_poll(test->net, -1);
+    for (int i = 0; i < 4; i++) linq_network_poll(test->net, -1);
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
     assert_non_null(response);

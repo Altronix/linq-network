@@ -1,4 +1,4 @@
-.. _ref_api_cpp_atx_net_device_count:
+.. _ref_api_cpp_linq_network_device_count:
 
 device_count
 ============
@@ -24,4 +24,4 @@ Example
 
 .. rubric:: See Also
 
-1. :ref:`ref_api_c_atx_net_device_count`
+1. :ref:`ref_api_c_linq_network_device_count`

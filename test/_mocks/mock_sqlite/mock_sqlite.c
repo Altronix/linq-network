@@ -64,7 +64,7 @@ sqlite_spy_outgoing_statement_flush()
 {
     outgoing_statement* statement = NULL;
     while ((statement = statements_list_pop(outgoing_statements))) {
-        atx_net_free(statement);
+        linq_network_free(statement);
     }
 }
 
@@ -72,8 +72,8 @@ void
 sqlite_spy_outgoing_statement_push(const char* sql, uint32_t len)
 {
     outgoing_statement* stmt =
-        atx_net_malloc(sizeof(outgoing_statement) + len + 1);
-    atx_net_assert(stmt);
+        linq_network_malloc(sizeof(outgoing_statement) + len + 1);
+    linq_network_assert(stmt);
     stmt->len = len;
     memcpy(stmt->data, sql, len);
     statements_list_push(outgoing_statements, &stmt);
@@ -82,8 +82,8 @@ sqlite_spy_outgoing_statement_push(const char* sql, uint32_t len)
 void
 sqlite_spy_step_return_push(int ret)
 {
-    on_step_return* s = atx_net_malloc(sizeof(on_step_return));
-    atx_net_assert(s);
+    on_step_return* s = linq_network_malloc(sizeof(on_step_return));
+    linq_network_assert(s);
     s->ret = ret;
     on_step_list_push(on_step, &s);
 }
@@ -91,8 +91,9 @@ sqlite_spy_step_return_push(int ret)
 void
 sqlite_spy_column_text_return_push(const char* ret)
 {
-    on_column_text_return* r = atx_net_malloc(sizeof(on_column_text_return));
-    atx_net_assert(r);
+    on_column_text_return* r =
+        linq_network_malloc(sizeof(on_column_text_return));
+    linq_network_assert(r);
     r->ret = ret;
     on_column_text_list_push(on_column_text, &r);
 }
@@ -100,8 +101,8 @@ sqlite_spy_column_text_return_push(const char* ret)
 void
 sqlite_spy_column_int_return_push(int ret)
 {
-    on_column_int_return* r = atx_net_malloc(sizeof(on_column_int_return));
-    atx_net_assert(r);
+    on_column_int_return* r = linq_network_malloc(sizeof(on_column_int_return));
+    linq_network_assert(r);
     r->ret = ret;
     on_column_int_list_push(on_column_int, &r);
 }
@@ -167,7 +168,7 @@ __wrap_sqlite3_step(sqlite3_stmt* pstmt)
     on_step_return* step = on_step_list_pop(on_step);
     if (step) {
         ret = step->ret;
-        atx_net_free(step);
+        linq_network_free(step);
     } else {
         ret = on_step_default.ret;
     }
@@ -183,7 +184,7 @@ __wrap_sqlite3_column_text(sqlite3_stmt* stmt, int iCol)
     on_column_text_return* r = on_column_text_list_pop(on_column_text);
     if (r) {
         ret = r->ret;
-        atx_net_free(r);
+        linq_network_free(r);
     } else {
         ret = on_column_text_default.ret;
     }
@@ -199,7 +200,7 @@ __wrap_sqlite3_column_int(sqlite3_stmt* stmt, int iCol)
     on_column_int_return* r = on_column_int_list_pop(on_column_int);
     if (r) {
         ret = r->ret;
-        atx_net_free(r);
+        linq_network_free(r);
     } else {
         ret = 0;
     }

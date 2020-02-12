@@ -7,7 +7,7 @@ find_package(Threads)
 add_executable(test-containers main.c)
 
 target_link_libraries(test-containers
-                      atx-net-test-static
+                      linq-network-test-static
                       helpers
                       cmocka)
 add_test(NAME test-containers COMMAND test-containers)

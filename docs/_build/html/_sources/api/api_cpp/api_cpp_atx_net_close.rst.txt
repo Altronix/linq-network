@@ -1,4 +1,4 @@
-.. _ref_api_cpp_atx_net_close:
+.. _ref_api_cpp_linq_network_close:
 
 close
 =====
@@ -14,7 +14,7 @@ Parameters
 ============== ============
 Parameter      Description
 ============== ============
-atx_net_socket socket to close. (Returned from atx_net_listen or atx_net_connect)
+linq_network_socket socket to close. (Returned from linq_network_listen or linq_network_connect)
 ============== ============
 
 Example
@@ -23,7 +23,7 @@ Example
 .. code-block:: cpp
 
    altronix::AtxNet net{};
-   atx_net_socket sock = net.listen("tcp://*:33455");
+   linq_network_socket sock = net.listen("tcp://*:33455");
 
    // ...
 
@@ -31,6 +31,6 @@ Example
 
 .. rubric:: See Also
 
-1. :ref:`ref_api_c_atx_net_listen`
+1. :ref:`ref_api_c_linq_network_listen`
 
-2. :ref:`ref_api_c_atx_net_connect`
+2. :ref:`ref_api_c_linq_network_connect`

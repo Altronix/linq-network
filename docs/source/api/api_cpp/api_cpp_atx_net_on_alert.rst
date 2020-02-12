@@ -1,4 +1,4 @@
-.. _ref_api_cpp_atx_net_on_alert:
+.. _ref_api_cpp_linq_network_on_alert:
 
 on_alert
 ========
@@ -14,7 +14,7 @@ Parameters
 ==================================================================== ===========
 Parameter                                                            Description
 ==================================================================== ===========
-std::function<void(atx_net_alert_s*, atx_net_email_s*, Device&)> fn) callback function
+std::function<void(linq_network_alert_s*, linq_network_email_s*, Device&)> fn) callback function
 ==================================================================== ===========
 
 
@@ -25,12 +25,12 @@ Example
 
    altronix::AtxNet net{};
 
-   net.on_alert([=](atx_net_alert_s* alert, atx_net_email_s* email, altronix::Device& device) {
+   net.on_alert([=](linq_network_alert_s* alert, linq_network_email_s* email, altronix::Device& device) {
        std::cout << "Received alert located [" << alert.where.p << "]\n";
    });
 
 .. rubric:: See Also
 
-1. :ref:`ref_api_c_atx_net_alert`
+1. :ref:`ref_api_c_linq_network_alert`
 
-2. :ref:`ref_api_c_atx_net_email`
+2. :ref:`ref_api_c_linq_network_email`

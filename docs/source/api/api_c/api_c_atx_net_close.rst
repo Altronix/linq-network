@@ -1,7 +1,7 @@
 .. include:: ../../roles.rst
-.. _ref_api_c_atx_net_close:
+.. _ref_api_c_linq_network_close:
 
-atx_net_close
+linq_network_close
 =============
 
 Synopsis
@@ -9,7 +9,7 @@ Synopsis
 
 .. code-block:: c
     
-   E_LINQ_ERROR atx_net_close(atx_net_s*, atx_net_socket);
+   E_LINQ_ERROR linq_network_close(linq_network_s*, linq_network_socket);
 
 This routine will close a connection.
 
@@ -20,12 +20,12 @@ Parameters
 ============== ==========
 Parameter      Description
 ============== ==========
-atx_net        Main context of the LinQ Network Library passed to all atx_net routines.
-atx_net_socket socket to close. (Returned from atx_net_listen or atx_net_connect)
+linq_network        Main context of the LinQ Network Library passed to all linq_network routines.
+linq_network_socket socket to close. (Returned from linq_network_listen or linq_network_connect)
 ============== ==========
 
 
 Examples
 --------
 
-See :ref:`ref_api_c_atx_net_listen`
+See :ref:`ref_api_c_linq_network_listen`

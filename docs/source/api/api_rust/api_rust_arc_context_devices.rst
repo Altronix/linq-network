@@ -24,7 +24,7 @@ Examples
 
 .. code-block:: rust
 
-   let net = atx_net::arc::Context::new();
+   let net = linq_network::arc::Context::new();
 
    let mut ret = "{".to_string();
    let sz =  net.devices().len();

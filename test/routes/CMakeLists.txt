@@ -15,7 +15,7 @@ add_executable(test-routes
                       create_admin.c
                       create_admin.h)
 target_link_libraries(test-routes
-                      atx-net-test-static
+                      linq-network-test-static
                       ${LIBZMQ_STATIC_LIBS}
                       helpers
 		      cmocka)

@@ -1,21 +1,21 @@
 set(SOURCES
     base64.c
-    atx_net.c
+    linq_network.c
     device.c
     node.c
     sys.c
     zmtp.c)
   set(HEADERS
-    ../include/altronix/atx_net.h
+    ../include/altronix/linq_network.h
     base64.h
     containers.h
-    atx_net_internal.h
+    linq_network_internal.h
     log.h
     device.h
     node.h
     zmtp.h)
 
-set(INSTALL_HEADERS ../include/altronix/atx_net.h)
+set(INSTALL_HEADERS ../include/altronix/linq_network.h)
 set(INCS ../include)
 set(LIBS ${CMAKE_THREAD_LIBS_INIT})
 set(LIBS_STATIC ${JSMN_WEB_TOKENS_STATIC_LIBS} ${LIBZMQ_STATIC_LIBS})
@@ -67,66 +67,66 @@ else()
 endif()
 
 if(ENABLE_TESTING)
-  add_library(atx-net-test-static STATIC
+  add_library(linq-network-test-static STATIC
               ${SOURCES}
               ${HEADERS}
               ${SOURCES_SYS_MOCK}
               ${HEADERS_SYS_MOCK})
-  target_link_libraries(atx-net-test-static
+  target_link_libraries(linq-network-test-static
     ${LIBS_STATIC}
     ${LIBS})
-  target_compile_definitions(atx-net-test-static PUBLIC ${definitions})
-  target_compile_definitions(atx-net-test-static PRIVATE "-DTESTING")
-  target_include_directories(atx-net-test-static PUBLIC ${INCS})
-  target_include_directories(atx-net-test-static PUBLIC ../include)
-  target_include_directories(atx-net-test-static PUBLIC ./sys/mock)
-  target_include_directories(atx-net-test-static PUBLIC ./)
+  target_compile_definitions(linq-network-test-static PUBLIC ${definitions})
+  target_compile_definitions(linq-network-test-static PRIVATE "-DTESTING")
+  target_include_directories(linq-network-test-static PUBLIC ${INCS})
+  target_include_directories(linq-network-test-static PUBLIC ../include)
+  target_include_directories(linq-network-test-static PUBLIC ./sys/mock)
+  target_include_directories(linq-network-test-static PUBLIC ./)
 endif()
 
 if(BUILD_STATIC)
-  add_library(atx-net-static STATIC
+  add_library(linq-network-static STATIC
     ${SOURCES}
     ${HEADERS}
     ${SOURCES_SYS}
     ${HEADERS_SYS})
-  target_link_libraries(atx-net-static
+  target_link_libraries(linq-network-static
     ${LIBS_STATIC}
     ${LIBS})
-  target_compile_definitions(atx-net-static PUBLIC ${definitions})
-  target_include_directories(atx-net-static PUBLIC ${INCS})
-  target_include_directories(atx-net-static PRIVATE sys/unix)
-  target_include_directories(atx-net-static PRIVATE ./)
-  set_target_properties(atx-net-static PROPERTIES 
+  target_compile_definitions(linq-network-static PUBLIC ${definitions})
+  target_include_directories(linq-network-static PUBLIC ${INCS})
+  target_include_directories(linq-network-static PRIVATE sys/unix)
+  target_include_directories(linq-network-static PRIVATE ./)
+  set_target_properties(linq-network-static PROPERTIES 
     PUBLIC_HEADER "${INSTALL_HEADERS}"
-    OUTPUT_NAME "atx-net")
-  install(TARGETS atx-net-static
+    OUTPUT_NAME "linq-network")
+  install(TARGETS linq-network-static
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib
           PUBLIC_HEADER DESTINATION include/altronix)
 endif()
 
 if(BUILD_SHARED)
-  add_library(atx-net SHARED
+  add_library(linq-network SHARED
     ${SOURCES}
     ${HEADERS}
     ${SOURCES_SYS}
     ${HEADERS_SYS})
   if(MSVC)
     #TODO - https://stackoverflow.com/questions/33062728/cmake-link-shared-library-on-windows/41618677
-    target_link_libraries(atx-net
+    target_link_libraries(linq-network
       ${LIBS_STATIC}
       ${LIBS})
   else()
-    target_link_libraries(atx-net
+    target_link_libraries(linq-network
       ${LIBS_SHARED}
       ${LIBS})
   endif()
-  target_compile_definitions(atx-net PUBLIC ${definitions})
-  target_include_directories(atx-net PUBLIC ${INCS})
-  target_include_directories(atx-net PRIVATE sys/unix)
-  target_include_directories(atx-net PRIVATE ./)
-  set_target_properties(atx-net PROPERTIES PUBLIC_HEADER "${INSTALL_HEADERS}")
-  install(TARGETS atx-net
+  target_compile_definitions(linq-network PUBLIC ${definitions})
+  target_include_directories(linq-network PUBLIC ${INCS})
+  target_include_directories(linq-network PRIVATE sys/unix)
+  target_include_directories(linq-network PRIVATE ./)
+  set_target_properties(linq-network PROPERTIES PUBLIC_HEADER "${INSTALL_HEADERS}")
+  install(TARGETS linq-network
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib
           PUBLIC_HEADER DESTINATION include/altronix)

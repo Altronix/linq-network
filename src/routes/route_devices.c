@@ -1,4 +1,4 @@
-#include "atx_net_internal.h"
+#include "linq_network_internal.h"
 #include "routes.h"
 
 #define QUERY                                                                  \
@@ -33,7 +33,7 @@ route_devices(
     const char *count = NULL, *offset = NULL;
     uint32_t countl, offsetl;
     sqlite3_stmt* stmt;
-    database_s* db = atx_net_database(ctx->context);
+    database_s* db = linq_network_database(ctx->context);
 
     if (!(meth == HTTP_METHOD_GET)) {
         http_printf_json(
@@ -51,7 +51,7 @@ route_devices(
         l = snprintf(b, sizeof(b), QUERY_STATIC);
     }
     err = sqlite3_prepare_v2(db->db, b, l + 1, &stmt, NULL);
-    atx_net_assert(err == SQLITE_OK);
+    linq_network_assert(err == SQLITE_OK);
 
     // Convert database output to json
     l = snprintf(b, sizeof(b), "{\"devices\":{");

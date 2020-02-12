@@ -7,8 +7,8 @@
 #![feature(decl_macro)]
 #![feature(async_closure)]
 
-extern crate atx_net;
-use atx_net::{Endpoint, Event};
+extern crate linq_network;
+use linq_network::{Endpoint, Event};
 
 use futures::prelude::*;
 use futures::stream::StreamExt;
@@ -17,7 +17,7 @@ static PORT: u32 = 33455;
 
 #[async_attributes::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let linq = atx_net::arc::Context::new();
+    let linq = linq_network::arc::Context::new();
     linq.listen(Endpoint::Tcp(PORT));
 
     linq.events()
