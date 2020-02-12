@@ -120,7 +120,7 @@ extern "C"
 #define BACKGROUND_LIGHT_WHITE "\x1b[107m"
 
 #define FMT_STRING                                                             \
-    WHITE "=> " RESET "%5d %s%s " RESET MAGENTA "%12s:%04d " RESET
+    WHITE "=> " RESET "%5d %s%s " RESET MAGENTA "%14s:%04d " RESET
 
     static const char* level_names[] = { "TRACE", "DEBUG", "INFO ",
                                          "WARN ", "ERROR", "FATAL" };
