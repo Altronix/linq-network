@@ -1,12 +1,12 @@
-.. _ref_api_cpp_linq_network_close:
+.. _ref_api_cpp_linq_network_listen:
 
-close
-=====
+listen
+======
 
 Synopsis
 --------
 
-This routine will close a connection.
+Will listen for incoming connections (via IPC, or TCP) depending on the format string passed as the endpoint argument.
 
 Parameters
 ----------
@@ -14,7 +14,7 @@ Parameters
 ============== ============
 Parameter      Description
 ============== ============
-linq_network_socket socket to close. (Returned from linq_network_listen or linq_network_connect)
+const char* ep String describing the endpoint the LinQ Network Library should connect to.
 ============== ============
 
 Example
@@ -32,5 +32,3 @@ Example
 .. rubric:: See Also
 
 1. :ref:`ref_api_c_linq_network_listen`
-
-2. :ref:`ref_api_c_linq_network_connect`
