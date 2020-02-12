@@ -1,8 +1,8 @@
 let netw = require("@altronix/atx-net-js").default;
 
-netw.listen("tcp://*:33455");
-netw.listen("http://*:8000");
 netw
+  .listen("tcp://*:33455")
+  .listen("http://*:8000")
   .on("heartbeat", sid =>
     netw
       .send(sid, "GET", "/ATX/about")
