@@ -1,7 +1,7 @@
 LinQ Service
 ============
 
-The following describes the LinQ Service HTTP API
+The LinQ Network SDK can optionally run an HTTP(S) service if enabled. When the HTTP(S) service is enabled, the following API is exposed on the HTTP(S) port.
 
 .. toctree::
    :maxdepth: 2

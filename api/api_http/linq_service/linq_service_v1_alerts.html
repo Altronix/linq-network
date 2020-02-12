@@ -304,6 +304,71 @@
             
   
 <h1 id="api-api-http-linq-service-linq-service-v1-alerts--page-root">/api/v1/alerts<a class="headerlink" href="#api-api-http-linq-service-linq-service-v1-alerts--page-root" title="Permalink to this headline">¶</a></h1>
+<dl class="get">
+<dt id="get--api-v1-alerts">
+<code class="descname">GET </code><code class="descname">/api/v1/alerts</code><a class="headerlink" href="#get--api-v1-alerts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an array of alerts. You can sort and or filter alerts based on a sort or search key query parameters. You can limit result with the count query parameter. You can loop through alerts starting at a specified index with the start query parameter.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/v1/alerts?start=0&amp;count=10%search=LINQ2</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.0</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">192.168.0.22</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json, text/javascript</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.0</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+   <span class="p">{</span>
+      <span class="nt">"alert_id"</span><span class="p">:</span> <span class="s2">"UXAse3A22ddASx"</span><span class="p">,</span>
+      <span class="nt">"device_id"</span><span class="p">:</span> <span class="s2">"AsrxFq_Gb39asADB92SsriSqQmf33PoMzzerRf_afe="</span><span class="p">,</span>
+      <span class="nt">"who"</span><span class="p">:</span> <span class="s2">"Admin"</span><span class="p">,</span>
+      <span class="nt">"what"</span><span class="p">:</span> <span class="s2">"Port 0"</span><span class="p">,</span>
+      <span class="nt">"when"</span><span class="p">:</span> <span class="mi">1580601600</span><span class="p">,</span>
+      <span class="nt">"siteId"</span><span class="p">:</span> <span class="s2">"Netway8BT - Office"</span><span class="p">,</span>
+      <span class="nt">"mesg"</span><span class="p">:</span> <span class="s2">"Door closed"</span>
+   <span class="p">},</span>
+   <span class="p">{</span>
+      <span class="nt">"alert_id"</span><span class="p">:</span> <span class="s2">"UXB33Affrs_344d23"</span><span class="p">,</span>
+      <span class="nt">"device_id"</span><span class="p">:</span> <span class="s2">"4B_j7lZYk8UByAjU7vjyDB1Uam17wSzri5QMN11q_G8="</span><span class="p">,</span>
+      <span class="nt">"who"</span><span class="p">:</span> <span class="s2">"Admin"</span><span class="p">,</span>
+      <span class="nt">"what"</span><span class="p">:</span> <span class="s2">"Port 0"</span><span class="p">,</span>
+      <span class="nt">"when"</span><span class="p">:</span> <span class="mi">1580601600</span><span class="p">,</span>
+      <span class="nt">"siteId"</span><span class="p">:</span> <span class="s2">"LINQ2 - Hallway"</span><span class="p">,</span>
+      <span class="nt">"mesg"</span><span class="p">:</span> <span class="s2">"Power Supply Trouble"</span>
+   <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table frame="void" rules="none">
+<col class="field-name"/>
+<col class="field-body"/>
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td> </td><td class="field-body"><ul class="first simple">
+<li><strong>search</strong> (<em>string</em>) – (optional) Return only keys that match this search</li>
+<li><strong>start</strong> (<em>number</em>) – (optional) return alerts starting at a specific index</li>
+<li><strong>count</strong> (<em>number</em>) – (optional) return a specified amount of devices</li>
+<li><strong>sort</strong> (<em>string</em>) – (optional) sort result by a specific key</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Response JSON Object:</th></tr>
+<tr class="field-even field"><td> </td><td class="field-body"><ul class="first last simple">
+<li><strong>alert_id</strong> (<em>string</em>) – Unique identity of the alert</li>
+<li><strong>device_id</strong> (<em>string</em>) – Unique identity (serial number) of the device responsible for the alert</li>
+<li><strong>who</strong> (<em>string</em>) – Account holder responsible for the reason for alert</li>
+<li><strong>what</strong> (<em>string</em>) – Secondary ID describing associated with the alert</li>
+<li><strong>when</strong> (<em>string</em>) – unix time stamp of when the alert occured</li>
+<li><strong>siteId</strong> (<em>string</em>) – Location of the device responsible for the alert</li>
+<li><strong>mesg</strong> (<em>string</em>) – Human readable string describing the alert</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 
 

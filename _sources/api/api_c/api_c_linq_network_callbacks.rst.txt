@@ -18,7 +18,7 @@ Members
 -------
 
 linq_network_error_fn
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
    .. code-block:: c
    
@@ -30,7 +30,7 @@ linq_network_error_fn
    A function pointer to be called when the LinQ Network Library has detected an error.
 
 linq_network_heartbeat_fn
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
    .. code-block:: c
    
@@ -41,7 +41,7 @@ linq_network_heartbeat_fn
    A function pointer to be called when the LinQ Network Libary has received a heartbeat from a LinQ enabled product.
    
 linq_network_alert_fn
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
    .. code-block:: c
    
@@ -53,7 +53,7 @@ linq_network_alert_fn
    A function pointer to be called when the LinQ Network Libary has received an alert from a LinQ enabled product.
 
 linq_network_ctrlc_fn
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
    .. code-block:: c
    
