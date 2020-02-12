@@ -1,6 +1,7 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
+#include "altronix/linq_network.h"
 #include "sqlite3.h"
 #include "sys.h"
 
@@ -45,11 +46,15 @@ extern "C"
         uint32_t keys_len,
         const char* vals,
         uint32_t vals_len);
-    int database_insert_device_from_about(
+    int database_insert_device_from_json(
         database_s* db,
         const char* serial,
-        const char* about,
-        uint32_t about_len);
+        const char* json,
+        uint32_t json_len);
+    int database_insert_alert(
+        database_s* db,
+        const char* serial,
+        linq_network_alert_s* a);
 
 #ifdef __cplusplus
 }

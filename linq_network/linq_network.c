@@ -72,15 +72,12 @@ static void
 on_heartbeat_response(void* ctx, E_LINQ_ERROR e, const char* r, device_s** d)
 {
     linq_network_s* l = ctx;
-    atx_str sid, product, prj_version, atx_version, web_version, mac;
     const char* serial = device_serial(*d);
-    uint32_t count;
-    jsmntok_t t[64];
     if (e) {
         log_warn("(ZMTP) [%.6s...] (%.3d) About request failed!", serial, e);
     } else {
 #ifdef WITH_SQLITE
-        database_insert_device_from_about(&l->database, serial, r, strlen(r));
+        database_insert_device_from_json(&l->database, serial, r, strlen(r));
 #endif
     }
 }
@@ -119,32 +116,14 @@ on_zmtp_alert(
     device_s** d)
 {
     int err;
-    char k[128], v[256];
-    uint32_t klen, vlen;
     const char* serial = device_serial(*d);
     linq_network_s* l = ctx;
-    zuuid_t* uid = zuuid_new();
-    linq_network_assert(uid);
     log_info("(ZMTP) [%.6s...] Event Alert", serial);
-    klen =
-        snprintf(k, sizeof(k), "alert_id,who,what,site_id,time,mesg,device_id");
-    // clang-format off
-    vlen = snprintf(
-        v,
-        sizeof(v),
-        "\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",%.*s,\"%.*s\",\"%.*s\"",
-        32,                  zuuid_str(uid),
-        a->who.len,          a->who.p,
-        a->what.len,         a->what.p,
-        a->where.len,        a->where.p,
-        a->when.len,         a->when.p,
-        a->mesg.len,         a->mesg.p,
-        (int)strlen(serial), serial);
-    // clang-format on
-    zuuid_destroy(&uid);
 #ifdef WITH_SQLITE
+    // Print out time
     char when[32];
     snprintf(when, sizeof(when), "%.*s", a->when.len, a->when.p);
+
     // clang-format off
     http_broadcast_json(
         &l->http,
@@ -157,7 +136,7 @@ on_zmtp_alert(
         atoi(when),
         a->mesg.len,    a->mesg.p);
     // clang-format on
-    err = database_insert_raw_n(&l->database, "alerts", k, klen, v, vlen);
+    err = database_insert_alert(&l->database, serial, a);
 #endif
     log_debug("(ZMTP) Database alert insert result (%d)", err);
     if (l->callbacks && l->callbacks->alert) {

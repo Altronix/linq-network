@@ -309,11 +309,11 @@ database_insert_raw_n(
 }
 
 int
-database_insert_device_from_about(
+database_insert_device_from_json(
     database_s* db,
     const char* serial,
-    const char* about,
-    uint32_t about_len)
+    const char* json,
+    uint32_t json_len)
 {
     int err = -1;
     atx_str sid, product, prj_version, atx_version, web_version, mac;
@@ -329,8 +329,8 @@ database_insert_device_from_about(
         "/about",
         t,
         64,
-        about,
-        about_len,
+        json,
+        json_len,
         6,
         "sid",       &sid,
         "product",   &product,
@@ -357,5 +357,38 @@ database_insert_device_from_about(
     } else {
         log_debug("(DATA) Heartbeat parser error");
     }
+    return err;
+}
+
+int
+database_insert_alert(
+    database_s* db,
+    const char* serial,
+    linq_network_alert_s* a)
+{
+    int err = -1;
+    char vals[128];
+    const char* keys = "alert_id,who,what,site_id,time,mesg,device_id";
+    uint32_t count, vlen, keylen = strlen(keys);
+    zuuid_t* uid = zuuid_new();
+    jsmntok_t t[64];
+
+    // Print out sqlite format values
+    // clang-format off
+    vlen = snprintf(
+        vals,
+        sizeof(vals),
+        "\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",%.*s,\"%.*s\",\"%.*s\"",
+        32,                  zuuid_str(uid),
+        a->who.len,          a->who.p,
+        a->what.len,         a->what.p,
+        a->where.len,        a->where.p,
+        a->when.len,         a->when.p,
+        a->mesg.len,         a->mesg.p,
+        (int)strlen(serial), serial);
+    // clang-format on
+
+    err = database_insert_raw_n(db, "alerts", keys, keylen, vals, vlen);
+    zuuid_destroy(&uid);
     return err;
 }
