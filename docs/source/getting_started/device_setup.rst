@@ -41,4 +41,4 @@ Upload Certificate (Required for TLS Only)
 
 2. Click on the "Upload" icon and navigate to the Public Key of the Certificate installed on the Altronix Dashboard Software.
 
-   .. warning:: The Public Key must not be in plain text PEM format!
+   .. warning:: The Public Key must be in plain text PEM format!
