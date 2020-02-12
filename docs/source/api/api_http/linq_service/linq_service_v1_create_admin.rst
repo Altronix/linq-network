@@ -24,7 +24,7 @@
 
    .. warning:: Password must be larger than 12 charectors!
 
-      If an Admin account has already been created, then you can not create an additional admin.  If you lose your admin credentials to the original account admin, then you must factory reset your hardware (or re-install the LinQ Service).
+      If an Admin account has already been created, then you can not create an additional admin.  If you lose your admin credentials to the original admin account, then you must factory reset your hardware (or re-install the LinQ Service).
 
    **Example response**:
 
