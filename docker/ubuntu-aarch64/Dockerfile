@@ -6,7 +6,9 @@ RUN apt-get -y update && \
 	    libtool \
 	    autoconf \
 	    automake \
+	    git \
 	    cmake \
+	    uuid-dev \
 	    libssl-dev \
 	    clang 
 
@@ -28,10 +30,11 @@ RUN \
 		  -DUSE_SYSTEM_OPENSSL=ON \
 		  -DBUILD_EXAMPLES=ON \
 		  -DENABLE_TESTING=OFF \
+		  -DWITH_CPP_BINDING=OFF \
 		  .. && \
 	    make && \
 	    make install
 
-EXPOSE 8000 8001
+EXPOSE 8000 8001 33455
 
 ENTRYPOINT ["./docker/start.sh"]

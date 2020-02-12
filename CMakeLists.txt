@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10...3.16)
+cmake_minimum_required(VERSION 3.9.3...3.16)
 project(linq-network)
 
 find_package(Git)
@@ -164,11 +164,15 @@ if(ENABLE_TESTING)
 endif()
 
 add_subdirectory(linq_network)
-add_subdirectory(bindings/cpp)
 
 option(BUILD_EXAMPLES "Whether or not to build the examples" OFF)
 if(BUILD_EXAMPLES)
   add_subdirectory(examples/server)
+endif()
+
+option(WITH_CPP_BINDING "Build the C++ bindings" ON)
+if(WITH_CPP_BINDING)
+  add_subdirectory(bindings/cpp)
 endif()
 
 option(WITH_NODEJS_BINDING "Build the NODEJS bindings" OFF)
