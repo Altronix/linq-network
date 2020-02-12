@@ -25,16 +25,16 @@ Send a POST request to a device.
 Paremters
 ---------
 
-=============================== ===========
-Parameter                       Description
-=============================== ===========
-linq_network_s* linq                 Main context of the LinQ Network Library passed to all linq_network routines
-const char* serial              Serial number of the product for which to receive the request
-const char* path                URL of the request
-const char* json                Body of the request
+================================ ===========
+Parameter                        Description
+================================ ===========
+linq_network_s* linq             Main context of the LinQ Network Library passed to all linq_network routines
+const char* serial               Serial number of the product for which to receive the request
+const char* path                 URL of the request
+const char* json                 Body of the request
 linq_network_request_complete_fn fn  Callback function with response from the request
-void* context                   Application data passed to the callback
-=============================== ===========
+void* context                    Application data passed to the callback
+================================ ===========
 
 Examples
 --------

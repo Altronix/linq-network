@@ -18,11 +18,11 @@ Free the LinQ Network communication library resource from heap memory.
 Parameters
 ----------
 
-========= ===========
-Parameter Description
-========= ===========
+============== ===========
+Parameter      Description
+============== ===========
 linq_network** Pointer to the linq_network_s context (returned from linq_network_create)
-========= ===========
+============== ===========
 
 Example
 -------

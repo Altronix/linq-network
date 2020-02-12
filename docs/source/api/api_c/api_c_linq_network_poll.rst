@@ -16,12 +16,12 @@ Process LinQ Network IO. The LinQ Network Library performs non-blocking IO insid
 Parameters
 ----------
 
-=========== ===========
-Parameter   Description
-=========== ===========
+================ ===========
+Parameter        Description
+================ ===========
 linq_network_s*  Main context of the LinQ Network Library passed to all linq_network routines.
-uint32_t ms Network IO Select timeout
-=========== ===========
+uint32_t ms      Network IO Select timeout
+================ ===========
 
 Example
 --------

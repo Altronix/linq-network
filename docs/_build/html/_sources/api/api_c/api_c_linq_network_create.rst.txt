@@ -17,12 +17,12 @@ Initialize the LinQ Network communication library. Optionally pass in a struct w
 Parameters
 ----------
 
-======================== ===========
-Parameter                Description
-======================== ===========
+============================= ===========
+Parameter                     Description
+============================= ===========
 const linq_network_callbacks* Struct of function pointers to process events
 void*                    User data passed to each callback function to process events.
-======================== ===========
+============================= ===========
 
 Examples
 --------

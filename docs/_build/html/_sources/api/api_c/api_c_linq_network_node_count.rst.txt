@@ -16,11 +16,11 @@ Return the number of nodes connected to your LinQ Network context. Any time you 
 Parameters
 ----------
 
-========= ===========
-Parameter Description
-========= ===========
+============== ===========
+Parameter      Description
+============== ===========
 linq_network   Main context of the LinQ Network Library passed to all linq_network routines.
-========= ===========
+============== ===========
 
 Examples
 --------
