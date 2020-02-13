@@ -1,3 +1,5 @@
+.. _ref_api_http_linq_service:
+
 LinQ Service
 ============
 
