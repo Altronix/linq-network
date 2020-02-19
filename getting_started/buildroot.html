@@ -57,7 +57,7 @@
   <script async src='https://www.google-analytics.com/analytics.js'></script>
   
   
-    <title>Buildroot Enviorment &#8212; Linq Network User Guide 0.0.1 documentation</title>
+    <title>Buildroot Environment &#8212; Linq Network User Guide 0.0.1 documentation</title>
     <link rel="stylesheet" href="../_static/material.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/css/styles.css" />
@@ -115,7 +115,7 @@
       <div class="md-flex__cell md-flex__cell--stretch">
         <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
           <span class="md-header-nav__topic">LinQ Network User Guide</span>
-          <span class="md-header-nav__topic"> Buildroot Enviorment </span>
+          <span class="md-header-nav__topic"> Buildroot Environment </span>
         </div>
       </div>
       <div class="md-flex__cell md-flex__cell--shrink">
@@ -210,15 +210,15 @@
     <li class="md-nav__item">
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-    <label class="md-nav__link md-nav__link--active" for="__toc"> Buildroot Enviorment </label>
+    <label class="md-nav__link md-nav__link--active" for="__toc"> Buildroot Environment </label>
     
-      <a href="#" class="md-nav__link md-nav__link--active">Buildroot Enviorment</a>
+      <a href="#" class="md-nav__link md-nav__link--active">Buildroot Environment</a>
       
         
 <nav class="md-nav md-nav--secondary">
     <label class="md-nav__title" for="__toc">Contents</label>
   <ul class="md-nav__list" data-md-scrollfix="">
-        <li class="md-nav__item"><a href="#getting-started-buildroot--page-root" class="md-nav__link">Buildroot Enviorment</a><nav class="md-nav">
+        <li class="md-nav__item"><a href="#getting-started-buildroot--page-root" class="md-nav__link">Buildroot Environment</a><nav class="md-nav">
               <ul class="md-nav__list">
         <li class="md-nav__item"><a href="#required-packages" class="md-nav__link">Required Packages</a>
         </li>
@@ -378,7 +378,7 @@
 <nav class="md-nav md-nav--secondary">
     <label class="md-nav__title" for="__toc">Contents</label>
   <ul class="md-nav__list" data-md-scrollfix="">
-        <li class="md-nav__item"><a href="#getting-started-buildroot--page-root" class="md-nav__link">Buildroot Enviorment</a><nav class="md-nav">
+        <li class="md-nav__item"><a href="#getting-started-buildroot--page-root" class="md-nav__link">Buildroot Environment</a><nav class="md-nav">
               <ul class="md-nav__list">
         <li class="md-nav__item"><a href="#required-packages" class="md-nav__link">Required Packages</a>
         </li>
@@ -427,12 +427,12 @@
           <article class="md-content__inner md-typeset" role="main">
             
   
-<span id="ref-getting-started-buildroot"></span><h1 id="getting-started-buildroot--page-root">Buildroot Enviorment<a class="headerlink" href="#getting-started-buildroot--page-root" title="Permalink to this headline">¶</a></h1>
-<p>Buildroot is used to build Embedded Linux Systems that can be cross compiled for unique hardware targets such as the Altronix LinQ Master module or the Microchip Sama5D27 SOM1 Module. Buildroot has it’s own user manual and the Altronix LinQ Network User Guide is only meant as a companion guide. Users should read the Buildroot User Manual in its entirety, paying closer attention to the Section 8.5 - Building Out of tree <span class="blue">[1]</span>, Section 8.6 - Enviorment Variables <span class="blue">[2]</span>, Section 8.12 - Advanced Usage <span class="blue">[3]</span>, Section 9 - Project specific customization <span class="blue">[4]</span>, and Section III - developer guide <span class="blue">[5]</span>.</p>
+<span id="ref-getting-started-buildroot"></span><h1 id="getting-started-buildroot--page-root">Buildroot Environment<a class="headerlink" href="#getting-started-buildroot--page-root" title="Permalink to this headline">¶</a></h1>
+<p>Buildroot is used to build Embedded Linux Systems that can be cross compiled for unique hardware targets such as the Altronix LinQ Master module or the Microchip Sama5D27 SOM1 Module. Buildroot has it’s own user manual and the Altronix LinQ Network User Guide is only meant as a companion guide. Users should read the Buildroot User Manual in its entirety, paying closer attention to the Section 8.5 - Building Out of tree <span class="blue">[1]</span>, Section 8.6 - Environment Variables <span class="blue">[2]</span>, Section 8.12 - Advanced Usage <span class="blue">[3]</span>, Section 9 - Project specific customization <span class="blue">[4]</span>, and Section III - developer guide <span class="blue">[5]</span>.</p>
 <div class="font-small docutils container">
 <ol class="arabic simple">
 <li><a class="reference external" href="https://buildroot.org/downloads/manual/manual.html#_building_out_of_tree">Section 8.5 - Building Out of Tree</a></li>
-<li><a class="reference external" href="https://buildroot.org/downloads/manual/manual.html#env-vars">Section 8.6 - Enviorment Variables</a></li>
+<li><a class="reference external" href="https://buildroot.org/downloads/manual/manual.html#env-vars">Section 8.6 - Environment Variables</a></li>
 <li><a class="reference external" href="https://buildroot.org/downloads/manual/manual.html#_advanced_usage">Section 8.12 - Advanced Usage</a></li>
 <li><a class="reference external" href="https://buildroot.org/downloads/manual/manual.html#customize">Section 8.6 - Project Specific Customization</a></li>
 <li><a class="reference external" href="https://buildroot.org/downloads/manual/manual.html#_developer_guide">Section III - Developer Guide</a></li>
@@ -479,13 +479,24 @@
 
 
 <h2 id="altronix-buildroot-packages">Altronix Buildroot Packages<a class="headerlink" href="#altronix-buildroot-packages" title="Permalink to this headline">¶</a></h2>
-<p>Buildroot offers the BR2_EXTERNAL enviorment variable as a convenient option to store packages outside of the mainline buildroot repository.  Altronix uses this enviorment variable to extend buildroot with Altronix specific packages such as the LinQ Network library and application demos.  To get started with buildroot, clone the altronix buildroot repository and the buildroot-external-altronix submodule into your development workspace.</p>
+<p>Buildroot offers the BR2_EXTERNAL environment variable as a convenient option to store packages outside of the mainline buildroot repository.  Altronix uses this environment variable to extend buildroot with Altronix specific packages such as the LinQ Network library and application demos.  To get started with buildroot, clone the altronix buildroot repository and the buildroot-external-altronix submodule into your development workspace.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone https://bitbucket.org/Altronix/buildroot-at91
 <span class="nb">cd</span> buildroot-at91
 git submodule update --init
 </pre></div>
 </div>
 <p>You are now ready to configure and compile your embedded linux system.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>BR2_EXTERNAL environment variable is required to be set so that buildroot can find our custom defconfig files.  For convience you can export this environment variable to your shell. Or you can choose pass this environment variable to make directly.</p>
+<div class="last highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">BR2_EXTERNAL</span><span class="o">=</span>./external/buildroot-external-altronix
+make sama5d27_som1_ek_altronix_defconfig
+
+<span class="c1"># Or</span>
+make <span class="nv">BR2_EXTERNAL</span><span class="o">=</span>./external/buildroot-external-altronix sama5d27_som1_ek_altronix_defconfig
+</pre></div>
+</div>
+</div>
 
 
 <h2 id="altronix-demo-configuration">Altronix Demo Configuration<a class="headerlink" href="#altronix-demo-configuration" title="Permalink to this headline">¶</a></h2>
@@ -510,7 +521,7 @@ git submodule update --init
 <span class="o">|</span>   <span class="o">|</span>   <span class="o">|</span>   <span class="o">|--</span> <span class="o">...</span>                                  <span class="o">&lt;--</span> <span class="n">Extra</span> <span class="n">Microchip</span> <span class="o">+</span> <span class="n">Altronix</span> <span class="n">Packages</span>
 </pre></div>
 </div>
-<p>In order to create your own Embedded Linux System you should start from a configuration that is most similar to your target hardware and software requirments.  To create. To explore the Altronix Demo Configuration, run the command from buildroot-at91 root directory:</p>
+<p>In order to create your own Embedded Linux System you should start from a configuration that is most similar to your target hardware and software requirements.  To create. To explore the Altronix Demo Configuration, run the command from buildroot-at91 root directory:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>make menuconfig
 </pre></div>
 </div>
@@ -534,7 +545,7 @@ git submodule update --init
 
 <h2 id="flashing-sd-card-onto-target-hardware">Flashing SD Card onto target hardware<a class="headerlink" href="#flashing-sd-card-onto-target-hardware" title="Permalink to this headline">¶</a></h2>
 <p>After you have finished customizing your Embedded Linux System you can build the system by running the command make. In summary:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>make sama5d27_som1_ek_altronix_defconfig
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>make <span class="nv">BR2_EXTERNAL</span><span class="o">=</span>./external/buildroot-external-altronix sama5d27_som1_ek_altronix_defconfig
 make menuconfig
 
 <span class="c1"># ... Customize your build</span>
@@ -677,7 +688,7 @@ help
 
 
 <h3 id="other">Other<a class="headerlink" href="#other" title="Permalink to this headline">¶</a></h3>
-<p>Interpretted languages such as NodeJS and python do not need to be compiled and therefore do not have a make file requirment to add to your Embedded Linux System.</p>
+<p>Interpreted languages such as NodeJS and python do not need to be compiled and therefore do not have a make file requirement to add to your Embedded Linux System.</p>
 
 
 
