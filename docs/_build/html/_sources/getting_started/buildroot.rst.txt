@@ -2,17 +2,17 @@
 
 .. _ref-getting_started_buildroot:
 
-Buildroot Enviorment
-====================
+Buildroot Environment
+=====================
 
-Buildroot is used to build Embedded Linux Systems that can be cross compiled for unique hardware targets such as the Altronix LinQ Master module or the Microchip Sama5D27 SOM1 Module. Buildroot has it's own user manual and the Altronix LinQ Network User Guide is only meant as a companion guide. Users should read the Buildroot User Manual in its entirety, paying closer attention to the Section 8.5 - Building Out of tree :blue:`[1]`, Section 8.6 - Enviorment Variables :blue:`[2]`, Section 8.12 - Advanced Usage :blue:`[3]`, Section 9 - Project specific customization :blue:`[4]`, and Section III - developer guide :blue:`[5]`.
+Buildroot is used to build Embedded Linux Systems that can be cross compiled for unique hardware targets such as the Altronix LinQ Master module or the Microchip Sama5D27 SOM1 Module. Buildroot has it's own user manual and the Altronix LinQ Network User Guide is only meant as a companion guide. Users should read the Buildroot User Manual in its entirety, paying closer attention to the Section 8.5 - Building Out of tree :blue:`[1]`, Section 8.6 - Environment Variables :blue:`[2]`, Section 8.12 - Advanced Usage :blue:`[3]`, Section 9 - Project specific customization :blue:`[4]`, and Section III - developer guide :blue:`[5]`.
 
 .. rst-class:: font-small
 .. container::
    
    1. `Section 8.5 - Building Out of Tree <https://buildroot.org/downloads/manual/manual.html#_building_out_of_tree>`_
    
-   2. `Section 8.6 - Enviorment Variables <https://buildroot.org/downloads/manual/manual.html#env-vars>`_
+   2. `Section 8.6 - Environment Variables <https://buildroot.org/downloads/manual/manual.html#env-vars>`_
    
    3. `Section 8.12 - Advanced Usage <https://buildroot.org/downloads/manual/manual.html#_advanced_usage>`_
    
@@ -85,7 +85,7 @@ Optional Packages
 Altronix Buildroot Packages
 ---------------------------
 
-Buildroot offers the BR2_EXTERNAL enviorment variable as a convenient option to store packages outside of the mainline buildroot repository.  Altronix uses this enviorment variable to extend buildroot with Altronix specific packages such as the LinQ Network library and application demos.  To get started with buildroot, clone the altronix buildroot repository and the buildroot-external-altronix submodule into your development workspace.
+Buildroot offers the BR2_EXTERNAL environment variable as a convenient option to store packages outside of the mainline buildroot repository.  Altronix uses this environment variable to extend buildroot with Altronix specific packages such as the LinQ Network library and application demos.  To get started with buildroot, clone the altronix buildroot repository and the buildroot-external-altronix submodule into your development workspace.
 
 .. code-block:: shell
 
@@ -94,6 +94,16 @@ Buildroot offers the BR2_EXTERNAL enviorment variable as a convenient option to 
    git submodule update --init
 
 You are now ready to configure and compile your embedded linux system.
+
+.. note:: BR2_EXTERNAL environment variable is required to be set so that buildroot can find our custom defconfig files.  For convience you can export this environment variable to your shell. Or you can choose pass this environment variable to make directly.
+
+   .. code-block:: shell
+
+      export BR2_EXTERNAL=./external/buildroot-external-altronix
+      make sama5d27_som1_ek_altronix_defconfig
+
+      # Or
+      make BR2_EXTERNAL=./external/buildroot-external-altronix sama5d27_som1_ek_altronix_defconfig
 
 Altronix Demo Configuration
 ---------------------------
@@ -122,7 +132,7 @@ From inside your buildroot-at91 workspace you can observe the following director
    |   |   |   |-- ...                                  <-- Extra Microchip + Altronix Packages
 
 
-In order to create your own Embedded Linux System you should start from a configuration that is most similar to your target hardware and software requirments.  To create. To explore the Altronix Demo Configuration, run the command from buildroot-at91 root directory:
+In order to create your own Embedded Linux System you should start from a configuration that is most similar to your target hardware and software requirements.  To create. To explore the Altronix Demo Configuration, run the command from buildroot-at91 root directory:
 
 .. code-block:: shell
 
@@ -156,7 +166,7 @@ After you have finished customizing your Embedded Linux System you can build the
 
 .. code-block:: shell
    
-   make sama5d27_som1_ek_altronix_defconfig
+   make BR2_EXTERNAL=./external/buildroot-external-altronix sama5d27_som1_ek_altronix_defconfig
    make menuconfig
 
    # ... Customize your build
@@ -306,4 +316,4 @@ Refer to the linq-network-demo-go package for an example of how to add your go p
 Other
 ~~~~~
 
-Interpretted languages such as NodeJS and python do not need to be compiled and therefore do not have a make file requirment to add to your Embedded Linux System.
+Interpreted languages such as NodeJS and python do not need to be compiled and therefore do not have a make file requirement to add to your Embedded Linux System.
