@@ -1,0 +1,36 @@
+// Copyright (c) 2019-2020 Altronix Corp
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+#ifndef SYS_H
+#define SYS_H
+
+#include <assert.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define linq_network_malloc_fn malloc
+#define linq_network_free_fn free
+#define linq_network_assert_fn assert
+
+#define linq_network_malloc(x) linq_network_malloc_fn(x)
+#define linq_network_free(x) linq_network_free_fn(x)
+#define linq_network_assert(x) linq_network_assert_fn(x)
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+    int32_t sys_tick();
+    uint32_t sys_unix();
+
+#ifdef __cplusplus
+}
+#endif
+#endif
