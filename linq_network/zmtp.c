@@ -10,6 +10,8 @@
 
 #include "jsmn/jsmn_helpers.h"
 
+extern volatile int zsys_interrupted;
+
 MAP_INIT(socket, zsock_t, zsock_destroy);
 
 // A version on the wire is a byte
@@ -728,4 +730,10 @@ zmtp_device_send_delete(
         device_send_delete(*d, path, fn, context);
         return LINQ_ERROR_OK;
     }
+}
+
+bool
+sys_running()
+{
+    return !zsys_interrupted;
 }

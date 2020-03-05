@@ -3,7 +3,6 @@ set(SOURCES
     linq_network.c
     device.c
     node.c
-    sys.c
     zmtp.c)
   set(HEADERS
     ../include/altronix/linq_network.h
