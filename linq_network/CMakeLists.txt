@@ -1,12 +1,10 @@
 set(SOURCES
-    base64.c
     linq_network.c
     device.c
     node.c
     zmtp.c)
   set(HEADERS
     ../include/altronix/linq_network.h
-    base64.h
     containers.h
     linq_network_internal.h
     log.h
@@ -17,10 +15,14 @@ set(SOURCES
 set(INSTALL_HEADERS ../include/altronix/linq_network.h)
 set(INCS ../include)
 set(LIBS ${CMAKE_THREAD_LIBS_INIT})
-set(LIBS_STATIC ${JSMN_WEB_TOKENS_STATIC_LIBS} ${LIBZMQ_STATIC_LIBS})
-set(LIBS_SHARED ${JSMN_WEB_TOKENS_SHARED_LIBS} ${LIBZMQ_SHARED_LIBS})
-set(SOURCES_SYS_MOCK sys/mock/sys.c)
-set(HEADERS_SYS_MOCK sys/mock/sys.h)
+set(LIBS_STATIC 
+  ${JSMN_WEB_TOKENS_STATIC_LIBS}
+  ${LIBZMQ_STATIC_LIBS}
+  linq-utils-static)
+set(LIBS_SHARED 
+  ${JSMN_WEB_TOKENS_SHARED_LIBS}
+  ${LIBZMQ_SHARED_LIBS}
+  linq-utils-shared)
 
 append_log_level_compiler_flags(definitions)
 
@@ -54,15 +56,10 @@ endif()
 
 if(NOT MSVC)
   list(APPEND LIBS rt m stdc++ uuid dl)
-  list(APPEND SOURCES_SYS sys/unix/sys.c)
-  list(APPEND HEADERS_SYS sys/unix/sys.h)
 else()
   list(APPEND definitions "-DCZMQ_STATIC")
   list(APPEND definitions "-DZMQ_STATIC")
   list(APPEND LIBS ws2_32 iphlpapi wldap32 uuid Rpcrt4)
-  list(APPEND INCS ./sys/win)
-  list(APPEND SOURCES_SYS sys/win/sys.c)
-  list(APPEND HEADERS_SYS sys/win/sys.h)
 endif()
 
 if(ENABLE_TESTING)
@@ -78,7 +75,6 @@ if(ENABLE_TESTING)
   target_compile_definitions(linq-network-test-static PRIVATE "-DTESTING")
   target_include_directories(linq-network-test-static PUBLIC ${INCS})
   target_include_directories(linq-network-test-static PUBLIC ../include)
-  target_include_directories(linq-network-test-static PUBLIC ./sys/mock)
   target_include_directories(linq-network-test-static PUBLIC ./)
 endif()
 
@@ -93,7 +89,6 @@ if(BUILD_STATIC)
     ${LIBS})
   target_compile_definitions(linq-network-static PUBLIC ${definitions})
   target_include_directories(linq-network-static PUBLIC ${INCS})
-  target_include_directories(linq-network-static PRIVATE sys/unix)
   target_include_directories(linq-network-static PRIVATE ./)
   set_target_properties(linq-network-static PROPERTIES 
     PUBLIC_HEADER "${INSTALL_HEADERS}"
@@ -122,7 +117,6 @@ if(BUILD_SHARED)
   endif()
   target_compile_definitions(linq-network PUBLIC ${definitions})
   target_include_directories(linq-network PUBLIC ${INCS})
-  target_include_directories(linq-network PRIVATE sys/unix)
   target_include_directories(linq-network PRIVATE ./)
   set_target_properties(linq-network PROPERTIES PUBLIC_HEADER "${INSTALL_HEADERS}")
   install(TARGETS linq-network
