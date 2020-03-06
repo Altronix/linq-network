@@ -4,7 +4,7 @@
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
 #include "mock_utils.h"
-#include "routes/routes.h"
+#include "routes.h"
 
 #include "main.h"
 

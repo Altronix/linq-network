@@ -5,7 +5,7 @@
 #include "http.h"
 #include "http_auth.h"
 #include "log.h"
-#include "routes/routes.h"
+#include "routes.h"
 
 #define HTTP_FORMAT_HEADERS                                                    \
     "HTTP/1.0 %d \r\n"                                                         \

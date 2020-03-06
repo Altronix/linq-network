@@ -15,7 +15,7 @@
 
 #include "cmocka.h"
 
-#include "database/database.h"
+#include "database.h"
 #include "linq_network_internal.h"
 
 #include "czmq.h"

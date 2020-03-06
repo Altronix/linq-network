@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "helpers.h"
-#include "database/database.h"
+#include "database.h"
 #include "linq_network_internal.h"
 
 #include "mock_mongoose.h"

@@ -2,7 +2,7 @@
 #include "helpers.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
-#include "routes/routes.h"
+#include "routes.h"
 #include "sys.h"
 
 #include <setjmp.h>

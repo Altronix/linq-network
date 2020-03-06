@@ -24,32 +24,6 @@ set(LIBS_SHARED
 
 append_log_level_compiler_flags(definitions)
 
-if (WITH_SQLITE)
-  MESSAGE(STATUS "SQlite Enabled")
-  list(APPEND SOURCES 
-    ./sqlite3.c 
-    ./mongoose.c
-    ./http.c
-    ./http_auth.c
-    ./routes/route_users.c
-    ./routes/route_alerts.c
-    ./routes/route_devices.c
-    ./routes/route_proxy.c
-    ./database/database.c)
-  list(APPEND HEADERS
-    ./sqlite3.h
-    ./mongoose.h
-    ./http.h
-    ./http_auth.h
-    ./http_auth_unsafe.h # TODO remove
-    ./routes/routes.h
-    ./database/database.h)
-  list(APPEND LIBS_STATIC ${TLS_STATIC_LIBS})
-  list(APPEND LIBS_SHARED ${TLS_SHARED_LIBS})
-else()
-  MESSAGE(STATUS "SQlite Disabled")
-endif()
-
 if(NOT MSVC)
   list(APPEND LIBS rt m stdc++ uuid dl)
 else()

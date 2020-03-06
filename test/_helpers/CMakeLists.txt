@@ -3,7 +3,8 @@ add_library(helpers
   helpers.h)
 
 target_link_libraries(helpers
-  linq-network-test-static
+  linq-http-test
+  linq-database-static
   mock-czmq
   mock-mongoose
   mock-sqlite
