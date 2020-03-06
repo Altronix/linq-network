@@ -164,6 +164,7 @@ if(ENABLE_TESTING)
 endif()
 
 add_subdirectory(linq_utils)
+add_subdirectory(linq_database)
 add_subdirectory(linq_network)
 
 option(BUILD_EXAMPLES "Whether or not to build the examples" OFF)

@@ -1,5 +1,6 @@
 #include "database.h"
 #include "jsmn/jsmn_helpers.h"
+#include "linq_network_internal.h"
 #include "log.h"
 
 #define DATABASE_DEVICES                                                       \

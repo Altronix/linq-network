@@ -1,5 +1,6 @@
 #include "http_auth.h"
 #include "jsmn/jsmn_tokens.h"
+#include "linq_network_internal.h"
 #include "log.h"
 
 #include "http_auth_unsafe.h"
