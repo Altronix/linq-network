@@ -86,18 +86,18 @@ if(BUILD_STATIC)
 endif()
 
 if(BUILD_SHARED)
-  add_library(linq-network SHARED ${SOURCES} ${HEADERS})
+  add_library(linq-network-shared SHARED ${SOURCES} ${HEADERS})
   if(MSVC)
     #TODO - https://stackoverflow.com/questions/33062728/cmake-link-shared-library-on-windows/41618677
-    target_link_libraries(linq-network ${LIBS_STATIC} ${LIBS})
+    target_link_libraries(linq-network-shared ${LIBS_STATIC} ${LIBS})
   else()
-    target_link_libraries(linq-network ${LIBS_SHARED} ${LIBS})
+    target_link_libraries(linq-network-shared ${LIBS_SHARED} ${LIBS})
   endif()
-  target_compile_definitions(linq-network PUBLIC ${definitions})
-  target_include_directories(linq-network PUBLIC ${INCS})
-  target_include_directories(linq-network PRIVATE ./)
-  set_target_properties(linq-network PROPERTIES PUBLIC_HEADER "${INSTALL_HEADERS}")
-  install(TARGETS linq-network
+  target_compile_definitions(linq-network-shared PUBLIC ${definitions})
+  target_include_directories(linq-network-shared PUBLIC ${INCS})
+  target_include_directories(linq-network-shared PRIVATE ./)
+  set_target_properties(linq-network-shared PROPERTIES PUBLIC_HEADER "${INSTALL_HEADERS}")
+  install(TARGETS linq-network-shared
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib
           PUBLIC_HEADER DESTINATION include/altronix)

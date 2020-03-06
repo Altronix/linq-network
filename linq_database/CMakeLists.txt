@@ -27,7 +27,7 @@ install(TARGETS linq-database-static
 # Build shared library
 add_library(linq-database-shared SHARED ${SOURCES} ${HEADERS})
 target_link_libraries(linq-database-shared ${LIBS_SHARED})
-target_include_directories(linq-database-shared PRIVATE ${INCS})
+target_include_directories(linq-database-shared PUBLIC ${INCS})
 set_target_properties(linq-database-shared PROPERTIES
   PUBLIC_HEADER "${INSTALL_HEADERS}"
   OUTPUT_NAME "linq-database")

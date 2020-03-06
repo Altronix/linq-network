@@ -1,0 +1,61 @@
+set(SOURCES 
+  ./mongoose.c
+  ./http.c
+  ./http_auth.c
+  ./routes/route_alerts.c
+  ./routes/route_devices.c
+  ./routes/route_proxy.c
+  ./routes/route_users.c)
+set(HEADERS
+  ./mongoose.h
+  ./http.h
+  ./http_auth.h
+  ./http_auth_unsafe.h
+  ./routes/routes.h)
+
+append_log_level_compiler_flags(definitions)
+append_mongoose_compiler_flags(definitions)
+append_sqlite_compiler_flags(definitions)
+list(APPEND definitions "-DCZMQ_STATIC")
+list(APPEND definitions "-DZMQ_STATIC")
+
+set(LIBS_STATIC
+  linq-network-static
+  linq-database-static
+  linq-utils-static
+  ${JSMN_WEB_TOKENS_STATIC_LIBS}
+  ${LIBZMQ_STATIC_LIBS}
+  ${TLS_STATIC_LIBS})
+
+set(LIBS_SHARED
+  linq-network-shared
+  linq-database-shared
+  linq-utils-shared
+  ${JSMN_WEB_TOKENS_SHARED_LIBS}
+  ${LIBZMQ_SHARED_LIBS}
+  ${TLS_SHARED_LIBS})
+
+add_library(linq-http-static STATIC ${SOURCES} ${HEADERS})
+target_link_libraries(linq-http-static ${LIBS_STATIC})
+target_compile_definitions(linq-http-static PUBLIC ${definitions})
+target_include_directories(linq-http-static PRIVATE ./)
+set_target_properties(linq-http-static PROPERTIES 
+  PUBLIC_HEADER "${INSTALL_HEADERS}"
+  OUTPUT_NAME "linq-http")
+install(TARGETS linq-http-static
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        PUBLIC_HEADER DESTINATION include/altronix)
+
+add_library(linq-http-shared SHARED ${SOURCES} ${HEADERS})
+target_link_libraries(linq-http-shared ${LIBS_SHARED})
+target_compile_definitions(linq-http-shared PUBLIC ${definitions})
+target_include_directories(linq-http-shared PRIVATE ./)
+target_include_directories(linq-http-shared PRIVATE ../include)
+set_target_properties(linq-http-shared PROPERTIES 
+  PUBLIC_HEADER "${INSTALL_HEADERS}"
+  OUTPUT_NAME "linq-http")
+install(TARGETS linq-http-shared
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        PUBLIC_HEADER DESTINATION include/altronix)
