@@ -209,28 +209,8 @@ linq_network_socket
 linq_network_listen(linq_network_s* l, const char* ep)
 {
     int ep_len = strlen(ep);
-    if (ep_len > 4 && !memcmp(ep, "http", 4)) {
-#ifdef WITH_SQLITE
-        if (ep_len > 9 && !(memcmp(ep, "http://*:", 9))) {
-            log_info("(HTTP) Listening... [%s]", &ep[9]);
-            http_listen(&l->http, &ep[9]);
-            return 0;
-        } else if (ep_len > 15 && !(memcmp(ep, "http://0.0.0.0:", 15))) {
-            log_info("(HTTP) Listening... [%s]", &ep[15]);
-            http_listen(&l->http, &ep[15]);
-            return 0;
-        } else if (ep_len > 17 && !(memcmp(ep, "http://127.0.0.1:", 17))) {
-            log_info("(HTTP) Listening... [%s]", &ep[17]);
-            http_listen(&l->http, &ep[17]);
-            return 0;
-        } else {
-            return LINQ_ERROR_SOCKET;
-        }
-#endif
-    } else {
-        log_info("(ZMTP) Listening... [%s]", ep);
-        return zmtp_listen(&l->zmtp, ep);
-    }
+    log_info("(ZMTP) Listening... [%s]", ep);
+    return zmtp_listen(&l->zmtp, ep);
 }
 
 // connect to a remote linq and send hello frames

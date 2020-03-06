@@ -64,8 +64,9 @@ helpers_test_context_create(helpers_test_config_s* config)
     }
 
     if (config->http) {
-        snprintf(endpoint, sizeof(endpoint), "http://*:%d", config->zmtp);
-        linq_network_listen(ctx->net, endpoint);
+        snprintf(endpoint, sizeof(endpoint), "%d", config->http);
+        http_init(&ctx->http, ctx->net);
+        http_listen(&ctx->http, endpoint);
     }
 
     if (config->user) {

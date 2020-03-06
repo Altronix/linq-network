@@ -16,6 +16,7 @@
 #include "cmocka.h"
 
 #include "database.h"
+#include "http.h"
 #include "linq_network_internal.h"
 
 #include "czmq.h"
@@ -74,6 +75,7 @@ extern "C"
     typedef struct helpers_test_context_s
     {
         linq_network_s* net;
+        http_s http;
     } helpers_test_context_s;
 
     typedef struct helpers_test_config_s
