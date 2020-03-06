@@ -75,7 +75,7 @@ if(BUILD_STATIC)
   target_link_libraries(linq-network-static ${LIBS_STATIC} ${LIBS})
   target_compile_definitions(linq-network-static PUBLIC ${definitions})
   target_include_directories(linq-network-static PUBLIC ${INCS})
-  target_include_directories(linq-network-static PRIVATE ./)
+  target_include_directories(linq-network-static PUBLIC ./)
   set_target_properties(linq-network-static PROPERTIES 
     PUBLIC_HEADER "${INSTALL_HEADERS}"
     OUTPUT_NAME "linq-network")
@@ -95,7 +95,7 @@ if(BUILD_SHARED)
   endif()
   target_compile_definitions(linq-network-shared PUBLIC ${definitions})
   target_include_directories(linq-network-shared PUBLIC ${INCS})
-  target_include_directories(linq-network-shared PRIVATE ./)
+  target_include_directories(linq-network-shared PUBLIC ./)
   set_target_properties(linq-network-shared PROPERTIES PUBLIC_HEADER "${INSTALL_HEADERS}")
   install(TARGETS linq-network-shared
           LIBRARY DESTINATION lib

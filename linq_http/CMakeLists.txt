@@ -38,7 +38,7 @@ set(LIBS_SHARED
 add_library(linq-http-static STATIC ${SOURCES} ${HEADERS})
 target_link_libraries(linq-http-static ${LIBS_STATIC})
 target_compile_definitions(linq-http-static PUBLIC ${definitions})
-target_include_directories(linq-http-static PRIVATE ./)
+target_include_directories(linq-http-static PUBLIC ./)
 set_target_properties(linq-http-static PROPERTIES 
   PUBLIC_HEADER "${INSTALL_HEADERS}"
   OUTPUT_NAME "linq-http")
@@ -50,8 +50,8 @@ install(TARGETS linq-http-static
 add_library(linq-http-shared SHARED ${SOURCES} ${HEADERS})
 target_link_libraries(linq-http-shared ${LIBS_SHARED})
 target_compile_definitions(linq-http-shared PUBLIC ${definitions})
-target_include_directories(linq-http-shared PRIVATE ./)
-target_include_directories(linq-http-shared PRIVATE ../include)
+target_include_directories(linq-http-shared PUBLIC ./)
+target_include_directories(linq-http-shared PUBLIC ../include)
 set_target_properties(linq-http-shared PROPERTIES 
   PUBLIC_HEADER "${INSTALL_HEADERS}"
   OUTPUT_NAME "linq-http")
