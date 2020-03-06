@@ -2,16 +2,16 @@ set(SOURCES
   ./mongoose.c
   ./http.c
   ./http_auth.c
-  ./routes/route_alerts.c
-  ./routes/route_devices.c
-  ./routes/route_proxy.c
-  ./routes/route_users.c)
+  ./route_alerts.c
+  ./route_devices.c
+  ./route_proxy.c
+  ./route_users.c)
 set(HEADERS
   ./mongoose.h
   ./http.h
   ./http_auth.h
   ./http_auth_unsafe.h
-  ./routes/routes.h)
+  ./routes.h)
 
 append_log_level_compiler_flags(definitions)
 append_mongoose_compiler_flags(definitions)
