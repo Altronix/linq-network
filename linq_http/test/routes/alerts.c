@@ -83,7 +83,7 @@ test_route_alerts(void** context_p)
     sqlite_spy_column_text_return_push("did2");
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "GET", "/api/v1/alerts", NULL);
-    for (int i = 0; i < 4; i++) linq_network_poll(test->net, -1);
+    for (int i = 0; i < 4; i++) http_poll(&test->http, -1);
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
     assert_non_null(response);
@@ -115,7 +115,7 @@ test_route_alerts_response_too_large(void** context_p)
     for (int i = 0; i < 10000; i++) sqlite_spy_step_return_push(SQLITE_ROW);
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "GET", "/api/v1/alerts", NULL);
-    for (int i = 0; i < 4; i++) linq_network_poll(test->net, -1);
+    for (int i = 0; i < 4; i++) http_poll(&test->http, -1);
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
     assert_non_null(response);
@@ -146,7 +146,7 @@ test_route_alerts_response_get_only(void** context_p)
 
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "POST", "/api/v1/alerts", "{\"blah\":\"blah\"}");
-    for (int i = 0; i < 4; i++) linq_network_poll(test->net, -1);
+    for (int i = 0; i < 4; i++) http_poll(&test->http, -1);
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
     assert_non_null(response);
@@ -177,7 +177,7 @@ test_route_alerts_response_empty(void** context_p)
 
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "GET", "/api/v1/alerts", NULL);
-    for (int i = 0; i < 4; i++) linq_network_poll(test->net, -1);
+    for (int i = 0; i < 4; i++) http_poll(&test->http, -1);
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
     assert_non_null(response);

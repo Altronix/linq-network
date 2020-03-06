@@ -43,7 +43,7 @@ test_route_proxy_get(void** context_p)
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "GET", "/api/v1/proxy/serial1234/ATX/about", NULL);
     czmq_spy_poll_set_incoming((0x00));
-    for (int i = 0; i < 4; i++) linq_network_poll(test->net, -1);
+    for (int i = 0; i < 4; i++) http_poll(&test->http, -1);
 
     outgoing = czmq_spy_mesg_pop_outgoing();
     assert_non_null(outgoing);
@@ -100,7 +100,7 @@ test_route_proxy_post(void** context_p)
         "/api/v1/proxy/serial1234/ATX/about",
         "{\"test\":\"data\"}");
     czmq_spy_poll_set_incoming((0x00));
-    for (int i = 0; i < 4; i++) linq_network_poll(test->net, -1);
+    for (int i = 0; i < 4; i++) http_poll(&test->http, -1);
 
     outgoing = czmq_spy_mesg_pop_outgoing();
     assert_non_null(outgoing);
@@ -153,7 +153,7 @@ test_route_proxy_404(void** context_p)
         "/api/v1/proxy/serial1234/ATX/about",
         "{\"test\":\"data\"}");
     czmq_spy_poll_set_incoming((0x00));
-    for (int i = 0; i < 4; i++) linq_network_poll(test->net, -1);
+    for (int i = 0; i < 4; i++) http_poll(&test->http, -1);
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
     assert_non_null(response);
@@ -189,7 +189,7 @@ test_route_proxy_400_too_short(void** context_p)
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "GET", "/api/v1/proxy/1234", NULL);
     czmq_spy_poll_set_incoming((0x00));
-    for (int i = 0; i < 4; i++) linq_network_poll(test->net, -1);
+    for (int i = 0; i < 4; i++) http_poll(&test->http, -1);
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
     assert_non_null(response);
