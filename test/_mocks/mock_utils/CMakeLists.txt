@@ -1,7 +1,7 @@
 # --------------------------------------------------------------------------
 # Lib of mock functions for test
 # --------------------------------------------------------------------------
-add_library(mock-utils sys.c sys.h mock_utils.h)
+add_library(mock-utils mock_utils.c mock_utils.h)
 
 target_link_libraries(mock-utils
   cmocka

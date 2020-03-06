@@ -3,6 +3,7 @@
 #include "jsmn/jsmn_helpers.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
+#include "mock_utils.h"
 #include "routes/routes.h"
 #include "sys.h"
 
