@@ -20,6 +20,8 @@
 #define linq_network_free(x) linq_network_free_fn(x)
 #define linq_network_assert(x) linq_network_assert_fn(x)
 
+#define UUID_LEN 16
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -27,6 +29,7 @@ extern "C"
 
     int32_t sys_tick();
     uint32_t sys_unix();
+    void sys_uuid(char* dst);
 
 #ifdef __cplusplus
 }

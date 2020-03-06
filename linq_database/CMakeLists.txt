@@ -15,7 +15,7 @@ set(LIBS_SHARED ${LIBS} ${JSMN_WEB_TOKENS_SHARED_LIBS} linq-utils-shared)
 # Build static library
 add_library(linq-database-static STATIC ${SOURCES} ${HEADERS})
 target_link_libraries(linq-database-static ${LIBS_STATIC})
-target_include_directories(linq-database-static PRIVATE ${INCS})
+target_include_directories(linq-database-static PUBLIC ${INCS})
 set_target_properties(linq-database-static PROPERTIES
   PUBLIC_HEADER "${INSTALL_HEADERS}"
   OUTPUT_NAME "linq-database")

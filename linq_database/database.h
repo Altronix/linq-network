@@ -1,6 +1,7 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
+#include "jsmn/jsmn_helpers.h"
 #include "sqlite3.h"
 #include "sys.h"
 
@@ -50,12 +51,7 @@ extern "C"
         const char* serial,
         const char* json,
         uint32_t json_len);
-    /*
-    int database_insert_alert(
-        database_s* db,
-        const char* serial,
-        linq_network_alert_s* a);
-    */
+    int database_insert_alert(database_s*, const char*, jsmn_value a[]);
 
 #ifdef __cplusplus
 }

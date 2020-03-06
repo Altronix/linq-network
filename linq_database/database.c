@@ -360,19 +360,16 @@ database_insert_device_from_json(
     return err;
 }
 
-/*
 int
-database_insert_alert(
-    database_s* db,
-    const char* serial,
-    linq_network_alert_s* a)
+database_insert_alert(database_s* db, const char* serial, jsmn_value a[])
 {
     int err = -1;
     char vals[128];
     const char* keys = "alert_id,who,what,site_id,time,mesg,device_id";
     uint32_t count, vlen, keylen = strlen(keys);
-    zuuid_t* uid = zuuid_new();
     jsmntok_t t[64];
+    char uuid[33];
+    sys_uuid(uuid);
 
     // Print out sqlite format values
     // clang-format off
@@ -380,17 +377,15 @@ database_insert_alert(
         vals,
         sizeof(vals),
         "\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",%.*s,\"%.*s\",\"%.*s\"",
-        32,                  zuuid_str(uid),
-        a->who.len,          a->who.p,
-        a->what.len,         a->what.p,
-        a->where.len,        a->where.p,
-        a->when.len,         a->when.p,
-        a->mesg.len,         a->mesg.p,
+        32,       uuid,
+        a[0].len, a[0].p, // who
+        a[1].len, a[1].p, // what
+        a[2].len, a[2].p, // where
+        a[3].len, a[3].p, // when
+        a[4].len, a[4].p, // mesg
         (int)strlen(serial), serial);
     // clang-format on
 
     err = database_insert_raw_n(db, "alerts", keys, keylen, vals, vlen);
-    zuuid_destroy(&uid);
     return err;
 }
-*/

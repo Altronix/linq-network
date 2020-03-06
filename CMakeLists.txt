@@ -132,7 +132,7 @@ if(ENABLE_TESTING)
   add_subdirectory(test/_mocks/mock_czmq)
   add_subdirectory(test/_mocks/mock_mongoose)
   add_subdirectory(test/_mocks/mock_sqlite)
-  add_subdirectory(test/db)
+  add_subdirectory(linq_database/test)
   add_subdirectory(test/containers)
   add_subdirectory(test/linq_network)
   add_subdirectory(test/device)
@@ -157,7 +157,7 @@ if(ENABLE_TESTING)
     COMMAND test-device
     COMMAND test-devices
     COMMAND test-http
-    COMMAND test-db
+    COMMAND test-database
     COMMAND test-routes
     COMMAND binding-linq-network-cpp-test)
 
