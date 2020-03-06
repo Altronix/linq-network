@@ -6,7 +6,6 @@ set(SOURCES
   set(HEADERS
     ../include/altronix/linq_network.h
     linq_network_internal.h
-    log.h
     device.h
     node.h
     zmtp.h)

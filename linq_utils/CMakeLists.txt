@@ -1,6 +1,6 @@
 # Main source files
 set(SOURCES base64.c)
-set(HEADERS base64.h klib/khash.h klib/klist.h containers.h)
+set(HEADERS base64.h klib/khash.h klib/klist.h containers.h log.h)
 
 if(NOT MSVC)
   list(APPEND LIBS rt m stdc++ uuid dl)

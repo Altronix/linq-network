@@ -12,10 +12,6 @@
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
 
-#include <setjmp.h>
-
-#include <cmocka.h>
-
 #define USER "unsafe_user"
 #define PASS "unsafe_pass"
 

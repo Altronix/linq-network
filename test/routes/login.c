@@ -5,11 +5,6 @@
 #include "mock_sqlite.h"
 #include "mock_utils.h"
 #include "routes/routes.h"
-#include "sys.h"
-
-#include <setjmp.h>
-
-#include <cmocka.h>
 
 #include "main.h"
 
