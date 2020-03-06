@@ -44,8 +44,6 @@ if (WITH_SQLITE)
     ./http_auth_unsafe.h # TODO remove
     ./routes/routes.h
     ./database/database.h)
-  append_mongoose_compiler_flags(definitions)
-  append_sqlite_compiler_flags(definitions)
   list(APPEND LIBS_STATIC ${TLS_STATIC_LIBS})
   list(APPEND LIBS_SHARED ${TLS_SHARED_LIBS})
 else()

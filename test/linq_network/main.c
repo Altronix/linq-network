@@ -6,9 +6,9 @@
 #include "device.h"
 #include "helpers.h"
 #include "linq_network_internal.h"
-#include "mock_utils.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
+#include "mock_utils.h"
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
 
@@ -230,6 +230,7 @@ test_linq_network_receive_heartbeat_ok(void** context_p)
     test_reset(&test);
 }
 
+/*
 static void
 test_linq_network_receive_heartbeat_ok_insert_device(void** context_p)
 {
@@ -295,6 +296,7 @@ test_linq_network_receive_heartbeat_ok_insert_device(void** context_p)
 
     test_reset(&test);
 }
+*/
 
 static void
 test_linq_network_receive_heartbeat_error_short(void** context_p)
@@ -354,6 +356,7 @@ test_linq_network_receive_alert_ok(void** context_p)
     test_reset(&test);
 }
 
+/*
 static void
 test_linq_network_receive_alert_insert(void** context_p)
 {
@@ -401,6 +404,7 @@ test_linq_network_receive_alert_insert(void** context_p)
 
     test_reset(&test);
 }
+*/
 
 static void
 test_linq_network_receive_alert_error_short(void** context_p)
@@ -433,8 +437,8 @@ test_linq_network_receive_response_ok(void** context_p)
     zmsg_t* r = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
 
     helpers_test_context_s* test = test_init(&config);
-    sqlite_spy_step_return_push(SQLITE_ROW);
-    sqlite_spy_column_int_return_push(1);
+    // sqlite_spy_step_return_push(SQLITE_ROW);
+    // sqlite_spy_column_int_return_push(1);
 
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_mesg_push_incoming(&r);
@@ -480,8 +484,8 @@ test_linq_network_receive_response_error_timeout(void** context_p)
     zmsg_t* r = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
 
     helpers_test_context_s* test = test_init(&config);
-    sqlite_spy_step_return_push(SQLITE_ROW);
-    sqlite_spy_column_int_return_push(1);
+    // sqlite_spy_step_return_push(SQLITE_ROW);
+    // sqlite_spy_column_int_return_push(1);
 
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
@@ -544,8 +548,8 @@ test_linq_network_receive_response_error_codes(void** context_p)
     for (int i = 0; i < 5; i++) {
         // Setup incoming network (1st poll heartbeat, 2nd poll response)
         helpers_test_context_s* test = test_init(&config);
-        sqlite_spy_step_return_push(SQLITE_ROW);
-        sqlite_spy_column_int_return_push(1);
+        // sqlite_spy_step_return_push(SQLITE_ROW);
+        // sqlite_spy_column_int_return_push(1);
 
         char data[32];
         snprintf(data, sizeof(data), "{\"error\":%d}", codes[i]);
@@ -610,8 +614,8 @@ test_linq_network_receive_response_error_504(void** context_p)
     zmsg_t* outgoing = NULL;
 
     helpers_test_context_s* test = test_init(&config);
-    sqlite_spy_step_return_push(SQLITE_ROW);
-    sqlite_spy_column_int_return_push(1);
+    // sqlite_spy_step_return_push(SQLITE_ROW);
+    // sqlite_spy_column_int_return_push(1);
 
     // Setup code under test
 
@@ -697,8 +701,8 @@ test_linq_network_receive_response_ok_504(void** context_p)
     zmsg_t* outgoing = NULL;
 
     helpers_test_context_s* test = test_init(&config);
-    sqlite_spy_step_return_push(SQLITE_ROW);
-    sqlite_spy_column_int_return_push(1);
+    // sqlite_spy_step_return_push(SQLITE_ROW);
+    // sqlite_spy_column_int_return_push(1);
 
     // Setup code under test
 
@@ -842,8 +846,8 @@ test_linq_network_broadcast_heartbeat(void** context_p)
     zmsg_t* outgoing;
 
     helpers_test_context_s* test = test_init(&config);
-    sqlite_spy_step_return_push(SQLITE_ROW);
-    sqlite_spy_column_int_return_push(1);
+    // sqlite_spy_step_return_push(SQLITE_ROW);
+    // sqlite_spy_column_int_return_push(1);
 
     // Client sends hello to server, device sends heartbeat to server
     czmq_spy_mesg_push_incoming(&m0);
@@ -905,8 +909,8 @@ test_linq_network_broadcast_alert(void** context_p)
     zmsg_t* outgoing;
 
     helpers_test_context_s* test = test_init(&config);
-    sqlite_spy_step_return_push(SQLITE_ROW);
-    sqlite_spy_column_int_return_push(1);
+    // sqlite_spy_step_return_push(SQLITE_ROW);
+    // sqlite_spy_column_int_return_push(1);
 
     // device sends heartbeat to server, two clients connect, device sends alert
     czmq_spy_mesg_push_incoming(&hb);
@@ -973,8 +977,8 @@ test_linq_network_forward_request(void** context_p)
     response = helpers_make_response("router-d", "device123", 0, "world");
 
     helpers_test_context_s* test = test_init(&config);
-    sqlite_spy_step_return_push(SQLITE_ROW);
-    sqlite_spy_column_int_return_push(1);
+    // sqlite_spy_step_return_push(SQLITE_ROW);
+    // sqlite_spy_column_int_return_push(1);
 
     czmq_spy_mesg_push_incoming(&hb);       // device heartbeat
     czmq_spy_mesg_push_incoming(&hello);    // remote client hello
@@ -1048,8 +1052,8 @@ test_linq_network_forward_client_request(void** context_p)
     zmsg_t* outgoing = NULL;
 
     helpers_test_context_s* test = test_init(&config);
-    sqlite_spy_step_return_push(SQLITE_ROW);
-    sqlite_spy_column_int_return_push(1);
+    // sqlite_spy_step_return_push(SQLITE_ROW);
+    // sqlite_spy_column_int_return_push(1);
 
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming(0x01);
@@ -1248,10 +1252,10 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_network_receive_protocol_error_serial),
         cmocka_unit_test(test_linq_network_receive_protocol_error_router),
         cmocka_unit_test(test_linq_network_receive_heartbeat_ok),
-        cmocka_unit_test(test_linq_network_receive_heartbeat_ok_insert_device),
+        // cmocka_unit_test(test_linq_network_receive_heartbeat_ok_insert_device),
         cmocka_unit_test(test_linq_network_receive_heartbeat_error_short),
         cmocka_unit_test(test_linq_network_receive_alert_ok),
-        cmocka_unit_test(test_linq_network_receive_alert_insert),
+        // cmocka_unit_test(test_linq_network_receive_alert_insert),
         cmocka_unit_test(test_linq_network_receive_alert_error_short),
         cmocka_unit_test(test_linq_network_receive_response_ok),
         cmocka_unit_test(test_linq_network_receive_response_error_timeout),

@@ -12,10 +12,13 @@ endif()
 set(LIBS_STATIC ${LIBS} ${JSMN_WEB_TOKENS_STATIC_LIBS} linq-utils-static)
 set(LIBS_SHARED ${LIBS} ${JSMN_WEB_TOKENS_SHARED_LIBS} linq-utils-shared)
 
+append_log_level_compiler_flags(definitions)
+
 # Build static library
 add_library(linq-database-static STATIC ${SOURCES} ${HEADERS})
 target_link_libraries(linq-database-static ${LIBS_STATIC})
 target_include_directories(linq-database-static PUBLIC ${INCS})
+target_compile_definitions(linq-database-static PUBLIC ${definitions})
 set_target_properties(linq-database-static PROPERTIES
   PUBLIC_HEADER "${INSTALL_HEADERS}"
   OUTPUT_NAME "linq-database")
@@ -28,6 +31,7 @@ install(TARGETS linq-database-static
 add_library(linq-database-shared SHARED ${SOURCES} ${HEADERS})
 target_link_libraries(linq-database-shared ${LIBS_SHARED})
 target_include_directories(linq-database-shared PUBLIC ${INCS})
+target_compile_definitions(linq-database-shared PUBLIC ${definitions})
 set_target_properties(linq-database-shared PROPERTIES
   PUBLIC_HEADER "${INSTALL_HEADERS}"
   OUTPUT_NAME "linq-database")
