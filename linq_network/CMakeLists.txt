@@ -5,7 +5,6 @@ set(SOURCES
     zmtp.c)
   set(HEADERS
     ../include/altronix/linq_network.h
-    containers.h
     linq_network_internal.h
     log.h
     device.h
@@ -63,14 +62,8 @@ else()
 endif()
 
 if(ENABLE_TESTING)
-  add_library(linq-network-test-static STATIC
-              ${SOURCES}
-              ${HEADERS}
-              ${SOURCES_SYS_MOCK}
-              ${HEADERS_SYS_MOCK})
-  target_link_libraries(linq-network-test-static
-    ${LIBS_STATIC}
-    ${LIBS})
+  add_library(linq-network-test-static STATIC ${SOURCES} ${HEADERS})
+  target_link_libraries(linq-network-test-static ${LIBS_STATIC} ${LIBS})
   target_compile_definitions(linq-network-test-static PUBLIC ${definitions})
   target_compile_definitions(linq-network-test-static PRIVATE "-DTESTING")
   target_include_directories(linq-network-test-static PUBLIC ${INCS})
@@ -79,14 +72,8 @@ if(ENABLE_TESTING)
 endif()
 
 if(BUILD_STATIC)
-  add_library(linq-network-static STATIC
-    ${SOURCES}
-    ${HEADERS}
-    ${SOURCES_SYS}
-    ${HEADERS_SYS})
-  target_link_libraries(linq-network-static
-    ${LIBS_STATIC}
-    ${LIBS})
+  add_library(linq-network-static STATIC ${SOURCES} ${HEADERS})
+  target_link_libraries(linq-network-static ${LIBS_STATIC} ${LIBS})
   target_compile_definitions(linq-network-static PUBLIC ${definitions})
   target_include_directories(linq-network-static PUBLIC ${INCS})
   target_include_directories(linq-network-static PRIVATE ./)
@@ -100,20 +87,12 @@ if(BUILD_STATIC)
 endif()
 
 if(BUILD_SHARED)
-  add_library(linq-network SHARED
-    ${SOURCES}
-    ${HEADERS}
-    ${SOURCES_SYS}
-    ${HEADERS_SYS})
+  add_library(linq-network SHARED ${SOURCES} ${HEADERS})
   if(MSVC)
     #TODO - https://stackoverflow.com/questions/33062728/cmake-link-shared-library-on-windows/41618677
-    target_link_libraries(linq-network
-      ${LIBS_STATIC}
-      ${LIBS})
+    target_link_libraries(linq-network ${LIBS_STATIC} ${LIBS})
   else()
-    target_link_libraries(linq-network
-      ${LIBS_SHARED}
-      ${LIBS})
+    target_link_libraries(linq-network ${LIBS_SHARED} ${LIBS})
   endif()
   target_compile_definitions(linq-network PUBLIC ${definitions})
   target_include_directories(linq-network PUBLIC ${INCS})

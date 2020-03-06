@@ -5,6 +5,7 @@ add_library(mock-sqlite sqlite3.c sqlite3.h mock_sqlite.c)
 
 target_link_libraries(mock-sqlite
   linq-network-test-static
+  mock-utils
   cmocka
   stdc++)
 
@@ -24,8 +25,11 @@ function(mock_sqlite_linker_flags dst)
   set(${dst} ${wrap_flags} PARENT_SCOPE)
 endfunction()
 
-mock_sqlite_linker_flags(wrap_flags)
 append_sqlite_compiler_flags(definitions)
+
+mock_sqlite_linker_flags(sqlite_flags)
+mock_utils_linker_flags(utils_flags)
+set(wrap_flags "${sqlite_flags} ${utils_flags}")
 
 add_executable(test-mock-sqlite main.c)
 set_target_properties(test-mock-sqlite PROPERTIES LINK_FLAGS ${wrap_flags})

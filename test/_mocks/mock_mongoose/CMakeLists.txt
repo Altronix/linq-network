@@ -8,8 +8,8 @@ add_library(mock-mongoose
 
 target_link_libraries(mock-mongoose
   linq-network-test-static
+  mock-utils
   http-parser
-  cmocka
   stdc++)
 
 target_include_directories(mock-mongoose PUBLIC .)
@@ -29,7 +29,9 @@ function(mock_mongoose_linker_flags dst)
   set(${dst} ${wrap_flags} PARENT_SCOPE)
 endfunction()
 
-mock_mongoose_linker_flags(wrap_flags)
+mock_mongoose_linker_flags(mongoose_flags)
+mock_utils_linker_flags(utils_flags)
+set(wrap_flags "${mongoose_flags} ${utils_flags}")
 
 add_executable(test-mock-mongoose main.c)
 set_target_properties(test-mock-mongoose PROPERTIES LINK_FLAGS ${wrap_flags})

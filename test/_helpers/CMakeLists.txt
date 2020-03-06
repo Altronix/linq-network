@@ -7,6 +7,7 @@ target_link_libraries(helpers
   mock-czmq
   mock-mongoose
   mock-sqlite
+  mock-utils
   stdc++
   uuid)
 

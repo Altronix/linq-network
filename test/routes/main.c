@@ -1,5 +1,6 @@
 #include "altronix/linq_network.h"
 #include "helpers.h"
+#include "mock_utils.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
 #include "mock_zmsg.h"

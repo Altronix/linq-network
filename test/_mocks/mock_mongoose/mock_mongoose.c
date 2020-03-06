@@ -3,10 +3,13 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "mock_mongoose.h"
+#include "sys.h"
 #include "base64.h"
 #include "containers.h"
 #include "http_parser.h"
 #include "parse_http.h"
+
+#include <setjmp.h>
 
 #include "cmocka.h"
 

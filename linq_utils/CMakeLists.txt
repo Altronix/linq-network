@@ -2,12 +2,6 @@
 set(SOURCES base64.c)
 set(HEADERS base64.h klib/khash.h klib/klist.h containers.h)
 
-# Mock interface for linking certain tests
-list(APPEND MOCK_SOURCES ${SOURCES})
-list(APPEND MOCK_SOURCES ./sys/mock/sys.c)
-list(APPEND MOCK_HEADERS ${HEADERS})
-list(APPEND MOCK_HEADERS ./sys/mock/sys.h)
-
 if(NOT MSVC)
   list(APPEND LIBS rt m stdc++ uuid dl)
   list(APPEND INCS ./sys/unix)
@@ -23,15 +17,6 @@ endif()
 list(APPEND INCS ./)
 set(LIBS_STATIC ${LIBS})
 set(LIBS_SHARED ${LIBS})
-
-# Build a mock library
-add_library(linq-utils-mock STATIC ${MOCK_SOURCES} ${MOCK_HEADERS})
-target_link_libraries(linq-utils-mock ${LIBS_STATIC})
-target_include_directories(linq-utils-mock PUBLIC ${INCS})
-target_include_directories(linq-utils-mock PUBLIC ./sys/mock)
-set_target_properties(linq-utils-mock PROPERTIES
-  PUBLIC_HEADER "${MOCK_HEADERS}"
-  OUTPUT_NAME "linq-utils")
 
 # Build a static library
 add_library(linq-utils-static STATIC ${SOURCES} ${HEADERS})
