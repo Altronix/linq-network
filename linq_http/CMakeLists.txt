@@ -54,7 +54,7 @@ target_compile_definitions(linq-http-test PUBLIC ${definitions})
 target_include_directories(linq-http-test PUBLIC ./)
 set_target_properties(linq-http-test PROPERTIES 
   PUBLIC_HEADER "${INSTALL_HEADERS}"
-  OUTPUT_NAME "linq-http")
+  OUTPUT_NAME "linq-http-test")
 install(TARGETS linq-http-test
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
