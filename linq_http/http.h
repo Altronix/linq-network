@@ -51,12 +51,13 @@ extern "C"
         struct mg_connection* listener;
         struct mg_mgr connections;
         struct mg_serve_http_opts serve_opts;
+        linq_network_s* linq;
         routes_map_s* routes;
-        database_s* db;
+        database_s db;
     } http_s;
 
     // Public methods (internal to this library)
-    void http_init(http_s* http, database_s* db);
+    void http_init(http_s* http, linq_network_s* l);
     void http_deinit(http_s* http);
     E_LINQ_ERROR http_poll(http_s*, int32_t);
     void http_listen(http_s* http, const char* port);

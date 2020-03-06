@@ -169,7 +169,7 @@ http_ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
                     !(memcmp(UNSECURE_API, path->p, UNSECURE_API_LEN))) {
                     process_route(r, c, m);
                 } else {
-                    if (http_auth_is_authorized(http->db, c, m)) {
+                    if (http_auth_is_authorized(&http->db, c, m)) {
                         process_route(r, c, m);
                     } else {
                         log_warn(
@@ -215,12 +215,21 @@ http_ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
 }
 
 void
-http_init(http_s* http, database_s* db)
+http_init(http_s* http, linq_network_s* l)
 {
+#define ADD_ROUTE(http, path, fn, ctx) http_use(http, path, fn, ctx)
     memset(http, 0, sizeof(http_s));
+    http->linq = l;
+    database_init(&http->db);
     mg_mgr_init(&http->connections, http);
     http->routes = routes_map_create();
-    http->db = db;
+    ADD_ROUTE(http, "/api/v1/public/create_admin", route_create_admin, http);
+    ADD_ROUTE(http, "/api/v1/public/login", route_login, http);
+    ADD_ROUTE(http, "/api/v1/users", route_users, http);
+    ADD_ROUTE(http, "/api/v1/devices", route_devices, http);
+    ADD_ROUTE(http, "/api/v1/alerts", route_alerts, http);
+    ADD_ROUTE(http, "/api/v1/proxy/...", route_proxy, http);
+#undef ADD_ROUTE
 }
 
 void

@@ -23,7 +23,7 @@ route_proxy(
     char serial[64];
     uint32_t plen;
     const char *url = &ctx->curr_message->uri.p[API_URI_LEN], *ptr = url;
-    linq_network_s* linq = ctx->context;
+    linq_network_s* linq = ((http_s*)ctx->context)->linq;
     ptr = memchr(url, '/', ctx->curr_message->uri.len - API_URI_LEN);
     if (!ptr) ptr = memchr(url, '\\', ctx->curr_message->uri.len - API_URI_LEN);
     if (ptr) {

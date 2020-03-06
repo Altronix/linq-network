@@ -16,10 +16,15 @@ static void
 test_http_create(void** c_p)
 {
     ((void)c_p);
-    database_s db;
+    mongoose_spy_init();
+    sqlite_spy_init();
+    linq_network_s* l = linq_network_create(NULL, NULL);
     http_s http;
-    http_init(&http, &db);
+    http_init(&http, l);
     http_deinit(&http);
+    linq_network_destroy(&l);
+    mongoose_spy_deinit();
+    sqlite_spy_deinit();
 }
 
 static void
@@ -46,8 +51,9 @@ test_http_simple_get(void** context_p)
     bool pass = false;
 
     // Init http
+    linq_network_s* l = linq_network_create(NULL, NULL);
     http_s http;
-    http_init(&http, &db);
+    http_init(&http, l);
     http_listen(&http, "80");
     http_use(&http, "/hello", test_http_hello_route, &pass);
 
@@ -69,6 +75,7 @@ test_http_simple_get(void** context_p)
     http_deinit(&http);
     mongoose_spy_deinit();
     sqlite_spy_deinit();
+    linq_network_destroy(&l);
 }
 
 static void
@@ -116,8 +123,9 @@ test_http_simple_query(void** context_p)
     bool pass = false;
 
     // Init http
+    linq_network_s* l = linq_network_create(NULL, NULL);
     http_s http;
-    http_init(&http, &db);
+    http_init(&http, l);
     http_listen(&http, "80");
     http_use(&http, "/hello", test_http_query_route, &pass);
 
@@ -140,6 +148,7 @@ test_http_simple_query(void** context_p)
     http_deinit(&http);
     mongoose_spy_deinit();
     sqlite_spy_deinit();
+    linq_network_destroy(&l);
 }
 
 static void
@@ -178,8 +187,9 @@ test_http_invalid_query(void** context_p)
     int pass = 0;
 
     // Init http
+    linq_network_s* l = linq_network_create(NULL, NULL);
     http_s http;
-    http_init(&http, &db);
+    http_init(&http, l);
     http_listen(&http, "80");
     http_use(&http, "/hello", test_http_invalid_query_route, &pass);
 
@@ -202,6 +212,7 @@ test_http_invalid_query(void** context_p)
     http_deinit(&http);
     mongoose_spy_deinit();
     sqlite_spy_deinit();
+    linq_network_destroy(&l);
 }
 
 int

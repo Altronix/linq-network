@@ -1,5 +1,5 @@
-#include "sys.h"
 #include "routes.h"
+#include "sys.h"
 
 #define QUERY                                                                  \
     "SELECT device_id,product,prj_version,atx_version "                        \
@@ -33,7 +33,7 @@ route_devices(
     const char *count = NULL, *offset = NULL;
     uint32_t countl, offsetl;
     sqlite3_stmt* stmt;
-    database_s* db = linq_network_database(ctx->context);
+    database_s* db = &((http_s*)ctx->context)->db;
 
     if (!(meth == HTTP_METHOD_GET)) {
         http_printf_json(

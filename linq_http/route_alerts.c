@@ -1,5 +1,5 @@
-#include "sys.h"
 #include "routes.h"
+#include "sys.h"
 
 #define QUERY                                                                  \
     "SELECT alert_id,who,what,site_id,time,mesg,device_id "                    \
@@ -37,7 +37,7 @@ route_alerts(
     const char *count = NULL, *offset = NULL;
     uint32_t countl, offsetl;
     sqlite3_stmt* stmt;
-    database_s* db = linq_network_database(ctx->context);
+    database_s* db = &((http_s*)ctx->context)->db;
 
     if (!(meth == HTTP_METHOD_GET)) {
         http_printf_json(

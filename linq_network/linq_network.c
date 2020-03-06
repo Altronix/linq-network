@@ -170,17 +170,6 @@ linq_network_create(const linq_network_callbacks* cb, void* context)
         l->callbacks = cb;
         l->context = context ? context : l;
         zmtp_init(&l->zmtp, &l->devices, &l->nodes, &zmtp_callbacks, l);
-#if WITH_SQLITE
-#define ADD_ROUTE(linq, path, fn, ctx) http_use(&(linq)->http, path, fn, ctx)
-        database_init(&l->database);
-        http_init(&l->http, &l->database);
-        ADD_ROUTE(l, "/api/v1/public/create_admin", route_create_admin, l);
-        ADD_ROUTE(l, "/api/v1/public/login", route_login, l);
-        ADD_ROUTE(l, "/api/v1/users", route_users, l);
-        ADD_ROUTE(l, "/api/v1/devices", route_devices, l);
-        ADD_ROUTE(l, "/api/v1/alerts", route_alerts, l);
-        ADD_ROUTE(l, "/api/v1/proxy/...", route_proxy, l);
-#endif
     }
     return l;
 }
