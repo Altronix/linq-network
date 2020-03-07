@@ -55,6 +55,7 @@ helpers_test_context_create(helpers_test_config_s* config)
     helpers_test_context_s* ctx =
         linq_network_malloc(sizeof(helpers_test_context_s));
     linq_network_assert(ctx);
+    memset(ctx, 0, sizeof(helpers_test_context_s));
     helpers_test_init(config->user, config->pass);
     ctx->net = linq_network_create(config->callbacks, config->context);
 
@@ -85,6 +86,7 @@ helpers_test_context_destroy(helpers_test_context_s** ctx_p)
     helpers_test_context_s* ctx = *ctx_p;
     *ctx_p = NULL;
     linq_network_destroy(&ctx->net);
+    if (ctx->http.routes) http_deinit(&ctx->http);
     linq_network_free(ctx);
     helpers_test_reset();
 }
