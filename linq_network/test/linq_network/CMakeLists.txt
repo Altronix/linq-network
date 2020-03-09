@@ -5,7 +5,6 @@ add_executable(test-linq-network main.c)
 target_link_libraries(test-linq-network
                       linq-network-test-static
                       mock-utils
-                      ${LIBCZMQ_STATIC_LIBS}
                       helpers
 		      cmocka)
 

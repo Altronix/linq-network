@@ -2,16 +2,15 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "linq_network.h"
 #include "device.h"
 #include "helpers.h"
+#include "linq_network.h"
 #include "linq_network_internal.h"
+#include "mock_mongoose.h"
+#include "mock_sqlite.h"
+#include "mock_utils.h"
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
-#include <czmq.h>
-
-#include <cmocka.h>
-#include <setjmp.h>
 
 static E_LINQ_ERROR expect_error = LINQ_ERROR_OK;
 static const char* empty = "";
@@ -26,6 +25,19 @@ test_reset()
     expect_serial = empty;
     czmq_spy_mesg_reset();
     czmq_spy_poll_reset();
+}
+
+static void
+test_stub(void** context_p)
+{
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 0,
+                                     .http = 0,
+                                     .user = "unsafe_user",
+                                     .pass = "unsafe_pass" };
+    helpers_test_context_s* ctx = helpers_test_context_create(&config);
+    helpers_test_context_destroy(&ctx);
 }
 
 static void
@@ -452,6 +464,7 @@ main(int argc, char* argv[])
     ((void)argv);
     int err;
     const struct CMUnitTest tests[] = {
+        cmocka_unit_test(test_stub),
         cmocka_unit_test(test_device_create),
         cmocka_unit_test(test_device_send_get_no_prefix),
         cmocka_unit_test(test_device_send_get_with_prefix),
