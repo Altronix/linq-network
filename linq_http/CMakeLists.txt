@@ -35,40 +35,46 @@ set(LIBS_SHARED
   ${LIBZMQ_SHARED_LIBS}
   ${TLS_SHARED_LIBS})
 
-add_library(linq-http-static STATIC ${SOURCES} ${HEADERS})
-target_link_libraries(linq-http-static ${LIBS_STATIC})
-target_compile_definitions(linq-http-static PUBLIC ${definitions})
-target_include_directories(linq-http-static PUBLIC ./)
-set_target_properties(linq-http-static PROPERTIES 
-  PUBLIC_HEADER "${INSTALL_HEADERS}"
-  OUTPUT_NAME "linq-http")
-install(TARGETS linq-http-static
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        PUBLIC_HEADER DESTINATION include/altronix)
+if(ENABLE_TESTING)
+  add_library(linq-http-test STATIC ${SOURCES} ${HEADERS})
+  target_link_libraries(linq-http-test ${LIBS_STATIC})
+  target_compile_definitions(linq-http-test PRIVATE "-DTESTING")
+  target_compile_definitions(linq-http-test PUBLIC ${definitions})
+  target_include_directories(linq-http-test PUBLIC ./)
+  set_target_properties(linq-http-test PROPERTIES 
+    PUBLIC_HEADER "${INSTALL_HEADERS}"
+    OUTPUT_NAME "linq-http-test")
+  install(TARGETS linq-http-test
+          LIBRARY DESTINATION lib
+          ARCHIVE DESTINATION lib
+          PUBLIC_HEADER DESTINATION include/altronix)
+endif()
 
-add_library(linq-http-test STATIC ${SOURCES} ${HEADERS})
-target_link_libraries(linq-http-test ${LIBS_STATIC})
-target_compile_definitions(linq-http-test PRIVATE "-DTESTING")
-target_compile_definitions(linq-http-test PUBLIC ${definitions})
-target_include_directories(linq-http-test PUBLIC ./)
-set_target_properties(linq-http-test PROPERTIES 
-  PUBLIC_HEADER "${INSTALL_HEADERS}"
-  OUTPUT_NAME "linq-http-test")
-install(TARGETS linq-http-test
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        PUBLIC_HEADER DESTINATION include/altronix)
+if(BUILD_STATIC)
+  add_library(linq-http-static STATIC ${SOURCES} ${HEADERS})
+  target_link_libraries(linq-http-static ${LIBS_STATIC})
+  target_compile_definitions(linq-http-static PUBLIC ${definitions})
+  target_include_directories(linq-http-static PUBLIC ./)
+  set_target_properties(linq-http-static PROPERTIES 
+    PUBLIC_HEADER "${INSTALL_HEADERS}"
+    OUTPUT_NAME "linq-http")
+  install(TARGETS linq-http-static
+          LIBRARY DESTINATION lib
+          ARCHIVE DESTINATION lib
+          PUBLIC_HEADER DESTINATION include/altronix)
+endif()
 
-add_library(linq-http-shared SHARED ${SOURCES} ${HEADERS})
-target_link_libraries(linq-http-shared ${LIBS_SHARED})
-target_compile_definitions(linq-http-shared PUBLIC ${definitions})
-target_include_directories(linq-http-shared PUBLIC ./)
-target_include_directories(linq-http-shared PUBLIC ../include)
-set_target_properties(linq-http-shared PROPERTIES 
-  PUBLIC_HEADER "${INSTALL_HEADERS}"
-  OUTPUT_NAME "linq-http")
-install(TARGETS linq-http-shared
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        PUBLIC_HEADER DESTINATION include/altronix)
+if(BUILD_SHARED)
+  add_library(linq-http-shared SHARED ${SOURCES} ${HEADERS})
+  target_link_libraries(linq-http-shared ${LIBS_SHARED})
+  target_compile_definitions(linq-http-shared PUBLIC ${definitions})
+  target_include_directories(linq-http-shared PUBLIC ./)
+  target_include_directories(linq-http-shared PUBLIC ../include)
+  set_target_properties(linq-http-shared PROPERTIES 
+    PUBLIC_HEADER "${INSTALL_HEADERS}"
+    OUTPUT_NAME "linq-http")
+  install(TARGETS linq-http-shared
+          LIBRARY DESTINATION lib
+          ARCHIVE DESTINATION lib
+          PUBLIC_HEADER DESTINATION include/altronix)
+endif()
