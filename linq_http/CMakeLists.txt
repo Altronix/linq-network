@@ -43,6 +43,7 @@ if(ENABLE_TESTING)
   target_include_directories(linq-http-test PUBLIC ./)
   set_target_properties(linq-http-test PROPERTIES 
     PUBLIC_HEADER "${INSTALL_HEADERS}"
+    EXCLUDE_FROM_ALL TRUE
     OUTPUT_NAME "linq-http-test")
   install(TARGETS linq-http-test
           LIBRARY DESTINATION lib
@@ -57,6 +58,7 @@ if(BUILD_STATIC)
   target_include_directories(linq-http-static PUBLIC ./)
   set_target_properties(linq-http-static PROPERTIES 
     PUBLIC_HEADER "${INSTALL_HEADERS}"
+    EXCLUDE_FROM_ALL TRUE
     OUTPUT_NAME "linq-http")
   install(TARGETS linq-http-static
           LIBRARY DESTINATION lib
@@ -72,6 +74,7 @@ if(BUILD_SHARED)
   target_include_directories(linq-http-shared PUBLIC ../include)
   set_target_properties(linq-http-shared PROPERTIES 
     PUBLIC_HEADER "${INSTALL_HEADERS}"
+    EXCLUDE_FROM_ALL TRUE
     OUTPUT_NAME "linq-http")
   install(TARGETS linq-http-shared
           LIBRARY DESTINATION lib
