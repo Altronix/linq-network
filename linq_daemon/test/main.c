@@ -91,6 +91,35 @@ test_linqd_receive_alert_insert(void** context_p)
     helpers_test_create_admin(linqd.netw, "unsafe_user", "unsafe_pass");
     helpers_test_context_flush();
 
+    const char* expect_keys =
+        "INSERT INTO "
+        "alerts(alert_id,who,what,site_id,time,mesg,device_id)";
+    const char* expect_values =
+        "VALUES(\"\",\"TestUser\",\"TestAlert\",\"Altronix Site "
+        "ID\",\"1\",\"Test Alert Message\",\"sid\");";
+    zmsg_t* hb = helpers_make_heartbeat("rid", "sid", "pid", "site");
+    zmsg_t* alert = helpers_make_alert("rid", "sid", "pid");
+    outgoing_statement* statement;
+
+    // Push some incoming messages
+    czmq_spy_mesg_push_incoming(&hb);
+    czmq_spy_mesg_push_incoming(&alert);
+    czmq_spy_poll_set_incoming((0x01));
+
+    linqd_poll(&linqd, 5);
+    sqlite_spy_outgoing_statement_flush();
+
+    linqd_poll(&linqd, 5);
+
+    statement = sqlite_spy_outgoing_statement_pop();
+    assert_non_null(statement);
+    assert_memory_equal(expect_keys, statement->data, strlen(expect_keys));
+    ((void)expect_values); // TODO the uuid is random each test so we can't
+                           // compare. (Mocking uuid is challenging)
+    linq_network_free(statement);
+
+    // TODO verify websocket broadcast on mongoose outgoing
+
     linqd_free(&linqd);
     helpers_test_reset();
 }

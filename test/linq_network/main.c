@@ -288,56 +288,6 @@ test_linq_network_receive_alert_ok(void** context_p)
     test_reset(&test);
 }
 
-/*
-static void
-test_linq_network_receive_alert_insert(void** context_p)
-{
-    ((void)context_p);
-    bool pass = false;
-    helpers_test_config_s config = { .callbacks = &callbacks,
-                                     .context = &pass,
-                                     .zmtp = 32820,
-                                     .http = 0,
-                                     .user = USER,
-                                     .pass = PASS };
-    const char* sid = expect_sid = "sid";
-    const char* expect_keys =
-        "INSERT INTO "
-        "alerts(alert_id,who,what,site_id,time,mesg,device_id)";
-    const char* expect_values =
-        "VALUES(\"\",\"TestUser\",\"TestAlert\",\"Altronix Site "
-        "ID\",\"1\",\"Test Alert Message\",\"sid\");";
-    zmsg_t* hb = helpers_make_heartbeat("rid", sid, "pid", "site");
-    zmsg_t* alert = helpers_make_alert("rid", sid, "pid");
-    outgoing_statement* statement;
-
-    helpers_test_context_s* test = test_init(&config);
-
-    // Push some incoming messages
-    czmq_spy_mesg_push_incoming(&hb);
-    czmq_spy_mesg_push_incoming(&alert);
-    czmq_spy_poll_set_incoming((0x01));
-
-    linq_network_poll(test->net, 5);
-    sqlite_spy_outgoing_statement_flush();
-    pass = false;
-
-    linq_network_poll(test->net, 5);
-    assert_true(pass);
-
-    statement = sqlite_spy_outgoing_statement_pop();
-    assert_non_null(statement);
-    assert_memory_equal(expect_keys, statement->data, strlen(expect_keys));
-    ((void)expect_values); // TODO the uuid is random each test so we can't
-                           // compare. (Mocking uuid is challenging)
-    linq_network_free(statement);
-
-    // TODO verify websocket broadcast on mongoose outgoing
-
-    test_reset(&test);
-}
-*/
-
 static void
 test_linq_network_receive_alert_error_short(void** context_p)
 {
@@ -1186,7 +1136,6 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_network_receive_heartbeat_ok),
         cmocka_unit_test(test_linq_network_receive_heartbeat_error_short),
         cmocka_unit_test(test_linq_network_receive_alert_ok),
-        // cmocka_unit_test(test_linq_network_receive_alert_insert),
         cmocka_unit_test(test_linq_network_receive_alert_error_short),
         cmocka_unit_test(test_linq_network_receive_response_ok),
         cmocka_unit_test(test_linq_network_receive_response_error_timeout),
