@@ -102,11 +102,15 @@ on_alert(
 
 static void
 on_ctrlc(void* ctx)
-{}
+{
+    log_info("(LINQ) Received shutdown signal...");
+}
 
 static void
 on_error(void* context, E_LINQ_ERROR e, const char* sid, const char* what)
-{}
+{
+    log_error("(LINQ) Event Error [%d]", e);
+}
 
 static linq_network_callbacks callbacks = { .hb = on_hb,
                                             .alert = on_alert,
