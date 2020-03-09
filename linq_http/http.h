@@ -5,7 +5,7 @@
 #ifndef HTTP_H
 #define HTTP_H
 
-#include "altronix/linq_network.h"
+#include "linq_network.h"
 #include "containers.h"
 #include "database.h"
 #include "sys.h"

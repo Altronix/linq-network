@@ -4,7 +4,7 @@
 
 #include "mock_zmsg.h"
 
-#include "altronix/linq_network.h"
+#include "linq_network.h"
 #include <cmocka.h>
 
 typedef struct mock_zmsg_s

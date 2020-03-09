@@ -1,4 +1,4 @@
-#include "altronix/linq_network.h"
+#include "linq_network.h"
 #include "helpers.h"
 #include "jsmn/jsmn_helpers.h"
 #include "mock_mongoose.h"

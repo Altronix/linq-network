@@ -14,7 +14,7 @@
 #undef INVALID_SOCKET // Mongoose and czmq both define these
 
 // project includes
-#include "altronix/linq_network.h"
+#include "linq_network.h"
 
 #if WITH_SQLITE
 #include "database/database.h"

@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "altronix/linq_network.h"
+#include "linq_network.h"
 
 #ifndef WWW_ROOT_DIR
 #define WWW_ROOT_DIR "./www"

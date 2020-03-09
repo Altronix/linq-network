@@ -1,4 +1,4 @@
-#include "altronix/linq_network.h"
+#include "linq_network.h"
 
 #include "helpers.h"
 #include "mock_sqlite.h"

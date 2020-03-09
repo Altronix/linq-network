@@ -28,6 +28,7 @@ extern "C"
 #endif
 
     typedef struct device_s device_s;
+    typedef struct database_s database_s;
     typedef struct linq_network_s linq_network_s;
     typedef uint32_t linq_network_socket;
 
@@ -109,6 +110,7 @@ extern "C"
     // Linq API
     linq_network_s* linq_network_create(const linq_network_callbacks*, void*);
     void linq_network_destroy(linq_network_s**);
+    database_s* linq_network_database(linq_network_s* l);
     void
     linq_network_init(linq_network_s*, const linq_network_callbacks*, void*);
     void linq_network_deinit(linq_network_s*);

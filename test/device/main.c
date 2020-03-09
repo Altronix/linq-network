@@ -2,7 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "altronix/linq_network.h"
+#include "linq_network.h"
 #include "device.h"
 #include "helpers.h"
 #include "linq_network_internal.h"

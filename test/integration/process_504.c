@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "altronix/linq_network.h"
+#include "linq_network.h"
 #include "fixture.h"
 
 void

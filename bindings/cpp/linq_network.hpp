@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include "altronix/linq_network.h"
+#include "linq_network.h"
 
 namespace altronix {
 
@@ -19,7 +19,8 @@ class Device;
 
 static void on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
 static void on_heartbeat_fn(void*, const char*, device_s**);
-static void on_alert_fn(void*, linq_network_alert_s*, linq_network_email_s*, device_s**);
+static void
+on_alert_fn(void*, linq_network_alert_s*, linq_network_email_s*, device_s**);
 static void on_ctrlc_fn(void*);
 
 using namespace std::placeholders;
@@ -72,7 +73,10 @@ class Linq
     void close(linq_network_socket s) { linq_network_close(linq_network_, s); }
 
     // process io
-    E_LINQ_ERROR poll(uint32_t ms) { return linq_network_poll(linq_network_, ms); }
+    E_LINQ_ERROR poll(uint32_t ms)
+    {
+        return linq_network_poll(linq_network_, ms);
+    }
 
     static void
     on_response(void* context, E_LINQ_ERROR e, const char* json, device_s** d_p)
@@ -193,7 +197,8 @@ class Linq
 
     // call function fn on every alert
     Linq& on_alert(
-        std::function<void(linq_network_alert_s*, linq_network_email_s*, Device&)> fn)
+        std::function<
+            void(linq_network_alert_s*, linq_network_email_s*, Device&)> fn)
     {
         alert_ = std::bind(fn, _1, _2, _3);
         return *this;
@@ -215,13 +220,17 @@ class Linq
 
     friend void on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
     friend void on_heartbeat_fn(void*, const char*, device_s**);
-    friend void
-    on_alert_fn(void*, linq_network_alert_s*, linq_network_email_s*, device_s**);
+    friend void on_alert_fn(
+        void*,
+        linq_network_alert_s*,
+        linq_network_email_s*,
+        device_s**);
     friend void on_ctrlc_fn(void*);
 
   private:
     std::function<void(const char*, Device&)> heartbeat_;
-    std::function<void(linq_network_alert_s*, linq_network_email_s*, Device&)> alert_;
+    std::function<void(linq_network_alert_s*, linq_network_email_s*, Device&)>
+        alert_;
     std::function<void(E_LINQ_ERROR, const char*, const char*)> error_;
     std::function<void()> ctrlc_;
     linq_network_s* linq_network_;

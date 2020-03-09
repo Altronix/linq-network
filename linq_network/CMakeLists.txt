@@ -4,14 +4,13 @@ set(SOURCES
     node.c
     zmtp.c)
   set(HEADERS
-    ../include/altronix/linq_network.h
+    linq_network.h
     linq_network_internal.h
     device.h
     node.h
     zmtp.h)
 
-set(INSTALL_HEADERS ../include/altronix/linq_network.h)
-set(INCS ../include)
+set(INSTALL_HEADERS linq_network.h)
 set(LIBS ${CMAKE_THREAD_LIBS_INIT})
 set(LIBS_STATIC 
   ${JSMN_WEB_TOKENS_STATIC_LIBS}
@@ -38,7 +37,6 @@ if(ENABLE_TESTING)
   target_compile_definitions(linq-network-test-static PUBLIC ${definitions})
   target_compile_definitions(linq-network-test-static PRIVATE "-DTESTING")
   target_include_directories(linq-network-test-static PUBLIC ${INCS})
-  target_include_directories(linq-network-test-static PUBLIC ../include)
   target_include_directories(linq-network-test-static PUBLIC ./)
 endif()
 
