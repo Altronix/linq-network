@@ -13,9 +13,11 @@ RUN apt-get -y update && \
 	    clang 
 
 COPY ./linq_network /tmp/linq_network
-COPY ./examples /tmp/examples
+COPY ./linq_database /tmp/linq_database
+COPY ./linq_daemon /tmp/linq_daemon
+COPY ./linq_http /tmp/linq_http
+COPY ./linq_utils /tmp/linq_utils
 COPY ./scripts /tmp/scripts
-COPY ./include /tmp/include
 COPY ./cmake /tmp/cmake
 COPY ./CMakeLists.txt /tmp/CMakeLists.txt
 COPY ./external /tmp/external
@@ -26,10 +28,8 @@ WORKDIR /tmp
 RUN \
 	    mkdir -p build && \
 	    cd build && \
-	    cmake -DCMAKE_INSTALL_PREFIX=/opt/linq-network \
-	    	  -DWITH_SQLITE=ON \
+	    cmake -DCMAKE_INSTALL_PREFIX=/opt/linqd \
 		  -DUSE_SYSTEM_OPENSSL=ON \
-		  -DBUILD_EXAMPLES=ON \
 		  -DENABLE_TESTING=OFF \
 		  -DWITH_CPP_BINDING=OFF \
 		  .. && \

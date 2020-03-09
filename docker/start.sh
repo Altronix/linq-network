@@ -5,7 +5,7 @@
 # Start the docker app
 start_app(){
 	echo "Starting app... $@"
-	/opt/linq-network/bin/server "$@"
+	/opt/linqd/bin/linqd "$@"
 }
 
 start_app $@

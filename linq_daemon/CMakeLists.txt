@@ -6,7 +6,8 @@ target_link_libraries(linqd-library
   linq-utils-static
   ${JSMN_WEB_TOKENS_STATIC_LIBS}
   ${LIBZMQ_STATIC_LIBS}
-  ${TLS_STATIC_LIBS})
+  ${TLS_STATIC_LIBS}
+  stdc++)
 set_target_properties(linqd-library PROPERTIES PUBLIC_HEADER "linq_daemon.h")
   target_include_directories(linqd-library PUBLIC ./)
 

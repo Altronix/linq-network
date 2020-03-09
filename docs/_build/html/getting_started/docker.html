@@ -350,22 +350,22 @@
             
   
 <span id="ref-getting-started-docker"></span><h1 id="getting-started-docker--page-root">Docker Image<a class="headerlink" href="#getting-started-docker--page-root" title="Permalink to this headline">¶</a></h1>
-<p>The LinQ Network Library has a demonstration application that conforms to the linq-service API specification <a class="reference internal" href="../api/api_http/linq_service/linq_service.html#ref-api-http-linq-service"><span class="std std-ref">(See here)</span></a>. The LinQ Network demo application docker container can serve as an API endpoint during front end development. The following methods below can get you started with running the docker image.</p>
+<p>The LinQ Network Library has a demonstration application that conforms to the linqd API specification <a class="reference internal" href="../api/api_http/linqd/linqd.html#ref-api-http-linqd"><span class="std std-ref">(See here)</span></a>. The LinQ Network demo application docker container can serve as an API endpoint during front end development. The following methods below can get you started with running the docker image.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The <code class="docutils literal notranslate"><span class="pre">altronix/linq-service:demo</span></code> container is listing to HTTP connections on port 8000 and listening for device connections on port 33455. You must use the -p flags to expose the container ports to your host network.</p>
+<p class="last">The <code class="docutils literal notranslate"><span class="pre">altronix/linqd:demo</span></code> container is listing to HTTP connections on port 8000 and listening for device connections on port 33455. You must use the -p flags to expose the container ports to your host network.</p>
 </div>
 
 <h2 id="running-docker-image-from-docker-hub">Running docker image from docker hub<a class="headerlink" href="#running-docker-image-from-docker-hub" title="Permalink to this headline">¶</a></h2>
 <p>Use this method to download the docker image from docker hub and run the service on your local machine.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --rm -d -p <span class="m">8001</span>:8000 -p <span class="m">33456</span>:33455 altronix/linq-service:demo
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --rm -d -p <span class="m">8001</span>:8000 -p <span class="m">33456</span>:33455 altronix/linqd:demo
 </pre></div>
 </div>
 <p>The following commands are described:</p>
 <table border="1">
 <colgroup>
-<col width="10%"/>
-<col width="90%"/>
+<col width="11%"/>
+<col width="89%"/>
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">Flags</th>
@@ -380,22 +380,22 @@
 <td>Run this image in “background” (IE: Daemon mode)</td>
 </tr>
 <tr class="row-even"><td>-p 8001:8000</td>
-<td>Forward incoming connections to my host machine on port 8001 to port 8000 on the <code class="docutils literal notranslate"><span class="pre">altronix/linq-service:demo</span></code> container</td>
+<td>Forward incoming connections to my host machine on port 8001 to port 8000 on the <code class="docutils literal notranslate"><span class="pre">altronix/linqd:demo</span></code> container</td>
 </tr>
 <tr class="row-odd"><td>-p 33456:33455</td>
-<td>Forward incoming connections to my host machine on port 33456 to port 33455 on the <code class="docutils literal notranslate"><span class="pre">altronix/linq-service:demo</span></code> container</td>
+<td>Forward incoming connections to my host machine on port 33456 to port 33455 on the <code class="docutils literal notranslate"><span class="pre">altronix/linqd:demo</span></code> container</td>
 </tr>
 </tbody>
 </table>
 
 
 <h2 id="download-the-image-from-docker-hub">Download the image from docker hub<a class="headerlink" href="#download-the-image-from-docker-hub" title="Permalink to this headline">¶</a></h2>
-<p>You can alternatively download the <code class="docutils literal notranslate"><span class="pre">altronix/linq-service:demo</span></code> container to run at a later time</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker pull altronix/linq-service:demo
+<p>You can alternatively download the <code class="docutils literal notranslate"><span class="pre">altronix/linqd:demo</span></code> container to run at a later time</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker pull altronix/linqd:demo
 </pre></div>
 </div>
 <p>Then run the container</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --rm -d -p <span class="m">8000</span>:8000 -p <span class="m">33455</span>:33455 altronix/linq-service:demo
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --rm -d -p <span class="m">8000</span>:8000 -p <span class="m">33455</span>:33455 altronix/linqd:demo
 </pre></div>
 </div>
 
@@ -405,14 +405,14 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/altronix/linq-network
 <span class="nb">cd</span> linq-network
 git submodule update --init
-docker build -t linq-service -f docker/ubuntu-aarch64/Dockerfile .
+docker build -t linqd -f docker/ubuntu-aarch64/Dockerfile .
 </pre></div>
 </div>
 <p>Then run the container</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --rm -d -p8000:8000 -p <span class="m">33455</span>:33455 linq-service
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --rm -d -p8000:8000 -p <span class="m">33455</span>:33455 linqd
 </pre></div>
 </div>
-<p>When the LinQ Service Demo container is running and you have successfully exposed the container ZMTP and HTTP ports, you can connect devices to the LinQ Network Service and access device data via the <a class="reference internal" href="../api/api_http/linq_service/linq_service.html#ref-api-http-linq-service"><span class="std std-ref">LinQ Service</span></a></p>
+<p>When the LinQ Service Demo container is running and you have successfully exposed the container ZMTP and HTTP ports, you can connect devices to the LinQ Network Service and access device data via the <a class="reference internal" href="../api/api_http/linqd/linqd.html#ref-api-http-linqd"><span class="std std-ref">LinQ Service</span></a></p>
 
 
 
