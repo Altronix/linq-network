@@ -1,4 +1,4 @@
-.. _ref_api_http_linq_service:
+.. _ref_api_http_linqd:
 
 LinQ Service
 ============
@@ -8,9 +8,9 @@ The LinQ Network SDK can optionally run an HTTP(S) service if enabled. When the 
 .. toctree::
    :maxdepth: 2
 
-   linq_service_v1_create_admin.rst
-   linq_service_v1_login.rst
-   linq_service_v1_users.rst
-   linq_service_v1_devices.rst
-   linq_service_v1_alerts.rst
-   linq_service_v1_proxy.rst
+   linqd_v1_create_admin.rst
+   linqd_v1_login.rst
+   linqd_v1_users.rst
+   linqd_v1_devices.rst
+   linqd_v1_alerts.rst
+   linqd_v1_proxy.rst
