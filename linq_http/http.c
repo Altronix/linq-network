@@ -255,6 +255,7 @@ http_listen(http_s* http, const char* port)
         log_fatal("%10s", "Please shutdown HTTP server before listening again");
         linq_network_assert(http->listener);
     }
+    log_info("(HTTP) Listening... [http://*:%s]", port);
     http->listener = mg_bind(&http->connections, port, http_ev_handler, http);
     mg_set_protocol_http_websocket(http->listener);
 }
