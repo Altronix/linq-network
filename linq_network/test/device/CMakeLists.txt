@@ -2,8 +2,6 @@
 # Build test-device
 # --------------------------------------------------------------------------
 
-find_package(Threads)
-
 add_executable(test-device main.c)
 
 target_link_libraries(test-device

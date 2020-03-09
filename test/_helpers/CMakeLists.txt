@@ -10,6 +10,7 @@ target_link_libraries(helpers
   mock-czmq
   mock-utils
   stdc++
-  uuid)
+  uuid
+  ${CMAKE_THREAD_LIBS_INIT})
 
 target_include_directories(helpers PUBLIC .)
