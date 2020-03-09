@@ -23,8 +23,9 @@ extern "C"
         http_s http;
     } linqd_s;
 
-    void linqd_init(linqd_config_s*);
-    void linqd_free(linqd_config_s*);
+    void linqd_init(linqd_s*, linqd_config_s*);
+    void linqd_free(linqd_s*);
+    int linqd_poll(linqd_s*, uint32_t);
 
 #ifdef __cplusplus
 }

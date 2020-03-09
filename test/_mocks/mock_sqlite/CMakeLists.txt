@@ -6,7 +6,6 @@ add_library(mock-sqlite sqlite3.c sqlite3.h mock_sqlite.c)
 target_link_libraries(mock-sqlite
   linq-network-test-static
   mock-utils
-  cmocka
   stdc++)
 
 target_include_directories(mock-sqlite PUBLIC .)

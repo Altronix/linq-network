@@ -12,10 +12,8 @@
 #include "mock_zpoll.h"
 
 void
-helpers_test_init(const char* user, const char* password)
+helpers_test_init()
 {
-    ((void)user);
-    ((void)password);
     mongoose_spy_init();
     sqlite_spy_init();
     sqlite_spy_step_return_push(SQLITE_DONE); // PRAGMA
@@ -36,7 +34,7 @@ helpers_test_reset()
 
 void
 helpers_test_create_admin(
-    helpers_test_context_s* test,
+    linq_network_s* netw,
     const char* user,
     const char* pass)
 {
@@ -45,7 +43,7 @@ helpers_test_create_admin(
     snprintf(b, sizeof(b), "{\"user\":\"%s\",\"pass\":\"%s\"}", user, pass);
 
     mongoose_spy_event_request_push("", "POST", req_path, b);
-    for (int i = 0; i < 4; i++) linq_network_poll(test->net, -1);
+    for (int i = 0; i < 4; i++) linq_network_poll(netw, -1);
 }
 
 helpers_test_context_s*
@@ -56,7 +54,7 @@ helpers_test_context_create(helpers_test_config_s* config)
         linq_network_malloc(sizeof(helpers_test_context_s));
     linq_network_assert(ctx);
     memset(ctx, 0, sizeof(helpers_test_context_s));
-    helpers_test_init(config->user, config->pass);
+    helpers_test_init();
     ctx->net = linq_network_create(config->callbacks, config->context);
 
     if (config->zmtp) {
@@ -71,12 +69,10 @@ helpers_test_context_create(helpers_test_config_s* config)
     }
 
     if (config->user) {
-        helpers_test_create_admin(ctx, config->user, config->pass);
+        helpers_test_create_admin(ctx->net, config->user, config->pass);
     }
 
-    sqlite_spy_outgoing_statement_flush();
-    mongoose_spy_incoming_events_flush();
-    mongoose_spy_outgoing_data_flush();
+    helpers_test_context_flush();
     return ctx;
 }
 
@@ -89,6 +85,14 @@ helpers_test_context_destroy(helpers_test_context_s** ctx_p)
     if (ctx->http.routes) http_deinit(&ctx->http);
     linq_network_free(ctx);
     helpers_test_reset();
+}
+
+void
+helpers_test_context_flush()
+{
+    sqlite_spy_outgoing_statement_flush();
+    mongoose_spy_incoming_events_flush();
+    mongoose_spy_outgoing_data_flush();
 }
 
 zmsg_t*

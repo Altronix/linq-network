@@ -5,9 +5,9 @@ add_library(helpers
 target_link_libraries(helpers
   linq-http-test
   linq-database-static
-  mock-czmq
   mock-mongoose
   mock-sqlite
+  mock-czmq
   mock-utils
   stdc++
   uuid)

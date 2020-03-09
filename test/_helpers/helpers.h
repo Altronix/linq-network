@@ -88,10 +88,10 @@ extern "C"
         const char* pass;
     } helpers_test_config_s;
 
-    void helpers_test_init(const char* user, const char* password);
+    void helpers_test_init();
     void helpers_test_reset();
     void helpers_test_create_admin(
-        helpers_test_context_s*,
+        linq_network_s*,
         const char* user,
         const char* password);
 
@@ -103,6 +103,7 @@ extern "C"
         const char* serial,
         const char* product,
         const char* site_id);
+    void helpers_test_context_flush();
     zmsg_t* helpers_make_alert(const char*, const char*, const char*);
     zmsg_t* helpers_make_legacy_alert();
     zmsg_t* helpers_make_response(

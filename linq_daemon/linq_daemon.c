@@ -114,10 +114,41 @@ static linq_network_callbacks callbacks = { .hb = on_hb,
                                             .ctrlc = on_ctrlc };
 
 void
-linqd_init(linqd_config_s* linqd)
-{}
+linqd_init(linqd_s* linqd, linqd_config_s* config)
+{
+    char endpoint[64];
+    memset(linqd, 0, sizeof(linqd_s));
+
+    // Create network context
+    linqd->netw = linq_network_create(&callbacks, linqd);
+    linq_network_assert(linqd->netw);
+
+    // Open zmtp port
+    if (config->zmtp) {
+        snprintf(endpoint, sizeof(endpoint), "tcp://*:%d", config->zmtp);
+        linq_network_listen(linqd->netw, endpoint);
+    }
+
+    // Open HTTP port
+    if (config->http) {
+        snprintf(endpoint, sizeof(endpoint), "%d", config->http);
+        http_init(&linqd->http, linqd->netw);
+        http_listen(&linqd->http, endpoint);
+    }
+}
 
 void
-linqd_free(linqd_config_s* linqd)
-{}
+linqd_free(linqd_s* linqd)
+{
+    linq_network_destroy(&linqd->netw);
+    if (linqd->http.routes) http_deinit(&linqd->http);
+    memset(linqd, 0, sizeof(linqd_s));
+}
 
+int
+linqd_poll(linqd_s* linqd, uint32_t ms)
+{
+    int err = linq_network_poll(linqd->netw, ms);
+    if (!err) err = http_poll(&linqd->http, ms);
+    return err;
+}

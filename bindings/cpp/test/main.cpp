@@ -2,13 +2,13 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "linq_network.hpp"
 #include "device.h"
+#include "linq_network.hpp"
 
 extern "C"
 {
-#include "linq_network_internal.h"
 #include "helpers.h"
+#include "linq_network_internal.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
 #include "mock_zmsg.h"
@@ -23,7 +23,7 @@ extern "C"
 static void
 test_init()
 {
-    helpers_test_init("unsafe_user", "unsafe_password");
+    helpers_test_init();
 }
 
 static void

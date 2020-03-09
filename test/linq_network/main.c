@@ -2,9 +2,9 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "linq_network.h"
 #include "device.h"
 #include "helpers.h"
+#include "linq_network.h"
 #include "linq_network_internal.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
@@ -229,74 +229,6 @@ test_linq_network_receive_heartbeat_ok(void** context_p)
 
     test_reset(&test);
 }
-
-/*
-static void
-test_linq_network_receive_heartbeat_ok_insert_device(void** context_p)
-{
-    ((void)context_p);
-    bool pass = false;
-    const char* serial = expect_sid = "serial";
-    helpers_test_config_s config = { .callbacks = &callbacks,
-                                     .context = &pass,
-                                     .zmtp = 32820,
-                                     .http = 0,
-                                     .user = USER,
-                                     .pass = PASS };
-    const char* expect_query = "SELECT EXISTS(SELECT 1 FROM devices WHERE "
-                               "device_id=\"serial\" LIMIT 1);";
-    const char* expect_insert =
-        "INSERT INTO "
-        "devices(device_id,product,prj_version,atx_version,web_version,mac) "
-        "VALUES(\"serial\",\"LINQ2\",\"2.00.00\",\"2.00.00\",\"2.00.00\","
-        "\"00:00:00:AA:BB:CC\");";
-    const char* response = "{\"about\":{"
-                           "\"sid\":\"serial\","
-                           "\"product\":\"LINQ2\","
-                           "\"prjVersion\":\"2.00.00\","
-                           "\"atxVersion\":\"2.00.00\","
-                           "\"webVersion\":\"2.00.00\","
-                           "\"mac\":\"00:00:00:AA:BB:CC\""
-                           "}}";
-    zmsg_t* hb0 = helpers_make_heartbeat("rid0", serial, "product", "site");
-    zmsg_t* about = helpers_make_response("rid0", serial, 0, response);
-    outgoing_statement* statement = NULL;
-
-    helpers_test_context_s* test = test_init(&config);
-
-    // Push some incoming heartbeats
-    czmq_spy_mesg_push_incoming(&hb0);
-    czmq_spy_mesg_push_incoming(&about);
-    czmq_spy_poll_set_incoming((0x01));
-
-    // Database query responses
-    sqlite_spy_step_return_push(SQLITE_ROW);
-    sqlite_spy_column_int_return_push(0);
-
-    sqlite_spy_outgoing_statement_flush();
-
-    // Receive a heartbeat (Request about)
-    linq_network_poll(test->net, 5);
-    statement = sqlite_spy_outgoing_statement_pop();
-    assert_non_null(statement);
-    assert_int_equal(strlen(expect_query) + 1, statement->len);
-    assert_memory_equal(expect_query, statement->data, statement->len);
-    linq_network_free(statement);
-    // TODO measure outgoing czmq packet about request
-
-    // Receive about response, and we insert device into database
-    linq_network_poll(test->net, 5);
-    statement = sqlite_spy_outgoing_statement_pop();
-    assert_non_null(statement);
-    assert_int_equal(strlen(expect_insert) + 1, statement->len);
-    assert_memory_equal(expect_insert, statement->data, statement->len);
-    linq_network_free(statement);
-
-    // TODO measure http broadcast
-
-    test_reset(&test);
-}
-*/
 
 static void
 test_linq_network_receive_heartbeat_error_short(void** context_p)
@@ -1252,7 +1184,6 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_linq_network_receive_protocol_error_serial),
         cmocka_unit_test(test_linq_network_receive_protocol_error_router),
         cmocka_unit_test(test_linq_network_receive_heartbeat_ok),
-        // cmocka_unit_test(test_linq_network_receive_heartbeat_ok_insert_device),
         cmocka_unit_test(test_linq_network_receive_heartbeat_error_short),
         cmocka_unit_test(test_linq_network_receive_alert_ok),
         // cmocka_unit_test(test_linq_network_receive_alert_insert),
