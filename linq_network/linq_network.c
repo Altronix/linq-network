@@ -9,41 +9,6 @@
 #include "sys.h"
 #include "zmtp.h"
 
-#if WITH_SQLITE
-#include "database/database.h"
-#include "http.h"
-#include "routes/routes.h"
-#endif
-
-#define WEBSOCKET_NEW_FMT                                                      \
-    "{"                                                                        \
-    "\"type\":\"new\","                                                        \
-    "\"data\":{"                                                               \
-    "\"sid\":\"%.*s\","                                                        \
-    "\"product\":\"%.*s\","                                                    \
-    "\"prjVersion\":\"%.*s\","                                                 \
-    "\"atxVersion\":\"%.*s\""                                                  \
-    "}}"
-
-#define WEBSOCKET_HEARTBEAT_FMT                                                \
-    "{"                                                                        \
-    "\"type\":\"heartbeat\","                                                  \
-    "\"data\":{"                                                               \
-    "\"sid\":\"%.*s\""                                                         \
-    "}}"
-
-#define WEBSOCKET_ALERT_FMT                                                    \
-    "{"                                                                        \
-    "\"type\":\"alert\","                                                      \
-    "\"data\":{"                                                               \
-    "\"sid\":\"%.*s\","                                                        \
-    "\"who\":\"%.*s\","                                                        \
-    "\"what\":\"%.*s\","                                                       \
-    "\"siteId\":\"%.*s\","                                                     \
-    "\"when\":%d,"                                                             \
-    "\"mesg\":\"%.*s\""                                                        \
-    "}}"
-
 // Main class
 typedef struct linq_network_s
 {
@@ -52,10 +17,6 @@ typedef struct linq_network_s
     device_map_s* devices;
     node_map_s* nodes;
     zmtp_s zmtp;
-#if WITH_SQLITE
-    http_s http;
-    database_s database;
-#endif
 } linq_network_s;
 
 static void
@@ -69,40 +30,10 @@ on_zmtp_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 }
 
 static void
-on_heartbeat_response(void* ctx, E_LINQ_ERROR e, const char* r, device_s** d)
-{
-    linq_network_s* l = ctx;
-    const char* serial = device_serial(*d);
-    if (e) {
-        log_warn("(ZMTP) [%.6s...] (%.3d) About request failed!", serial, e);
-    } else {
-#ifdef WITH_SQLITE
-        database_insert_device_from_json(&l->database, serial, r, strlen(r));
-#endif
-    }
-}
-
-static void
 on_zmtp_heartbeat(void* ctx, const char* sid, device_s** d)
 {
-    // Note - All tests load devices into context by pushing in heartbeats.
-    // Therefore tests should also flush out the response, or mock database
-    // query to make tests think device doesn't need to be added into database
-    // so there will be no request and response to flush through
     linq_network_s* l = ctx;
-#ifdef WITH_SQLITE
-    http_broadcast_json(
-        &l->http, 200, WEBSOCKET_HEARTBEAT_FMT, strlen(sid), sid);
-    if (!database_row_exists_str(&l->database, "devices", "device_id", sid)) {
-        log_info(
-            "(ZMTP) [%.6s...] "
-            "New device connected, requesting about data...",
-            device_serial(*d));
-        device_send_get(*d, "/ATX/about", on_heartbeat_response, l);
-    } else {
-        log_debug("(ZMTP) [%.6s...] Heartbeat", device_serial(*d));
-    }
-#endif
+    log_info("(ZMTP) [%.6s...] Event Alert", sid);
     if (l->callbacks && l->callbacks->hb) {
         l->callbacks->hb(l->context, sid, d);
     }
@@ -115,29 +46,9 @@ on_zmtp_alert(
     linq_network_email_s* email,
     device_s** d)
 {
-    int err;
     const char* serial = device_serial(*d);
     linq_network_s* l = ctx;
     log_info("(ZMTP) [%.6s...] Event Alert", serial);
-#ifdef WITH_SQLITE
-    // Print out time
-    char when[32];
-    snprintf(when, sizeof(when), "%.*s", a->when.len, a->when.p);
-
-    // clang-format off
-    http_broadcast_json(
-        &l->http,
-        200,
-        WEBSOCKET_ALERT_FMT,
-        strlen(serial), serial,
-        a->who.len,     a->who.p,
-        a->what.len,    a->what.p,
-        a->where.len,   a->where.p,
-        atoi(when),
-        a->mesg.len,    a->mesg.p);
-    // clang-format on
-    err = database_insert_alert(&l->database, serial, a);
-#endif
     log_debug("(ZMTP) Database alert insert result (%d)", err);
     if (l->callbacks && l->callbacks->alert) {
         l->callbacks->alert(l->context, a, email, d);
@@ -183,20 +94,8 @@ linq_network_destroy(linq_network_s** linq_network_p)
     device_map_destroy(&l->devices);
     node_map_destroy(&l->nodes);
     zmtp_deinit(&l->zmtp);
-#if WITH_SQLITE
-    http_deinit(&l->http);
-    database_deinit(&l->database);
-#endif
     linq_network_free(l);
 }
-
-#ifdef WITH_SQLITE
-database_s*
-linq_network_database(linq_network_s* l)
-{
-    return &l->database;
-}
-#endif
 
 void
 linq_network_context_set(linq_network_s* linq, void* ctx)
@@ -218,14 +117,6 @@ linq_network_socket
 linq_network_connect(linq_network_s* l, const char* ep)
 {
     return zmtp_connect(&l->zmtp, ep);
-}
-
-void
-linq_network_serve(linq_network_s* l, const char* path)
-{
-#ifdef WITH_SQLITE
-    http_serve(&l->http, path);
-#endif
 }
 
 E_LINQ_ERROR
@@ -250,10 +141,6 @@ linq_network_poll(linq_network_s* l, int32_t ms)
 {
     E_LINQ_ERROR err = zmtp_poll(&l->zmtp, ms);
     if (err) log_error("(ZMTP) polling error %d", err);
-#if WITH_SQLITE
-    err = http_poll(&l->http, ms);
-    if (err) { err = LINQ_ERROR_IO; }
-#endif
     return err;
 }
 

@@ -100,7 +100,7 @@ main(int argc, char* argv[])
         return -1;
     }
 
-    linq_network_serve(server, WWW_ROOT_DIR);
+    // linq_network_serve(server, WWW_ROOT_DIR);
 
     while (sys_running()) { err = linq_network_poll(server, 5); }
 

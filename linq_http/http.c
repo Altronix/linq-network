@@ -237,6 +237,7 @@ http_deinit(http_s* http)
 {
     mg_mgr_free(&http->connections);
     routes_map_destroy(&http->routes);
+    database_deinit(&http->db);
 }
 
 E_LINQ_ERROR

@@ -1,6 +1,8 @@
 #ifndef LINQ_DAEMON_H
 #define LINQ_DAEMON_H
 
+#include "http.h"
+#include "linq_network.h"
 #include "sys.h"
 
 #ifdef __cplusplus
@@ -14,6 +16,12 @@ extern "C"
         uint16_t http;
         const char* db_path;
     } linqd_config_s;
+
+    typedef struct linqd_s
+    {
+        linq_network_s* netw;
+        http_s http;
+    } linqd_s;
 
     void linqd_init(linqd_config_s*);
     void linqd_free(linqd_config_s*);

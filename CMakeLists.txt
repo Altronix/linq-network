@@ -136,6 +136,7 @@ add_subdirectory(linq_utils)
 add_subdirectory(linq_database)
 add_subdirectory(linq_network)
 add_subdirectory(linq_http)
+add_subdirectory(linq_daemon)
 
 option(BUILD_EXAMPLES "Whether or not to build the examples" OFF)
 if(BUILD_EXAMPLES)
