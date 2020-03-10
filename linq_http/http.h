@@ -5,9 +5,9 @@
 #ifndef HTTP_H
 #define HTTP_H
 
-#include "linq_network.h"
 #include "containers.h"
 #include "database.h"
+#include "linq_network.h"
 #include "sys.h"
 
 #include "mongoose.h"
@@ -48,7 +48,8 @@ extern "C"
     // Main class context (internal use only)
     typedef struct http_s
     {
-        struct mg_connection* listener;
+        struct mg_connection* http;
+        struct mg_connection* https;
         struct mg_mgr connections;
         struct mg_serve_http_opts serve_opts;
         linq_network_s* linq;
@@ -61,6 +62,7 @@ extern "C"
     void http_deinit(http_s* http);
     E_LINQ_ERROR http_poll(http_s*, int32_t);
     void http_listen(http_s* http, const char* port);
+    void http_listen_tls(http_s* http, const char*, const char*, const char*);
     void http_use(http_s* http, const char* path, http_route_cb, void*);
     void http_serve(http_s* http, const char* path);
     void http_parse_query_str(

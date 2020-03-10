@@ -145,7 +145,7 @@ process_route(
 }
 
 static void
-http_ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
+ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
 {
     switch (ev) {
         case MG_EV_POLL: break;
@@ -250,14 +250,42 @@ http_poll(http_s* http, int32_t ms)
 void
 http_listen(http_s* http, const char* port)
 {
-    if (http->listener) {
+    if (http->http) {
         log_fatal("%10s", "HTTP can only listen to one server at a time!");
         log_fatal("%10s", "Please shutdown HTTP server before listening again");
-        linq_network_assert(http->listener);
+        linq_network_assert(http->http);
     }
     log_info("(HTTP) Listening... [http://*:%s]", port);
-    http->listener = mg_bind(&http->connections, port, http_ev_handler, http);
-    mg_set_protocol_http_websocket(http->listener);
+    http->http = mg_bind(&http->connections, port, ev_handler, http);
+    mg_set_protocol_http_websocket(http->http);
+}
+
+void
+http_listen_tls(
+    http_s* http,
+    const char* port,
+    const char* cert,
+    const char* key)
+{
+    const char* err;
+    struct mg_bind_opts opts;
+    if (http->https) {
+        log_fatal("%10s", "HTTP can only listen to one server at a time!");
+        log_fatal("%10s", "Please shutdown HTTP server before listening again");
+        linq_network_assert(http->http);
+    }
+    memset(&opts, 0, sizeof(opts));
+    opts.ssl_cert = cert;
+    opts.ssl_key = key;
+    opts.error_string = &err;
+    opts.user_data = http;
+    http->https = mg_bind_opt(&http->connections, port, ev_handler, http, opts);
+    if (!(http->https == NULL)) {
+        log_info("(HTTP) Listening... [https://*:%s]", port);
+        mg_set_protocol_http_websocket(http->https);
+    } else {
+        log_error("(HTTP) Listening error [%s]", err);
+    }
 }
 
 void

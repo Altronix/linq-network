@@ -14,7 +14,10 @@ extern "C"
     {
         uint32_t zmtp;
         uint32_t http;
+        uint32_t https;
         const char* db_path;
+        const char* cert;
+        const char* key;
     } linqd_config_s;
 
     typedef struct linqd_s

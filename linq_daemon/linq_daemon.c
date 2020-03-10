@@ -135,11 +135,19 @@ linqd_init(linqd_s* linqd, linqd_config_s* config)
         linq_network_listen(linqd->netw, endpoint);
     }
 
+    // Create HTTP server
+    http_init(&linqd->http, linqd->netw);
+
     // Open HTTP port
     if (config->http) {
         snprintf(endpoint, sizeof(endpoint), "%d", config->http);
-        http_init(&linqd->http, linqd->netw);
         http_listen(&linqd->http, endpoint);
+    }
+
+    // Open HTTPS port
+    if (config->https && config->cert && config->key) {
+        snprintf(endpoint, sizeof(endpoint), "%d", config->https);
+        http_listen_tls(&linqd->http, endpoint, config->cert, config->key);
     }
 }
 

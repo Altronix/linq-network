@@ -23,6 +23,9 @@ extern "C"
         linq_network_free(ctx);                                                \
     }
 
+#define EMPTY_FREE_FN(type)                                                    \
+    void type##_free_fn(type** ctx_p) {}
+
     static inline void __list_free_fn(void* ctx) { ((void)ctx); }
 #define FREE_FN(x) __list_free_fn(x->data)
 
@@ -35,6 +38,10 @@ extern "C"
     void tag##_list_push(tag##_list_s* list, type** r_p);                      \
     type* tag##_list_pop(tag##_list_s* l);                                     \
     uint32_t tag##_list_size(tag##_list_s* l);
+
+#define LIST_INIT_NO_FREE(tag, type)                                           \
+    EMPTY_FREE_FN(type)                                                        \
+    LIST_INIT(tag, type, type##_free_fn)
 
 #define LIST_INIT_W_FREE(tag, type)                                            \
     GENERIC_FREE_FN(type)                                                      \
@@ -98,6 +105,10 @@ extern "C"
     khiter_t tag##_map_key(tag##_map_s* hash, const char* serial);             \
     uint32_t tag##_map_size(tag##_map_s* hash);                                \
     void tag##_map_foreach(tag##_map_s*, tag##_map_foreach_fn, void*);
+
+#define MAP_INIT_NO_FREE(tag, type)                                            \
+    EMPTY_FREE_FN(type)                                                        \
+    MAP_INIT(tag, type, type##_free_fn)
 
 #define MAP_INIT_W_FREE(tag, type)                                             \
     GENERIC_FREE_FN(type)                                                      \

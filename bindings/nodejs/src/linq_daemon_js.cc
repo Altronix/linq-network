@@ -39,22 +39,31 @@ Napi::Value
 LinqDaemon::Start(const Napi::CallbackInfo& info)
 {
     // Initialize some sane default values for initializing the daemon
-    config_ = { .zmtp = 33455, .http = 8000, .db_path = "./test.db" };
+    config_ = { .zmtp = 33455,
+                .http = 8000,
+                .https = 80001,
+                .db_path = "./test.db",
+                .cert = "",
+                .key = "" };
 
     // Get nodejs parameters
     Napi::Env env = info.Env();
     if (!(info.Length() >= 1)) _NTHROW(env, "Incorrect number of arguments!");
     if (!(info[0].IsObject())) _NTHROW(env, "Expect arg[0] as Object!");
     Napi::Object obj = info[0].ToObject();
-    uint32_t zmtp = obj.Get("zmtp").ToNumber();
-    uint32_t http = obj.Get("http").ToNumber();
-    std::string db = obj.Get("db").ToString();
 
     // Merge nodejs caller config with config
     if (obj.Has("zmtp")) config_.zmtp = obj.Get("zmtp").ToNumber();
     if (obj.Has("http")) config_.http = obj.Get("http").ToNumber();
+    if (obj.Has("https")) config_.http = obj.Get("https").ToNumber();
     if (obj.Has("db")) {
         config_.db_path = std::string{ obj.Get("db").ToString() }.c_str();
+    }
+    if (obj.Has("cert")) {
+        config_.cert = std::string{ obj.Get("cert").ToString() }.c_str();
+    }
+    if (obj.Has("key")) {
+        config_.key = std::string{ obj.Get("key").ToString() }.c_str();
     }
 
     // Start deamon
