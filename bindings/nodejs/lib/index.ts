@@ -8,7 +8,7 @@ export class LinqNetwork extends Events.EventEmitter {
   constructor() {
     super();
     let self = this;
-    this.netw = new binding.LinqNetwork();
+    this.netw = new binding.network.LinqNetwork();
     this.netw.registerCallback(function(event: string, serial: string) {
       self.emit(event, serial);
     });
@@ -74,4 +74,5 @@ export class LinqNetwork extends Events.EventEmitter {
 
 inherits(LinqNetwork, Events.EventEmitter);
 
-export default new LinqNetwork();
+export const network = new LinqNetwork();
+export default network;

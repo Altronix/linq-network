@@ -1,4 +1,5 @@
 set(CMAKE_POSITION_INDEPENDENT_CODE on)
+set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 
 ###############################################################################
 # node-addon-api
@@ -14,8 +15,8 @@ string(REPLACE "\"" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
 ###############################################################################
 add_library(linq-network-js SHARED 
   ./src/binding.cc
-  ./src/atxnet.h
-  ./src/atxnet.cc)
+  ./src/linq_network_js.h
+  ./src/linq_network_js.cc)
 set_target_properties(linq-network-js PROPERTIES 
   PREFIX "" 
   SUFFIX ".node")
@@ -23,10 +24,14 @@ target_include_directories(linq-network-js PRIVATE ${CMAKE_JS_INC} ${NODE_ADDON_
 target_link_libraries(linq-network-js 
   linq-network-static
   linq-network-cpp-binding
+  linq-database-static
+  linq-http-static
+  linq-utils-static
   ${JSMN_WEB_TOKENS_STATIC_LIBS}
   ${LIBCZMQ_STATIC_LIBS}
   ${LIBZMQ_STATIC_LIBS}
   ${CMAKE_JS_LIB}
+  ${TLS_SHARED_LIBRARIES}
   uuid
   )
 
