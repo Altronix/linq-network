@@ -1,5 +1,6 @@
 import * as Events from "events";
 import { inherits } from "util";
+import { TlsTerminate } from "./tlsTerminate";
 const binding = require("bindings")("linq-network-js");
 
 export interface LinqDaemonConfig {
@@ -14,25 +15,38 @@ export interface LinqDaemonConfig {
 
 export class LinqDaemon {
   daemon: any;
+  tls: any;
   constructor() {
     let self = this;
     self.daemon = new binding.daemon.LinqDaemon();
   }
 
-  start(config: LinqDaemonConfig, ms?: number): LinqDaemon {
+  start(config: LinqDaemonConfig, ms?: number): Promise<any> {
     let self = this;
-    self.daemon.start(config);
-    // TODO add poll and isRunning()
-    (function poll() {
-      setTimeout(
-        () => {
-          if (self.daemon.isRunning()) poll();
-          self.daemon.poll(0);
-        },
-        ms ? ms : 50
-      );
-    })();
-    return self;
+    return config.zmtps
+      ? TlsTerminate.listen(config).then((tls: any) => {
+          self.tls = tls;
+          _start();
+        })
+      : new Promise((resolve, _) => resolve(_start()));
+
+    function _start() {
+      self.daemon.start(config);
+      (function poll() {
+        setTimeout(
+          () => {
+            if (self.daemon.isRunning()) {
+              poll();
+            } else {
+              self.tls.close();
+            }
+            self.daemon.poll(0);
+          },
+          ms ? ms : 50
+        );
+      })();
+      return self;
+    }
   }
 }
 

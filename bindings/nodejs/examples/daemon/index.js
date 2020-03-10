@@ -5,23 +5,11 @@ let daemon = require("@altronix/linq-network-js").daemon,
     zmtp: process.env.ZMTP || 33455,
     zmtps: process.env.ZMTPS || 33456,
     cert: process.env.TLS_CERT || "",
-    key: process.env.TLS_KEY || ""
+    key: process.env.TLS_KEY || "",
+    db: process.env.DATABASE || ""
   };
 
-console.log(
-  "Starting linq-daemon-js\n" +
-    "http: %s" +
-    "https: %s" +
-    "zmtp: %s" +
-    "zmtps: %s" +
-    "cert: %s" +
-    "key: %s",
-  config.http,
-  config.https,
-  config.zmtp,
-  config.zmtps,
-  config.cert,
-  config.key
-);
+if (!config.key.length) console.log("TLS_KEY NOT FOUND!");
+if (!config.cert.length) console.log("TLS_CERT NOT FOUND!");
 
 daemon.start(config);
