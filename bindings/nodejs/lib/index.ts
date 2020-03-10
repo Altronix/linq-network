@@ -1,6 +1,6 @@
 import * as Events from "events";
 import { inherits } from "util";
-const binding = require("bindings")("atx-net-js");
+const binding = require("bindings")("linq-network-js");
 
 export class LinqNetwork extends Events.EventEmitter {
   netw: any;
@@ -17,6 +17,7 @@ export class LinqNetwork extends Events.EventEmitter {
   // listen
   listen(port: string) {
     this.netw.listen(port);
+    return this;
   }
 
   // connect

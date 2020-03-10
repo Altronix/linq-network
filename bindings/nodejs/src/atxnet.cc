@@ -125,8 +125,8 @@ LinqNetwork::Listen(const Napi::CallbackInfo& info)
 
     // Call c routine with arguments
     std::string arg0 = info[0].ToString();
-    auto s = this->linq_.listen(arg0.c_str());
-    return Napi::Number::New(info.Env(), s);
+    auto _s = this->linq_.listen(arg0.c_str());
+    return info.This();
 }
 
 Napi::Value

@@ -9,6 +9,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@altronix/atx-net-js": "file:../../../.."
+    "@altronix/linq-network-js": "file:../../../.."
   }
 }
