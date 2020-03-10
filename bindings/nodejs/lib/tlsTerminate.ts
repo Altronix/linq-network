@@ -23,8 +23,8 @@ export namespace TlsTerminate {
   export const listen = (options: Options) => {
     return new Promise((resolve, reject) => {
       let tlsOptions = {
-        cert: options.cert,
-        key: options.key
+        cert: fs.readFileSync(options.cert),
+        key: fs.readFileSync(options.key)
       };
       let netOptions = {
         port: options.zmtp

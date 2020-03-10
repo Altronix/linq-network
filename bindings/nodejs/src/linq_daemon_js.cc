@@ -1,5 +1,6 @@
 #include "linq_daemon_js.h"
 #include "napi.h"
+#include <iostream>
 
 #define _NTHROW(__env, __err)                                                  \
     do {                                                                       \
@@ -41,7 +42,7 @@ LinqDaemon::Start(const Napi::CallbackInfo& info)
     // Initialize some sane default values for initializing the daemon
     config_ = { .zmtp = 33455,
                 .http = 8000,
-                .https = 80001,
+                .https = 8001,
                 .db_path = "./test.db",
                 .cert = "",
                 .key = "" };
@@ -60,10 +61,12 @@ LinqDaemon::Start(const Napi::CallbackInfo& info)
         config_.db_path = std::string{ obj.Get("db").ToString() }.c_str();
     }
     if (obj.Has("cert")) {
-        config_.cert = std::string{ obj.Get("cert").ToString() }.c_str();
+        cert_ = obj.Get("cert").ToString();
+        config_.cert = cert_.c_str();
     }
     if (obj.Has("key")) {
-        config_.key = std::string{ obj.Get("key").ToString() }.c_str();
+        key_ = obj.Get("key").ToString();
+        config_.key = key_.c_str();
     }
 
     // Start deamon

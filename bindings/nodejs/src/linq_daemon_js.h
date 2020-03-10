@@ -18,6 +18,8 @@ class LinqDaemon : public Napi::ObjectWrap<LinqDaemon>
     Napi::Value IsRunning(const Napi::CallbackInfo& info);
     linqd_s linqd_;
     linqd_config_s config_;
+    std::string cert_;
+    std::string key_;
 };
 
 #endif

@@ -285,6 +285,9 @@ http_listen_tls(
         mg_set_protocol_http_websocket(http->https);
     } else {
         log_error("(HTTP) Listening error [%s]", err);
+        log_error("(HTTP) CERT: [%s]", cert);
+        log_error("(HTTP)  KEY: [%s]", key);
+        log_error("(HTTP) PORT: [%s]", port);
     }
 }
 
