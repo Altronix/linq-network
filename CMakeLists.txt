@@ -108,7 +108,6 @@ if(ENABLE_TESTING)
   add_subdirectory(linq_utils/test/containers)
   add_subdirectory(linq_network/test/linq_network)
   add_subdirectory(linq_network/test/device)
-  add_subdirectory(linq_network/test/devices)
   add_subdirectory(bindings/cpp/test)
 
   # add test coverage
@@ -125,7 +124,6 @@ if(ENABLE_TESTING)
     EXECUTABLE test-containers
     COMMAND test-linq-network
     COMMAND test-device
-    COMMAND test-devices
     COMMAND test-http
     COMMAND test-database
     COMMAND test-routes
