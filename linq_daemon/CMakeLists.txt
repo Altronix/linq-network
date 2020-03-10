@@ -9,11 +9,9 @@ target_link_libraries(linqd-library
   ${TLS_STATIC_LIBS}
   stdc++)
 set_target_properties(linqd-library PROPERTIES 
-  PUBLIC_HEADER "linq_daemon.h"
-  EXCLUDE_FROM_ALL TRUE)
+  PUBLIC_HEADER "linq_daemon.h")
 target_include_directories(linqd-library PUBLIC ./)
 
 add_executable(linqd main.c)
 target_link_libraries(linqd linqd-library)
-set_target_properties(linqd PROPERTIES EXCLUDE_FROM_ALL TRUE)
 install(TARGETS linqd DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

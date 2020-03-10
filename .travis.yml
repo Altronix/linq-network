@@ -13,9 +13,7 @@ matrix:
                                           - lcov
                                           - valgrind
                   env: 
-                          - WITH_SQLITE=ON
-                            ENABLE_TESTING=ON
-                            BUILD_EXAMPLES=ON
+                          - ENABLE_TESTING=ON
                             USE_SYSTEM_OPENSSL=ON
                   script:
                           - ./scripts/ci/build-c.sh
@@ -23,8 +21,7 @@ matrix:
                   dist: bionic
                   language: c
                   env:
-                          - BUILD_EXAMPLES=ON
-                            USE_SYSTEM_OPENSSL=ON
+                          - USE_SYSTEM_OPENSSL=ON
                   script:
                           - ./scripts/ci/build-c.sh
                 - os: linux
@@ -36,9 +33,7 @@ matrix:
                                           - libzmq3-dev
                                           - libczmq-dev
                   env:
-                          - WITH_SQLITE=ON
-                            BUILD_EXAMPLES=ON
-                            USE_SYSTEM_ZMQ=ON
+                          - USE_SYSTEM_ZMQ=ON
                             USE_SYSTEM_OPENSSL=ON
                   script:
                           - ./scripts/ci/build-c.sh

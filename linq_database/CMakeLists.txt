@@ -22,7 +22,6 @@ if(BUILD_STATIC)
   target_compile_definitions(linq-database-static PUBLIC ${definitions})
   set_target_properties(linq-database-static PROPERTIES
     PUBLIC_HEADER "${INSTALL_HEADERS}"
-    EXCLUDE_FROM_ALL TRUE
     OUTPUT_NAME "linq-database")
   install(TARGETS linq-database-static
           LIBRARY DESTINATION lib
@@ -38,7 +37,6 @@ if(BUILD_SHARED)
   target_compile_definitions(linq-database-shared PUBLIC ${definitions})
   set_target_properties(linq-database-shared PROPERTIES
     PUBLIC_HEADER "${INSTALL_HEADERS}"
-    EXCLUDE_FROM_ALL TRUE
     OUTPUT_NAME "linq-database")
   install(TARGETS linq-database-shared
           LIBRARY DESTINATION lib
