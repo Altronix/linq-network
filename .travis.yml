@@ -35,6 +35,7 @@ matrix:
                                           - libczmq-dev
                   env:
                           - USE_SYSTEM_ZMQ=ON
+                            BUILD_LINQD=ON
                             USE_SYSTEM_OPENSSL=ON
                   script:
                           - ./scripts/ci/build-c.sh
