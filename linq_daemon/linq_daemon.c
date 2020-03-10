@@ -103,7 +103,9 @@ on_alert(
 static void
 on_ctrlc(void* ctx)
 {
+    linqd_s* l = ctx;
     log_info("(LINQ) Received shutdown signal...");
+    l->shutdown = true;
 }
 
 static void

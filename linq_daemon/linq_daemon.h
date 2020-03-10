@@ -12,8 +12,8 @@ extern "C"
 
     typedef struct linqd_config_s
     {
-        uint16_t zmtp;
-        uint16_t http;
+        uint32_t zmtp;
+        uint32_t http;
         const char* db_path;
     } linqd_config_s;
 
@@ -21,6 +21,7 @@ extern "C"
     {
         linq_network_s* netw;
         http_s http;
+        bool shutdown;
     } linqd_s;
 
     void linqd_init(linqd_s*, linqd_config_s*);

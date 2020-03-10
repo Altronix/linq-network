@@ -1,5 +1,5 @@
-add_library(linqd-library linq_daemon.c linq_daemon.h)
-target_link_libraries(linqd-library 
+add_library(linq-daemon-static linq_daemon.c linq_daemon.h)
+target_link_libraries(linq-daemon-static 
   linq-network-static
   linq-database-static
   linq-http-static
@@ -8,10 +8,10 @@ target_link_libraries(linqd-library
   ${LIBZMQ_STATIC_LIBS}
   ${TLS_STATIC_LIBS}
   stdc++)
-set_target_properties(linqd-library PROPERTIES 
+set_target_properties(linq-daemon-static PROPERTIES 
   PUBLIC_HEADER "linq_daemon.h")
-target_include_directories(linqd-library PUBLIC ./)
+target_include_directories(linq-daemon-static PUBLIC ./)
 
 add_executable(linqd main.c)
-target_link_libraries(linqd linqd-library)
+target_link_libraries(linqd linq-daemon-static)
 install(TARGETS linqd DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

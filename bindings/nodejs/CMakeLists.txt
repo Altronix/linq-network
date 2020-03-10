@@ -15,6 +15,8 @@ string(REPLACE "\"" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
 ###############################################################################
 add_library(linq-network-js SHARED 
   ./src/binding.cc
+  ./src/linq_daemon_js.h
+  ./src/linq_daemon_js.cc
   ./src/linq_network_js.h
   ./src/linq_network_js.cc)
 set_target_properties(linq-network-js PROPERTIES 
@@ -22,10 +24,11 @@ set_target_properties(linq-network-js PROPERTIES
   SUFFIX ".node")
 target_include_directories(linq-network-js PRIVATE ${CMAKE_JS_INC} ${NODE_ADDON_API_DIR})
 target_link_libraries(linq-network-js 
-  linq-network-static
-  linq-network-cpp-binding
+  linq-daemon-static
   linq-database-static
   linq-http-static
+  linq-network-static
+  linq-network-cpp-binding
   linq-utils-static
   ${JSMN_WEB_TOKENS_STATIC_LIBS}
   ${LIBCZMQ_STATIC_LIBS}
