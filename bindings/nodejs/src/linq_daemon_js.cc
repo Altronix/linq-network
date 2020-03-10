@@ -56,7 +56,7 @@ LinqDaemon::Start(const Napi::CallbackInfo& info)
     // Merge nodejs caller config with config
     if (obj.Has("zmtp")) config_.zmtp = obj.Get("zmtp").ToNumber();
     if (obj.Has("http")) config_.http = obj.Get("http").ToNumber();
-    if (obj.Has("https")) config_.http = obj.Get("https").ToNumber();
+    if (obj.Has("https")) config_.https = obj.Get("https").ToNumber();
     if (obj.Has("db")) {
         config_.db_path = std::string{ obj.Get("db").ToString() }.c_str();
     }
