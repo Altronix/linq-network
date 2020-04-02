@@ -1,15 +1,17 @@
-set(wolfssl_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/wolfssl)
+set(wolfssl_SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/wolfssl")
+set(wolfssl_BUILD_DIR "${CMAKE_BINARY_DIR}/wolfssl-build")
+file(COPY "${wolfssl_SOURCE_DIR}/" DESTINATION ${wolfssl_BUILD_DIR} PATTERN "*")
 
 if(NOT MSVC)
   ### Build Wolfssl ###
   ExternalProject_Add(wolfssl-project
   	SOURCE_DIR ${wolfssl_SOURCE_DIR}
-  	INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
-  	BUILD_IN_SOURCE 1
+  	INSTALL_DIR "${CMAKE_INSTALL_PREFIX}"
+        BINARY_DIR "${CMAKE_BINARY_DIR}/wolfssl-build"
   	UPDATE_COMMAND ""
   	PREFIX ${CMAKE_INSTALL_PREFIX}
-  	CONFIGURE_COMMAND ./autogen.sh
-  		COMMAND ./configure --prefix=<INSTALL_DIR>
+        CONFIGURE_COMMAND ${wolfssl_BUILD_DIR}/autogen.sh
+                COMMAND ${wolfssl_BUILD_DIR}/configure --prefix=<INSTALL_DIR>
   		--enable-debug
   		--enable-static=yes
   		--enable-shared=yes
