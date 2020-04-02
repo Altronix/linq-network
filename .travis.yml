@@ -46,6 +46,17 @@ matrix:
                           - 10
                   env:
                           - USE_SYSTEM_OPENSSL=ON
+                          - LINQ_NETWORK_WITH_DAEMON=ON
+                  script:
+                          - ./scripts/ci/build-nodejs.sh
+                - os: linux
+                  dist: bionic
+                  language: node_js
+                  node_js:
+                          - 10
+                  env:
+                          - USE_SYSTEM_OPENSSL=ON
+                          - LINQ_NETWORK_WITH_DAEMON=OFF
                   script:
                           - ./scripts/ci/build-nodejs.sh
                 - os: linux
