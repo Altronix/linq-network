@@ -41,11 +41,11 @@
   },
   "homepage": "https://github.com/TomzBench/linq-network#readme",
   "dependencies": {
+    "@types/node": "^13.11.0",
     "bindings": "^1.5.0",
     "cmake-js": "^6.0.0",
     "nan": "^2.14.0",
     "node-addon-api": "^2.0.0",
-    "@types/node": "^13.1.1",
     "typescript": "^3.7.4"
   },
   "devDependencies": {
