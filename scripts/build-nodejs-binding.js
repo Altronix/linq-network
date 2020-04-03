@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 // -s --system Build system libraries
 // -d --daemon Build with daemon
 

@@ -1,15 +1,35 @@
 {
   "name": "@altronix/linq-network-js",
-  "version": "0.0.1-alpha-12",
+  "version": "0.0.1-alpha-18",
   "description": "Node bindings for linq-network",
   "main": "./build/install/lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "native-build": "npm run-script ./scripts/build-nodejs-binding.js",
+    "native-build": "node ./scripts/build-nodejs-binding.js",
     "native-clean": "cmake-js clean",
     "build": "npm run native-build && tsc -p ./bindings/nodejs/lib",
     "postinstall": "npm run native-build && tsc -p ./bindings/nodejs/lib"
   },
+  "files": [
+    "/bindings/cpp",
+    "/bindings/nodejs/lib",
+    "/bindings/nodejs/src",
+    "/bindings/nodejs/CMakeLists.txt",
+    "/cmake",
+    "/external/czmq",
+    "/external/libzmq",
+    "/external/jsmn-web-tokens",
+    "/linq_daemon",
+    "/linq_database",
+    "/linq_http",
+    "/linq_network",
+    "/linq_utils",
+    "/scripts",
+    "CMakeLists.txt",
+    "COPYING",
+    "package.json",
+    "README.md"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/TomzBench/linq-network.git"
