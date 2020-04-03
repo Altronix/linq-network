@@ -2,6 +2,8 @@ import * as Events from "events";
 import { inherits } from "util";
 const binding = require("bindings")("linq-network-js");
 
+export type Method = "GET" | "POST" | "DELETE";
+
 export class LinqNetwork extends Events.EventEmitter {
   netw: any;
 
@@ -35,19 +37,24 @@ export class LinqNetwork extends Events.EventEmitter {
     // TODO
   }
 
-  send(serial: string, meth: string, path: string, data: string): Promise<any> {
-    if (!(typeof data === "string")) data = "";
-    return this.netw.send(serial, meth, path, data);
+  send<T>(serial: string, meth: Method, path: string, data?: T): Promise<any> {
+    const d = data ? JSON.stringify(data) : "";
+    return this.netw.send(serial, meth, path, d);
   }
 
   // post
-  post() {
-    // TODO
+  post<T>(serial: string, path: string, data: T) {
+    return this.send(serial, "POST", path, data);
+  }
+
+  // get
+  get(serial: string, path: string) {
+    return this.send(serial, "GET", path);
   }
 
   // delete
-  delete() {
-    // TODO
+  delete(serial: string, path: string) {
+    return this.send(serial, "DELETE", path);
   }
 
   // deviceCount
