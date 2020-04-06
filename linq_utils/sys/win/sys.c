@@ -4,6 +4,7 @@
 
 #include "sys.h"
 
+#include <Rpc.h>
 static void
 uuid_set(char* dst, const uint8_t* src)
 {
@@ -35,5 +36,5 @@ sys_uuid(char* dst)
     UUID uuid;
     linq_network_assert(sizeof(uuid) == UUID_LEN);
     UuidCreate(&uuid);
-    uuid_set(dst, (uint8_t*)uuid);
+    uuid_set(dst, (uint8_t*)&uuid);
 }

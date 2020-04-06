@@ -17,31 +17,36 @@ else()
     set(JSMN_WEB_TOKENS_SHARED_LIBRARIES jsmn-web-tokens-shared)
 endif()
 
-if(NOT MSVC)
-    ExternalProject_Add(jsmn-web-tokens-project
-        SOURCE_DIR ${JSMN_WEB_TOKENS_SOURCE_DIR}
-	INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
-        UPDATE_COMMAND ""
-        BUILD_COMMAND ""
-        INSTALL_COMMAND
-            cmake
-            --build .
-            --target install
-            --config Release
-        LIST_SEPARATOR |
-        CMAKE_ARGS
-	    -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
-            -DWITH_CRYPTO:STRING=OPENSSL
-            -DWITH_SYSTEM_DEPENDENCIES:BOOL=ON)
-    ExternalProject_Get_Property(jsmn-web-tokens-project INSTALL_DIR)
-    set(JSMN_WEB_TOKENS_INCLUDE_DIR ${INSTALL_DIR}/include)
-    FILE(MAKE_DIRECTORY ${INSTALL_DIR}/include)
+ExternalProject_Add(jsmn-web-tokens-project
+    SOURCE_DIR ${JSMN_WEB_TOKENS_SOURCE_DIR}
+    INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
+    UPDATE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND
+        cmake
+        --build .
+        --target install
+        --config Release
+    LIST_SEPARATOR |
+    CMAKE_ARGS
+        -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+        -DWITH_CRYPTO:STRING=OPENSSL
+        -DWITH_SYSTEM_DEPENDENCIES:BOOL=ON)
+ExternalProject_Get_Property(jsmn-web-tokens-project INSTALL_DIR)
+set(JSMN_WEB_TOKENS_INCLUDE_DIR ${INSTALL_DIR}/include)
+FILE(MAKE_DIRECTORY ${INSTALL_DIR}/include)
 
+
+if(NOT MSVC)
     set(JSMN_WEB_TOKENS_STATIC_LIBRARY ${CMAKE_STATIC_LIBRARY_PREFIX}jsmn-web-tokens${CMAKE_STATIC_LIBRARY_SUFFIX})
     set(JSMN_WEB_TOKENS_SHARED_LIBRARY ${CMAKE_SHARED_LIBRARY_PREFIX}jsmn-web-tokens${CMAKE_SHARED_LIBRARY_SUFFIX})
     set(JSMN_WEB_TOKENS_STATIC_LIBRARY ${INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}jsmn-web-tokens${CMAKE_STATIC_LIBRARY_SUFFIX})
     set(JSMN_WEB_TOKENS_SHARED_LIBRARY ${INSTALL_DIR}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}jsmn-web-tokens${CMAKE_SHARED_LIBRARY_SUFFIX})
 else()
+    set(JSMN_WEB_TOKENS_STATIC_LIBRARY ${CMAKE_STATIC_LIBRARY_PREFIX}jsmn-web-tokens${CMAKE_STATIC_LIBRARY_SUFFIX})
+    set(JSMN_WEB_TOKENS_SHARED_LIBRARY ${CMAKE_SHARED_LIBRARY_PREFIX}jsmn-web-tokens${CMAKE_SHARED_LIBRARY_SUFFIX})
+    set(JSMN_WEB_TOKENS_STATIC_LIBRARY ${INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}jsmn-web-tokens${CMAKE_STATIC_LIBRARY_SUFFIX})
+    set(JSMN_WEB_TOKENS_SHARED_LIBRARY ${INSTALL_DIR}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}jsmn-web-tokens${CMAKE_SHARED_LIBRARY_SUFFIX})
 endif()
 
 # jsmn-web-tokens-static

@@ -27,6 +27,7 @@ static void
 parse_args(linqd_config_s* config, int argc, char* argv[])
 {
     int opt, arglen;
+    // TODO this isn't Windows portable
     optind = 0;
     while ((opt = getopt(argc, argv, "zpsdck?h")) != -1) {
         switch (opt) {
