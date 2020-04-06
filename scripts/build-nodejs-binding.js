@@ -40,7 +40,8 @@ const withSystem =
   !!args.s;
 
 // Generate cmake-js argument
-const cmakeArgs =
+const cmakeCmd =
+  `cmake-js ` +
   `${system(withSystem)} ${linqd(withDaemon)} ` +
   `--CDCMAKE_INSTALL_PREFIX=./ --CDBUILD_SHARED=OFF --CDWITH_NODEJS_BINDING ` +
   `--CDCMAKE_BUILD_TYPE=Release build --target=install`;
@@ -48,7 +49,7 @@ const cmakeArgs =
 // Call cmake-js with args
 console.log(`WITH_SYSTEM_DEPENDENCIES: ${withSystem}`);
 console.log(`WITH_DAEMON             : ${withDaemon}`);
-const result = cp.spawnSync("cmake-js", cmakeArgs.split(" "), {
+const result = cp.spawnSync("npx", cmakeCmd.split(" "), {
   env,
   stdio: "inherit"
 });
