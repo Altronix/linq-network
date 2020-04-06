@@ -52,4 +52,8 @@ const result = cp.spawnSync("cmake-js", cmakeArgs.split(" "), {
   env,
   stdio: "inherit"
 });
-if (result.status !== 0) process.exit(result.status);
+if (result.status !== 0) {
+  console.eror("Failed to build LINQ_NETWORK_JS Binding!!!");
+  console.error(result);
+  process.exit(result.status);
+}
