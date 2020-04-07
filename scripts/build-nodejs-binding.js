@@ -40,7 +40,7 @@ const withSystem =
   !!args.s;
 
 // Generate cmake-js argument
-const cmakeCmd = process.platform === "win32" ? `cmake-js.cmd ` : `cmake-js `;
+const cmakeCmd = process.platform === "win32" ? `cmake-js.cmd` : `cmake-js`;
 const cmakeArgs =
   `${system(withSystem)} ${linqd(withDaemon)} ` +
   `--CDCMAKE_INSTALL_PREFIX=./ --CDBUILD_SHARED=OFF --CDWITH_NODEJS_BINDING ` +
