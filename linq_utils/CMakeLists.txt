@@ -1,5 +1,5 @@
 # Main source files
-set(SOURCES base64.c)
+set(SOURCES base64.c jsmn_helpers.c)
 set(HEADERS base64.h klib/khash.h klib/klist.h containers.h jsmn.h jsmn_helpers.h log.h)
 
 if(NOT MSVC)
