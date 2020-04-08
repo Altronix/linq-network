@@ -2,6 +2,14 @@ git:
         submodules: false
 notifications:
         emails: false
+
+before_install:
+        # https://github.com/appveyor/ci/issues/2420 (git-sh-setup: not found)
+        # - export PATH="$PATH:/c/Program Files/Git/mingw64/libexec/git-core"
+        # (Work around, manually loading submodules)
+        - git submodule update --init ./external/libzmq
+        - git submodule update --init ./external/czmq
+
 matrix:
         include:
                 - os: linux
@@ -75,11 +83,6 @@ matrix:
                           - 10
                   env:
                   script:
-                          # https://github.com/appveyor/ci/issues/2420 (git-sh-setup: not found)
-                          # - export PATH="$PATH:/c/Program Files/Git/mingw64/libexec/git-core"
-                          # (Work around, manually loading submodules)
-                          - git submodule update --init external/libzmq
-                          - git submodule update --init external/czmq
                           - ./scripts/ci/build-nodejs.sh
                 - os: windows
                   env: GENERATOR="Visual Studio 15 2017"
