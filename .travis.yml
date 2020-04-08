@@ -22,7 +22,6 @@ matrix:
                   dist: bionic
                   language: c
                   env:
-                          - USE_SYSTEM_OPENSSL=ON
                   script:
                           - ./scripts/ci/build-c.sh
                 - os: linux
@@ -55,8 +54,6 @@ matrix:
                   node_js:
                           - 10
                   env:
-                          - USE_SYSTEM_OPENSSL=ON
-                          - LINQ_NETWORK_WITH_DAEMON=OFF
                   script:
                           - ./scripts/ci/build-nodejs.sh
                 - os: linux
@@ -65,13 +62,11 @@ matrix:
                   rust:
                           - nightly
                   env:
-                          - USE_SYSTEM_OPENSSL=ON
                   script:
                           - ./scripts/ci/build-rust.sh
                 - os: windows
                   language: c
                   env:
-                          - LINQ_NETWORK_WITH_DAEMON=OFF
                   script:
                           - ./scripts/ci/build-c.sh
                 - os: windows
@@ -79,10 +74,10 @@ matrix:
                   node_js:
                           - 10
                   env:
-                          - LINQ_NETWORK_WITH_DAEMON=OFF
                   script:
                           - ./scripts/ci/build-nodejs.sh
                 - os: windows
+                  env: GENERATOR="Visual Studio 15 2017"
                   language: rust
                   rust:
                           - nightly
