@@ -13,9 +13,9 @@ matrix:
                                           - lcov
                                           - valgrind
                   env: 
-                          - ENABLE_TESTING=ON
-                            BUILD_LINQD=ON
+                          - BUILD_LINQD=ON
                             USE_SYSTEM_OPENSSL=ON
+                            ENABLE_TESTING=ON
                   script:
                           - ./scripts/ci/build-c.sh
                 - os: linux
@@ -33,9 +33,9 @@ matrix:
                                           - libzmq3-dev
                                           - libczmq-dev
                   env:
-                          - USE_SYSTEM_ZMQ=ON
-                            BUILD_LINQD=ON
+                          - BUILD_LINQD=ON
                             USE_SYSTEM_OPENSSL=ON
+                            USE_SYSTEM_ZMQ=ON
                   script:
                           - ./scripts/ci/build-c.sh
                 - os: linux
@@ -44,8 +44,8 @@ matrix:
                   node_js:
                           - 10
                   env:
-                          - USE_SYSTEM_OPENSSL=ON
                           - LINQ_NETWORK_WITH_DAEMON=ON
+                          - USE_SYSTEM_OPENSSL=ON
                   script:
                           - ./scripts/ci/build-nodejs.sh
                 - os: linux
@@ -75,6 +75,8 @@ matrix:
                           - 10
                   env:
                   script:
+                          # https://github.com/appveyor/ci/issues/2420
+                          - set "PATH=%PATH%;C:\Program Files\Git\mingw64\libexec\git-core"
                           - ./scripts/ci/build-nodejs.sh
                 - os: windows
                   env: GENERATOR="Visual Studio 15 2017"
