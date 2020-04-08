@@ -48,8 +48,7 @@ const cmakeArgs =
   `--CDCMAKE_BUILD_TYPE=Release build --target=install`;
 
 // Call cmake-js with args
-logger.log(
-  "info",
+logger.info(
   "Attempting to use your compiler to build linq-network and dependencies"
 );
 logger.info(`WITH_SYSTEM_DEPENDENCIES: ${withSystem}`);

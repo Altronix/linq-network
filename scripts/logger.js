@@ -54,11 +54,15 @@ const colorMap = {
 exports = module.exports;
 
 exports.log = function(channel, message) {
-  const now = `${CYAN}${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`;
+  const now = `${CYAN}|Build LinQ|`;
   const arrow = `${WHITE}=>`;
   const level = `${colorMap[channel]}${channel.slice(-5).toUpperCase()}`;
   const m = `${LIGHT_BLUE}${message}${RESET}`;
   console.log(`${now} ${arrow} ${level} ${m}`);
+};
+
+exports.traice = function(message) {
+  this.log("trace", message);
 };
 
 exports.debug = function(message) {
@@ -66,15 +70,15 @@ exports.debug = function(message) {
 };
 
 exports.info = function(message) {
-  this.log("debug", message);
+  this.log("info", message);
 };
 
 exports.warn = function(message) {
-  this.log("debug", message);
+  this.log("warn", message);
 };
 
 exports.error = function(message) {
-  this.log("debug", message);
+  this.log("error", message);
 };
 
 exports.fatal = function(message) {
