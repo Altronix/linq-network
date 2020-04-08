@@ -4,7 +4,7 @@
   "description": "Node bindings for linq-network",
   "main": "./build/install/lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --config=./bindings/nodejs/lib/jest.config.js",
     "native-build": "node ./scripts/build-nodejs-binding.js",
     "native-clean": "cmake-js clean",
     "build": "npm run native-build && tsc -p ./bindings/nodejs/lib",
@@ -49,6 +49,9 @@
     "typescript": "^3.7.4"
   },
   "devDependencies": {
-    "minimist": "^1.2.5"
+    "@types/jest": "^25.2.1",
+    "jest": "^25.3.0",
+    "minimist": "^1.2.5",
+    "ts-jest": "^25.3.1"
   }
 }

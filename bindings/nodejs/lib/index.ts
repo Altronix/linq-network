@@ -1,2 +1,4 @@
 export * from "./LinqNetwork";
-export * from "./LinqDaemon";
+
+// TODO need to import LinqDaemon Direct because it is optional
+// export * from "./LinqDaemon"; 
