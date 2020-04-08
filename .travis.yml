@@ -76,7 +76,7 @@ matrix:
                   env:
                   script:
                           # https://github.com/appveyor/ci/issues/2420
-                          - set "PATH=%PATH%;C:\Program Files\Git\mingw64\libexec\git-core"
+                          - export PATH="$PATH:/c/Program Files/Git/mingw64/libexec/git-core"
                           - ./scripts/ci/build-nodejs.sh
                 - os: windows
                   env: GENERATOR="Visual Studio 15 2017"

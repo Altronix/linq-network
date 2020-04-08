@@ -4,6 +4,7 @@
 const cp = require("child_process");
 const args = require("minimist")(process.argv.slice(2));
 const env = Object.assign({}, process.env);
+const logger = require("./logger");
 
 // Helper for parsing enviorment variable
 const isTrue = opt =>
@@ -47,14 +48,22 @@ const cmakeArgs =
   `--CDCMAKE_BUILD_TYPE=Release build --target=install`;
 
 // Call cmake-js with args
-console.log(`WITH_SYSTEM_DEPENDENCIES: ${withSystem}`);
-console.log(`WITH_DAEMON             : ${withDaemon}`);
+logger.log(
+  "info",
+  "Attempting to use your compiler to build linq-network and dependencies"
+);
+logger.info(`WITH_SYSTEM_DEPENDENCIES: ${withSystem}`);
+logger.info(`WITH_DAEMON             : ${withDaemon}`);
 const result = cp.spawnSync(cmakeCmd, cmakeArgs.split(" "), {
   env,
   stdio: "inherit"
 });
-if (result.status !== 0) {
-  console.error("Failed to build LINQ_NETWORK_JS Binding!!!");
-  console.error(result);
+if (result.status === 0) {
+  logger.info("Binding built success!");
+} else {
+  logger.warn("Failed to build LINQ_NETWORK_JS Binding!!!");
+  logger.warn(JSON.stringify(result));
+  logger.info("Using pre-built binaries");
+  logger.fatal("TODO");
   process.exit(result.status);
 }
