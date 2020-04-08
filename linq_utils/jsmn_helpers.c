@@ -43,7 +43,7 @@ map_key_to_value(
     while (c >= 2) {
         c -= 2;
         cmp = va_arg(list, char*);
-        jsmn_value* result = va_arg(list, jsmn_value*);
+        jsmn_helpers_value* result = va_arg(list, jsmn_helpers_value*);
         if (keylen == strlen(cmp) && !memcmp(key, cmp, keylen)) {
             result->len = value_len;
             result->p = value;
@@ -58,11 +58,11 @@ jsmn_foreach(
     jsmntok_t* t,
     uint32_t n_tokens,
     const char* data,
-    void (*cb)(void*, jsmn_value* key, jsmn_value* val),
+    void (*cb)(void*, jsmn_helpers_value* key, jsmn_helpers_value* val),
     void* ctx)
 {
     uint32_t i = 0;
-    jsmn_value key, val;
+    jsmn_helpers_value key, val;
     bool expect_key = true;
     if (is_object(&t[i])) i++;
     while (i < n_tokens) {
@@ -93,7 +93,7 @@ jsmn_parse_tokens(
     ...)
 {
     uint32_t n_tokens, i = 0;
-    jsmn_value tag = { .p = NULL, .len = 0 };
+    jsmn_helpers_value tag = { .p = NULL, .len = 0 };
     jsmn_parser p;
     jsmn_init(&p);
     bool expect_key = true;
@@ -149,9 +149,7 @@ jsmn_parse_tokens_path(
     uint32_t parent = 0, i = 0, spot = 0, cmplen;
 
     while (i < n_tokens) {
-        if (is_object(&t[i])) {
-            (parent = i, i++);
-        }
+        if (is_object(&t[i])) { (parent = i, i++); }
         if (t[i].type == JSMN_STRING) {
             if (*path == '/' || *path == '\\') path++;
             __seek_slash(path, strlen(path), spot);

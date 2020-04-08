@@ -68,3 +68,15 @@ matrix:
                           - USE_SYSTEM_OPENSSL=ON
                   script:
                           - ./scripts/ci/build-rust.sh
+                - os: windows
+                  language: c
+                  env:
+                          - LINQ_NETWORK_WITH_DAEMON=OFF
+                  script:
+                          - ./scripts/ci/build-c.sh
+                - os: windows
+                  language: node_js
+                  env:
+                          - LINQ_NETWORK_WITH_DAEMON=OFF
+                  script:
+                          - ./scripts/ci/build-nodejs.sh

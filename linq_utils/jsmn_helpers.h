@@ -43,11 +43,11 @@ extern "C"
 
 #define jsmn_helper(x) jsmntok_t[x]
 
-    typedef struct jsmn_value
+    typedef struct jsmn_helpers_value
     {
         const char* p;
         uint32_t len;
-    } jsmn_value;
+    } jsmn_helpers_value;
 
     typedef unsigned char byte;
 
@@ -55,7 +55,7 @@ extern "C"
         jsmntok_t* t,
         uint32_t n_tokens,
         const char* data,
-        void (*cb)(void*, jsmn_value* key, jsmn_value* val),
+        void (*cb)(void*, jsmn_helpers_value* key, jsmn_helpers_value* val),
         void*);
 
     uint32_t jsmn_parse_tokens(
@@ -74,35 +74,6 @@ extern "C"
         uint32_t,
         uint32_t,
         ...);
-
-// TODO not in use until we figure out how to pass code into a macro?
-#define __jsmn_foreach(t, n, str, code)                                        \
-    do {                                                                       \
-        jsmn_value val, key;                                                   \
-        uint32_t __end, __i = 0;                                               \
-        bool __expect_key = true;                                              \
-        if (t[__i].type == JSMN_OBJECT || t[__i].type == JSMN_ARRAY) __i++;    \
-        while (__i < n) {                                                      \
-            if (t[__i].type == JSMN_OBJECT || t[__i].type == JSMN_ARRAY) {     \
-                __end = t[__i].end;                                            \
-                while (__i < n && t[__i].start < __end) __i++;                 \
-                __expect_key = true;                                           \
-                __i++;                                                         \
-                continue;                                                      \
-            }                                                                  \
-            if (__expect_key) {                                                \
-                __expect_key = false;                                          \
-                key.p = &data[t[__i].start];                                   \
-                key.len = t[__i].end - t[__i].start;                           \
-            } else {                                                           \
-                __expect_key = true;                                           \
-                val.p = &data[t[__i].start];                                   \
-                val.len = t[__i].end - t[__i].start;                           \
-                code                                                           \
-            }                                                                  \
-            __i++;                                                             \
-        }                                                                      \
-    } while (0)
 
 #ifdef __cplusplus
 }
