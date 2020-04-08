@@ -7,6 +7,10 @@ const args = require("minimist")(process.argv.slice(2));
 const env = Object.assign({}, process.env);
 const logger = require("./logger");
 
+const root = __dirname + "/../";
+
+const jsonPackage = fs.readFileSync(root + "./package.json");
+
 // Helper for parsing enviorment variable
 const isTrue = opt =>
   opt === "ON" ||
@@ -51,28 +55,50 @@ const cmakeArgs =
 // Find the prebuilt binary (Only used if native build fails)
 const getPrebuilt = () =>
   process.platform === "win32"
-    ? __dirname + "./bindings/nodejs/prebuilds/linux-x64/linq-network-js.node"
-    : __dirname + "./bindings/nodejs/prebuilds/win32-x64/linq-network-js.node";
+    ? root + "./bindings/nodejs/prebuilds/win32-x64/linq-network-js.node"
+    : root + "./bindings/nodejs/prebuilds/linux-x64/linq-network-js.node";
 
-logger.info("Attempting build with your compiler");
-logger.info(`Settings: WITH_SYSTEM_DEPENDENCIES -> ${withSystem}`);
-logger.info(`Settings: WITH_DAEMON              -> ${withDaemon}`);
-
-// Call cmake-js
-const result = cp.spawnSync(cmakeCmd, cmakeArgs.split(" "), {
-  env,
-  stdio: "inherit"
-});
-
-if (!result.error) {
-  logger.info("Build Success!");
-  process.exit(result.status);
-} else {
+// Install prebuilt binary into a build folder
+const installPrebuilt = () => {
   const prebuilt = getPrebuilt();
-  logger.warn("Failed to build linq-network-js binding!");
-  logger.warn(result.stdout);
-  logger.warn(result.stderr);
-  logger.info(`Using prebuilt binaries: ${prebuilt}`);
-  cp.copyFileSync(prebuilt, "./");
+  if (!fs.existsSync(root + "./build")) fs.mkdirSync(root + "./build");
+  logger.info(`Installing prebuilt binaries: ${prebuilt}`);
+  fs.copyFileSync(prebuilt, root + "./build/linq-network-js.node");
+};
+
+// Attempt to build binaries using users compiler
+const tryBuild = () => {
+  logger.info("Attempting build with your compiler");
+  logger.info(`Settings: WITH_SYSTEM_DEPENDENCIES -> ${withSystem}`);
+  logger.info(`Settings: WITH_DAEMON              -> ${withDaemon}`);
+
+  // Call cmake-js
+  const result = cp.spawnSync(cmakeCmd, cmakeArgs.split(" "), {
+    env,
+    stdio: "inherit"
+  });
+
+  if (!result.error) {
+    logger.info("Build Success!");
+    process.exit(result.status);
+  } else {
+    logger.warn("Failed to build linq-network-js binding!");
+    logger.warn(result.error);
+    installPrebuilt();
+    logger.info("Installed prebuilt binaries OK");
+    process.exit(0);
+  }
+};
+
+if (
+  process.env.LINQ_NETWORK_USE_PREBUILT ||
+  (jsonPackage && jsonPackage.linq_network && jsonPackage.linq_network.prebuilt)
+) {
+  installPrebuilt();
+  logger.info("Installed prebuilt binaries OK");
   process.exit(0);
+} else {
+  tryBuild();
 }
+
+tryBuild();

@@ -57,13 +57,20 @@ matrix:
                   script:
                           - ./scripts/ci/build-nodejs.sh
                 - os: linux
+                  env:
                   dist: bionic
                   language: node_js
                   node_js:
                           - 10
-                  env:
                   script:
                           - ./scripts/ci/build-nodejs.sh
+                - os: linux
+                  env:
+                          - LINQ_NETWORK_USE_PREBUILT=ON
+                  dist: bionic
+                  language: node_js
+                  node_js:
+                          - 10
                 - os: linux
                   dist: bionic
                   language: rust
@@ -82,6 +89,14 @@ matrix:
                   node_js:
                           - 10
                   env:
+                  script:
+                          - ./scripts/ci/build-nodejs.sh
+                - os: windows
+                  language: node_js
+                  node_js:
+                          - 10
+                  env:
+                          - LINQ_NETWORK_USE_PREBUILT=ON
                   script:
                           - ./scripts/ci/build-nodejs.sh
                 - os: windows

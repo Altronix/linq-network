@@ -17,7 +17,7 @@ export class LinqNetwork extends Events.EventEmitter {
   }
 
   version() {
-    return "0.0.1.alpha.28"; // TODO automate this?
+    return this.netw.version();
   }
 
   // listen
