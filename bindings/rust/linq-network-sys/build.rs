@@ -25,19 +25,6 @@ fn find_root() -> String {
 
 // TODO - Find openssl
 // for reference https://github.com/sfackler/rust-openssl/blob/master/openssl-sys
-// find_openssl ()
-fn print_openssl() {
-    let dir = match env::var("OPENSSL_LIB_DIR").map(PathBuf::from) {
-        Ok(dir) => dir,
-        _ => PathBuf::from("C:\\Program Files\\OpenSSL-Win64"),
-    };
-    let lib = dir.join("lib");
-    let inc = dir.join("include");
-    println!("cargo:rustc-link-search=native={}", lib.to_string_lossy());
-    println!("cargo:include={}", inc.to_string_lossy());
-    println!("cargo:rustc-link-lib=dylib=libssl");
-    println!("cargo:rustc-link-lib=dylib=libcrypto");
-}
 
 fn gen_header() {
     let header = format!("{}/linq_network/linq_network.h", find_root());
@@ -56,8 +43,6 @@ fn print_windows(out: &std::path::Display<'_>) {
     println!("cargo:rustc-link-lib=static=linq-utils");
     println!("cargo:rustc-link-lib=static=libczmq");
     println!("cargo:rustc-link-lib=static={}", libzmq);
-    println!("cargo:rustc-link-lib=static=jsmn-web-tokens");
-    print_openssl(); // TODO if openssl backend
     println!("cargo:rustc-link-lib=uuid");
     println!("cargo:rustc-link-lib=iphlpapi");
     println!("cargo:rustc-link-lib=Rpcrt4");
@@ -72,11 +57,6 @@ fn print_linux(out: &std::path::Display<'_>) {
     println!("cargo:rustc-link-lib=static=linq-utils");
     println!("cargo:rustc-link-lib=static=czmq");
     println!("cargo:rustc-link-lib=static=zmq");
-    println!("cargo:rustc-link-lib=static=jsmn-web-tokens");
-    // TODO if openssl backend
-    println!("cargo:rustc-link-lib=dylib=ssl");
-    println!("cargo:rustc-link-lib=dylib=crypto");
-    // TODO if openssl backend (end)
     println!("cargo:rustc-link-lib=uuid");
     println!("cargo:rustc-link-lib=stdc++");
     println!("cargo:rustc-link-lib=m");

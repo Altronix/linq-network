@@ -8,7 +8,7 @@
 #include "log.h"
 #include "sys.h"
 
-#include "jsmn/jsmn_helpers.h"
+#include "jsmn_helpers.h"
 
 extern volatile int zsys_interrupted;
 

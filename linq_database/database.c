@@ -1,5 +1,5 @@
 #include "database.h"
-#include "jsmn/jsmn_helpers.h"
+#include "jsmn_helpers.h"
 #include "log.h"
 
 #define DATABASE_DEVICES                                                       \

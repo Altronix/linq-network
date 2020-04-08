@@ -12,14 +12,8 @@ set(SOURCES
 
 set(INSTALL_HEADERS linq_network.h)
 set(LIBS ${CMAKE_THREAD_LIBS_INIT})
-set(LIBS_STATIC 
-  ${JSMN_WEB_TOKENS_STATIC_LIBS}
-  ${LIBZMQ_STATIC_LIBS}
-  linq-utils-static)
-set(LIBS_SHARED 
-  ${JSMN_WEB_TOKENS_SHARED_LIBS}
-  ${LIBZMQ_SHARED_LIBS}
-  linq-utils-shared)
+set(LIBS_STATIC ${LIBZMQ_STATIC_LIBS} linq-utils-static)
+set(LIBS_SHARED ${LIBZMQ_SHARED_LIBS} linq-utils-shared)
 
 append_log_level_compiler_flags(definitions)
 
@@ -52,6 +46,7 @@ if(BUILD_STATIC)
   install(TARGETS linq-network-static
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib
+          RUNTIME DESTINATION bin
           PUBLIC_HEADER DESTINATION include/altronix)
 endif()
 
@@ -70,5 +65,6 @@ if(BUILD_SHARED)
   install(TARGETS linq-network-shared
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib
+          RUNTIME DESTINATION bin
           PUBLIC_HEADER DESTINATION include/altronix)
 endif()

@@ -1,5 +1,5 @@
 #include "http_auth.h"
-#include "jsmn/jsmn_helpers.h"
+#include "jsmn_helpers.h"
 #include "log.h"
 #include "routes.h"
 #include "sys.h"

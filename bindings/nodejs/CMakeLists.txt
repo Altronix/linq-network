@@ -37,7 +37,6 @@ else()
     linq-network-static
     linq-network-cpp-binding
     linq-utils-static
-    ${JSMN_WEB_TOKENS_STATIC_LIBS}
     ${LIBCZMQ_STATIC_LIBS}
     ${LIBZMQ_STATIC_LIBS}
     ${CMAKE_JS_LIB}
