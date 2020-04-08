@@ -76,7 +76,15 @@ matrix:
                           - ./scripts/ci/build-c.sh
                 - os: windows
                   language: node_js
+                  node_js:
+                          - 10
                   env:
                           - LINQ_NETWORK_WITH_DAEMON=OFF
                   script:
                           - ./scripts/ci/build-nodejs.sh
+                - os: windows
+                  language: rust
+                  rust:
+                          - nightly
+                  script:
+                          - ./scripts/ci/build-rust.sh
