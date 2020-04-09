@@ -1,6 +1,6 @@
 import * as Events from "events";
 import { inherits } from "util";
-const binding = require("bindings")("linq-network-js");
+const binding = require("bindings")("linq-network");
 
 export type Method = "GET" | "POST" | "DELETE";
 
