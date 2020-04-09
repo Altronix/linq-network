@@ -48,6 +48,7 @@ endif()
 ###############################################################################
 add_library(linq-network-js SHARED ${sources} ${headers})
 set_target_properties(linq-network-js PROPERTIES 
+  OUTPUT_NAME "linq-network"
   PREFIX "" 
   SUFFIX ".node")
 target_include_directories(linq-network-js PRIVATE ${CMAKE_JS_INC} ${NODE_ADDON_API_DIR})

@@ -9,7 +9,12 @@ const logger = require("./logger");
 
 const root = __dirname + "/../";
 
-const jsonPackage = fs.readFileSync(root + "./package.json");
+const jsonPackageAltronixConfig = (() => {
+  let json = JSON.parse(fs.readFileSync(root + "./package.json"));
+  return (
+    json.linq_network || json.linq_network_js || json.altronix || undefined
+  );
+})();
 
 // Helper for parsing enviorment variable
 const isTrue = opt =>
@@ -55,15 +60,15 @@ const cmakeArgs =
 // Find the prebuilt binary (Only used if native build fails)
 const getPrebuilt = () =>
   process.platform === "win32"
-    ? root + "./bindings/nodejs/prebuilds/win32-x64/linq-network-js.node"
-    : root + "./bindings/nodejs/prebuilds/linux-x64/linq-network-js.node";
+    ? root + "./bindings/nodejs/prebuilds/win32-x64/linq-network.node"
+    : root + "./bindings/nodejs/prebuilds/linux-x64/linq-network.node";
 
 // Install prebuilt binary into a build folder
 const installPrebuilt = () => {
   const prebuilt = getPrebuilt();
   if (!fs.existsSync(root + "./build")) fs.mkdirSync(root + "./build");
   logger.info(`Installing prebuilt binaries: ${prebuilt}`);
-  fs.copyFileSync(prebuilt, root + "./build/linq-network-js.node");
+  fs.copyFileSync(prebuilt, root + "./build/linq-network.node");
 };
 
 // Attempt to build binaries using users compiler
@@ -82,7 +87,7 @@ const tryBuild = () => {
     logger.info("Build Success!");
     process.exit(result.status);
   } else {
-    logger.warn("Failed to build linq-network-js binding!");
+    logger.warn("Failed to build linq-network binding!");
     logger.warn(result.error);
     installPrebuilt();
     logger.info("Installed prebuilt binaries OK");
@@ -92,7 +97,7 @@ const tryBuild = () => {
 
 if (
   process.env.LINQ_NETWORK_USE_PREBUILT ||
-  (jsonPackage && jsonPackage.linq_network && jsonPackage.linq_network.prebuilt)
+  (jsonPackageAltronixConfig && jsonPackageAltronixConfig.prebuilt)
 ) {
   installPrebuilt();
   logger.info("Installed prebuilt binaries OK");
