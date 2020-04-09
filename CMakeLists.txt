@@ -116,10 +116,10 @@ if(ENABLE_TESTING)
   APPEND_COVERAGE_COMPILER_FLAGS()
   set(COVERAGE_EXCLUDES 
     "examples/server/*"
-    "linq_network/base64.*"
-    "linq_network/mongoose.*"
-    "linq_network/sqlite3.*"
-    "linq_network/sys/mock/*"
+    "linq_http/mongoose.*"
+    "linq_database/sqlite3.*"
+    "linq_utils/sys/mock/*"
+    "linq_utils/base64.*"
     "external/http_parser/*")
 
   setup_target_for_coverage_lcov(NAME test-coverage
