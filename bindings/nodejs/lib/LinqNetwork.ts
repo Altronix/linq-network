@@ -29,11 +29,13 @@ export class LinqNetwork extends Events.EventEmitter {
   // connect
   connect(port: string) {
     this.netw.connect(port);
+    return this;
   }
 
   // close
   close(idx: number) {
     this.netw.close(idx);
+    return this;
   }
 
   // devices
