@@ -108,6 +108,7 @@ if(ENABLE_TESTING)
   add_subdirectory(linq_http/test/routes)
   add_subdirectory(linq_daemon/test)
   add_subdirectory(linq_utils/test/containers)
+  add_subdirectory(linq_utils/test/jsmn)
   add_subdirectory(linq_network/test/linq_network)
   add_subdirectory(linq_network/test/device)
   add_subdirectory(bindings/cpp/test)
@@ -126,9 +127,11 @@ if(ENABLE_TESTING)
     EXECUTABLE test-containers
     COMMAND test-linq-network
     COMMAND test-device
+    COMMAND test-jsmn
     COMMAND test-http
     COMMAND test-database
     COMMAND test-routes
+    COMMAND test-linqd
     COMMAND binding-linq-network-cpp-test)
 
 endif()
