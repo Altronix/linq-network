@@ -107,7 +107,6 @@ extern "C" fn on_error(
 extern "C" fn on_heartbeat(
     ctx: *mut raw::c_void,
     serial: *const raw::c_char,
-    _arg3: *mut *mut device_s,
 ) -> () {
     let cstr = unsafe { CStr::from_ptr(serial) };
     let cstr = cstr.to_str().expect("to_str() fail!");
@@ -117,11 +116,11 @@ extern "C" fn on_heartbeat(
 // Calback from c library when alert
 extern "C" fn on_alert(
     ctx: *mut raw::c_void,
+    serial: *const raw::c_char,
     _arg2: *mut linq_network_alert_s,
     _arg3: *mut linq_network_email_s,
-    device: *mut *mut device_s,
 ) -> () {
-    let cstr = unsafe { CStr::from_ptr(device_serial(*device)) };
+    let cstr = unsafe { CStr::from_ptr(serial) };
     let cstr = cstr.to_str().expect("to_str() fail!");
     load_event(ctx, Event::Alert(cstr.to_string()));
 }
