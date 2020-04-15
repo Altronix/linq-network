@@ -59,12 +59,10 @@ test_linq_network_device(void** context_p)
     czmq_spy_poll_set_incoming((0x01));
 
     l.listen("tcp://*:32999");
-    l.poll(5);
 
-    std::shared_ptr<altronix::Device> d = l.device("serial");
-    bool pass = d ? true : false;
-    assert_true(pass);
-    assert_string_equal(d->serial(), "serial");
+    assert_false(l.device_exists("serial"));
+    l.poll(5);
+    assert_true(l.device_exists("serial"));
 
     test_reset();
 }
@@ -88,11 +86,7 @@ test_linq_network_devices(void** context_p)
     l.poll(5);
     l.poll(5);
 
-    auto devices = l.devices();
-    assert_int_equal(devices.size(), 2);
-    // bool pass = d ? true : false;
-    // assert_true(pass);
-    // assert_string_equal(d->serial(), "serial");
+    assert_int_equal(l.device_count(), 2);
 
     test_reset();
 }
@@ -117,10 +111,10 @@ test_linq_network_alert(void** context_p)
 
     l.listen("tcp://*:32820");
     l.on_alert([&alert_pass](
+                   const char* serial,
                    linq_network_alert_s* alert,
-                   linq_network_email_s* email,
-                   altronix::Device& d) {
-        assert_string_equal(d.serial(), "serial");
+                   linq_network_email_s* email) {
+        assert_string_equal(serial, "serial");
         assert_memory_equal(alert->who.p, "TestUser", 8);
         assert_memory_equal(alert->what.p, "TestAlert", 9);
         assert_memory_equal(alert->where.p, "Altronix Site ID", 16);

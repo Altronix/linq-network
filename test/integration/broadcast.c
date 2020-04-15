@@ -8,8 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "linq_network.h"
 #include "fixture.h"
+#include "linq_network.h"
 
 static bool received_new_device = false;
 static bool received_alert = false;
@@ -27,25 +27,23 @@ on_error(void* count, E_LINQ_ERROR e, const char* what, const char* serial)
 static void
 on_alert(
     void* count,
+    const char* serial,
     linq_network_alert_s* alert,
-    linq_network_email_s* mail,
-    device_s** d)
+    linq_network_email_s* mail)
 {
     (*(uint32_t*)count)++;
     received_alert = true;
     ((void)alert);
     ((void)mail);
-    ((void)d);
     printf("%s", "[C] Received alert\n");
 }
 
 static void
-on_heartbeat(void* count, const char* serial, device_s** d)
+on_heartbeat(void* count, const char* serial)
 {
     (*(uint32_t*)count)++;
     received_new_device = true;
     ((void)serial);
-    ((void)d);
     printf("%s", "[C] Received new device\n");
 }
 

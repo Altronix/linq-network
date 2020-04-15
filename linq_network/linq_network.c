@@ -30,28 +30,25 @@ on_zmtp_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 }
 
 static void
-on_zmtp_heartbeat(void* ctx, const char* sid, device_s** d)
+on_zmtp_heartbeat(void* ctx, const char* sid)
 {
     linq_network_s* l = ctx;
     log_info("(ZMTP) [%.6s...] Event Alert", sid);
-    if (l->callbacks && l->callbacks->hb) {
-        l->callbacks->hb(l->context, sid, d);
-    }
+    if (l->callbacks && l->callbacks->hb) l->callbacks->hb(l->context, sid);
 }
 
 static void
 on_zmtp_alert(
     void* ctx,
+    const char* serial,
     linq_network_alert_s* a,
-    linq_network_email_s* email,
-    device_s** d)
+    linq_network_email_s* email)
 {
-    const char* serial = device_serial(*d);
     linq_network_s* l = ctx;
     log_info("(ZMTP) [%.6s...] Event Alert", serial);
     log_debug("(ZMTP) Database alert insert result (%d)", err);
     if (l->callbacks && l->callbacks->alert) {
-        l->callbacks->alert(l->context, a, email, d);
+        l->callbacks->alert(l->context, serial, a, email);
     }
 }
 
@@ -145,10 +142,17 @@ linq_network_poll(linq_network_s* l, int32_t ms)
 }
 
 // get a device from the device map
-device_s**
+void**
 linq_network_device(const linq_network_s* l, const char* serial)
 {
-    return device_map_get(l->devices, serial);
+    return (void**)device_map_get(l->devices, serial);
+}
+
+// Check if the serial number is known in our hash table
+bool
+linq_network_device_exists(const linq_network_s* linq, const char* sid)
+{
+    return device_map_get(linq->devices, sid) ? true : false;
 }
 
 // return how many devices are connected to linq

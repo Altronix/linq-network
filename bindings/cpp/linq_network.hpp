@@ -15,27 +15,13 @@
 
 namespace altronix {
 
-class Device;
-
 static void on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
-static void on_heartbeat_fn(void*, const char*, device_s**);
+static void on_heartbeat_fn(void*, const char*);
 static void
-on_alert_fn(void*, linq_network_alert_s*, linq_network_email_s*, device_s**);
+on_alert_fn(void*, const char*, linq_network_alert_s*, linq_network_email_s*);
 static void on_ctrlc_fn(void*);
 
 using namespace std::placeholders;
-
-class Device
-{
-  public:
-    Device(device_s* d)
-        : device_{ d } {};
-
-    const char* serial() { return device_serial(device_); }
-
-  private:
-    device_s* device_;
-};
 
 struct Response
 {
@@ -154,35 +140,9 @@ class Linq
         this->send(serial, "DELETE", path, fn);
     }
 
-    struct foreach_device_populate_vector_context
+    bool device_exists(const char* sid)
     {
-        const Linq* linq;
-        std::vector<std::shared_ptr<Device>>* devices;
-    };
-
-    static void
-    foreach_device_populate_vector(void* ctx, const char* sid, const char* type)
-    {
-        ((void)type);
-        foreach_device_populate_vector_context* context =
-            static_cast<foreach_device_populate_vector_context*>(ctx);
-        context->devices->push_back(context->linq->device(sid));
-    }
-
-    std::vector<std::shared_ptr<Device>> devices()
-    {
-        std::vector<std::shared_ptr<Device>> vec{};
-        foreach_device_populate_vector_context context{ this, &vec };
-        linq_network_devices_foreach(
-            this->linq_network_, foreach_device_populate_vector, &context);
-        return vec;
-    }
-
-    // get a device context with serial number
-    std::shared_ptr<Device> device(const char* str) const
-    {
-        device_s** d = linq_network_device(linq_network_, str);
-        return d ? std::make_shared<Device>(*d) : nullptr;
+        return linq_network_device_exists(linq_network_, sid);
     }
 
     // get number of devices connected to linq
@@ -191,16 +151,16 @@ class Linq
     uint32_t node_count() { return linq_network_node_count(linq_network_); }
 
     // call function fn on every heartbeat
-    Linq& on_heartbeat(std::function<void(const char*, Device&)> fn)
+    Linq& on_heartbeat(std::function<void(const char*)> fn)
     {
-        heartbeat_ = std::bind(fn, _1, _2);
+        heartbeat_ = std::bind(fn, _1);
         return *this;
     }
 
     // call function fn on every alert
     Linq& on_alert(
         std::function<
-            void(linq_network_alert_s*, linq_network_email_s*, Device&)> fn)
+            void(const char*, linq_network_alert_s*, linq_network_email_s*)> fn)
     {
         alert_ = std::bind(fn, _1, _2, _3);
         return *this;
@@ -221,17 +181,18 @@ class Linq
     }
 
     friend void on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
-    friend void on_heartbeat_fn(void*, const char*, device_s**);
+    friend void on_heartbeat_fn(void*, const char*);
     friend void on_alert_fn(
         void*,
+        const char*,
         linq_network_alert_s*,
-        linq_network_email_s*,
-        device_s**);
+        linq_network_email_s*);
     friend void on_ctrlc_fn(void*);
 
   private:
-    std::function<void(const char*, Device&)> heartbeat_;
-    std::function<void(linq_network_alert_s*, linq_network_email_s*, Device&)>
+    std::function<void(const char*)> heartbeat_;
+    std::function<
+        void(const char* serial, linq_network_alert_s*, linq_network_email_s*)>
         alert_;
     std::function<void(E_LINQ_ERROR, const char*, const char*)> error_;
     std::function<void()> ctrlc_;
@@ -247,23 +208,21 @@ on_error_fn(void* context, E_LINQ_ERROR e, const char* what, const char* serial)
 }
 
 static void
-on_heartbeat_fn(void* context, const char* serial, device_s** d)
+on_heartbeat_fn(void* context, const char* serial)
 {
     altronix::Linq* l = (altronix::Linq*)context;
-    Device device{ *d };
-    if (l->heartbeat_) l->heartbeat_(serial, device);
+    if (l->heartbeat_) l->heartbeat_(serial);
 }
 
 static void
 on_alert_fn(
     void* context,
+    const char* serial,
     linq_network_alert_s* alert,
-    linq_network_email_s* email,
-    device_s** d)
+    linq_network_email_s* email)
 {
     altronix::Linq* l = (altronix::Linq*)context;
-    Device device{ *d };
-    if (l->alert_) l->alert_(alert, email, device);
+    if (l->alert_) l->alert_(serial, alert, email);
 }
 
 static void

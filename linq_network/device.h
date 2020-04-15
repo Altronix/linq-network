@@ -15,6 +15,7 @@ extern "C"
 {
 #endif
 
+    typedef struct device_s device_s;
     MAP_INIT_H(device, device_s);
 
     device_s* device_create(

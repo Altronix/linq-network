@@ -17,13 +17,13 @@ extern "C"
 
     typedef void (
         *zmtp_cb_error_fn)(void*, E_LINQ_ERROR, const char*, const char*);
-    typedef void (*zmtp_cb_heartbeat_fn)(void*, const char*, device_s**);
+    typedef void (*zmtp_cb_heartbeat_fn)(void*, const char*);
     typedef void (*zmtp_cb_ctrlc_fn)(void*);
     typedef void (*zmtp_cb_alert_fn)(
         void*,
+        const char*,
         linq_network_alert_s*,
-        linq_network_email_s*,
-        device_s**);
+        linq_network_email_s*);
     typedef struct zmtp_callbacks_s
     {
         zmtp_cb_error_fn err;

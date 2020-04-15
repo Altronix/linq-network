@@ -27,7 +27,6 @@ extern "C"
 #define LINQ_NETW_MAX_RESPONSE_SIZE 8096
 #endif
 
-    typedef struct device_s device_s;
     typedef struct database_s database_s;
     typedef struct linq_network_s linq_network_s;
     typedef uint32_t linq_network_socket;
@@ -83,20 +82,29 @@ extern "C"
         char* data;
     } linq_network_email_s;
 
+    // REQUEST COMPLETE
     typedef void (*linq_network_request_complete_fn)(
         void*,
         const char* serial,
         E_LINQ_ERROR e,
         const char* json);
+    // ERROR
+    typedef void (*linq_network_error_fn)(
+        void* context,
+        E_LINQ_ERROR error,
+        const char*,
+        const char*);
+    // HEARTBEAT
     typedef void (
-        *linq_network_error_fn)(void*, E_LINQ_ERROR, const char*, const char*);
-    typedef void (*linq_network_heartbeat_fn)(void*, const char*, device_s**);
+        *linq_network_heartbeat_fn)(void* context, const char* serial);
+    // ALERT
     typedef void (*linq_network_alert_fn)(
-        void*,
+        void* context,
+        const char* serial,
         linq_network_alert_s*,
-        linq_network_email_s*,
-        device_s**);
-    typedef void (*linq_network_ctrlc_fn)(void*);
+        linq_network_email_s*);
+    // CTRLC
+    typedef void (*linq_network_ctrlc_fn)(void* context);
     typedef void (
         *linq_network_devices_foreach_fn)(void* ctx, const char*, const char*);
     typedef struct linq_network_callbacks
@@ -119,7 +127,8 @@ extern "C"
     linq_network_socket linq_network_connect(linq_network_s* l, const char* ep);
     E_LINQ_ERROR linq_network_close(linq_network_s*, linq_network_socket);
     E_LINQ_ERROR linq_network_poll(linq_network_s* l, int32_t ms);
-    device_s** linq_network_device(const linq_network_s*, const char*);
+    void** linq_network_device(const linq_network_s* l, const char* serial);
+    bool linq_network_device_exists(const linq_network_s*, const char* sid);
     uint32_t linq_network_device_count(const linq_network_s*);
     void linq_network_devices_foreach(
         const linq_network_s* l,
@@ -169,7 +178,6 @@ extern "C"
         uint32_t,
         linq_network_request_complete_fn,
         void*);
-    const char* device_serial(device_s* device);
 
     // Sys API
     bool sys_running();

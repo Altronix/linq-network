@@ -351,7 +351,8 @@ process_alert(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
                 node_map_foreach(*z->nodes_p, foreach_node_forward_message, &f);
             }
             if (z->callbacks && z->callbacks->alert) {
-                z->callbacks->alert(z->context, &alert, &email, d);
+                z->callbacks->alert(
+                    z->context, device_serial(*d), &alert, &email);
             }
             e = LINQ_ERROR_OK;
         }
@@ -390,7 +391,7 @@ process_heartbeat(zmtp_s* z, zsock_t* s, zmsg_t** msg, zframe_t** frames)
                 node_map_foreach(*z->nodes_p, foreach_node_forward_message, &f);
             }
             if (z->callbacks && z->callbacks->hb) {
-                z->callbacks->hb(z->context, device_serial(*d), d);
+                z->callbacks->hb(z->context, device_serial(*d));
             }
             e = LINQ_ERROR_OK;
         }

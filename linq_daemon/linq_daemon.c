@@ -50,7 +50,7 @@ on_heartbeat_response(
 }
 
 static void
-on_hb(void* ctx, const char* s, device_s** d)
+on_hb(void* ctx, const char* s)
 {
     // Note - All tests load devices into context by pushing in heartbeats.
     // Therefore tests should also flush out the response, or mock database
@@ -63,19 +63,19 @@ on_hb(void* ctx, const char* s, device_s** d)
             "(LINQ) [%.6s...] "
             "New device connected, requesting about data...",
             s);
-        device_send_get(*d, "/ATX/about", on_heartbeat_response, l);
+        linq_network_send_get(
+            l->netw, s, "/ATX/about", on_heartbeat_response, l);
     }
 }
 
 static void
 on_alert(
     void* ctx,
+    const char* s,
     linq_network_alert_s* a,
-    linq_network_email_s* email,
-    device_s** d)
+    linq_network_email_s* email)
 {
     int err;
-    const char* s = device_serial(*d);
     linqd_s* l = ctx;
     log_info("(LINQ) [%.6s...] Event Alert", s);
     char when[32];

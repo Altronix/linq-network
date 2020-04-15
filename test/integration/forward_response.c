@@ -24,23 +24,21 @@ on_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 static void
 on_alert(
     void* ctx,
+    const char* serial,
     linq_network_alert_s* alert,
-    linq_network_email_s* mail,
-    device_s** d)
+    linq_network_email_s* mail)
 {
     ((void)ctx);
     ((void)alert);
     ((void)mail);
-    ((void)d);
     printf("%s", "[C] Received alert\n");
 }
 
 static void
-on_heartbeat(void* ctx, const char* serial, device_s** d)
+on_heartbeat(void* ctx, const char* serial)
 {
     ((void)ctx);
     ((void)serial);
-    ((void)d);
     printf("%s", "[C] Received new device\n");
 }
 

@@ -50,21 +50,20 @@ linq_network_on_error_fn(
 }
 
 static void
-linq_network_on_heartbeat_fn(void* pass, const char* serial, device_s** d)
+linq_network_on_heartbeat_fn(void* pass, const char* serial)
 {
     assert_string_equal(serial, expect_sid);
-    assert_string_equal(device_serial(*d), expect_sid);
     *((bool*)pass) = true;
 }
 
 static void
 linq_network_on_alert_fn(
     void* pass,
+    const char* serial,
     linq_network_alert_s* alert,
-    linq_network_email_s* email,
-    device_s** d)
+    linq_network_email_s* email)
 {
-    assert_memory_equal(device_serial(*d), expect_sid, strlen(expect_sid));
+    assert_memory_equal(serial, expect_sid, strlen(expect_sid));
     assert_memory_equal(alert->who.p, "TestUser", 8);
     assert_memory_equal(alert->what.p, "TestAlert", 9);
     assert_memory_equal(alert->where.p, "Altronix Site ID", 16);
