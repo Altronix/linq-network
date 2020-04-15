@@ -127,6 +127,8 @@ extern "C"
     linq_network_socket linq_network_connect(linq_network_s* l, const char* ep);
     E_LINQ_ERROR linq_network_close(linq_network_s*, linq_network_socket);
     E_LINQ_ERROR linq_network_poll(linq_network_s* l, int32_t ms);
+    // TODO linq_network_device() is deprecated but it is currently used by some
+    // tests...
     void** linq_network_device(const linq_network_s* l, const char* serial);
     bool linq_network_device_exists(const linq_network_s*, const char* sid);
     uint32_t linq_network_device_count(const linq_network_s*);

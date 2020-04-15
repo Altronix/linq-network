@@ -204,7 +204,7 @@ test_linq_network_receive_heartbeat_ok(void** context_p)
 
     // Receive a heartbeat
     linq_network_poll(test->net, 5);
-    device_s** d = linq_network_device(test->net, serial);
+    device_s** d = (device_s**)linq_network_device(test->net, serial);
     assert_non_null(d);
     assert_int_equal(linq_network_device_count(test->net), 1);
     assert_int_equal(device_router(*d)->sz, 4);
@@ -378,7 +378,7 @@ test_linq_network_receive_response_error_timeout(void** context_p)
     // Receive a new device @t=0
     spy_sys_set_tick(0);
     linq_network_poll(test->net, 5);
-    d = linq_network_device(test->net, serial);
+    d = (device_s**)linq_network_device(test->net, serial);
     device_send_get(*d, "/ATX/test", on_response_error_timeout, &response_pass);
     assert_int_equal(device_request_pending_count(*d), 1);
 
@@ -451,7 +451,7 @@ test_linq_network_receive_response_error_codes(void** context_p)
 
         // Setup code under test
         linq_network_poll(test->net, 0);
-        d = linq_network_device(test->net, serial);
+        d = (device_s**)linq_network_device(test->net, serial);
         assert_non_null(d);
 
         // Start test
@@ -512,7 +512,7 @@ test_linq_network_receive_response_error_504(void** context_p)
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
     linq_network_poll(test->net, 0);
-    d = linq_network_device(test->net, serial);
+    d = (device_s**)linq_network_device(test->net, serial);
     assert_non_null(d);
 
     // Start test @t=0
@@ -599,7 +599,7 @@ test_linq_network_receive_response_ok_504(void** context_p)
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
     linq_network_poll(test->net, 0);
-    d = linq_network_device(test->net, serial);
+    d = (device_s**)linq_network_device(test->net, serial);
     assert_non_null(d);
 
     // Start test @t=0
