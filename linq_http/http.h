@@ -89,6 +89,8 @@ extern "C"
         uint32_t,
         const char*,
         va_list);
+    const char* http_error_message(E_LINQ_ERROR);
+    uint32_t http_error_code(E_LINQ_ERROR);
 #ifdef __cplusplus
 }
 #endif

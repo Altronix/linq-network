@@ -680,27 +680,53 @@ send_error(linq_network_request_complete_fn fn, void* context, E_LINQ_ERROR e)
 E_LINQ_ERROR
 zmtp_device_send_get(
     const zmtp_s* zmtp,
-    const char* serial,
+    const char* sid,
     const char* path,
     linq_network_request_complete_fn fn,
-    void* context)
+    void* ctx)
 {
-    device_s** d = device_get(zmtp, serial);
-    if (!d) {
-        send_error(fn, context, LINQ_ERROR_DEVICE_NOT_FOUND);
-        return LINQ_ERROR_DEVICE_NOT_FOUND;
-    } else {
-        device_send_get(*d, path, fn, context);
-        return LINQ_ERROR_OK;
-    }
+    return zmtp_device_send_get_mem(zmtp, sid, path, strlen(path), fn, ctx);
 }
 
 E_LINQ_ERROR
+zmtp_device_send_get_mem(
+    const zmtp_s* zmtp,
+    const char* sid,
+    const char* path,
+    uint32_t plen,
+    linq_network_request_complete_fn fn,
+    void* ctx)
+{
+    device_s** d = device_get(zmtp, sid);
+    if (!d) {
+        send_error(fn, ctx, LINQ_ERROR_DEVICE_NOT_FOUND);
+        return LINQ_ERROR_DEVICE_NOT_FOUND;
+    } else {
+        device_send_get_mem(*d, path, plen, fn, ctx);
+        return LINQ_ERROR_OK;
+    }
+}
+E_LINQ_ERROR
 zmtp_device_send_post(
+    const zmtp_s* zmtp,
+    const char* sid,
+    const char* path,
+    const char* json,
+    linq_network_request_complete_fn fn,
+    void* ctx)
+{
+    return zmtp_device_send_post_mem(
+        zmtp, sid, path, strlen(path), json, strlen(json), fn, ctx);
+}
+
+E_LINQ_ERROR
+zmtp_device_send_post_mem(
     const zmtp_s* zmtp,
     const char* serial,
     const char* path,
+    uint32_t plen,
     const char* json,
+    uint32_t jlen,
     linq_network_request_complete_fn fn,
     void* context)
 {
@@ -709,7 +735,7 @@ zmtp_device_send_post(
         send_error(fn, context, LINQ_ERROR_DEVICE_NOT_FOUND);
         return LINQ_ERROR_DEVICE_NOT_FOUND;
     } else {
-        device_send_post(*d, path, json, fn, context);
+        device_send_post_mem(*d, path, plen, json, jlen, fn, context);
         return LINQ_ERROR_OK;
     }
 }
@@ -717,8 +743,20 @@ zmtp_device_send_post(
 E_LINQ_ERROR
 zmtp_device_send_delete(
     const zmtp_s* zmtp,
+    const char* sid,
+    const char* p,
+    linq_network_request_complete_fn fn,
+    void* ctx)
+{
+    return zmtp_device_send_delete_mem(zmtp, sid, p, strlen(p), fn, ctx);
+}
+
+E_LINQ_ERROR
+zmtp_device_send_delete_mem(
+    const zmtp_s* zmtp,
     const char* serial,
     const char* path,
+    uint32_t plen,
     linq_network_request_complete_fn fn,
     void* context)
 {
@@ -727,7 +765,7 @@ zmtp_device_send_delete(
         send_error(fn, context, LINQ_ERROR_DEVICE_NOT_FOUND);
         return LINQ_ERROR_DEVICE_NOT_FOUND;
     } else {
-        device_send_delete(*d, path, fn, context);
+        device_send_delete_mem(*d, path, plen, fn, context);
         return LINQ_ERROR_OK;
     }
 }

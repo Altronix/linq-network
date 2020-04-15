@@ -132,11 +132,27 @@ extern "C"
         const char*,
         linq_network_request_complete_fn,
         void*);
+    E_LINQ_ERROR linq_network_send_get_mem(
+        const linq_network_s*,
+        const char*,
+        const char*,
+        uint32_t,
+        linq_network_request_complete_fn,
+        void*);
     E_LINQ_ERROR linq_network_send_post(
         const linq_network_s*,
         const char*,
         const char*,
         const char*,
+        linq_network_request_complete_fn,
+        void*);
+    E_LINQ_ERROR linq_network_send_post_mem(
+        const linq_network_s*,
+        const char*,
+        const char*,
+        uint32_t,
+        const char*,
+        uint32_t,
         linq_network_request_complete_fn,
         void*);
     E_LINQ_ERROR linq_network_send_delete(
@@ -145,7 +161,14 @@ extern "C"
         const char*,
         linq_network_request_complete_fn,
         void*);
-
+    E_LINQ_ERROR
+    linq_network_send_delete_mem(
+        const linq_network_s*,
+        const char*,
+        const char*,
+        uint32_t,
+        linq_network_request_complete_fn,
+        void*);
     const char* device_serial(device_s* device);
 
     // Sys API

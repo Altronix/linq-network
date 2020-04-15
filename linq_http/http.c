@@ -28,6 +28,51 @@
 // Hash map of URL's to routes
 MAP_INIT_W_FREE(routes, http_route_context);
 
+const char*
+http_error_message(E_LINQ_ERROR e)
+{
+    static const char* ok = "ok";
+    static const char* server_error = "server error";
+    static const char* client_error = "client error";
+    static const char* authorization = "authorization error";
+    static const char* not_found = "not found";
+    static const char* busy = "try again later";
+    int code = http_error_code(e);
+    if (code == 200) {
+        return ok;
+    } else if (code == 400) {
+        return client_error;
+    } else if (code == 403) {
+        return authorization;
+    } else if (code == 404) {
+        return not_found;
+    } else if (code == 504) {
+        return busy;
+    } else {
+        return server_error;
+    }
+}
+
+uint32_t
+http_error_code(E_LINQ_ERROR e)
+{
+    switch (e) {
+        case LINQ_ERROR_OK: return 200;
+        case LINQ_ERROR_BAD_ARGS:
+        case LINQ_ERROR_PROTOCOL:
+        case LINQ_ERROR_400: return 400;
+        case LINQ_ERROR_403: return 403;
+        case LINQ_ERROR_DEVICE_NOT_FOUND:
+        case LINQ_ERROR_404: return 404;
+        case LINQ_ERROR_SHUTTING_DOWN:
+        case LINQ_ERROR_IO:
+        case LINQ_ERROR_OOM:
+        case LINQ_ERROR_500: return 500;
+        case LINQ_ERROR_TIMEOUT:
+        case LINQ_ERROR_504: return 504;
+    }
+}
+
 static inline HTTP_METHOD
 get_method(struct http_message* m)
 {

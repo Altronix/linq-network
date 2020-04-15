@@ -210,6 +210,18 @@ linq_network_send_get(
 {
     return zmtp_device_send_get(&linq->zmtp, serial, path, fn, context);
 }
+E_LINQ_ERROR
+linq_network_send_get_mem(
+    const linq_network_s* linq,
+    const char* serial,
+    const char* path,
+    uint32_t plen,
+    linq_network_request_complete_fn fn,
+    void* context)
+{
+    return zmtp_device_send_get_mem(
+        &linq->zmtp, serial, path, plen, fn, context);
+}
 
 // send a post request to a device connected to us
 E_LINQ_ERROR
@@ -224,6 +236,21 @@ linq_network_send_post(
     return zmtp_device_send_post(&linq->zmtp, serial, path, json, fn, context);
 }
 
+E_LINQ_ERROR
+linq_network_send_post_mem(
+    const linq_network_s* linq,
+    const char* serial,
+    const char* path,
+    uint32_t plen,
+    const char* json,
+    uint32_t jlen,
+    linq_network_request_complete_fn fn,
+    void* context)
+{
+    return zmtp_device_send_post_mem(
+        &linq->zmtp, serial, path, plen, json, jlen, fn, context);
+}
+
 // send a delete request to a device connected to us
 E_LINQ_ERROR
 linq_network_send_delete(
@@ -234,4 +261,18 @@ linq_network_send_delete(
     void* context)
 {
     return zmtp_device_send_delete(&linq->zmtp, serial, path, fn, context);
+}
+
+// send a delete request to a device connected to us
+E_LINQ_ERROR
+linq_network_send_delete_mem(
+    const linq_network_s* linq,
+    const char* serial,
+    const char* path,
+    uint32_t plen,
+    linq_network_request_complete_fn fn,
+    void* context)
+{
+    return zmtp_device_send_delete_mem(
+        &linq->zmtp, serial, path, plen, fn, context);
 }
