@@ -295,12 +295,12 @@ test_linq_network_receive_alert_error_short(void** context_p)
 }
 
 static void
-on_response_ok(void* pass, int err, const char* data, device_s** d)
+on_response_ok(void* pass, const char* serial, int err, const char* data)
 {
     *(bool*)pass = true;
     assert_int_equal(err, 0);
     assert_string_equal(data, "{\"test\":1}");
-    assert_string_equal(device_serial(*d), "serial");
+    assert_string_equal(serial, "serial");
 }
 
 static void
@@ -340,10 +340,14 @@ test_linq_network_receive_response_ok(void** context_p)
 }
 
 static void
-on_response_error_timeout(void* pass, int err, const char* data, device_s** d)
+on_response_error_timeout(
+    void* pass,
+    const char* serial,
+    int err,
+    const char* data)
 {
     *((bool*)pass) = true;
-    assert_string_equal(device_serial(*d), "serial");
+    assert_string_equal(serial, "serial");
     assert_int_equal(err, LINQ_ERROR_TIMEOUT);
     assert_string_equal(data, "{\"error\":\"timeout\"}");
 }
@@ -401,11 +405,15 @@ test_linq_network_receive_response_error_timeout(void** context_p)
 }
 
 static void
-on_response_error_codes(void* pass, int err, const char* data, device_s** d)
+on_response_error_codes(
+    void* pass,
+    const char* serial,
+    int err,
+    const char* data)
 {
     char expect[32];
     snprintf(expect, sizeof(expect), "{\"error\":%d}", expect_error);
-    assert_string_equal(device_serial(*d), "serial");
+    assert_string_equal(serial, "serial");
     assert_string_equal(data, expect);
     assert_int_equal(err, expect_error);
     *((bool*)pass) = true;
@@ -461,9 +469,8 @@ test_linq_network_receive_response_error_codes(void** context_p)
 }
 
 static void
-on_response_error_504(void* pass, int err, const char* data, device_s** d)
+on_response_error_504(void* pass, const char* serial, int err, const char* data)
 {
-    ((void)d);
     assert_string_equal(data, "{\"error\":504}");
     assert_int_equal(err, LINQ_ERROR_504);
     *((bool*)pass) = true;
@@ -549,11 +556,11 @@ test_linq_network_receive_response_error_504(void** context_p)
 }
 
 static void
-on_response_ok_504(void* pass, int err, const char* data, device_s** d)
+on_response_ok_504(void* pass, const char* serial, int err, const char* data)
 {
     assert_int_equal(err, 0);
     assert_string_equal(data, "{\"test\":1}");
-    assert_string_equal(device_serial(*d), "serial");
+    assert_string_equal(serial, "serial");
     *(bool*)pass = true;
 }
 

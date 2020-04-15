@@ -85,9 +85,9 @@ extern "C"
 
     typedef void (*linq_network_request_complete_fn)(
         void*,
+        const char* serial,
         E_LINQ_ERROR e,
-        const char* json,
-        device_s**);
+        const char* json);
     typedef void (
         *linq_network_error_fn)(void*, E_LINQ_ERROR, const char*, const char*);
     typedef void (*linq_network_heartbeat_fn)(void*, const char*, device_s**);

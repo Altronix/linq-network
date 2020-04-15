@@ -35,14 +35,17 @@
     "}}"
 
 static void
-on_heartbeat_response(void* ctx, E_LINQ_ERROR e, const char* r, device_s** d)
+on_heartbeat_response(
+    void* ctx,
+    const char* serial,
+    E_LINQ_ERROR e,
+    const char* r)
 {
     linqd_s* l = ctx;
-    const char* s = device_serial(*d);
     if (e) {
-        log_warn("(LINQ) [%.6s...] (%.3d) About request failed!", s, e);
+        log_warn("(LINQ) [%.6s...] (%.3d) About request failed!", serial, e);
     } else {
-        database_insert_device_from_json(&l->http.db, s, r, strlen(r));
+        database_insert_device_from_json(&l->http.db, serial, r, strlen(r));
     }
 }
 

@@ -8,15 +8,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "linq_network.h"
 #include "fixture.h"
+#include "linq_network.h"
 
 void
-on_request_complete(void* pass, E_LINQ_ERROR e, const char* json, device_s** d)
+on_request_complete(
+    void* pass,
+    const char* serial,
+    E_LINQ_ERROR e,
+    const char* json)
 {
     ((void)e);
     ((void)json);
-    ((void)d);
     if (!e && !memcmp("{\"hello\":\"world\"}", json, 17)) {
         *((bool*)pass) = true;
         printf("%s", "[C] received response");

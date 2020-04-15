@@ -245,12 +245,12 @@ test_device_send_post_with_prefix(void** context_p)
 }
 
 static void
-on_response(void* context, E_LINQ_ERROR e, const char* json, device_s** d)
+on_response(void* context, const char* serial, E_LINQ_ERROR e, const char* json)
 {
     bool* pass = context;
     *pass = true;
     assert_string_equal(json, "{\"test\":1}");
-    assert_string_equal("sid", device_serial(*d));
+    assert_string_equal("sid", serial);
     assert_int_equal(e, 0);
 }
 

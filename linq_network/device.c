@@ -292,7 +292,7 @@ send_method(
         request_list_push(d->requests, &r);
         device_request_flush_w_check(d);
     } else {
-        exe_on_complete(&r, LINQ_ERROR_OOM, NULL, &d);
+        exe_on_complete(&r, d->serial, LINQ_ERROR_OOM, NULL);
     }
 }
 
@@ -410,7 +410,7 @@ device_request_resolve(device_s* d, E_LINQ_ERROR err, const char* str)
     char json[JSON_LEN + 1];
     request_s** r_p = &d->request_pending;
     snprintf(json, sizeof(json), "%s", str);
-    exe_on_complete(r_p, err, json, &d);
+    exe_on_complete(r_p, d->serial, err, json);
     request_destroy(r_p);
 }
 
@@ -422,7 +422,7 @@ device_request_flush(device_s* d)
     *r_p = request_list_pop(d->requests);
     if (d->router.sz) request_router_id_set(*r_p, d->router.id, d->router.sz);
     if (request_send(*r_p, d->sock) < 0) {
-        exe_on_complete(r_p, LINQ_ERROR_IO, NULL, &d);
+        exe_on_complete(r_p, d->serial, LINQ_ERROR_IO, NULL);
         request_destroy(r_p);
     } else {
     }
@@ -437,7 +437,7 @@ device_request_retry(device_s* d)
     (*r_p)->retry_count++;
     if (d->router.sz) request_router_id_set(*r_p, d->router.id, d->router.sz);
     if (request_send(*r_p, d->sock) < 0) {
-        exe_on_complete(r_p, LINQ_ERROR_IO, NULL, &d);
+        exe_on_complete(r_p, d->serial, LINQ_ERROR_IO, NULL);
         request_destroy(r_p);
     } else {
     }

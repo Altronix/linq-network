@@ -229,25 +229,25 @@ foreach_node_forward_message(
 static void
 on_device_response(
     void* ctx,
+    const char* serial,
     E_LINQ_ERROR error,
-    const char* json,
-    device_s** device)
+    const char* json)
 {
     int16_t e = error;
     node_s** node = ctx;
     node_send_frames_n(
         *node,
         5,
-        &g_frame_ver_0,                 // version
-        1,                              //
-        &g_frame_typ_response,          // type
-        1,                              //
-        device_serial(*device),         // serial
-        strlen(device_serial(*device)), //
-        &e,                             // error
-        2,                              //
-        json,                           // data
-        strlen(json)                    //
+        &g_frame_ver_0,        // version
+        1,                     //
+        &g_frame_typ_response, // type
+        1,                     //
+        serial,                // serial
+        strlen(serial),        //
+        &e,                    // error
+        2,                     //
+        json,                  // data
+        strlen(json)           //
     );
 }
 
@@ -673,7 +673,7 @@ send_error(linq_network_request_complete_fn fn, void* context, E_LINQ_ERROR e)
     char err[32];
     if (fn) {
         snprintf(err, sizeof(err), "{\"error\":%d}", e);
-        fn(context, e, err, NULL);
+        fn(context, "", e, err);
     }
 }
 

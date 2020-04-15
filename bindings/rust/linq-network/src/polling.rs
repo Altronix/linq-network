@@ -160,9 +160,9 @@ impl Context {
     {
         extern "C" fn on_response(
             cb: *mut c_void,
+            serial: *const c_char,
             e: E_LINQ_ERROR,
             json: *const c_char,
-            _d: *mut *mut device_s,
         ) -> () {
             let cb: Box<Box<dyn FnOnce(E_LINQ_ERROR, &str)>> =
                 unsafe { Box::from_raw(cb as *mut _) };

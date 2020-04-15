@@ -6,9 +6,8 @@
 #define API_URI_LEN (sizeof(API_URI) - 1)
 
 static void
-on_response(void* ctx, E_LINQ_ERROR error, const char* json, device_s** device)
+on_response(void* ctx, const char* serial, E_LINQ_ERROR error, const char* json)
 {
-    ((void)device);
     struct mg_connection* connection = ctx;
     http_printf_json(connection, error, json);
 }

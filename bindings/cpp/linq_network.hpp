@@ -78,10 +78,12 @@ class Linq
         return linq_network_poll(linq_network_, ms);
     }
 
-    static void
-    on_response(void* context, E_LINQ_ERROR e, const char* json, device_s** d_p)
+    static void on_response(
+        void* context,
+        const char* serial,
+        E_LINQ_ERROR e,
+        const char* json)
     {
-        ((void)d_p);
         Response* r = static_cast<Response*>(context);
         r->error = e;
         r->response = std::string(json);
