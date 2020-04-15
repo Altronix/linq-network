@@ -40,20 +40,22 @@ LinqNetwork::LinqNetwork(const Napi::CallbackInfo& info)
     , Napi::ObjectWrap<LinqNetwork>(info)
 {
     this->linq_
-        .on_heartbeat([this](const char* serial, altronix::Device& device) {
-            ((void)device);
+        .on_heartbeat([this](const char* serial) {
             if (this->r_callback_) {
+                // Create event data
                 auto env = this->r_callback_.Env();
-                auto hb = Napi::String::New(env, "heartbeat");
                 auto sid = Napi::String::New(env, serial);
-                this->r_callback_.Call({ hb, sid });
+
+                // emit
+                auto event = Napi::String::New(env, "heartbeat");
+                this->r_callback_.Call({ event, sid });
             }
         })
         .on_alert([this](
+                      const char* serial,
                       linq_network_alert_s* alert,
-                      linq_network_email_s* email,
-                      altronix::Device& d) {
-            ((void)email);
+                      linq_network_email_s* email) {
+            // Create event edata
             auto env = this->r_callback_.Env();
             Napi::Object obj = Napi::Object::New(env);
             std::string who{ alert->who.p, alert->who.len };
@@ -61,22 +63,60 @@ LinqNetwork::LinqNetwork(const Napi::CallbackInfo& info)
             int when{ std::stoi({ alert->when.p, alert->when.len }) };
             std::string where{ alert->where.p, alert->where.len };
             std::string mesg{ alert->mesg.p, alert->mesg.len };
-            std::string sid{ d.serial() };
+            std::string from{ email->from.p, email->from.len };
+            std::string subject{ email->subject.p, email->subject.len };
+            std::string user{ email->user.p, email->user.len };
+            std::string password{ email->password.p, email->password.len };
+            std::string server{ email->server.p, email->server.len };
+            std::string port{ email->port.p, email->port.len };
+            std::string device{ email->device.p, email->device.len };
+            std::string sid{ serial };
             obj.Set("who", who);
             obj.Set("what", what);
             obj.Set("where", where);
             obj.Set("when", when);
             obj.Set("mesg", mesg);
             obj.Set("serial", sid);
-            this->r_callback_.Call({ Napi::String::New(env, "alert"), obj });
+            obj.Set("from", from);
+            obj.Set("subject", subject);
+            obj.Set("user", user);
+            obj.Set("password", password);
+            obj.Set("server", server);
+            obj.Set("port", port);
+            obj.Set("device", device);
+
+            // emit
+            auto event = Napi::String::New(env, "alert");
+            this->r_callback_.Call({ event, obj });
         })
-        .on_error(
-            [this](E_LINQ_ERROR error, const char* serial, const char* err) {
-                ((void)error);
-                ((void)serial);
-                ((void)err);
-            })
-        .on_ctrlc([this]() { this->shutdown(); });
+        .on_error([this](E_LINQ_ERROR e, const char* serial, const char* err) {
+            ((void)serial);
+            ((void)err);
+            // Create event data
+            auto env = this->r_callback_.Env();
+            Napi::Object obj = Napi::Object::New(env);
+            auto code = Napi::Number::New(env, e);
+            std::string sid{ serial };
+            std::string msg{ err };
+            obj.Set("serial", sid);
+            obj.Set("errorCode", code);
+            obj.Set("errorMessage", msg);
+
+            // emit
+            auto event = Napi::String::New(env, "error");
+            this->r_callback_.Call({ event, obj });
+        })
+        .on_ctrlc([this]() {
+            // Create event data
+            auto env = this->r_callback_.Env();
+
+            // emit
+            auto event = Napi::String::New(env, "ctrlc");
+            this->r_callback_.Call({ event });
+
+            // shutdown
+            this->shutdown();
+        });
 }
 
 LinqNetwork::~LinqNetwork() {}

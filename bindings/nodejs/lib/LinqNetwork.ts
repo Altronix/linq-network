@@ -1,8 +1,7 @@
 import * as Events from "events";
 import { inherits } from "util";
+import { Method } from "./types";
 const binding = require("bindings")("linq-network");
-
-export type Method = "GET" | "POST" | "DELETE";
 
 export class LinqNetwork extends Events.EventEmitter {
   netw: any;
@@ -21,13 +20,19 @@ export class LinqNetwork extends Events.EventEmitter {
   }
 
   // listen
-  listen(port: string) {
+  listen(port: number): LinqNetwork;
+  listen(port: string): LinqNetwork;
+  listen(port: string | number): LinqNetwork {
+    if (typeof port === "number") port = `tcp://*:${port}`;
     this.netw.listen(port);
     return this;
   }
 
   // connect
-  connect(port: string) {
+  connect(port: number): LinqNetwork;
+  connect(port: string): LinqNetwork;
+  connect(port: string | number): LinqNetwork {
+    if (typeof port === "number") port = `tcp://*:${port}`;
     this.netw.connect(port);
     return this;
   }
@@ -36,11 +41,6 @@ export class LinqNetwork extends Events.EventEmitter {
   close(idx: number) {
     this.netw.close(idx);
     return this;
-  }
-
-  // devices
-  devices() {
-    // TODO
   }
 
   send<T>(serial: string, meth: Method, path: string, data?: T): Promise<any> {
@@ -76,12 +76,18 @@ export class LinqNetwork extends Events.EventEmitter {
   // run
   run(ms: number) {
     let self = this;
-    (function poll() {
-      setTimeout(() => {
-        self.netw.poll(0);
-        if (self.netw.isRunning()) poll();
-      }, ms);
-    })();
+    return new Promise(resolve => {
+      (function poll() {
+        setTimeout(() => {
+          self.netw.poll(ms);
+          if (self.netw.isRunning()) {
+            poll();
+          } else {
+            resolve();
+          }
+        }, ms);
+      })();
+    });
   }
 }
 
