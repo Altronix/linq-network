@@ -3,6 +3,7 @@ import { inherits } from "util";
 import {
   Method,
   LINQ_EVENTS,
+  LinqEventHandler,
   LinqAboutData,
   LinqNetworkConstructorArgs,
   LinqNetworkConfig,
@@ -125,6 +126,11 @@ export class LinqNetwork extends Events.EventEmitter {
   // nodeCount
   nodeCount(): number {
     return this.netw.nodeCount();
+  }
+
+  // Add class of event handlers
+  registerEventHandler(eh: LinqEventHandler) {
+    this.config.eventHandlers.push(eh);
   }
 
   // run

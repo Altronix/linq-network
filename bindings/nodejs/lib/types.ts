@@ -31,7 +31,7 @@ export interface LinqNetworkConstructorArgs {
 export interface LinqBinding {
   version: () => string;
   registerCallback: (arg: (ev: LINQ_EVENTS, ...args: any[]) => void) => void;
-  on: (event: LINQ_EVENTS, ...args: any[]) => void;
+  on: (event: LINQ_EVENTS, fn: (...args: any[]) => void) => void;
   isRunning: () => boolean;
   poll: (ms: number) => Promise<any>;
   listen: (arg: string | number) => LinqBinding;
