@@ -131,6 +131,7 @@ export class LinqNetwork extends Events.EventEmitter {
   // Add class of event handlers
   registerEventHandler(eh: LinqEventHandler) {
     this.config.eventHandlers.push(eh);
+    return this;
   }
 
   // run
