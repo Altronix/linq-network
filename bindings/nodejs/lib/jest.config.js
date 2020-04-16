@@ -3,5 +3,5 @@ module.exports = {
   testEnvironment: "node",
   coverageDirectory: "coverage",
   testEnvironment: "node",
-  testMatch: ["**/__tests__/**/*.[t]s?(x)", "**/?(*.)+(spec|test).[t]s?(x)"]
+  testMatch: ["**/?(*.)+(spec|test).[t]s?(x)"]
 };

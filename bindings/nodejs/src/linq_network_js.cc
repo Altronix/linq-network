@@ -21,6 +21,7 @@ LinqNetwork::Init(Napi::Env env, Napi::Object exports)
             InstanceMethod("isRunning", &LinqNetwork::IsRunning),
             InstanceMethod("poll", &LinqNetwork::Poll),
             InstanceMethod("listen", &LinqNetwork::Listen),
+            InstanceMethod("connect", &LinqNetwork::Connect),
             InstanceMethod("close", &LinqNetwork::Close),
             InstanceMethod("deviceCount", &LinqNetwork::DeviceCount),
             InstanceMethod("nodeCount", &LinqNetwork::NodeCount),
@@ -143,7 +144,7 @@ LinqNetwork::RegisterCallback(const Napi::CallbackInfo& info)
 {
     Napi::Env env = info.Env();
 
-    if (!(info.Length()) >= 1) _NTHROW(env, "Incorrect number of arguments!");
+    if (!(info.Length() >= 1)) _NTHROW(env, "Incorrect number of arguments!");
     if (!(info[0].IsFunction())) _NTHROW(env, "Expect arg[0] as Function!");
     this->r_callback_ = Napi::Persistent(info[0].As<Napi::Function>());
     return env.Null();
@@ -177,6 +178,20 @@ LinqNetwork::Listen(const Napi::CallbackInfo& info)
     // Call c routine with arguments
     std::string arg0 = info[0].ToString();
     auto _s = this->linq_.listen(arg0.c_str());
+    return info.This();
+}
+
+Napi::Value
+LinqNetwork::Connect(const Napi::CallbackInfo& info)
+{
+    Napi::Env env = info.Env();
+    // Validate inputs
+    if (!(info.Length())) _NTHROW(env, "Incorrect number of arguments!");
+    if (!(info[0].IsString())) _NTHROW(env, "Expect arg[0] as String!");
+
+    // Call c routine with arguments
+    std::string arg0 = info[0].ToString();
+    auto _s = this->linq_.connect(arg0.c_str());
     return info.This();
 }
 

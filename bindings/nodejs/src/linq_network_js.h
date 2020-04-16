@@ -19,6 +19,7 @@ class LinqNetwork : public Napi::ObjectWrap<LinqNetwork>
     Napi::Value IsRunning(const Napi::CallbackInfo& info);
     Napi::Value Poll(const Napi::CallbackInfo& info);
     Napi::Value Listen(const Napi::CallbackInfo& info);
+    Napi::Value Connect(const Napi::CallbackInfo& info);
     Napi::Value Close(const Napi::CallbackInfo& info);
     Napi::Value Device(const Napi::CallbackInfo& info);
     Napi::Value DeviceCount(const Napi::CallbackInfo& info);
