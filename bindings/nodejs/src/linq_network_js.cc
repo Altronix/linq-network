@@ -40,6 +40,17 @@ LinqNetwork::LinqNetwork(const Napi::CallbackInfo& info)
     , Napi::ObjectWrap<LinqNetwork>(info)
 {
     this->linq_
+        .on_new([this](const char* serial) {
+            if (this->r_callback_) {
+                // Create event data
+                auto env = this->r_callback_.Env();
+                auto sid = Napi::String::New(env, serial);
+
+                // emit
+                auto event = Napi::String::New(env, "new");
+                this->r_callback_.Call({ event, sid });
+            }
+        })
         .on_heartbeat([this](const char* serial) {
             if (this->r_callback_) {
                 // Create event data

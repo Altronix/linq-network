@@ -17,6 +17,7 @@ use std::task::{Context, Poll, Waker};
 // All events from linq_network match this signature
 #[derive(PartialEq)]
 pub enum Event {
+    New(String),
     Heartbeat(String),
     Alert(String),
     Error(E_LINQ_ERROR, String),
@@ -103,6 +104,13 @@ extern "C" fn on_error(
     load_event(ctx, Event::Error(error, cstr.to_string()));
 }
 
+// Callback from c library when new
+extern "C" fn on_new(ctx: *mut raw::c_void, serial: *const raw::c_char) -> () {
+    let cstr = unsafe { CStr::from_ptr(serial) };
+    let cstr = cstr.to_str().expect("to_str() fail!");
+    load_event(ctx, Event::New(cstr.to_string()));
+}
+
 // Callback from c library when heartbeat
 extern "C" fn on_heartbeat(
     ctx: *mut raw::c_void,
@@ -131,8 +139,9 @@ extern "C" fn on_ctrlc(ctx: *mut raw::c_void) -> () {
 }
 
 pub static CALLBACKS: linq_network_callbacks = linq_network_callbacks {
-    err: Some(on_error),
-    hb: Some(on_heartbeat),
-    alert: Some(on_alert),
-    ctrlc: Some(on_ctrlc),
+    on_err: Some(on_error),
+    on_new: Some(on_new),
+    on_heartbeat: Some(on_heartbeat),
+    on_alert: Some(on_alert),
+    on_ctrlc: Some(on_ctrlc),
 };

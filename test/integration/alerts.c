@@ -47,9 +47,9 @@ on_heartbeat(void* count, const char* serial)
     printf("%s", "[S] Received new device\n");
 }
 
-linq_network_callbacks callbacks = { .err = on_error,
-                                     .alert = on_alert,
-                                     .hb = on_heartbeat };
+linq_network_callbacks callbacks = { .on_err = on_error,
+                                     .on_alert = on_alert,
+                                     .on_heartbeat = on_heartbeat };
 
 int
 main(int argc, char* argv[])

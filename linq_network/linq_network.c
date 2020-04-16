@@ -24,8 +24,18 @@ on_zmtp_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 {
     log_error("(ZMTP) Event Error [%d]", e);
     linq_network_s* l = ctx;
-    if (l->callbacks && l->callbacks->err) {
-        l->callbacks->err(l->context, e, what, serial);
+    if (l->callbacks && l->callbacks->on_err) {
+        l->callbacks->on_err(l->context, e, what, serial);
+    }
+}
+
+static void
+on_zmtp_new(void* ctx, const char* sid)
+{
+    linq_network_s* l = ctx;
+    log_info("(ZMTP) [%.6s...] Event New Device", sid);
+    if (l->callbacks && l->callbacks->on_new) {
+        l->callbacks->on_new(l->context, sid);
     }
 }
 
@@ -33,8 +43,10 @@ static void
 on_zmtp_heartbeat(void* ctx, const char* sid)
 {
     linq_network_s* l = ctx;
-    log_info("(ZMTP) [%.6s...] Event Alert", sid);
-    if (l->callbacks && l->callbacks->hb) l->callbacks->hb(l->context, sid);
+    log_info("(ZMTP) [%.6s...] Event Heartbeat", sid);
+    if (l->callbacks && l->callbacks->on_heartbeat) {
+        l->callbacks->on_heartbeat(l->context, sid);
+    }
 }
 
 static void
@@ -47,8 +59,8 @@ on_zmtp_alert(
     linq_network_s* l = ctx;
     log_info("(ZMTP) [%.6s...] Event Alert", serial);
     log_debug("(ZMTP) Database alert insert result (%d)", err);
-    if (l->callbacks && l->callbacks->alert) {
-        l->callbacks->alert(l->context, serial, a, email);
+    if (l->callbacks && l->callbacks->on_alert) {
+        l->callbacks->on_alert(l->context, serial, a, email);
     }
 }
 
@@ -57,14 +69,17 @@ on_zmtp_ctrlc(void* ctx)
 {
     log_info("(ZMTP) Received shutdown signal...");
     linq_network_s* l = ctx;
-    if (l->callbacks && l->callbacks->ctrlc) l->callbacks->ctrlc(l->context);
+    if (l->callbacks && l->callbacks->on_ctrlc) {
+        l->callbacks->on_ctrlc(l->context);
+    }
 }
 
-static zmtp_callbacks_s zmtp_callbacks = {
-    .err = on_zmtp_error,
-    .hb = on_zmtp_heartbeat,
-    .alert = on_zmtp_alert,
-    .ctrlc = on_zmtp_ctrlc,
+static linq_network_callbacks zmtp_callbacks = {
+    .on_err = on_zmtp_error,
+    .on_new = on_zmtp_new,
+    .on_heartbeat = on_zmtp_heartbeat,
+    .on_alert = on_zmtp_alert,
+    .on_ctrlc = on_zmtp_ctrlc,
 };
 
 // Create main context for the caller

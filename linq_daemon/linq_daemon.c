@@ -117,10 +117,10 @@ on_error(void* context, E_LINQ_ERROR e, const char* sid, const char* what)
     log_error("(LINQ) Event Error [%d]", e);
 }
 
-static linq_network_callbacks callbacks = { .hb = on_hb,
-                                            .alert = on_alert,
-                                            .err = on_error,
-                                            .ctrlc = on_ctrlc };
+static linq_network_callbacks callbacks = { .on_heartbeat = on_hb,
+                                            .on_alert = on_alert,
+                                            .on_err = on_error,
+                                            .on_ctrlc = on_ctrlc };
 
 void
 linqd_init(linqd_s* linqd, linqd_config_s* config)

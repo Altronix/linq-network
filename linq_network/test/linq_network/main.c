@@ -37,11 +37,7 @@ test_reset(helpers_test_context_s** test_p)
 }
 
 static void
-linq_network_on_error_fn(
-    void* pass,
-    E_LINQ_ERROR e,
-    const char* what,
-    const char* serial)
+test_error_fn(void* pass, E_LINQ_ERROR e, const char* what, const char* serial)
 {
     assert_int_equal(e, expect_error);
     assert_string_equal(what, expect_what);
@@ -50,14 +46,21 @@ linq_network_on_error_fn(
 }
 
 static void
-linq_network_on_heartbeat_fn(void* pass, const char* serial)
+test_new_fn(void* pass, const char* serial)
 {
     assert_string_equal(serial, expect_sid);
     *((bool*)pass) = true;
 }
 
 static void
-linq_network_on_alert_fn(
+test_heartbeat_fn(void* pass, const char* serial)
+{
+    assert_string_equal(serial, expect_sid);
+    *((bool*)pass) = true;
+}
+
+static void
+test_alert_fn(
     void* pass,
     const char* serial,
     linq_network_alert_s* alert,
@@ -77,9 +80,10 @@ linq_network_on_alert_fn(
     *((bool*)pass) = true;
 }
 
-linq_network_callbacks callbacks = { .err = linq_network_on_error_fn,
-                                     .hb = linq_network_on_heartbeat_fn,
-                                     .alert = linq_network_on_alert_fn };
+linq_network_callbacks callbacks = { .on_err = test_error_fn,
+                                     .on_new = test_new_fn,
+                                     .on_heartbeat = test_heartbeat_fn,
+                                     .on_alert = test_alert_fn };
 
 static void
 test_linq_network_create(void** context_p)

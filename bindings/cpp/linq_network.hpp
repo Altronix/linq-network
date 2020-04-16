@@ -17,6 +17,7 @@ namespace altronix {
 
 static void on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
 static void on_heartbeat_fn(void*, const char*);
+static void on_new_fn(void*, const char*);
 static void
 on_alert_fn(void*, const char*, linq_network_alert_s*, linq_network_email_s*);
 static void on_ctrlc_fn(void*);
@@ -36,10 +37,11 @@ class Linq
     Linq()
     {
         linq_network_ = linq_network_create(&callbacks_, this);
-        callbacks_.err = on_error_fn;
-        callbacks_.hb = on_heartbeat_fn;
-        callbacks_.alert = on_alert_fn;
-        callbacks_.ctrlc = on_ctrlc_fn;
+        callbacks_.on_err = on_error_fn;
+        callbacks_.on_new = on_new_fn;
+        callbacks_.on_heartbeat = on_heartbeat_fn;
+        callbacks_.on_alert = on_alert_fn;
+        callbacks_.on_ctrlc = on_ctrlc_fn;
     }
 
     ~Linq() { linq_network_destroy(&linq_network_); }
@@ -151,9 +153,16 @@ class Linq
     uint32_t node_count() { return linq_network_node_count(linq_network_); }
 
     // call function fn on every heartbeat
+    Linq& on_new(std::function<void(const char*)> fn)
+    {
+        on_new_ = std::bind(fn, _1);
+        return *this;
+    }
+
+    // call function fn on every heartbeat
     Linq& on_heartbeat(std::function<void(const char*)> fn)
     {
-        heartbeat_ = std::bind(fn, _1);
+        on_heartbeat_ = std::bind(fn, _1);
         return *this;
     }
 
@@ -162,7 +171,7 @@ class Linq
         std::function<
             void(const char*, linq_network_alert_s*, linq_network_email_s*)> fn)
     {
-        alert_ = std::bind(fn, _1, _2, _3);
+        on_alert_ = std::bind(fn, _1, _2, _3);
         return *this;
     }
 
@@ -170,17 +179,18 @@ class Linq
     Linq& on_error(
         std::function<void(E_LINQ_ERROR, const char*, const char*)> fn)
     {
-        error_ = std::bind(fn, _1, _2, _3);
+        on_error_ = std::bind(fn, _1, _2, _3);
         return *this;
     }
 
     Linq& on_ctrlc(std::function<void()> fn)
     {
-        ctrlc_ = std::bind(fn);
+        on_ctrlc_ = std::bind(fn);
         return *this;
     }
 
     friend void on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
+    friend void on_new_fn(void*, const char*);
     friend void on_heartbeat_fn(void*, const char*);
     friend void on_alert_fn(
         void*,
@@ -190,12 +200,13 @@ class Linq
     friend void on_ctrlc_fn(void*);
 
   private:
-    std::function<void(const char*)> heartbeat_;
+    std::function<void(const char*)> on_new_;
+    std::function<void(const char*)> on_heartbeat_;
     std::function<
         void(const char* serial, linq_network_alert_s*, linq_network_email_s*)>
-        alert_;
-    std::function<void(E_LINQ_ERROR, const char*, const char*)> error_;
-    std::function<void()> ctrlc_;
+        on_alert_;
+    std::function<void(E_LINQ_ERROR, const char*, const char*)> on_error_;
+    std::function<void()> on_ctrlc_;
     linq_network_s* linq_network_;
     linq_network_callbacks callbacks_ = {};
 };
@@ -204,14 +215,21 @@ static void
 on_error_fn(void* context, E_LINQ_ERROR e, const char* what, const char* serial)
 {
     altronix::Linq* l = (altronix::Linq*)context;
-    if (l->error_) l->error_(e, what, serial);
+    if (l->on_error_) l->on_error_(e, what, serial);
 }
 
 static void
 on_heartbeat_fn(void* context, const char* serial)
 {
     altronix::Linq* l = (altronix::Linq*)context;
-    if (l->heartbeat_) l->heartbeat_(serial);
+    if (l->on_heartbeat_) l->on_heartbeat_(serial);
+}
+
+static void
+on_new_fn(void* context, const char* serial)
+{
+    altronix::Linq* l = (altronix::Linq*)context;
+    if (l->on_new_) l->on_new_(serial);
 }
 
 static void
@@ -222,14 +240,14 @@ on_alert_fn(
     linq_network_email_s* email)
 {
     altronix::Linq* l = (altronix::Linq*)context;
-    if (l->alert_) l->alert_(serial, alert, email);
+    if (l->on_alert_) l->on_alert_(serial, alert, email);
 }
 
 static void
 on_ctrlc_fn(void* context)
 {
     altronix::Linq* l = (altronix::Linq*)context;
-    if (l->ctrlc_) l->ctrlc_();
+    if (l->on_ctrlc_) l->on_ctrlc_();
 }
 
 } // namespace altronix

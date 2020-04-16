@@ -94,6 +94,8 @@ extern "C"
         E_LINQ_ERROR error,
         const char*,
         const char*);
+    // NEW
+    typedef void (*linq_network_new_fn)(void* context, const char* serial);
     // HEARTBEAT
     typedef void (
         *linq_network_heartbeat_fn)(void* context, const char* serial);
@@ -109,10 +111,11 @@ extern "C"
         *linq_network_devices_foreach_fn)(void* ctx, const char*, const char*);
     typedef struct linq_network_callbacks
     {
-        linq_network_error_fn err;
-        linq_network_heartbeat_fn hb;
-        linq_network_alert_fn alert;
-        linq_network_ctrlc_fn ctrlc;
+        linq_network_error_fn on_err;
+        linq_network_new_fn on_new;
+        linq_network_heartbeat_fn on_heartbeat;
+        linq_network_alert_fn on_alert;
+        linq_network_ctrlc_fn on_ctrlc;
     } linq_network_callbacks;
 
     // Linq API

@@ -161,10 +161,11 @@ pop_email(zmsg_t* msg, linq_network_email_s* emails)
 
 // A device is resolved by the serial number frame
 static device_s**
-device_resolve(zsock_t* sock, device_map_s* map, zframe_t** frames, bool insert)
+device_resolve(zmtp_s* l, zsock_t* sock, zframe_t** frames, bool insert)
 {
     uint32_t rid_sz = 0;
     uint8_t* rid = NULL;
+    device_map_s* map = *l->devices_p;
     if (frames[FRAME_RID_IDX]) {
         rid_sz = zframe_size(frames[FRAME_RID_IDX]);
         rid = zframe_data(frames[FRAME_RID_IDX]);
@@ -178,6 +179,9 @@ device_resolve(zsock_t* sock, device_map_s* map, zframe_t** frames, bool insert)
         if (rid) device_update_router(*d, rid, rid_sz);
     } else {
         if (insert) {
+            if (l->callbacks && l->callbacks->on_new) {
+                l->callbacks->on_new(l->context, sid);
+            }
             device_s* node = device_create(sock, rid, rid_sz, sid, tid);
             if (node) d = device_map_add(map, device_serial(node), &node);
         }
@@ -289,7 +293,7 @@ process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
         (err = frames[FRAME_RES_ERR_IDX] = pop_eq(*msg, 2)) &&
         (dat = frames[FRAME_RES_DAT_IDX] = pop_le(*msg, JSON_LEN))) {
         e = LINQ_ERROR_OK;
-        device_s** d = device_resolve(sock, *l->devices_p, frames, false);
+        device_s** d = device_resolve(l, sock, frames, false);
         if (d) {
             print_null_terminated(json, sizeof(json), dat);
             if (device_request_pending(*d)) {
@@ -342,7 +346,7 @@ process_alert(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
         (frames[FRAME_ALERT_TID_IDX] = pop_le(*msg, TID_LEN)) &&
         (frames[FRAME_ALERT_DAT_IDX] = pop_alert(*msg, &alert)) &&
         (frames[FRAME_ALERT_DST_IDX] = pop_email(*msg, &email))) {
-        device_s** d = device_resolve(socket, *z->devices_p, frames, false);
+        device_s** d = device_resolve(z, socket, frames, false);
         frames_s f = { 6, &frames[1] };
         if (d) {
             if (device_no_hops(*d)) {
@@ -350,8 +354,8 @@ process_alert(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
                 // otherwize, nodes would rebroadcast to eachother infinite
                 node_map_foreach(*z->nodes_p, foreach_node_forward_message, &f);
             }
-            if (z->callbacks && z->callbacks->alert) {
-                z->callbacks->alert(
+            if (z->callbacks && z->callbacks->on_alert) {
+                z->callbacks->on_alert(
                     z->context, device_serial(*d), &alert, &email);
             }
             e = LINQ_ERROR_OK;
@@ -382,7 +386,7 @@ process_heartbeat(zmtp_s* z, zsock_t* s, zmsg_t** msg, zframe_t** frames)
     if (zmsg_size(*msg) == 2 &&
         (frames[FRAME_HB_TID_IDX] = pop_le(*msg, TID_LEN)) &&
         (frames[FRAME_HB_SITE_IDX] = pop_le(*msg, SITE_LEN))) {
-        device_s** d = device_resolve(s, *z->devices_p, frames, true);
+        device_s** d = device_resolve(z, s, frames, true);
         frames_s f = { 5, &frames[1] };
         if (d) {
             if (device_no_hops(*d)) {
@@ -390,8 +394,8 @@ process_heartbeat(zmtp_s* z, zsock_t* s, zmsg_t** msg, zframe_t** frames)
                 // otherwize, nodes would rebroadcast to eachother infinite
                 node_map_foreach(*z->nodes_p, foreach_node_forward_message, &f);
             }
-            if (z->callbacks && z->callbacks->hb) {
-                z->callbacks->hb(z->context, device_serial(*d));
+            if (z->callbacks && z->callbacks->on_heartbeat) {
+                z->callbacks->on_heartbeat(z->context, device_serial(*d));
             }
             e = LINQ_ERROR_OK;
         }
@@ -430,8 +434,8 @@ process_packet(zmtp_s* z, zsock_t* s)
         }
     }
     if (e) {
-        if (z->callbacks && z->callbacks->err) {
-            z->callbacks->err(z->context, e, "", "");
+        if (z->callbacks && z->callbacks->on_err) {
+            z->callbacks->on_err(z->context, e, "", "");
         }
     }
     zmsg_destroy(&msg);
@@ -447,7 +451,7 @@ zmtp_init(
     zmtp_s* zmtp,
     device_map_s** devices_p,
     node_map_s** nodes_p,
-    const zmtp_callbacks_s* callbacks,
+    const linq_network_callbacks* callbacks,
     void* context)
 {
     zmtp->devices_p = devices_p;
@@ -660,8 +664,8 @@ zmtp_poll(zmtp_s* zmtp, int32_t ms)
     // Check if we received a ctrlc and generate an event
     // TODO needs test
     if (!sys_running()) {
-        if (zmtp->callbacks && zmtp->callbacks->ctrlc) {
-            zmtp->callbacks->ctrlc(zmtp->context);
+        if (zmtp->callbacks && zmtp->callbacks->on_ctrlc) {
+            zmtp->callbacks->on_ctrlc(zmtp->context);
         }
     }
 
