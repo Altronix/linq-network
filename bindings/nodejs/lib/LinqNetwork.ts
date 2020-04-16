@@ -1,6 +1,6 @@
 import * as Events from "events";
 import { inherits } from "util";
-import { Method } from "./types";
+import { Method, LINQ_EVENTS, LinqAboutData } from "./types";
 const binding = require("bindings")("linq-network");
 
 export class LinqNetwork extends Events.EventEmitter {
@@ -10,8 +10,28 @@ export class LinqNetwork extends Events.EventEmitter {
     super();
     let self = this;
     this.netw = new binding.network.LinqNetwork();
-    this.netw.registerCallback(function(event: string, serial: string) {
-      self.emit(event, serial);
+    this.netw.registerCallback(async function(
+      event: LINQ_EVENTS,
+      ...args: any[]
+    ) {
+      switch (event) {
+        case "new":
+          let serial: string = args[0];
+          try {
+            let response = await self.send(serial, "GET", "/ATX/about");
+            // TODO validate response.about
+            self.emit(event, serial, response.about as LinqAboutData);
+          } catch (e) {
+            self.emit("error", { serial, ...e });
+          }
+          break;
+        case "heartbeat":
+        case "alert":
+        case "error":
+        case "ctrlc":
+        default:
+          self.emit(event, ...args);
+      }
     });
   }
 
@@ -43,9 +63,19 @@ export class LinqNetwork extends Events.EventEmitter {
     return this;
   }
 
-  send<T>(serial: string, meth: Method, path: string, data?: T): Promise<any> {
+  async send<T>(
+    serial: string,
+    meth: Method,
+    path: string,
+    data?: T
+  ): Promise<any> {
     const d = data ? JSON.stringify(data) : "";
-    return this.netw.send(serial, meth, path, d);
+    let response = await this.netw.send(serial, meth, path, d);
+    try {
+      return JSON.parse(response);
+    } catch (e) {
+      throw e;
+    }
   }
 
   // post

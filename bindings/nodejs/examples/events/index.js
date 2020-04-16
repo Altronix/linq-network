@@ -2,11 +2,14 @@ let netw = require("@altronix/linq-network-js").default;
 
 netw
   .listen("tcp://*:33455")
-  .on("heartbeat", sid =>
-    netw
-      .send(sid, "GET", "/ATX/about")
-      .then(response => console.log("Response: %s", response))
-      .catch(e => console.log(e))
+  .on("new", (serial, about) => console.log(about))
+  .on(
+    "heartbeat",
+    sid => {}
+    // netw
+    // .send(sid, "GET", "/ATX/about")
+    // .then(response => console.log("Response: %s", response))
+    // .catch(e => console.log(e))
   )
   .on("alert", alert_data => {
     console.log("ALERT from [%s]", alert_data.serial);

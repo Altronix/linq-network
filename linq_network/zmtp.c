@@ -179,11 +179,11 @@ device_resolve(zmtp_s* l, zsock_t* sock, zframe_t** frames, bool insert)
         if (rid) device_update_router(*d, rid, rid_sz);
     } else {
         if (insert) {
+            device_s* node = device_create(sock, rid, rid_sz, sid, tid);
+            if (node) d = device_map_add(map, device_serial(node), &node);
             if (l->callbacks && l->callbacks->on_new) {
                 l->callbacks->on_new(l->context, sid);
             }
-            device_s* node = device_create(sock, rid, rid_sz, sid, tid);
-            if (node) d = device_map_add(map, device_serial(node), &node);
         }
     }
     return d;

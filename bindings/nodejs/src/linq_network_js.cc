@@ -254,7 +254,7 @@ LinqNetwork::Send(const Napi::CallbackInfo& info)
         auto env = Env();
         auto err = Napi::Number::New(env, response.error);
         auto json = Napi::String::New(env, response.response);
-        deferred.Resolve(json);
+        err.Int32Value() == 0 ? deferred.Resolve(json) : deferred.Reject(err);
     });
     return deferred.Promise();
 }
