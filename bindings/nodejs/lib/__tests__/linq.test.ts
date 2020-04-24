@@ -67,3 +67,14 @@ test("Linq should run", async () => {
   expect(binding.poll).toHaveBeenCalledWith(30);
   binding.poll.mockClear();
 });
+
+test("Linq should shutdown", async () => {
+  jest.useFakeTimers();
+  let { binding, network } = setup();
+  network.run(30);
+  expect(binding.poll).toHaveBeenCalledTimes(0);
+  network.shutdown();
+  jest.advanceTimersByTime(30);
+  expect(binding.poll).toHaveBeenCalledTimes(0);
+  binding.poll.mockClear();
+});

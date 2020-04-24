@@ -13,7 +13,9 @@ const binding = require("bindings")("linq-network");
 
 export class LinqNetwork extends Events.EventEmitter {
   netw: LinqBinding;
+  running: boolean = true;
   config: LinqNetworkConfig;
+  private shutdownTimer: any;
 
   constructor(opts?: LinqNetworkConstructorArgs, b?: LinqBinding) {
     super();
@@ -55,6 +57,7 @@ export class LinqNetwork extends Events.EventEmitter {
       } else if (event === "alert" && handler.onAlert) {
         handler.onAlert(args[0]);
       } else if (event === "ctrlc" && handler.onCtrlc) {
+        this.shutdown();
         handler.onCtrlc();
       }
     });
@@ -134,14 +137,24 @@ export class LinqNetwork extends Events.EventEmitter {
     return this;
   }
 
+  // Shutdown our run timer
+  shutdown(): LinqNetwork {
+    this.running = false;
+    if (this.shutdownTimer) {
+      clearTimeout(this.shutdownTimer);
+      this.shutdownTimer = undefined;
+    }
+    return this;
+  }
+
   // run
   run(ms: number) {
     let self = this;
     return new Promise(resolve => {
       (function poll() {
-        setTimeout(() => {
+        self.shutdownTimer = setTimeout(() => {
           self.netw.poll(ms);
-          if (self.netw.isRunning()) {
+          if (self.netw.isRunning() && self.running) {
             poll();
           } else {
             resolve();
