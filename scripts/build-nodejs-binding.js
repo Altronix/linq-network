@@ -2,19 +2,13 @@
 // -d --daemon Build with daemon
 
 const fs = require("fs");
+let path = require("path");
 const cp = require("child_process");
 const args = require("minimist")(process.argv.slice(2));
 const env = Object.assign({}, process.env);
 const logger = require("./logger");
 
 const root = __dirname + "/../";
-
-const jsonPackageAltronixConfig = (() => {
-  let json = JSON.parse(fs.readFileSync(root + "./package.json"));
-  return (
-    json.linq_network || json.linq_network_js || json.altronix || undefined
-  );
-})();
 
 // Helper for parsing enviorment variable
 const isTrue = opt =>
@@ -72,7 +66,7 @@ const installPrebuilt = () => {
 };
 
 // Attempt to build binaries using users compiler
-const tryBuild = () => {
+const tryBuild = async () => {
   logger.info("Attempting build with your compiler");
   logger.info(`Settings: WITH_SYSTEM_DEPENDENCIES -> ${withSystem}`);
   logger.info(`Settings: WITH_DAEMON              -> ${withDaemon}`);
@@ -95,15 +89,26 @@ const tryBuild = () => {
   }
 };
 
-if (
-  process.env.LINQ_NETWORK_USE_PREBUILT ||
-  (jsonPackageAltronixConfig && jsonPackageAltronixConfig.prebuilt)
-) {
-  installPrebuilt();
-  logger.info("Installed prebuilt binaries OK");
-  process.exit(0);
-} else {
-  tryBuild();
-}
-
-tryBuild();
+(async () => {
+  const filename =
+      (require.main && require.main.filename) ||
+      (process.mainModule && process.mainModule.filename),
+    start = path.join(path.dirname(filename), "../.."),
+    count = 10;
+  let json = await (async function seek(start, count) {
+    try {
+      let file = await fs.promises.readFile(path.join(start, "package.json"));
+      return JSON.parse(file);
+    } catch {
+      return count ? seek(path.join(start, ".."), --count) : undefined;
+    }
+  })(start, count);
+  if (json && (json = json["linq-network"])) logger.info("Loading JSON config");
+  if (process.env.LINQ_NETWORK_USE_PREBUILT || (json && json.prebuilt)) {
+    installPrebuilt();
+    logger.info("Installed prebuilt binaries OK");
+    process.exit(0);
+  } else {
+    tryBuild();
+  }
+})();
