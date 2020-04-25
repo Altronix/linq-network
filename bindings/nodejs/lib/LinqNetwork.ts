@@ -15,7 +15,9 @@ export class LinqNetwork extends Events.EventEmitter {
   netw: LinqBinding;
   running: boolean = true;
   config: LinqNetworkConfig;
+  shutdownPromise: any;
   private shutdownTimer: any;
+  private shutdownResolve: any;
 
   constructor(opts?: LinqNetworkConstructorArgs, b?: LinqBinding) {
     super();
@@ -141,9 +143,10 @@ export class LinqNetwork extends Events.EventEmitter {
   shutdown(): LinqNetwork {
     this.running = false;
     if (this.shutdownTimer) {
-      // TODO need to call resolve() (from run Promise)
       clearTimeout(this.shutdownTimer);
       this.shutdownTimer = undefined;
+      this.netw.earlyDestruct();
+      this.shutdownResolve();
     }
     return this;
   }
@@ -151,7 +154,8 @@ export class LinqNetwork extends Events.EventEmitter {
   // run
   run(ms: number) {
     let self = this;
-    return new Promise(resolve => {
+    this.shutdownPromise = new Promise(resolve => {
+      self.shutdownResolve = resolve;
       (function poll() {
         self.shutdownTimer = setTimeout(() => {
           self.netw.poll(ms);
@@ -159,14 +163,15 @@ export class LinqNetwork extends Events.EventEmitter {
             poll();
           } else {
             // Arrive here, then we received ctrlc signal or caller told us to
-            // shutdown. We use earlyDestruct() because node garbage collector 
+            // shutdown. We use earlyDestruct() because node garbage collector
             // usually doesn't free our binding...
             self.netw.earlyDestruct();
-            resolve();
+            self.shutdownResolve();
           }
         }, ms);
       })();
     });
+    return this.shutdownPromise;
   }
 }
 
