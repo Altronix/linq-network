@@ -28,6 +28,7 @@ class LinqNetwork : public Napi::ObjectWrap<LinqNetwork>
     Napi::Value Get(const Napi::CallbackInfo& info);
     Napi::Value Post(const Napi::CallbackInfo& info);
     Napi::Value Del(const Napi::CallbackInfo& info);
+    Napi::Value EarlyDestruct(const Napi::CallbackInfo& info);
 
     // Thread
     void shutdown();

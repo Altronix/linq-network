@@ -44,7 +44,15 @@ class Linq
         callbacks_.on_ctrlc = on_ctrlc_fn;
     }
 
-    ~Linq() { linq_network_destroy(&linq_network_); }
+    ~Linq()
+    {
+        if (linq_network_) linq_network_destroy(&linq_network_);
+    }
+
+    void early_destruct()
+    {
+        if (linq_network_) linq_network_destroy(&linq_network_);
+    }
 
     // open up port for device conections
     linq_network_socket listen(const char* str)

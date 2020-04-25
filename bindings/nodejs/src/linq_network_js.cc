@@ -1,4 +1,5 @@
 #include "linq_network_js.h"
+#include "napi.h"
 #include <chrono>
 
 #define _NTHROW(__env, __err)                                                  \
@@ -16,6 +17,7 @@ LinqNetwork::Init(Napi::Env env, Napi::Object exports)
         env,
         "LinqNetwork",
         {
+            InstanceMethod("earlyDestruct", &LinqNetwork::EarlyDestruct),
             InstanceMethod("version", &LinqNetwork::Version),
             InstanceMethod("registerCallback", &LinqNetwork::RegisterCallback),
             InstanceMethod("isRunning", &LinqNetwork::IsRunning),
@@ -31,7 +33,7 @@ LinqNetwork::Init(Napi::Env env, Napi::Object exports)
             InstanceMethod("sendDelete", &LinqNetwork::Del),
         });
     constructor = Napi::Persistent(func);
-    constructor.SuppressDestruct();
+    // constructor.SuppressDestruct();
     exports.Set("LinqNetwork", func);
     return exports;
 }
@@ -132,6 +134,14 @@ LinqNetwork::LinqNetwork(const Napi::CallbackInfo& info)
 }
 
 LinqNetwork::~LinqNetwork() {}
+
+Napi::Value
+LinqNetwork::EarlyDestruct(const Napi::CallbackInfo& info)
+{
+    Napi::Env env = info.Env();
+    this->linq_.early_destruct();
+    return env.Null();
+}
 
 Napi::Value
 LinqNetwork::Version(const Napi::CallbackInfo& info)

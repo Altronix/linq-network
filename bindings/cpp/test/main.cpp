@@ -46,6 +46,19 @@ test_linq_network_create(void** context_p)
 }
 
 static void
+test_linq_network_early_destruct(void** context_p)
+{
+    ((void)context_p);
+
+    test_init();
+
+    altronix::Linq l;
+    l.early_destroy();
+
+    test_reset();
+}
+
+static void
 test_linq_network_device(void** context_p)
 {
     ((void)context_p);

@@ -141,6 +141,7 @@ export class LinqNetwork extends Events.EventEmitter {
   shutdown(): LinqNetwork {
     this.running = false;
     if (this.shutdownTimer) {
+      // TODO need to call resolve() (from run Promise)
       clearTimeout(this.shutdownTimer);
       this.shutdownTimer = undefined;
     }
@@ -157,6 +158,10 @@ export class LinqNetwork extends Events.EventEmitter {
           if (self.netw.isRunning() && self.running) {
             poll();
           } else {
+            // Arrive here, then we received ctrlc signal or caller told us to
+            // shutdown. We use earlyDestruct() because node garbage collector 
+            // usually doesn't free our binding...
+            self.netw.earlyDestruct();
             resolve();
           }
         }, ms);

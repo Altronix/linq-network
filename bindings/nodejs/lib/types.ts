@@ -40,6 +40,7 @@ export interface LinqBinding {
   deviceCount: () => number;
   nodeCount: () => number;
   run: (val: number) => void;
+  earlyDestruct: () => void;
   send: <T>(sid: string, meth: Method, path: string, data?: T) => Promise<any>;
 }
 
