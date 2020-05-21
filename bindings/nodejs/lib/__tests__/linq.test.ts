@@ -1,12 +1,12 @@
 import "jest";
-import { Method, LinqNetworkConstructorArgs, LinqBinding } from "../types";
+import { Method, Binding } from "../types";
 import { LinqNetwork } from "../LinqNetwork";
 import makeMockBinding from "./__mocks__/binding.mock";
 
-function setup(args?: LinqNetworkConstructorArgs) {
+function setup() {
   let binding = makeMockBinding();
-  let netw = new LinqNetwork(args, binding);
-  return { binding: binding as jest.Mocked<LinqBinding>, network: netw };
+  let netw = new LinqNetwork(binding);
+  return { binding: binding as jest.Mocked<Binding>, network: netw };
 }
 
 test("Should run", () => {

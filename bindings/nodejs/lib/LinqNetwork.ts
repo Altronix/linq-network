@@ -1,28 +1,18 @@
 import * as Events from "events";
 import { inherits } from "util";
-import {
-  Method,
-  LINQ_EVENTS,
-  LinqEventHandler,
-  LinqAboutData,
-  LinqNetworkConstructorArgs,
-  LinqNetworkConfig,
-  LinqBinding
-} from "./types";
+import { Method, LINQ_EVENTS, AboutData, Binding } from "./types";
 const binding = require("bindings")("linq-network");
 
 export class LinqNetwork extends Events.EventEmitter {
-  netw: LinqBinding;
+  netw: Binding;
   running: boolean = true;
-  config: LinqNetworkConfig;
   shutdownPromise: any;
   private shutdownTimer: any;
   private shutdownResolve: any;
 
-  constructor(opts?: LinqNetworkConstructorArgs, b?: LinqBinding) {
+  constructor(b?: Binding) {
     super();
     let self = this;
-    this.config = opts || { eventHandlers: [] };
     this.netw = b || new binding.network.LinqNetwork();
     this.netw.registerCallback(async function(
       event: LINQ_EVENTS,
@@ -33,10 +23,10 @@ export class LinqNetwork extends Events.EventEmitter {
           let serial: string = args[0];
           try {
             let response = await self.send(serial, "GET", "/ATX/about");
-            const about = (response.about || response) as LinqAboutData;
-            self.broadcast(event, serial, about);
+            const about = (response.about || response) as AboutData;
+            self.emit(event, { serial, ...about });
           } catch (e) {
-            self.broadcast("error", serial, e);
+            self.emit("error", { serial, error: e });
           }
           break;
         case "heartbeat":
@@ -44,23 +34,7 @@ export class LinqNetwork extends Events.EventEmitter {
         case "error":
         case "ctrlc":
         default:
-          self.broadcast(event, ...args);
-      }
-    });
-  }
-
-  private broadcast(event: LINQ_EVENTS, ...args: any[]) {
-    this.emit(event, ...args);
-    this.config.eventHandlers.forEach(handler => {
-      if (event === "new" && handler.onNew) {
-        handler.onNew(args[0], args[1]);
-      } else if (event === "heartbeat" && handler.onHeartbeat) {
-        handler.onHeartbeat(args[0]);
-      } else if (event === "alert" && handler.onAlert) {
-        handler.onAlert(args[0]);
-      } else if (event === "ctrlc" && handler.onCtrlc) {
-        this.shutdown();
-        handler.onCtrlc();
+          self.emit(event, ...args);
       }
     });
   }
@@ -131,12 +105,6 @@ export class LinqNetwork extends Events.EventEmitter {
   // nodeCount
   nodeCount(): number {
     return this.netw.nodeCount();
-  }
-
-  // Add class of event handlers
-  registerEventHandler(eh: LinqEventHandler) {
-    this.config.eventHandlers.push(eh);
-    return this;
   }
 
   // Shutdown our run timer
