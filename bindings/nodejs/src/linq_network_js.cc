@@ -72,6 +72,7 @@ LinqNetwork::LinqNetwork(const Napi::CallbackInfo& info)
             // Create event edata
             auto env = this->r_callback_.Env();
             Napi::Object obj = Napi::Object::New(env);
+            Napi::Array arr = Napi::Array::New(env, 5);
             std::string who{ alert->who.p, alert->who.len };
             std::string what{ alert->what.p, alert->what.len };
             int when{ std::stoi({ alert->when.p, alert->when.len }) };
@@ -85,6 +86,12 @@ LinqNetwork::LinqNetwork(const Napi::CallbackInfo& info)
             std::string port{ email->port.p, email->port.len };
             std::string device{ email->device.p, email->device.len };
             std::string sid{ serial };
+            std::string to[] = { { email->to0.p, email->to0.len },
+                                 { email->to1.p, email->to1.len },
+                                 { email->to2.p, email->to2.len },
+                                 { email->to3.p, email->to3.len },
+                                 { email->to4.p, email->to4.len } };
+            for (int i = 0; i < 5; i++) { arr[i] = to[i]; }
             obj.Set("who", who);
             obj.Set("what", what);
             obj.Set("where", where);
@@ -98,6 +105,7 @@ LinqNetwork::LinqNetwork(const Napi::CallbackInfo& info)
             obj.Set("server", server);
             obj.Set("port", port);
             obj.Set("device", device);
+            obj.Set("to", arr);
 
             // emit
             auto event = Napi::String::New(env, "alert");
