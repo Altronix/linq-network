@@ -315,7 +315,7 @@ process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
                         device_request_retry_at_set(*d, retry);
                     }
                 } else {
-                    log_info(
+                    log_debug(
                         "(ZMTP) [%.6s...] (%.3d) %.20s...",
                         device_serial(*d),
                         err_code,

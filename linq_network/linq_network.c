@@ -33,7 +33,7 @@ static void
 on_zmtp_new(void* ctx, const char* sid)
 {
     linq_network_s* l = ctx;
-    log_info("(ZMTP) [%.6s...] Event New Device", sid);
+    log_debug("(ZMTP) [%.6s...] Event New Device", sid);
     if (l->callbacks && l->callbacks->on_new) {
         l->callbacks->on_new(l->context, sid);
     }
@@ -43,7 +43,7 @@ static void
 on_zmtp_heartbeat(void* ctx, const char* sid)
 {
     linq_network_s* l = ctx;
-    log_info("(ZMTP) [%.6s...] Event Heartbeat", sid);
+    log_debug("(ZMTP) [%.6s...] Event Heartbeat", sid);
     if (l->callbacks && l->callbacks->on_heartbeat) {
         l->callbacks->on_heartbeat(l->context, sid);
     }
@@ -57,7 +57,7 @@ on_zmtp_alert(
     linq_network_email_s* email)
 {
     linq_network_s* l = ctx;
-    log_info("(ZMTP) [%.6s...] Event Alert", serial);
+    log_debug("(ZMTP) [%.6s...] Event Alert", serial);
     log_debug("(ZMTP) Database alert insert result (%d)", err);
     if (l->callbacks && l->callbacks->on_alert) {
         l->callbacks->on_alert(l->context, serial, a, email);

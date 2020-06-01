@@ -53,7 +53,7 @@ test_linq_network_early_destruct(void** context_p)
     test_init();
 
     altronix::Linq l;
-    l.early_destroy();
+    l.early_destruct();
 
     test_reset();
 }
