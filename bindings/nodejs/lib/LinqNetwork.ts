@@ -1,6 +1,6 @@
 import * as Events from "events";
 import { inherits } from "util";
-import { Method, LINQ_EVENTS, AboutData, Binding } from "./types";
+import { Method, LINQ_EVENTS, AboutData, Binding, Devices } from "./types";
 const binding = require("bindings")("linq-network");
 
 export class LinqNetwork extends Events.EventEmitter {
@@ -9,6 +9,10 @@ export class LinqNetwork extends Events.EventEmitter {
   shutdownPromise: any;
   private shutdownTimer: any;
   private shutdownResolve: any;
+  private _devices: Devices = {};
+  get devices() {
+    return this._devices;
+  }
 
   constructor(b?: Binding) {
     super();
@@ -24,6 +28,7 @@ export class LinqNetwork extends Events.EventEmitter {
           try {
             let response = await self.send(serial, "GET", "/ATX/about");
             const about = (response.about || response) as AboutData;
+            self.devices[serial] = about;
             self.emit(event, { serial, ...about });
           } catch (e) {
             self.emit("error", { serial, error: e });

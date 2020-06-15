@@ -16,6 +16,10 @@ export interface AboutData {
   sid: string;
 }
 
+export interface Devices {
+  [x: string]: AboutData;
+}
+
 export interface Binding {
   version: () => string;
   registerCallback: (arg: (ev: LINQ_EVENTS, ...args: any[]) => void) => void;
