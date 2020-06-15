@@ -17,7 +17,7 @@ export interface AboutData {
 }
 
 export interface Devices {
-  [x: string]: AboutData;
+  [x: string]: AboutData & { lastSeen?: Date };
 }
 
 export interface Binding {

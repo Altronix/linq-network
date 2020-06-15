@@ -29,12 +29,14 @@ export class LinqNetwork extends Events.EventEmitter {
             let response = await self.send(serial, "GET", "/ATX/about");
             const about = (response.about || response) as AboutData;
             self.devices[serial] = about;
+            self.devices[serial].lastSeen = new Date();
             self.emit(event, { serial, ...about });
           } catch (e) {
             self.emit("error", { serial, error: e });
           }
           break;
         case "heartbeat":
+          self.devices[args[0]].lastSeen = new Date();
         case "alert":
         case "error":
         case "ctrlc":
