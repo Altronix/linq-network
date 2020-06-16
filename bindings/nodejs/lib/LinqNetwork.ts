@@ -36,7 +36,9 @@ export class LinqNetwork extends Events.EventEmitter {
           }
           break;
         case "heartbeat":
-          self.devices[args[0]].lastSeen = new Date();
+          if (self.devices[args[0]]){
+            self.devices[args[0]].lastSeen = new Date();
+          }
         case "alert":
         case "error":
         case "ctrlc":
