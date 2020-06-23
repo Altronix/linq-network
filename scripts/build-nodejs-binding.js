@@ -80,7 +80,7 @@ const tryBuild = async () => {
   if (!result.error) {
     logger.info("Build Success!");
     logger.debug(JSON.stringify(result));
-    process.exit(0);
+    process.exit(result.status);
   } else {
     logger.warn("Failed to build linq-network binding!");
     logger.warn(result.error);
