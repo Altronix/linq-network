@@ -61,6 +61,7 @@ extern "C"
         atx_str where;
         atx_str when;
         atx_str mesg;
+        atx_str name;
         atx_str email[5];
         char* data;
     } linq_network_alert_s;

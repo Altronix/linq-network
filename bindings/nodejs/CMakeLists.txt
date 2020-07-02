@@ -46,7 +46,8 @@ endif()
 ###############################################################################
 # Build linq-network-js
 ###############################################################################
-add_library(linq-network-js SHARED ${sources} ${headers})
+include_directories(${CMAKE_JS_INC})
+add_library(linq-network-js SHARED ${sources} ${headers} ${CMAKE_JS_SRC})
 set_target_properties(linq-network-js PROPERTIES 
   OUTPUT_NAME "linq-network"
   PREFIX "" 

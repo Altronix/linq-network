@@ -78,6 +78,7 @@ LinqNetwork::LinqNetwork(const Napi::CallbackInfo& info)
             int when{ std::stoi({ alert->when.p, alert->when.len }) };
             std::string where{ alert->where.p, alert->where.len };
             std::string mesg{ alert->mesg.p, alert->mesg.len };
+            std::string name{ alert->name.p, alert->name.len };
             std::string from{ email->from.p, email->from.len };
             std::string subject{ email->subject.p, email->subject.len };
             std::string user{ email->user.p, email->user.len };
@@ -97,6 +98,7 @@ LinqNetwork::LinqNetwork(const Napi::CallbackInfo& info)
             obj.Set("where", where);
             obj.Set("when", when);
             obj.Set("mesg", mesg);
+            obj.Set("name", name);
             obj.Set("serial", sid);
             obj.Set("from", from);
             obj.Set("subject", subject);
