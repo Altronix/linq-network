@@ -43,7 +43,8 @@
      "\"what\": \"TestAlert\","                                                \
      "\"siteId\": \"Altronix Site ID\","                                       \
      "\"when\": 1,"                                                            \
-     "\"mesg\": \"Test Alert Message\""                                        \
+     "\"mesg\": \"Test Alert Message\","                                       \
+     "\"name\": \"sysTest\""                                                   \
      "}")
 
 #define TEST_EMAIL                                                             \

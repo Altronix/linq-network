@@ -130,7 +130,7 @@ pop_alert(zmsg_t* msg, linq_network_alert_s* alert)
         "mesg",  &alert->mesg,
         "name",  &alert->name);
     // clang-format on
-    if (!(count == 5)) zframe_destroy(&f);
+    if (!(count == 6)) zframe_destroy(&f);
     return f;
 }
 

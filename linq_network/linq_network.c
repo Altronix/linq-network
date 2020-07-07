@@ -58,7 +58,6 @@ on_zmtp_alert(
 {
     linq_network_s* l = ctx;
     log_debug("(ZMTP) [%.6s...] Event Alert", serial);
-    log_debug("(ZMTP) Database alert insert result (%d)", err);
     if (l->callbacks && l->callbacks->on_alert) {
         l->callbacks->on_alert(l->context, serial, a, email);
     }

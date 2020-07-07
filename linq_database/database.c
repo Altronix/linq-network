@@ -48,7 +48,7 @@
 static bool
 row_exists(database_s* d, const char* table, const char* prop, const char* want)
 {
-    char stmt[128];
+    char stmt[512];
     sqlite3_stmt* sql;
     bool ret = true;
     int err, len = snprintf(
@@ -58,7 +58,7 @@ row_exists(database_s* d, const char* table, const char* prop, const char* want)
                  table,
                  prop,
                  want);
-    linq_network_assert(len + 1 < 128);
+    linq_network_assert(len + 1 < 512);
     err = sqlite3_prepare_v2(d->db, stmt, len + 1, &sql, NULL);
     linq_network_assert(err == SQLITE_OK);
     err = sqlite3_step(sql);
@@ -74,7 +74,7 @@ row_exists(database_s* d, const char* table, const char* prop, const char* want)
 static bool
 table_exists(database_s* d, const char* table)
 {
-    char stmt[128];
+    char stmt[512];
     bool ret = false;
     sqlite3_stmt* result;
     int err,
@@ -83,7 +83,7 @@ table_exists(database_s* d, const char* table)
             sizeof(stmt),
             "SELECT name FROM sqlite_master WHERE type='table' AND name='%s';",
             table);
-    linq_network_assert(len <= 128);
+    linq_network_assert(len <= 512);
     err = sqlite3_prepare_v2(d->db, stmt, len + 1, &result, NULL);
     linq_network_assert(err == SQLITE_OK);
     err = sqlite3_step(result);
@@ -317,7 +317,7 @@ database_insert_device_from_json(
 {
     int err = -1;
     jsmn_value sid, product, prj_version, atx_version, web_version, mac;
-    char vals[128];
+    char vals[512];
     const char* keys =
         "device_id,product,prj_version,atx_version,web_version,mac";
     uint32_t keylen = strlen(keys), count;
@@ -364,8 +364,8 @@ int
 database_insert_alert(database_s* db, const char* serial, jsmn_value a[])
 {
     int err = -1;
-    char vals[128];
-    const char* keys = "alert_id,who,what,site_id,time,mesg,device_id";
+    char vals[512];
+    const char* keys = "alert_id,who,what,site_id,time,mesg,name,device_id";
     uint32_t count, vlen, keylen = strlen(keys);
     jsmntok_t t[64];
     char uuid[33];
@@ -376,13 +376,14 @@ database_insert_alert(database_s* db, const char* serial, jsmn_value a[])
     vlen = snprintf(
         vals,
         sizeof(vals),
-        "\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",%.*s,\"%.*s\",\"%.*s\"",
+        "\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",%.*s,\"%.*s\",\"%.*s\",\"%.*s\"",
         32,       uuid,
         a[0].len, a[0].p, // who
         a[1].len, a[1].p, // what
         a[2].len, a[2].p, // where
         a[3].len, a[3].p, // when
         a[4].len, a[4].p, // mesg
+        a[5].len, a[5].p, // name
         (int)strlen(serial), serial);
     // clang-format on
 
