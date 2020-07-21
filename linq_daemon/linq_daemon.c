@@ -32,6 +32,7 @@
     "\"siteId\":\"%.*s\","                                                     \
     "\"when\":%d,"                                                             \
     "\"mesg\":\"%.*s\","                                                       \
+    "\"product\":\"%.*s\","                                                    \
     "\"name\":\"%.*s\""                                                        \
     "}}"
 
@@ -80,12 +81,13 @@ on_alert(
     linqd_s* l = ctx;
     log_info("(LINQ) [%.6s...] Event Alert", s);
     char when[32];
-    jsmn_value alert[6] = {
+    jsmn_value alert[7] = {
         { .p = a->who.p, .len = a->who.len },
         { .p = a->what.p, .len = a->what.len },
         { .p = a->where.p, .len = a->where.len },
         { .p = a->when.p, .len = a->when.len },
         { .p = a->mesg.p, .len = a->mesg.len },
+        { .p = a->product.p, .len = a->product.len },
         { .p = a->name.p, .len = a->name.len },
     };
     snprintf(when, sizeof(when), "%.*s", a->when.len, a->when.p);
@@ -101,6 +103,7 @@ on_alert(
         a->where.len,   a->where.p,
         atoi(when),
         a->mesg.len,    a->mesg.p,
+        a->product.len, a->product.p,
         a->name.len,    a->name.p);
     // clang-format on
     err = database_insert_alert(&l->http.db, s, alert);

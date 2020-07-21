@@ -93,10 +93,10 @@ test_linqd_receive_alert_insert(void** context_p)
 
     const char* expect_keys =
         "INSERT INTO "
-        "alerts(alert_id,who,what,site_id,time,mesg,device_id)";
+        "alerts(alert_id,who,what,site_id,time,mesg,name,product,device_id)";
     const char* expect_values =
         "VALUES(\"\",\"TestUser\",\"TestAlert\",\"Altronix Site "
-        "ID\",\"1\",\"Test Alert Message\",\"sid\");";
+        "ID\",\"1\",\"Test Alert Message\",\"sysTest\",\"\",\"sid\");";
     zmsg_t* hb = helpers_make_heartbeat("rid", "sid", "pid", "site");
     zmsg_t* alert = helpers_make_alert("rid", "sid", "pid");
     outgoing_statement* statement;

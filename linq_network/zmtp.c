@@ -122,15 +122,20 @@ pop_alert(zmsg_t* msg, linq_network_alert_s* alert)
         30,
         alert->data,
         sz,
-        6,
+        7,
         "who",   &alert->who,
         "what",  &alert->what,
         "siteId",&alert->where,
         "when",  &alert->when,
         "mesg",  &alert->mesg,
+        "product", &alert->product,
         "name",  &alert->name);
     // clang-format on
-    if (!(count == 6)) zframe_destroy(&f);
+    // Note that the product key was recently added. Products of early versions
+    // may not provide the product property in their alert. However, we still
+    // want to propogate the alert minus the product key.  So we don't consider
+    // an empty product field an error.
+    if (!(count >= 6)) zframe_destroy(&f);
     return f;
 }
 
