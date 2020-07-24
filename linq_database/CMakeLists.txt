@@ -26,6 +26,7 @@ if(BUILD_STATIC)
   install(TARGETS linq-database-static
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib
+          RUNTIME DESTINATION bin
           PUBLIC_HEADER DESTINATION include/altronix)
 endif()
 
@@ -41,5 +42,6 @@ if(BUILD_SHARED)
   install(TARGETS linq-database-shared
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib
+          RUNTIME DESTINATION bin
           PUBLIC_HEADER DESTINATION include/altronix)
 endif()

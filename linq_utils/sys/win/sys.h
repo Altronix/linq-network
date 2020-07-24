@@ -27,6 +27,10 @@ extern "C"
 {
 #endif
 
+    extern char* optarg;
+    extern int optind;
+
+    int getopt(int argc, char* const argv[], const char* optstring);
     int32_t sys_tick();
     uint32_t sys_unix();
     void sys_uuid(char* dst);

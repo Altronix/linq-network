@@ -52,16 +52,19 @@ endif()
 
 if(BUILD_SHARED)
   add_library(linq-network-shared SHARED ${SOURCES} ${HEADERS})
-  if(MSVC)
-    #TODO - https://stackoverflow.com/questions/33062728/cmake-link-shared-library-on-windows/41618677
-    target_link_libraries(linq-network-shared ${LIBS_STATIC} ${LIBS})
-  else()
-    target_link_libraries(linq-network-shared ${LIBS_SHARED} ${LIBS})
-  endif()
+  # if(MSVC)
+  #   #TODO - https://stackoverflow.com/questions/33062728/cmake-link-shared-library-on-windows/41618677
+  #   target_link_libraries(linq-network-shared ${LIBS_STATIC} ${LIBS})
+  # else()
+  #   target_link_libraries(linq-network-shared ${LIBS_SHARED} ${LIBS})
+  # endif()
+  target_link_libraries(linq-network-shared ${LIBS_SHARED} ${LIBS})
   target_compile_definitions(linq-network-shared PUBLIC ${definitions})
   target_include_directories(linq-network-shared PUBLIC ${INCS})
   target_include_directories(linq-network-shared PUBLIC ./)
-  set_target_properties(linq-network-shared PROPERTIES PUBLIC_HEADER "${INSTALL_HEADERS}")
+  set_target_properties(linq-network-shared PROPERTIES 
+    PUBLIC_HEADER "${INSTALL_HEADERS}"
+    OUTPUT_NAME "linq-network")
   install(TARGETS linq-network-shared
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib

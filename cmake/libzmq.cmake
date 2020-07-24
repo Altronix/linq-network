@@ -35,42 +35,42 @@ ExternalProject_Add(zmq-project
 		-DWITH_PERF_TOOL:BOOL=OFF
 	)
 
-      # ExternalProject_Get_Property(zmq-project install_dir)
-      # set(zmq_INCLUDE_DIR ${install_dir}/include)
-      # FILE(MAKE_DIRECTORY ${install_dir}/include)
-      # IF(NOT MSVC)
-      #   # Get the version of the ZMQ library
-      #   execute_process(COMMAND ${CMAKE_SOURCE_DIR}/scripts/read_zmq_version.sh
-      #     ${CMAKE_SOURCE_DIR}/external/libzmq/include/zmq.h
-      #     OUTPUT_VARIABLE zmq_VERSION)
-      #   set(zmq_static_LIBRARY ${CMAKE_STATIC_LIBRARY_PREFIX}zmq${CMAKE_STATIC_LIBRARY_SUFFIX})
-      #   set(zmq_shared_LIBRARY ${CMAKE_SHARED_LIBRARY_PREFIX}zmq${CMAKE_SHARED_LIBRARY_SUFFIX})
-      #   set(zmq_static_LIBRARY_LOC ${install_dir}/lib/${zmq_static_LIBRARY})
-      #   set(zmq_shared_LIBRARY_LOC ${install_dir}/lib/${zmq_shared_LIBRARY})
-      # ELSE()
-      #   execute_process(COMMAND powershell -ExecutionPolicy Bypass
-      #     -File "${CMAKE_SOURCE_DIR}/scripts/read_zmq_version.ps1"
-      #           "${CMAKE_SOURCE_DIR}/external/libzmq/include/zmq.h"
-      #     OUTPUT_VARIABLE zmq_VERSION)
-      #   STRING(REGEX REPLACE "\n" "" zmq_VERSION ${zmq_VERSION})
-      #   STRING(REGEX REPLACE "\r" "" zmq_VERSION ${zmq_VERSION})
-      #   MESSAGE(STATUS "zmq_VERSION: ${zmq_VERSION}")
-      #   set(zmq_static_LIBRARY libzmq-${CMAKE_VS_PLATFORM_TOOLSET}-mt-s-${zmq_VERSION}${CMAKE_STATIC_LIBRARY_SUFFIX})
-      #   set(zmq_shared_LIBRARY libzmq-${CMAKE_VS_PLATFORM_TOOLSET}-mt-${zmq_VERSION}${CMAKE_SHARED_LIBRARY_SUFFIX})
-      #   set(zmq_static_LIBRARY_LOC ${install_dir}/lib/${zmq_static_LIBRARY})
-      #   set(zmq_shared_LIBRARY_LOC ${install_dir}/bin/${zmq_shared_LIBRARY})
-      # ENDIF()
-      # 
-      # # zmq-static
-      # FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/libzmq-static-loc.txt ${zmq_static_LIBRARY})
-      # add_library(zmq-static STATIC IMPORTED)
-      # set_property(TARGET zmq-static PROPERTY IMPORTED_LOCATION ${zmq_static_LIBRARY_LOC})
-      # set_property(TARGET zmq-static PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${zmq_INCLUDE_DIR})
-      # add_dependencies(zmq-static zmq-project)
-      # 
-      # # zmq-shared
-      # FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/libzmq-shared-loc.txt ${zmq_shared_LIBRARY})
-      # add_library(zmq-shared STATIC IMPORTED)
-      # set_property(TARGET zmq-shared PROPERTY IMPORTED_LOCATION ${zmq_shared_LIBRARY_LOC})
-      # set_property(TARGET zmq-shared PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${zmq_INCLUDE_DIR})
-      # add_dependencies(zmq-shared zmq-project)
+ExternalProject_Get_Property(zmq-project install_dir)
+set(zmq_INCLUDE_DIR ${install_dir}/include)
+FILE(MAKE_DIRECTORY ${install_dir}/include)
+IF(NOT MSVC)
+  # Get the version of the ZMQ library
+  execute_process(COMMAND ${CMAKE_SOURCE_DIR}/scripts/read_zmq_version.sh
+    ${CMAKE_SOURCE_DIR}/external/libzmq/include/zmq.h
+    OUTPUT_VARIABLE zmq_VERSION)
+  set(zmq_static_LIBRARY ${CMAKE_STATIC_LIBRARY_PREFIX}zmq${CMAKE_STATIC_LIBRARY_SUFFIX})
+  set(zmq_shared_LIBRARY ${CMAKE_SHARED_LIBRARY_PREFIX}zmq${CMAKE_SHARED_LIBRARY_SUFFIX})
+  set(zmq_static_LIBRARY_LOC ${install_dir}/lib/${zmq_static_LIBRARY})
+  set(zmq_shared_LIBRARY_LOC ${install_dir}/lib/${zmq_shared_LIBRARY})
+ELSE()
+  execute_process(COMMAND powershell -ExecutionPolicy Bypass
+    -File "${CMAKE_SOURCE_DIR}/scripts/read_zmq_version.ps1"
+          "${CMAKE_SOURCE_DIR}/external/libzmq/include/zmq.h"
+    OUTPUT_VARIABLE zmq_VERSION)
+  STRING(REGEX REPLACE "\n" "" zmq_VERSION ${zmq_VERSION})
+  STRING(REGEX REPLACE "\r" "" zmq_VERSION ${zmq_VERSION})
+  MESSAGE(STATUS "zmq_VERSION: ${zmq_VERSION}")
+  set(zmq_static_LIBRARY libzmq-${CMAKE_VS_PLATFORM_TOOLSET}-mt-s-${zmq_VERSION}${CMAKE_STATIC_LIBRARY_SUFFIX})
+  set(zmq_shared_LIBRARY libzmq-${CMAKE_VS_PLATFORM_TOOLSET}-mt-${zmq_VERSION}${CMAKE_SHARED_LIBRARY_SUFFIX})
+  set(zmq_static_LIBRARY_LOC ${install_dir}/lib/${zmq_static_LIBRARY})
+  set(zmq_shared_LIBRARY_LOC ${install_dir}/bin/${zmq_shared_LIBRARY})
+ENDIF()
+
+# zmq-static
+FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/libzmq-static-loc.txt ${zmq_static_LIBRARY})
+add_library(zmq-static STATIC IMPORTED)
+set_property(TARGET zmq-static PROPERTY IMPORTED_LOCATION ${zmq_static_LIBRARY_LOC})
+set_property(TARGET zmq-static PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${zmq_INCLUDE_DIR})
+add_dependencies(zmq-static zmq-project)
+
+# zmq-shared
+FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/libzmq-shared-loc.txt ${zmq_shared_LIBRARY})
+add_library(zmq-shared STATIC IMPORTED)
+set_property(TARGET zmq-shared PROPERTY IMPORTED_LOCATION ${zmq_shared_LIBRARY_LOC})
+set_property(TARGET zmq-shared PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${zmq_INCLUDE_DIR})
+add_dependencies(zmq-shared zmq-project)
