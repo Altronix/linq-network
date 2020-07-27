@@ -89,6 +89,7 @@ matrix:
                   language: c
                   env:
                           - BUILD_LINQD=ON
+                            USE_SYSTEM_OPENSSL=ON
                   script:
                           - ./scripts/ci/build-c.sh
                 - os: windows
