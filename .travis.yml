@@ -9,6 +9,7 @@ before_install:
         # (Work around, manually loading submodules)
         - git submodule update --init ./external/libzmq
         - git submodule update --init ./external/czmq
+        - git submodule update --init ./external/jsmn-web-tokens
 
 matrix:
         include:

@@ -54,5 +54,5 @@ void
 device_close(device_s* d)
 {
     sqlite3_finalize(d->stmt);
-    memset(d, 0, sizeof(alert_s));
+    memset(d, 0, sizeof(device_s));
 }
