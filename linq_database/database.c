@@ -1,6 +1,7 @@
 #include "database.h"
 #include "jsmn/jsmn_helpers.h"
 #include "log.h"
+#include "user.h"
 
 #define DATABASE_DEVICES                                                       \
     "CREATE TABLE %s("                                                         \
@@ -388,4 +389,16 @@ database_insert_alert(database_s* db, const char* serial, jsmn_value a[])
 
     err = database_insert_raw_n(db, "alerts", keys, keylen, vals, vlen);
     return err;
+}
+
+LINQ_DATABASE_EXPORT int
+database_user_open(database_s* db, user_s* u, const char* user)
+{
+    return user_open(db, u, user);
+}
+
+LINQ_DATABASE_EXPORT void
+database_user_close(database_s* db, user_s* u)
+{
+    return user_close(db, u);
 }

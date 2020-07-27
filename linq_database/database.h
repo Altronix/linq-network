@@ -26,10 +26,22 @@ extern "C"
 
 #define NUM_DATABASES 3
 
+    typedef sqlite3_stmt handle;
+
     typedef struct database_s
     {
         sqlite3* db;
     } database_s;
+
+    typedef struct user_s
+    {
+        const char* id;
+        const char* user;
+        const char* pass;
+        const char* salt;
+        uint32_t role;
+        handle* stmt;
+    } user_s;
 
     LINQ_DATABASE_EXPORT void database_init(database_s* d);
     LINQ_DATABASE_EXPORT void database_deinit(database_s* d);
@@ -70,6 +82,10 @@ extern "C"
         uint32_t json_len);
     LINQ_DATABASE_EXPORT int
     database_insert_alert(database_s*, const char*, jsmn_value a[]);
+
+    LINQ_DATABASE_EXPORT int
+    database_user_open(database_s*, user_s* u, const char*);
+    LINQ_DATABASE_EXPORT void database_user_close(database_s*, user_s*);
 
 #ifdef __cplusplus
 }
