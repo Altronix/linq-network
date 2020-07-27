@@ -16,6 +16,7 @@ set(HEADERS
 append_log_level_compiler_flags(definitions)
 append_mongoose_compiler_flags(definitions)
 append_sqlite_compiler_flags(definitions)
+set(INSTALL_HEADERS http.h)
 list(APPEND definitions "-DCZMQ_STATIC")
 list(APPEND definitions "-DZMQ_STATIC")
 
@@ -52,7 +53,6 @@ endif()
 
 if(BUILD_STATIC)
   # for some reason windows is trying to link with shared if it exists
-  # when a library has the same name (IE linq-http.lib and linq-http.dll)
   # cmake seems to prefer the shared target even when explicitly linking with
   # the static target.
   # (For some reason only linq_http is doing that....)
@@ -77,7 +77,7 @@ if(BUILD_SHARED)
   target_include_directories(linq-http-shared PUBLIC ../include)
   set_target_properties(linq-http-shared PROPERTIES 
     PUBLIC_HEADER "${INSTALL_HEADERS}"
-    OUTPUT_NAME "linq-http-shared")
+    OUTPUT_NAME "linq-http")
   install(TARGETS linq-http-shared
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib
