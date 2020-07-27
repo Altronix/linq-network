@@ -91,6 +91,7 @@ matrix:
                           - BUILD_LINQD=ON
                             USE_SYSTEM_OPENSSL=ON
                   script:
+                          - choco install openssl
                           - ./scripts/ci/build-c.sh
                 - os: windows
                   language: node_js
