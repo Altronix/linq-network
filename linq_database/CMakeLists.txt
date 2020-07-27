@@ -19,7 +19,9 @@ if(BUILD_STATIC)
   add_library(linq-database-static STATIC ${SOURCES} ${HEADERS})
   target_link_libraries(linq-database-static ${LIBS_STATIC})
   target_include_directories(linq-database-static PUBLIC ${INCS})
-  target_compile_definitions(linq-database-static PUBLIC ${definitions})
+  target_compile_definitions(linq-database-static PUBLIC 
+    ${definitions}
+    "LINQ_DATABASE_STATIC")
   set_target_properties(linq-database-static PROPERTIES
     PUBLIC_HEADER "${INSTALL_HEADERS}"
     OUTPUT_NAME "linq-database")
@@ -35,7 +37,9 @@ if(BUILD_SHARED)
   add_library(linq-database-shared SHARED ${SOURCES} ${HEADERS})
   target_link_libraries(linq-database-shared ${LIBS_SHARED})
   target_include_directories(linq-database-shared PUBLIC ${INCS})
-  target_compile_definitions(linq-database-shared PUBLIC ${definitions})
+  target_compile_definitions(linq-database-shared PUBLIC 
+    "DLL_EXPORT" 
+    ${definitions})
   set_target_properties(linq-database-shared PROPERTIES
     PUBLIC_HEADER "${INSTALL_HEADERS}"
     OUTPUT_NAME "linq-database")

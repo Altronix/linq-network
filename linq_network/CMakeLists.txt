@@ -28,7 +28,9 @@ endif()
 if(ENABLE_TESTING)
   add_library(linq-network-test-static STATIC ${SOURCES} ${HEADERS})
   target_link_libraries(linq-network-test-static ${LIBS_STATIC} ${LIBS})
-  target_compile_definitions(linq-network-test-static PUBLIC ${definitions})
+  target_compile_definitions(linq-network-test-static PUBLIC 
+    "LINQ_NETWORK_STATIC" 
+    ${definitions})
   target_compile_definitions(linq-network-test-static PRIVATE "-DTESTING")
   target_include_directories(linq-network-test-static PUBLIC ${INCS})
   target_include_directories(linq-network-test-static PUBLIC ./)
@@ -37,7 +39,9 @@ endif()
 if(BUILD_STATIC)
   add_library(linq-network-static STATIC ${SOURCES} ${HEADERS})
   target_link_libraries(linq-network-static ${LIBS_STATIC} ${LIBS})
-  target_compile_definitions(linq-network-static PUBLIC ${definitions})
+  target_compile_definitions(linq-network-static PUBLIC 
+    "LINQ_NETWORK_STATIC" 
+    ${definitions})
   target_include_directories(linq-network-static PUBLIC ${INCS})
   target_include_directories(linq-network-static PUBLIC ./)
   set_target_properties(linq-network-static PROPERTIES 
@@ -59,7 +63,9 @@ if(BUILD_SHARED)
   #   target_link_libraries(linq-network-shared ${LIBS_SHARED} ${LIBS})
   # endif()
   target_link_libraries(linq-network-shared ${LIBS_SHARED} ${LIBS})
-  target_compile_definitions(linq-network-shared PUBLIC ${definitions})
+  target_compile_definitions(linq-network-shared PUBLIC 
+    "DLL_EXPORT" 
+    ${definitions})
   target_include_directories(linq-network-shared PUBLIC ${INCS})
   target_include_directories(linq-network-shared PUBLIC ./)
   set_target_properties(linq-network-shared PROPERTIES 

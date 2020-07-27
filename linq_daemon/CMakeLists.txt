@@ -7,6 +7,7 @@ target_link_libraries(linq-daemon-static
   ${JSMN_WEB_TOKENS_STATIC_LIBS}
   ${LIBZMQ_STATIC_LIBS}
   ${TLS_STATIC_LIBS})
+target_compile_definitions(linq-daemon-static PUBLIC "LINQ_DAEMON_STATIC")
   
 set_target_properties(linq-daemon-static PROPERTIES 
   PUBLIC_HEADER "linq_daemon.h")
