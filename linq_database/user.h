@@ -9,7 +9,7 @@ extern "C"
 #endif
 
     int user_open(database_s* db, user_s* u, const char* user);
-    void user_close(database_s* db, user_s* u);
+    void user_close(user_s* u);
 
 #ifdef __cplusplus
 }

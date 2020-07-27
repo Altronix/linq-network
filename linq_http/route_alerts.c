@@ -18,7 +18,7 @@
     "\"who\":\"%s\","                                                          \
     "\"what\":\"%s\","                                                         \
     "\"site_id\":\"%s\","                                                      \
-    "\"when\":%s,"                                                             \
+    "\"when\":%d,"                                                             \
     "\"mesg\":\"%s\""                                                          \
     "}"
 
@@ -36,8 +36,9 @@ route_alerts(
     char b[LINQ_NETW_MAX_RESPONSE_SIZE];
     const char *count = NULL, *offset = NULL;
     uint32_t countl, offsetl;
-    sqlite3_stmt* stmt;
+    // sqlite3_stmt* stmt;
     database_s* db = &((http_s*)ctx->context)->db;
+    alert_s a;
 
     if (!(meth == HTTP_METHOD_GET)) {
         http_printf_json(
@@ -51,41 +52,39 @@ route_alerts(
 
     // TODO test should compare db statements with query string vs no query str
     if (count && offset && countl < 6 && offsetl < 6) {
-        l = snprintf(b, sizeof(b), QUERY, countl, count, offsetl, offset);
-    } else {
-        l = snprintf(b, sizeof(b), QUERY_STATIC);
+        snprintf(b, sizeof(b), "%.*s", countl, count);
+        countl = atoi(b);
+        snprintf(b, sizeof(b), "%.*s", offsetl, offset);
+        offsetl = atoi(b);
     }
-    err = sqlite3_prepare_v2(db->db, b, l + 1, &stmt, NULL);
-    linq_network_assert(err == SQLITE_OK);
+    // err = sqlite3_prepare_v2(db->db, b, l + 1, &stmt, NULL);
+    // linq_network_assert(err == SQLITE_OK);
 
     // Convert database output to json
     l = snprintf(b, sizeof(b), "{\"alerts\":[");
-    err = sqlite3_step(stmt);
-    while (err == SQLITE_ROW && (l < sizeof(b))) {
-        const char *alert_id = (const char*)sqlite3_column_text(stmt, 0),
-                   *who = (const char*)sqlite3_column_text(stmt, 1),
-                   *what = (const char*)sqlite3_column_text(stmt, 2),
-                   *site = (const char*)sqlite3_column_text(stmt, 3),
-                   *when = (const char*)sqlite3_column_text(stmt, 4),
-                   *mesg = (const char*)sqlite3_column_text(stmt, 5),
-                   *device_id = (const char*)sqlite3_column_text(stmt, 6);
-        l += snprintf(
-            &b[l],
-            sizeof(b) - l,
-            ALERT,
-            alert_id,
-            device_id,
-            who,
-            what,
-            site,
-            when,
-            mesg);
-        err = sqlite3_step(stmt);
-        if (err == SQLITE_ROW && l < sizeof(b)) {
-            l += snprintf(&b[l], sizeof(b) - l, ",");
+    // err = sqlite3_step(stmt);
+    err = database_alert_open(db, &a, countl, offsetl);
+    if (!err) {
+        while (err != DATABASE_DONE && l < sizeof(b)) {
+            l += snprintf(
+                &b[l],
+                sizeof(b) - l,
+                ALERT,
+                a.id,
+                a.device,
+                a.who,
+                a.what,
+                a.site,
+                a.time,
+                a.mesg);
+            // err = sqlite3_step(stmt);
+            err = database_alert_next(&a);
+            if (err != DATABASE_DONE && l < sizeof(b)) {
+                l += snprintf(&b[l], sizeof(b) - l, ",");
+            }
         }
+        database_alert_close(&a);
     }
-    sqlite3_finalize(stmt);
     if (l < sizeof(b)) {
         l += snprintf(&b[l], sizeof(b) - l, "]}");
         http_printf_json(ctx->curr_connection, 200, b);

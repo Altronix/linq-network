@@ -1,5 +1,5 @@
-set(SOURCES database.c user.c sqlite3.c)
-set(HEADERS database.h user.h sqlite3.h)
+set(SOURCES database.c user.c alert.c sqlite3.c)
+set(HEADERS database.h user.h alert.h sqlite3.h)
 set(INSTALL_HEADERS database.h)
 set(INCS ./)
 

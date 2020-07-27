@@ -1,5 +1,4 @@
 #include "user.h"
-#include "sqlite3.h"
 
 #define QUERY                                                                  \
     "SELECT user_id,user,pass,salt "                                           \
@@ -31,8 +30,9 @@ user_open(database_s* db, user_s* u, const char* user)
 }
 
 void
-user_close(database_s* db, user_s* u)
+user_close(user_s* u)
 {
     sqlite3_finalize(u->stmt);
+    memset(u, 0, sizeof(user_s));
 }
 

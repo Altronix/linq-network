@@ -1,4 +1,5 @@
 #include "database.h"
+#include "alert.h"
 #include "jsmn/jsmn_helpers.h"
 #include "log.h"
 #include "user.h"
@@ -398,7 +399,26 @@ database_user_open(database_s* db, user_s* u, const char* user)
 }
 
 LINQ_DATABASE_EXPORT void
-database_user_close(database_s* db, user_s* u)
+database_user_close(user_s* u)
 {
-    return user_close(db, u);
+    return user_close(u);
 }
+
+LINQ_DATABASE_EXPORT int
+database_alert_open(database_s* db, alert_s* a, uint32_t limit, uint32_t offset)
+{
+    return alert_open(db, a, limit, offset);
+}
+
+LINQ_DATABASE_EXPORT int
+database_alert_next(alert_s* a)
+{
+    return alert_next(a);
+}
+
+LINQ_DATABASE_EXPORT void
+database_alert_close(alert_s* a)
+{
+    return alert_close(a);
+}
+

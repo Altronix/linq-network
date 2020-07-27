@@ -5,12 +5,6 @@
 
 #include "http_auth_unsafe.h"
 
-#define QUERY                                                                  \
-    "SELECT user_id,user,pass,salt "                                           \
-    "FROM users "                                                              \
-    "WHERE user=\"%s\" "                                                       \
-    "LIMIT 1"
-
 #include "openssl/sha.h"
 
 /// gen_salt() - Generate randomness to concat with password for hashing
@@ -135,16 +129,16 @@ http_auth_login(
     uint32_t now;
     char test[HASH_LEN];
     char concat[PASS_MAX_LEN + SALT_LEN];
-    user_s* u;
+    user_s u;
 
-    err = database_user_open(db, u, user);
+    err = database_user_open(db, &u, user);
     if (!err) {
         err = -1;
-        l = snprintf(concat, sizeof(concat), "%s%s", u->pass, u->salt);
+        l = snprintf(concat, sizeof(concat), "%s%s", u.pass, u.salt);
         if (l <= sizeof(concat)) {
             now = sys_unix();
             hash_256(concat, l, test);
-            err = memcmp(u->pass, test, HASH_LEN);
+            err = memcmp(u.pass, test, HASH_LEN);
             if (!err && !(err = jsmn_token_init(
                               token,
                               JSMN_ALG_HS256,
@@ -158,7 +152,7 @@ http_auth_login(
                 memset(s, 0, SECRET_LEN);
             }
         }
-        database_user_close(db, u);
+        database_user_close(&u);
     }
     return err;
 }

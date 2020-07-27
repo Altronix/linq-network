@@ -25,6 +25,7 @@ extern "C"
 #endif
 
 #define NUM_DATABASES 3
+#define DATABASE_DONE -2
 
     typedef sqlite3_stmt handle;
 
@@ -42,6 +43,19 @@ extern "C"
         uint32_t role;
         handle* stmt;
     } user_s;
+
+    typedef struct alert_s
+    {
+        const char* id;
+        const char* who;
+        const char* what;
+        const char* site;
+        uint32_t time;
+        const char* mesg;
+        const char* name;
+        const char* device;
+        handle* stmt;
+    } alert_s;
 
     LINQ_DATABASE_EXPORT void database_init(database_s* d);
     LINQ_DATABASE_EXPORT void database_deinit(database_s* d);
@@ -85,7 +99,11 @@ extern "C"
 
     LINQ_DATABASE_EXPORT int
     database_user_open(database_s*, user_s* u, const char*);
-    LINQ_DATABASE_EXPORT void database_user_close(database_s*, user_s*);
+    LINQ_DATABASE_EXPORT void database_user_close(user_s*);
+    LINQ_DATABASE_EXPORT int
+    database_alert_open(database_s*, alert_s*, uint32_t limit, uint32_t offset);
+    LINQ_DATABASE_EXPORT int database_alert_next(alert_s*);
+    LINQ_DATABASE_EXPORT void database_alert_close(alert_s*);
 
 #ifdef __cplusplus
 }
