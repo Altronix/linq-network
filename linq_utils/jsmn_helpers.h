@@ -38,6 +38,8 @@ extern "C"
 {
 #endif
 
+#include "sys.h"
+
 #define JSMN_HEADER
 #include "jsmn.h"
 
@@ -51,14 +53,14 @@ extern "C"
 
     typedef unsigned char byte;
 
-    void jsmn_foreach(
+    LINQ_UTILS_EXPORT void jsmn_foreach(
         jsmntok_t* t,
         uint32_t n_tokens,
         const char* data,
         void (*cb)(void*, jsmn_helpers_value* key, jsmn_helpers_value* val),
         void*);
 
-    uint32_t jsmn_parse_tokens(
+    LINQ_UTILS_EXPORT uint32_t jsmn_parse_tokens(
         jsmntok_t*,
         uint32_t sz,
         const char* data,
@@ -66,7 +68,7 @@ extern "C"
         uint32_t,
         ...);
 
-    uint32_t jsmn_parse_tokens_path(
+    LINQ_UTILS_EXPORT uint32_t jsmn_parse_tokens_path(
         const char* path,
         jsmntok_t*,
         uint32_t sz,
