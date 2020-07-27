@@ -1,16 +1,6 @@
 #include "routes.h"
 #include "sys.h"
 
-#define QUERY                                                                  \
-    "SELECT alert_id,who,what,site_id,time,mesg,device_id "                    \
-    "FROM alerts ORDER BY time "                                               \
-    "LIMIT %.*s OFFSET %.*s"
-
-#define QUERY_STATIC                                                           \
-    "SELECT alert_id,who,what,site_id,time,mesg,device_id "                    \
-    "FROM alerts ORDER BY time "                                               \
-    "LIMIT 50 OFFSET 0"
-
 #define ALERT                                                                  \
     "{"                                                                        \
     "\"alert_id\":\"%s\","                                                     \
