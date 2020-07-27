@@ -85,6 +85,12 @@ matrix:
                   script:
                           - ./scripts/ci/build-c.sh
                 - os: windows
+                  language: c
+                  env:
+                          - BUILD_LINQD=ON
+                  script:
+                          - ./scripts/ci/build-c.sh
+                - os: windows
                   language: node_js
                   node_js:
                           - 10
