@@ -1,5 +1,6 @@
 #include "database.h"
 #include "alert.h"
+#include "device.h"
 #include "jsmn/jsmn_helpers.h"
 #include "log.h"
 #include "user.h"
@@ -420,5 +421,27 @@ LINQ_DATABASE_EXPORT void
 database_alert_close(alert_s* a)
 {
     return alert_close(a);
+}
+
+LINQ_DATABASE_EXPORT int
+database_device_open(
+    database_s* db,
+    device_s* d,
+    uint32_t limit,
+    uint32_t offset)
+{
+    return device_open(db, d, limit, offset);
+}
+
+LINQ_DATABASE_EXPORT int
+database_device_next(device_s* d)
+{
+    return device_next(d);
+}
+
+LINQ_DATABASE_EXPORT void
+database_device_close(device_s* d)
+{
+    return device_close(d);
 }
 

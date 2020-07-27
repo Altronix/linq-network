@@ -57,6 +57,17 @@ extern "C"
         handle* stmt;
     } alert_s;
 
+    typedef struct device_s
+    {
+        const char* id;
+        const char* product;
+        const char* prj_version;
+        const char* atx_version;
+        const char* web_version;
+        const char* mac;
+        handle* stmt;
+    } device_s;
+
     LINQ_DATABASE_EXPORT void database_init(database_s* d);
     LINQ_DATABASE_EXPORT void database_deinit(database_s* d);
     LINQ_DATABASE_EXPORT bool database_row_exists(
@@ -104,6 +115,13 @@ extern "C"
     database_alert_open(database_s*, alert_s*, uint32_t limit, uint32_t offset);
     LINQ_DATABASE_EXPORT int database_alert_next(alert_s*);
     LINQ_DATABASE_EXPORT void database_alert_close(alert_s*);
+    LINQ_DATABASE_EXPORT int database_device_open(
+        database_s*,
+        device_s*,
+        uint32_t limit,
+        uint32_t offset);
+    LINQ_DATABASE_EXPORT int database_device_next(device_s*);
+    LINQ_DATABASE_EXPORT void database_device_close(device_s*);
 
 #ifdef __cplusplus
 }

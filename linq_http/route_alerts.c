@@ -26,7 +26,6 @@ route_alerts(
     char b[LINQ_NETW_MAX_RESPONSE_SIZE];
     const char *count = NULL, *offset = NULL;
     uint32_t countl, offsetl;
-    // sqlite3_stmt* stmt;
     database_s* db = &((http_s*)ctx->context)->db;
     alert_s a;
 
@@ -47,12 +46,9 @@ route_alerts(
         snprintf(b, sizeof(b), "%.*s", offsetl, offset);
         offsetl = atoi(b);
     }
-    // err = sqlite3_prepare_v2(db->db, b, l + 1, &stmt, NULL);
-    // linq_network_assert(err == SQLITE_OK);
 
     // Convert database output to json
     l = snprintf(b, sizeof(b), "{\"alerts\":[");
-    // err = sqlite3_step(stmt);
     err = database_alert_open(db, &a, countl, offsetl);
     if (!err) {
         while (err != DATABASE_DONE && l < sizeof(b)) {
