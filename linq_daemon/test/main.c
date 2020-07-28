@@ -10,6 +10,9 @@
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
 
+// TODO a failing test can break passing test :/
+//      need to refactor so that we reset on start of each test
+
 static void
 test_linqd_receive_heartbeat_insert(void** context_p)
 {
