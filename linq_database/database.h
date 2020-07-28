@@ -1,7 +1,6 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
-#include "jsmn/jsmn_helpers.h"
 #include "sqlite3.h"
 #include "sys.h"
 

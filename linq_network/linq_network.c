@@ -3,7 +3,6 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "linq_network.h"
-#include "jsmn_helpers.h"
 #include "log.h"
 #include "node.h"
 #include "sys.h"

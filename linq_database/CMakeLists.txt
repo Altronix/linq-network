@@ -9,8 +9,8 @@ else()
   list(APPEND LIBS ws2_32 iphlpapi wldap32 uuid Rpcrt4)
 endif()
 
-set(LIBS_STATIC ${LIBS} ${JSMN_WEB_TOKENS_STATIC_LIBS} linq-utils-static)
-set(LIBS_SHARED ${LIBS} ${JSMN_WEB_TOKENS_SHARED_LIBS} linq-utils-shared)
+set(LIBS_STATIC ${LIBS} linq-utils-static)
+set(LIBS_SHARED ${LIBS} linq-utils-shared)
 
 append_log_level_compiler_flags(definitions)
 
