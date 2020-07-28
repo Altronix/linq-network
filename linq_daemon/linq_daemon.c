@@ -45,7 +45,8 @@ on_heartbeat_response(
     if (e) {
         log_warn("(LINQ) [%.6s...] (%.3d) About request failed!", serial, e);
     } else {
-        database_insert_device_from_json(&l->http.db, serial, r, strlen(r));
+        log_fatal("(LINQ) Not supported!!!!");
+        // database_insert_device_from_json(&l->http.db, serial, r, strlen(r));
     }
 }
 
@@ -79,6 +80,8 @@ on_alert(
     linqd_s* l = ctx;
     log_info("(LINQ) [%.6s...] Event Alert", s);
     char when[32];
+    log_fatal("(LINQ) Not supported!!!!");
+    /*
     jsmn_value alert[5] = {
         { .p = a->who.p, .len = a->who.len },
         { .p = a->what.p, .len = a->what.len },
@@ -101,6 +104,7 @@ on_alert(
         a->mesg.len,    a->mesg.p);
     // clang-format on
     err = database_insert_alert(&l->http.db, s, alert);
+    */
 }
 
 static void
