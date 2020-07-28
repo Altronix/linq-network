@@ -37,7 +37,7 @@ endif()
 if(BUILD_SHARED)
   add_library(linq-utils-shared SHARED ${SOURCES} ${HEADERS})
   target_link_libraries(linq-utils-shared ${LIBS_SHARED})
-  target_compile_definitions(linq-utils-static PUBLIC "DLL_EXPORT")
+  target_compile_definitions(linq-utils-shared PUBLIC "DLL_EXPORT")
   target_include_directories(linq-utils-shared PUBLIC ${INCS})
   set_target_properties(linq-utils-shared PROPERTIES
     PUBLIC_HEADER "${HEADERS}"

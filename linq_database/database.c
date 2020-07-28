@@ -319,7 +319,7 @@ database_user_open(database_s* db, user_s* u, const char* user)
 LINQ_DATABASE_EXPORT void
 database_user_close(user_s* u)
 {
-    return user_close(u);
+    user_close(u);
 }
 
 LINQ_DATABASE_EXPORT int
@@ -331,7 +331,7 @@ database_alert_open(database_s* db, alert_s* a, uint32_t limit, uint32_t offset)
 LINQ_DATABASE_EXPORT void
 database_alert_close(alert_s* a)
 {
-    return alert_close(a);
+    alert_close(a);
 }
 
 LINQ_DATABASE_EXPORT int
@@ -359,7 +359,7 @@ database_device_open(
 LINQ_DATABASE_EXPORT void
 database_device_close(device_s* d)
 {
-    return device_close(d);
+    device_close(d);
 }
 
 LINQ_DATABASE_EXPORT int

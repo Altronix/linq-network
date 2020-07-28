@@ -41,7 +41,7 @@ is_router(zsock_t* sock)
 }
 
 static atx_str
-json_get_str(const char* b, const jsmntok_t* t)
+json_get_str(const char* b, const jsontok* t)
 {
     atx_str ret;
     ret.p = &b[t->start];
@@ -124,11 +124,11 @@ pop_alert(zmsg_t* msg, linq_network_alert_s* a)
     zframe_t* f = pop_le(msg, JSON_LEN);
     sz = zframe_size(f);
     memcpy(a->data, zframe_data(f), sz);
-    const jsmntok_t *who, *what, *site, *when, *mesg;
-    jsmntok_t t[30];
-    jsmn_parser p;
-    jsmn_init(&p);
-    count = jsmn_parse(&p, a->data, sz, t, 30);
+    const jsontok *who, *what, *site, *when, *mesg;
+    jsontok t[30];
+    json_parser p;
+    json_init(&p);
+    count = json_parse(&p, a->data, sz, t, 30);
     if (count > 0 && (who = json_get_member(a->data, t, "who")) &&
         (what = json_get_member(a->data, t, "what")) &&
         (site = json_get_member(a->data, t, "siteId")) &&
@@ -152,11 +152,11 @@ pop_email(zmsg_t* msg, linq_network_email_s* emails)
     zframe_t* f = pop_le(msg, JSON_LEN);
     sz = zframe_size(f);
     memcpy(emails->data, zframe_data(f), sz);
-    jsmn_parser p;
-    jsmntok_t t[30];
-    const jsmntok_t *to0, *to1, *to2, *to3, *to4;
-    jsmn_init(&p);
-    count = jsmn_parse(&p, emails->data, sz, t, 30);
+    json_parser p;
+    jsontok t[30];
+    const jsontok *to0, *to1, *to2, *to3, *to4;
+    json_init(&p);
+    count = json_parse(&p, emails->data, sz, t, 30);
     if (count > 0 && (to0 = json_get_member(emails->data, t, "to0")) &&
         (to1 = json_get_member(emails->data, t, "to1")) &&
         (to2 = json_get_member(emails->data, t, "to2")) &&

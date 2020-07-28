@@ -41,8 +41,8 @@ extern "C"
 {
 #endif
 
-    extern char* optarg;
-    extern int optind;
+    LINQ_UTILS_EXPORT extern char* optarg;
+    LINQ_UTILS_EXPORT extern int optind;
 
     LINQ_UTILS_EXPORT int
     getopt(int argc, char* const argv[], const char* optstring);
