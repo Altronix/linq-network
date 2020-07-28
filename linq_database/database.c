@@ -448,3 +448,8 @@ database_device_close(device_s* d)
     return device_close(d);
 }
 
+LINQ_DATABASE_EXPORT int
+database_alert_insert(database_s* db, const char* serial, alert_insert_s* a)
+{
+    return alert_insert(db, serial, a);
+}

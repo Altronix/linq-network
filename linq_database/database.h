@@ -1,6 +1,7 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
+#include "json.h"
 #include "sqlite3.h"
 #include "sys.h"
 
@@ -55,6 +56,18 @@ extern "C"
         const char* device;
         handle* stmt;
     } alert_s;
+
+    typedef struct alert_insert_s
+    {
+        json_value id;
+        json_value who;
+        json_value what;
+        json_value site;
+        json_value time;
+        json_value mesg;
+        json_value name;
+        json_value device;
+    } alert_insert_s;
 
     typedef struct device_s
     {
@@ -114,8 +127,10 @@ extern "C"
     LINQ_DATABASE_EXPORT void database_user_close(user_s*);
     LINQ_DATABASE_EXPORT int
     database_alert_open(database_s*, alert_s*, uint32_t limit, uint32_t offset);
-    LINQ_DATABASE_EXPORT int database_alert_next(alert_s*);
     LINQ_DATABASE_EXPORT void database_alert_close(alert_s*);
+    LINQ_DATABASE_EXPORT int database_alert_next(alert_s*);
+    LINQ_DATABASE_EXPORT int
+    database_alert_insert(database_s*, const char*, alert_insert_s*);
     LINQ_DATABASE_EXPORT int database_device_open(
         database_s*,
         device_s*,

@@ -10,6 +10,12 @@
 extern "C"
 {
 #endif
+    typedef struct json_value
+    {
+        const char* p;
+        uint32_t len;
+    } json_value;
+
     LINQ_UTILS_EXPORT bool json_tok_is_null(
         const char* buffer,
         const jsmntok_t* tok);
@@ -23,6 +29,8 @@ extern "C"
     LINQ_UTILS_EXPORT const jsmntok_t* json_get_arr(
         const jsmntok_t tok[],
         size_t index);
+    LINQ_UTILS_EXPORT json_value
+    json_tok_value(const char* buf, const jsmntok_t* tok);
     LINQ_UTILS_EXPORT const jsmntok_t*
     json_delve(const char* buf, const jsmntok_t* tok, const char* guide);
     LINQ_UTILS_EXPORT int

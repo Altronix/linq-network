@@ -69,6 +69,15 @@ json_get_arr(const jsmntok_t tok[], size_t index)
     return NULL;
 }
 
+json_value
+json_tok_value(const char* b, const jsmntok_t* t)
+{
+    json_value ret;
+    ret.p = &b[t->start];
+    ret.len = t->end - t->start;
+    return ret;
+}
+
 const jsmntok_t*
 json_delve(const char* buf, const jsmntok_t* tok, const char* guide)
 {

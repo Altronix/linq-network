@@ -33,6 +33,13 @@ alert_open(database_s* db, alert_s* a, uint32_t limit, uint32_t offset)
     }
 }
 
+void
+alert_close(alert_s* a)
+{
+    sqlite3_finalize(a->stmt);
+    memset(a, 0, sizeof(alert_s));
+}
+
 int
 alert_next(alert_s* a)
 {
@@ -52,10 +59,37 @@ alert_next(alert_s* a)
     }
 }
 
-void
-alert_close(alert_s* a)
+int
+alert_insert(database_s* db, const char* serial, alert_insert_s* a)
 {
-    sqlite3_finalize(a->stmt);
-    memset(a, 0, sizeof(alert_s));
-}
 
+    int err = -1;
+    char vals[128];
+    const char* keys = "alert_id,who,what,site_id,time,mesg,device_id";
+    uint32_t count, vlen, keylen = strlen(keys);
+    jsmntok_t t[64];
+    char uuid[33];
+    sys_uuid(uuid);
+
+    // Print out sqlite format values
+    if (a->who.p && a->what.p && a->site.p && a->time.p && a->mesg.p) {
+        // clang-format off
+        vlen = snprintf(
+            vals,
+            sizeof(vals),
+            "\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",%.*s,\"%.*s\",\"%.*s\"",
+            32,       uuid,
+            a->who.len, a->who.p, // who
+            a->what.len, a->what.p, // what
+            a->site.len, a->site.p, // where
+            a->time.len, a->time.p, // when
+            a->mesg.len, a->mesg.p, // mesg
+            (int)strlen(serial), serial);
+        // clang-format on
+
+        err = database_insert_raw_n(db, "alerts", keys, keylen, vals, vlen);
+        return err;
+    } else {
+        return -1;
+    }
+}

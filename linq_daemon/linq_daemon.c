@@ -30,7 +30,7 @@
     "\"who\":\"%.*s\","                                                        \
     "\"what\":\"%.*s\","                                                       \
     "\"siteId\":\"%.*s\","                                                     \
-    "\"when\":%d,"                                                             \
+    "\"when\":%.*s,"                                                           \
     "\"mesg\":\"%.*s\""                                                        \
     "}}"
 
@@ -72,39 +72,32 @@ on_hb(void* ctx, const char* s)
 static void
 on_alert(
     void* ctx,
-    const char* s,
+    const char* serial,
     linq_network_alert_s* a,
     linq_network_email_s* email)
 {
     int err;
     linqd_s* l = ctx;
-    log_info("(LINQ) [%.6s...] Event Alert", s);
+    log_info("(LINQ) [%.6s...] Event Alert", serial);
     char when[32];
-    log_fatal("(LINQ) Not supported!!!!");
-    /*
-    jsmn_value alert[5] = {
-        { .p = a->who.p, .len = a->who.len },
-        { .p = a->what.p, .len = a->what.len },
-        { .p = a->where.p, .len = a->where.len },
-        { .p = a->when.p, .len = a->when.len },
-        { .p = a->mesg.p, .len = a->mesg.len },
-    };
-    snprintf(when, sizeof(when), "%.*s", a->when.len, a->when.p);
-
+    alert_insert_s alert = { .who = { .p = a->who.p, .len = a->who.len },
+                             .what = { .p = a->what.p, .len = a->what.len },
+                             .site = { .p = a->where.p, .len = a->where.len },
+                             .time = { .p = a->when.p, .len = a->when.len },
+                             .mesg = { .p = a->mesg.p, .len = a->mesg.len } };
     // clang-format off
     http_broadcast_json(
         &l->http,
         200,
         WEBSOCKET_ALERT_FMT,
-        strlen(s),      s,
+        strlen(serial),      serial,
         a->who.len,     a->who.p,
         a->what.len,    a->what.p,
         a->where.len,   a->where.p,
-        atoi(when),
+        a->when.len,   a->when.p,
         a->mesg.len,    a->mesg.p);
     // clang-format on
-    err = database_insert_alert(&l->http.db, s, alert);
-    */
+    err = database_alert_insert(&l->http.db, serial, &alert);
 }
 
 static void
