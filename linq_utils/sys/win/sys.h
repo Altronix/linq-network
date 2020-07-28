@@ -45,6 +45,7 @@ extern "C"
     LINQ_UTILS_EXPORT extern int optind;
     LINQ_UTILS_EXPORT int optind_get();
     LINQ_UTILS_EXPORT char* optarg_get();
+    LINQ_UTILS_EXPORT void optind_set(int val);
 
     LINQ_UTILS_EXPORT int
     getopt(int argc, char* const argv[], const char* optstring);
