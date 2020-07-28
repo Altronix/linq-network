@@ -45,8 +45,7 @@ on_heartbeat_response(
     if (e) {
         log_warn("(LINQ) [%.6s...] (%.3d) About request failed!", serial, e);
     } else {
-        log_fatal("(LINQ) Not supported!!!!");
-        // database_insert_device_from_json(&l->http.db, serial, r, strlen(r));
+        database_device_insert_json(&l->http.db, serial, r, strlen(r));
     }
 }
 

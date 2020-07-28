@@ -80,6 +80,16 @@ extern "C"
         handle* stmt;
     } device_s;
 
+    typedef struct device_insert_s
+    {
+        json_value id;
+        json_value product;
+        json_value prj_version;
+        json_value atx_version;
+        json_value web_version;
+        json_value mac;
+    } device_insert_s;
+
     LINQ_DATABASE_EXPORT void database_init(database_s* d);
     LINQ_DATABASE_EXPORT void database_deinit(database_s* d);
     LINQ_DATABASE_EXPORT bool database_row_exists(
@@ -112,15 +122,6 @@ extern "C"
         uint32_t keys_len,
         const char* vals,
         uint32_t vals_len);
-    /*
-    LINQ_DATABASE_EXPORT int database_insert_device_from_json(
-        database_s* db,
-        const char* serial,
-        const char* json,
-        uint32_t json_len);
-    LINQ_DATABASE_EXPORT int
-    database_insert_alert(database_s*, const char*, jsmn_value a[]);
-    */
 
     LINQ_DATABASE_EXPORT int
     database_user_open(database_s*, user_s* u, const char*);
@@ -136,8 +137,17 @@ extern "C"
         device_s*,
         uint32_t limit,
         uint32_t offset);
-    LINQ_DATABASE_EXPORT int database_device_next(device_s*);
     LINQ_DATABASE_EXPORT void database_device_close(device_s*);
+    LINQ_DATABASE_EXPORT int database_device_next(device_s*);
+    LINQ_DATABASE_EXPORT int database_device_insert(
+        database_s* db,
+        const char* serial,
+        device_insert_s* d);
+    LINQ_DATABASE_EXPORT int database_device_insert_json(
+        database_s* db,
+        const char* serial,
+        const char* json,
+        uint32_t json_len);
 
 #ifdef __cplusplus
 }

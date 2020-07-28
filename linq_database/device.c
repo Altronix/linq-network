@@ -33,6 +33,13 @@ device_open(database_s* db, device_s* d, uint32_t limit, uint32_t offset)
     }
 }
 
+void
+device_close(device_s* d)
+{
+    sqlite3_finalize(d->stmt);
+    memset(d, 0, sizeof(device_s));
+}
+
 int
 device_next(device_s* d)
 {
@@ -50,9 +57,65 @@ device_next(device_s* d)
     }
 }
 
-void
-device_close(device_s* d)
+int
+device_insert_json(
+    database_s* db,
+    const char* serial,
+    const char* json,
+    uint32_t json_len)
 {
-    sqlite3_finalize(d->stmt);
-    memset(d, 0, sizeof(device_s));
+    jsmn_parser p;
+    jsmn_init(&p);
+    jsmntok_t t[64];
+    const jsmntok_t *product, *prj, *atx, *web, *mac;
+    device_insert_s device;
+    uint32_t count = jsmn_parse(&p, json, json_len, t, 64);
+    int err = -1;
+    if (count > 0 && (product = json_delve(json, t, ".about.product")) &&
+        (atx = json_delve(json, t, ".about.atxVersion")) &&
+        (prj = json_delve(json, t, ".about.prjVersion")) &&
+        (web = json_delve(json, t, ".about.webVersion")) &&
+        (mac = json_delve(json, t, ".about.mac"))) {
+        device.product = json_tok_value(json, product);
+        device.prj_version = json_tok_value(json, prj);
+        device.atx_version = json_tok_value(json, atx);
+        device.web_version = json_tok_value(json, web);
+        device.mac = json_tok_value(json, mac);
+        err = device_insert(db, serial, &device);
+    }
+    return err;
+}
+
+int
+device_insert(database_s* db, const char* serial, device_insert_s* d)
+{
+
+    int err = -1;
+    char vals[128];
+    const char* keys =
+        "device_id,product,prj_version,atx_version,web_version,mac";
+    uint32_t count, vlen, keylen = strlen(keys);
+    jsmntok_t t[64];
+
+    // Print out sqlite format values
+    if (d->product.p && d->prj_version.p && d->atx_version.p &&
+        d->web_version.p && d->mac.p) {
+        // clang-format off
+        vlen = snprintf(
+            vals,
+            sizeof(vals),
+            "\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\"",
+            (int)strlen(serial), serial,
+            d->product.len,      d->product.p,     // product
+            d->prj_version.len,  d->prj_version.p, // prjVersion
+            d->atx_version.len,  d->atx_version.p, // atxVersion
+            d->web_version.len,  d->web_version.p, // webVersion
+            d->mac.len,          d->mac.p);        // mac
+        // clang-format on
+
+        err = database_insert_raw_n(db, "devices", keys, keylen, vals, vlen);
+        return err;
+    } else {
+        return -1;
+    }
 }
