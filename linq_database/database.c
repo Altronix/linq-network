@@ -310,6 +310,7 @@ database_insert_raw_n(
     return row_insert(d, table, keys, keys_len, vals, vals_len);
 }
 
+/*
 int
 database_insert_device_from_json(
     database_s* db,
@@ -361,7 +362,9 @@ database_insert_device_from_json(
     }
     return err;
 }
+*/
 
+/*
 int
 database_insert_alert(database_s* db, const char* serial, jsmn_value a[])
 {
@@ -391,6 +394,7 @@ database_insert_alert(database_s* db, const char* serial, jsmn_value a[])
     err = database_insert_raw_n(db, "alerts", keys, keylen, vals, vlen);
     return err;
 }
+*/
 
 LINQ_DATABASE_EXPORT int
 database_user_open(database_s* db, user_s* u, const char* user)

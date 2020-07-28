@@ -99,6 +99,7 @@ extern "C"
         uint32_t keys_len,
         const char* vals,
         uint32_t vals_len);
+    /*
     LINQ_DATABASE_EXPORT int database_insert_device_from_json(
         database_s* db,
         const char* serial,
@@ -106,6 +107,7 @@ extern "C"
         uint32_t json_len);
     LINQ_DATABASE_EXPORT int
     database_insert_alert(database_s*, const char*, jsmn_value a[]);
+    */
 
     LINQ_DATABASE_EXPORT int
     database_user_open(database_s*, user_s* u, const char*);
