@@ -43,12 +43,17 @@ extern "C"
 
     LINQ_UTILS_EXPORT extern char* optarg;
     LINQ_UTILS_EXPORT extern int optind;
+    LINQ_UTILS_EXPORT int optind_get();
+    LINQ_UTILS_EXPORT char* optarg_get();
 
     LINQ_UTILS_EXPORT int
     getopt(int argc, char* const argv[], const char* optstring);
     LINQ_UTILS_EXPORT int32_t sys_tick();
     LINQ_UTILS_EXPORT uint32_t sys_unix();
     LINQ_UTILS_EXPORT void sys_uuid(char* dst);
+
+#define optind optind_get()
+#define optarg optarg_get()
 
 #ifdef __cplusplus
 }

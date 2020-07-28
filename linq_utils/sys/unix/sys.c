@@ -4,7 +4,14 @@
 
 #include "sys.h"
 #include <time.h>
+#include <unistd.h>
 #include <uuid/uuid.h>
+
+LINQ_UTILS_EXPORT void
+optind_set(int val)
+{
+    optind = val;
+}
 
 static void
 uuid_set(char* dst, const uint8_t* src)

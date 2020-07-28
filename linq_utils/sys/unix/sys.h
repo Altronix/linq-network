@@ -43,6 +43,7 @@ extern "C"
 {
 #endif
 
+    LINQ_UTILS_EXPORT void optind_set(int val);
     LINQ_UTILS_EXPORT int32_t sys_tick();
     LINQ_UTILS_EXPORT uint32_t sys_unix();
     LINQ_UTILS_EXPORT void sys_uuid(char*);

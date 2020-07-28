@@ -7,8 +7,29 @@
 #include <Rpc.h>
 #include <windows.h>
 
+#undef optind
+#undef optarg
+
 char* optarg = NULL;
 int optind = 1;
+
+int
+optind_get()
+{
+    return optind;
+}
+
+void
+optind_set(int val)
+{
+    optind = val;
+}
+
+char*
+optarg_get()
+{
+    return optarg;
+}
 
 int
 getopt(int argc, char* const argv[], const char* optstring)
