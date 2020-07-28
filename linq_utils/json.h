@@ -10,12 +10,21 @@
 extern "C"
 {
 #endif
+    typedef jsmn_parser json_parser;
+    typedef jsmntok_t jsontok;
     typedef struct json_value
     {
         const char* p;
         uint32_t len;
     } json_value;
 
+    LINQ_UTILS_EXPORT void json_init(jsmn_parser* p);
+    LINQ_UTILS_EXPORT int json_parse(
+        jsmn_parser* parser,
+        const char* js,
+        const size_t len,
+        jsmntok_t* tokens,
+        const unsigned int num_tokens);
     LINQ_UTILS_EXPORT bool json_tok_is_null(
         const char* buffer,
         const jsmntok_t* tok);

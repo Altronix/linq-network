@@ -11,6 +11,23 @@
 #define json_for_each_arr(i, t, arr)                                           \
     for (i = 0, t = (arr) + 1; i < (arr)->size; t = json_next(t), i++)
 
+void
+json_init(jsmn_parser* p)
+{
+    jsmn_init(p);
+}
+
+int
+json_parse(
+    jsmn_parser* parser,
+    const char* js,
+    const size_t len,
+    jsmntok_t* tokens,
+    const unsigned int num_tokens)
+{
+    return jsmn_parse(parser, js, len, tokens, num_tokens);
+}
+
 bool
 json_tok_is_null(const char* buffer, const jsmntok_t* tok)
 {

@@ -64,12 +64,12 @@ device_insert_json(
     const char* json,
     uint32_t json_len)
 {
-    jsmn_parser p;
-    jsmn_init(&p);
-    jsmntok_t t[64];
-    const jsmntok_t *product, *prj, *atx, *web, *mac;
+    json_parser p;
+    json_init(&p);
+    jsontok t[64];
+    const jsontok *product, *prj, *atx, *web, *mac;
     device_insert_s device;
-    uint32_t count = jsmn_parse(&p, json, json_len, t, 64);
+    uint32_t count = json_parse(&p, json, json_len, t, 64);
     int err = -1;
     if (count > 0 && (product = json_delve(json, t, ".about.product")) &&
         (atx = json_delve(json, t, ".about.atxVersion")) &&
@@ -95,7 +95,6 @@ device_insert(database_s* db, const char* serial, device_insert_s* d)
     const char* keys =
         "device_id,product,prj_version,atx_version,web_version,mac";
     uint32_t count, vlen, keylen = strlen(keys);
-    jsmntok_t t[64];
 
     // Print out sqlite format values
     if (d->product.p && d->prj_version.p && d->atx_version.p &&

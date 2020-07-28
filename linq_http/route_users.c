@@ -19,12 +19,12 @@ route_login(
     char* token_str = NULL;
     char response[2048];
     int count, err;
-    jsmn_parser p;
     jsmn_token_encode_s token;
-    jsmntok_t t[20];
-    const jsmntok_t *user, *pass;
-    jsmn_init(&p);
-    count = jsmn_parse(&p, body, l, t, 20);
+    json_parser p;
+    jsontok t[20];
+    const jsontok *user, *pass;
+    json_init(&p);
+    count = json_parse(&p, body, l, t, 20);
     if (count > 0 && (user = json_get_member(body, t, "user")) &&
         (pass = json_get_member(body, t, "pass"))) {
         snprintf(
@@ -75,12 +75,12 @@ process_create_admin(http_route_context* ctx, uint32_t l, const char* body)
     char k[128], v[256], h[HASH_LEN], s[SALT_LEN], uid[UUID_MAX_LEN];
     uint32_t klen, vlen, ulen, plen;
     int count, err;
-    jsmn_parser parser;
-    jsmntok_t t[20];
-    const jsmntok_t *u, *p;
+    json_parser parser;
+    jsontok t[20];
+    const jsontok *u, *p;
     const char *user, *pass;
-    jsmn_init(&parser);
-    count = jsmn_parse(&parser, body, l, t, 20);
+    json_init(&parser);
+    count = json_parse(&parser, body, l, t, 20);
     if (count > 0 && (u = json_get_member(body, t, "user")) &&
         (p = json_get_member(body, t, "pass"))) {
         (user = &body[u->start], ulen = u->end - u->start);

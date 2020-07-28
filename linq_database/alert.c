@@ -67,7 +67,6 @@ alert_insert(database_s* db, const char* serial, alert_insert_s* a)
     char vals[128];
     const char* keys = "alert_id,who,what,site_id,time,mesg,device_id";
     uint32_t count, vlen, keylen = strlen(keys);
-    jsmntok_t t[64];
     char uuid[33];
     sys_uuid(uuid);
 
