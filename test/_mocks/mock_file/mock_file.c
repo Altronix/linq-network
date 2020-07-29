@@ -4,9 +4,11 @@ typedef spy_file_packet_s mock_file_outgoing_s;
 typedef spy_file_packet_s mock_file_incoming_s;
 LIST_INIT_W_FREE(outgoing, mock_file_outgoing_s);
 LIST_INIT_W_FREE(incoming, mock_file_incoming_s);
+LIST_INIT_W_FREE(on_ioctl, int);
 
 static outgoing_list_s* outgoing = NULL;
 static incoming_list_s* incoming = NULL;
+static on_ioctl_list_s* on_ioctl = NULL;
 
 void
 spy_file_init()
@@ -14,6 +16,7 @@ spy_file_init()
     spy_file_free();
     outgoing = outgoing_list_create();
     incoming = incoming_list_create();
+    on_ioctl = on_ioctl_list_create();
 }
 
 void
@@ -21,6 +24,7 @@ spy_file_free()
 {
     if (outgoing) outgoing_list_destroy(&outgoing);
     if (incoming) incoming_list_destroy(&incoming);
+    if (on_ioctl) on_ioctl_list_destroy(&on_ioctl);
 }
 
 void
@@ -33,6 +37,20 @@ void
 spy_file_push_outgoing(const char* bytes, uint32_t l)
 {
     spy_file_push(SPY_FILE_PUSH_OUTGOING, bytes, l);
+}
+
+void
+spy_file_push(E_SPY_FILE_PUSH dst, const char* bytes, uint32_t l)
+{
+    spy_file_packet_s* packet = malloc(l + sizeof(spy_file_packet_s));
+    assert(packet);
+    packet->len = l;
+    memcpy(packet->bytes, bytes, l);
+    if (dst == SPY_FILE_PUSH_INCOMING) {
+        incoming_list_push(incoming, &packet);
+    } else {
+        outgoing_list_push(outgoing, &packet);
+    }
 }
 
 spy_file_packet_s*
@@ -50,17 +68,12 @@ spy_file_packet_free(spy_file_packet_s** p)
 }
 
 void
-spy_file_push(E_SPY_FILE_PUSH dst, const char* bytes, uint32_t l)
+spy_file_push_ioctl(int param)
 {
-    spy_file_packet_s* packet = malloc(l + sizeof(spy_file_packet_s));
-    assert(packet);
-    packet->len = l;
-    memcpy(packet->bytes, bytes, l);
-    if (dst == SPY_FILE_PUSH_INCOMING) {
-        incoming_list_push(incoming, &packet);
-    } else {
-        outgoing_list_push(outgoing, &packet);
-    }
+    int* p = malloc(sizeof(int));
+    assert(p);
+    *p = param;
+    on_ioctl_list_push(on_ioctl, &p);
 }
 
 int
@@ -96,5 +109,16 @@ __wrap_fwrite(void* data, size_t size, size_t n, FILE* stream)
 int
 __wrap_ioctl(int fd, unsigned long request, ...)
 {
+    va_list list;
+
+    int* set = on_ioctl_list_pop(on_ioctl);
+
+    if (set) {
+        va_start(list, request);
+        int* param = va_arg(list, int*);
+        *param = *set;
+        va_end(list);
+        free(set);
+    }
     return 0;
 }

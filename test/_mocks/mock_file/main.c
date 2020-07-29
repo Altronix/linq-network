@@ -1,5 +1,6 @@
 #include "mock_file.h"
 #include "sys.h"
+#include <sys/ioctl.h>
 
 #include <setjmp.h>
 
@@ -35,6 +36,20 @@ test_mock_push_outgoing(void** context_p)
     spy_file_free();
 }
 
+static void
+test_mock_on_ioctl(void** context_p)
+{
+    spy_file_init();
+
+    int param = 0;
+
+    spy_file_push_ioctl(33);
+    ioctl(0, 0, &param);
+    assert_int_equal(param, 33);
+
+    spy_file_free();
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -43,7 +58,8 @@ main(int argc, char* argv[])
     int err;
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_mock_push_incoming),
-        cmocka_unit_test(test_mock_push_outgoing)
+        cmocka_unit_test(test_mock_push_outgoing),
+        cmocka_unit_test(test_mock_on_ioctl)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);

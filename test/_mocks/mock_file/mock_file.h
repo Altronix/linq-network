@@ -20,11 +20,12 @@ extern "C"
         char bytes[];
     } spy_file_packet_s;
 
+    void spy_file_init();
+    void spy_file_free();
     void spy_file_push(E_SPY_FILE_PUSH, const char* bytes, uint32_t l);
     void spy_file_push_incoming(const char* bytes, uint32_t l);
     void spy_file_push_outgoing(const char* bytes, uint32_t l);
-    void spy_file_init();
-    void spy_file_free();
+    void spy_file_push_ioctl(int);
     spy_file_packet_s* spy_file_packet_pop_outgoing();
     void spy_file_packet_free(spy_file_packet_s** p);
 
