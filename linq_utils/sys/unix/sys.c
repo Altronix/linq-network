@@ -76,6 +76,12 @@ sys_open(const char* path, E_FILE_MODE mode)
 }
 
 int
+sys_read_buffer(sys_file* f, char* buffer, uint32_t* sz)
+{
+    return sys_read(f, &buffer, sz);
+}
+
+int
 sys_read(sys_file* f, char** data_p, uint32_t* len)
 {
     int err = 0, n;

@@ -60,6 +60,7 @@ extern "C"
     LINQ_UTILS_EXPORT uint32_t sys_unix();
     LINQ_UTILS_EXPORT void sys_uuid(char*);
     LINQ_UTILS_EXPORT sys_file* sys_open(const char* path, E_FILE_MODE mode);
+    LINQ_UTILS_EXPORT int sys_read_buffer(sys_file*, char*, uint32_t*);
     LINQ_UTILS_EXPORT int sys_read(sys_file*, char**, uint32_t*);
     LINQ_UTILS_EXPORT int sys_write(sys_file*, const char*, uint32_t);
     LINQ_UTILS_EXPORT void sys_close(sys_file** f_p);

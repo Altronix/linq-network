@@ -11,24 +11,28 @@ static void
 test_sys_read_buffer(void** context_p)
 {
     int err;
-    char buffer[6], *p = buffer;
-    uint32_t len = sizeof(buffer);
+    char buffer[6];
+    uint32_t len;
 
     spy_file_init();
 
     // Pass
+    len = sizeof(buffer);
     spy_file_push_ioctl(6);
     spy_file_push_incoming("foobar", 6);
-    sys_read(NULL, &p, &len);
+    err = sys_read_buffer(NULL, buffer, &len);
     assert_int_equal(len, 6);
+    assert_int_equal(err, 6);
     assert_memory_equal(buffer, "foobar", 6);
 
     // Fail
+    len = sizeof(buffer);
     spy_file_push_ioctl(12);
     spy_file_push_incoming("123456789abc", 12);
-    sys_read(NULL, &p, &len);
+    err = sys_read_buffer(NULL, buffer, &len);
+    assert_int_equal(err, 6);
     assert_int_equal(len, 12);
-    assert_memory_equal(p, "123456", 6);
+    assert_memory_equal(buffer, "123456", 6);
 
     spy_file_free();
 }
