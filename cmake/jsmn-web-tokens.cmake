@@ -1,10 +1,6 @@
 set(JSMN_WEB_TOKENS_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/jsmn-web-tokens)
 set(JSMN_WEB_TOKENS_TEST_FILE ${JSMN_WEB_TOKENS_SOURCE_DIR}/CMakeLists.txt)
-if(USE_SYSTEM_JSMN_WEB_TOKENS)
-    find_package(jsmn-web-tokens REQUIRED)
-    set(JSMN_WEB_TOKENS_STATIC_LIBRARIES jsmn-web-tokens)
-    set(JSMN_WEB_TOKENS_SHARED_LIBRARIES jsmn-web-tokens)
-else()
+if(NOT USE_SYSTEM_JSMN_WEB_TOKENS)
     if(GIT_FOUND AND NOT EXISTS "${JSMN_WEB_TOKENS_TEST_FILE}")
         message(STATUS "Downloading jsmn-web-tokens submodule")
         execute_process(
@@ -13,8 +9,6 @@ else()
             RESULT_VARIABLE JSMN_WEB_TOKENS_GIT_CLONE_RESULT)
         message(STATUS "jsmn-web-tokens download result: ${JSMN_WEB_TOKENS_GIT_CLONE_RESULT}")
     endif()
-    set(JSMN_WEB_TOKENS_STATIC_LIBRARIES jsmn-web-tokens-static)
-    set(JSMN_WEB_TOKENS_SHARED_LIBRARIES jsmn-web-tokens-shared)
 endif()
 
 ExternalProject_Add(jsmn-web-tokens-project
@@ -46,7 +40,7 @@ else()
     set(JSMN_WEB_TOKENS_STATIC_LIBRARY ${CMAKE_STATIC_LIBRARY_PREFIX}jsmn-web-tokens${CMAKE_STATIC_LIBRARY_SUFFIX})
     set(JSMN_WEB_TOKENS_SHARED_LIBRARY ${CMAKE_SHARED_LIBRARY_PREFIX}jsmn-web-tokens${CMAKE_SHARED_LIBRARY_SUFFIX})
     set(JSMN_WEB_TOKENS_STATIC_LIBRARY ${INSTALL_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}jsmn-web-tokens${CMAKE_STATIC_LIBRARY_SUFFIX})
-    set(JSMN_WEB_TOKENS_SHARED_LIBRARY ${INSTALL_DIR}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}jsmn-web-tokens${CMAKE_SHARED_LIBRARY_SUFFIX})
+    set(JSMN_WEB_TOKENS_SHARED_LIBRARY ${INSTALL_DIR}/bin/${CMAKE_SHARED_LIBRARY_PREFIX}jsmn-web-tokens${CMAKE_SHARED_LIBRARY_SUFFIX})
 endif()
 
 # jsmn-web-tokens-static

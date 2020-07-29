@@ -1,17 +1,23 @@
 add_library(linq-daemon-static linq_daemon.c linq_daemon.h)
-target_link_libraries(linq-daemon-static 
+list(APPEND LIBS 
   linq-network-static
   linq-database-static
   linq-http-static
   linq-utils-static
   ${JSMN_WEB_TOKENS_STATIC_LIBS}
   ${LIBZMQ_STATIC_LIBS}
-  ${TLS_STATIC_LIBS}
-  stdc++)
+  ${TLS_STATIC_LIBS})
+if(NOT MSVC)
+  list(APPEND LIBS stdc++)
+else()
+endif()
+target_link_libraries(linq-daemon-static  ${LIBS})
+target_compile_definitions(linq-daemon-static PUBLIC "LINQ_DAEMON_STATIC")
+  
 set_target_properties(linq-daemon-static PROPERTIES 
   PUBLIC_HEADER "linq_daemon.h")
 target_include_directories(linq-daemon-static PUBLIC ./)
 
 add_executable(linqd main.c)
-target_link_libraries(linqd linq-daemon-static)
-install(TARGETS linqd DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+target_link_libraries(linqd linq-http-static linq-daemon-static)
+install(TARGETS linqd RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

@@ -5,12 +5,6 @@
 
 #include "http_auth_unsafe.h"
 
-#define QUERY                                                                  \
-    "SELECT user_id,user,pass,salt "                                           \
-    "FROM users "                                                              \
-    "WHERE user=\"%s\" "                                                       \
-    "LIMIT 1"
-
 #include "openssl/sha.h"
 
 /// gen_salt() - Generate randomness to concat with password for hashing
@@ -131,35 +125,20 @@ http_auth_login(
     const char* pass,
     jsmn_token_encode_s* token)
 {
-    sqlite3_stmt* stmt;
     int err = -1, l;
     uint32_t now;
-    char query[256];
     char test[HASH_LEN];
     char concat[PASS_MAX_LEN + SALT_LEN];
-    const char *uuid, *name, *hash, *salt;
+    user_s u;
 
-    l = snprintf(query, sizeof(query), QUERY, user);
-    linq_network_assert(l < sizeof(query));
-    err = sqlite3_prepare_v2(db->db, query, l + 1, &stmt, NULL);
-    linq_network_assert(err == SQLITE_OK);
-    err = sqlite3_step(stmt);
-    if (err == SQLITE_ROW) {
-        uuid = (const char*)sqlite3_column_text(stmt, 0),
-        name = (const char*)sqlite3_column_text(stmt, 1),
-        hash = (const char*)sqlite3_column_text(stmt, 2),
-        salt = (const char*)sqlite3_column_text(stmt, 3);
-        uint32_t plen = strlen(pass);
-        uint32_t slen = strlen(salt);
-        uint32_t hlen = strlen(hash);
-        linq_network_assert(slen == SALT_LEN);
-        linq_network_assert(hlen == HASH_LEN);
-        l = snprintf(
-            concat, sizeof(concat), "%.*s%.*s", plen, pass, slen, salt);
+    err = database_user_open(db, &u, user);
+    if (!err) {
+        err = -1;
+        l = snprintf(concat, sizeof(concat), "%s%s", u.pass, u.salt);
         if (l <= sizeof(concat)) {
             now = sys_unix();
             hash_256(concat, l, test);
-            err = memcmp(hash, test, HASH_LEN);
+            err = memcmp(u.pass, test, HASH_LEN);
             if (!err && !(err = jsmn_token_init(
                               token,
                               JSMN_ALG_HS256,
@@ -173,8 +152,8 @@ http_auth_login(
                 memset(s, 0, SECRET_LEN);
             }
         }
+        database_user_close(&u);
     }
-    sqlite3_finalize(stmt);
     return err;
 }
 

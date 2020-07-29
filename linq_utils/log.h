@@ -74,57 +74,59 @@ extern "C"
 #define log_fatal(...)
 #endif
 
-#define RESET "\x1b[0m"
-#define BOLD "\x1b[1m"
-#define BOLD_OFF "\x1b[21m"
-#define BLINK "\x1b[5m"
-#define BLINK_OFF "\x1b[25m"
-#define UNDERLINE "\x1b[4m"
-#define UNDERLINE_OFF "\x1b[24m"
+#define LOG_RESET "\x1b[0m"
+#define LOG_BOLD "\x1b[1m"
+#define LOG_BOLD_OFF "\x1b[21m"
+#define LOG_BLINK "\x1b[5m"
+#define LOG_BLINK_OFF "\x1b[25m"
+#define LOG_UNDERLINE "\x1b[4m"
+#define LOG_UNDERLINE_OFF "\x1b[24m"
 
-#define BLACK "\x1b[30m"
-#define RED "\x1b[31m"
-#define GREEN "\x1b[32m"
-#define YELLOW "\x1b[33m"
-#define BLUE "\x1b[34m"
-#define MAGENTA "\x1b[35m"
-#define CYAN "\x1b[36m"
-#define WHITE "\x1b[37m"
-#define DEFAULT "\x1b[39m"
-#define GRAY "\x1b[90m"
-#define LIGHT_RED "\x1b[91m"
-#define LIGHT_GREEN "\x1b[92m"
-#define LIGHT_YELLOW "\x1b[93m"
-#define LIGHT_BLUE "\x1b[94m"
-#define LIGHT_MAGENTA "\x1b[95m"
-#define LIGHT_CYAN "\x1b[96m"
-#define LIGHT_WHITE "\x1b[97m"
+#define LOG_BLACK "\x1b[30m"
+#define LOG_RED "\x1b[31m"
+#define LOG_GREEN "\x1b[32m"
+#define LOG_YELLOW "\x1b[33m"
+#define LOG_BLUE "\x1b[34m"
+#define LOG_MAGENTA "\x1b[35m"
+#define LOG_CYAN "\x1b[36m"
+#define LOG_WHITE "\x1b[37m"
+#define LOG_DEFAULT "\x1b[39m"
+#define LOG_GRAY "\x1b[90m"
+#define LOG_LIGHT_RED "\x1b[91m"
+#define LOG_LIGHT_GREEN "\x1b[92m"
+#define LOG_LIGHT_YELLOW "\x1b[93m"
+#define LOG_LIGHT_BLUE "\x1b[94m"
+#define LOG_LIGHT_MAGENTA "\x1b[95m"
+#define LOG_LIGHT_CYAN "\x1b[96m"
+#define LOG_LIGHT_WHITE "\x1b[97m"
 
-#define BACKGROUND_BLACK "\x1b[40m"
-#define BACKGROUND_RED "\x1b[41m"
-#define BACKGROUND_GREEN "\x1b[42m"
-#define BACKGROUND_YELLOW "\x1b[43m"
-#define BACKGROUND_BLUE "\x1b[44m"
-#define BACKGROUND_MAGENTA "\x1b[45m"
-#define BACKGROUND_CYAN "\x1b[46m"
-#define BACKGROUND_WHITE "\x1b[47m"
-#define BACKGROUND_DEFAULT "\x1b[49m"
-#define BACKGROUND_LIGHT_GRAY "\x1b[100m"
-#define BACKGROUND_LIGHT_RED "\x1b[101m"
-#define BACKGROUND_LIGHT_GREEN "\x1b[102m"
-#define BACKGROUND_LIGHT_YELLOW "\x1b[103m"
-#define BACKGROUND_LIGHT_BLUE "\x1b[104m"
-#define BACKGROUND_LIGHT_MAGENTA "\x1b[105m"
-#define BACKGROUND_LIGHT_CYAN "\x1b[106m"
-#define BACKGROUND_LIGHT_WHITE "\x1b[107m"
+#define LOG_BACKGROUND_BLACK "\x1b[40m"
+#define LOG_BACKGROUND_RED "\x1b[41m"
+#define LOG_BACKGROUND_GREEN "\x1b[42m"
+#define LOG_BACKGROUND_YELLOW "\x1b[43m"
+#define LOG_BACKGROUND_BLUE "\x1b[44m"
+#define LOG_BACKGROUND_MAGENTA "\x1b[45m"
+#define LOG_BACKGROUND_CYAN "\x1b[46m"
+#define LOG_BACKGROUND_WHITE "\x1b[47m"
+#define LOG_BACKGROUND_DEFAULT "\x1b[49m"
+#define LOG_BACKGROUND_LIGHT_GRAY "\x1b[100m"
+#define LOG_BACKGROUND_LIGHT_RED "\x1b[101m"
+#define LOG_BACKGROUND_LIGHT_GREEN "\x1b[102m"
+#define LOG_BACKGROUND_LIGHT_YELLOW "\x1b[103m"
+#define LOG_BACKGROUND_LIGHT_BLUE "\x1b[104m"
+#define LOG_BACKGROUND_LIGHT_MAGENTA "\x1b[105m"
+#define LOG_BACKGROUND_LIGHT_CYAN "\x1b[106m"
+#define LOG_BACKGROUND_LIGHT_WHITE "\x1b[107m"
 
 #define FMT_STRING                                                             \
-    WHITE "=> " RESET "%5d %s%s " RESET MAGENTA "%14s:%04d " RESET
+    LOG_WHITE "=> " LOG_RESET "%5d %s%s " LOG_RESET LOG_MAGENTA                \
+              "%14s:%04d " LOG_RESET
 
     static const char* level_names[] = { "TRACE", "DEBUG", "INFO ",
                                          "WARN ", "ERROR", "FATAL" };
-    static const char* level_colors[] = { LIGHT_BLUE, CYAN, GREEN,
-                                          YELLOW,     RED,  MAGENTA };
+    static const char* level_colors[] = {
+        LOG_LIGHT_BLUE, LOG_CYAN, LOG_GREEN, LOG_YELLOW, LOG_RED, LOG_MAGENTA
+    };
 
     static void
     log_log(E_LOG_LEVEL level, const char* file, int line, const char* fmt, ...)

@@ -70,6 +70,7 @@ http_error_code(E_LINQ_ERROR e)
         case LINQ_ERROR_500: return 500;
         case LINQ_ERROR_TIMEOUT:
         case LINQ_ERROR_504: return 504;
+        default: return 500;
     }
 }
 

@@ -5,6 +5,53 @@
 #include "sys.h"
 
 #include <Rpc.h>
+#include <windows.h>
+
+#undef optind
+#undef optarg
+
+char* optarg = NULL;
+int optind = 1;
+
+int
+optind_get()
+{
+    return optind;
+}
+
+void
+optind_set(int val)
+{
+    optind = val;
+}
+
+char*
+optarg_get()
+{
+    return optarg;
+}
+
+int
+getopt(int argc, char* const argv[], const char* optstring)
+{
+    if ((optind >= argc) || (argv[optind][0] != '-') ||
+        (argv[optind][0] == 0)) {
+        return -1;
+    }
+
+    int opt = argv[optind][1];
+    const char* p = strchr(optstring, opt);
+
+    if (p == NULL) { return '?'; }
+    if (p[1] == ':') {
+        optind++;
+        if (optind >= argc) { return '?'; }
+        optarg = argv[optind];
+        optind++;
+    }
+    return opt;
+}
+
 static void
 uuid_set(char* dst, const uint8_t* src)
 {

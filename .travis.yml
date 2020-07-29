@@ -9,6 +9,7 @@ before_install:
         # (Work around, manually loading submodules)
         - git submodule update --init ./external/libzmq
         - git submodule update --init ./external/czmq
+        - git submodule update --init ./external/jsmn-web-tokens
 
 matrix:
         include:
@@ -50,7 +51,7 @@ matrix:
                   dist: bionic
                   language: node_js
                   node_js:
-                          - 10
+                          - 12
                   env:
                           - LINQ_NETWORK_WITH_DAEMON=ON
                           - USE_SYSTEM_OPENSSL=ON
@@ -61,7 +62,7 @@ matrix:
                   dist: bionic
                   language: node_js
                   node_js:
-                          - 10
+                          - 12
                   script:
                           - ./scripts/ci/build-nodejs.sh
                 - os: linux
@@ -70,7 +71,7 @@ matrix:
                   dist: bionic
                   language: node_js
                   node_js:
-                          - 10
+                          - 12
                 - os: linux
                   dist: bionic
                   language: rust
@@ -85,16 +86,25 @@ matrix:
                   script:
                           - ./scripts/ci/build-c.sh
                 - os: windows
+                  language: c
+                  env:
+                          - BUILD_LINQD=ON
+                            USE_SYSTEM_OPENSSL=ON
+                            GENERATOR="Visual Studio 15 2017 Win64"
+                  script:
+                          - choco install openssl
+                          - ./scripts/ci/build-c.sh
+                - os: windows
                   language: node_js
                   node_js:
-                          - 10
+                          - 12
                   env:
                   script:
                           - ./scripts/ci/build-nodejs.sh
                 - os: windows
                   language: node_js
                   node_js:
-                          - 10
+                          - 12
                   env:
                           - LINQ_NETWORK_USE_PREBUILT=ON
                   script:

@@ -1,6 +1,6 @@
 # Main source files
-set(SOURCES base64.c jsmn_helpers.c)
-set(HEADERS base64.h klib/khash.h klib/klist.h containers.h jsmn.h jsmn_helpers.h log.h)
+set(SOURCES base64.c json.c)
+set(HEADERS base64.h klib/khash.h klib/klist.h containers.h jsmn.h json.h log.h)
 
 if(NOT MSVC)
   list(APPEND LIBS rt m stdc++ uuid dl)
@@ -22,6 +22,7 @@ set(LIBS_SHARED ${LIBS})
 if(BUILD_STATIC)
   add_library(linq-utils-static STATIC ${SOURCES} ${HEADERS})
   target_link_libraries(linq-utils-static ${LIBS_STATIC})
+  target_compile_definitions(linq-utils-static PUBLIC "LINQ_UTILS_STATIC")
   target_include_directories(linq-utils-static PUBLIC ${INCS})
   set_target_properties(linq-utils-static PROPERTIES
     PUBLIC_HEADER "${HEADERS}"
@@ -36,6 +37,7 @@ endif()
 if(BUILD_SHARED)
   add_library(linq-utils-shared SHARED ${SOURCES} ${HEADERS})
   target_link_libraries(linq-utils-shared ${LIBS_SHARED})
+  target_compile_definitions(linq-utils-shared PUBLIC "DLL_EXPORT")
   target_include_directories(linq-utils-shared PUBLIC ${INCS})
   set_target_properties(linq-utils-shared PROPERTIES
     PUBLIC_HEADER "${HEADERS}"
@@ -43,5 +45,6 @@ if(BUILD_SHARED)
   install(TARGETS linq-utils-shared
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib
+          RUNTIME DESTINATION bin
           PUBLIC_HEADER DESTINATION include/altronix)
 endif()

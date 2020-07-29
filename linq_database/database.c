@@ -1,6 +1,8 @@
 #include "database.h"
-#include "jsmn/jsmn_helpers.h"
+#include "alert.h"
+#include "device.h"
 #include "log.h"
+#include "user.h"
 
 #define DATABASE_DEVICES                                                       \
     "CREATE TABLE %s("                                                         \
@@ -309,87 +311,76 @@ database_insert_raw_n(
     return row_insert(d, table, keys, keys_len, vals, vals_len);
 }
 
-int
-database_insert_device_from_json(
+LINQ_DATABASE_EXPORT int
+database_user_open(database_s* db, user_s* u, const char* user)
+{
+    return user_open(db, u, user);
+}
+
+LINQ_DATABASE_EXPORT void
+database_user_close(user_s* u)
+{
+    user_close(u);
+}
+
+LINQ_DATABASE_EXPORT int
+database_alert_open(database_s* db, alert_s* a, uint32_t limit, uint32_t offset)
+{
+    return alert_open(db, a, limit, offset);
+}
+
+LINQ_DATABASE_EXPORT void
+database_alert_close(alert_s* a)
+{
+    alert_close(a);
+}
+
+LINQ_DATABASE_EXPORT int
+database_alert_next(alert_s* a)
+{
+    return alert_next(a);
+}
+
+LINQ_DATABASE_EXPORT int
+database_alert_insert(database_s* db, const char* serial, alert_insert_s* a)
+{
+    return alert_insert(db, serial, a);
+}
+
+LINQ_DATABASE_EXPORT int
+database_device_open(
+    database_s* db,
+    device_s* d,
+    uint32_t limit,
+    uint32_t offset)
+{
+    return device_open(db, d, limit, offset);
+}
+
+LINQ_DATABASE_EXPORT void
+database_device_close(device_s* d)
+{
+    device_close(d);
+}
+
+LINQ_DATABASE_EXPORT int
+database_device_next(device_s* d)
+{
+    return device_next(d);
+}
+
+LINQ_DATABASE_EXPORT int
+database_device_insert(database_s* db, const char* serial, device_insert_s* d)
+{
+    return device_insert(db, serial, d);
+}
+
+LINQ_DATABASE_EXPORT int
+database_device_insert_json(
     database_s* db,
     const char* serial,
     const char* json,
     uint32_t json_len)
 {
-    int err = -1;
-    jsmn_value sid, product, prj_version, atx_version, web_version, mac;
-    char vals[512];
-    const char* keys =
-        "device_id,product,prj_version,atx_version,web_version,mac";
-    uint32_t keylen = strlen(keys), count;
-    jsmntok_t t[64];
-
-    log_info("(DATA) [%.6s...] Adding device to database...", serial);
-    // clang-format off
-    count = jsmn_parse_tokens_path(
-        "/about",
-        t,
-        64,
-        json,
-        json_len,
-        6,
-        "sid",       &sid,
-        "product",   &product,
-        "prjVersion",&prj_version,
-        "atxVersion",&atx_version,
-        "webVersion",&web_version,
-        "mac",       &mac);
-    // clang-format on
-    if (count == 6) {
-        // clang-format off
-        uint32_t vallen = snprintf(
-            vals,
-            sizeof(vals),
-            "\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\"",
-            sid.len,         sid.p,
-            product.len,     product.p,
-            prj_version.len, prj_version.p,
-            atx_version.len, atx_version.p,
-            web_version.len, web_version.p,
-            mac.len,         mac.p);
-        // clang-format on
-        err = database_insert_raw_n(db, "devices", keys, keylen, vals, vallen);
-        log_debug("(DATA) Database device insert result (%d)", err);
-    } else {
-        log_debug("(DATA) Heartbeat parser error");
-    }
-    return err;
-}
-
-int
-database_insert_alert(database_s* db, const char* serial, jsmn_value a[])
-{
-    int err = -1;
-    char vals[512];
-    const char* keys =
-        "alert_id,who,what,site_id,time,mesg,name,product,device_id";
-    uint32_t count, vlen, keylen = strlen(keys);
-    jsmntok_t t[64];
-    char uuid[33];
-    sys_uuid(uuid);
-
-    // Print out sqlite format values
-    // clang-format off
-    vlen = snprintf(
-        vals,
-        sizeof(vals),
-        "\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",%.*s,\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\"",
-        32,       uuid,
-        a[0].len, a[0].p, // who
-        a[1].len, a[1].p, // what
-        a[2].len, a[2].p, // where
-        a[3].len, a[3].p, // when
-        a[4].len, a[4].p, // mesg
-        a[5].len, a[5].p, // product
-        a[6].len, a[6].p, // name
-        (int)strlen(serial), serial);
-    // clang-format on
-
-    err = database_insert_raw_n(db, "alerts", keys, keylen, vals, vlen);
-    return err;
+    return device_insert_json(db, serial, json, json_len);
 }

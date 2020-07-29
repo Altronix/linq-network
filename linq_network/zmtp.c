@@ -8,7 +8,7 @@
 #include "log.h"
 #include "sys.h"
 
-#include "jsmn_helpers.h"
+#include "json.h"
 
 extern volatile int zsys_interrupted;
 
@@ -38,6 +38,15 @@ static bool
 is_router(zsock_t* sock)
 {
     return zsock_type_str(sock)[0] == 'R';
+}
+
+static atx_str
+json_get_str(const char* b, const jsontok* t)
+{
+    atx_str ret;
+    ret.p = &b[t->start];
+    ret.len = t->end - t->start;
+    return ret;
 }
 
 // Write null terminated string into a frame data buffer
@@ -109,33 +118,30 @@ pop_le(zmsg_t* msg, uint32_t le)
 
 // read incoming zmq frame and test valid json
 static zframe_t*
-pop_alert(zmsg_t* msg, linq_network_alert_s* alert)
+pop_alert(zmsg_t* msg, linq_network_alert_s* a)
 {
     int count, sz;
     zframe_t* f = pop_le(msg, JSON_LEN);
     sz = zframe_size(f);
-    memcpy(alert->data, zframe_data(f), sz);
-    jsmntok_t t[30];
-    // clang-format off
-    count = jsmn_parse_tokens(
-        t,
-        30,
-        alert->data,
-        sz,
-        7,
-        "who",   &alert->who,
-        "what",  &alert->what,
-        "siteId",&alert->where,
-        "when",  &alert->when,
-        "mesg",  &alert->mesg,
-        "product", &alert->product,
-        "name",  &alert->name);
-    // clang-format on
-    // Note that the product key was recently added. Products of early versions
-    // may not provide the product property in their alert. However, we still
-    // want to propogate the alert minus the product key.  So we don't consider
-    // an empty product field an error.
-    if (!(count >= 6)) zframe_destroy(&f);
+    memcpy(a->data, zframe_data(f), sz);
+    const jsontok *who, *what, *site, *when, *mesg;
+    jsontok t[30];
+    json_parser p;
+    json_init(&p);
+    count = json_parse(&p, a->data, sz, t, 30);
+    if (count > 0 && (who = json_get_member(a->data, t, "who")) &&
+        (what = json_get_member(a->data, t, "what")) &&
+        (site = json_get_member(a->data, t, "siteId")) &&
+        (when = json_get_member(a->data, t, "when")) &&
+        (mesg = json_get_member(a->data, t, "mesg"))) {
+        a->who = json_get_str(a->data, who);
+        a->what = json_get_str(a->data, what);
+        a->where = json_get_str(a->data, site);
+        a->when = json_get_str(a->data, when);
+        a->mesg = json_get_str(a->data, mesg);
+    } else {
+        zframe_destroy(&f);
+    }
     return f;
 }
 
@@ -146,22 +152,24 @@ pop_email(zmsg_t* msg, linq_network_email_s* emails)
     zframe_t* f = pop_le(msg, JSON_LEN);
     sz = zframe_size(f);
     memcpy(emails->data, zframe_data(f), sz);
-    jsmntok_t t[30];
-
-    // clang-format off
-    count = jsmn_parse_tokens(
-        t,
-        30,
-        emails->data,
-        sz,
-        5,
-        "to0", &emails->to0,
-        "to1", &emails->to1,
-        "to2", &emails->to2,
-        "to3", &emails->to3,
-        "to4", &emails->to4);
-    // clang-format on
-
+    json_parser p;
+    jsontok t[30];
+    const jsontok *to0, *to1, *to2, *to3, *to4;
+    json_init(&p);
+    count = json_parse(&p, emails->data, sz, t, 30);
+    if (count > 0 && (to0 = json_get_member(emails->data, t, "to0")) &&
+        (to1 = json_get_member(emails->data, t, "to1")) &&
+        (to2 = json_get_member(emails->data, t, "to2")) &&
+        (to3 = json_get_member(emails->data, t, "to3")) &&
+        (to4 = json_get_member(emails->data, t, "to4"))) {
+        emails->to0 = json_get_str(emails->data, to0);
+        emails->to1 = json_get_str(emails->data, to1);
+        emails->to2 = json_get_str(emails->data, to2);
+        emails->to3 = json_get_str(emails->data, to3);
+        emails->to4 = json_get_str(emails->data, to4);
+    } else {
+        zframe_destroy(&f);
+    }
     return f;
 }
 

@@ -8,6 +8,20 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+// clang-format off
+#if defined _WIN32
+#  if defined LINQ_NETWORK_STATIC
+#    define LINQ_NETWORK_EXPORT
+#  elif defined DLL_EXPORT
+#    define LINQ_NETWORK_EXPORT __declspec(dllexport)
+#  else
+#    define LINQ_NETWORK_EXPORT __declspec(dllimport)
+#  endif
+#else
+#  define LINQ_NETWORK_EXPORT
+#endif
+// clang-format on
+
 #define LINQ_ERROR_SOCKET 0xFFFFFFFF
 
 #ifdef __cplusplus
@@ -121,64 +135,77 @@ extern "C"
     } linq_network_callbacks;
 
     // Linq API
-    linq_network_s* linq_network_create(const linq_network_callbacks*, void*);
-    void linq_network_destroy(linq_network_s**);
-    database_s* linq_network_database(linq_network_s* l);
-    void
+    LINQ_NETWORK_EXPORT linq_network_s* linq_network_create(
+        const linq_network_callbacks*,
+        void*);
+    LINQ_NETWORK_EXPORT void linq_network_destroy(linq_network_s**);
+    LINQ_NETWORK_EXPORT database_s* linq_network_database(linq_network_s* l);
+    LINQ_NETWORK_EXPORT void
     linq_network_init(linq_network_s*, const linq_network_callbacks*, void*);
-    void linq_network_deinit(linq_network_s*);
-    void linq_network_context_set(linq_network_s* linq, void* ctx);
-    linq_network_socket linq_network_listen(linq_network_s*, const char* ep);
-    linq_network_socket linq_network_connect(linq_network_s* l, const char* ep);
-    E_LINQ_ERROR linq_network_close(linq_network_s*, linq_network_socket);
-    E_LINQ_ERROR linq_network_poll(linq_network_s* l, int32_t ms);
+    LINQ_NETWORK_EXPORT void linq_network_deinit(linq_network_s*);
+    LINQ_NETWORK_EXPORT void linq_network_context_set(
+        linq_network_s* linq,
+        void* ctx);
+    LINQ_NETWORK_EXPORT linq_network_socket
+    linq_network_listen(linq_network_s*, const char* ep);
+    LINQ_NETWORK_EXPORT linq_network_socket
+    linq_network_connect(linq_network_s* l, const char* ep);
+    LINQ_NETWORK_EXPORT E_LINQ_ERROR
+    linq_network_close(linq_network_s*, linq_network_socket);
+    LINQ_NETWORK_EXPORT E_LINQ_ERROR
+    linq_network_poll(linq_network_s* l, int32_t ms);
     // TODO linq_network_device() is deprecated but it is currently used by some
     // tests...
-    void** linq_network_device(const linq_network_s* l, const char* serial);
-    bool linq_network_device_exists(const linq_network_s*, const char* sid);
-    uint32_t linq_network_device_count(const linq_network_s*);
-    void linq_network_devices_foreach(
+    LINQ_NETWORK_EXPORT void** linq_network_device(
+        const linq_network_s* l,
+        const char* serial);
+    LINQ_NETWORK_EXPORT bool linq_network_device_exists(
+        const linq_network_s*,
+        const char* sid);
+    LINQ_NETWORK_EXPORT uint32_t
+    linq_network_device_count(const linq_network_s*);
+    LINQ_NETWORK_EXPORT void linq_network_devices_foreach(
         const linq_network_s* l,
         linq_network_devices_foreach_fn,
         void*);
-    uint32_t linq_network_node_count(const linq_network_s* linq);
-    E_LINQ_ERROR linq_network_send_get(
+    LINQ_NETWORK_EXPORT uint32_t
+    linq_network_node_count(const linq_network_s* linq);
+    LINQ_NETWORK_EXPORT E_LINQ_ERROR linq_network_send_get(
         const linq_network_s*,
         const char*,
         const char*,
         linq_network_request_complete_fn,
         void*);
-    E_LINQ_ERROR linq_network_send_get_mem(
-        const linq_network_s*,
-        const char*,
-        const char*,
-        uint32_t,
-        linq_network_request_complete_fn,
-        void*);
-    E_LINQ_ERROR linq_network_send_post(
-        const linq_network_s*,
-        const char*,
-        const char*,
-        const char*,
-        linq_network_request_complete_fn,
-        void*);
-    E_LINQ_ERROR linq_network_send_post_mem(
+    LINQ_NETWORK_EXPORT E_LINQ_ERROR linq_network_send_get_mem(
         const linq_network_s*,
         const char*,
         const char*,
         uint32_t,
+        linq_network_request_complete_fn,
+        void*);
+    LINQ_NETWORK_EXPORT E_LINQ_ERROR linq_network_send_post(
+        const linq_network_s*,
+        const char*,
+        const char*,
+        const char*,
+        linq_network_request_complete_fn,
+        void*);
+    LINQ_NETWORK_EXPORT E_LINQ_ERROR linq_network_send_post_mem(
+        const linq_network_s*,
+        const char*,
+        const char*,
+        uint32_t,
         const char*,
         uint32_t,
         linq_network_request_complete_fn,
         void*);
-    E_LINQ_ERROR linq_network_send_delete(
+    LINQ_NETWORK_EXPORT E_LINQ_ERROR linq_network_send_delete(
         const linq_network_s*,
         const char*,
         const char*,
         linq_network_request_complete_fn,
         void*);
-    E_LINQ_ERROR
-    linq_network_send_delete_mem(
+    LINQ_NETWORK_EXPORT E_LINQ_ERROR linq_network_send_delete_mem(
         const linq_network_s*,
         const char*,
         const char*,
@@ -187,7 +214,7 @@ extern "C"
         void*);
 
     // Sys API
-    bool sys_running();
+    LINQ_NETWORK_EXPORT bool sys_running();
 #ifdef __cplusplus
 }
 #endif

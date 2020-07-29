@@ -33,7 +33,7 @@ LinqNetwork::Init(Napi::Env env, Napi::Object exports)
             InstanceMethod("sendDelete", &LinqNetwork::Del),
         });
     constructor = Napi::Persistent(func);
-    // constructor.SuppressDestruct();
+    constructor.SuppressDestruct();
     exports.Set("LinqNetwork", func);
     return exports;
 }

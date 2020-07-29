@@ -1,5 +1,5 @@
-#include "linq_network.h"
 #include "helpers.h"
+#include "linq_network.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
 #include "sys.h"
@@ -64,22 +64,25 @@ test_route_alerts(void** context_p)
     sqlite_spy_column_text_return_push("who0");
     sqlite_spy_column_text_return_push("what0");
     sqlite_spy_column_text_return_push("site_id0");
-    sqlite_spy_column_text_return_push("1234");
+    sqlite_spy_column_int_return_push(1234);
     sqlite_spy_column_text_return_push("mesg0");
+    sqlite_spy_column_text_return_push("name0");
     sqlite_spy_column_text_return_push("did0");
     sqlite_spy_column_text_return_push("aid1");
     sqlite_spy_column_text_return_push("who1");
     sqlite_spy_column_text_return_push("what1");
     sqlite_spy_column_text_return_push("site_id1");
-    sqlite_spy_column_text_return_push("1234");
+    sqlite_spy_column_int_return_push(1234);
     sqlite_spy_column_text_return_push("mesg1");
+    sqlite_spy_column_text_return_push("name1");
     sqlite_spy_column_text_return_push("did1");
     sqlite_spy_column_text_return_push("aid2");
     sqlite_spy_column_text_return_push("who2");
     sqlite_spy_column_text_return_push("what2");
     sqlite_spy_column_text_return_push("site_id2");
-    sqlite_spy_column_text_return_push("1234");
+    sqlite_spy_column_int_return_push(1234);
     sqlite_spy_column_text_return_push("mesg2");
+    sqlite_spy_column_text_return_push("name2");
     sqlite_spy_column_text_return_push("did2");
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "GET", "/api/v1/alerts", NULL);

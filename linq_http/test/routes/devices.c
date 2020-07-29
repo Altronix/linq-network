@@ -1,5 +1,5 @@
-#include "linq_network.h"
 #include "helpers.h"
+#include "linq_network.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
 #include "sys.h"
@@ -42,14 +42,20 @@ test_route_devices(void** context_p)
     sqlite_spy_column_text_return_push("B");
     sqlite_spy_column_text_return_push("C");
     sqlite_spy_column_text_return_push("D");
+    sqlite_spy_column_text_return_push("XX");
+    sqlite_spy_column_text_return_push("XX");
     sqlite_spy_column_text_return_push("A");
     sqlite_spy_column_text_return_push("B");
     sqlite_spy_column_text_return_push("C");
     sqlite_spy_column_text_return_push("D");
+    sqlite_spy_column_text_return_push("XX");
+    sqlite_spy_column_text_return_push("XX");
     sqlite_spy_column_text_return_push("A");
     sqlite_spy_column_text_return_push("B");
     sqlite_spy_column_text_return_push("C");
     sqlite_spy_column_text_return_push("D");
+    sqlite_spy_column_text_return_push("XX");
+    sqlite_spy_column_text_return_push("XX");
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "GET", "/api/v1/devices", NULL);
     for (int i = 0; i < 4; i++) http_poll(&test->http, -1);
