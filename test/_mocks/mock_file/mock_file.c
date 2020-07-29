@@ -92,3 +92,9 @@ __wrap_fwrite(void* data, size_t size, size_t n, FILE* stream)
     spy_file_push(SPY_FILE_PUSH_OUTGOING, data, n);
     return n;
 }
+
+int
+__wrap_ioctl(int fd, unsigned long request, ...)
+{
+    return 0;
+}
