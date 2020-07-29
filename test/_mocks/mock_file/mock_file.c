@@ -12,6 +12,7 @@ LIST_INIT_W_FREE(on_ioctl, int);
 static outgoing_list_s* outgoing = NULL;
 static incoming_list_s* incoming = NULL;
 static on_ioctl_list_s* on_ioctl = NULL;
+static sys_file* g_mock_file = (void*)1;
 
 void
 spy_file_init()
@@ -79,10 +80,10 @@ spy_file_push_ioctl(int param)
     on_ioctl_list_push(on_ioctl, &p);
 }
 
-int
+sys_file*
 __wrap_fopen(const char* path, const char* mode)
 {
-    return 0;
+    return g_mock_file;
 }
 
 int
