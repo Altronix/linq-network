@@ -1,5 +1,8 @@
 #include "mock_file.h"
 
+int __real_fwrite(void* data, size_t size, size_t n, FILE* stream);
+int __real_fread(void* data, size_t size, size_t n, FILE* stream);
+
 typedef spy_file_packet_s mock_file_outgoing_s;
 typedef spy_file_packet_s mock_file_incoming_s;
 LIST_INIT_W_FREE(outgoing, mock_file_outgoing_s);
@@ -86,14 +89,18 @@ int
 __wrap_fread(void* data, size_t size, size_t n, FILE* stream)
 {
     uint32_t ret = 0;
-    assert(size == 1);
-    spy_file_packet_s* p = incoming_list_pop(incoming);
-    if (p) {
-        ret = n < p->len ? n : p->len;
-        memcpy(data, p->bytes, ret);
-        free(p);
+    if (incoming) {
+        assert(size == 1);
+        spy_file_packet_s* p = incoming_list_pop(incoming);
+        if (p) {
+            ret = n < p->len ? n : p->len;
+            memcpy(data, p->bytes, ret);
+            free(p);
+        } else {
+            ret = 0;
+        }
     } else {
-        ret = 0;
+        ret = __real_fread(data, size, n, stream);
     }
     return ret;
 }
@@ -101,11 +108,21 @@ __wrap_fread(void* data, size_t size, size_t n, FILE* stream)
 int
 __wrap_fwrite(void* data, size_t size, size_t n, FILE* stream)
 {
-    assert(size == 1);
-    spy_file_push(SPY_FILE_PUSH_OUTGOING, data, n);
-    return n;
+    if (outgoing) {
+        assert(size == 1);
+        spy_file_push(SPY_FILE_PUSH_OUTGOING, data, n);
+        return n;
+    } else {
+        return __real_fwrite(data, size, n, stream);
+    }
 }
 
+// This is a simple mock that simply sets the callers param with a control
+// Doesn't support much.
+// IE:
+//   spy_file_push_ioctl(33);
+//   ...
+//   ioctl(file, param, &result); (result == 33)
 int
 __wrap_ioctl(int fd, unsigned long request, ...)
 {
@@ -120,5 +137,11 @@ __wrap_ioctl(int fd, unsigned long request, ...)
         va_end(list);
         free(set);
     }
+    return 0;
+}
+
+int
+__wrap_fileno(FILE* f)
+{
     return 0;
 }

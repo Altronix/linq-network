@@ -83,7 +83,8 @@ sys_read(sys_file* f, char** data_p, uint32_t* len)
     if (n > 0) {
         if (!(*data_p)) (*data_p = malloc(n), *len = n);
         assert(*data_p);
-        err = fread(*data_p, *len < n ? *len : n, 1, f);
+        err = fread(*data_p, 1, *len < n ? *len : n, f);
+        *len = n;
         if (err == -1 && errno == EAGAIN) err = 0;
     }
     return err;
