@@ -90,6 +90,7 @@ matrix:
                   env:
                           - BUILD_LINQD=ON
                             USE_SYSTEM_OPENSSL=ON
+                            GENERATOR="Visual Studio 15 2017 Win64"
                   script:
                           - choco install openssl
                           - ./scripts/ci/build-c.sh
@@ -109,7 +110,7 @@ matrix:
                   script:
                           - ./scripts/ci/build-nodejs.sh
                 - os: windows
-                  env: GENERATOR="Visual Studio 15 2017"
+                  env: GENERATOR="Visual Studio 15 2017 Win64"
                   language: rust
                   rust:
                           - stable
