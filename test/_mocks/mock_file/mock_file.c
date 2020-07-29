@@ -2,6 +2,8 @@
 
 int __real_fwrite(void* data, size_t size, size_t n, FILE* stream);
 int __real_fread(void* data, size_t size, size_t n, FILE* stream);
+FILE* __real_fopen(const char* path, const char* mode);
+int __real_fclose(FILE*);
 
 typedef spy_file_packet_s mock_file_outgoing_s;
 typedef spy_file_packet_s mock_file_incoming_s;
@@ -83,7 +85,21 @@ spy_file_push_ioctl(int param)
 sys_file*
 __wrap_fopen(const char* path, const char* mode)
 {
-    return g_mock_file;
+    if (outgoing) {
+        return g_mock_file;
+    } else {
+        return __real_fopen(path, mode);
+    }
+}
+
+int
+__wrap_fclose(sys_file* f)
+{
+    if (outgoing) {
+        return 0;
+    } else {
+        return __real_fclose(f);
+    }
 }
 
 int

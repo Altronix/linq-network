@@ -13,6 +13,7 @@ test_usb_init(void** context_p)
 {
     linq_usb_s usb;
     linq_usb_init(&usb, NULL);
+    linq_usb_free(&usb);
 }
 
 int
