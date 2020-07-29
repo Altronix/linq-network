@@ -14,7 +14,7 @@ echo "BUILD_LINQD               : ${BUILD_LINQD}"
 
 # If a generator is provided we are assuming a windows build for now
 # Travis wants CMAKE_GENERATOR_PLATFORM to find correct libraries
-if [ $GENERATOR == "Visual Studio 15 2017 Win64" ]; then
+if [ "$GENERATOR" == "Visual Studio 15 2017 Win64" ]; then
 	echo "GENERATOR                 : ${GENERATOR}"
 	echo "GENERATOR_PLATFORM        : x64"
 	(
@@ -29,7 +29,7 @@ if [ $GENERATOR == "Visual Studio 15 2017 Win64" ]; then
 		 
 		cmake --build . --target install
 	) || exit 1
-elif [ $GENERATOR == "Visual Studio 16 2019" ]; then
+elif [ "$GENERATOR" == "Visual Studio 16 2019" ]; then
 	echo "GENERATOR                 : ${GENERATOR}"
 	echo "GENERATOR_PLATFORM        : x64"
 	(
