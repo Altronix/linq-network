@@ -3,9 +3,22 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "sys.h"
+#include <errno.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
 #include <time.h>
 #include <unistd.h>
 #include <uuid/uuid.h>
+
+static int
+set_blocking(sys_file* fd, bool block)
+{
+    int flags;
+    flags = fcntl(fileno(fd), F_GETFL, 0);
+    if (flags == -1) return -EFAULT;
+    return fcntl(
+        fileno(fd), F_SETFL, block ? flags & ~O_NONBLOCK : flags | O_NONBLOCK);
+}
 
 LINQ_UTILS_EXPORT void
 optind_set(int val)
@@ -51,4 +64,41 @@ sys_uuid(char* dst)
     linq_network_assert(sizeof(uuid) == UUID_LEN);
     uuid_generate(uuid);
     uuid_set(dst, (uint8_t*)uuid);
+}
+
+sys_file*
+sys_open(const char* path, E_FILE_MODE mode)
+{
+    static const char* modes[] = { "r", "w", "a", "r+", "w+", "a+" };
+    FILE* f = fopen(path, modes[mode]);
+    if (f) set_blocking(f, false);
+    return f;
+}
+
+int
+sys_read(sys_file* f, char** data_p, uint32_t* len)
+{
+    int err = 0, n;
+    ioctl(fileno(f), FIONREAD, &n);
+    if (n > 0) {
+        if (!(*data_p)) (*data_p = malloc(n), *len = n);
+        assert(*data_p);
+        err = fread(*data_p, *len < n ? *len : n, 1, f);
+        if (err == -1 && errno == EAGAIN) err = 0;
+    }
+    return err;
+}
+
+int
+sys_write(sys_file* f, const char* data, uint32_t len)
+{
+    return fwrite(data, 1, len, f);
+}
+
+void
+sys_close(sys_file** f_p)
+{
+    sys_file* f = *f_p;
+    fclose(f);
+    *f_p = NULL;
 }
