@@ -20,6 +20,7 @@ if [ "$GENERATOR" == "Visual Studio 15 2017 Win64" ]; then
 	(
 		cmake \
 			-G "$GENERATOR" \
+			-DCMAKE_INSTALL_PREFIX=./build/install \
 		 	-DENABLE_TESTING=$ENABLE_TESTING \
 		 	-DBUILD_LINQD=$BUILD_LINQD \
 		 	-DUSE_SYSTEM_ZMQ=$USE_SYSTEM_ZMQ \
@@ -35,6 +36,7 @@ elif [ "$GENERATOR" == "Visual Studio 16 2019" ]; then
 		cmake \
 			-G "$GENERATOR" \
 			-A "x64" \
+			-DCMAKE_INSTALL_PREFIX=./build/install \
 		 	-DENABLE_TESTING=$ENABLE_TESTING \
 		 	-DBUILD_LINQD=$BUILD_LINQD \
 		 	-DUSE_SYSTEM_ZMQ=$USE_SYSTEM_ZMQ \
@@ -46,6 +48,7 @@ elif [ "$GENERATOR" == "Visual Studio 16 2019" ]; then
 else
 	(
 		cmake \
+			-DCMAKE_INSTALL_PREFIX=./build/install \
 		 	-DENABLE_TESTING=$ENABLE_TESTING \
 		 	-DBUILD_LINQD=$BUILD_LINQD \
 		 	-DUSE_SYSTEM_ZMQ=$USE_SYSTEM_ZMQ \
