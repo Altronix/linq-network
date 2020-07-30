@@ -23,23 +23,23 @@ endif()
 append_log_level_compiler_flags(DEFS)
 
 if(ENABLE_TESTING)
-  add_library(linq-usb-test-static STATIC ${SOURCES} ${HEADERS})
-  target_link_libraries(linq-usb-test-static ${LIBS_STATIC})
-  target_include_directories(linq-usb-test-static PUBLIC "${INCS}")
-  target_compile_definitions(linq-usb-test-static PUBLIC "LINQ_USB_STATIC")
-  target_compile_definitions(linq-usb-test-static PUBLIC "${DEFS}")
+  add_library(linq-usbd-test-static STATIC ${SOURCES} ${HEADERS})
+  target_link_libraries(linq-usbd-test-static ${LIBS_STATIC})
+  target_include_directories(linq-usbd-test-static PUBLIC "${INCS}")
+  target_compile_definitions(linq-usbd-test-static PUBLIC "LINQ_USB_STATIC")
+  target_compile_definitions(linq-usbd-test-static PUBLIC "${DEFS}")
 endif()
 
 if(BUILD_STATIC)
-  add_library(linq-usb-static STATIC ${SOURCES} ${HEADERS})
-  target_link_libraries(linq-usb-static ${LIBS_STATIC})
-  target_include_directories(linq-usb-static PRIVATE "${INCS}")
-  target_compile_definitions(linq-usb-static PUBLIC "LINQ_USB_STATIC")
-  target_compile_definitions(linq-usb-static PUBLIC "${DEFS}")
-  set_target_properties(linq-usb-static PROPERTIES
+  add_library(linq-usbd-static STATIC ${SOURCES} ${HEADERS})
+  target_link_libraries(linq-usbd-static ${LIBS_STATIC})
+  target_include_directories(linq-usbd-static PRIVATE "${INCS}")
+  target_compile_definitions(linq-usbd-static PUBLIC "LINQ_USB_STATIC")
+  target_compile_definitions(linq-usbd-static PUBLIC "${DEFS}")
+  set_target_properties(linq-usbd-static PROPERTIES
     PUBLIC_HEADER "${INSTALL_HEADERS}"
     OUTPUT_NAME "linq-usb")
-  install(TARGETS linq-usb-static
+  install(TARGETS linq-usbd-static
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin
@@ -47,15 +47,15 @@ if(BUILD_STATIC)
 endif()
 
 if(BUILD_SHARED)
-  add_library(linq-usb-shared SHARED ${SOURCES} ${HEADERS})
-  target_link_libraries(linq-usb-shared ${LIBS_SHARED})
-  target_include_directories(linq-usb-shared PRIVATE "${INCS}")
-  target_compile_definitions(linq-usb-shared PUBLIC "DLL_EXPORT")
-  target_compile_definitions(linq-usb-shared PUBLIC "${DEFS}")
-  set_target_properties(linq-usb-shared PROPERTIES
+  add_library(linq-usbd-shared SHARED ${SOURCES} ${HEADERS})
+  target_link_libraries(linq-usbd-shared ${LIBS_SHARED})
+  target_include_directories(linq-usbd-shared PRIVATE "${INCS}")
+  target_compile_definitions(linq-usbd-shared PUBLIC "DLL_EXPORT")
+  target_compile_definitions(linq-usbd-shared PUBLIC "${DEFS}")
+  set_target_properties(linq-usbd-shared PROPERTIES
     PUBLIC_HEADER "${INSTALL_HEADERS}"
     OUTPUT_NAME "linq-usb")
-  install(TARGETS linq-usb-shared
+  install(TARGETS linq-usbd-shared
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin
