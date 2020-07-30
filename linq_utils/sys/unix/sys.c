@@ -84,7 +84,7 @@ sys_read_buffer(sys_file* f, char* buffer, uint32_t* sz)
 int
 sys_read(sys_file* f, char** data_p, uint32_t* len)
 {
-    int err = 0, n;
+    int err = 0, n = 0;
     ioctl(fileno(f), FIONREAD, &n);
     if (n > 0) {
         if (!(*data_p)) (*data_p = malloc(n), *len = n);

@@ -23,22 +23,33 @@ extern "C"
 {
 #endif
 
-    typedef struct linq_usbd_callbacks_s
+    typedef enum E_USB_EVENTS
     {
-    } linq_usbd_callbacks_s;
+        USB_EVENTS_ERROR = -1,
+        USB_EVENTS_RECV = 0
+    } E_USB_EVENTS;
 
     typedef struct linq_usbd_s
     {
         sys_file* io;
-        linq_usbd_callbacks_s* callbacks;
+        struct linq_usbd_callbacks_s
+        {
+            void (*event)(
+                struct linq_usbd_s*,
+                E_USB_EVENTS,
+                const char* b,
+                uint32_t l,
+                void* ctx);
+        } * callbacks;
+        void* ctx;
         char incoming[LINQ_USB_BUFFER_INCOMING_SIZE];
         char outgoing[LINQ_USB_BUFFER_OUTGOING_SIZE];
     } linq_usbd_s;
 
-    LINQ_USB_EXPORT int linq_usbd_init(
-        linq_usbd_s* usb,
-        linq_usbd_callbacks_s*);
+    LINQ_USB_EXPORT int
+    linq_usbd_init(linq_usbd_s* usb, struct linq_usbd_callbacks_s*, void* ctx);
     LINQ_USB_EXPORT void linq_usbd_free(linq_usbd_s* usb);
+    LINQ_USB_EXPORT int linq_usbd_poll(linq_usbd_s* usb);
 
 #ifdef __cplusplus
 }
