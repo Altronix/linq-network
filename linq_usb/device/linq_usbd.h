@@ -23,20 +23,22 @@ extern "C"
 {
 #endif
 
-    typedef struct linq_usb_callbacks_s
+    typedef struct linq_usbd_callbacks_s
     {
-    } linq_usb_callbacks_s;
+    } linq_usbd_callbacks_s;
 
-    typedef struct linq_usb_s
+    typedef struct linq_usbd_s
     {
         sys_file* io;
-        linq_usb_callbacks_s* callbacks;
+        linq_usbd_callbacks_s* callbacks;
         char incoming[LINQ_USB_BUFFER_INCOMING_SIZE];
         char outgoing[LINQ_USB_BUFFER_OUTGOING_SIZE];
-    } linq_usb_s;
+    } linq_usbd_s;
 
-    LINQ_USB_EXPORT int linq_usb_init(linq_usb_s* usb, linq_usb_callbacks_s*);
-    LINQ_USB_EXPORT void linq_usb_free(linq_usb_s* usb);
+    LINQ_USB_EXPORT int linq_usbd_init(
+        linq_usbd_s* usb,
+        linq_usbd_callbacks_s*);
+    LINQ_USB_EXPORT void linq_usbd_free(linq_usbd_s* usb);
 
 #ifdef __cplusplus
 }
