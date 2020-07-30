@@ -23,7 +23,8 @@ matrix:
                                           - valgrind
                   env: 
                           - BUILD_LINQD=ON
-                            USE_SYSTEM_OPENSSL=ON
+                            BUILD_USBD=ON
+                            BUILD_DEPENDENCIES=ON
                             ENABLE_TESTING=ON
                   script:
                           - ./scripts/ci/build-c.sh
@@ -31,6 +32,7 @@ matrix:
                   dist: bionic
                   language: c
                   env:
+                          - BUILD_DEPENDENCIES=ON
                   script:
                           - ./scripts/ci/build-c.sh
                 - os: linux
@@ -43,8 +45,7 @@ matrix:
                                           - libczmq-dev
                   env:
                           - BUILD_LINQD=ON
-                            USE_SYSTEM_OPENSSL=ON
-                            USE_SYSTEM_ZMQ=ON
+                            BUILD_DEPENDENCIES=OFF
                   script:
                           - ./scripts/ci/build-c.sh
                 - os: linux
@@ -54,7 +55,6 @@ matrix:
                           - 12
                   env:
                           - LINQ_NETWORK_WITH_DAEMON=ON
-                          - USE_SYSTEM_OPENSSL=ON
                   script:
                           - ./scripts/ci/build-nodejs.sh
                 - os: linux
@@ -83,13 +83,14 @@ matrix:
                 - os: windows
                   language: c
                   env:
+                          - BUILD_DEPENDENCIES=ON
                   script:
                           - ./scripts/ci/build-c.sh
                 - os: windows
                   language: c
                   env:
                           - BUILD_LINQD=ON
-                            USE_SYSTEM_OPENSSL=ON
+                            BUILD_DEPENDENCIES=ON
                             GENERATOR="Visual Studio 15 2017 Win64"
                   script:
                           - choco install openssl
