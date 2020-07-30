@@ -20,25 +20,17 @@ set(INSTALL_HEADERS http.h)
 list(APPEND definitions "-DCZMQ_STATIC")
 list(APPEND definitions "-DZMQ_STATIC")
 
-set(LIBS_STATIC
+set(LIBS
   linq-network-static
   linq-database-static
   linq-utils-static
-  ${JSMN_WEB_TOKENS_STATIC_LIBS}
-  ${LIBZMQ_STATIC_LIBS}
-  ${TLS_STATIC_LIBS})
-
-set(LIBS_SHARED
-  linq-network-shared
-  linq-database-shared
-  linq-utils-shared
-  ${JSMN_WEB_TOKENS_SHARED_LIBS}
-  ${LIBZMQ_SHARED_LIBS}
-  ${TLS_SHARED_LIBS})
+  ${JSMN_WEB_TOKENS_LIBS}
+  ${ZMQ_LIBS}
+  ${TLS_LIBS})
 
 if(ENABLE_TESTING)
   add_library(linq-http-test STATIC ${SOURCES} ${HEADERS})
-  target_link_libraries(linq-http-test ${LIBS_STATIC})
+  target_link_libraries(linq-http-test ${LIBS})
   target_compile_definitions(linq-http-test PRIVATE "-DTESTING")
   target_compile_definitions(linq-http-test PUBLIC 
     "LINQ_HTTP_STATIC" 
@@ -54,12 +46,8 @@ if(ENABLE_TESTING)
 endif()
 
 if(BUILD_STATIC)
-  # for some reason windows is trying to link with shared if it exists
-  # cmake seems to prefer the shared target even when explicitly linking with
-  # the static target.
-  # (For some reason only linq_http is doing that....)
   add_library(linq-http-static ${SOURCES} ${HEADERS})
-  target_link_libraries(linq-http-static ${LIBS_STATIC})
+  target_link_libraries(linq-http-static ${LIBS})
   target_compile_definitions(linq-http-static PUBLIC 
     "LINQ_HTTP_STATIC" 
     ${definitions})
@@ -75,7 +63,7 @@ endif()
 
 if(BUILD_SHARED)
   add_library(linq-http-shared SHARED ${SOURCES} ${HEADERS})
-  target_link_libraries(linq-http-shared ${LIBS_SHARED})
+  target_link_libraries(linq-http-shared ${LIBS})
   target_compile_definitions(linq-http-shared PUBLIC 
     ${definitions}
     "DLL_EXPORT")

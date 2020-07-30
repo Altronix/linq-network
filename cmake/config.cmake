@@ -1,6 +1,7 @@
 # Library Output options
 option(BUILD_SHARED "Whether or not to build the shared object"  ON)
 option(BUILD_STATIC "Whether or not to build the static archive" ON)
+set(BUILDROOT_DIR "" CACHE STRING "set to fullpath of root buildroot directory outside of buildroot")
 
 # Library dependency Options
 option(USE_SYSTEM_ZMQ "Look for libzmq and libczmq on target system." OFF)

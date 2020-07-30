@@ -32,6 +32,8 @@ extern "C"
         const char* db_path;
         const char* cert;
         const char* key;
+        const char* log;
+        bool daemon;
     } linqd_config_s;
 
     typedef struct linqd_s

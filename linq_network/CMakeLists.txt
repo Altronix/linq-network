@@ -11,9 +11,7 @@ set(SOURCES
     zmtp.h)
 
 set(INSTALL_HEADERS linq_network.h)
-set(LIBS ${CMAKE_THREAD_LIBS_INIT})
-set(LIBS_STATIC ${LIBZMQ_STATIC_LIBS} linq-utils-static)
-set(LIBS_SHARED ${LIBZMQ_SHARED_LIBS} linq-utils-shared)
+set(LIBS ${CMAKE_THREAD_LIBS_INIT} ${ZMQ_LIBS} linq-utils-static)
 
 append_log_level_compiler_flags(definitions)
 
@@ -27,7 +25,7 @@ endif()
 
 if(ENABLE_TESTING)
   add_library(linq-network-test-static STATIC ${SOURCES} ${HEADERS})
-  target_link_libraries(linq-network-test-static ${LIBS_STATIC} ${LIBS})
+  target_link_libraries(linq-network-test-static ${LIBS})
   target_compile_definitions(linq-network-test-static PUBLIC 
     "LINQ_NETWORK_STATIC" 
     ${definitions})
@@ -38,7 +36,7 @@ endif()
 
 if(BUILD_STATIC)
   add_library(linq-network-static STATIC ${SOURCES} ${HEADERS})
-  target_link_libraries(linq-network-static ${LIBS_STATIC} ${LIBS})
+  target_link_libraries(linq-network-static ${LIBS})
   target_compile_definitions(linq-network-static PUBLIC 
     "LINQ_NETWORK_STATIC" 
     ${definitions})
@@ -56,7 +54,7 @@ endif()
 
 if(BUILD_SHARED)
   add_library(linq-network-shared SHARED ${SOURCES} ${HEADERS})
-  target_link_libraries(linq-network-shared ${LIBS_SHARED} ${LIBS})
+  target_link_libraries(linq-network-shared ${LIBS})
   target_compile_definitions(linq-network-shared PUBLIC 
     "DLL_EXPORT" 
     ${definitions})

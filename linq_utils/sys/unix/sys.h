@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 // clang-format off
 #if defined _WIN32
@@ -54,6 +55,7 @@ extern "C"
     } E_FILE_MODE;
 
     typedef FILE sys_file;
+    typedef pid_t sys_pid;
 
     LINQ_UTILS_EXPORT void optind_set(int val);
     LINQ_UTILS_EXPORT int32_t sys_tick();
@@ -64,6 +66,8 @@ extern "C"
     LINQ_UTILS_EXPORT int sys_read(sys_file*, char**, uint32_t*);
     LINQ_UTILS_EXPORT int sys_write(sys_file*, const char*, uint32_t);
     LINQ_UTILS_EXPORT void sys_close(sys_file** f_p);
+    LINQ_UTILS_EXPORT void sys_make_absolute(const char*, char*, uint32_t*);
+    LINQ_UTILS_EXPORT int sys_daemonize(const char*, sys_file**, sys_pid*);
 
 #ifdef __cplusplus
 }

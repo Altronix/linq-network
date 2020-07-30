@@ -6,6 +6,8 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
 #include <uuid/uuid.h>
@@ -108,4 +110,42 @@ sys_close(sys_file** f_p)
     sys_file* f = *f_p;
     fclose(f);
     *f_p = NULL;
+}
+
+void
+sys_make_absolute(const char* path, char* buffer, uint32_t* l)
+{
+    uint32_t c;
+    if (*path == '/' || *path == '\\') {
+        // Already absolute
+        *l = snprintf(buffer, *l, "%s", path);
+    } else {
+        getcwd(buffer, *l);
+        c = strlen(buffer);
+        if (c < *l - c) buffer[c++] = '/';
+        *l = snprintf(&buffer[c], *l - c, "%s", path);
+    }
+}
+
+int
+sys_daemonize(const char* log, sys_file** file, sys_pid* pid)
+{
+    // www.netzmafia.de/skripten/unix/linux-daemon-howto.html
+    sys_file* f = NULL;
+    char buff[128];
+    uint32_t l = sizeof(buff);
+    int err = fork();
+    if (err < 0) exit(EXIT_FAILURE);                          // Fork parent
+    if (err > 0) exit(EXIT_SUCCESS);                          // Exit if parent
+    umask(0);                                                 // Erase user
+    if (log) f = sys_open(log, FILE_MODE_READ_APPEND_CREATE); // create log
+    *pid = setsid();                                          // create new sid
+    if (*pid < 0) exit(EXIT_FAILURE);                         //
+    err = chdir("/");                                         // change cwd
+    if (err) exit(EXIT_FAILURE);                              //
+    close(STDIN_FILENO);                                      // close io
+    close(STDOUT_FILENO);                                     //
+    close(STDERR_FILENO);                                     //
+    **file = *f;
+    return err;
 }

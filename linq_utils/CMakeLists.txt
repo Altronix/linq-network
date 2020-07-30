@@ -15,13 +15,11 @@ else()
 endif()
 
 list(APPEND INCS ./)
-set(LIBS_STATIC ${LIBS})
-set(LIBS_SHARED ${LIBS})
 
 # Build a static library
 if(BUILD_STATIC)
   add_library(linq-utils-static STATIC ${SOURCES} ${HEADERS})
-  target_link_libraries(linq-utils-static ${LIBS_STATIC})
+  target_link_libraries(linq-utils-static ${LIBS})
   target_compile_definitions(linq-utils-static PUBLIC "LINQ_UTILS_STATIC")
   target_include_directories(linq-utils-static PUBLIC ${INCS})
   set_target_properties(linq-utils-static PROPERTIES
@@ -36,7 +34,7 @@ endif()
 # Build a shared library
 if(BUILD_SHARED)
   add_library(linq-utils-shared SHARED ${SOURCES} ${HEADERS})
-  target_link_libraries(linq-utils-shared ${LIBS_SHARED})
+  target_link_libraries(linq-utils-shared ${LIBS})
   target_compile_definitions(linq-utils-shared PUBLIC "DLL_EXPORT")
   target_include_directories(linq-utils-shared PUBLIC ${INCS})
   set_target_properties(linq-utils-shared PROPERTIES

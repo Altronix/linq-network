@@ -9,15 +9,14 @@ else()
   list(APPEND LIBS ws2_32 iphlpapi wldap32 uuid Rpcrt4)
 endif()
 
-set(LIBS_STATIC ${LIBS} linq-utils-static)
-set(LIBS_SHARED ${LIBS} linq-utils-shared)
+set(LIBS linq-utils-static)
 
 append_log_level_compiler_flags(definitions)
 
 # Build static library
 if(BUILD_STATIC)
   add_library(linq-database-static STATIC ${SOURCES} ${HEADERS})
-  target_link_libraries(linq-database-static ${LIBS_STATIC})
+  target_link_libraries(linq-database-static ${LIBS})
   target_include_directories(linq-database-static PUBLIC ${INCS})
   target_compile_definitions(linq-database-static PUBLIC 
     ${definitions}
@@ -35,7 +34,7 @@ endif()
 # Build shared library
 if(BUILD_SHARED)
   add_library(linq-database-shared SHARED ${SOURCES} ${HEADERS})
-  target_link_libraries(linq-database-shared ${LIBS_SHARED})
+  target_link_libraries(linq-database-shared ${LIBS})
   target_include_directories(linq-database-shared PUBLIC ${INCS})
   target_compile_definitions(linq-database-shared PUBLIC 
     "DLL_EXPORT" 

@@ -4,9 +4,9 @@ list(APPEND LIBS
   linq-database-static
   linq-http-static
   linq-utils-static
-  ${JSMN_WEB_TOKENS_STATIC_LIBS}
-  ${LIBZMQ_STATIC_LIBS}
-  ${TLS_STATIC_LIBS})
+  ${JSMN_WEB_TOKENS_LIBS}
+  ${ZMQ_LIBS}
+  ${TLS_LIBS})
 if(NOT MSVC)
   list(APPEND LIBS stdc++)
 else()
