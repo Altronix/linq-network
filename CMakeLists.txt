@@ -110,13 +110,23 @@ if(ENABLE_TESTING)
 endif()
 
 add_subdirectory(linq_utils)
-add_subdirectory(linq_usb)
 add_subdirectory(linq_network)
 
 if(BUILD_LINQD)
   add_subdirectory(linq_database)
   add_subdirectory(linq_http)
   add_subdirectory(linq_daemon)
+  add_subdirectory(apps/linqd)
+endif()
+
+if(BUILD_USBD)
+  add_subdirectory(linq_usb/device)
+  add_subdirectory(apps/usbd)
+endif()
+
+if(BUILD_USBH)
+  add_subdirectory(linq_usb/host)
+  add_subdirectory(apps/usbh)
 endif()
 
 if(WITH_CPP_BINDING)

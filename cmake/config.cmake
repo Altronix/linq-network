@@ -9,12 +9,14 @@ option(USE_SYSTEM_JSMN_WEB_TOKENS "Look for jwt library on target system" OFF)
 
 # binary output options
 option(BUILD_LINQD "Whether or not to build the daemon" ON)
+option(BUILD_USBD "Whether or not to build USB device support" OFF)
+option(BUILD_USBH "Whether or not to build USB host support" OFF)
 
 # bindings
 option(WITH_NODEJS_BINDING "Build the NODEJS bindings" OFF)
 option(WITH_CPP_BINDING "Build the C++ bindings" ON)
 
-# Testing
+# Testing (TODO - set USBD/USBH/LINQD if test suite is enabled)
 option(ENABLE_TESTING "Build test suite" OFF)
 
 # LinQ Log Level Options
@@ -40,7 +42,3 @@ function(append_log_level_compiler_flags dst)
   list(APPEND definitions "-DLINQ_LOG_LEVEL=${LOG_LEVEL_INT}")
   set(${dst} ${definitions} PARENT_SCOPE)
 endfunction()
-
-# LinQ USB
-list(APPEND USB_OPTIONS "DEVICE" "HOST")
-set(USB_SUPPORT "HOST" CACHE STRING "Compile USB Support as [${USB_OPTIONS}]")

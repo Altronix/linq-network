@@ -17,7 +17,3 @@ target_compile_definitions(linq-daemon-static PUBLIC "LINQ_DAEMON_STATIC")
 set_target_properties(linq-daemon-static PROPERTIES 
   PUBLIC_HEADER "linq_daemon.h")
 target_include_directories(linq-daemon-static PUBLIC ./)
-
-add_executable(linqd main.c)
-target_link_libraries(linqd linq-http-static linq-daemon-static)
-install(TARGETS linqd RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
