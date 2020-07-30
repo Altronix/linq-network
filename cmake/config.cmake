@@ -3,10 +3,8 @@ option(BUILD_SHARED "Whether or not to build the shared object"  ON)
 option(BUILD_STATIC "Whether or not to build the static archive" ON)
 set(BUILDROOT_DIR "" CACHE STRING "set to fullpath of root buildroot directory outside of buildroot")
 
-# Library dependency Options
-option(USE_SYSTEM_ZMQ "Look for libzmq and libczmq on target system." OFF)
-option(USE_SYSTEM_OPENSSL "Look for openssl on target system." ON)
-option(USE_SYSTEM_JSMN_WEB_TOKENS "Look for jwt library on target system" OFF)
+# Build (or find) dependencies
+option(BUILD_DEPENDENCIES "Build all dependencies (except openssl)" ON)
 
 # binary output options
 option(BUILD_LINQD "Whether or not to build the daemon" ON)
