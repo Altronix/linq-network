@@ -45,7 +45,6 @@ matrix:
                                           - libczmq-dev
                   env:
                           - BUILD_LINQD=ON
-                            BUILD_DEPENDENCIES=OFF
                   script:
                           - ./scripts/ci/build-c.sh
                 - os: linux
