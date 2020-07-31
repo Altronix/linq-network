@@ -62,7 +62,8 @@ usbd_event(
     uint32_t l,
     void* ctx)
 {
-    log_debug("(USBD) Received [%.*s", l, b);
+    log_debug("(USBD) Received [%.*s]", l, b);
+    linq_usbd_write(usb, "{\"received\": \"%.*s\"}", l, b);
 }
 
 struct linq_usbd_callbacks_s callbacks = { .event = &usbd_event };

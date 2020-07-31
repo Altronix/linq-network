@@ -50,6 +50,18 @@ linq_usbd_poll(linq_usbd_s* usb)
     if (len > 0) {
         usb->callbacks->event(
             usb, USB_EVENTS_RECV, usb->incoming, len, usb->ctx);
+        memset(usb->incoming, 0, len);
     }
     return len;
+}
+
+int
+linq_usbd_write(linq_usbd_s* usb, const char* fmt, ...)
+{
+    int ret;
+    va_list list;
+    va_start(list, fmt);
+    ret = sys_vfprintf(usb->io, fmt, list);
+    va_end(list);
+    return ret;
 }

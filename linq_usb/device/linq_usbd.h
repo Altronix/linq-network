@@ -50,6 +50,7 @@ extern "C"
     linq_usbd_init(linq_usbd_s* usb, struct linq_usbd_callbacks_s*, void* ctx);
     LINQ_USB_EXPORT void linq_usbd_free(linq_usbd_s* usb);
     LINQ_USB_EXPORT int linq_usbd_poll(linq_usbd_s* usb);
+    LINQ_USB_EXPORT int linq_usbd_write(linq_usbd_s*, const char*, ...);
 
 #ifdef __cplusplus
 }
