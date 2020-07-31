@@ -27,6 +27,7 @@ config.status
 build/
 build-linux/
 build-windows/
+build-buildroot/
 target
 
 #ctags
