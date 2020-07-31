@@ -146,6 +146,12 @@ sys_daemonize(const char* log, sys_file** file, sys_pid* pid)
     close(STDIN_FILENO);                                      // close io
     close(STDOUT_FILENO);                                     //
     close(STDERR_FILENO);                                     //
-    **file = *f;
+    *file = f;
     return err;
+}
+
+void
+sys_msleep(uint32_t val)
+{
+    usleep(val * 1000);
 }

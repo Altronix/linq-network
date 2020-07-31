@@ -68,6 +68,7 @@ extern "C"
     LINQ_UTILS_EXPORT void sys_close(sys_file** f_p);
     LINQ_UTILS_EXPORT void sys_make_absolute(const char*, char*, uint32_t*);
     LINQ_UTILS_EXPORT int sys_daemonize(const char*, sys_file**, sys_pid*);
+    LINQ_UTILS_EXPORT void sys_msleep(uint32_t);
 
 #ifdef __cplusplus
 }

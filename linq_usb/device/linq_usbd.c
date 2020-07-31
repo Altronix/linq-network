@@ -5,6 +5,8 @@
 #define LOG_DEBUG_INCOMING "(USB) incoming [%s]"
 #define LOG_DEBUG_OUTGOING "(USB) outgoing [%s]"
 #define LOG_ERROR_ERROR "(USB) error [%s]"
+#define LOG_INFO_INIT "(USB) device open [%s]"
+#define LOG_INFO_FREE "(USB) device close [%s]"
 
 static int
 usb_read(linq_usbd_s* usb)
@@ -23,14 +25,21 @@ linq_usbd_init(
     usb->callbacks = callbacks;
     usb->ctx = ctx;
     usb->io = sys_open(LINQ_USB_CONFIG_IO, FILE_MODE_READ_WRITE);
-    if (!usb->io) log_error(LOG_ERROR_DEVICE, LINQ_USB_CONFIG_IO);
+    if (!usb->io) {
+        log_error(LOG_ERROR_DEVICE, LINQ_USB_CONFIG_IO);
+    } else {
+        log_info(LOG_INFO_INIT, LINQ_USB_CONFIG_IO);
+    }
     return usb->io ? 0 : -1;
 }
 
 void
 linq_usbd_free(linq_usbd_s* usb)
 {
-    if (usb->io) sys_close(&usb->io);
+    if (usb->io) {
+        sys_close(&usb->io);
+        log_info(LOG_INFO_FREE, LINQ_USB_CONFIG_IO);
+    }
     memset(usb, 0, sizeof(linq_usbd_s));
 }
 

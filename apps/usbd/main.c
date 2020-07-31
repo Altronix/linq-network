@@ -1,6 +1,7 @@
 #include "linq_usbd.h"
 #include "log.h"
 #include "sys.h"
+#include <signal.h>
 
 #ifndef USBD_LOG_DEFAULT
 #define USBD_LOG_DEFAULT "/var/log/usbd.log"
@@ -44,7 +45,7 @@ args_parse(usbd_config_s* config, int argc, char* argv[])
     optind_set(0);
     while ((opt = getopt(argc, argv, "ld?h")) != -1) {
         switch (opt) {
-            case 'd': config->daemon = true;
+            case 'd': config->daemon = true; break;
             case 'l': config->log = argv[optind]; break;
             case '?':
             case 'h':
@@ -70,6 +71,8 @@ int
 main(int argc, char* argv[])
 {
     usbd_config_s config = { .log = USBD_LOG_DEFAULT, .daemon = false };
+    signal(SIGINT, ctrlc);
+    signal(SIGHUP, sighup);
     args_parse(&config, argc, argv);
     sys_file* f = NULL;
     sys_pid pid = 0;
@@ -77,5 +80,12 @@ main(int argc, char* argv[])
 
     if (config.daemon) sys_daemonize(config.log, &f, &pid);
     linq_usbd_init(&usb, &callbacks, NULL);
+
+    while (running) {
+        sys_msleep(50);
+        linq_usbd_poll(&usb);
+    }
+
+    linq_usbd_free(&usb);
     return 0;
 }

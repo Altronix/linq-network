@@ -33,4 +33,3 @@ function(import_library_static ARG_LIB ARG_ID ARG_PATH)
 	  IMPORTED_LOCATION ${VAR_LOC}
 	  INTERFACE_INCLUDE_DIRECTORIES "${VAR_INC}")
 endfunction()
-
