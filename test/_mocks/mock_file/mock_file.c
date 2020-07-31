@@ -2,6 +2,7 @@
 
 int __real_fwrite(void* data, size_t size, size_t n, FILE* stream);
 int __real_fread(void* data, size_t size, size_t n, FILE* stream);
+int __real_vfprintf(FILE*, const char* fmt, va_list list);
 FILE* __real_fopen(const char* path, const char* mode);
 int __real_fclose(FILE*);
 
@@ -131,6 +132,24 @@ __wrap_fwrite(void* data, size_t size, size_t n, FILE* stream)
         return n;
     } else {
         return __real_fwrite(data, size, n, stream);
+    }
+}
+
+int
+__wrap_vfprintf(FILE* f, const char* fmt, va_list list)
+{
+
+    if (outgoing) {
+        int len;
+        char* buff = malloc(8192);
+        assert(buff);
+        len = vsnprintf(buff, 8192, fmt, list);
+        assert(len < 8192);
+        spy_file_push_outgoing(buff, len);
+        free(buff);
+        return len;
+    } else {
+        return __real_vfprintf(f, fmt, list);
     }
 }
 

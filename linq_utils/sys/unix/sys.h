@@ -65,6 +65,8 @@ extern "C"
     LINQ_UTILS_EXPORT int sys_read_buffer(sys_file*, char*, uint32_t*);
     LINQ_UTILS_EXPORT int sys_read(sys_file*, char**, uint32_t*);
     LINQ_UTILS_EXPORT int sys_write(sys_file*, const char*, uint32_t);
+    LINQ_UTILS_EXPORT int sys_vfprintf(sys_file* f, const char* fmt, va_list);
+    LINQ_UTILS_EXPORT int sys_fprintf(sys_file* f, const char* fmt, ...);
     LINQ_UTILS_EXPORT void sys_close(sys_file** f_p);
     LINQ_UTILS_EXPORT void sys_make_absolute(const char*, char*, uint32_t*);
     LINQ_UTILS_EXPORT int sys_daemonize(const char*, sys_file**, sys_pid*);

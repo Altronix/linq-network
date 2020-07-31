@@ -78,7 +78,7 @@ main(int argc, char* argv[])
     sys_pid pid = 0;
     linq_usbd_s usb;
 
-    if (config.daemon) sys_daemonize(config.log, &f, &pid);
+    if (config.daemon) { sys_daemonize(config.log, &f, &pid); }
     linq_usbd_init(&usb, &callbacks, NULL);
 
     while (running) {

@@ -118,6 +118,9 @@ extern "C"
 #define LOG_BACKGROUND_LIGHT_CYAN "\x1b[106m"
 #define LOG_BACKGROUND_LIGHT_WHITE "\x1b[107m"
 
+    static FILE** logger = &stdout;
+    static void log_set_fd(FILE** f) { *logger = *f; }
+
 #define FMT_STRING                                                             \
     LOG_WHITE "=> " LOG_RESET "%5d %s%s " LOG_RESET LOG_MAGENTA                \
               "%14s:%04d " LOG_RESET
@@ -137,7 +140,7 @@ extern "C"
         va_list args;
 
         fprintf(
-            stdout,
+            *logger,
             FMT_STRING,
             sys_tick(),
             level_colors[level],
@@ -146,10 +149,10 @@ extern "C"
             line);
 
         va_start(args, fmt);
-        vfprintf(stdout, fmt, args);
+        vfprintf(*logger, fmt, args);
         va_end(args);
-        fprintf(stdout, "\n");
-        fflush(stdout);
+        fprintf(*logger, "\n");
+        fflush(*logger);
     }
 
 #ifdef __cplusplus

@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "sys.h"
+#include "log.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -104,6 +105,24 @@ sys_write(sys_file* f, const char* data, uint32_t len)
     return fwrite(data, 1, len, f);
 }
 
+int
+sys_vfprintf(sys_file* f, const char* fmt, va_list list)
+{
+    return vfprintf(f, fmt, list);
+}
+
+int
+sys_fprintf(sys_file* f, const char* fmt, ...)
+{
+    int err, len;
+    va_list list;
+
+    va_start(list, fmt);
+    err = vfprintf(f, fmt, list);
+    va_end(list);
+    return err;
+}
+
 void
 sys_close(sys_file** f_p)
 {
@@ -143,6 +162,7 @@ sys_daemonize(const char* log, sys_file** file, sys_pid* pid)
     if (*pid < 0) exit(EXIT_FAILURE);                         //
     err = chdir("/");                                         // change cwd
     if (err) exit(EXIT_FAILURE);                              //
+    if (f) log_set_fd(&f);                                    //
     close(STDIN_FILENO);                                      // close io
     close(STDOUT_FILENO);                                     //
     close(STDERR_FILENO);                                     //
