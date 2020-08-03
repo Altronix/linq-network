@@ -726,9 +726,3 @@ rlp_foreach(const rlp* rlp, void* ctx, rlp_walk_fn fn)
         rlp = rlp->next;
     }
 }
-
-//
-//
-//
-//
-

@@ -31,7 +31,7 @@ linq_usbd_init(
     void* ctx)
 {
     memset(usb, 0, sizeof(linq_usbd_s));
-    wire_init(&usb->wire, wire_event, usb);
+    // wire_init(&usb->wire, wire_event, usb);
     usb->callbacks = callbacks;
     usb->ctx = ctx;
     usb->io = sys_open(LINQ_USB_CONFIG_IO, FILE_MODE_READ_WRITE);
@@ -59,7 +59,7 @@ linq_usbd_poll(linq_usbd_s* usb)
 {
     int len = usb_read(usb);
     if (len > 0) {
-        wire_parse(&usb->wire, (const uint8_t*)usb->incoming, len);
+        // wire_parse(&usb->wire, (const uint8_t*)usb->incoming, len);
         memset(usb->incoming, 0, len);
     }
     return len;

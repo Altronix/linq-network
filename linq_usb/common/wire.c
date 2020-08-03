@@ -1,5 +1,6 @@
 #include "wire.h"
 #include "json.h"
+#include "rlp.h"
 #include "stdarg.h"
 #include "stdio.h"
 #include "string.h"
@@ -18,47 +19,42 @@ wire_free(wire_s* wire)
     memset(wire, 0, sizeof(wire_s));
 }
 
-void
-wire_parse(wire_s* wire, const uint8_t* b, uint32_t l)
+int
+wire_print_buffer(
+    wire_s* wire,
+    uint8_t* buffer,
+    uint32_t* sz,
+    const char* meth,
+    const char* path,
+    const char* data)
 {
-    json_parser p;
-    wire_event_data_s ev_data;
-    jsontok t[48];
-    uint8_t sz;
-    int err = 0;
-    if (!(b && l >= 3)) return;
-    if ((*b++ == '\x00')) {
-        if ((sz = *b++) < 255) {
-            json_init(&p);
-            err = json_parse(&p, (const char*)b, sz, t, 48);
-            if (err > 0) {
-                ev_data.vers = json_delve_value((const char*)b, t, ".vers");
-                ev_data.type = json_delve_value((const char*)b, t, ".type");
-                ev_data.meth = json_delve_value((const char*)b, t, ".meth");
-                ev_data.path = json_delve_value((const char*)b, t, ".path");
-                ev_data.data = json_delve_value((const char*)b, t, ".data");
-                (*wire->cb)(wire, WIRE_EVENT_RECV, b, l, &ev_data, wire->ctx);
-            } else {
-                // JSON PARSER ERROR
-            }
-        } else {
-            // LONG DATA FORMAT
-        }
-    } else {
-        // INCOMPATIBLE VERSION
-    }
+    return wire_print(wire, &buffer, sz, meth, path, data);
 }
 
 int
-wire_write(wire_s* wire, const char* fmt, ...)
+wire_print(
+    wire_s* wire,
+    uint8_t** buffer_p,
+    uint32_t* l,
+    const char* meth,
+    const char* path,
+    const char* data)
 {
-    char bytes[254 + 2]; // max size of a short packet
-    va_list list;
-    va_start(list, fmt);
-    int l = vsnprintf(bytes + 2, sizeof(bytes) - 2, fmt, list);
-    va_end(list);
-    bytes[0] = '\x00';
-    bytes[1] = l;
-    // (*wire->cb)(wire, wire->ctx, WIRE_EVENT_WANT_WRITE, bytes, l + 2);
-    return 0;
+    rlp* r;
+    uint32_t sz = *l;
+    int err;
+    if ((r = rlp_list()) &&       //
+        !rlp_push_u8(r, 0) &&     // vers
+        !rlp_push_u8(r, 0) &&     // type
+        !rlp_push_str(r, meth) && // meth
+        !rlp_push_str(r, path) && // path
+        !rlp_push_str(r, data)    // data
+    ) {
+        if (!(*buffer_p)) (*l = sz = rlp_print_size(r), *buffer_p = malloc(sz));
+        err = rlp_print(r, *buffer_p, l);
+        rlp_free(&r);
+        return err;
+    } else {
+        return -1;
+    }
 }

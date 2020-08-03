@@ -43,8 +43,20 @@ extern "C"
     void wire_init(wire_s* wire, wire_event_fn, void*);
     void wire_free(wire_s* wire);
     void wire_parse(wire_s*, const uint8_t*, uint32_t);
-    int wire_write(wire_s* wire, const char* fmt, ...);
-
+    int wire_print_buffer(
+        wire_s* wire,
+        uint8_t* buffer_p,
+        uint32_t* l,
+        const char* meth,
+        const char* path,
+        const char* data);
+    int wire_print(
+        wire_s* wire,
+        uint8_t** buffer_p,
+        uint32_t* l,
+        const char* meth,
+        const char* path,
+        const char* data);
 #ifdef __cplusplus
 }
 #endif
