@@ -1,6 +1,13 @@
 # Main source files
-set(SOURCES base64.c json.c)
-set(HEADERS base64.h klib/khash.h klib/klist.h containers.h jsmn.h json.h log.h)
+set(SOURCES base64.c rlp.c json.c)
+set(HEADERS 
+  base64.h 
+  json.h 
+  jsmn.h 
+  log.h
+  containers.h
+  klib/khash.h 
+  klib/klist.h)
 
 if(NOT MSVC)
   list(APPEND LIBS rt m stdc++ uuid dl)
