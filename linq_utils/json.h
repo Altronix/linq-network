@@ -42,6 +42,8 @@ extern "C"
     json_tok_value(const char* buf, const jsmntok_t* tok);
     LINQ_UTILS_EXPORT const jsmntok_t*
     json_delve(const char* buf, const jsmntok_t* tok, const char* guide);
+    LINQ_UTILS_EXPORT json_value
+    json_delve_value(const char* buff, jsmntok_t* tok, const char* guide);
     LINQ_UTILS_EXPORT int
     json_to_u64(const char* buf, const jsmntok_t* tok, uint64_t* n);
     LINQ_UTILS_EXPORT int

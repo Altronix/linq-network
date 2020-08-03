@@ -1,17 +1,22 @@
 #ifndef WIRE_H
 #define WIRE_H
+
+#include "json.h"
+#include "stdint.h"
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-#include "stdint.h"
-
-    typedef enum E_WIRE_STATE
+    typedef struct wire_json_s
     {
-        WIRE_STATE_IDLE,
-        WIRE_STATE_START
-    } E_WIRE_STATE;
+        json_value vers;
+        json_value type;
+        json_value meth;
+        json_value path;
+        json_value data;
+    } wire_event_data_s;
 
     typedef enum E_WIRE_EVENT
     {
@@ -22,10 +27,15 @@ extern "C"
     } E_WIRE_EVENT;
 
     struct wire_s;
-    typedef void (*wire_event_fn)(struct wire_s*, void*, E_WIRE_EVENT, ...);
+    typedef void (*wire_event_fn)(
+        struct wire_s*,
+        E_WIRE_EVENT,
+        const uint8_t* b,
+        uint32_t l,
+        wire_event_data_s* data,
+        void* ctx);
     typedef struct wire_s
     {
-        E_WIRE_STATE state;
         wire_event_fn cb;
         void* ctx;
     } wire_s;

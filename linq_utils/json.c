@@ -116,6 +116,14 @@ json_delve(const char* buf, const jsmntok_t* tok, const char* guide)
     return tok;
 }
 
+json_value
+json_delve_value(const char* buff, jsmntok_t* tok, const char* guide)
+{
+    json_value ret = { .p = NULL, .len = 0 };
+    const jsmntok_t* t = json_delve(buff, tok, guide);
+    return t ? json_tok_value(buff, t) : ret;
+}
+
 int
 json_to_u64(const char* buf, const jsmntok_t* tok, uint64_t* n)
 {
