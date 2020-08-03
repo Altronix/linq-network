@@ -1,6 +1,6 @@
 set(LIBS linq-utils-static)
-list(APPEND SOURCES linq_usbd.c)
-list(APPEND HEADERS linq_usbd.h)
+list(APPEND SOURCES linq_usbd.c ../common/wire.c)
+list(APPEND HEADERS linq_usbd.h ../common/wire.h)
 set(INSTALL_HEADERS linq_usbd.h)
 set(INCS "./")
 
