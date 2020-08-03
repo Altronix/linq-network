@@ -153,6 +153,7 @@ if(BUILD_LINQD)
 endif()
 
 if(BUILD_USBD OR BUILD_USBH)
+  add_subdirectory(linq_usb/common)
   if(BUILD_USBD)
     add_subdirectory(linq_usb/device)
     add_subdirectory(apps/usbd)

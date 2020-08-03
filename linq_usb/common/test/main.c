@@ -1,7 +1,6 @@
-#include "../common/wire.h"
 #include "json.h"
-#include "linq_usbd.h"
 #include "sys.h"
+#include "wire.h"
 
 #include <setjmp.h>
 
