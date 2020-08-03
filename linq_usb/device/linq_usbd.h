@@ -16,6 +16,7 @@
 // clang-format on
 
 #include "config.h"
+#include "wire.h"
 #include "sys.h"
 
 #ifdef __cplusplus
@@ -31,6 +32,7 @@ extern "C"
 
     typedef struct linq_usbd_s
     {
+        wire_s wire;
         sys_file* io;
         struct linq_usbd_callbacks_s
         {

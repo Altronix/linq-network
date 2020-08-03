@@ -1,5 +1,7 @@
 #include "linq_usbd.h"
 #include "log.h"
+#include "wire.h"
+#include "wire_event.h"
 
 #define LOG_ERROR_DEVICE "(USB) Failed to open USB device [%s]"
 #define LOG_DEBUG_INCOMING "(USB) incoming [%s]"
@@ -15,6 +17,13 @@ usb_read(linq_usbd_s* usb)
     return sys_read_buffer(usb->io, usb->incoming, &sz);
 }
 
+static int
+usb_write(linq_usbd_s* usb, void* b, uint32_t l)
+{
+    memcpy(usb->outgoing, b, l);
+    return sys_write(usb->io, usb->outgoing, l);
+}
+
 int
 linq_usbd_init(
     linq_usbd_s* usb,
@@ -22,6 +31,7 @@ linq_usbd_init(
     void* ctx)
 {
     memset(usb, 0, sizeof(linq_usbd_s));
+    wire_init(&usb->wire, wire_event, usb);
     usb->callbacks = callbacks;
     usb->ctx = ctx;
     usb->io = sys_open(LINQ_USB_CONFIG_IO, FILE_MODE_READ_WRITE);
@@ -40,6 +50,7 @@ linq_usbd_free(linq_usbd_s* usb)
         sys_close(&usb->io);
         log_info(LOG_INFO_FREE, LINQ_USB_CONFIG_IO);
     }
+    wire_free(&usb->wire);
     memset(usb, 0, sizeof(linq_usbd_s));
 }
 
@@ -48,8 +59,7 @@ linq_usbd_poll(linq_usbd_s* usb)
 {
     int len = usb_read(usb);
     if (len > 0) {
-        usb->callbacks->event(
-            usb, USB_EVENTS_RECV, usb->incoming, len, usb->ctx);
+        wire_parse(&usb->wire, (const uint8_t*)usb->incoming, len);
         memset(usb->incoming, 0, len);
     }
     return len;
@@ -58,6 +68,7 @@ linq_usbd_poll(linq_usbd_s* usb)
 int
 linq_usbd_write(linq_usbd_s* usb, const char* fmt, ...)
 {
+    // TODO must go through wire layer to wrap payload with packet
     int ret;
     va_list list;
     va_start(list, fmt);
