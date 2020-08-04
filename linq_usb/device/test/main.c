@@ -44,7 +44,7 @@ test_usb_recv(void** context_p)
 
     uint8_t b[256];
     uint32_t l = sizeof(b);
-    int e = wire_print_buffer(b, &l, "POST", "/network", NULL);
+    int e = wire_print_http_request_buffer(b, &l, "POST", "/network", NULL);
     assert_int_equal(e, 0);
 
     linq_usbd_init(&usb);
@@ -84,7 +84,8 @@ test_usb_recv_data(void** context_p)
 
     uint8_t b[256];
     uint32_t l = sizeof(b);
-    int e = wire_print_buffer(b, &l, "POST", "/network", "{\"foo\":\"bar\"}");
+    int e = wire_print_http_request_buffer(
+        b, &l, "POST", "/network", "{\"foo\":\"bar\"}");
     assert_int_equal(e, 0);
 
     linq_usbd_init(&usb);

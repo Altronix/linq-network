@@ -6,18 +6,18 @@
 #include "string.h"
 
 int
-wire_print_buffer(
+wire_print_http_request_buffer(
     uint8_t* buffer,
     uint32_t* sz,
     const char* meth,
     const char* path,
     const char* data)
 {
-    return wire_print(&buffer, sz, meth, path, data);
+    return wire_print_http_request(&buffer, sz, meth, path, data);
 }
 
 int
-wire_print(
+wire_print_http_request(
     uint8_t** buffer_p,
     uint32_t* l,
     const char* meth,
@@ -33,6 +33,41 @@ wire_print(
         !rlp_push_str(r, meth) &&              // meth
         !rlp_push_str(r, path) &&              // path
         (data ? !rlp_push_str(r, data) : true) // data
+    ) {
+        if (!(*buffer_p)) (*l = sz = rlp_print_size(r), *buffer_p = malloc(sz));
+        err = rlp_print(r, *buffer_p, l);
+        rlp_free(&r);
+        return err;
+    } else {
+        return -1;
+    }
+}
+
+int
+wire_print_http_response_buffer(
+    uint8_t* buffer,
+    uint32_t* sz,
+    uint16_t code,
+    const char* message)
+{
+    return wire_print_http_response(&buffer, sz, code, message);
+}
+
+int
+wire_print_http_response(
+    uint8_t** buffer_p,
+    uint32_t* l,
+    uint16_t code,
+    const char* message)
+{
+    rlp* r;
+    uint32_t sz = *l;
+    int err;
+    if ((r = rlp_list()) &&       //
+        !rlp_push_u8(r, 0) &&     // vers
+        !rlp_push_u8(r, 0) &&     // type
+        !rlp_push_u16(r, code) && // code
+        !rlp_push_str(r, message) // message
     ) {
         if (!(*buffer_p)) (*l = sz = rlp_print_size(r), *buffer_p = malloc(sz));
         err = rlp_print(r, *buffer_p, l);

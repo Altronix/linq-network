@@ -15,18 +15,29 @@ extern "C"
         rlp* rlp;
     } wire_parser_s;
 
-    int wire_print_buffer(
+    int wire_print_http_request_buffer(
         uint8_t* buffer_p,
         uint32_t* l,
         const char* meth,
         const char* path,
         const char* data);
-    int wire_print(
+    int wire_print_http_request(
         uint8_t** buffer_p,
         uint32_t* l,
         const char* meth,
         const char* path,
         const char* data);
+
+    int wire_print_http_response_buffer(
+        uint8_t* buffer_p,
+        uint32_t* l,
+        uint16_t code,
+        const char* message);
+    int wire_print_http_response(
+        uint8_t** buffer_p,
+        uint32_t* l,
+        uint16_t code,
+        const char* message);
 
     void wire_parser_init(wire_parser_s* wire);
     void wire_parser_free(wire_parser_s* wire);
