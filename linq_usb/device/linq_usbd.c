@@ -53,7 +53,7 @@ linq_usbd_poll(linq_usbd_s* usb, usbd_event_fn fn, void* ctx)
                USB_EVENTS_TYPE_HTTP,
                wire_parser_read_meth(&wire),
                wire_parser_read_path(&wire),
-               wire_parser_read_data(&wire));
+               wire_count(&wire) > 4 ? wire_parser_read_data(&wire) : NULL);
         }
         wire_parser_free(&wire);
         memset(usb->incoming, 0, len);

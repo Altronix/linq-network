@@ -27,12 +27,12 @@ wire_print(
     rlp* r;
     uint32_t sz = *l;
     int err;
-    if ((r = rlp_list()) &&       //
-        !rlp_push_u8(r, 0) &&     // vers
-        !rlp_push_u8(r, 0) &&     // type
-        !rlp_push_str(r, meth) && // meth
-        !rlp_push_str(r, path) && // path
-        !rlp_push_str(r, data)    // data
+    if ((r = rlp_list()) &&                    //
+        !rlp_push_u8(r, 0) &&                  // vers
+        !rlp_push_u8(r, 0) &&                  // type
+        !rlp_push_str(r, meth) &&              // meth
+        !rlp_push_str(r, path) &&              // path
+        (data ? !rlp_push_str(r, data) : true) // data
     ) {
         if (!(*buffer_p)) (*l = sz = rlp_print_size(r), *buffer_p = malloc(sz));
         err = rlp_print(r, *buffer_p, l);
@@ -61,6 +61,12 @@ wire_parse(wire_parser_s* wire, const uint8_t* bytes, uint32_t l)
     if (wire->rlp) rlp_free(&wire->rlp);
     wire->rlp = rlp_parse(bytes, l);
     return wire->rlp ? 0 : -1;
+}
+
+uint32_t
+wire_count(wire_parser_s* wire)
+{
+    return rlp_children(wire->rlp);
 }
 
 #define make_wire_parser_read_x(id, type, name, idx)                           \

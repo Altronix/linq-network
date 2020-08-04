@@ -17,7 +17,47 @@ test_usb_init(void** context_p)
 }
 
 static void
-recv_http_event(linq_usbd_s* usb, void* ctx, E_USB_EVENTS e, ...)
+test_usb_recv_callback(linq_usbd_s* usb, void* ctx, E_USB_EVENTS e, ...)
+{
+    const char *meth, *path, *data;
+
+    va_list list;
+    va_start(list, e);
+    meth = va_arg(list, const char*);
+    path = va_arg(list, const char*);
+    data = va_arg(list, const char*);
+    va_end(list);
+    assert_int_equal(USB_EVENTS_TYPE_HTTP, e);
+    assert_string_equal("POST", meth);
+    assert_string_equal("/network", path);
+    assert_null(data);
+    *((bool*)ctx) = true;
+}
+
+static void
+test_usb_recv(void** context_p)
+{
+    bool pass = false;
+    int err;
+    linq_usbd_s usb;
+    spy_file_init();
+
+    uint8_t b[256];
+    uint32_t l = sizeof(b);
+    int e = wire_print_buffer(b, &l, "POST", "/network", NULL);
+    assert_int_equal(e, 0);
+
+    linq_usbd_init(&usb);
+    spy_file_push_ioctl(l);
+    spy_file_push_incoming((char*)b, l);
+    e = linq_usbd_poll(&usb, test_usb_recv_callback, &pass);
+    assert_true(pass);
+
+    spy_file_free();
+}
+
+static void
+test_usb_recv_data_callback(linq_usbd_s* usb, void* ctx, E_USB_EVENTS e, ...)
 {
     const char *meth, *path, *data;
 
@@ -35,7 +75,7 @@ recv_http_event(linq_usbd_s* usb, void* ctx, E_USB_EVENTS e, ...)
 }
 
 static void
-test_usb_recv(void** context_p)
+test_usb_recv_data(void** context_p)
 {
     bool pass = false;
     int err;
@@ -50,7 +90,7 @@ test_usb_recv(void** context_p)
     linq_usbd_init(&usb);
     spy_file_push_ioctl(l);
     spy_file_push_incoming((char*)b, l);
-    e = linq_usbd_poll(&usb, recv_http_event, &pass);
+    e = linq_usbd_poll(&usb, test_usb_recv_data_callback, &pass);
     assert_true(pass);
 
     spy_file_free();
@@ -63,8 +103,9 @@ main(int argc, char* argv[])
     ((void)argv);
     int err;
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_usb_init), //
-        cmocka_unit_test(test_usb_recv)  //
+        cmocka_unit_test(test_usb_init),     //
+        cmocka_unit_test(test_usb_recv),     //
+        cmocka_unit_test(test_usb_recv_data) //
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);

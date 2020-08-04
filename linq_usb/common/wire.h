@@ -31,6 +31,7 @@ extern "C"
     void wire_parser_init(wire_parser_s* wire);
     void wire_parser_free(wire_parser_s* wire);
     int wire_parse(wire_parser_s* wire, const uint8_t*, uint32_t l);
+    uint32_t wire_count(wire_parser_s* wire);
     uint8_t wire_parser_read_vers(wire_parser_s* wire);
     uint8_t wire_parser_read_type(wire_parser_s* wire);
     const char* wire_parser_read_meth(wire_parser_s* wire);
