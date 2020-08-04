@@ -1,5 +1,5 @@
-#ifndef LINQ_USB_H
-#define LINQ_USB_H
+#ifndef LINQ_USBD_H
+#define LINQ_USBD_H
 
 // clang-format off
 #if defined _WIN32

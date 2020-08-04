@@ -24,13 +24,15 @@ if(BUILD_DEBUG)
   set(CMAKE_BUILD_TYPE Debug)
 endif()
 
-# [DEPENDENCIES] libzmq czmq jsmn-web-tokens openssl
+# [DEPENDENCIES] libzmq, czmq, [,jsmn-web-tokens ,openssl ,libusb]
 if(BUILD_DEPENDENCIES)
   if(BUILD_LINQD)
     find_package(OpenSSL REQUIRED)
     set(TLS_LIBS OpenSSL::Crypto OpenSSL::SSL)
     include(cmake/jsmn-web-tokens.cmake)
     set(JSMN_WEB_TOKENS_LIBS jsmn-web-tokens-static)
+  endif()
+  if(BUILD_USBH)
   endif()
   include(cmake/libzmq.cmake)
   include(cmake/czmq.cmake)
