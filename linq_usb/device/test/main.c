@@ -9,26 +9,29 @@
 #include <cmocka.h>
 
 static void
-usbd_event(
-    linq_usbd_s* usb,
-    E_USB_EVENTS e,
-    const char* b,
-    uint32_t l,
-    void* ctx)
-{
-    assert_int_equal(l, 3);
-    assert_memory_equal(b, "foo", 3);
-    *((bool*)ctx) = true;
-}
-
-struct linq_usbd_callbacks_s callbacks = { .event = &usbd_event };
-
-static void
 test_usb_init(void** context_p)
 {
     linq_usbd_s usb;
-    linq_usbd_init(&usb, NULL, NULL);
+    linq_usbd_init(&usb);
     linq_usbd_free(&usb);
+}
+
+static void
+recv_http_event(linq_usbd_s* usb, void* ctx, E_USB_EVENTS e, ...)
+{
+    const char *meth, *path, *data;
+
+    va_list list;
+    va_start(list, e);
+    meth = va_arg(list, const char*);
+    path = va_arg(list, const char*);
+    data = va_arg(list, const char*);
+    va_end(list);
+    assert_int_equal(USB_EVENTS_TYPE_HTTP, e);
+    assert_string_equal("POST", meth);
+    assert_string_equal("/network", path);
+    assert_string_equal("{\"foo\":\"bar\"}", data);
+    *((bool*)ctx) = true;
 }
 
 static void
@@ -36,21 +39,19 @@ test_usb_recv(void** context_p)
 {
     bool pass = false;
     int err;
+    linq_usbd_s usb;
     spy_file_init();
 
-    /*
-     // TODO test needs to handle wire and application layer data
-    linq_usbd_s usb;
-    linq_usbd_init(&usb, &callbacks, &pass);
-    err = linq_usbd_poll(&usb);
-    assert_int_equal(err, 0);
-    assert_false(pass);
-    spy_file_push_ioctl(3);
-    spy_file_push_incoming("foo", 3);
-    err = linq_usbd_poll(&usb);
-    assert_int_equal(err, 3);
+    uint8_t b[256];
+    uint32_t l = sizeof(b);
+    int e = wire_print_buffer(b, &l, "POST", "/network", "{\"foo\":\"bar\"}");
+    assert_int_equal(e, 0);
+
+    linq_usbd_init(&usb);
+    spy_file_push_ioctl(l);
+    spy_file_push_incoming((char*)b, l);
+    e = linq_usbd_poll(&usb, recv_http_event, &pass);
     assert_true(pass);
-    */
 
     spy_file_free();
 }

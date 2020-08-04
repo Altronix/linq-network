@@ -13,25 +13,13 @@ static int
 usb_read(linq_usbd_s* usb)
 {
     uint32_t sz = sizeof(usb->incoming);
-    return sys_read_buffer(usb->io, usb->incoming, &sz);
-}
-
-static int
-usb_write(linq_usbd_s* usb, void* b, uint32_t l)
-{
-    memcpy(usb->outgoing, b, l);
-    return sys_write(usb->io, usb->outgoing, l);
+    return sys_read_buffer(usb->io, (char*)usb->incoming, &sz);
 }
 
 int
-linq_usbd_init(
-    linq_usbd_s* usb,
-    struct linq_usbd_callbacks_s* callbacks,
-    void* ctx)
+linq_usbd_init(linq_usbd_s* usb)
 {
     memset(usb, 0, sizeof(linq_usbd_s));
-    usb->callbacks = callbacks;
-    usb->ctx = ctx;
     usb->io = sys_open(LINQ_USB_CONFIG_IO, FILE_MODE_READ_WRITE);
     if (!usb->io) {
         log_error(LOG_ERROR_DEVICE, LINQ_USB_CONFIG_IO);
@@ -52,10 +40,22 @@ linq_usbd_free(linq_usbd_s* usb)
 }
 
 int
-linq_usbd_poll(linq_usbd_s* usb)
+linq_usbd_poll(linq_usbd_s* usb, usbd_event_fn fn, void* ctx)
 {
     int len = usb_read(usb);
     if (len > 0) {
+        wire_parser_s wire;
+        wire_parser_init(&wire);
+        len = wire_parse(&wire, usb->incoming, len);
+        if (len == 0) {
+            fn(usb,
+               ctx,
+               USB_EVENTS_TYPE_HTTP,
+               wire_parser_read_meth(&wire),
+               wire_parser_read_path(&wire),
+               wire_parser_read_data(&wire));
+        }
+        wire_parser_free(&wire);
         memset(usb->incoming, 0, len);
     }
     return len;

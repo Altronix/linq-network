@@ -54,20 +54,6 @@ args_parse(usbd_config_s* config, int argc, char* argv[])
     }
 }
 
-static void
-usbd_event(
-    linq_usbd_s* usb,
-    E_USB_EVENTS e,
-    const char* b,
-    uint32_t l,
-    void* ctx)
-{
-    log_debug("(USBD) Received [%.*s]", l, b);
-    linq_usbd_write(usb, "{\"received\": \"%.*s\"}", l, b);
-}
-
-struct linq_usbd_callbacks_s callbacks = { .event = &usbd_event };
-
 int
 main(int argc, char* argv[])
 {
@@ -79,13 +65,13 @@ main(int argc, char* argv[])
     sys_pid pid = 0;
     linq_usbd_s usb;
 
-    if (config.daemon) { sys_daemonize(config.log, &f, &pid); }
-    linq_usbd_init(&usb, &callbacks, NULL);
+    // if (config.daemon) { sys_daemonize(config.log, &f, &pid); }
+    // linq_usbd_init(&usb, &callbacks, NULL);
 
-    while (running) {
-        sys_msleep(50);
-        linq_usbd_poll(&usb);
-    }
+    // while (running) {
+    //     sys_msleep(50);
+    //     linq_usbd_poll(&usb);
+    // }
 
     linq_usbd_free(&usb);
     return 0;
