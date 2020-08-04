@@ -47,6 +47,10 @@ extern "C"
         const char* path,
         const char* data,
         ...);
+    LINQ_USB_EXPORT int linq_usbd_write_http_response(
+        linq_usbd_s* usb,
+        uint16_t code,
+        const char* message);
 
 #ifdef __cplusplus
 }

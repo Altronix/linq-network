@@ -79,3 +79,16 @@ linq_usbd_write_http_request(
     ret = sys_write(usb->io, (char*)usb->outgoing, sz);
     return ret;
 }
+
+int
+linq_usbd_write_http_response(
+    linq_usbd_s* usb,
+    uint16_t code,
+    const char* message)
+{
+    int ret;
+    uint32_t sz = sizeof(usb->outgoing);
+    ret = wire_print_http_response(usb->outgoing, &sz, code, message);
+    if (ret == 0) ret = sys_write(usb->io, (char*)usb->outgoing, sz);
+    return ret;
+}

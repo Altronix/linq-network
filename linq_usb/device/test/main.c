@@ -122,6 +122,29 @@ test_usb_write_http_request(void** context_p)
     spy_file_free();
 }
 
+static void
+test_usb_write_http_response(void** context_p)
+{
+    spy_file_init();
+    linq_usbd_s usb;
+    linq_usbd_init(&usb);
+    spy_file_packet_s* packet;
+    spy_file_packet_flush_outgoing();
+    int err = linq_usbd_write_http_response(&usb, 200, "{\"error\":\"Ok\"}");
+    assert_true(err > 0);
+    packet = spy_file_packet_pop_outgoing();
+    rlp* rlp = rlp_parse((uint8_t*)packet->bytes, packet->len);
+    assert_non_null(rlp);
+    assert_int_equal(rlp_as_u8(rlp_at(rlp, 0)), 0);
+    assert_int_equal(rlp_as_u8(rlp_at(rlp, 1)), 0);
+    assert_int_equal(rlp_as_u16(rlp_at(rlp, 2)), 200);
+    assert_string_equal(rlp_as_str(rlp_at(rlp, 3)), "{\"error\":\"Ok\"}");
+    rlp_free(&rlp);
+    spy_file_packet_free(&packet);
+    linq_usbd_free(&usb);
+    spy_file_free();
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -129,10 +152,11 @@ main(int argc, char* argv[])
     ((void)argv);
     int err;
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_usb_init),              //
-        cmocka_unit_test(test_usb_recv),              //
-        cmocka_unit_test(test_usb_recv_data),         //
-        cmocka_unit_test(test_usb_write_http_request) //
+        cmocka_unit_test(test_usb_init),               //
+        cmocka_unit_test(test_usb_recv),               //
+        cmocka_unit_test(test_usb_recv_data),          //
+        cmocka_unit_test(test_usb_write_http_request), //
+        cmocka_unit_test(test_usb_write_http_response) //
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
