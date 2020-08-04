@@ -62,9 +62,8 @@ json_get_member(const char* buffer, const jsmntok_t tok[], const char* label)
 
     if (tok->type != JSMN_OBJECT) return NULL;
 
-    json_for_each_obj(
-        i, t, tok) if (json_tok_streq(buffer, t, label)) return t +
-        1;
+    json_for_each_obj(i, t, tok);
+    if (json_tok_streq(buffer, t, label)) return t + 1;
 
     return NULL;
 }
