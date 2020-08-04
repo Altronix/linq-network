@@ -20,19 +20,22 @@ extern "C"
         uint32_t* l,
         const char* meth,
         const char* path,
-        const char* data);
+        const char* data,
+        ...);
     int wire_print_http_request_alloc(
         uint8_t** buffer_p,
         uint32_t* l,
         const char* meth,
         const char* path,
-        const char* data);
+        const char* data,
+        ...);
     int wire_print_http_request_ptr(
         uint8_t** buffer_p,
         uint32_t* l,
         const char* meth,
         const char* path,
-        const char* data);
+        const char* data,
+        va_list list);
 
     int wire_print_http_response(
         uint8_t* buffer_p,

@@ -14,6 +14,7 @@
 
 // clang-format off
 #if defined _WIN32
+#  define va_copy(d, s) ((d)=(s))
 #  if defined LINQ_UTILS_STATIC
 #    define LINQ_UTILS_EXPORT
 #  elif defined DLL_EXPORT

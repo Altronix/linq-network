@@ -6,14 +6,38 @@
 #include "string.h"
 
 int
+rlp_vpush_str(rlp* parent, const char* data, va_list list)
+{
+    // TODO move into rlp?
+    char* mem;
+    int ret;
+    va_list dupe;
+    va_copy(dupe, list);
+    ret = vsnprintf(NULL, 0, data, dupe);
+    va_end(dupe);
+    mem = malloc(ret + 1);
+    assert(mem);
+    vsnprintf(mem, ret + 1, data, list);
+    ret = rlp_push_str(parent, mem);
+    free(mem);
+    return ret;
+}
+
+int
 wire_print_http_request(
     uint8_t* buffer,
     uint32_t* sz,
     const char* meth,
     const char* path,
-    const char* data)
+    const char* data,
+    ...)
 {
-    return wire_print_http_request_ptr(&buffer, sz, meth, path, data);
+    int ret;
+    va_list list;
+    va_start(list, data);
+    ret = wire_print_http_request_ptr(&buffer, sz, meth, path, data, list);
+    va_end(list);
+    return ret;
 }
 
 int
@@ -22,11 +46,17 @@ wire_print_http_request_alloc(
     uint32_t* l,
     const char* meth,
     const char* path,
-    const char* data)
+    const char* data,
+    ...)
 {
+    int ret;
     assert(buffer_p);
     assert(*buffer_p == NULL);
-    return wire_print_http_request_ptr(buffer_p, l, meth, path, data);
+    va_list list;
+    va_start(list, data);
+    ret = wire_print_http_request_ptr(buffer_p, l, meth, path, data, list);
+    va_end(list);
+    return ret;
 }
 
 int
@@ -35,17 +65,18 @@ wire_print_http_request_ptr(
     uint32_t* l,
     const char* meth,
     const char* path,
-    const char* data)
+    const char* data,
+    va_list list)
 {
     rlp* r;
     uint32_t sz = *l;
     int err;
-    if ((r = rlp_list()) &&                    //
-        !rlp_push_u8(r, 0) &&                  // vers
-        !rlp_push_u8(r, 0) &&                  // type
-        !rlp_push_str(r, meth) &&              // meth
-        !rlp_push_str(r, path) &&              // path
-        (data ? !rlp_push_str(r, data) : true) // data
+    if ((r = rlp_list()) &&                           //
+        !rlp_push_u8(r, 0) &&                         // vers
+        !rlp_push_u8(r, 0) &&                         // type
+        !rlp_push_str(r, meth) &&                     // meth
+        !rlp_push_str(r, path) &&                     // path
+        (data ? !rlp_vpush_str(r, data, list) : true) // data
     ) {
         if (!(*buffer_p)) (*l = sz = rlp_print_size(r), *buffer_p = malloc(sz));
         err = rlp_print(r, *buffer_p, l);
