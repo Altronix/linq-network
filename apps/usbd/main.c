@@ -54,6 +54,28 @@ args_parse(usbd_config_s* config, int argc, char* argv[])
     }
 }
 
+static void
+usbd_event(linq_usbd_s* usb, void* ctx, E_USB_EVENTS e, ...)
+{
+    if (USB_EVENTS_TYPE_HTTP == e) {
+        const char *meth, *path, *data;
+        va_list list;
+        va_start(list, e);
+        meth = va_arg(list, const char*);
+        path = va_arg(list, const char*);
+        data = va_arg(list, const char*);
+        log_info("(USB) RECV [%s] [%s] [%s]", meth, path, data ? data : "");
+        va_end(list);
+    } else if (USB_EVENTS_ERROR == e) {
+        int ret;
+        va_list list;
+        va_start(list, e);
+        ret = va_arg(list, int);
+        va_end(list);
+        log_info("(USB) error [%d]", ret);
+    }
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -65,13 +87,13 @@ main(int argc, char* argv[])
     sys_pid pid = 0;
     linq_usbd_s usb;
 
-    // if (config.daemon) { sys_daemonize(config.log, &f, &pid); }
-    // linq_usbd_init(&usb, &callbacks, NULL);
+    if (config.daemon) { sys_daemonize(config.log, &f, &pid); }
+    linq_usbd_init(&usb);
 
-    // while (running) {
-    //     sys_msleep(50);
-    //     linq_usbd_poll(&usb);
-    // }
+    while (running) {
+        sys_msleep(50);
+        linq_usbd_poll(&usb, usbd_event, &usb);
+    }
 
     linq_usbd_free(&usb);
     return 0;
