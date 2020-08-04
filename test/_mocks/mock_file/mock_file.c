@@ -67,6 +67,16 @@ spy_file_packet_pop_outgoing()
 }
 
 void
+spy_file_packet_flush_outgoing()
+{
+    spy_file_packet_s* packet = outgoing_list_pop(outgoing);
+    while (packet) {
+        spy_file_packet_free(&packet);
+        packet = outgoing_list_pop(outgoing);
+    }
+}
+
+void
 spy_file_packet_free(spy_file_packet_s** p)
 {
     spy_file_packet_s* packet = *p;

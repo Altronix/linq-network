@@ -62,13 +62,20 @@ linq_usbd_poll(linq_usbd_s* usb, usbd_event_fn fn, void* ctx)
 }
 
 int
-linq_usbd_write(linq_usbd_s* usb, const char* fmt, ...)
+linq_usbd_write_http_request(
+    linq_usbd_s* usb,
+    const char* meth,
+    const char* path,
+    const char* data,
+    ...)
 {
-    // TODO must go through wire layer to wrap payload with packet
     int ret;
+    uint32_t sz = sizeof(usb->outgoing);
+    uint8_t* mem = usb->outgoing;
     va_list list;
-    va_start(list, fmt);
-    ret = sys_vfprintf(usb->io, fmt, list);
+    va_start(list, data);
+    ret = wire_print_http_request_ptr(&mem, &sz, meth, path, data, list);
     va_end(list);
+    ret = sys_write(usb->io, (char*)usb->outgoing, sz);
     return ret;
 }

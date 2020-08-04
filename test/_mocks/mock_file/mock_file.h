@@ -27,6 +27,7 @@ extern "C"
     void spy_file_push_outgoing(const char* bytes, uint32_t l);
     void spy_file_push_ioctl(int);
     spy_file_packet_s* spy_file_packet_pop_outgoing();
+    void spy_file_packet_flush_outgoing();
     void spy_file_packet_free(spy_file_packet_s** p);
 
 #ifdef __cplusplus

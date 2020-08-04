@@ -41,6 +41,12 @@ extern "C"
     LINQ_USB_EXPORT int linq_usbd_init(linq_usbd_s* usb);
     LINQ_USB_EXPORT void linq_usbd_free(linq_usbd_s* usb);
     LINQ_USB_EXPORT int linq_usbd_poll(linq_usbd_s*, usbd_event_fn, void*);
+    LINQ_USB_EXPORT int linq_usbd_write_http_request(
+        linq_usbd_s* usb,
+        const char* meth,
+        const char* path,
+        const char* data,
+        ...);
 
 #ifdef __cplusplus
 }
