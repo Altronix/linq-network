@@ -19,3 +19,6 @@
 [submodule "external/jsmn-web-tokens"]
 	path = external/jsmn-web-tokens
 	url = https://github.com/TomzBench/jsmn-web-tokens
+[submodule "external/libusb"]
+	path = external/libusb
+	url = https://github.com/libusb/libusb.git

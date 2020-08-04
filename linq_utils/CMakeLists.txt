@@ -28,6 +28,7 @@ if(BUILD_STATIC)
   add_library(linq-utils-static STATIC ${SOURCES} ${HEADERS})
   target_link_libraries(linq-utils-static ${LIBS})
   target_compile_definitions(linq-utils-static PUBLIC "LINQ_UTILS_STATIC")
+  target_compile_definitions(linq-utils-static PUBLIC "RLP_STATIC")
   target_include_directories(linq-utils-static PUBLIC ${INCS})
   set_target_properties(linq-utils-static PROPERTIES
     PUBLIC_HEADER "${HEADERS}"

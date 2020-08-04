@@ -22,7 +22,7 @@ if(BUILD_STATIC)
   target_compile_definitions(linq-usbd-static PUBLIC "${DEFS}")
   set_target_properties(linq-usbd-static PROPERTIES
     PUBLIC_HEADER "${INSTALL_HEADERS}"
-    OUTPUT_NAME "linq-usb")
+    OUTPUT_NAME "linq-usbd")
   install(TARGETS linq-usbd-static
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
@@ -38,7 +38,7 @@ if(BUILD_SHARED)
   target_compile_definitions(linq-usbd-shared PUBLIC "${DEFS}")
   set_target_properties(linq-usbd-shared PROPERTIES
     PUBLIC_HEADER "${INSTALL_HEADERS}"
-    OUTPUT_NAME "linq-usb")
+    OUTPUT_NAME "linq-usbd")
   install(TARGETS linq-usbd-shared
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib

@@ -23,6 +23,12 @@ extern "C"
 {
 #endif
 
+    struct priv_ctx;
+    typedef struct linq_usbh_s
+    {
+        struct priv_ctx* priv_ctx;
+    } linq_usbh_s;
+
 #ifdef __cplusplus
 }
 #endif
