@@ -118,7 +118,7 @@ extern "C"
 #define LOG_BACKGROUND_LIGHT_CYAN "\x1b[106m"
 #define LOG_BACKGROUND_LIGHT_WHITE "\x1b[107m"
 
-    static FILE** logger = &stdout;
+    static FILE** logger = NULL;
     static void log_set_fd(FILE** f) { *logger = *f; }
 
 #define FMT_STRING                                                             \
@@ -139,20 +139,37 @@ extern "C"
         file = flen > 1 ? &file[flen + 1] : file;
         va_list args;
 
-        fprintf(
-            *logger,
-            FMT_STRING,
-            sys_tick(),
-            level_colors[level],
-            level_names[level],
-            file,
-            line);
+        if (logger) {
+            fprintf(
+                *logger,
+                FMT_STRING,
+                sys_tick(),
+                level_colors[level],
+                level_names[level],
+                file,
+                line);
 
-        va_start(args, fmt);
-        vfprintf(*logger, fmt, args);
-        va_end(args);
-        fprintf(*logger, "\n");
-        fflush(*logger);
+            va_start(args, fmt);
+            vfprintf(*logger, fmt, args);
+            va_end(args);
+            fprintf(*logger, "\n");
+            fflush(*logger);
+        } else {
+            fprintf(
+                stdout,
+                FMT_STRING,
+                sys_tick(),
+                level_colors[level],
+                level_names[level],
+                file,
+                line);
+
+            va_start(args, fmt);
+            vfprintf(stdout, fmt, args);
+            va_end(args);
+            fprintf(stdout, "\n");
+            fflush(stdout);
+        }
     }
 
 #ifdef __cplusplus

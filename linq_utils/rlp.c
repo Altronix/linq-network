@@ -41,6 +41,7 @@
  */
 
 #include "rlp.h"
+#include "assert.h"
 #include "stdlib.h"
 
 /**
@@ -58,7 +59,7 @@ typedef struct rlp
 // private
 uint32_t rlp_szsz(uint32_t); // size of size
 uint32_t rlp_write_sz(uint8_t* b, uint32_t* s, uint32_t sz, int islist);
-uint32_t rlp_write_n_big_endian(uint8_t*, const void*, uint32_t, int);
+uint32_t rlp_write_n_big_endian(uint8_t*, const uint8_t*, uint32_t, int);
 uint32_t rlp_write_big_endian(uint8_t*, const void*, int);
 uint32_t rlp_read_sz(const uint8_t* b, uint32_t* result);
 uint32_t rlp_print_walk(const rlp* rlp, uint8_t* b, uint32_t* spot);
@@ -125,7 +126,7 @@ rlp_write_sz(uint8_t* b, uint32_t* c, uint32_t s, int islist)
 }
 
 uint32_t
-rlp_write_n_big_endian(uint8_t* b, const void* dat, uint32_t len, int szof)
+rlp_write_n_big_endian(uint8_t* b, const uint8_t* dat, uint32_t len, int szof)
 {
     uint32_t spot = 0, n;
     while (len--) {
@@ -242,28 +243,31 @@ rlp_item_u8(uint8_t val)
 }
 
 rlp*
-rlp_item_u64_arr(const uint64_t* b, uint32_t sz)
+rlp_item_u64_arr(const uint64_t* arg, uint32_t sz)
 {
-    uint32_t blen = sz * sizeof(uint64_t); // worstcase
-    uint8_t bytes[blen];
+    uint8_t bytes[RLP_CONFIG_MAX_ARRAY];
+    void* b = (void*)arg;
+    rlp_assert_fn(sz < sizeof(bytes));
     uint32_t len = rlp_write_n_big_endian(bytes, b, sz, sizeof(uint64_t));
     return rlp_item_u8_arr(bytes, len);
 }
 
 rlp*
-rlp_item_u32_arr(const uint32_t* b, uint32_t sz)
+rlp_item_u32_arr(const uint32_t* arg, uint32_t sz)
 {
-    uint32_t blen = sz * sizeof(uint32_t); // worstcase
-    uint8_t bytes[blen];
+    uint8_t bytes[RLP_CONFIG_MAX_ARRAY];
+    void* b = (void*)arg;
+    rlp_assert_fn(sz < sizeof(bytes));
     uint32_t len = rlp_write_n_big_endian(bytes, b, sz, sizeof(uint32_t));
     return rlp_item_u8_arr(bytes, len);
 }
 
 rlp*
-rlp_item_u16_arr(const uint16_t* b, uint32_t sz)
+rlp_item_u16_arr(const uint16_t* arg, uint32_t sz)
 {
-    uint32_t blen = sz * sizeof(uint16_t); // worstcase
-    uint8_t bytes[blen];
+    uint8_t bytes[RLP_CONFIG_MAX_ARRAY];
+    void* b = (void*)arg;
+    rlp_assert_fn(sz < sizeof(bytes));
     uint32_t len = rlp_write_n_big_endian(bytes, b, sz, sizeof(uint16_t));
     return rlp_item_u8_arr(bytes, len);
 }
@@ -484,8 +488,8 @@ rlp_ref(const rlp* rlp, uint32_t* sz)
 rlp*
 rlp_copy(const rlp* rlp)
 {
-    uint32_t sz = rlp_print_size(rlp);
-    uint8_t buf[sz];
+    uint8_t buf[RLP_CONFIG_MAX_ARRAY];
+    uint32_t sz = sizeof(buf);
     return rlp_print(rlp, buf, &sz) ? NULL : rlp_parse(buf, sz);
 }
 

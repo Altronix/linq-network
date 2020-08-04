@@ -4,6 +4,28 @@
 #include "stdint.h"
 #include "string.h"
 
+// clang-format off
+#if defined _WIN32
+#  define rlp_assert_fn assert
+#  define rlp_malloc_fn malloc
+#  define rlp_free_fn free
+#  define rlp_clz_fn __lzcnt
+#  if defined RLP_STATIC
+#    define RLP_EXPORT
+#  elif defined DLL_EXPORT
+#    define RLP_EXPORT __declspec(dllexport)
+#  else
+#    define RLP_EXPORT __declspec(dllimport)
+#  endif
+#else
+#  define rlp_assert_fn assert
+#  define rlp_malloc_fn malloc
+#  define rlp_free_fn free
+#  define rlp_clz_fn __builtin_clz
+#  define RLP_EXPORT
+#endif
+// clang-format on
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -12,12 +34,13 @@ extern "C"
     typedef struct rlp rlp; /*!< opaque class */
     typedef void (*rlp_walk_fn)(const rlp*, int, void*);
 
+#ifndef RLP_CONFIG_ANYSIZE_ARRAY
 #define RLP_CONFIG_ANYSIZE_ARRAY 1
-#define RLP_IS_BIGENDIAN 1
+#endif
 
-#define rlp_malloc_fn malloc
-#define rlp_free_fn free
-#define rlp_clz_fn __builtin_clz
+#ifndef RLP_CONFIG_MAX_ARRAY
+#define RLP_CONFIG_MAX_ARRAY 4098
+#endif
 
 #define rlp_item(b) rlp_item_str(b)   /*!< alias */
 #define rlp_is_list(rlp) (!(rlp->sz)) /*!< empty node signal start of list */
