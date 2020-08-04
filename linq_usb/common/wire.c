@@ -6,18 +6,31 @@
 #include "string.h"
 
 int
-wire_print_http_request_buffer(
+wire_print_http_request(
     uint8_t* buffer,
     uint32_t* sz,
     const char* meth,
     const char* path,
     const char* data)
 {
-    return wire_print_http_request(&buffer, sz, meth, path, data);
+    return wire_print_http_request_ptr(&buffer, sz, meth, path, data);
 }
 
 int
-wire_print_http_request(
+wire_print_http_request_alloc(
+    uint8_t** buffer_p,
+    uint32_t* l,
+    const char* meth,
+    const char* path,
+    const char* data)
+{
+    assert(buffer_p);
+    assert(*buffer_p == NULL);
+    return wire_print_http_request_ptr(buffer_p, l, meth, path, data);
+}
+
+int
+wire_print_http_request_ptr(
     uint8_t** buffer_p,
     uint32_t* l,
     const char* meth,
@@ -44,17 +57,29 @@ wire_print_http_request(
 }
 
 int
-wire_print_http_response_buffer(
+wire_print_http_response(
     uint8_t* buffer,
     uint32_t* sz,
     uint16_t code,
     const char* message)
 {
-    return wire_print_http_response(&buffer, sz, code, message);
+    return wire_print_http_response_ptr(&buffer, sz, code, message);
 }
 
 int
-wire_print_http_response(
+wire_print_http_response_alloc(
+    uint8_t** buffer_p,
+    uint32_t* l,
+    uint16_t code,
+    const char* message)
+{
+    assert(buffer_p);
+    assert(*buffer_p == NULL);
+    return wire_print_http_response_ptr(buffer_p, l, code, message);
+}
+
+int
+wire_print_http_response_ptr(
     uint8_t** buffer_p,
     uint32_t* l,
     uint16_t code,

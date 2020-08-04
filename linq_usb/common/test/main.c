@@ -16,7 +16,7 @@ test_wire_print_http_request_alloc(void** context_p)
     uint32_t l;
     int err;
     rlp* result;
-    err = wire_print_http_request(
+    err = wire_print_http_request_alloc(
         &b, &l, "POST", "/network", "{\"foo\":\"bar\"}");
     assert_int_equal(err, 0);
     result = rlp_parse(b, l);
@@ -31,15 +31,14 @@ test_wire_print_http_request_alloc(void** context_p)
 }
 
 static void
-test_wire_print_http_request_buffer(void** context_p)
+test_wire_print_http_request(void** context_p)
 {
     uint8_t b[256];
     uint32_t l = sizeof(b);
     int e;
 
     rlp* result;
-    e = wire_print_http_request_buffer(
-        b, &l, "POST", "/network", "{\"foo\":\"bar\"}");
+    e = wire_print_http_request(b, &l, "POST", "/network", "{\"foo\":\"bar\"}");
     assert_int_equal(e, 0);
     result = rlp_parse(b, l);
     assert_non_null(result);
@@ -56,8 +55,8 @@ test_wire_parse(void** context_p)
 {
     uint8_t b[256];
     uint32_t l = sizeof(b);
-    int e = wire_print_http_request_buffer(
-        b, &l, "POST", "/network", "{\"foo\":\"bar\"}");
+    int e =
+        wire_print_http_request(b, &l, "POST", "/network", "{\"foo\":\"bar\"}");
     assert_int_equal(e, 0);
     wire_parser_s parser;
     wire_parser_init(&parser);
@@ -78,7 +77,7 @@ main(int argc, char* argv[])
     int err;
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_wire_print_http_request_alloc), //
-        cmocka_unit_test(test_wire_print_http_request_buffer),
+        cmocka_unit_test(test_wire_print_http_request),
         cmocka_unit_test(test_wire_parse)
     };
 
