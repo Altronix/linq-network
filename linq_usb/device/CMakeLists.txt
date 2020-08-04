@@ -1,6 +1,6 @@
 set(LIBS linq-usb-common-static linq-utils-static)
-list(APPEND SOURCES linq_usbd.c wire_event.c)
-list(APPEND HEADERS linq_usbd.h wire_event.h)
+list(APPEND SOURCES linq_usbd.c)
+list(APPEND HEADERS linq_usbd.h)
 set(INSTALL_HEADERS linq_usbd.h)
 set(INCS "./")
 

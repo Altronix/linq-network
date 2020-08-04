@@ -5,35 +5,19 @@
 #include "stdio.h"
 #include "string.h"
 
-void
-wire_init(wire_s* wire, wire_event_fn cb, void* ctx)
-{
-    memset(wire, 0, sizeof(wire_s));
-    wire->cb = cb;
-    wire->ctx = ctx;
-}
-
-void
-wire_free(wire_s* wire)
-{
-    memset(wire, 0, sizeof(wire_s));
-}
-
 int
 wire_print_buffer(
-    wire_s* wire,
     uint8_t* buffer,
     uint32_t* sz,
     const char* meth,
     const char* path,
     const char* data)
 {
-    return wire_print(wire, &buffer, sz, meth, path, data);
+    return wire_print(&buffer, sz, meth, path, data);
 }
 
 int
 wire_print(
-    wire_s* wire,
     uint8_t** buffer_p,
     uint32_t* l,
     const char* meth,
@@ -58,3 +42,37 @@ wire_print(
         return -1;
     }
 }
+
+void
+wire_parser_init(wire_parser_s* wire)
+{
+    memset(wire, 0, sizeof(wire_parser_s));
+}
+
+void
+wire_parser_free(wire_parser_s* wire)
+{
+    if (wire->rlp) rlp_free(&wire->rlp);
+}
+
+int
+wire_parse(wire_parser_s* wire, const uint8_t* bytes, uint32_t l)
+{
+    if (wire->rlp) rlp_free(&wire->rlp);
+    wire->rlp = rlp_parse(bytes, l);
+    return wire->rlp ? 0 : -1;
+}
+
+#define make_wire_parser_read_x(id, type, name, idx)                           \
+    type wire_parser_read_##id(wire_parser_s* wire)                            \
+    {                                                                          \
+        const rlp* member = rlp_at(wire->rlp, idx);                            \
+        assert(member);                                                        \
+        return rlp_as_##name(member);                                          \
+    }
+
+make_wire_parser_read_x(vers, uint8_t, u8, 0);
+make_wire_parser_read_x(type, uint8_t, u8, 1);
+make_wire_parser_read_x(meth, const char*, str, 2);
+make_wire_parser_read_x(path, const char*, str, 3);
+make_wire_parser_read_x(data, const char*, str, 4);

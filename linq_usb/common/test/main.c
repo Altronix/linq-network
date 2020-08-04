@@ -16,7 +16,7 @@ test_wire_print_alloc(void** context_p)
     uint32_t l;
     int err;
     rlp* result;
-    err = wire_print(NULL, &b, &l, "POST", "/network", "{\"foo\":\"bar\"}");
+    err = wire_print(&b, &l, "POST", "/network", "{\"foo\":\"bar\"}");
     assert_int_equal(err, 0);
     result = rlp_parse(b, l);
     assert_non_null(result);
@@ -37,7 +37,7 @@ test_wire_print_buffer(void** context_p)
     int e;
 
     rlp* result;
-    e = wire_print_buffer(NULL, b, &l, "POST", "/network", "{\"foo\":\"bar\"}");
+    e = wire_print_buffer(b, &l, "POST", "/network", "{\"foo\":\"bar\"}");
     assert_int_equal(e, 0);
     result = rlp_parse(b, l);
     assert_non_null(result);
@@ -49,6 +49,24 @@ test_wire_print_buffer(void** context_p)
     rlp_free(&result);
 }
 
+static void
+test_wire_parse(void** context_p)
+{
+    uint8_t b[256];
+    uint32_t l = sizeof(b);
+    int e = wire_print_buffer(b, &l, "POST", "/network", "{\"foo\":\"bar\"}");
+    assert_int_equal(e, 0);
+    wire_parser_s parser;
+    wire_parser_init(&parser);
+    wire_parse(&parser, b, l);
+    assert_int_equal(0, wire_parser_read_vers(&parser));
+    assert_int_equal(0, wire_parser_read_type(&parser));
+    assert_string_equal("POST", wire_parser_read_meth(&parser));
+    assert_string_equal("/network", wire_parser_read_path(&parser));
+    assert_string_equal("{\"foo\":\"bar\"}", wire_parser_read_data(&parser));
+    wire_parser_free(&parser);
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -57,7 +75,8 @@ main(int argc, char* argv[])
     int err;
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_wire_print_alloc), //
-        cmocka_unit_test(test_wire_print_buffer)
+        cmocka_unit_test(test_wire_print_buffer),
+        cmocka_unit_test(test_wire_parse)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
