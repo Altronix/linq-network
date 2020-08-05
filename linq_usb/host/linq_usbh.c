@@ -8,12 +8,11 @@
 #define LOG_FAIL_OPEN "(USB) - Device failed to open [%s]"
 
 #define SCAN_FMT                                                               \
-    "{"                                                                        \
-    "\"idProduct\":%d,"                                                        \
+    "\"%s\":{"                                                                 \
     "\"idVendor\":%d,"                                                         \
-    "\"iManufacturer\":\"%d\","                                                \
-    "\"iProduct\":\"%d\","                                                     \
-    "\"iSerialNumber\":\"%d\""                                                 \
+    "\"idProduct\":%d,"                                                        \
+    "\"manufacturer\":\"%s\","                                                 \
+    "\"product\":\"%s\""                                                       \
     "}"
 
 typedef libusb_context usb_context;
@@ -88,6 +87,37 @@ linq_usbh_device_count(linq_usbh_s* usb)
 }
 
 int
+linq_usbh_print_devices(linq_usbh_s* usb, char* b, uint32_t l)
+{
+    uint32_t n = device_map_size(usb->devices), sz = l;
+    l = 1;
+    if (sz) *b = '{';
+    device_s* device;
+    device_iter iter;
+    map_foreach(usb->devices, iter)
+    {
+        if (map_has_key(usb->devices, iter)) {
+            device = map_val(usb->devices, iter);
+            l += snprintf(
+                &b[l],
+                sz - l,
+                SCAN_FMT,
+                device->serial,
+                device->descriptor.idVendor,
+                device->descriptor.idProduct,
+                device->manufacturer,
+                device->product);
+            if (--n) {
+                if (l < sz) b[(l)++] = ',';
+            }
+        }
+    }
+    if (l < sz) b[(l)++] = '}';
+    if (l < sz) b[(l)] = '\0';
+    return l;
+}
+
+int
 linq_usbh_scan(linq_usbh_s* usb, uint16_t vend, uint16_t prod)
 {
     device_s* d;
@@ -114,34 +144,7 @@ linq_usbh_scan(linq_usbh_s* usb, uint16_t vend, uint16_t prod)
             dev = devs[++i];
         }
     }
-    /*
-    *l = 1;
-    if (sz) *b = '[';
-    if (count > 0) {
-        dev = devs[i];
-        while (dev) {
-            struct libusb_device_descriptor desc;
-            int err = libusb_get_device_descriptor(dev, &desc);
-            if (err == 0) {
-                *l += snprintf(
-                    &b[*l],
-                    *l - sz,
-                    SCAN_FMT,
-                    desc.idProduct,
-                    desc.idVendor,
-                    desc.iManufacturer,
-                    desc.iProduct,
-                    desc.iSerialNumber);
-                dev = devs[++i];
-                if (dev) {
-                    if (*l < sz) b[(*l)++] = ',';
-                }
-            }
-        }
-    }
-    if (*l < sz) b[(*l)++] = ']';
-    if (*l < sz) b[(*l)++] = '\0';
-    */
+
     libusb_free_device_list(devs, 1);
     return n;
 }
