@@ -47,8 +47,8 @@ __wrap_libusb_get_device_list(libusb_context* ctx, libusb_device*** list_p)
 {
     int* ptr;
     uint32_t sz = devices_map_size(devices);
-    int* devices = malloc(sizeof(int*) * sz);
-    memset(devices, 0, sizeof(int*) * sz);
+    int* devices = malloc(sizeof(int) * sz);
+    memset(devices, 0, sizeof(int) * sz);
     for (int i = 0; i < sz; i++) (devices)[i] = sz;
     *list_p = (libusb_device**)devices;
     return sz;
