@@ -50,13 +50,15 @@ ssize_t
 __wrap_libusb_get_device_list(libusb_context* ctx, libusb_device*** list_p)
 {
     uint32_t sz = devices_map_size(devices);
-    const char** ptr = *(const char***)list_p = malloc(sizeof(char*) * sz);
+    const char** ptr = *(const char***)list_p =
+        malloc(sizeof(char*) * (sz + 1));
     assert(ptr);
     devices_iter iter;
     map_foreach(devices, iter)
     {
         if (map_has_key(devices, iter)) *ptr++ = map_key(devices, iter);
     }
+    *ptr = NULL;
     return sz;
 }
 

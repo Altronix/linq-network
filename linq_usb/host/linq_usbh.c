@@ -81,6 +81,12 @@ linq_usbh_free(linq_usbh_s* usb)
     memset(usb, 0, sizeof(linq_usbh_s));
 }
 
+uint32_t
+linq_usbh_device_count(linq_usbh_s* usb)
+{
+    return device_map_size(usb->devices);
+}
+
 int
 linq_usbh_scan(linq_usbh_s* usb, uint16_t vend, uint16_t prod)
 {
@@ -98,9 +104,10 @@ linq_usbh_scan(linq_usbh_s* usb, uint16_t vend, uint16_t prod)
                 if (desc.idVendor == vend && desc.idProduct == prod) {
                     d = device_init(dev, desc);
                     if (d) {
-                        log_info(LOG_FOUND, ++n, d->serial);
+                        log_info(LOG_FOUND, n, d->serial);
                         device_map_add(
                             usb->devices, (const char*)d->serial, &d);
+                        ++n;
                     }
                 }
             }
