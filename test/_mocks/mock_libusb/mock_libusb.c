@@ -5,6 +5,7 @@ typedef struct device_s
 {
     char key[3];
     struct libusb_device_descriptor desc;
+    char string[32];
 } device_s;
 MAP_INIT_W_FREE(devices, device_s);
 static devices_map_s* devices = NULL;
@@ -23,7 +24,7 @@ spy_libusb_free()
 }
 
 void
-spy_libusb_push_device(struct libusb_device_descriptor* desc)
+spy_libusb_push_device(struct libusb_device_descriptor* desc, const char* s)
 {
     uint32_t sz = devices_map_size(devices);
     device_s* device = malloc(sizeof(device_s));
@@ -31,6 +32,7 @@ spy_libusb_push_device(struct libusb_device_descriptor* desc)
     memset(device, 0, sizeof(device_s));
     memcpy(&device->desc, desc, sizeof(struct libusb_device_descriptor));
     snprintf(device->key, sizeof(device->key), "%d", sz);
+    snprintf(device->string, sizeof(device->string), "%s", s);
     devices_map_add(devices, device->key, &device);
 }
 
@@ -78,4 +80,33 @@ __wrap_libusb_get_device_descriptor(
     } else {
         return -1;
     }
+}
+
+int
+__wrap_libusb_open(libusb_device* dev, libusb_device_handle** handle)
+{
+    device_s** d = devices_map_get(devices, (char*)dev);
+    if (d) {
+        *((char**)handle) = (*d)->key;
+        return 0;
+    } else {
+        handle = NULL;
+        return -1;
+    }
+}
+
+void
+__wrap_libusb_close(libusb_device_handle* handle)
+{}
+
+int
+__wrap_libusb_get_string_descriptor_ascii(
+    libusb_device_handle* handle,
+    uint8_t idx,
+    unsigned char* buffer,
+    uint32_t len)
+{
+    device_s** d = devices_map_get(devices, (char*)handle);
+    assert(d);
+    return snprintf((char*)buffer, len, "%s", (*d)->string);
 }

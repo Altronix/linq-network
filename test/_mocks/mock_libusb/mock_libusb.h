@@ -10,7 +10,9 @@ extern "C"
 
     void spy_libusb_init();
     void spy_libusb_free();
-    void spy_libusb_push_device(struct libusb_device_descriptor* desc);
+    void spy_libusb_push_device(
+        struct libusb_device_descriptor* desc,
+        const char*);
 
 #ifdef __cplusplus
 }

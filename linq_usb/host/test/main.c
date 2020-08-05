@@ -21,7 +21,7 @@ test_scan(void** context_p)
     libusb_context* context;
     libusb_init(&context);
 
-    spy_libusb_push_device(&dev0);
+    spy_libusb_push_device(&dev0, "string-0");
 
     libusb_exit(context);
     spy_libusb_free();
