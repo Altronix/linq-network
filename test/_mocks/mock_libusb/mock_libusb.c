@@ -85,6 +85,15 @@ __wrap_libusb_get_device_descriptor(
 }
 
 int
+__wrap_libusb_get_config_descriptor(
+    libusb_device* dev,
+    uint8_t config,
+    struct libusb_config_descriptor** desc)
+{
+    return 0;
+}
+
+int
 __wrap_libusb_open(libusb_device* dev, libusb_device_handle** handle)
 {
     device_s** d = devices_map_get(devices, (char*)dev);

@@ -1,8 +1,8 @@
 set(LIBS ${CMAKE_THREAD_LIBS_INIT} udev linq-usb-common-static linq-utils-static)
 set(LIBS_STATIC ${LIBS} libusb-static)
 set(LIBS_SHARED ${LIBS} libusb-shared)
-list(APPEND SOURCES linq_usbh.c)
-list(APPEND HEADERS linq_usbh.h)
+list(APPEND SOURCES linq_usbh.c io.c io_k64_mqx.c io_m5.c)
+list(APPEND HEADERS linq_usbh.h io.h io_k64_mqx.h io_m5.h)
 set(INSTALL_HEADERS linq_usbh.h)
 set(INCS "./")
 

@@ -6,6 +6,7 @@
 #define LOG_FOUND "(USB) - Scan found [%d] [serial: %s]"
 #define LOG_FAIL_STRING "(USB) - Device failed to get string descriptor [%s]"
 #define LOG_FAIL_OPEN "(USB) - Device failed to open [%s]"
+#define LOG_FAIL_CONFIG "(USB) - Device failed to read config %d"
 
 #define SCAN_FMT                                                               \
     "\"%s\":{"                                                                 \
@@ -19,11 +20,23 @@ typedef libusb_context usb_context;
 static void device_free(device_s** dev_p);
 MAP_INIT(device, device_s, device_free);
 
+#define dlog(d)                                                                \
+    log_debug("(USB) [CONFIG] %d", d->desc_config->bmAttributes);              \
+    log_debug("(USB) [CONFIG] %d", d->desc_config->bConfigurationValue);       \
+    log_debug("(USB) [CONFIG] %d", d->desc_config->bDescriptorType);           \
+    log_debug("(USB) [CONFIG] %d", d->desc_config->bLength);                   \
+    log_debug("(USB) [CONFIG] %d", d->desc_config->bNumInterfaces);            \
+    log_debug("(USB) [CONFIG] %d", d->desc_config->MaxPower)
+
 static void
 device_free(device_s** dev_p)
 {
     device_s* d = *dev_p;
     *dev_p = NULL;
+    // if (d->desc_config) { libusb_free_config_descriptor(d->desc_config); }
+    if (d->descriptors.config[0].config) {
+        libusb_free_config_descriptor(d->descriptors.config[0].config);
+    }
     libusb_close(d->handle);
     free(d);
 }
@@ -37,26 +50,32 @@ device_init(libusb_device* d, struct libusb_device_descriptor descriptor)
     if (!err && (device = malloc(sizeof(device_s)))) {
         memset(device, 0, sizeof(device_s));
         device->device = d;
-        device->descriptor = descriptor;
+        device->descriptors.device = descriptor;
         device->handle = handle;
+        err = libusb_get_config_descriptor(
+            device->device, 0, &device->descriptors.config[0].config);
+        if (err) {
+            log_error(LOG_FAIL_CONFIG, 0);
+            log_error("(USB) [%s]", libusb_strerror(err));
+        }
         err = libusb_get_string_descriptor_ascii(
             device->handle,
             descriptor.iManufacturer,
             device->manufacturer,
             sizeof(device->manufacturer));
-        if (err < 0) log_error(LOG_FAIL_STRING, "iManufacturer");
+        if (err < 0) log_error(LOG_FAIL_STRING, libusb_strerror(err));
         err = libusb_get_string_descriptor_ascii(
             device->handle,
             descriptor.iProduct,
             device->product,
             sizeof(device->product));
-        if (err < 0) log_error(LOG_FAIL_STRING, "iProduct");
+        if (err < 0) log_error(LOG_FAIL_STRING, libusb_strerror(err));
         err = libusb_get_string_descriptor_ascii(
             device->handle,
             descriptor.iSerialNumber,
             device->serial,
             sizeof(device->serial));
-        if (err < 0) log_error(LOG_FAIL_STRING, "iManufacturer");
+        if (err < 0) log_error(LOG_FAIL_STRING, libusb_strerror(err));
     } else {
         log_error(LOG_FAIL_OPEN, err ? libusb_strerror(err) : "No memory");
     }
@@ -103,8 +122,8 @@ linq_usbh_print_devices(linq_usbh_s* usb, char* b, uint32_t l)
                 sz - l,
                 SCAN_FMT,
                 device->serial,
-                device->descriptor.idVendor,
-                device->descriptor.idProduct,
+                device->descriptors.device.idVendor,
+                device->descriptors.device.idProduct,
                 device->manufacturer,
                 device->product);
             if (--n) {
