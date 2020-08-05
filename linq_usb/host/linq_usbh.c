@@ -59,5 +59,6 @@ linq_usbh_scan(linq_usbh_s* usb, char* b, uint32_t* l)
     }
     if (*l < sz) b[(*l)++] = ']';
     if (*l < sz) b[(*l)++] = '\0';
+    libusb_free_device_list(devs, 1);
     return *l < sz ? 0 : -1;
 }
