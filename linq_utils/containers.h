@@ -47,6 +47,9 @@ extern "C"
     GENERIC_FREE_FN(type)                                                      \
     LIST_INIT(tag, type, type##_free_fn)
 
+#define list_foreach(list, iter)                                               \
+    for (iter = list->head; iter != list->tail; iter = iter->next)
+
 #define LIST_INIT(tag, type, list_free_fn)                                     \
     KLIST_INIT(tag, type*, FREE_FN)                                            \
                                                                                \
@@ -114,10 +117,18 @@ extern "C"
     GENERIC_FREE_FN(type)                                                      \
     MAP_INIT(tag, type, type##_free_fn)
 
+#define map_foreach(hash, iter)                                                \
+    for (iter = kh_begin(hash); iter != kh_end(hash); ++iter)
+#define map_has_key kh_exist
+#define map_key kh_key
+#define map_val kh_val
+
 #define MAP_INIT(tag, type, map_free_fn)                                       \
     KHASH_MAP_INIT_STR(tag, type*)                                             \
                                                                                \
     typedef struct kh_##tag##_s tag##_map_s;                                   \
+    typedef khiter_t tag##_iter;                                               \
+                                                                               \
     typedef void (*tag##_map_foreach_fn)(                                      \
         tag##_map_s*, void*, const char* key, type**);                         \
                                                                                \

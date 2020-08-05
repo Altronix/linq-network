@@ -2,15 +2,16 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "linq_network.h"
 #include "containers.h"
 #include "helpers.h"
+#include "linq_network.h"
 
 #include <cmocka.h>
 #include <setjmp.h>
 
 typedef struct test
 {
+    int val;
     void* ctx;
 } item;
 
@@ -78,24 +79,30 @@ test_container_map_create(void** context_p)
     item* item0 = linq_network_malloc(sizeof(item));
     item* item1 = linq_network_malloc(sizeof(item));
     item* item2 = linq_network_malloc(sizeof(item));
+    item0->val = 0;
+    item1->val = 1;
+    item2->val = 2;
 
     assert_non_null(hash);
 
-    item_map_add(hash, "item0", &item0);
+    item_map_add(hash, "0", &item0);
     assert_null(item0);
     assert_int_equal(1, item_map_size(hash));
 
-    item_map_add(hash, "item1", &item1);
+    item_map_add(hash, "1", &item1);
     assert_null(item1);
     assert_int_equal(2, item_map_size(hash));
 
-    item_map_add(hash, "item2", &item2);
+    item_map_add(hash, "2", &item2);
     assert_null(item2);
     assert_int_equal(3, item_map_size(hash));
 
-    item_map_remove(hash, "item0");
+    item_map_remove(hash, "0");
 
     assert_int_equal(2, item_map_size(hash));
+
+    item** ret = item_map_get(hash, "1");
+    assert_int_equal((*ret)->val, 1);
 
     item_map_destroy(&hash);
     assert_null(hash);
