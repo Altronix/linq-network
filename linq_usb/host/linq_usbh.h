@@ -16,6 +16,7 @@
 // clang-format on
 
 #include "sys.h"
+#include "containers.h"
 #include "wire.h"
 #include "libusb-1.0/libusb.h"
 
@@ -24,14 +25,26 @@ extern "C"
 {
 #endif
 
+    typedef struct device_s
+    {
+        libusb_device_handle* handle;
+        libusb_device* device;
+        struct libusb_device_descriptor descriptor;
+        unsigned char manufacturer[64];
+        unsigned char product[64];
+        unsigned char serial[64];
+    } device_s;
+    MAP_INIT_H(device, device_s);
+
     typedef struct linq_usbh_s
     {
         libusb_context* context;
+        device_map_s* devices;
     } linq_usbh_s;
 
     LINQ_USB_EXPORT void linq_usbh_init(linq_usbh_s* usb);
     LINQ_USB_EXPORT void linq_usbh_free(linq_usbh_s* usb);
-    LINQ_USB_EXPORT int linq_usbh_scan(linq_usbh_s*, char*, uint32_t* l);
+    LINQ_USB_EXPORT int linq_usbh_scan(linq_usbh_s*, uint16_t, uint16_t);
 
 #ifdef __cplusplus
 }
