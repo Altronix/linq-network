@@ -122,6 +122,7 @@ linq_usbh_scan(linq_usbh_s* usb, uint16_t vend, uint16_t prod)
 {
     device_s* d;
     libusb_device **devs, *dev;
+    const char* serial;
     int n = 0, i = 0;
     uint32_t count = libusb_get_device_list(usb->context, &devs);
     if (count > 0) {
@@ -135,8 +136,8 @@ linq_usbh_scan(linq_usbh_s* usb, uint16_t vend, uint16_t prod)
                     d = device_init(dev, desc);
                     if (d) {
                         log_info(LOG_FOUND, n, d->serial);
-                        device_map_add(
-                            usb->devices, (const char*)d->serial, &d);
+                        serial = (const char*)d->serial;
+                        device_map_add(usb->devices, serial, &d);
                         ++n;
                     }
                 }
