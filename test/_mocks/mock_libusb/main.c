@@ -22,19 +22,17 @@ test_libusb_get_device_descriptor(void** context_p)
     int err, count = libusb_get_device_list(NULL, &devs);
     assert_int_equal(count, 3);
 
-    /*
     err = libusb_get_device_descriptor(devs[0], &desc);
     assert_int_equal(err, 0);
-    assert_int_equal(desc.idProduct, 0);
-
-    err = libusb_get_device_descriptor(devs[1], &desc);
-    assert_int_equal(err, 1);
     assert_int_equal(desc.idProduct, 1);
 
-    err = libusb_get_device_descriptor(devs[2], &desc);
-    assert_int_equal(err, 2);
+    err = libusb_get_device_descriptor(devs[1], &desc);
+    assert_int_equal(err, 0);
     assert_int_equal(desc.idProduct, 2);
-    */
+
+    err = libusb_get_device_descriptor(devs[2], &desc);
+    assert_int_equal(err, 0);
+    assert_int_equal(desc.idProduct, 3);
 
     libusb_free_device_list(devs, 1);
     spy_libusb_free();

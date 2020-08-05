@@ -28,6 +28,7 @@ spy_libusb_push_device(struct libusb_device_descriptor* desc)
     uint32_t sz = devices_map_size(devices);
     device_s* device = malloc(sizeof(device_s));
     assert(device);
+    memset(device, 0, sizeof(device_s));
     memcpy(&device->desc, desc, sizeof(struct libusb_device_descriptor));
     snprintf(device->key, sizeof(device->key), "%d", sz);
     devices_map_add(devices, device->key, &device);
@@ -46,12 +47,14 @@ __wrap_libusb_exit(libusb_context* ctx)
 ssize_t
 __wrap_libusb_get_device_list(libusb_context* ctx, libusb_device*** list_p)
 {
-    int* ptr;
     uint32_t sz = devices_map_size(devices);
-    *list_p = malloc(sizeof(int) * sz);
-    assert(*list_p);
-    ptr = &(*(int**)list_p)[0];
-    for (int i = 0; i < sz; i++) *ptr++ = i;
+    const char** ptr = *(const char***)list_p = malloc(sizeof(char*) * sz);
+    assert(ptr);
+    devices_iter iter;
+    map_foreach(devices, iter)
+    {
+        if (map_has_key(devices, iter)) *ptr++ = map_key(devices, iter);
+    }
     return sz;
 }
 
@@ -68,10 +71,7 @@ __wrap_libusb_get_device_descriptor(
     struct libusb_device_descriptor* desc)
 {
     device_s** d;
-    char key[32];
-    int idx = (int)dev;
-    snprintf(key, sizeof(key), "%d", idx);
-    d = devices_map_get(devices, key);
+    d = devices_map_get(devices, (char*)dev);
     if (d) {
         memcpy(desc, &(*d)->desc, sizeof(struct libusb_device_descriptor));
         return 0;
