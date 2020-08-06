@@ -35,7 +35,9 @@ device_init(libusb_device* d, struct libusb_device_descriptor descriptor)
     device_s* device = NULL;
     libusb_device_handle* handle;
     int err = libusb_open(d, &handle);
+    uint8_t encoding[] = { 0x80, 0x25, 0x00, 0x00, 0x00, 0x00, 0x08 };
     if (!err && (device = malloc(sizeof(device_s)))) {
+        // TODO this can be moved to io layer since it is device specific
         memset(device, 0, sizeof(device_s));
         device->device = d;
         device->descriptors.device = descriptor;
@@ -61,11 +63,23 @@ device_init(libusb_device* d, struct libusb_device_descriptor descriptor)
             device->serial,
             sizeof(device->serial));
         if (err < 0) log_error("(USB) - str [%s]", libusb_strerror(err));
-        if (libusb_kernel_driver_active(device->handle, 1)) {
-            log_info("(USB) - detatching kernel driver");
-            err = libusb_detach_kernel_driver(device->handle, 1);
-            if (err) log_error("(USB) - dtch [%s]", libusb_strerror(err));
+        for (int i = 0; i < 2; i++) {
+            if (libusb_kernel_driver_active(device->handle, i)) {
+                log_info("(USB) - detatching kernel driver [%d]", i);
+                err = libusb_detach_kernel_driver(device->handle, i);
+                if (err) log_error("(USB) - [%s]", libusb_strerror(err));
+            }
+            log_info("(USB) - claiming interface [%d]", i);
+            err = libusb_claim_interface(device->handle, i);
+            if (err) log_error("(USB) - [%s]", libusb_strerror(err));
         }
+        // https://github.com/tytouf/libusb-cdc-example/blob/master/cdc_example.c
+        err = libusb_control_transfer(
+            device->handle, 0x21, 0x22, 0x01 | 0x02, 0, NULL, 0, 0);
+        if (err < 0) log_error("USB) - ctr [%s]", libusb_strerror(err));
+        err = libusb_control_transfer(
+            device->handle, 0x21, 0x20, 0, 0, encoding, sizeof(encoding), 0);
+        if (err < 0) log_error("USB) - ctr [%s]", libusb_strerror(err));
         device->io = io_m5_init(device->handle);
         if (!device->io) log_error("(USB) - io [%s]", "mem");
         // TODO - install io driver per product type

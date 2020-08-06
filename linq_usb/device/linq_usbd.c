@@ -1,4 +1,5 @@
 #include "linq_usbd.h"
+#include "errno.h"
 #include "log.h"
 #include "wire.h"
 
@@ -60,6 +61,8 @@ linq_usbd_poll(linq_usbd_s* usb, usbd_event_fn fn, void* ctx)
         }
         wire_parser_free(&wire);
         memset(usb->incoming, 0, len);
+    } else if (len < 0) {
+        log_error("(USB) - recv [%s]", strerror(errno));
     }
     return len;
 }

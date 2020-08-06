@@ -5,6 +5,18 @@
 #include "rlp.h"
 #include "stdint.h"
 
+#ifndef HAS_TERMINATE
+#define HAS_TERMINATE TRUE
+#endif
+
+// clang-format off
+#ifdef HAS_TERMINATE
+#  ifndef WIRE_TERMINATE
+#  define WIRE_TERMINATE '\n'
+#  endif
+#endif
+// clang-format on
+
 #ifdef __cplusplus
 extern "C"
 {
