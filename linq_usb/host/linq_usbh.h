@@ -77,6 +77,12 @@ extern "C"
         const char* path,
         const char* data,
         ...);
+    LINQ_USB_EXPORT int linq_usbh_recv_http_response_sync(
+        linq_usbh_s* usb,
+        const char* serial,
+        uint16_t* code,
+        char* buff,
+        uint32_t l);
 #ifdef __cplusplus
 }
 #endif

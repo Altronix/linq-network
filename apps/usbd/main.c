@@ -65,6 +65,7 @@ usbd_event(linq_usbd_s* usb, void* ctx, E_USB_EVENTS e, ...)
         path = va_arg(list, const char*);
         data = va_arg(list, const char*);
         log_info("(USB) RECV [%s] [%s] [%s]", meth, path, data ? data : "");
+        linq_usbd_write_http_response(usb, 200, "{\"error\":\"Ok\"}");
         va_end(list);
     } else if (USB_EVENTS_ERROR == e) {
         int ret;

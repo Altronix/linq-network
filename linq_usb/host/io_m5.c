@@ -1,9 +1,10 @@
 #include "io_m5.h"
+#include "errno.h"
 #include "log.h"
 #include "wire.h"
 
-#define IN 1
-#define OUT 2
+#define IN 1 | LIBUSB_ENDPOINT_IN
+#define OUT 2 | LIBUSB_ENDPOINT_OUT
 
 static int
 io_m5_vsend_http_request_sync(
@@ -74,6 +75,7 @@ io_m5_recv_http_response_sync(
         wire_parser_http_response_free(&r);
     } else {
         log_error("(USB) - rx [%s]", libusb_strerror(ret));
+        log_error("(USB) - errno [%s]", strerror(errno));
     }
     return ret;
 }
@@ -87,6 +89,7 @@ io_m5_init(libusb_device_handle* handle)
         io->io.handle = handle;
         io->io.ops.tx_sync = io_m5_send_http_request_sync;
         io->io.ops.vtx_sync = io_m5_vsend_http_request_sync;
+        io->io.ops.rx_sync = io_m5_recv_http_response_sync;
     }
     return (io_s*)io;
 }
