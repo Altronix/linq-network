@@ -44,6 +44,7 @@ linq_usbd_poll(linq_usbd_s* usb, usbd_event_fn fn, void* ctx)
 {
     int len = usb_read(usb);
     if (len > 0) {
+        log_info("(USB) - recv [%d]", len);
         wire_parser_s wire;
         wire_parser_init(&wire);
         len = wire_parse(&wire, usb->incoming, len);

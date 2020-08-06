@@ -1,12 +1,8 @@
 #include "linq_usbh.h"
+#include "errno.h"
+#include "io_m5.h"
 #include "libusb-1.0/libusb.h"
 #include "log.h"
-
-#define LOG_SCAN "(USB) - Device detected [0x%d/0x%d]"
-#define LOG_FOUND "(USB) - Scan found [%d] [serial: %s]"
-#define LOG_FAIL_STRING "(USB) - Device failed to get string descriptor [%s]"
-#define LOG_FAIL_OPEN "(USB) - Device failed to open [%s]"
-#define LOG_FAIL_CONFIG "(USB) - Device failed to read config %d"
 
 #define SCAN_FMT                                                               \
     "\"%s\":{"                                                                 \
@@ -20,24 +16,16 @@ typedef libusb_context usb_context;
 static void device_free(device_s** dev_p);
 MAP_INIT(device, device_s, device_free);
 
-#define dlog(d)                                                                \
-    log_debug("(USB) [CONFIG] %d", d->desc_config->bmAttributes);              \
-    log_debug("(USB) [CONFIG] %d", d->desc_config->bConfigurationValue);       \
-    log_debug("(USB) [CONFIG] %d", d->desc_config->bDescriptorType);           \
-    log_debug("(USB) [CONFIG] %d", d->desc_config->bLength);                   \
-    log_debug("(USB) [CONFIG] %d", d->desc_config->bNumInterfaces);            \
-    log_debug("(USB) [CONFIG] %d", d->desc_config->MaxPower)
-
 static void
 device_free(device_s** dev_p)
 {
     device_s* d = *dev_p;
     *dev_p = NULL;
-    // if (d->desc_config) { libusb_free_config_descriptor(d->desc_config); }
     if (d->descriptors.config[0].config) {
         libusb_free_config_descriptor(d->descriptors.config[0].config);
     }
     libusb_close(d->handle);
+    if (d->io) io_m5_free(&d->io);
     free(d);
 }
 
@@ -54,30 +42,37 @@ device_init(libusb_device* d, struct libusb_device_descriptor descriptor)
         device->handle = handle;
         err = libusb_get_config_descriptor(
             device->device, 0, &device->descriptors.config[0].config);
-        if (err) {
-            log_error(LOG_FAIL_CONFIG, 0);
-            log_error("(USB) [%s]", libusb_strerror(err));
-        }
+        if (err) { log_error("(USB) - cfg [%s]", libusb_strerror(err)); }
         err = libusb_get_string_descriptor_ascii(
             device->handle,
             descriptor.iManufacturer,
             device->manufacturer,
             sizeof(device->manufacturer));
-        if (err < 0) log_error(LOG_FAIL_STRING, libusb_strerror(err));
+        if (err < 0) log_error("(USB) - str [%s]", libusb_strerror(err));
         err = libusb_get_string_descriptor_ascii(
             device->handle,
             descriptor.iProduct,
             device->product,
             sizeof(device->product));
-        if (err < 0) log_error(LOG_FAIL_STRING, libusb_strerror(err));
+        if (err < 0) log_error("(USB) - str [%s]", libusb_strerror(err));
         err = libusb_get_string_descriptor_ascii(
             device->handle,
             descriptor.iSerialNumber,
             device->serial,
             sizeof(device->serial));
-        if (err < 0) log_error(LOG_FAIL_STRING, libusb_strerror(err));
+        if (err < 0) log_error("(USB) - str [%s]", libusb_strerror(err));
+        if (libusb_kernel_driver_active(device->handle, 1)) {
+            log_info("(USB) - detatching kernel driver");
+            err = libusb_detach_kernel_driver(device->handle, 1);
+            if (err) log_error("(USB) - dtch [%s]", libusb_strerror(err));
+        }
+        device->io = io_m5_init(device->handle);
+        if (!device->io) log_error("(USB) - io [%s]", "mem");
+        // TODO - install io driver per product type
+        //      - Optionally ? libusb_set_configuration( ...
+        //      - Optionally ? libusb_claim_interface( ...
     } else {
-        log_error(LOG_FAIL_OPEN, err ? libusb_strerror(err) : "No memory");
+        log_error("(USB) - open [%s]", err ? libusb_strerror(err) : "mem");
     }
     return device;
 }
@@ -89,6 +84,8 @@ linq_usbh_init(linq_usbh_s* usb)
     int err = libusb_init(&usb->context);
     usb->devices = device_map_create();
     assert(err == 0);
+    libusb_set_option(
+        usb->context, LIBUSB_OPTION_LOG_LEVEL, LIBUSB_LOG_LEVEL_ERROR);
 }
 
 void
@@ -150,11 +147,11 @@ linq_usbh_scan(linq_usbh_s* usb, uint16_t vend, uint16_t prod)
             struct libusb_device_descriptor desc;
             int err = libusb_get_device_descriptor(dev, &desc);
             if (err == 0) {
-                log_info(LOG_SCAN, desc.idVendor, desc.idProduct);
+                log_info("(USB) - scan [%d/%d]", desc.idVendor, desc.idProduct);
                 if (desc.idVendor == vend && desc.idProduct == prod) {
                     d = device_init(dev, desc);
                     if (d) {
-                        log_info(LOG_FOUND, n, d->serial);
+                        log_info("(USB) - disc [%d] [%s]", n + 1, d->serial);
                         serial = (const char*)d->serial;
                         device_map_add(usb->devices, serial, &d);
                         ++n;
@@ -167,4 +164,43 @@ linq_usbh_scan(linq_usbh_s* usb, uint16_t vend, uint16_t prod)
 
     libusb_free_device_list(devs, 1);
     return n;
+}
+
+int
+linq_usbh_send_http_request(
+    linq_usbh_s* usb,
+    const char* serial,
+    const char* meth,
+    const char* path,
+    const char* data,
+    ...)
+{
+    device_s** d_p = device_map_get(usb->devices, serial);
+    if (d_p) {
+        device_s* d = *d_p;
+        int err;
+        va_list list;
+        va_start(list, data);
+        err = d->io->ops.vtx(d->io, meth, path, data, list);
+        va_end(list);
+        return err;
+        // va_start(list, data);
+        // err = libusb_bulk_transfer(
+        //     (*d)->handle,
+        //     2 | LIBUSB_ENDPOINT_OUT,
+        //     (uint8_t*)"foo",
+        //     3,
+        //     &transfered,
+        //     0);
+        // log_info("(USB) - Sent [%d] bytes", transfered);
+        // if (err < 0) {
+        //     log_error("(USB) - Device send error [%s]",
+        //     libusb_strerror(err)); log_error("(USB) - IO error [%s]",
+        //     strerror(errno));
+        // }
+        // return err;
+    } else {
+        log_error("(USB) - Device not connected [%s]", serial);
+        return -1;
+    }
 }

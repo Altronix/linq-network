@@ -17,7 +17,7 @@
 
 #include "sys.h"
 #include "containers.h"
-#include "wire.h"
+#include "io.h"
 #include "libusb-1.0/libusb.h"
 
 #ifndef USBH_CONFIG_MAX_INTERFACE
@@ -55,6 +55,7 @@ extern "C"
         unsigned char manufacturer[64];
         unsigned char product[64];
         unsigned char serial[64];
+        io_s* io;
     } device_s;
     MAP_INIT_H(device, device_s);
 
@@ -69,7 +70,13 @@ extern "C"
     LINQ_USB_EXPORT int linq_usbh_scan(linq_usbh_s*, uint16_t, uint16_t);
     LINQ_USB_EXPORT uint32_t linq_usbh_device_count(linq_usbh_s* usb);
     LINQ_USB_EXPORT int linq_usbh_print_devices(linq_usbh_s*, char*, uint32_t);
-
+    LINQ_USB_EXPORT int linq_usbh_send_http_request(
+        linq_usbh_s* usb,
+        const char* serial,
+        const char* meth,
+        const char* path,
+        const char* data,
+        ...);
 #ifdef __cplusplus
 }
 #endif
