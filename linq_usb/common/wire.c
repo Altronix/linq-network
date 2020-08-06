@@ -86,7 +86,10 @@ wire_print_http_request_ptr(
         !rlp_push_str(r, path) &&                     // path
         (data ? !rlp_vpush_str(r, data, list) : true) // data
     ) {
-        if (!(*buffer_p)) (*l = sz = rlp_print_size(r), *buffer_p = malloc(sz));
+        if (!(*buffer_p)) {
+            *l = sz = rlp_print_size(r) + 1;
+            *buffer_p = malloc(sz);
+        }
         err = rlp_print(r, *buffer_p, l);
         add_terminator(buffer_p, l, sz);
         rlp_free(&r);
@@ -134,7 +137,10 @@ wire_print_http_response_ptr(
         !rlp_push_u16(r, code) && // code
         !rlp_push_str(r, message) // message
     ) {
-        if (!(*buffer_p)) (*l = sz = rlp_print_size(r), *buffer_p = malloc(sz));
+        if (!(*buffer_p)) {
+            *l = sz = rlp_print_size(r) + 1;
+            *buffer_p = malloc(sz);
+        }
         err = rlp_print(r, *buffer_p, l);
         add_terminator(buffer_p, l, sz);
         rlp_free(&r);
