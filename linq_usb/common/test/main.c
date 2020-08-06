@@ -114,18 +114,17 @@ test_wire_parse(void** context_p)
 {
     uint8_t b[256];
     uint32_t l = sizeof(b);
-    int e =
-        wire_print_http_request(b, &l, "POST", "/network", "{\"foo\":\"bar\"}");
+    wire_parser_http_request_s r;
+    int e;
+    e = wire_print_http_request(b, &l, "POST", "/network", "{\"foo\":\"bar\"}");
     assert_int_equal(e, 0);
-    wire_parser_s parser;
-    wire_parser_init(&parser);
-    wire_parse(&parser, b, l);
-    assert_int_equal(0, wire_parser_read_vers(&parser));
-    assert_int_equal(0, wire_parser_read_type(&parser));
-    assert_string_equal("POST", wire_parser_read_meth(&parser));
-    assert_string_equal("/network", wire_parser_read_path(&parser));
-    assert_string_equal("{\"foo\":\"bar\"}", wire_parser_read_data(&parser));
-    wire_parser_free(&parser);
+    wire_parse_http_request(b, l, &r);
+    assert_int_equal(0, r.vers);
+    assert_int_equal(0, r.type);
+    assert_string_equal("POST", r.meth);
+    assert_string_equal("/network", r.path);
+    assert_string_equal("{\"foo\":\"bar\"}", r.data);
+    wire_parser_http_request_free(&r);
 }
 
 int

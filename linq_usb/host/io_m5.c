@@ -52,6 +52,11 @@ io_m5_recv_sync(struct io_s* io_base, uint8_t* buffer, uint32_t max)
     // Read a few bytes to get the RLP size (+ readin newline)
     // Then read in the rest... (make sure not to not include newlines in size
     // calculations
+    // [00,7f] single byte between 0-127 {byte}
+    // [80,b7] 0-55 byte item            {80+size of data}{data...}
+    // [b8,bf] 55+ byte item             {b8+size of length}{length}{data...}
+    // [c0,f7] 0-55 byte list            {c0+size of nested items}{data...}
+    // [f8,ff] 55+ byte list             {c0+size of length}{length}{data...}
     io_m5_s* io = (io_m5_s*)io_base;
     int txed, ret;
     uint32_t l = sizeof(io->in);

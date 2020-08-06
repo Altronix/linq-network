@@ -43,23 +43,23 @@ linq_usbd_free(linq_usbd_s* usb)
 int
 linq_usbd_poll(linq_usbd_s* usb, usbd_event_fn fn, void* ctx)
 {
-    int len = usb_read(usb);
+    int len = usb_read(usb), count;
     if (len > 0) {
         log_info("(USB) - recv [%d]", len);
-        wire_parser_s wire;
-        wire_parser_init(&wire);
-        len = wire_parse(&wire, usb->incoming, len);
-        if (len == 0 && (wire_count(&wire) > 3)) {
+        wire_parser_http_request_s request;
+        int rc;
+        rc = wire_parse_http_request(usb->incoming, len, &request);
+        if (rc == 0) {
             fn(usb,
                ctx,
                USB_EVENTS_TYPE_HTTP,
-               wire_parser_read_meth(&wire),
-               wire_parser_read_path(&wire),
-               wire_count(&wire) > 4 ? wire_parser_read_data(&wire) : NULL);
+               request.meth,
+               request.path,
+               request.data ? request.data : NULL);
+            wire_parser_http_request_free(&request);
         } else {
             fn(usb, ctx, USB_EVENTS_ERROR, -1);
         }
-        wire_parser_free(&wire);
         memset(usb->incoming, 0, len);
     } else if (len < 0) {
         log_error("(USB) - recv [%s]", strerror(errno));
