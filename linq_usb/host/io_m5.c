@@ -46,7 +46,11 @@ io_m5_send_http_request_sync(
 }
 
 static int
-io_m5_recv_sync(struct io_s* io_base, uint8_t* buffer, uint32_t max)
+io_m5_recv_http_response_sync(
+    struct io_s* io_base,
+    uint16_t* code,
+    char* mesg,
+    uint32_t sz)
 {
     // TODO
     // Read a few bytes to get the RLP size (+ readin newline)
@@ -61,7 +65,16 @@ io_m5_recv_sync(struct io_s* io_base, uint8_t* buffer, uint32_t max)
     int txed, ret;
     uint32_t l = sizeof(io->in);
     ret = libusb_bulk_transfer(io->io.handle, IN, io->in, l, &txed, 0);
-    log_info("(USB) - transfered [%d] bytes", txed);
+    if (ret == 0) {
+        log_info("(USB) - transfered [%d] bytes", txed);
+        wire_parser_http_response_s r;
+        wire_parse_http_response(io->in, txed, &r);
+        *code = r.code;
+        snprintf(mesg, sz, "%s", r.mesg);
+        wire_parser_http_response_free(&r);
+    } else {
+        log_error("(USB) - rx [%s]", libusb_strerror(ret));
+    }
     return ret;
 }
 

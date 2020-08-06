@@ -202,17 +202,18 @@ linq_usbh_send_http_request_sync(
 }
 
 int
-linq_usbh_recv_sync(
+linq_usbh_recv_http_response_sync(
     linq_usbh_s* usb,
     const char* serial,
-    uint8_t* buff,
+    uint16_t* code,
+    char* buff,
     uint32_t l)
 {
     int err = -1;
     device_s** d_p = device_map_get(usb->devices, serial);
     if (d_p) {
         device_s* d = *d_p;
-        err = d->io->ops.rx_sync(d->io, buff, l);
+        err = d->io->ops.rx_sync(d->io, code, buff, l);
     }
     return err;
 }
