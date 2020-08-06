@@ -11,14 +11,13 @@ io_m5_vsend_http_request(
     va_list list)
 {
     io_m5_s* io = (io_m5_s*)io_base;
-    int transfered, ret;
+    int txed, ret;
     uint32_t sz = sizeof(io->out);
     uint8_t* p = io->out;
     ret = wire_print_http_request_ptr(&p, &sz, meth, path, data, list);
     if (ret == 0) {
-        ret =
-            libusb_bulk_transfer(io->io.handle, 2, io->out, sz, &transfered, 0);
-        log_info("(USB) - transfered [%d] bytes", transfered);
+        ret = libusb_bulk_transfer(io->io.handle, 2, io->out, sz, &txed, 0);
+        log_info("(USB) - transfered [%d] bytes", txed);
         if (ret < 0) log_error("(USB) - TX [%s]", libusb_strerror(ret));
     }
     return ret;
