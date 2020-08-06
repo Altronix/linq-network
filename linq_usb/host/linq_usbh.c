@@ -181,7 +181,7 @@ linq_usbh_scan(linq_usbh_s* usb, uint16_t vend, uint16_t prod)
 }
 
 int
-linq_usbh_send_http_request(
+linq_usbh_send_http_request_sync(
     linq_usbh_s* usb,
     const char* serial,
     const char* meth,
@@ -189,32 +189,30 @@ linq_usbh_send_http_request(
     const char* data,
     ...)
 {
+    int err = -1;
     device_s** d_p = device_map_get(usb->devices, serial);
     if (d_p) {
         device_s* d = *d_p;
-        int err;
         va_list list;
         va_start(list, data);
-        err = d->io->ops.vtx(d->io, meth, path, data, list);
+        err = d->io->ops.vtx_sync(d->io, meth, path, data, list);
         va_end(list);
-        return err;
-        // va_start(list, data);
-        // err = libusb_bulk_transfer(
-        //     (*d)->handle,
-        //     2 | LIBUSB_ENDPOINT_OUT,
-        //     (uint8_t*)"foo",
-        //     3,
-        //     &transfered,
-        //     0);
-        // log_info("(USB) - Sent [%d] bytes", transfered);
-        // if (err < 0) {
-        //     log_error("(USB) - Device send error [%s]",
-        //     libusb_strerror(err)); log_error("(USB) - IO error [%s]",
-        //     strerror(errno));
-        // }
-        // return err;
-    } else {
-        log_error("(USB) - Device not connected [%s]", serial);
-        return -1;
     }
+    return err;
+}
+
+int
+linq_usbh_recv_sync(
+    linq_usbh_s* usb,
+    const char* serial,
+    uint8_t* buff,
+    uint32_t l)
+{
+    int err = -1;
+    device_s** d_p = device_map_get(usb->devices, serial);
+    if (d_p) {
+        device_s* d = *d_p;
+        err = d->io->ops.rx_sync(d->io, buff, l);
+    }
+    return err;
 }

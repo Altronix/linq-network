@@ -2,29 +2,35 @@
 #include "log.h"
 #include "wire.h"
 
+#define IN 1
+#define OUT 2
+
 static int
-io_m5_vsend_http_request(
+io_m5_vsend_http_request_sync(
     io_s* io_base,
     const char* meth,
     const char* path,
     const char* data,
     va_list list)
 {
+    // TODO "transferred (ie txed) may not always equal sz
+    // Will have to send in loop since we are allowed to be sync here
     io_m5_s* io = (io_m5_s*)io_base;
     int txed, ret;
     uint32_t sz = sizeof(io->out);
     uint8_t* p = io->out;
     ret = wire_print_http_request_ptr(&p, &sz, meth, path, data, list);
     if (ret == 0) {
-        ret = libusb_bulk_transfer(io->io.handle, 2, io->out, sz, &txed, 0);
-        log_info("(USB) - transfered [%d] bytes", txed);
+        ret = libusb_bulk_transfer(io->io.handle, OUT, io->out, sz, &txed, 0);
+        log_info("(USB) - transfered [%d/%d] bytes", txed, sz);
+        if (!(ret < 0) && !(txed == sz)) log_error("TODO tx_sync incomplete!");
         if (ret < 0) log_error("(USB) - TX [%s]", libusb_strerror(ret));
     }
     return ret;
 }
 
 static int
-io_m5_send_http_request(
+io_m5_send_http_request_sync(
     io_s* io_base,
     const char* meth,
     const char* path,
@@ -34,8 +40,23 @@ io_m5_send_http_request(
     int ret;
     va_list list;
     va_start(list, data);
-    ret = io_m5_vsend_http_request(io_base, meth, path, data, list);
+    ret = io_m5_vsend_http_request_sync(io_base, meth, path, data, list);
     va_end(list);
+    return ret;
+}
+
+static int
+io_m5_recv_sync(struct io_s* io_base, uint8_t* buffer, uint32_t max)
+{
+    // TODO
+    // Read a few bytes to get the RLP size (+ readin newline)
+    // Then read in the rest... (make sure not to not include newlines in size
+    // calculations
+    io_m5_s* io = (io_m5_s*)io_base;
+    int txed, ret;
+    uint32_t l = sizeof(io->in);
+    ret = libusb_bulk_transfer(io->io.handle, IN, io->in, l, &txed, 0);
+    log_info("(USB) - transfered [%d] bytes", txed);
     return ret;
 }
 
@@ -46,8 +67,8 @@ io_m5_init(libusb_device_handle* handle)
     if (io) {
         memset(io, 0, sizeof(io_m5_s));
         io->io.handle = handle;
-        io->io.ops.tx = io_m5_send_http_request;
-        io->io.ops.vtx = io_m5_vsend_http_request;
+        io->io.ops.tx_sync = io_m5_send_http_request_sync;
+        io->io.ops.vtx_sync = io_m5_vsend_http_request_sync;
     }
     return (io_s*)io;
 }

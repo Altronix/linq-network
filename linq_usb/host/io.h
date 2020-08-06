@@ -14,7 +14,11 @@ extern "C"
     typedef struct io_ops_s
     {
         int (*tx)(struct io_s*, cchar*, cchar*, cchar*, ...);
+        int (*tx_sync)(struct io_s*, cchar*, cchar*, cchar*, ...);
         int (*vtx)(struct io_s*, cchar*, cchar*, cchar*, va_list);
+        int (*vtx_sync)(struct io_s*, cchar*, cchar*, cchar*, va_list);
+        int (*rx)(struct io_s*, uint8_t*, uint32_t);
+        int (*rx_sync)(struct io_s*, uint8_t*, uint32_t);
     } io_ops_s;
 
     typedef struct
