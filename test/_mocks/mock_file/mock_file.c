@@ -9,29 +9,50 @@ int __real_fclose(FILE*);
 typedef spy_file_packet_s mock_file_outgoing_s;
 typedef spy_file_packet_s mock_file_incoming_s;
 LIST_INIT_W_FREE(outgoing, mock_file_outgoing_s);
-LIST_INIT_W_FREE(incoming, mock_file_incoming_s);
-LIST_INIT_W_FREE(on_ioctl, int);
 
+static bool active = false;
+static uint32_t throughput = 0;
+static spy_file_packet_s* incoming = NULL;
 static outgoing_list_s* outgoing = NULL;
-static incoming_list_s* incoming = NULL;
-static on_ioctl_list_s* on_ioctl = NULL;
 static sys_file* g_mock_file = (void*)1;
+
+static uint32_t
+find_lowest(uint32_t n, ...)
+{
+    uint32_t i = 0, lowest, find[8];
+    va_list list;
+    va_start(list, n);
+    while (n-- && i < sizeof(find)) find[i++] = va_arg(list, int);
+    va_end(list);
+    lowest = find[0];
+    for (n = 0; n < i; n++) {
+        if (find[n] < lowest) lowest = find[n];
+    }
+    return lowest;
+}
 
 void
 spy_file_init()
 {
     spy_file_free();
     outgoing = outgoing_list_create();
-    incoming = incoming_list_create();
-    on_ioctl = on_ioctl_list_create();
+    throughput = 0;
+    active = true;
 }
 
 void
 spy_file_free()
 {
     if (outgoing) outgoing_list_destroy(&outgoing);
-    if (incoming) incoming_list_destroy(&incoming);
-    if (on_ioctl) on_ioctl_list_destroy(&on_ioctl);
+    if (incoming) spy_file_packet_free(&incoming);
+    active = false;
+    throughput = 0;
+}
+
+void
+spy_file_set_throughput(uint32_t val)
+{
+    throughput = val;
 }
 
 void
@@ -54,7 +75,8 @@ spy_file_push(E_SPY_FILE_PUSH dst, const char* bytes, uint32_t l)
     packet->len = l;
     memcpy(packet->bytes, bytes, l);
     if (dst == SPY_FILE_PUSH_INCOMING) {
-        incoming_list_push(incoming, &packet);
+        if (incoming) spy_file_packet_free(&incoming);
+        incoming = packet;
     } else {
         outgoing_list_push(outgoing, &packet);
     }
@@ -84,19 +106,10 @@ spy_file_packet_free(spy_file_packet_s** p)
     free(packet);
 }
 
-void
-spy_file_push_ioctl(int param)
-{
-    int* p = malloc(sizeof(int));
-    assert(p);
-    *p = param;
-    on_ioctl_list_push(on_ioctl, &p);
-}
-
 sys_file*
 __wrap_fopen(const char* path, const char* mode)
 {
-    if (outgoing) {
+    if (active) {
         return g_mock_file;
     } else {
         return __real_fopen(path, mode);
@@ -106,7 +119,7 @@ __wrap_fopen(const char* path, const char* mode)
 int
 __wrap_fclose(sys_file* f)
 {
-    if (outgoing) {
+    if (active) {
         return 0;
     } else {
         return __real_fclose(f);
@@ -117,13 +130,20 @@ int
 __wrap_fread(void* data, size_t size, size_t n, FILE* stream)
 {
     uint32_t ret = 0;
-    if (incoming) {
+    if (active) {
         assert(size == 1);
-        spy_file_packet_s* p = incoming_list_pop(incoming);
-        if (p) {
-            ret = n < p->len ? n : p->len;
-            memcpy(data, p->bytes, ret);
-            free(p);
+        if (incoming) {
+            ret = throughput ? find_lowest(3, incoming->len, n, throughput)
+                             : find_lowest(2, incoming->len, n);
+            memcpy(data, incoming->bytes, ret);
+            if (incoming->len) {
+                memmove(
+                    incoming->bytes,
+                    &incoming->bytes[ret],
+                    incoming->len - ret);
+                incoming->len -= ret;
+            }
+            if (!incoming->len) spy_file_packet_free(&incoming);
         } else {
             ret = 0;
         }
@@ -136,7 +156,7 @@ __wrap_fread(void* data, size_t size, size_t n, FILE* stream)
 int
 __wrap_fwrite(void* data, size_t size, size_t n, FILE* stream)
 {
-    if (outgoing) {
+    if (active) {
         assert(size == 1);
         spy_file_push(SPY_FILE_PUSH_OUTGOING, data, n);
         return n;
@@ -149,7 +169,7 @@ int
 __wrap_vfprintf(FILE* f, const char* fmt, va_list list)
 {
 
-    if (outgoing) {
+    if (active) {
         int len;
         char* buff = malloc(8192);
         assert(buff);
@@ -174,14 +194,16 @@ __wrap_ioctl(int fd, unsigned long request, ...)
 {
     va_list list;
 
-    int* set = on_ioctl_list_pop(on_ioctl);
-
-    if (set) {
+    if (active) {
         va_start(list, request);
         int* param = va_arg(list, int*);
-        *param = *set;
+        if (incoming) {
+            *param = (throughput && throughput < incoming->len) ? throughput
+                                                                : incoming->len;
+        } else {
+            *param = 0;
+        }
         va_end(list);
-        free(set);
     }
     return 0;
 }

@@ -22,6 +22,7 @@ extern "C"
 
     void spy_file_init();
     void spy_file_free();
+    void spy_file_set_throughput(uint32_t);
     void spy_file_push(E_SPY_FILE_PUSH, const char* bytes, uint32_t l);
     void spy_file_push_incoming(const char* bytes, uint32_t l);
     void spy_file_push_outgoing(const char* bytes, uint32_t l);

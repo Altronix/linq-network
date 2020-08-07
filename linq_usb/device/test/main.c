@@ -48,7 +48,6 @@ test_usb_recv(void** context_p)
     assert_int_equal(e, 0);
 
     linq_usbd_init(&usb);
-    spy_file_push_ioctl(l);
     spy_file_push_incoming((char*)b, l);
     e = linq_usbd_poll(&usb, test_usb_recv_callback, &pass);
     assert_true(pass);
@@ -89,7 +88,6 @@ test_usb_recv_data(void** context_p)
     assert_int_equal(e, 0);
 
     linq_usbd_init(&usb);
-    spy_file_push_ioctl(l);
     spy_file_push_incoming((char*)b, l);
     e = linq_usbd_poll(&usb, test_usb_recv_data_callback, &pass);
     assert_true(pass);

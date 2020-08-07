@@ -1,5 +1,6 @@
 #include "json.h"
 #include "sys.h"
+#include "sys/ioctl.h"
 
 #include <setjmp.h>
 
@@ -18,7 +19,6 @@ test_sys_read_buffer(void** context_p)
 
     // Pass
     len = sizeof(buffer);
-    spy_file_push_ioctl(6);
     spy_file_push_incoming("foobar", 6);
     err = sys_read_buffer(NULL, buffer, &len);
     assert_int_equal(len, 6);
@@ -27,7 +27,6 @@ test_sys_read_buffer(void** context_p)
 
     // Fail
     len = sizeof(buffer);
-    spy_file_push_ioctl(12);
     spy_file_push_incoming("123456789abc", 12);
     err = sys_read_buffer(NULL, buffer, &len);
     assert_int_equal(err, 6);
@@ -47,7 +46,6 @@ test_sys_read_alloc(void** context_p)
     spy_file_init();
 
     // Pass
-    spy_file_push_ioctl(6);
     spy_file_push_incoming("foobar", 6);
     sys_read(NULL, &p, &len);
     assert_int_equal(len, 6);
@@ -106,6 +104,30 @@ test_sys_vfprintf(void** context_p)
     spy_file_free();
 }
 
+static void
+test_sys_throughput_read(void** context_p)
+{
+    int err, param;
+    char buffer[16] = "0123456789abcdef";
+
+    spy_file_init();
+
+    spy_file_push_incoming(buffer, 16);
+    spy_file_set_throughput(1);
+    ioctl(0, 0, &param);
+    assert_int_equal(param, 1);
+    for (int i = 0; i < sizeof(buffer); i++) {
+        uint32_t sz = sizeof(buffer) - i;
+        char c;
+        err = sys_read_buffer(NULL, &c, &sz);
+        assert_int_equal(err, 1);
+        assert_int_equal(sz, 1);
+        assert_int_equal(c, buffer[i]);
+    }
+
+    spy_file_free();
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -113,10 +135,11 @@ main(int argc, char* argv[])
     ((void)argv);
     int err;
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_sys_read_buffer), //
-        cmocka_unit_test(test_sys_read_alloc),  //
-        cmocka_unit_test(test_sys_fprintf),     //
-        cmocka_unit_test(test_sys_vfprintf)     //
+        cmocka_unit_test(test_sys_read_buffer),    //
+        cmocka_unit_test(test_sys_read_alloc),     //
+        cmocka_unit_test(test_sys_fprintf),        //
+        cmocka_unit_test(test_sys_vfprintf),       //
+        cmocka_unit_test(test_sys_throughput_read) //
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
