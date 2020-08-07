@@ -19,7 +19,7 @@ make_wire_parser_read_x(meth, const char*, str, 2);
 make_wire_parser_read_x(path, const char*, str, 3);
 make_wire_parser_read_x(data, const char*, str, 4);
 make_wire_parser_read_x(code, uint16_t, u16, 2);
-make_wire_parser_read_x(mesg, const char*, str, 2);
+make_wire_parser_read_x(mesg, const char*, str, 3);
 
 static void
 add_terminator(uint8_t* spot, uint32_t* l, uint32_t sz)

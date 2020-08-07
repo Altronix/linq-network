@@ -63,6 +63,7 @@ io_m5_recv_http_response_sync(
     // [b8,bf] 55+ byte item             {b8+size of length}{length}{data...}
     // [c0,f7] 0-55 byte list            {c0+size of nested items}{data...}
     // [f8,ff] 55+ byte list             {c0+size of length}{length}{data...}
+    // TODO (have 'echo detect'? (m5 needs stty -F /dev/ttyGS0 -echo)
     io_m5_s* io = (io_m5_s*)io_base;
     int txed, ret;
     uint32_t sz = sizeof(io->in), spot = 0;
@@ -75,16 +76,11 @@ io_m5_recv_http_response_sync(
     ret = 0;
     if (ret == 0) {
         log_info("(USB) - transfered [%d] bytes", txed);
-        // TODO DEBUGING TODO
-        log_info("(USB) - recv [%s]", io->in);
-        *code = spot;
-        snprintf(mesg, mesg_sz, "%s", io->in);
-        // TODO DEBUGING END TODO
-        // wire_parser_http_response_s r;
-        // wire_parse_http_response(io->in, spot, &r);
-        // *code = r.code;
-        // snprintf(mesg, mesg_sz, "%s", r.mesg);
-        // wire_parser_http_response_free(&r);
+        wire_parser_http_response_s r;
+        wire_parse_http_response(io->in, spot, &r);
+        *code = r.code;
+        snprintf(mesg, mesg_sz, "%s", r.mesg);
+        wire_parser_http_response_free(&r);
     } else {
         log_error("(USB) - rx [%s]", libusb_strerror(ret));
         log_error("(USB) - errno [%s]", strerror(errno));
