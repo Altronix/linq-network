@@ -4,7 +4,6 @@
 #include "wire.h"
 
 #define IN 1 | LIBUSB_ENDPOINT_IN
-// #define IN 0x81
 #define OUT 2 | LIBUSB_ENDPOINT_OUT
 
 static int
@@ -24,7 +23,7 @@ io_m5_vsend_http_request_sync(
     ret = wire_print_http_request_ptr(&p, &sz, meth, path, data, list);
     if (ret == 0) {
         ret = libusb_bulk_transfer(io->io.handle, OUT, io->out, sz, &txed, 0);
-        log_info("(USB) - transfered [%d/%d] bytes", txed, sz);
+        log_info("(USB) - tx [%d/%d] bytes", txed, sz);
         if (!(ret < 0) && !(txed == sz)) log_error("TODO tx_sync incomplete!");
         if (ret < 0) log_error("(USB) - TX [%s]", libusb_strerror(ret));
     }
@@ -54,38 +53,38 @@ io_m5_recv_http_response_sync(
     char* mesg,
     uint32_t mesg_sz)
 {
-    // TODO
-    // Read a few bytes to get the RLP size (+ readin newline)
-    // Then read in the rest... (make sure not to not include newlines in size
-    // calculations
-    // [00,7f] single byte between 0-127 {byte}
-    // [80,b7] 0-55 byte item            {80+size of data}{data...}
-    // [b8,bf] 55+ byte item             {b8+size of length}{length}{data...}
-    // [c0,f7] 0-55 byte list            {c0+size of nested items}{data...}
-    // [f8,ff] 55+ byte list             {c0+size of length}{length}{data...}
-    // TODO (have 'echo detect'? (m5 needs stty -F /dev/ttyGS0 -echo)
+#define err_exit(code, m1, m2)                                                 \
+    do {                                                                       \
+        log_error("(USB) - rx [%s %s]", m1, m2);                               \
+        goto EXIT;                                                             \
+    } while (0)
+
     io_m5_s* io = (io_m5_s*)io_base;
     int txed, ret;
-    uint32_t sz = sizeof(io->in), spot = 0;
-    do {
-        ret = libusb_bulk_transfer(
-            io->io.handle, IN, &io->in[spot], sz - spot, &txed, 1000);
-        if (ret < 0) break;
-        spot += txed;
-    } while (txed > 0);
+    uint32_t sz = sizeof(io->in), n;
+
+    // Read some bytes (exit if error)
+    libusb_device_handle* handle = io->io.handle;
+    ret = libusb_bulk_transfer(handle, IN, io->in, sz, &txed, 2000);
+    if (ret < 0) err_exit(ret, libusb_strerror(ret), strerror(errno));
+
+    // Check advert size must equal received size (received = expect + \n)
+    ret = wire_read_sz(&sz, io->in, txed);
+    log_info("(USB) - rx [%d/%d]", sz, txed);
+    if (!(ret == 0)) err_exit(ret, "underflow detected", "");
+    if (!(sz <= txed)) err_exit(-1, "size advertise missmatch", "");
+
+    // Arrive here with complete packet ready to parse
+    wire_parser_http_response_s r;
+    wire_parse_http_response(io->in, txed, &r);
+    *code = r.code;
+    snprintf(mesg, mesg_sz, "%s", r.mesg);
+    wire_parser_http_response_free(&r);
     ret = 0;
-    if (ret == 0) {
-        log_info("(USB) - transfered [%d] bytes", txed);
-        wire_parser_http_response_s r;
-        wire_parse_http_response(io->in, spot, &r);
-        *code = r.code;
-        snprintf(mesg, mesg_sz, "%s", r.mesg);
-        wire_parser_http_response_free(&r);
-    } else {
-        log_error("(USB) - rx [%s]", libusb_strerror(ret));
-        log_error("(USB) - errno [%s]", strerror(errno));
-    }
+EXIT:
+    log_info("(USB) - rx result [%d]", ret);
     return ret;
+#undef err_exit
 }
 
 io_s*

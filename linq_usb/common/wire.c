@@ -289,6 +289,7 @@ uint32_t rlp_read_big_endian(void* dat, int szof, const uint8_t* b);
 int
 wire_read_sz(uint32_t* result, uint8_t* b, uint32_t l)
 {
+    // Returns 0 if success. Returns the amount of underflow if fail
     int ret = 0;
     uint8_t szofsz;
     assert(l);
@@ -299,7 +300,7 @@ wire_read_sz(uint32_t* result, uint8_t* b, uint32_t l)
     } else if (*b <= 0xbf) {
         szofsz = *b - 0xb7;
         if (l <= szofsz + 1) {
-            ret = -1;
+            ret = szofsz + 1;
         } else {
             assert(szofsz <= 8);
             wire_read_be(result, sizeof(uint32_t), szofsz, ++b);
@@ -312,7 +313,7 @@ wire_read_sz(uint32_t* result, uint8_t* b, uint32_t l)
     } else {
         szofsz = *b - 0xf7;
         if (l <= szofsz + 1) {
-            ret = -1;
+            ret = szofsz + 1;
         } else {
             assert(szofsz <= 8);
             wire_read_be(result, sizeof(uint32_t), szofsz, ++b);
