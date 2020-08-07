@@ -1,12 +1,16 @@
-set(LIBS ${CMAKE_THREAD_LIBS_INIT} udev linq-usb-common-static linq-utils-static)
+set(LIBS ${CMAKE_THREAD_LIBS_INIT} linq-usb-common-static linq-utils-static)
+if(NOT MSVC)
+  list(APPEND LIBS udev)
+endif()
 set(LIBS_STATIC ${LIBS} libusb-static)
-set(LIBS_SHARED ${LIBS} libusb-shared)
+set(LIBS_SHARED ${LIBS} libusb-static)
 list(APPEND SOURCES linq_usbh.c io.c io_k64_mqx.c io_m5.c)
 list(APPEND HEADERS linq_usbh.h io.h io_k64_mqx.h io_m5.h)
 set(INSTALL_HEADERS linq_usbh.h)
 set(INCS "./")
 
 append_log_level_compiler_flags(DEFS)
+
 
 if(ENABLE_TESTING)
   add_library(linq-usbh-test-static STATIC ${SOURCES} ${HEADERS})

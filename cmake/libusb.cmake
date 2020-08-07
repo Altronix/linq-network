@@ -39,6 +39,8 @@ if(NOT MSVC)
     INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_INSTALL_PREFIX}/include)
 else()
   file(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/include/libusb-1.0)
+  set(LIBUSB_LIBRARY libusb-1.0${CMAKE_STATIC_LIBRARY_SUFFIX})
+  set(LIBUSB_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/${LIBUSB_LIBRARY})
   add_custom_target(libusb-project DEPENDS ${LIBUSB_LIBRARY})
   add_custom_command( 
       OUTPUT "${LIBUSB_LIBRARY}"
@@ -56,8 +58,6 @@ else()
               copy
               ${LIBUSB_SOURCE_DIR}/libusb/libusb.h
               ${CMAKE_INSTALL_PREFIX}/include/libusb-1.0/)
-  set(LIBUSB_LIBRARY libusb-1.0${CMAKE_STATIC_LIBRARY_SUFFIX})
-  set(LIBUSB_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/${LIBUSB_LIBRARY})
   add_library(libusb-static STATIC IMPORTED)
   add_dependencies(libusb-static libusb-project)
   set_target_properties(libusb-static PROPERTIES
