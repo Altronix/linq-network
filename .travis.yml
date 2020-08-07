@@ -10,6 +10,7 @@ before_install:
         - git submodule update --init ./external/libzmq
         - git submodule update --init ./external/czmq
         - git submodule update --init ./external/jsmn-web-tokens
+        - git submodule update --init ./external/libusb
 
 matrix:
         include:
@@ -24,6 +25,7 @@ matrix:
                   env: 
                           - BUILD_LINQD=ON
                             BUILD_USBD=ON
+                            BUILD_USBH=ON
                             BUILD_DEPENDENCIES=ON
                             ENABLE_TESTING=ON
                   script:
@@ -89,6 +91,7 @@ matrix:
                   language: c
                   env:
                           - BUILD_LINQD=ON
+                            BUILD_USBH=ON
                             BUILD_DEPENDENCIES=ON
                             GENERATOR="Visual Studio 15 2017 Win64"
                   script:

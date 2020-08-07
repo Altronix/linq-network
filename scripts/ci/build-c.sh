@@ -4,11 +4,13 @@ if [[ -z "${ENABLE_TESTING}" ]]; then ENABLE_TESTING=OFF; fi
 if [[ -z "${BUILD_DEPENDENCIES}" ]]; then BUILD_DEPENDENCIES=OFF; fi
 if [[ -z "${BUILD_LINQD}" ]]; then BUILD_LINQD=OFF; fi
 if [[ -z "${BUILD_USBD}" ]]; then BUILD_USBD=OFF; fi
+if [[ -z "${BUILD_USBH}" ]]; then BUILD_USBH=OFF; fi
 
 echo "ENABLE_TESTING            : ${ENABLE_TESTING}"
 echo "BUILD_DEPENDENCIES        : ${BUILD_DEPENDENCIES}"
 echo "BUILD_LINQD               : ${BUILD_LINQD}"
-echo "BUILD_USBD                : ${BUILD_USBDD}"
+echo "BUILD_USBD                : ${BUILD_USBD}"
+echo "BUILD_USBH                : ${BUILD_USBH}"
 
 # If a generator is provided we are assuming a windows build for now
 # Travis wants CMAKE_GENERATOR_PLATFORM to find correct libraries
@@ -22,6 +24,7 @@ if [ "$GENERATOR" == "Visual Studio 15 2017 Win64" ]; then
 		 	-DENABLE_TESTING=$ENABLE_TESTING \
 		 	-DBUILD_LINQD=$BUILD_LINQD \
 		 	-DBUILD_USBD=$BUILD_USBD \
+		 	-DBUILD_USBH=$BUILD_USBH \
 		 	-DBUILD_DEPENDENCIES=$BUILD_DEPENDENCIES
 		 
 		cmake --build . --target install
@@ -37,6 +40,7 @@ elif [ "$GENERATOR" == "Visual Studio 16 2019" ]; then
 		 	-DENABLE_TESTING=$ENABLE_TESTING \
 		 	-DBUILD_LINQD=$BUILD_LINQD \
 		 	-DBUILD_USBD=$BUILD_USBD \
+		 	-DBUILD_USBH=$BUILD_USBH \
 		 	-DBUILD_DEPENDENCIES=$BUILD_DEPENDENCIES
 		 
 		cmake --build . --target install
@@ -48,6 +52,7 @@ else
 		 	-DENABLE_TESTING=$ENABLE_TESTING \
 		 	-DBUILD_LINQD=$BUILD_LINQD \
 		 	-DBUILD_USBD=$BUILD_USBD \
+		 	-DBUILD_USBH=$BUILD_USBH \
 		 	-DBUILD_DEPENDENCIES=$BUILD_DEPENDENCIES
 		 
 		cmake --build . --target install
