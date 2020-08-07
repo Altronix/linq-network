@@ -127,6 +127,56 @@ test_wire_parse(void** context_p)
     wire_parser_http_request_free(&r);
 }
 
+static void
+test_wire_read_size(void** context_p)
+{
+
+    static uint8_t self_item[] = { '\x04' };
+    static uint8_t short_item[] = { '\x83', 'c', 'a', 't' };
+    static uint8_t long_item[] = {
+        '\xb8', '\x38', 'L', 'o', 'r', 'e', 'm', ' ', 'i', 'p', 's', 'u',
+        'm',    ' ',    'd', 'o', 'l', 'o', 'r', ' ', 's', 'i', 't', ' ',
+        'a',    'm',    'e', 't', ',', ' ', 'c', 'o', 'n', 's', 'e', 'c',
+        't',    'e',    't', 'u', 'r', ' ', 'a', 'd', 'i', 'p', 'i', 's',
+        'i',    'c',    'i', 'n', 'g', ' ', 'e', 'l', 'i', 't'
+    };
+    static uint8_t empty_list[] = { '\xc0' };
+    static uint8_t short_list[] = {
+        '\xcc',                //
+        '\x83', 'c', 'a', 't', //
+        '\x83', 'd', 'o', 'g', //
+        '\x83', 'p', 'i', 'g'  //
+    };
+    static uint8_t long_list[] = {
+        '\xf8', '\x3a', '\xb8', '\x38', 'L', 'o', 'r', 'e', 'm', ' ', 'i', 'p',
+        's',    'u',    'm',    ' ',    'd', 'o', 'l', 'o', 'r', ' ', 's', 'i',
+        't',    ' ',    'a',    'm',    'e', 't', ',', ' ', 'c', 'o', 'n', 's',
+        'e',    'c',    't',    'e',    't', 'u', 'r', ' ', 'a', 'd', 'i', 'p',
+        'i',    's',    'i',    'c',    'i', 'n', 'g', ' ', 'e', 'l', 'i', 't'
+    };
+    uint32_t sz;
+    int err;
+    err = wire_read_sz(&sz, self_item, sizeof(self_item));
+    assert_int_equal(sz, sizeof(self_item));
+    assert_int_equal(err, 0);
+    err = wire_read_sz(&sz, short_item, sizeof(short_item));
+    assert_int_equal(sz, sizeof(short_item));
+    assert_int_equal(err, 0);
+    err = wire_read_sz(&sz, long_item, sizeof(long_item));
+    assert_int_equal(sz, sizeof(long_item));
+    assert_int_equal(err, 0);
+
+    err = wire_read_sz(&sz, empty_list, sizeof(empty_list));
+    assert_int_equal(sz, sizeof(empty_list));
+    assert_int_equal(err, 0);
+    err = wire_read_sz(&sz, short_list, sizeof(short_list));
+    assert_int_equal(sz, sizeof(short_list));
+    assert_int_equal(err, 0);
+    err = wire_read_sz(&sz, long_list, sizeof(long_list));
+    assert_int_equal(sz, sizeof(long_list));
+    assert_int_equal(err, 0);
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -139,7 +189,8 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_wire_print_http_request_fmt),
         cmocka_unit_test(test_wire_print_http_response_alloc), //
         cmocka_unit_test(test_wire_print_http_response),
-        cmocka_unit_test(test_wire_parse)
+        cmocka_unit_test(test_wire_parse),
+        cmocka_unit_test(test_wire_read_size)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);

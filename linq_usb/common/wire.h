@@ -97,6 +97,8 @@ extern "C"
     void wire_parser_free(wire_parser_s* wire);
     int wire_parse(wire_parser_s* wire, const uint8_t*, uint32_t l);
     uint32_t wire_count(wire_parser_s* wire);
+    void wire_read_be(void* dat, int szofdat, int l, const uint8_t* b);
+    int wire_read_sz(uint32_t* result, uint8_t* b, uint32_t l);
 
 #ifdef __cplusplus
 }

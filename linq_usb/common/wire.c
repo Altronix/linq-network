@@ -246,3 +246,78 @@ wire_count(wire_parser_s* wire)
     return rlp_children(wire->rlp);
 }
 
+void
+wire_read_be(void* dat, int szofdat, int l, const uint8_t* b)
+{
+    static int test = 1;
+    uint8_t* x = (&((uint8_t*)dat)[l - 1]);
+    if (*(char*)&test == 0) {
+        memcpy(dat, b, l);
+    } else {
+        while (l-- && szofdat--) {
+            *x = *b++;
+            x -= 1;
+        }
+        while (szofdat--) *x-- = 0;
+    }
+}
+
+void
+wire_write_be(uint8_t* b, const void* dat, int szofdat)
+{
+    static int test = 1;
+    uint8_t* x;
+    int inc, msb = 0, c = 0;
+    if (*(char*)&test == 0) {
+        x = (&((uint8_t*)dat)[0]);
+        inc = 1;
+    } else {
+        x = (&((uint8_t*)dat)[szofdat - 1]);
+        inc = -1;
+    }
+    while (szofdat--) {
+        // We don't start populating dat until we hit msb as to ignore leading
+        // zero's. So if msb or if *x has weight or if last byte we copy into
+        // dat
+        if (*x && !msb) msb = 1;
+        if (msb || *x || !szofdat) { b[c++] = *x; }
+        x += inc;
+    }
+}
+uint32_t rlp_read_big_endian(void* dat, int szof, const uint8_t* b);
+
+int
+wire_read_sz(uint32_t* result, uint8_t* b, uint32_t l)
+{
+    int ret = 0;
+    uint8_t szofsz;
+    assert(l);
+    if (*b < 0x80) {
+        *result = 1;
+    } else if (*b <= 0xb7) {
+        *result = 1 + *b - 0x80;
+    } else if (*b <= 0xbf) {
+        szofsz = *b - 0xb7;
+        if (l <= szofsz + 1) {
+            ret = -1;
+        } else {
+            assert(szofsz <= 8);
+            wire_read_be(result, sizeof(uint32_t), szofsz, ++b);
+            *result += 1 + szofsz;
+        }
+    } else if (*b == 0xc0) {
+        *result = 1;
+    } else if (*b <= 0xf7) {
+        *result = 1 + *b - 0xc0;
+    } else {
+        szofsz = *b - 0xf7;
+        if (l <= szofsz + 1) {
+            ret = -1;
+        } else {
+            assert(szofsz <= 8);
+            wire_read_be(result, sizeof(uint32_t), szofsz, ++b);
+            *result += 1 + szofsz;
+        }
+    }
+    return ret;
+}
