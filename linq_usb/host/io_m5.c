@@ -4,6 +4,7 @@
 #include "wire.h"
 
 #define IN 1 | LIBUSB_ENDPOINT_IN
+// #define IN 0x81
 #define OUT 2 | LIBUSB_ENDPOINT_OUT
 
 static int
@@ -51,7 +52,7 @@ io_m5_recv_http_response_sync(
     struct io_s* io_base,
     uint16_t* code,
     char* mesg,
-    uint32_t sz)
+    uint32_t mesg_sz)
 {
     // TODO
     // Read a few bytes to get the RLP size (+ readin newline)
@@ -64,15 +65,26 @@ io_m5_recv_http_response_sync(
     // [f8,ff] 55+ byte list             {c0+size of length}{length}{data...}
     io_m5_s* io = (io_m5_s*)io_base;
     int txed, ret;
-    uint32_t l = sizeof(io->in);
-    ret = libusb_bulk_transfer(io->io.handle, IN, io->in, l, &txed, 0);
+    uint32_t sz = sizeof(io->in), spot = 0;
+    do {
+        ret = libusb_bulk_transfer(
+            io->io.handle, IN, &io->in[spot], sz - spot, &txed, 1000);
+        if (ret < 0) break;
+        spot += txed;
+    } while (txed > 0);
+    ret = 0;
     if (ret == 0) {
         log_info("(USB) - transfered [%d] bytes", txed);
-        wire_parser_http_response_s r;
-        wire_parse_http_response(io->in, txed, &r);
-        *code = r.code;
-        snprintf(mesg, sz, "%s", r.mesg);
-        wire_parser_http_response_free(&r);
+        // TODO DEBUGING TODO
+        log_info("(USB) - recv [%s]", io->in);
+        *code = spot;
+        snprintf(mesg, mesg_sz, "%s", io->in);
+        // TODO DEBUGING END TODO
+        // wire_parser_http_response_s r;
+        // wire_parse_http_response(io->in, spot, &r);
+        // *code = r.code;
+        // snprintf(mesg, mesg_sz, "%s", r.mesg);
+        // wire_parser_http_response_free(&r);
     } else {
         log_error("(USB) - rx [%s]", libusb_strerror(ret));
         log_error("(USB) - errno [%s]", strerror(errno));
