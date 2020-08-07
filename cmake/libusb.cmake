@@ -21,14 +21,23 @@ if(NOT MSVC)
     BUILD_COMMAND make
     INSTALL_COMMAND make install
     EXCLUDE_FROM_ALL true)
-  find_library(LIBUSB_LIBRARY_PATH libusb NAMES libusb-1.0)
-  message(STATUS "Found libusb          : ${LIBUSB_LIBRARY_PATH}")
-  import_library_static(usb-1.0 libusb-static ${LIBUSB_LIBRARY_PATH})
-  import_library_shared(usb-1.0 libusb-shared ${LIBUSB_LIBRARY_PATH})
-  add_dependencies(libusb-static libusb-project)
-else()
+  # BUILD STATIC
   set(LIBUSB_LIBRARY libusb-1.0${CMAKE_STATIC_LIBRARY_SUFFIX})
   set(LIBUSB_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/${LIBUSB_LIBRARY})
+  add_library(libusb-static STATIC IMPORTED)
+  add_dependencies(libusb-static libusb-project)
+  set_target_properties(libusb-static PROPERTIES
+    IMPORTED_LOCATION ${LIBUSB_LIBRARY}
+    INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_INSTALL_PREFIX}/include)
+  # BUILD SHARED
+  set(LIBUSB_LIBRARY libusb-1.0${CMAKE_SHARED_LIBRARY_SUFFIX})
+  set(LIBUSB_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/${LIBUSB_LIBRARY})
+  add_library(libusb-shared SHARED IMPORTED)
+  add_dependencies(libusb-shared libusb-project)
+  set_target_properties(libusb-shared PROPERTIES
+    IMPORTED_LOCATION ${LIBUSB_LIBRARY}
+    INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_INSTALL_PREFIX}/include)
+else()
   file(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/include/libusb-1.0)
   add_custom_target(libusb-project DEPENDS ${LIBUSB_LIBRARY})
   add_custom_command( 
@@ -47,8 +56,13 @@ else()
               copy
               ${LIBUSB_SOURCE_DIR}/libusb/libusb.h
               ${CMAKE_INSTALL_PREFIX}/include/libusb-1.0/)
-  find_library(LIBUSB_LIBRARY_PATH libusb NAMES libusb-1.0)
-  message(STATUS "Found libusb          : ${LIBUSB_LIBRARY_PATH}")
-  import_library_static(libusb-1.0 libusb-static ${LIBUSB_LIBRARY_PATH})
+  set(LIBUSB_LIBRARY libusb-1.0${CMAKE_STATIC_LIBRARY_SUFFIX})
+  set(LIBUSB_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/${LIBUSB_LIBRARY})
+  add_library(libusb-static STATIC IMPORTED)
   add_dependencies(libusb-static libusb-project)
+  set_target_properties(libusb-static PROPERTIES
+    IMPORTED_CONFIGURATIONS Release
+    IMPORTED_LOCATION_RELEASE ${LIBUSB_LIBRARY}
+    INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_INSTALL_PREFIX}/include
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 endif()
