@@ -70,7 +70,7 @@ io_m5_recv_http_response_sync(
 
     // Check advert size must equal received size (received = expect + \n)
     ret = wire_read_sz(&sz, io->in, txed);
-    log_info("(USB) - rx [%d/%d]", sz, txed);
+    log_info("(USB) - rx [%d/%d]", txed, sz);
     if (!(ret == 0)) err_exit(ret, "underflow detected", "");
     if (!(sz <= txed)) err_exit(-1, "size advertise missmatch", "");
 
