@@ -11,6 +11,6 @@ main(int argc, char* argv[])
     linq_usbh_scan(&usb, 0x3333, 0x4444);
     linq_usbh_send_http_request_sync(&usb, "N/A", "GET", "/api/v1/foo", NULL);
     linq_usbh_recv_http_response_sync(&usb, "N/A", &code, b, sizeof(b));
-    printf("Received [%d] (%s)", code, b);
+    log_info("(APP) - received [%d] [%s]", code, b);
     linq_usbh_free(&usb);
 }
