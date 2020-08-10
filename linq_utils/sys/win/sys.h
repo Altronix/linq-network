@@ -34,6 +34,8 @@
 #define linq_network_free(x) linq_network_free_fn(x)
 #define linq_network_assert(x) linq_network_assert_fn(x)
 
+#define memmem sys_memmem
+
 #define UUID_LEN 16
 
 #ifdef __cplusplus
