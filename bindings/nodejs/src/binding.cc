@@ -1,6 +1,9 @@
 #ifdef BUILD_LINQD
 #include "linq_daemon_js.h"
 #endif
+#ifdef BUILD_USBH
+#include "linq_usbh_js.h"
+#endif
 #include "linq_network_js.h"
 #include <napi.h>
 
@@ -11,6 +14,9 @@ Init(Napi::Env env, Napi::Object exports)
     obj.Set("network", LinqNetwork::Init(env, exports));
 #ifdef BUILD_LINQD
     obj.Set("daemon", LinqDaemon::Init(env, exports));
+#endif
+#ifndef BUILD_USBH
+    obj.Set("usbh", LinqUsbh::Init(env, exports));
 #endif
     return obj;
 }

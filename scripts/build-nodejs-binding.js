@@ -11,7 +11,7 @@ const logger = require("./logger");
 const root = __dirname + "/../";
 
 // Helper for parsing enviorment variable
-const isTrue = opt =>
+const isTrue = (opt) =>
   opt === "ON" ||
   opt === "on" ||
   opt === "On" ||
@@ -24,10 +24,11 @@ const isTrue = opt =>
   opt === 1;
 
 // Build command string from user argument linqd option
-const linqd = opt => `--CDBUILD_LINQD=${opt ? "ON" : "OFF"}`;
+const linqd = (opt) => `--CDBUILD_LINQD=${opt ? "ON" : "OFF"}`;
+const usbh = (opt) => `--CDBUILD_USBH=${opt ? "ON" : "OFF"}`;
 
 // Build command string from user argument system option
-const system = opt =>
+const system = (opt) =>
   opt
     ? `--CDUSE_SYSTEM_ZMQ=ON --CDUSE_SYSTEM_JSMN_WEB_TOKENS=ON`
     : `--CDUSE_SYSTEM_ZMQ=OFF --CDUSE_SYSTEM_JSMN_WEB_TOKENS=OFF`;
@@ -38,6 +39,9 @@ const withDaemon =
   args._.indexOf("linqd") >= 0 ||
   !!args.d;
 
+const withUsbh =
+  isTrue(process.env.LINQ_NETWORK_WITH_USBH) || args._.indexOf("usbh") >= 0;
+
 // Parse user options for system
 const withSystem =
   isTrue(process.env.LINQ_NETWORK_USE_SYSTEM_DEPENDENCIES) ||
@@ -47,7 +51,7 @@ const withSystem =
 // Generate cmake-js argument
 const cmakeCmd = process.platform === "win32" ? `cmake-js.cmd` : `cmake-js`;
 const cmakeArgs =
-  `${system(withSystem)} ${linqd(withDaemon)} ` +
+  `${system(withSystem)} ${linqd(withDaemon)} ${usbh(withUsbh)} ` +
   `--CDCMAKE_INSTALL_PREFIX=./ --CDBUILD_SHARED=OFF --CDWITH_NODEJS_BINDING ` +
   `--CDCMAKE_BUILD_TYPE=Release build --target=install`;
 
@@ -70,11 +74,12 @@ const tryBuild = async () => {
   logger.info("Attempting build with your compiler");
   logger.info(`Settings: WITH_SYSTEM_DEPENDENCIES -> ${withSystem}`);
   logger.info(`Settings: WITH_DAEMON              -> ${withDaemon}`);
+  logger.info(`Settings: WITH_USBH                -> ${withUsbh}`);
 
   // Call cmake-js
   const result = cp.spawnSync(cmakeCmd, cmakeArgs.split(" "), {
     env,
-    stdio: "inherit"
+    stdio: "inherit",
   });
 
   if (!result.error) {
