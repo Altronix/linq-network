@@ -12,12 +12,11 @@
 static void
 test_io_recv(void** context_p)
 {
-    struct libusb_device_descriptor desc = { .idVendor = 1111,
+    linq_usbh_s usb;
+    struct libusb_device_descriptor dev0 = { .idVendor = 1111,
                                              .idProduct = 2222 };
     spy_libusb_init();
-    io_s* io = io_m5_init(NULL, desc);
 
-    io_m5_free(&io);
     spy_libusb_free();
 }
 
