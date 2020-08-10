@@ -4,7 +4,7 @@ if(NOT MSVC)
   set(LIBS_SHARED ${LIBS} libusb-shared udev)
 else()
   set(LIBS_STATIC ${LIBS} libusb-static)
-  set(LIBS_SHARED ${LIBS} libusb-shared)
+  set(LIBS_SHARED ${LIBS} libusb-static) # linking win with static
 endif()
 list(APPEND SOURCES linq_usbh.c io.c io_k64_mqx.c io_m5.c)
 list(APPEND HEADERS linq_usbh.h io.h io_k64_mqx.h io_m5.h)

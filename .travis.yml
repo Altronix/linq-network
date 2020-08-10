@@ -22,6 +22,7 @@ matrix:
                                   packages:
                                           - lcov
                                           - valgrind
+                                          - libudev-dev
                   env: 
                           - BUILD_LINQD=ON
                             BUILD_USBD=ON
