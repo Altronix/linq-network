@@ -76,11 +76,12 @@ io_m5_recv_http_response_sync(
 
     // Arrive here with complete packet ready to parse
     wire_parser_http_response_s r;
-    wire_parse_http_response(io->in, txed, &r);
-    *code = r.code;
-    snprintf(mesg, mesg_sz, "%s", r.mesg);
-    wire_parser_http_response_free(&r);
-    ret = 0;
+    ret = wire_parse_http_response(io->in, txed, &r);
+    if (ret == 0) {
+        *code = r.code;
+        snprintf(mesg, mesg_sz, "%s", r.mesg);
+        wire_parser_http_response_free(&r);
+    }
 EXIT:
     log_info("(USB) - rx result [%d]", ret);
     return ret;

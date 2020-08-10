@@ -210,6 +210,9 @@ wire_parse_http_response(
         r->code = wire_parser_read_code(&r->wire);
         r->mesg = wire_parser_read_mesg(&r->wire);
         err = 0;
+    } else {
+        wire_parser_free(&r->wire);
+        err = -1;
     }
     return err;
 }
