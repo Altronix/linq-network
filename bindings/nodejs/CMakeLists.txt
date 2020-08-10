@@ -18,30 +18,33 @@ if(BUILD_LINQD)
   list(APPEND sources ./src/linq_daemon_js.cc)
   list(APPEND headers ./src/linq_daemon_js.h)
   list(APPEND defs "BUILD_LINQD")
-  set(libs
+  list(APPEND libs 
     linq-daemon-static
     linq-database-static
-    linq-http-static
-    linq-network-static
-    linq-network-cpp-binding
-    linq-utils-static
+    linq-http-static   
     ${JSMN_WEB_TOKENS_STATIC_LIBS}
-    ${LIBCZMQ_STATIC_LIBS}
-    ${LIBZMQ_STATIC_LIBS}
-    ${CMAKE_JS_LIB}
     ${TLS_SHARED_LIBRARIES}
-    uuid
-    )
-else()
-  set(libs
-    linq-network-static
-    linq-network-cpp-binding
-    linq-utils-static
-    ${LIBCZMQ_STATIC_LIBS}
-    ${LIBZMQ_STATIC_LIBS}
-    ${CMAKE_JS_LIB}
-    uuid)
+  )
 endif()
+
+if(BUILD_USBH)
+  list(APPEND sources ./src/linq_usbh_js.cc)
+  list(APPEND headers ./src/linq_usbh_js.h)
+  list(APPEND defs "BUILD_USBH")
+  list(APPEND libs
+    linq-usbh-static
+    libusb-static
+  )
+endif()
+
+list(APPEND libs
+  linq-network-static
+  linq-network-cpp-binding
+  ${LIBCZMQ_STATIC_LIBS}
+  ${LIBZMQ_STATIC_LIBS}
+  ${CMAKE_JS_LIB}
+  uuid
+)
 
 ###############################################################################
 # Build linq-network-js
