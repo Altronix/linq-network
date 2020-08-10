@@ -1,3 +1,4 @@
+#include "io_m5.h"
 #include "json.h"
 #include "linq_usbh.h"
 #include "sys.h"
@@ -7,6 +8,18 @@
 #include "mock_libusb.h"
 
 #include <cmocka.h>
+
+static void
+test_io_recv(void** context_p)
+{
+    struct libusb_device_descriptor desc = { .idVendor = 1111,
+                                             .idProduct = 2222 };
+    spy_libusb_init();
+    io_s* io = io_m5_init(NULL, desc);
+
+    io_m5_free(&io);
+    spy_libusb_free();
+}
 
 static void
 test_scan(void** context_p)
@@ -62,7 +75,8 @@ main(int argc, char* argv[])
     ((void)argc);
     ((void)argv);
     int err;
-    const struct CMUnitTest tests[] = { cmocka_unit_test(test_scan)
+    const struct CMUnitTest tests[] = { cmocka_unit_test(test_scan),
+                                        cmocka_unit_test(test_io_recv)
 
     };
 

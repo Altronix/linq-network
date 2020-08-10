@@ -87,7 +87,7 @@ io_m5_recv_http_response_sync(
 
     io_m5_s* io = (io_m5_s*)io_base;
     int txed, ret;
-    uint32_t sz = sizeof(io->in), n;
+    uint32_t sz = sizeof(io->in), n = 0;
     uint8_t* ptr = NULL;
 
     // Read some bytes (exit if error)
@@ -95,7 +95,7 @@ io_m5_recv_http_response_sync(
     ret = libusb_bulk_transfer(handle, IN, io->in, sz, &txed, 2000);
     if (ret < 0) err_exit(ret, libusb_strerror(ret), strerror(errno));
     log_info("(USB) - rx [%d/%d]", txed, sz);
-    if (!(ptr = memmem(io->in, txed, "\r\n", 2))) {
+    while (!(ptr = memmem(io->in, txed, "\r\n", 2)) && txed) {
         n = txed;
         ret = libusb_bulk_transfer(handle, IN, &io->in[txed], sz, &txed, 2000);
         if (ret < 0) err_exit(ret, libusb_strerror(ret), strerror(errno));
