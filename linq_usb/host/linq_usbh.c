@@ -13,7 +13,7 @@
     "}"
 
 typedef libusb_context usb_context;
-MAP_INIT(device, io_s, io_free);
+MAP_INIT(device, io_s, io_m5_free);
 
 void
 linq_usbh_init(linq_usbh_s* usb)

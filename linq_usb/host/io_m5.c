@@ -8,6 +8,30 @@
 #define IN 1 | LIBUSB_ENDPOINT_IN
 #define OUT 2 | LIBUSB_ENDPOINT_OUT
 
+typedef enum E_IO_STATE
+{
+    IO_STATE_IDLE,
+    IO_STATE_MORE,
+    IO_STATE_DONE
+} E_IO_STATE;
+
+typedef struct io_m5_packet_s
+{
+    E_IO_STATE state;
+    uint32_t c, l;
+    uint8_t* bytes;
+} io_m5_packet_s;
+LIST_INIT_W_FREE(packet, io_m5_packet_s);
+
+typedef struct io_m5_s
+{
+    io_s io; // Class Base
+    packet_list_s* outgoing;
+    packet_list_s* incoming;
+    uint8_t out[IO_M5_MAX_OUTGOING];
+    uint8_t in[IO_M5_MAX_INCOMING];
+} io_m5_s;
+
 static int
 io_m5_vsend_http_request_sync(
     io_s* io_base,
@@ -112,8 +136,11 @@ io_m5_init(libusb_device* d, struct libusb_device_descriptor descriptor)
             free(device);
             device = NULL;
         } else {
+            device->incoming = packet_list_create();
+            device->outgoing = packet_list_create();
             device->io.device = d;
             device->io.desc_dev = descriptor;
+            assert(device->incoming && device->outgoing);
             err = libusb_get_config_descriptor(
                 device->io.device, 0, &device->io.desc_cfg);
             if (err) { log_error("(USB) - cfg [%s]", libusb_strerror(err)); }
@@ -162,6 +189,7 @@ io_m5_init(libusb_device* d, struct libusb_device_descriptor descriptor)
             device->io.ops.tx_sync = io_m5_send_http_request_sync;
             device->io.ops.vtx_sync = io_m5_vsend_http_request_sync;
             device->io.ops.rx_sync = io_m5_recv_http_response_sync;
+            device->io.ops.free = io_m5_free;
             // TODO - install io driver per product type
             //      - Optionally ? libusb_set_configuration( ...
             //      - Optionally ? libusb_claim_interface( ...
@@ -175,6 +203,10 @@ io_m5_free(io_s** io_p)
 {
     io_m5_s* io = *(io_m5_s**)io_p;
     io_p = NULL;
+    packet_list_destroy(&io->incoming);
+    packet_list_destroy(&io->outgoing);
+    if (io->io.desc_cfg) { libusb_free_config_descriptor(io->io.desc_cfg); }
+    libusb_close(io->io.handle);
     free(io);
 }
 

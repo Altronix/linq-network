@@ -1,6 +1,7 @@
 #ifndef IO_H
 #define IO_H
 
+#include "containers.h"
 #include "libusb-1.0/libusb.h"
 #include "sys.h"
 
@@ -19,13 +20,8 @@ extern "C"
         int (*vtx_sync)(struct io_s*, cchar*, cchar*, cchar*, va_list);
         int (*rx)(struct io_s*, uint16_t*, char*, uint32_t);
         int (*rx_sync)(struct io_s*, uint16_t*, char*, uint32_t);
+        void (*free)(struct io_s**);
     } io_ops_s;
-
-    typedef struct
-    {
-        uint32_t l;
-        uint8_t bytes[];
-    } io_packet_s;
 
     typedef struct io_s
     {

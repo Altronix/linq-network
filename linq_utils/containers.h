@@ -30,8 +30,8 @@ extern "C"
 #define FREE_FN(x) __list_free_fn(x->data)
 
 #define LIST_INIT_H(tag, type)                                                 \
-    typedef kl_##tag##_t tag##_list_s;                                         \
-    typedef kl1_##tag tag##_item_s;                                            \
+    typedef struct kl_##tag##_t tag##_list_s;                                  \
+    typedef struct kl1_##tag tag##_item_s;                                     \
     tag##_list_s* tag##_list_create();                                         \
     void tag##_list_destroy(tag##_list_s** list_p);                            \
     type* tag##_list_front(tag##_list_s* list);                                \
