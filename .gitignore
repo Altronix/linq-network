@@ -25,6 +25,7 @@ config.status
 
 #cmake
 build/
+build*
 build-linux/
 build-windows/
 build-buildroot/

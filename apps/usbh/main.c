@@ -15,21 +15,21 @@ main(int argc, char* argv[])
     if (!rc) {
         log_error("(APP) - device not found");
         linq_usbh_free(&usb);
-        exit(rc);
+        exit(-1);
     }
 
     // Send a request
     rc = linq_usbh_send_http_request_sync(&usb, "N/A", "GET", "/foo", NULL);
     if (rc < 0) {
         log_error("(APP) tx io error (%d)", rc);
-        exit(rc);
+        exit(-1);
     }
 
     // Receive response
     rc = linq_usbh_recv_http_response_sync(&usb, "N/A", &code, b, sizeof(b));
     if (rc < 0) {
         log_error("(APP) rc io error (%d)", rc);
-        exit(rc);
+        exit(-1);
     }
 
     // cleanup
