@@ -13,83 +13,7 @@
     "}"
 
 typedef libusb_context usb_context;
-static void device_free(device_s** dev_p);
-MAP_INIT(device, device_s, device_free);
-
-static void
-device_free(device_s** dev_p)
-{
-    device_s* d = *dev_p;
-    *dev_p = NULL;
-    if (d->descriptors.config[0].config) {
-        libusb_free_config_descriptor(d->descriptors.config[0].config);
-    }
-    libusb_close(d->handle);
-    if (d->io) io_m5_free(&d->io);
-    free(d);
-}
-
-static device_s*
-device_init(libusb_device* d, struct libusb_device_descriptor descriptor)
-{
-    device_s* device = NULL;
-    libusb_device_handle* handle;
-    int err = libusb_open(d, &handle);
-    uint8_t encoding[] = { 0x80, 0x25, 0x00, 0x00, 0x00, 0x00, 0x08 };
-    if (!err && (device = malloc(sizeof(device_s)))) {
-        // TODO this can be moved to io layer since it is device specific
-        memset(device, 0, sizeof(device_s));
-        device->device = d;
-        device->descriptors.device = descriptor;
-        device->handle = handle;
-        err = libusb_get_config_descriptor(
-            device->device, 0, &device->descriptors.config[0].config);
-        if (err) { log_error("(USB) - cfg [%s]", libusb_strerror(err)); }
-        err = libusb_get_string_descriptor_ascii(
-            device->handle,
-            descriptor.iManufacturer,
-            device->manufacturer,
-            sizeof(device->manufacturer));
-        if (err < 0) log_error("(USB) - str [%s]", libusb_strerror(err));
-        err = libusb_get_string_descriptor_ascii(
-            device->handle,
-            descriptor.iProduct,
-            device->product,
-            sizeof(device->product));
-        if (err < 0) log_error("(USB) - str [%s]", libusb_strerror(err));
-        err = libusb_get_string_descriptor_ascii(
-            device->handle,
-            descriptor.iSerialNumber,
-            device->serial,
-            sizeof(device->serial));
-        if (err < 0) log_error("(USB) - str [%s]", libusb_strerror(err));
-        for (int i = 0; i < 2; i++) {
-            if (libusb_kernel_driver_active(device->handle, i)) {
-                log_info("(USB) - detatching kernel driver [%d]", i);
-                err = libusb_detach_kernel_driver(device->handle, i);
-                if (err) log_error("(USB) - [%s]", libusb_strerror(err));
-            }
-            log_info("(USB) - claiming interface [%d]", i);
-            err = libusb_claim_interface(device->handle, i);
-            if (err) log_error("(USB) - [%s]", libusb_strerror(err));
-        }
-        // https://github.com/tytouf/libusb-cdc-example/blob/master/cdc_example.c
-        err = libusb_control_transfer(
-            device->handle, 0x21, 0x22, 0x01 | 0x02, 0, NULL, 0, 0);
-        if (err < 0) log_error("USB) - ctr [%s]", libusb_strerror(err));
-        err = libusb_control_transfer(
-            device->handle, 0x21, 0x20, 0, 0, encoding, sizeof(encoding), 0);
-        if (err < 0) log_error("USB) - ctr [%s]", libusb_strerror(err));
-        device->io = io_m5_init(device->handle);
-        if (!device->io) log_error("(USB) - io [%s]", "mem");
-        // TODO - install io driver per product type
-        //      - Optionally ? libusb_set_configuration( ...
-        //      - Optionally ? libusb_claim_interface( ...
-    } else {
-        log_error("(USB) - open [%s]", err ? libusb_strerror(err) : "mem");
-    }
-    return device;
-}
+MAP_INIT(device, io_s, io_free);
 
 void
 linq_usbh_init(linq_usbh_s* usb)
@@ -122,7 +46,7 @@ linq_usbh_print_devices(linq_usbh_s* usb, char* b, uint32_t l)
     uint32_t n = device_map_size(usb->devices), sz = l;
     l = 1;
     if (sz) *b = '{';
-    device_s* device;
+    io_s* device;
     device_iter iter;
     map_foreach(usb->devices, iter)
     {
@@ -133,8 +57,8 @@ linq_usbh_print_devices(linq_usbh_s* usb, char* b, uint32_t l)
                 sz - l,
                 SCAN_FMT,
                 device->serial,
-                device->descriptors.device.idVendor,
-                device->descriptors.device.idProduct,
+                device->desc_dev.idVendor,
+                device->desc_dev.idProduct,
                 device->manufacturer,
                 device->product);
             if (--n) {
@@ -150,7 +74,7 @@ linq_usbh_print_devices(linq_usbh_s* usb, char* b, uint32_t l)
 int
 linq_usbh_scan(linq_usbh_s* usb, uint16_t vend, uint16_t prod)
 {
-    device_s* d;
+    io_s* d;
     libusb_device **devs, *dev;
     const char* serial;
     int n = 0, i = 0;
@@ -163,7 +87,8 @@ linq_usbh_scan(linq_usbh_s* usb, uint16_t vend, uint16_t prod)
             if (err == 0) {
                 log_info("(USB) - scan [%d/%d]", desc.idVendor, desc.idProduct);
                 if (desc.idVendor == vend && desc.idProduct == prod) {
-                    d = device_init(dev, desc);
+                    // TODO this should be opaque init function
+                    d = io_m5_init(dev, desc);
                     if (d) {
                         log_info("(USB) - disc [%d] [%s]", n + 1, d->serial);
                         serial = (const char*)d->serial;
@@ -190,12 +115,12 @@ linq_usbh_send_http_request_sync(
     ...)
 {
     int err = -1;
-    device_s** d_p = device_map_get(usb->devices, serial);
+    io_s** d_p = device_map_get(usb->devices, serial);
     if (d_p) {
-        device_s* d = *d_p;
+        io_s* d = *d_p;
         va_list list;
         va_start(list, data);
-        err = d->io->ops.vtx_sync(d->io, meth, path, data, list);
+        err = d->ops.vtx_sync(d, meth, path, data, list);
         va_end(list);
     }
     return err;
@@ -210,10 +135,10 @@ linq_usbh_recv_http_response_sync(
     uint32_t l)
 {
     int err = -1;
-    device_s** d_p = device_map_get(usb->devices, serial);
+    io_s** d_p = device_map_get(usb->devices, serial);
     if (d_p) {
-        device_s* d = *d_p;
-        err = d->io->ops.rx_sync(d->io, code, buff, l);
+        io_s* d = *d_p;
+        err = d->ops.rx_sync(d, code, buff, l);
     }
     return err;
 }

@@ -33,6 +33,7 @@ extern "C"
 {
 #endif
 
+    /*
     typedef struct descriptors_s
     {
         struct libusb_device_descriptor device;
@@ -57,7 +58,8 @@ extern "C"
         unsigned char serial[64];
         io_s* io;
     } device_s;
-    MAP_INIT_H(device, device_s);
+    */
+    MAP_INIT_H(device, io_s);
 
     typedef struct linq_usbh_s
     {

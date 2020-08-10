@@ -32,7 +32,7 @@ extern "C"
         uint8_t in[IO_M5_MAX_INCOMING];
     } io_m5_s;
 
-    io_s* io_m5_init();
+    io_s* io_m5_init(libusb_device* d, struct libusb_device_descriptor);
     void io_m5_free(io_s** io_p);
 
 #ifdef __cplusplus

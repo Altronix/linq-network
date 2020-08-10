@@ -30,10 +30,17 @@ extern "C"
     typedef struct io_s
     {
         libusb_device_handle* handle;
+        libusb_device* device;
+        struct libusb_device_descriptor desc_dev;
+        struct libusb_config_descriptor* desc_cfg;
+        unsigned char manufacturer[64];
+        unsigned char product[64];
+        unsigned char serial[64];
         io_ops_s ops;
     } io_s;
 
-    io_s* io_m5_init(libusb_device_handle* handle);
+    void io_free(io_s** io_p);
+    io_s* io_init(libusb_device* d, struct libusb_device_descriptor);
 
 #ifdef __cplusplus
 }
