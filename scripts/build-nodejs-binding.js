@@ -34,24 +34,29 @@ const system = (opt) =>
     : `--CDUSE_SYSTEM_ZMQ=OFF --CDUSE_SYSTEM_JSMN_WEB_TOKENS=OFF`;
 
 // Parse user options for linqd
-const withDaemon =
+const withDaemon = (json) =>
   isTrue(process.env.LINQ_NETWORK_WITH_DAEMON) ||
   args._.indexOf("linqd") >= 0 ||
+  (json && json.linqd) ||
   !!args.d;
 
-const withUsbh =
-  isTrue(process.env.LINQ_NETWORK_WITH_USBH) || args._.indexOf("usbh") >= 0;
+const withUsbh = (json) =>
+  isTrue(process.env.LINQ_NETWORK_WITH_USBH) ||
+  args._.indexOf("usbh") >= 0 ||
+  (json && json.usbh);
 
 // Parse user options for system
-const withSystem =
+const withSystem = (json) =>
   isTrue(process.env.LINQ_NETWORK_USE_SYSTEM_DEPENDENCIES) ||
   args._.indexOf("system") >= 0 ||
   !!args.s;
 
 // Generate cmake-js argument
 const cmakeCmd = process.platform === "win32" ? `cmake-js.cmd` : `cmake-js`;
-const cmakeArgs =
-  `${system(withSystem)} ${linqd(withDaemon)} ${usbh(withUsbh)} ` +
+const cmakeArgs = (json) =>
+  `${system(withSystem(json))} ` +
+  `${linqd(withDaemon(json))} ` +
+  `${usbh(withUsbh(json))} ` +
   `--CDCMAKE_INSTALL_PREFIX=./ --CDBUILD_SHARED=ON --CDWITH_NODEJS_BINDING ` +
   `--CDCMAKE_BUILD_TYPE=Release build --target=install`;
 
@@ -70,14 +75,14 @@ const installPrebuilt = () => {
 };
 
 // Attempt to build binaries using users compiler
-const tryBuild = async () => {
+const tryBuild = async (json) => {
   logger.info("Attempting build with your compiler");
-  logger.info(`Settings: WITH_SYSTEM_DEPENDENCIES -> ${withSystem}`);
-  logger.info(`Settings: WITH_DAEMON              -> ${withDaemon}`);
-  logger.info(`Settings: WITH_USBH                -> ${withUsbh}`);
+  logger.info(`Settings: WITH_SYSTEM_DEPENDENCIES -> ${withSystem(json)}`);
+  logger.info(`Settings: WITH_DAEMON              -> ${withDaemon(json)}`);
+  logger.info(`Settings: WITH_USBH                -> ${withUsbh(json)}`);
 
   // Call cmake-js
-  const result = cp.spawnSync(cmakeCmd, cmakeArgs.split(" "), {
+  const result = cp.spawnSync(cmakeCmd, cmakeArgs(json).split(" "), {
     env,
     stdio: "inherit",
   });
@@ -115,6 +120,6 @@ const tryBuild = async () => {
     logger.info("Installed prebuilt binaries OK");
     process.exit(0);
   } else {
-    tryBuild();
+    tryBuild(json);
   }
 })();

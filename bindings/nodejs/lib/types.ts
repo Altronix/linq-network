@@ -35,3 +35,20 @@ export interface Binding {
   earlyDestruct: () => void;
   send: <T>(sid: string, meth: Method, path: string, data?: T) => Promise<any>;
 }
+
+export interface BindingUsbh {
+  version: () => string;
+  scan: (vend: number, prod: number) => number;
+  send: <T>(
+    sid: string,
+    meth: Method,
+    path: string,
+    data?: string
+  ) => Promise<UsbhResponseBinding>;
+}
+
+export interface UsbhResponse<T = any> {
+  code: number;
+  data: T;
+}
+export type UsbhResponseBinding = Omit<UsbhResponse, "data"> & { data: string };

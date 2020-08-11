@@ -15,6 +15,7 @@ class LinqUsbh : public Napi::ObjectWrap<LinqUsbh>
     static Napi::FunctionReference constructor;
     Napi::Value Version(const Napi::CallbackInfo& info);
     Napi::Value Scan(const Napi::CallbackInfo& info);
+    Napi::Value Send(const Napi::CallbackInfo& info);
     void shutdown();
     bool shutdown_;
     linq_usbh_s usbh;

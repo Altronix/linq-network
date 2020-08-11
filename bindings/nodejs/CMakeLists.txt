@@ -17,7 +17,7 @@ set(defs "LINQ_NETWORK_NODEJS_BINDING")
 if(BUILD_LINQD)
   list(APPEND sources ./src/linq_daemon_js.cc)
   list(APPEND headers ./src/linq_daemon_js.h)
-  list(APPEND defs "BUILD_LINQD")
+  list(APPEND defs "-DBUILD_LINQD=TRUE")
   list(APPEND libs 
     linq-daemon-static
     linq-database-static
@@ -30,7 +30,7 @@ endif()
 if(BUILD_USBH)
   list(APPEND sources ./src/linq_usbh_js.cc)
   list(APPEND headers ./src/linq_usbh_js.h)
-  list(APPEND defs "BUILD_USBH")
+  list(APPEND defs "-DBUILD_USBH=TRUE")
   if(NOT MSVC)
     list(APPEND libs linq-usbh-shared)
   else()
