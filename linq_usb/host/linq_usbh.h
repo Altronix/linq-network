@@ -33,38 +33,12 @@ extern "C"
 {
 #endif
 
-    /*
-    typedef struct descriptors_s
-    {
-        struct libusb_device_descriptor device;
-        struct config
-        {
-            struct libusb_config_descriptor* config;
-            struct interface
-            {
-                struct libusb_interface_descriptor interface;
-                struct libusb_endpoint_descriptor ep[USBH_CONFIG_MAX_ENDPOINT];
-            } interface[USBH_CONFIG_MAX_INTERFACE];
-        } config[1];
-    } descriptors_s;
-
-    typedef struct device_s
-    {
-        libusb_device_handle* handle;
-        libusb_device* device;
-        descriptors_s descriptors;
-        unsigned char manufacturer[64];
-        unsigned char product[64];
-        unsigned char serial[64];
-        io_s* io;
-    } device_s;
-    */
-    MAP_INIT_H(device, io_s);
+    MAP_INIT_H(usbh_device, io_s);
 
     typedef struct linq_usbh_s
     {
         libusb_context* context;
-        device_map_s* devices;
+        usbh_device_map_s* devices;
     } linq_usbh_s;
 
     LINQ_USB_EXPORT void linq_usbh_init(linq_usbh_s* usb);

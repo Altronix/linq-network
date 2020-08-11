@@ -13,14 +13,14 @@
     "}"
 
 typedef libusb_context usb_context;
-MAP_INIT(device, io_s, io_m5_free);
+MAP_INIT(usbh_device, io_s, io_m5_free);
 
 void
 linq_usbh_init(linq_usbh_s* usb)
 {
     memset(usb, 0, sizeof(linq_usbh_s));
     int err = libusb_init(&usb->context);
-    usb->devices = device_map_create();
+    usb->devices = usbh_device_map_create();
     assert(err == 0);
     libusb_set_option(
         usb->context, LIBUSB_OPTION_LOG_LEVEL, LIBUSB_LOG_LEVEL_ERROR);
@@ -29,7 +29,7 @@ linq_usbh_init(linq_usbh_s* usb)
 void
 linq_usbh_free(linq_usbh_s* usb)
 {
-    device_map_destroy(&usb->devices);
+    usbh_device_map_destroy(&usb->devices);
     libusb_exit(usb->context);
     memset(usb, 0, sizeof(linq_usbh_s));
 }
@@ -37,17 +37,17 @@ linq_usbh_free(linq_usbh_s* usb)
 uint32_t
 linq_usbh_device_count(linq_usbh_s* usb)
 {
-    return device_map_size(usb->devices);
+    return usbh_device_map_size(usb->devices);
 }
 
 int
 linq_usbh_print_devices(linq_usbh_s* usb, char* b, uint32_t l)
 {
-    uint32_t n = device_map_size(usb->devices), sz = l;
+    uint32_t n = usbh_device_map_size(usb->devices), sz = l;
     l = 1;
     if (sz) *b = '{';
     io_s* device;
-    device_iter iter;
+    usbh_device_iter iter;
     map_foreach(usb->devices, iter)
     {
         if (map_has_key(usb->devices, iter)) {
@@ -92,7 +92,7 @@ linq_usbh_scan(linq_usbh_s* usb, uint16_t vend, uint16_t prod)
                     if (d) {
                         log_info("(USB) - disc [%d] [%s]", n + 1, d->serial);
                         serial = (const char*)d->serial;
-                        device_map_add(usb->devices, serial, &d);
+                        usbh_device_map_add(usb->devices, serial, &d);
                         ++n;
                     }
                 }
@@ -115,7 +115,7 @@ linq_usbh_send_http_request_sync(
     ...)
 {
     int err = -1;
-    io_s** d_p = device_map_get(usb->devices, serial);
+    io_s** d_p = usbh_device_map_get(usb->devices, serial);
     if (d_p) {
         io_s* d = *d_p;
         va_list list;
@@ -135,7 +135,7 @@ linq_usbh_recv_http_response_sync(
     uint32_t l)
 {
     int err = -1;
-    io_s** d_p = device_map_get(usb->devices, serial);
+    io_s** d_p = usbh_device_map_get(usb->devices, serial);
     if (d_p) {
         io_s* d = *d_p;
         err = d->ops.rx_sync(d, code, buff, l);

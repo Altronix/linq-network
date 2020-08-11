@@ -17,7 +17,8 @@ if(NOT MSVC)
     BUILD_IN_SOURCE 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ./autogen.sh
-    COMMAND ./configure --prefix=<INSTALL_DIR>
+    COMMAND ./configure --prefix=<INSTALL_DIR> --with-pic
+      "LDFLAGS=${CMAKE_EXE_LINKER_FLAGS} -fPIC"
     BUILD_COMMAND make
     INSTALL_COMMAND make install
     EXCLUDE_FROM_ALL true)

@@ -33,7 +33,7 @@ if(BUILD_USBH)
   list(APPEND defs "BUILD_USBH")
   list(APPEND libs
     linq-usbh-static
-    libusb-static
+    libusb-shared
   )
 endif()
 
