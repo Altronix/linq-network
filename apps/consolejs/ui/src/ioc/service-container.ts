@@ -28,7 +28,6 @@ export default new ContainerModule((bind) => {
   });
   const store = createStore(rootReducer, applyMiddleware(epicMiddleware));
   epicMiddleware.run(rootEpics);
-  // bind(SYMBOLS.USER_SERVICE).toDynamicValue(() => users);
   bind(SYMBOLS.ROUTER_SERVICE).toDynamicValue(() => router);
   bind(SYMBOLS.STORE_SERVICE).toDynamicValue(() => store);
   bind(SYMBOLS.ACTION_SERVICE).toDynamicValue(() => actions);

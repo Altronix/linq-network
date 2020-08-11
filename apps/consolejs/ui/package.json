@@ -4,7 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node ./scripts/test.js"
+    "test": "node ./scripts/test.js",
+    "test:build": "webpack --config=scripts/webpack.test.js",
+    "test:karma": "karma start",
+    "test:watch": "karma start --auto-watch=true --single-run=false",
+    "test:update-snapshots": "karma start --update-snapshots",
+    "test:prune-snapshots": "karma start --prune-snapshots",
+    "build": "webpack --config ./scripts/webpack.prod.js",
+    "storybook:start": "start-storybook -p 6006",
+    "storybook:build": "build-storybook",
+    "start": "node ./scripts/start.js"
   },
   "repository": {
     "type": "git",

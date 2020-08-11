@@ -6,7 +6,7 @@ let path = require('path'),
 
 (async () => {
   try {
-    let { root } = await utils.seekRoot('portal'),
+    let { root } = await utils.seekRoot('consolejs-ui'),
       args = process.argv.slice(2),
       env = Object.assign({}, process.env),
       shell = process.platform === 'win32' ? true : false;

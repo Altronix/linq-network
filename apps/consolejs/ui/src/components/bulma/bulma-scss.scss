@@ -1,0 +1,15 @@
+@import './_variables';
+@import './_mixins';
+@import '../../assets/iconfont/material-icons.css';
+@import '~bulma';
+
+* {
+  // Note that since we use shadow dom, bulma's BODY and HTML styles need to
+  // be applied to our component explicitly
+
+  // color: $body-color;
+  font-size: $body-font-size;
+  // font-weight: $body-weight;
+  line-height: $body-line-height;
+  font-family: $body-family;
+}
