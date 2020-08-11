@@ -31,10 +31,11 @@ if(BUILD_USBH)
   list(APPEND sources ./src/linq_usbh_js.cc)
   list(APPEND headers ./src/linq_usbh_js.h)
   list(APPEND defs "BUILD_USBH")
-  list(APPEND libs
-    linq-usbh-static
-    libusb-shared
-  )
+  if(NOT MSVC)
+    list(APPEND libs linq-usbh-shared)
+  else()
+    list(APPEND libs linq-usbh-static)
+  endif()
 endif()
 
 list(APPEND libs
@@ -45,6 +46,8 @@ list(APPEND libs
   ${CMAKE_JS_LIB}
   uuid
 )
+
+message(STATUS "libs: ${libs}")
 
 ###############################################################################
 # Build linq-network-js

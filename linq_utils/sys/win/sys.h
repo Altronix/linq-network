@@ -54,7 +54,11 @@ extern "C"
     LINQ_UTILS_EXPORT int32_t sys_tick();
     LINQ_UTILS_EXPORT uint32_t sys_unix();
     LINQ_UTILS_EXPORT void sys_uuid(char* dst);
-
+    LINQ_UTILS_EXPORT void* sys_memmem(
+        const void* haystack,
+        size_t haystack_len,
+        const void* const needle,
+        const size_t needle_len);
 #define optind optind_get()
 #define optarg optarg_get()
 

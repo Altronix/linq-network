@@ -52,7 +52,7 @@ const withSystem =
 const cmakeCmd = process.platform === "win32" ? `cmake-js.cmd` : `cmake-js`;
 const cmakeArgs =
   `${system(withSystem)} ${linqd(withDaemon)} ${usbh(withUsbh)} ` +
-  `--CDCMAKE_INSTALL_PREFIX=./ --CDBUILD_SHARED=OFF --CDWITH_NODEJS_BINDING ` +
+  `--CDCMAKE_INSTALL_PREFIX=./ --CDBUILD_SHARED=ON --CDWITH_NODEJS_BINDING ` +
   `--CDCMAKE_BUILD_TYPE=Release build --target=install`;
 
 // Find the prebuilt binary (Only used if native build fails)
@@ -82,7 +82,7 @@ const tryBuild = async () => {
     stdio: "inherit",
   });
 
-  if (!result.error) {
+  if (!result.status) {
     logger.info("Build Success!");
     logger.debug(JSON.stringify(result));
     process.exit(result.status);
