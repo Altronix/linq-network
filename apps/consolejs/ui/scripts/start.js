@@ -12,7 +12,7 @@ let path = require('path'),
 
 // Try and find a suitable atx.config.js file
 async function loadAtxConfig() {
-  let { root } = await utils.seekRoot('portal');
+  let { root } = await utils.seekRoot('consolejs-ui');
   return (
     (await requirePath(`${root}/atx.config.user.js`)) ||
     (await requirePath(`${root}/atx.config.js`))

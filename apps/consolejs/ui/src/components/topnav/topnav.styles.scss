@@ -1,0 +1,20 @@
+.navbar-brand {
+  img {
+    height: 32px;
+  }
+}
+.navbar-item,
+.navbar-link {
+  img {
+    vertical-align: middle;
+  }
+  .navbar-item__icon,
+  .navbar-link__icon {
+    padding: 6px 10px 0 0;
+  }
+}
+.navbar-dropdown {
+  .navbar-item--title {
+    font-weight: bold;
+  }
+}

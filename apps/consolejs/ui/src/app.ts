@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { connect } from './store/connect';
 import { RootState } from './store/reducers';
 import { actions } from './store/action';
+import { classMap } from 'lit-html/directives/class-map';
 
 import { styles } from './components/bulma/styles';
 import * as scss from './app.styles.scss';
@@ -14,6 +15,7 @@ import * as scss from './app.styles.scss';
 export class App extends connect(LitElement) {
   static styles = styles(scss.toString());
   @property({ type: Boolean }) ready: boolean = false;
+  @property({ type: String }) route: string = '';
   @domInject(SYMBOLS.ROUTER_SERVICE) router!: RouterService;
   @query('.outlet') outlet!: Element;
 
@@ -21,35 +23,52 @@ export class App extends connect(LitElement) {
     super.connectedCallback();
   }
 
-  stateChanged(s: RootState) {}
+  stateChanged(s: RootState) {
+    this.route = s.router.route;
+    console.log(`State Change: ${s.router.route}`);
+  }
+
+  firstUpdated() {
+    if (!this.ready) this.onReady();
+  }
+
+  go(route: string) {
+    console.log(route);
+    this.store.dispatch(this.actions.router.route({ route }));
+  }
 
   onReady() {
+    this.ready = true;
     let router = this.router.create(this.outlet);
     router.setRoutes([
-      { path: '/', redirect: '/dashboard' },
-      { path: '/home', component: 'atx-home' },
-      { path: '/logout', component: 'atx-logout' },
-      { path: '/docs', component: 'atx-docs' },
-      {
-        path: '/dashboard',
-        component: 'atx-dashboard',
-        children: [
-          { path: '/', redirect: '/dashboard/update' },
-          { path: '/main', component: 'atx-dashboard-main' },
-          { path: '/about', component: 'atx-dashboard-about' },
-          { path: '/account', component: 'atx-dashboard-account' },
-          { path: '/mail', component: 'atx-dashboard-mail' },
-          { path: '/lock', component: 'atx-dashboard-lock' },
-          { path: '/devices', component: 'atx-dashboard-devices' },
-          { path: '/network', component: 'atx-dashboard-network' },
-          { path: '/power', component: 'atx-dashboard-power' },
-          { path: '/update', component: 'atx-dashboard-update-container' }
-        ]
-      }
+      { path: '/', redirect: '/tcpip' },
+      { path: '/tcpip', component: 'form-netw' },
+      { path: '/update', component: 'form-update' }
     ]);
   }
 
   render() {
-    return html` <div class="outlet"></div> `;
+    const isActive = (r0: string, r1?: string) =>
+      this.route === r0 || this.route === r1;
+    return html`
+      <atx-topnav>
+        <a where="brand">Altronix</a>
+      </atx-topnav>
+      <div class="container">
+        <div class="tabs">
+          <ul>
+            <li class="${classMap({ 'is-active': isActive('tcpip', '') })}">
+              <a @click="${() => this.go('tcpip')}">TCP / IP</a>
+            </li>
+            <li class="${classMap({ 'is-active': isActive('update') })}">
+              <a @click="${() => this.go('update')}">Firmware Update</a>
+            </li>
+          </ul>
+        </div>
+        <div class="outlet">
+          <slot></slot>
+        </div>
+      </div>
+    `;
   }
 }
