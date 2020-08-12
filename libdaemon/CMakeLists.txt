@@ -2,7 +2,7 @@ add_library(daemon-static daemon.c daemon.h)
 list(APPEND LIBS 
   linq-network-static
   database-static
-  linq-http-static
+  http-static
   linq-utils-static
   ${JSMN_WEB_TOKENS_LIBS}
   ${ZMQ_LIBS}
