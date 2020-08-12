@@ -27,7 +27,7 @@ fn find_root() -> String {
 // for reference https://github.com/sfackler/rust-openssl/blob/master/openssl-sys
 
 fn gen_header() {
-    let header = format!("{}/linq_network/linq_network.h", find_root());
+    let header = format!("{}/libnetwork/linq_network.h", find_root());
     let header = fs::read(header).unwrap();
     fs::write("./wrapper.h", header).unwrap();
 }
@@ -39,8 +39,8 @@ fn print_windows(out: &std::path::Display<'_>) {
     let libzmq = String::from_utf8(libzmq).unwrap();
     let libzmq = libzmq.split(".").collect::<Vec<&str>>()[0];
     println!("cargo:rustc-link-search=native={}/lib", out);
-    println!("cargo:rustc-link-lib=static=linq-network");
-    println!("cargo:rustc-link-lib=static=linq-utils");
+    println!("cargo:rustc-link-lib=static=network");
+    println!("cargo:rustc-link-lib=static=utils");
     println!("cargo:rustc-link-lib=static=libczmq");
     println!("cargo:rustc-link-lib=static={}", libzmq);
     println!("cargo:rustc-link-lib=uuid");
@@ -53,8 +53,8 @@ fn print_linux(out: &std::path::Display<'_>) {
     println!("cargo:rustc-link-lib=static=zmq");
     println!("cargo:rustc-link-search=native={}/lib", out);
     println!("cargo:rustc-link-search=native={}/lib64", out);
-    println!("cargo:rustc-link-lib=static=linq-network");
-    println!("cargo:rustc-link-lib=static=linq-utils");
+    println!("cargo:rustc-link-lib=static=network");
+    println!("cargo:rustc-link-lib=static=utils");
     println!("cargo:rustc-link-lib=static=czmq");
     println!("cargo:rustc-link-lib=static=zmq");
     println!("cargo:rustc-link-lib=uuid");
