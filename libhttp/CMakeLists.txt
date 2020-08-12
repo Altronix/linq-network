@@ -38,7 +38,7 @@ if(ENABLE_TESTING)
   target_include_directories(http-test PUBLIC ./)
   set_target_properties(http-test PROPERTIES 
     PUBLIC_HEADER "${INSTALL_HEADERS}"
-    OUTPUT_NAME "http-test")
+    OUTPUT_NAME "linqhttp-test")
   install(TARGETS http-test
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib
@@ -54,7 +54,7 @@ if(BUILD_STATIC)
   target_include_directories(http-static PUBLIC ./)
   set_target_properties(http-static PROPERTIES 
     PUBLIC_HEADER "${INSTALL_HEADERS}"
-    OUTPUT_NAME "http")
+    OUTPUT_NAME "linqhttp")
   install(TARGETS http-static
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib
@@ -71,7 +71,7 @@ if(BUILD_SHARED)
   target_include_directories(http-shared PUBLIC ../include)
   set_target_properties(http-shared PROPERTIES 
     PUBLIC_HEADER "${INSTALL_HEADERS}"
-    OUTPUT_NAME "http")
+    OUTPUT_NAME "linqhttp")
   install(TARGETS http-shared
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib

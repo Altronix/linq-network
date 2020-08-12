@@ -1,7 +1,7 @@
 import * as Events from "events";
 import { inherits } from "util";
 import { TlsTerminate } from "./tlsTerminate";
-const binding = require("bindings")("linq-network");
+const binding = require("bindings")("linq");
 
 export interface LinqDaemonConfig {
   http: number;

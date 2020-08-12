@@ -23,7 +23,7 @@ if(BUILD_STATIC)
     "LINQ_DATABASE_STATIC")
   set_target_properties(database-static PROPERTIES
     PUBLIC_HEADER "${INSTALL_HEADERS}"
-    OUTPUT_NAME "database")
+    OUTPUT_NAME "linqdatabase")
   install(TARGETS database-static
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib
@@ -41,7 +41,7 @@ if(BUILD_SHARED)
     ${definitions})
   set_target_properties(database-shared PROPERTIES
     PUBLIC_HEADER "${INSTALL_HEADERS}"
-    OUTPUT_NAME "database")
+    OUTPUT_NAME "linqdatabase")
   install(TARGETS database-shared
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib

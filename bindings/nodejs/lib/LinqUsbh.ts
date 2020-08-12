@@ -1,7 +1,7 @@
 import * as Events from "events";
 import { inherits } from "util";
 import { Method, UsbhResponse, BindingUsbh } from "./types";
-const binding = require("bindings")("linq-network");
+const binding = require("bindings")("linq");
 
 export class LinqUsbh extends Events.EventEmitter {
   usbh: BindingUsbh;

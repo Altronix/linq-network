@@ -15,5 +15,6 @@ target_link_libraries(daemon-static  ${LIBS})
 target_compile_definitions(daemon-static PUBLIC "LINQ_DAEMON_STATIC")
   
 set_target_properties(daemon-static PROPERTIES 
-  PUBLIC_HEADER "daemon.h")
+  PUBLIC_HEADER "daemon.h"
+  OUTPUT_NAME "linqdaemon")
 target_include_directories(daemon-static PUBLIC ./)

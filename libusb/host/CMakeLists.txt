@@ -30,7 +30,7 @@ if(BUILD_STATIC)
   target_compile_definitions(usbh-static PUBLIC "${DEFS}")
   set_target_properties(usbh-static PROPERTIES
     PUBLIC_HEADER "${INSTALL_HEADERS}"
-    OUTPUT_NAME "usbh")
+    OUTPUT_NAME "linqusbh")
   install(TARGETS usbh-static
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
@@ -46,7 +46,7 @@ if(BUILD_SHARED)
   target_compile_definitions(usbh-shared PUBLIC "${DEFS}")
   set_target_properties(usbh-shared PROPERTIES
     PUBLIC_HEADER "${INSTALL_HEADERS}"
-    OUTPUT_NAME "usbh")
+    OUTPUT_NAME "linqusbh")
   install(TARGETS usbh-shared
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib

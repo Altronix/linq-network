@@ -21,7 +21,7 @@ if(BUILD_STATIC)
   target_compile_definitions(usb-common-static PUBLIC "${DEFS}")
   set_target_properties(usb-common-static PROPERTIES
     PUBLIC_HEADER "${INSTALL_HEADERS}"
-    OUTPUT_NAME "usb")
+    OUTPUT_NAME "linqusb")
   install(TARGETS usb-common-static
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
@@ -37,7 +37,7 @@ if(BUILD_SHARED)
   target_compile_definitions(usb-common-shared PUBLIC "${DEFS}")
   set_target_properties(usb-common-shared PROPERTIES
     PUBLIC_HEADER "${INSTALL_HEADERS}"
-    OUTPUT_NAME "usb")
+    OUTPUT_NAME "linqusb")
   install(TARGETS usb-common-shared
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib

@@ -29,6 +29,9 @@ if(ENABLE_TESTING)
   target_compile_definitions(network-test-static PUBLIC 
     "LINQ_NETWORK_STATIC" 
     ${definitions})
+  set_target_properties(network-static PROPERTIES 
+    PUBLIC_HEADER "${INSTALL_HEADERS}"
+    OUTPUT_NAME "linqnetwork-test")
   target_compile_definitions(network-test-static PRIVATE "-DTESTING")
   target_include_directories(network-test-static PUBLIC ${INCS})
   target_include_directories(network-test-static PUBLIC ./)
@@ -44,7 +47,7 @@ if(BUILD_STATIC)
   target_include_directories(network-static PUBLIC ./)
   set_target_properties(network-static PROPERTIES 
     PUBLIC_HEADER "${INSTALL_HEADERS}"
-    OUTPUT_NAME "network")
+    OUTPUT_NAME "linqnetwork")
   install(TARGETS network-static
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib
@@ -62,7 +65,7 @@ if(BUILD_SHARED)
   target_include_directories(network-shared PUBLIC ./)
   set_target_properties(network-shared PROPERTIES 
     PUBLIC_HEADER "${INSTALL_HEADERS}"
-    OUTPUT_NAME "network")
+    OUTPUT_NAME "linqnetwork")
   install(TARGETS network-shared
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib

@@ -55,7 +55,7 @@ message(STATUS "libs: ${libs}")
 include_directories(${CMAKE_JS_INC})
 add_library(network-js SHARED ${sources} ${headers} ${CMAKE_JS_SRC})
 set_target_properties(network-js PROPERTIES 
-  OUTPUT_NAME "network"
+  OUTPUT_NAME "linq"
   PREFIX "" 
   SUFFIX ".node")
 target_include_directories(network-js PRIVATE ${CMAKE_JS_INC} ${NODE_ADDON_API_DIR})

@@ -1,7 +1,7 @@
 import * as Events from "events";
 import { inherits } from "util";
 import { Method, LINQ_EVENTS, AboutData, Binding, Devices } from "./types";
-const binding = require("bindings")("linq-network");
+const binding = require("bindings")("linq");
 
 export class LinqNetwork extends Events.EventEmitter {
   netw: Binding;

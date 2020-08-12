@@ -22,7 +22,7 @@ if(BUILD_STATIC)
   target_compile_definitions(usbd-static PUBLIC "${DEFS}")
   set_target_properties(usbd-static PROPERTIES
     PUBLIC_HEADER "${INSTALL_HEADERS}"
-    OUTPUT_NAME "usbd")
+    OUTPUT_NAME "linqusbd")
   install(TARGETS usbd-static
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
@@ -38,7 +38,7 @@ if(BUILD_SHARED)
   target_compile_definitions(usbd-shared PUBLIC "${DEFS}")
   set_target_properties(usbd-shared PROPERTIES
     PUBLIC_HEADER "${INSTALL_HEADERS}"
-    OUTPUT_NAME "usbd")
+    OUTPUT_NAME "linqusbd")
   install(TARGETS usbd-shared
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib

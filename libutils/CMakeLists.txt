@@ -32,7 +32,7 @@ if(BUILD_STATIC)
   target_include_directories(utils-static PUBLIC ${INCS})
   set_target_properties(utils-static PROPERTIES
     PUBLIC_HEADER "${HEADERS}"
-    OUTPUT_NAME "utils")
+    OUTPUT_NAME "linqutils")
   install(TARGETS utils-static
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib
@@ -47,7 +47,7 @@ if(BUILD_SHARED)
   target_include_directories(utils-shared PUBLIC ${INCS})
   set_target_properties(utils-shared PROPERTIES
     PUBLIC_HEADER "${HEADERS}"
-    OUTPUT_NAME "utils")
+    OUTPUT_NAME "linqutils")
   install(TARGETS utils-shared
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib
