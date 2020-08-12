@@ -1,5 +1,5 @@
 append_mock_file_linker_flags(wrap_flags)
-set(LIBS cmocka mock-file linq-usbd-test-static linq-utils-static)
+set(LIBS cmocka mock-file linq-usbd-test-static utils-static)
 
 add_executable(test-linq-usbd-device main.c)
 set_target_properties(test-linq-usbd-device PROPERTIES LINK_FLAGS ${wrap_flags})

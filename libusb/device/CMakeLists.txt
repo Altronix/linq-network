@@ -1,4 +1,4 @@
-set(LIBS linq-usb-common-static linq-utils-static)
+set(LIBS linq-usb-common-static utils-static)
 list(APPEND SOURCES linq_usbd.c)
 list(APPEND HEADERS linq_usbd.h)
 set(INSTALL_HEADERS linq_usbd.h)

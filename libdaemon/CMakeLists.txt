@@ -3,7 +3,7 @@ list(APPEND LIBS
   linq-network-static
   database-static
   http-static
-  linq-utils-static
+  utils-static
   ${JSMN_WEB_TOKENS_LIBS}
   ${ZMQ_LIBS}
   ${TLS_LIBS})

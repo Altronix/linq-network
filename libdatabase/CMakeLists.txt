@@ -9,7 +9,7 @@ else()
   list(APPEND LIBS ws2_32 iphlpapi wldap32 uuid Rpcrt4)
 endif()
 
-set(LIBS linq-utils-static)
+set(LIBS utils-static)
 
 append_log_level_compiler_flags(definitions)
 

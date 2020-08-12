@@ -1,4 +1,4 @@
-set(LIBS ${CMAKE_THREAD_LIBS_INIT} linq-usb-common-static linq-utils-static)
+set(LIBS ${CMAKE_THREAD_LIBS_INIT} linq-usb-common-static utils-static)
 if(NOT MSVC)
   set(LIBS_STATIC ${LIBS} libusb-static udev)
   set(LIBS_SHARED ${LIBS} libusb-shared udev)

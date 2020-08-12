@@ -20,8 +20,8 @@ if(BUILD_LINQD)
   list(APPEND defs "-DBUILD_LINQD=TRUE")
   list(APPEND libs 
     daemon-static
-    linq-database-static
-    linq-http-static   
+    database-static
+    http-static   
     ${JSMN_WEB_TOKENS_STATIC_LIBS}
     ${TLS_SHARED_LIBRARIES}
   )
@@ -32,15 +32,15 @@ if(BUILD_USBH)
   list(APPEND headers ./src/linq_usbh_js.h)
   list(APPEND defs "-DBUILD_USBH=TRUE")
   if(NOT MSVC)
-    list(APPEND libs linq-usbh-shared)
+    list(APPEND libs usbh-shared)
   else()
-    list(APPEND libs linq-usbh-static)
+    list(APPEND libs usbh-static)
   endif()
 endif()
 
 list(APPEND libs
-  linq-network-static
-  linq-network-cpp-binding
+  network-static
+  network-cpp-binding
   ${LIBCZMQ_STATIC_LIBS}
   ${LIBZMQ_STATIC_LIBS}
   ${CMAKE_JS_LIB}
@@ -50,19 +50,19 @@ list(APPEND libs
 message(STATUS "libs: ${libs}")
 
 ###############################################################################
-# Build linq-network-js
+# Build network-js
 ###############################################################################
 include_directories(${CMAKE_JS_INC})
-add_library(linq-network-js SHARED ${sources} ${headers} ${CMAKE_JS_SRC})
-set_target_properties(linq-network-js PROPERTIES 
-  OUTPUT_NAME "linq-network"
+add_library(network-js SHARED ${sources} ${headers} ${CMAKE_JS_SRC})
+set_target_properties(network-js PROPERTIES 
+  OUTPUT_NAME "network"
   PREFIX "" 
   SUFFIX ".node")
-target_include_directories(linq-network-js PRIVATE ${CMAKE_JS_INC} ${NODE_ADDON_API_DIR})
-target_link_libraries(linq-network-js  ${libs})
-target_compile_definitions(linq-network-js PRIVATE ${defs})
+target_include_directories(network-js PRIVATE ${CMAKE_JS_INC} ${NODE_ADDON_API_DIR})
+target_link_libraries(network-js  ${libs})
+target_compile_definitions(network-js PRIVATE ${defs})
 
-install(TARGETS linq-network-js
+install(TARGETS network-js
         LIBRARY DESTINATION . #bindings-js looks in root build folder (not in lib folder)
         ARCHIVE DESTINATION .
         PUBLIC_HEADER DESTINATION include/altronix)

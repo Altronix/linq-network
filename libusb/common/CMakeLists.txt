@@ -1,4 +1,4 @@
-set(LIBS linq-utils-static)
+set(LIBS utils-static)
 list(APPEND SOURCES wire.c)
 list(APPEND HEADERS wire.h)
 set(INCS "./")

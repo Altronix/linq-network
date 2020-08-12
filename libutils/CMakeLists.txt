@@ -25,15 +25,15 @@ list(APPEND INCS ./)
 
 # Build a static library
 if(BUILD_STATIC)
-  add_library(linq-utils-static STATIC ${SOURCES} ${HEADERS})
-  target_link_libraries(linq-utils-static ${LIBS})
-  target_compile_definitions(linq-utils-static PUBLIC "LINQ_UTILS_STATIC")
-  target_compile_definitions(linq-utils-static PUBLIC "RLP_STATIC")
-  target_include_directories(linq-utils-static PUBLIC ${INCS})
-  set_target_properties(linq-utils-static PROPERTIES
+  add_library(utils-static STATIC ${SOURCES} ${HEADERS})
+  target_link_libraries(utils-static ${LIBS})
+  target_compile_definitions(utils-static PUBLIC "LINQ_UTILS_STATIC")
+  target_compile_definitions(utils-static PUBLIC "RLP_STATIC")
+  target_include_directories(utils-static PUBLIC ${INCS})
+  set_target_properties(utils-static PROPERTIES
     PUBLIC_HEADER "${HEADERS}"
-    OUTPUT_NAME "linq-utils")
-  install(TARGETS linq-utils-static
+    OUTPUT_NAME "utils")
+  install(TARGETS utils-static
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib
           PUBLIC_HEADER DESTINATION include/altronix)
@@ -41,14 +41,14 @@ endif()
 
 # Build a shared library
 if(BUILD_SHARED)
-  add_library(linq-utils-shared SHARED ${SOURCES} ${HEADERS})
-  target_link_libraries(linq-utils-shared ${LIBS})
-  target_compile_definitions(linq-utils-shared PUBLIC "DLL_EXPORT")
-  target_include_directories(linq-utils-shared PUBLIC ${INCS})
-  set_target_properties(linq-utils-shared PROPERTIES
+  add_library(utils-shared SHARED ${SOURCES} ${HEADERS})
+  target_link_libraries(utils-shared ${LIBS})
+  target_compile_definitions(utils-shared PUBLIC "DLL_EXPORT")
+  target_include_directories(utils-shared PUBLIC ${INCS})
+  set_target_properties(utils-shared PROPERTIES
     PUBLIC_HEADER "${HEADERS}"
-    OUTPUT_NAME "linq-utils")
-  install(TARGETS linq-utils-shared
+    OUTPUT_NAME "utils")
+  install(TARGETS utils-shared
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib
           RUNTIME DESTINATION bin
