@@ -1,7 +1,7 @@
 set(LIBS ${CMAKE_THREAD_LIBS_INIT} usb-common-static utils-static)
 if(NOT MSVC)
   set(LIBS_STATIC ${LIBS} libusb-static udev)
-  set(LIBS_SHARED ${LIBS} libusb-shared udev)
+  set(LIBS_SHARED ${LIBS} libusb-static udev)
 else()
   set(LIBS_STATIC ${LIBS} libusb-static)
   set(LIBS_SHARED ${LIBS} libusb-static) # linking win with static
