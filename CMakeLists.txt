@@ -139,14 +139,19 @@ if(ENABLE_TESTING)
 
   setup_target_for_coverage_lcov(NAME test-coverage
     EXECUTABLE test-containers
-    COMMAND test-linq-network
+    COMMAND test-jsmn
+    COMMAND test-sys
+    COMMAND test-rlp
+    COMMAND test-usbh
+    COMMAND test-usbd
+    COMMAND test-network
     COMMAND test-device
     COMMAND test-jsmn
     COMMAND test-http
     COMMAND test-database
     COMMAND test-routes
     COMMAND test-linqd
-    COMMAND binding-linq-network-cpp-test)
+    COMMAND binding-network-cpp-test)
 
 endif()
 

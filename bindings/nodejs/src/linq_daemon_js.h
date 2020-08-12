@@ -1,7 +1,7 @@
 #ifndef LINQDAEMON_H
 #define LINQDAEMON_H
 
-#include "linq_daemon.h"
+#include "daemon.h"
 #include <napi.h>
 
 class LinqDaemon : public Napi::ObjectWrap<LinqDaemon>
