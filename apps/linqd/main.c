@@ -1,4 +1,4 @@
-#include "linq_daemon.h"
+#include "daemon.h"
 #include "log.h"
 
 static void
@@ -24,7 +24,7 @@ print_usage_and_exit(int err)
 }
 
 static void
-parse_args(linqd_config_s* config, int argc, char* argv[])
+parse_args(daemon_config_s* config, int argc, char* argv[])
 {
     int opt, arglen;
     optind_set(0);
@@ -47,22 +47,22 @@ int
 main(int argc, char* argv[])
 {
     int err = 0;
-    linqd_config_s config = { .zmtp = 33248,
-                              .http = 8000,
-                              .https = 0,
-                              .cert = NULL,
-                              .key = NULL,
-                              .db_path = "./test.db" };
+    daemon_config_s config = { .zmtp = 33248,
+                               .http = 8000,
+                               .https = 0,
+                               .cert = NULL,
+                               .key = NULL,
+                               .db_path = "./test.db" };
     parse_args(&config, argc, argv);
     if (config.cert && config.key && config.https) {
         // TODO install tls
     }
 
-    linqd_s linqd;
-    linqd_init(&linqd, &config);
+    daemon_s linqd;
+    daemon_init(&linqd, &config);
 
-    while (sys_running()) { err = linqd_poll(&linqd, 5); };
+    while (sys_running()) { err = daemon_poll(&linqd, 5); };
 
-    linqd_free(&linqd);
+    daemon_free(&linqd);
     return 0;
 }

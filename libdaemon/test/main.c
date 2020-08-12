@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include "daemon.h"
 #include "helpers.h"
-#include "linq_daemon.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
 #include "mock_utils.h"
@@ -14,15 +14,15 @@
 //      need to refactor so that we reset on start of each test
 
 static void
-test_linqd_receive_heartbeat_insert(void** context_p)
+test_daemon_receive_heartbeat_insert(void** context_p)
 {
     // Init Test Spy
     helpers_test_init();
 
     // Create LinQD
-    linqd_config_s config = { .zmtp = 32820, .http = 8000, .db_path = "./" };
-    linqd_s linqd;
-    linqd_init(&linqd, &config);
+    daemon_config_s config = { .zmtp = 32820, .http = 8000, .db_path = "./" };
+    daemon_s linqd;
+    daemon_init(&linqd, &config);
 
     // Add user
     helpers_test_create_admin(linqd.netw, "unsafe_user", "unsafe_pass");
@@ -59,7 +59,7 @@ test_linqd_receive_heartbeat_insert(void** context_p)
     sqlite_spy_outgoing_statement_flush();
 
     // Receive a heartbeat (Request about)
-    linqd_poll(&linqd, 5);
+    daemon_poll(&linqd, 5);
     statement = sqlite_spy_outgoing_statement_pop();
     assert_non_null(statement);
     assert_int_equal(strlen(expect_query) + 1, statement->len);
@@ -68,27 +68,27 @@ test_linqd_receive_heartbeat_insert(void** context_p)
     // TODO measure outgoing czmq packet about request
 
     // Receive about response, and we insert device into database
-    linqd_poll(&linqd, 5);
+    daemon_poll(&linqd, 5);
     statement = sqlite_spy_outgoing_statement_pop();
     assert_non_null(statement);
     assert_int_equal(strlen(expect_insert) + 1, statement->len);
     assert_memory_equal(expect_insert, statement->data, statement->len);
     linq_network_free(statement);
 
-    linqd_free(&linqd);
+    daemon_free(&linqd);
     helpers_test_reset();
 }
 
 static void
-test_linqd_receive_alert_insert(void** context_p)
+test_daemon_receive_alert_insert(void** context_p)
 {
     // Init Test Spy
     helpers_test_init();
 
     // Create LinQD
-    linqd_config_s config = { .zmtp = 32820, .http = 8000, .db_path = "./" };
-    linqd_s linqd;
-    linqd_init(&linqd, &config);
+    daemon_config_s config = { .zmtp = 32820, .http = 8000, .db_path = "./" };
+    daemon_s linqd;
+    daemon_init(&linqd, &config);
 
     // Add user
     helpers_test_create_admin(linqd.netw, "unsafe_user", "unsafe_pass");
@@ -109,10 +109,10 @@ test_linqd_receive_alert_insert(void** context_p)
     czmq_spy_mesg_push_incoming(&alert);
     czmq_spy_poll_set_incoming((0x01));
 
-    linqd_poll(&linqd, 5);
+    daemon_poll(&linqd, 5);
     sqlite_spy_outgoing_statement_flush();
 
-    linqd_poll(&linqd, 5);
+    daemon_poll(&linqd, 5);
 
     statement = sqlite_spy_outgoing_statement_pop();
     assert_non_null(statement);
@@ -123,7 +123,7 @@ test_linqd_receive_alert_insert(void** context_p)
 
     // TODO verify websocket broadcast on mongoose outgoing
 
-    linqd_free(&linqd);
+    daemon_free(&linqd);
     helpers_test_reset();
 }
 
@@ -134,8 +134,8 @@ main(int argc, char* argv[])
     ((void)argv);
     int err;
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_linqd_receive_heartbeat_insert),
-        cmocka_unit_test(test_linqd_receive_alert_insert),
+        cmocka_unit_test(test_daemon_receive_heartbeat_insert),
+        cmocka_unit_test(test_daemon_receive_alert_insert),
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);

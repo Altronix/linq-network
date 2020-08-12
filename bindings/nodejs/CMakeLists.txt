@@ -19,7 +19,7 @@ if(BUILD_LINQD)
   list(APPEND headers ./src/linq_daemon_js.h)
   list(APPEND defs "-DBUILD_LINQD=TRUE")
   list(APPEND libs 
-    linq-daemon-static
+    daemon-static
     linq-database-static
     linq-http-static   
     ${JSMN_WEB_TOKENS_STATIC_LIBS}

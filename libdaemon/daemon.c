@@ -1,4 +1,4 @@
-#include "linq_daemon.h"
+#include "daemon.h"
 #include "database.h"
 #include "device.h"
 #include "http.h"
@@ -41,7 +41,7 @@ on_heartbeat_response(
     E_LINQ_ERROR e,
     const char* r)
 {
-    linqd_s* l = ctx;
+    daemon_s* l = ctx;
     if (e) {
         log_warn("(LINQ) [%.6s...] (%.3d) About request failed!", serial, e);
     } else {
@@ -56,7 +56,7 @@ on_hb(void* ctx, const char* s)
     // Therefore tests should also flush out the response, or mock database
     // query to make tests think device doesn't need to be added into database
     // so there will be no request and response to flush through
-    linqd_s* l = ctx;
+    daemon_s* l = ctx;
     http_broadcast_json(&l->http, 200, WEBSOCKET_HEARTBEAT_FMT, strlen(s), s);
     if (!database_row_exists_str(&l->http.db, "devices", "device_id", s)) {
         log_info(
@@ -76,7 +76,7 @@ on_alert(
     linq_network_email_s* email)
 {
     int err;
-    linqd_s* l = ctx;
+    daemon_s* l = ctx;
     log_info("(LINQ) [%.6s...] Event Alert", serial);
     char when[32];
     alert_insert_s alert = { .who = { .p = a->who.p, .len = a->who.len },
@@ -102,7 +102,7 @@ on_alert(
 static void
 on_ctrlc(void* ctx)
 {
-    linqd_s* l = ctx;
+    daemon_s* l = ctx;
     log_info("(LINQ) Received shutdown signal...");
     l->shutdown = true;
 }
@@ -119,10 +119,10 @@ static linq_network_callbacks callbacks = { .on_heartbeat = on_hb,
                                             .on_ctrlc = on_ctrlc };
 
 void
-linqd_init(linqd_s* linqd, linqd_config_s* config)
+daemon_init(daemon_s* linqd, daemon_config_s* config)
 {
     char endpoint[64];
-    memset(linqd, 0, sizeof(linqd_s));
+    memset(linqd, 0, sizeof(daemon_s));
 
     // Create network context
     linqd->netw = linq_network_create(&callbacks, linqd);
@@ -151,15 +151,15 @@ linqd_init(linqd_s* linqd, linqd_config_s* config)
 }
 
 void
-linqd_free(linqd_s* linqd)
+daemon_free(daemon_s* linqd)
 {
     linq_network_destroy(&linqd->netw);
     if (linqd->http.routes) http_deinit(&linqd->http);
-    memset(linqd, 0, sizeof(linqd_s));
+    memset(linqd, 0, sizeof(daemon_s));
 }
 
 int
-linqd_poll(linqd_s* linqd, uint32_t ms)
+daemon_poll(daemon_s* linqd, uint32_t ms)
 {
     int err = linq_network_poll(linqd->netw, ms);
     if (!err) err = http_poll(&linqd->http, ms);

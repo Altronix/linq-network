@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 add_executable(test-linqd main.c)
 target_link_libraries(test-linqd
-                      linq-daemon-static
+                      daemon-static
                       helpers
 		      cmocka)
 

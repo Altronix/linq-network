@@ -24,7 +24,7 @@ extern "C"
 {
 #endif
 
-    typedef struct linqd_config_s
+    typedef struct daemon_config_s
     {
         uint32_t zmtp;
         uint32_t http;
@@ -34,18 +34,18 @@ extern "C"
         const char* key;
         const char* log;
         bool daemon;
-    } linqd_config_s;
+    } daemon_config_s;
 
-    typedef struct linqd_s
+    typedef struct daemon_s
     {
         linq_network_s* netw;
         http_s http;
         bool shutdown;
-    } linqd_s;
+    } daemon_s;
 
-    LINQ_DAEMON_EXPORT void linqd_init(linqd_s*, linqd_config_s*);
-    LINQ_DAEMON_EXPORT void linqd_free(linqd_s*);
-    LINQ_DAEMON_EXPORT int linqd_poll(linqd_s*, uint32_t);
+    LINQ_DAEMON_EXPORT void daemon_init(daemon_s*, daemon_config_s*);
+    LINQ_DAEMON_EXPORT void daemon_free(daemon_s*);
+    LINQ_DAEMON_EXPORT int daemon_poll(daemon_s*, uint32_t);
 
 #ifdef __cplusplus
 }

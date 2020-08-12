@@ -1,4 +1,4 @@
-add_library(linq-daemon-static linq_daemon.c linq_daemon.h)
+add_library(daemon-static daemon.c daemon.h)
 list(APPEND LIBS 
   linq-network-static
   linq-database-static
@@ -11,9 +11,9 @@ if(NOT MSVC)
   list(APPEND LIBS stdc++)
 else()
 endif()
-target_link_libraries(linq-daemon-static  ${LIBS})
-target_compile_definitions(linq-daemon-static PUBLIC "LINQ_DAEMON_STATIC")
+target_link_libraries(daemon-static  ${LIBS})
+target_compile_definitions(daemon-static PUBLIC "LINQ_DAEMON_STATIC")
   
-set_target_properties(linq-daemon-static PROPERTIES 
+set_target_properties(daemon-static PROPERTIES 
   PUBLIC_HEADER "linq_daemon.h")
-target_include_directories(linq-daemon-static PUBLIC ./)
+target_include_directories(daemon-static PUBLIC ./)
