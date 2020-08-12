@@ -63,15 +63,15 @@ const cmakeArgs = (json) =>
 // Find the prebuilt binary (Only used if native build fails)
 const getPrebuilt = () =>
   process.platform === "win32"
-    ? root + "./bindings/nodejs/prebuilds/win32-x64/linq-network.node"
-    : root + "./bindings/nodejs/prebuilds/linux-x64/linq-network.node";
+    ? root + "./bindings/nodejs/prebuilds/win32-x64/linq.node"
+    : root + "./bindings/nodejs/prebuilds/linux-x64/linq.node";
 
 // Install prebuilt binary into a build folder
 const installPrebuilt = () => {
   const prebuilt = getPrebuilt();
   if (!fs.existsSync(root + "./build")) fs.mkdirSync(root + "./build");
   logger.info(`Installing prebuilt binaries: ${prebuilt}`);
-  fs.copyFileSync(prebuilt, root + "./build/linq-network.node");
+  fs.copyFileSync(prebuilt, root + "./build/linq.node");
 };
 
 // Attempt to build binaries using users compiler
@@ -92,7 +92,7 @@ const tryBuild = async (json) => {
     logger.debug(JSON.stringify(result));
     process.exit(result.status);
   } else {
-    logger.warn("Failed to build linq-network binding!");
+    logger.warn("Failed to build linq binding!");
     logger.warn(result.error);
     installPrebuilt();
     logger.info("Installed prebuilt binaries OK");
@@ -114,7 +114,7 @@ const tryBuild = async (json) => {
       return count ? seek(path.join(start, ".."), --count) : undefined;
     }
   })(start, count);
-  if (json && (json = json["linq-network"])) logger.info("Loading JSON config");
+  if (json && (json = json["linq"])) logger.info("Loading JSON config");
   if (process.env.LINQ_NETWORK_USE_PREBUILT || (json && json.prebuilt)) {
     installPrebuilt();
     logger.info("Installed prebuilt binaries OK");
