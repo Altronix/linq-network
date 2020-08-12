@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 add_library(mock-czmq mock_zmsg.c mock_zsock.c mock_zpoll.c)
 target_link_libraries(mock-czmq
-                      linq-network-test-static
+                      network-test-static
                       mock-utils
                       ${LIBZMQ_STATIC_LIBS}
 		      stdc++
@@ -40,7 +40,7 @@ target_link_libraries(test-mock-czmq
                       mock-czmq
                       cmocka
                       helpers
-                      linq-network-test-static
+                      network-test-static
                       mock-utils
 		      mock-czmq)
 add_test(NAME test-mock-czmq COMMAND test-mock-czmq)

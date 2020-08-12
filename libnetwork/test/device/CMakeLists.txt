@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 add_executable(test-device main.c)
 target_link_libraries(test-device
-                      linq-network-test-static
+                      network-test-static
                       mock-utils
                       helpers
                       cmocka)

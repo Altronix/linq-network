@@ -21,7 +21,7 @@ list(APPEND definitions "-DCZMQ_STATIC")
 list(APPEND definitions "-DZMQ_STATIC")
 
 set(LIBS
-  linq-network-static
+  network-static
   database-static
   utils-static
   ${JSMN_WEB_TOKENS_LIBS}

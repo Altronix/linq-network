@@ -1,6 +1,6 @@
 add_library(daemon-static daemon.c daemon.h)
 list(APPEND LIBS 
-  linq-network-static
+  network-static
   database-static
   http-static
   utils-static
@@ -15,5 +15,5 @@ target_link_libraries(daemon-static  ${LIBS})
 target_compile_definitions(daemon-static PUBLIC "LINQ_DAEMON_STATIC")
   
 set_target_properties(daemon-static PROPERTIES 
-  PUBLIC_HEADER "linq_daemon.h")
+  PUBLIC_HEADER "daemon.h")
 target_include_directories(daemon-static PUBLIC ./)

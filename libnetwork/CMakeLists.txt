@@ -24,28 +24,28 @@ else()
 endif()
 
 if(ENABLE_TESTING)
-  add_library(linq-network-test-static STATIC ${SOURCES} ${HEADERS})
-  target_link_libraries(linq-network-test-static ${LIBS})
-  target_compile_definitions(linq-network-test-static PUBLIC 
+  add_library(network-test-static STATIC ${SOURCES} ${HEADERS})
+  target_link_libraries(network-test-static ${LIBS})
+  target_compile_definitions(network-test-static PUBLIC 
     "LINQ_NETWORK_STATIC" 
     ${definitions})
-  target_compile_definitions(linq-network-test-static PRIVATE "-DTESTING")
-  target_include_directories(linq-network-test-static PUBLIC ${INCS})
-  target_include_directories(linq-network-test-static PUBLIC ./)
+  target_compile_definitions(network-test-static PRIVATE "-DTESTING")
+  target_include_directories(network-test-static PUBLIC ${INCS})
+  target_include_directories(network-test-static PUBLIC ./)
 endif()
 
 if(BUILD_STATIC)
-  add_library(linq-network-static STATIC ${SOURCES} ${HEADERS})
-  target_link_libraries(linq-network-static ${LIBS})
-  target_compile_definitions(linq-network-static PUBLIC 
+  add_library(network-static STATIC ${SOURCES} ${HEADERS})
+  target_link_libraries(network-static ${LIBS})
+  target_compile_definitions(network-static PUBLIC 
     "LINQ_NETWORK_STATIC" 
     ${definitions})
-  target_include_directories(linq-network-static PUBLIC ${INCS})
-  target_include_directories(linq-network-static PUBLIC ./)
-  set_target_properties(linq-network-static PROPERTIES 
+  target_include_directories(network-static PUBLIC ${INCS})
+  target_include_directories(network-static PUBLIC ./)
+  set_target_properties(network-static PROPERTIES 
     PUBLIC_HEADER "${INSTALL_HEADERS}"
-    OUTPUT_NAME "linq-network")
-  install(TARGETS linq-network-static
+    OUTPUT_NAME "network")
+  install(TARGETS network-static
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib
           RUNTIME DESTINATION bin
@@ -53,17 +53,17 @@ if(BUILD_STATIC)
 endif()
 
 if(BUILD_SHARED)
-  add_library(linq-network-shared SHARED ${SOURCES} ${HEADERS})
-  target_link_libraries(linq-network-shared ${LIBS})
-  target_compile_definitions(linq-network-shared PUBLIC 
+  add_library(network-shared SHARED ${SOURCES} ${HEADERS})
+  target_link_libraries(network-shared ${LIBS})
+  target_compile_definitions(network-shared PUBLIC 
     "DLL_EXPORT" 
     ${definitions})
-  target_include_directories(linq-network-shared PUBLIC ${INCS})
-  target_include_directories(linq-network-shared PUBLIC ./)
-  set_target_properties(linq-network-shared PROPERTIES 
+  target_include_directories(network-shared PUBLIC ${INCS})
+  target_include_directories(network-shared PUBLIC ./)
+  set_target_properties(network-shared PROPERTIES 
     PUBLIC_HEADER "${INSTALL_HEADERS}"
-    OUTPUT_NAME "linq-network")
-  install(TARGETS linq-network-shared
+    OUTPUT_NAME "network")
+  install(TARGETS network-shared
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib
           RUNTIME DESTINATION bin
