@@ -54,19 +54,11 @@ export class App extends connect(LitElement) {
       <atx-topnav>
         <a where="brand">Altronix</a>
       </atx-topnav>
-      <div class="container">
-        <div class="tabs">
-          <ul>
-            <li class="${classMap({ 'is-active': isActive('tcpip', '') })}">
-              <a @click="${() => this.go('tcpip')}">TCP / IP</a>
-            </li>
-            <li class="${classMap({ 'is-active': isActive('update') })}">
-              <a @click="${() => this.go('update')}">Firmware Update</a>
-            </li>
-          </ul>
-        </div>
-        <div class="outlet">
-          <slot></slot>
+      <div class="container mt-5">
+        <div class="columns">
+          <div class="column">
+            <atx-device-list .height="${363}"></atx-device-list>
+          </div>
         </div>
       </div>
       <div class="container">

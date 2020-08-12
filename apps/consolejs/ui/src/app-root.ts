@@ -23,6 +23,7 @@ import './components/footer/footer';
 import './components/topnav/topnav';
 import './components/forms/netw/form-netw';
 import './components/forms/update/form-update';
+import './components/device-list/device-list';
 
 import { customElement, LitElement, html } from 'lit-element';
 @customElement('atx-root')

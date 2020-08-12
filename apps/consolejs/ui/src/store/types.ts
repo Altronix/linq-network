@@ -10,7 +10,7 @@ export function actionCreator<
   TAction extends Action<K>,
   K extends string = string
 >(type: K) {
-  return function(payload?: ActionPayload<K, TAction>) {
+  return function (payload?: ActionPayload<K, TAction>) {
     return payload ? { ...payload, type } : { type };
   };
 }
