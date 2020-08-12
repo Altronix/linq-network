@@ -33,7 +33,7 @@ LinqDaemon::LinqDaemon(const Napi::CallbackInfo& info)
 
 LinqDaemon::~LinqDaemon()
 {
-    linqd_free(&linqd_);
+    daemon_free(&linqd_);
 }
 
 Napi::Value
@@ -70,7 +70,7 @@ LinqDaemon::Start(const Napi::CallbackInfo& info)
     }
 
     // Start deamon
-    linqd_init(&linqd_, &config_);
+    daemon_init(&linqd_, &config_);
     return info.This();
 }
 
@@ -81,7 +81,7 @@ LinqDaemon::Poll(const Napi::CallbackInfo& info)
     if (!(info.Length())) _NTHROW(env, "Incorrect number of arguments!");
     if (!(info[0].IsNumber())) _NTHROW(env, "Expect arg[0] as String!");
     uint32_t ms = info[0].ToNumber();
-    linqd_poll(&this->linqd_, ms);
+    daemon_poll(&this->linqd_, ms);
     return info.Env().Null();
 }
 

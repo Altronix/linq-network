@@ -174,29 +174,40 @@ impl Context {
             Box::new(Box::new(cb));
         match r {
             Request::Get(path) => unsafe {
-                linq_network_send_get(
+                linq_network_send(
                     self.c_ctx,
                     CString::new(sid).unwrap().as_ptr(),
+                    CString::new("GET").unwrap().as_ptr(),
                     CString::new(path).unwrap().as_ptr(),
+                    path.len() as u32,
+                    null_mut(),
+                    0,
                     Some(on_response),
                     Box::into_raw(cb) as *mut _,
                 );
             },
             Request::Post(path, data) => unsafe {
-                linq_network_send_post(
+                linq_network_send(
                     self.c_ctx,
                     CString::new(sid).unwrap().as_ptr(),
+                    CString::new("POST").unwrap().as_ptr(),
                     CString::new(path).unwrap().as_ptr(),
+                    path.len() as u32,
                     CString::new(data).unwrap().as_ptr(),
+                    data.len() as u32,
                     Some(on_response),
                     Box::into_raw(cb) as *mut _,
                 );
             },
             Request::Delete(path) => unsafe {
-                linq_network_send_delete(
+                linq_network_send(
                     self.c_ctx,
                     CString::new(sid).unwrap().as_ptr(),
+                    CString::new("DELETE").unwrap().as_ptr(),
                     CString::new(path).unwrap().as_ptr(),
+                    path.len() as u32,
+                    null_mut(),
+                    0,
                     Some(on_response),
                     Box::into_raw(cb) as *mut _,
                 );

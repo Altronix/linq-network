@@ -51,6 +51,14 @@ extern "C"
         uint32_t len;
     } atx_str;
 
+    typedef enum E_REQUEST_METHOD
+    {
+        REQUEST_METHOD_RAW = 0,
+        REQUEST_METHOD_GET = 1,
+        REQUEST_METHOD_POST = 2,
+        REQUEST_METHOD_DELETE = 3
+    } E_REQUEST_METHOD;
+
     typedef enum
     {
         LINQ_ERROR_OK = 0,
@@ -170,48 +178,17 @@ extern "C"
         void*);
     LINQ_NETWORK_EXPORT uint32_t
     linq_network_node_count(const linq_network_s* linq);
-    LINQ_NETWORK_EXPORT E_LINQ_ERROR linq_network_send_get(
-        const linq_network_s*,
-        const char*,
-        const char*,
-        linq_network_request_complete_fn,
-        void*);
-    LINQ_NETWORK_EXPORT E_LINQ_ERROR linq_network_send_get_mem(
-        const linq_network_s*,
-        const char*,
-        const char*,
-        uint32_t,
-        linq_network_request_complete_fn,
-        void*);
-    LINQ_NETWORK_EXPORT E_LINQ_ERROR linq_network_send_post(
-        const linq_network_s*,
-        const char*,
-        const char*,
-        const char*,
-        linq_network_request_complete_fn,
-        void*);
-    LINQ_NETWORK_EXPORT E_LINQ_ERROR linq_network_send_post_mem(
-        const linq_network_s*,
-        const char*,
-        const char*,
-        uint32_t,
-        const char*,
-        uint32_t,
-        linq_network_request_complete_fn,
-        void*);
-    LINQ_NETWORK_EXPORT E_LINQ_ERROR linq_network_send_delete(
-        const linq_network_s*,
-        const char*,
-        const char*,
-        linq_network_request_complete_fn,
-        void*);
-    LINQ_NETWORK_EXPORT E_LINQ_ERROR linq_network_send_delete_mem(
-        const linq_network_s*,
-        const char*,
-        const char*,
-        uint32_t,
-        linq_network_request_complete_fn,
-        void*);
+    E_LINQ_ERROR
+    linq_network_send(
+        const linq_network_s* linq,
+        const char* sid,
+        const char* meth,
+        const char* path,
+        uint32_t plen,
+        const char* json,
+        uint32_t jlen,
+        linq_network_request_complete_fn fn,
+        void* ctx);
 
     // Sys API
     LINQ_NETWORK_EXPORT bool sys_running();
