@@ -42,7 +42,7 @@ export class App extends connect(LitElement) {
     let router = this.router.create(this.outlet);
     router.setRoutes([
       { path: '/', redirect: '/tcpip' },
-      { path: '/tcpip', component: 'form-netw' },
+      { path: '/tcpip', component: 'form-m5netw' },
       { path: '/update', component: 'form-update' }
     ]);
   }
@@ -82,7 +82,7 @@ export class App extends connect(LitElement) {
             <p class="popup-title mb-5">
               Submit network settings for ${this.show}
             </p>
-            <atx-form-netw></atx-form-netw>
+            <atx-form-m5netw></atx-form-m5netw>
           </div>
         </div>
       </b-modal>
