@@ -63,8 +63,16 @@ on_hb(void* ctx, const char* s)
             "(LINQ) [%.6s...] "
             "New device connected, requesting about data...",
             s);
-        linq_network_send_get(
-            l->netw, s, "/ATX/about", on_heartbeat_response, l);
+        linq_network_send(
+            l->netw,
+            s,
+            "GET",
+            "/ATX/about",
+            10,
+            NULL,
+            0,
+            on_heartbeat_response,
+            l);
     }
 }
 

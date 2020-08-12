@@ -60,8 +60,16 @@ main(int argc, char* argv[])
         fixture_poll(fixture);
         if (linq_network_poll(server, 0)) break;
         if (!request_sent && linq_network_device_count(server)) {
-            linq_network_send_get(
-                server, "dummy", "/ATX/test_504", on_request_complete, &pass);
+            linq_network_send(
+                server,
+                "dummy",
+                "GET",
+                "/ATX/test_504",
+                13,
+                NULL,
+                0,
+                on_request_complete,
+                &pass);
             request_sent = true;
             printf("%s", "[C] Request Sent!");
         }

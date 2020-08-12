@@ -218,6 +218,30 @@ linq_network_node_count(const linq_network_s* l)
 
 // send a get request to a device connected to us
 E_LINQ_ERROR
+linq_network_send(
+    const linq_network_s* linq,
+    const char* serial,
+    const char* method,
+    const char* path,
+    uint32_t path_len,
+    const char* json,
+    uint32_t json_len,
+    linq_network_request_complete_fn callback,
+    void* context)
+{
+    return zmtp_device_send(
+        &linq->zmtp,
+        serial,
+        method,
+        path,
+        path_len,
+        json,
+        json_len,
+        callback,
+        context);
+}
+/*
+E_LINQ_ERROR
 linq_network_send_get(
     const linq_network_s* linq,
     const char* serial,
@@ -293,3 +317,4 @@ linq_network_send_delete_mem(
     return zmtp_device_send_delete_mem(
         &linq->zmtp, serial, path, plen, fn, context);
 }
+*/

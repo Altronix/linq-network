@@ -10,14 +10,6 @@
         if ((*rp)->on_complete) (*rp)->on_complete((*rp)->ctx, err, dat, dp);  \
     } while (0)
 
-typedef enum E_REQUEST_METHOD
-{
-    REQUEST_METHOD_RAW = 0,
-    REQUEST_METHOD_GET,
-    REQUEST_METHOD_POST,
-    REQUEST_METHOD_DELETE
-} E_REQUEST_METHOD;
-
 typedef struct request_s
 {
     router_s forward;
@@ -275,8 +267,27 @@ device_heartbeat(device_s* d)
     d->last_seen = sys_tick();
 }
 
-static void
-send_method(
+E_REQUEST_METHOD
+device_method_from_str(const char* method)
+{
+    uint32_t l = strlen(method);
+    if (l == 3) {
+        if (!memcmp(method, "GET", l)) {
+            return REQUEST_METHOD_GET;
+        } else if (!(memcmp(method, "PUT", l))) {
+            return REQUEST_METHOD_POST; // TODO support PUT
+        }
+    } else if (l == 4 && !memcmp(method, "POST", l)) {
+        return REQUEST_METHOD_POST;
+    } else if (l == 6 && !memcmp(method, "DELETE", l)) {
+        return REQUEST_METHOD_DELETE;
+    }
+    assert(false);
+    return -1; // should never return
+}
+
+void
+device_send(
     device_s* d,
     E_REQUEST_METHOD method,
     const char* path,
@@ -296,6 +307,7 @@ send_method(
     }
 }
 
+/*
 void
 device_send_delete(
     device_s* d,
@@ -304,7 +316,7 @@ device_send_delete(
     void* context)
 {
     uint32_t plen = strlen(path);
-    send_method(d, REQUEST_METHOD_DELETE, path, plen, NULL, 0, fn, context);
+    device_send(d, REQUEST_METHOD_DELETE, path, plen, NULL, 0, fn, context);
 }
 
 void
@@ -315,7 +327,7 @@ device_send_delete_mem(
     linq_network_request_complete_fn fn,
     void* context)
 {
-    send_method(d, REQUEST_METHOD_DELETE, path, plen, NULL, 0, fn, context);
+    device_send(d, REQUEST_METHOD_DELETE, path, plen, NULL, 0, fn, context);
 }
 
 void
@@ -326,7 +338,7 @@ device_send_get(
     void* context)
 {
     uint32_t plen = strlen(path);
-    send_method(d, REQUEST_METHOD_GET, path, plen, NULL, 0, fn, context);
+    device_send(d, REQUEST_METHOD_GET, path, plen, NULL, 0, fn, context);
 }
 
 void
@@ -337,7 +349,7 @@ device_send_get_mem(
     linq_network_request_complete_fn fn,
     void* context)
 {
-    send_method(d, REQUEST_METHOD_GET, path, plen, NULL, 0, fn, context);
+    device_send(d, REQUEST_METHOD_GET, path, plen, NULL, 0, fn, context);
 }
 
 void
@@ -349,7 +361,7 @@ device_send_post(
     void* context)
 {
     uint32_t plen = strlen(path), jlen = strlen(json);
-    send_method(d, REQUEST_METHOD_POST, path, plen, json, jlen, fn, context);
+    device_send(d, REQUEST_METHOD_POST, path, plen, json, jlen, fn, context);
 }
 
 void
@@ -362,11 +374,12 @@ device_send_post_mem(
     linq_network_request_complete_fn fn,
     void* context)
 {
-    send_method(d, REQUEST_METHOD_POST, path, plen, json, jlen, fn, context);
+    device_send(d, REQUEST_METHOD_POST, path, plen, json, jlen, fn, context);
 }
 
+*/
 void
-device_send(
+device_send_raw(
     device_s* d,
     const char* path,
     const char* json,
@@ -374,7 +387,7 @@ device_send(
     void* context)
 {
     uint32_t plen = strlen(path), jlen = json ? strlen(json) : 0;
-    send_method(d, REQUEST_METHOD_RAW, path, plen, json, jlen, fn, context);
+    device_send(d, REQUEST_METHOD_RAW, path, plen, json, jlen, fn, context);
 }
 
 uint32_t

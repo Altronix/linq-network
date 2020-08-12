@@ -96,25 +96,36 @@ class Linq
     {
         Response* response = new Response{ LINQ_ERROR_OK, "", fn };
         if (meth == "POST" || meth == "PUT") {
-            linq_network_send_post(
+            linq_network_send(
                 this->linq_network_,
                 serial.c_str(),
+                "POST",
                 path.c_str(),
+                path.length(),
                 data.c_str(),
+                data.length(),
                 on_response,
                 response);
         } else if (meth == "DELETE") {
-            linq_network_send_delete(
+            linq_network_send(
                 this->linq_network_,
                 serial.c_str(),
+                "DELETE",
                 path.c_str(),
+                path.length(),
+                NULL,
+                0,
                 on_response,
                 response);
         } else {
-            linq_network_send_get(
+            linq_network_send(
                 this->linq_network_,
                 serial.c_str(),
+                "GET",
                 path.c_str(),
+                path.length(),
+                NULL,
+                0,
                 on_response,
                 response);
         }

@@ -334,8 +334,16 @@ test_linq_network_receive_response_ok(void** context_p)
     // receive get response
     // make sure callback is as expect
     linq_network_poll(test->net, 5);
-    linq_network_send_get(
-        test->net, serial, "/ATX/test", on_response_ok, &pass);
+    linq_network_send(
+        test->net,
+        serial,
+        "GET",
+        "/ATX/test",
+        9,
+        NULL,
+        0,
+        on_response_ok,
+        &pass);
     linq_network_poll(test->net, 5);
     assert_true(pass);
 
@@ -383,7 +391,15 @@ test_linq_network_receive_response_error_timeout(void** context_p)
     spy_sys_set_tick(0);
     linq_network_poll(test->net, 5);
     d = (device_s**)linq_network_device(test->net, serial);
-    device_send_get(*d, "/ATX/test", on_response_error_timeout, &response_pass);
+    device_send(
+        *d,
+        REQUEST_METHOD_GET,
+        "/ATX/test",
+        9,
+        NULL,
+        0,
+        on_response_error_timeout,
+        &response_pass);
     assert_int_equal(device_request_pending_count(*d), 1);
 
     // Still waiting for response @t=9999
@@ -459,7 +475,15 @@ test_linq_network_receive_response_error_codes(void** context_p)
         assert_non_null(d);
 
         // Start test
-        device_send_get(*d, "/ATX/test", on_response_error_codes, &pass);
+        device_send(
+            *d,
+            REQUEST_METHOD_GET,
+            "/ATX/test",
+            9,
+            NULL,
+            0,
+            on_response_error_codes,
+            &pass);
         assert_int_equal(device_request_pending_count(*d), 1);
         linq_network_poll(test->net, 0);
 
@@ -520,7 +544,15 @@ test_linq_network_receive_response_error_504(void** context_p)
     assert_non_null(d);
 
     // Start test @t=0
-    device_send_get(*d, "/ATX/test", on_response_error_504, &pass);
+    device_send(
+        *d,
+        REQUEST_METHOD_GET,
+        "/ATX/test",
+        9,
+        NULL,
+        0,
+        on_response_error_504,
+        &pass);
     outgoing = czmq_spy_mesg_pop_outgoing();
     assert_non_null(outgoing);
     zmsg_destroy(&outgoing);
@@ -607,7 +639,15 @@ test_linq_network_receive_response_ok_504(void** context_p)
     assert_non_null(d);
 
     // Start test @t=0
-    device_send_get(*d, "/ATX/test", on_response_ok_504, &pass);
+    device_send(
+        *d,
+        REQUEST_METHOD_GET,
+        "/ATX/test",
+        9,
+        NULL,
+        0,
+        on_response_ok_504,
+        &pass);
     outgoing = czmq_spy_mesg_pop_outgoing();
     assert_non_null(outgoing);
     zmsg_destroy(&outgoing);
@@ -954,7 +994,8 @@ test_linq_network_forward_client_request(void** context_p)
 
     linq_network_poll(test->net, 5); // add a device
 
-    linq_network_send_get(test->net, "device123", "/ATX/hello", NULL, NULL);
+    linq_network_send(
+        test->net, "device123", "GET", "/ATX/hello", 10, NULL, 0, NULL, NULL);
     outgoing = czmq_spy_mesg_pop_outgoing();
     assert_non_null(outgoing);
     zmsg_destroy(&outgoing); // delete outgoing hello frames

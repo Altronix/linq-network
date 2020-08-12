@@ -286,7 +286,7 @@ process_request(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
         if (n && d) {
             print_null_terminated(url, sizeof(url), path);
             if (data) print_null_terminated(json, sizeof(json), data);
-            device_send(*d, url, data ? json : NULL, on_device_response, n);
+            device_send_raw(*d, url, data ? json : NULL, on_device_response, n);
             e = LINQ_ERROR_OK;
         } else {
             // TODO send 404 response (device not here)
@@ -697,6 +697,30 @@ send_error(linq_network_request_complete_fn fn, void* context, E_LINQ_ERROR e)
 }
 
 E_LINQ_ERROR
+zmtp_device_send(
+    const zmtp_s* zmtp,
+    const char* sid,
+    const char* meth,
+    const char* path,
+    uint32_t plen,
+    const char* json,
+    uint32_t jlen,
+    linq_network_request_complete_fn fn,
+    void* ctx)
+{
+    device_s** d = device_get(zmtp, sid);
+    if (!d) {
+        send_error(fn, ctx, LINQ_ERROR_DEVICE_NOT_FOUND);
+        return LINQ_ERROR_DEVICE_NOT_FOUND;
+    } else {
+        E_REQUEST_METHOD m = device_method_from_str(meth);
+        device_send(*d, m, path, plen, json, jlen, fn, ctx);
+        return LINQ_ERROR_OK;
+    }
+}
+
+/*
+E_LINQ_ERROR
 zmtp_device_send_get(
     const zmtp_s* zmtp,
     const char* sid,
@@ -789,6 +813,7 @@ zmtp_device_send_delete_mem(
     }
 }
 
+*/
 bool
 sys_running()
 {

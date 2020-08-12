@@ -61,48 +61,17 @@ extern "C"
     E_LINQ_ERROR zmtp_close_dealer(zmtp_s* zmtp, linq_network_socket sock);
     E_LINQ_ERROR
     zmtp_poll(zmtp_s* self, int32_t ms);
-    E_LINQ_ERROR zmtp_device_send_get(
-        const zmtp_s*,
-        const char*,
-        const char*,
-        linq_network_request_complete_fn,
-        void*);
-    E_LINQ_ERROR zmtp_device_send_get_mem(
-        const zmtp_s*,
-        const char*,
-        const char*,
-        uint32_t,
-        linq_network_request_complete_fn,
-        void*);
-    E_LINQ_ERROR zmtp_device_send_post(
-        const zmtp_s*,
-        const char*,
-        const char*,
-        const char*,
-        linq_network_request_complete_fn,
-        void*);
-    E_LINQ_ERROR zmtp_device_send_post_mem(
-        const zmtp_s*,
-        const char*,
-        const char*,
-        uint32_t,
-        const char*,
-        uint32_t,
-        linq_network_request_complete_fn,
-        void*);
-    E_LINQ_ERROR zmtp_device_send_delete(
-        const zmtp_s*,
-        const char*,
-        const char*,
-        linq_network_request_complete_fn,
-        void*);
-    E_LINQ_ERROR zmtp_device_send_delete_mem(
-        const zmtp_s*,
-        const char*,
-        const char*,
-        uint32_t,
-        linq_network_request_complete_fn,
-        void*);
+    E_LINQ_ERROR
+    zmtp_device_send(
+        const zmtp_s* zmtp,
+        const char* sid,
+        const char* meth,
+        const char* path,
+        uint32_t plen,
+        const char* json,
+        uint32_t jlen,
+        linq_network_request_complete_fn fn,
+        void* ctx);
 #ifdef __cplusplus
 }
 #endif

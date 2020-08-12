@@ -29,7 +29,7 @@ if(ENABLE_TESTING)
   target_compile_definitions(network-test-static PUBLIC 
     "LINQ_NETWORK_STATIC" 
     ${definitions})
-  set_target_properties(network-static PROPERTIES 
+  set_target_properties(network-test-static PROPERTIES 
     PUBLIC_HEADER "${INSTALL_HEADERS}"
     OUTPUT_NAME "linqnetwork-test")
   target_compile_definitions(network-test-static PRIVATE "-DTESTING")

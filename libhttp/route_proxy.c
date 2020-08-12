@@ -33,9 +33,10 @@ route_proxy(
         snprintf(serial, sizeof(serial), "%.*s", (int)(ptr - url), url);
         plen = ctx->curr_message->uri.len - (ptr - ctx->curr_message->uri.p);
         if (meth == HTTP_METHOD_POST || meth == HTTP_METHOD_PUT) {
-            linq_network_send_post_mem(
+            linq_network_send(
                 linq,
                 serial,
+                "POST",
                 ptr,
                 plen,
                 body,
@@ -43,11 +44,27 @@ route_proxy(
                 on_response,
                 ctx->curr_connection);
         } else if (meth == HTTP_METHOD_DELETE) {
-            linq_network_send_delete_mem(
-                linq, serial, ptr, plen, on_response, ctx->curr_connection);
+            linq_network_send(
+                linq,
+                serial,
+                "DELETE",
+                ptr,
+                plen,
+                NULL,
+                0,
+                on_response,
+                ctx->curr_connection);
         } else {
-            linq_network_send_get_mem(
-                linq, serial, ptr, plen, on_response, ctx->curr_connection);
+            linq_network_send(
+                linq,
+                serial,
+                "GET",
+                ptr,
+                plen,
+                NULL,
+                0,
+                on_response,
+                ctx->curr_connection);
         }
     } else {
         http_printf_json(ctx->curr_connection, 400, JERROR_400);

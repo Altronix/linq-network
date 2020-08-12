@@ -87,6 +87,7 @@
 extern "C"
 {
 #endif
+
     typedef struct
     {
         uint8_t id[256];

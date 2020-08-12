@@ -12,6 +12,21 @@
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
 
+#define device_send_get(d, path, cb, ctx)                                      \
+    device_send(d, REQUEST_METHOD_GET, path, strlen(path), NULL, 0, cb, ctx)
+#define device_send_post(d, path, data, cb, ctx)                               \
+    device_send(                                                               \
+        d,                                                                     \
+        REQUEST_METHOD_POST,                                                   \
+        path,                                                                  \
+        strlen(path),                                                          \
+        data,                                                                  \
+        strlen(data),                                                          \
+        cb,                                                                    \
+        ctx)
+#define device_send_delete(d, path, cb, ctx)                                   \
+    device_send(d, REQUEST_METHOD_DELETE, path, strlen(path), NULL, 0, cb, ctx)
+
 static E_LINQ_ERROR expect_error = LINQ_ERROR_OK;
 static const char* empty = "";
 static const char* expect_what = "";

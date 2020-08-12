@@ -127,8 +127,16 @@ main(int argc, char* argv[])
 
         if (!request_sent && linq_network_device_count(client)) {
             printf("%s", "[C] Request Sent!");
-            linq_network_send_get(
-                client, "dummy", "/ATX/hello", on_request_complete, &pass);
+            linq_network_send(
+                client,
+                "dummy",
+                "GET",
+                "/ATX/hello",
+                10,
+                NULL,
+                0,
+                on_request_complete,
+                &pass);
             request_sent = true;
         }
     }

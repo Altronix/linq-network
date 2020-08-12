@@ -35,48 +35,23 @@ extern "C"
     uint32_t device_last_seen(device_s* d);
     uint32_t device_uptime(device_s* d);
     void device_heartbeat(device_s* d);
-    void device_send_delete(
-        device_s*,
-        const char*,
-        linq_network_request_complete_fn,
-        void*);
-    void device_send_delete_mem(
-        device_s*,
-        const char*,
-        uint32_t,
-        linq_network_request_complete_fn,
-        void*);
-    void device_send_get(
-        device_s*,
-        const char*,
-        linq_network_request_complete_fn,
-        void*);
-    void device_send_get_mem(
-        device_s*,
-        const char*,
-        uint32_t,
-        linq_network_request_complete_fn,
-        void*);
-    void device_send_post(
-        device_s*,
-        const char*,
-        const char*,
-        linq_network_request_complete_fn,
-        void*);
-    void device_send_post_mem(
-        device_s*,
-        const char*,
-        uint32_t,
-        const char*,
-        uint32_t,
-        linq_network_request_complete_fn,
-        void*);
+    E_REQUEST_METHOD device_method_from_str(const char*);
     void device_send(
+        device_s* d,
+        E_REQUEST_METHOD method,
+        const char* path,
+        uint32_t plen,
+        const char* json,
+        uint32_t jlen,
+        linq_network_request_complete_fn fn,
+        void* context);
+    void device_send_raw(
         device_s* d,
         const char* path,
         const char* json,
         linq_network_request_complete_fn fn,
         void* context);
+
     uint32_t device_request_sent_at(device_s* d);
     uint32_t device_request_retry_count(device_s* r);
     uint32_t device_request_retry_at(device_s* d);
