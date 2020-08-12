@@ -69,6 +69,9 @@ export class App extends connect(LitElement) {
           <slot></slot>
         </div>
       </div>
+      <div class="container">
+        <atx-footer></atx-footer>
+      </div>
     `;
   }
 }

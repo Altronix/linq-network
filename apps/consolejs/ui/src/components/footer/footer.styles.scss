@@ -1,0 +1,66 @@
+@import '../bulma/variables.scss';
+$primary-red: red($primary);
+$primary-green: green($primary);
+$primary-blue: blue($primary);
+$primary-dim: rgba($primary-red, $primary-green, $primary-blue, 0.4);
+.footer {
+  overflow: hidden;
+  &.align-with-container {
+    padding: 1.5rem 0rem;
+  }
+  .columns.main {
+    > .column:not(:last-child) {
+      border-right: 1px solid $primary-dim;
+    }
+  }
+  .company {
+    .column {
+      &:first-child {
+        padding-bottom: 0.3rem;
+      }
+      &:not(:first-child) {
+        padding-top: 0.1rem;
+        padding-bottom: 0.1rem;
+      }
+    }
+  }
+  .social-tabs {
+    a {
+      &:not(:last-child) {
+        margin-right: 12px;
+      }
+    }
+    .facebook {
+      // #1877f2;
+      filter: invert(35%) sepia(45%) saturate(4040%) hue-rotate(203deg)
+        brightness(97%) contrast(95%);
+    }
+    .linkedin {
+      // #0077b5;
+      filter: invert(26%) sepia(96%) saturate(1361%) hue-rotate(176deg)
+        brightness(103%) contrast(102%);
+    }
+    .github {
+      // #181717;
+      filter: invert(0%) sepia(8%) saturate(2131%) hue-rotate(18deg)
+        brightness(99%) contrast(82%);
+    }
+    .twitter {
+      // #1da1f2;
+      filter: invert(56%) sepia(44%) saturate(3572%) hue-rotate(177deg)
+        brightness(96%) contrast(98%);
+    }
+    .location {
+      // #e96656;
+      filter: invert(50%) sepia(8%) saturate(5581%) hue-rotate(321deg)
+        brightness(101%) contrast(83%);
+    }
+    a:hover {
+      background-color: whitesmoke;
+      filter: unset;
+    }
+    img {
+      height: 1.5em;
+    }
+  }
+}
