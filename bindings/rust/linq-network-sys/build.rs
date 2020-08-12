@@ -53,8 +53,8 @@ fn print_linux(out: &std::path::Display<'_>) {
     println!("cargo:rustc-link-lib=static=zmq");
     println!("cargo:rustc-link-search=native={}/lib", out);
     println!("cargo:rustc-link-search=native={}/lib64", out);
-    println!("cargo:rustc-link-lib=static=network");
-    println!("cargo:rustc-link-lib=static=utils");
+    println!("cargo:rustc-link-lib=static=linqnetwork");
+    println!("cargo:rustc-link-lib=static=linqutils");
     println!("cargo:rustc-link-lib=static=czmq");
     println!("cargo:rustc-link-lib=static=zmq");
     println!("cargo:rustc-link-lib=uuid");
