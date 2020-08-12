@@ -112,29 +112,29 @@ if(ENABLE_TESTING)
   add_subdirectory(test/_mocks/mock_czmq)
   add_subdirectory(test/_mocks/mock_mongoose)
   add_subdirectory(test/_mocks/mock_sqlite)
-  add_subdirectory(linq_database/test)
-  add_subdirectory(linq_http/test/http)
-  add_subdirectory(linq_http/test/routes)
-  add_subdirectory(linq_daemon/test)
-  add_subdirectory(linq_usb/host/test)
-  add_subdirectory(linq_usb/device/test)
-  add_subdirectory(linq_usb/common/test)
-  add_subdirectory(linq_utils/test/containers)
-  add_subdirectory(linq_utils/test/jsmn)
-  add_subdirectory(linq_utils/test/sys)
-  add_subdirectory(linq_utils/test/rlp)
-  add_subdirectory(linq_network/test/linq_network)
-  add_subdirectory(linq_network/test/device)
+  add_subdirectory(libdatabase/test)
+  add_subdirectory(libhttp/test/http)
+  add_subdirectory(libhttp/test/routes)
+  add_subdirectory(libdaemon/test)
+  add_subdirectory(libusb/host/test)
+  add_subdirectory(libusb/device/test)
+  add_subdirectory(libusb/common/test)
+  add_subdirectory(libutils/test/containers)
+  add_subdirectory(libutils/test/jsmn)
+  add_subdirectory(libutils/test/sys)
+  add_subdirectory(libutils/test/rlp)
+  add_subdirectory(libnetwork/test/linq_network)
+  add_subdirectory(libnetwork/test/device)
   add_subdirectory(bindings/cpp/test)
 
   # add test coverage
   APPEND_COVERAGE_COMPILER_FLAGS()
   set(COVERAGE_EXCLUDES 
     "examples/server/*"
-    "linq_http/mongoose.*"
-    "linq_database/sqlite3.*"
-    "linq_utils/sys/mock/*"
-    "linq_utils/base64.*"
+    "libhttp/mongoose.*"
+    "libdatabase/sqlite3.*"
+    "libutils/sys/mock/*"
+    "libutils/base64.*"
     "external/http_parser/*")
 
   setup_target_for_coverage_lcov(NAME test-coverage
@@ -150,25 +150,25 @@ if(ENABLE_TESTING)
 
 endif()
 
-add_subdirectory(linq_utils)
-add_subdirectory(linq_network)
+add_subdirectory(libutils)
+add_subdirectory(libnetwork)
 
 if(BUILD_LINQD)
-  add_subdirectory(linq_database)
-  add_subdirectory(linq_http)
-  add_subdirectory(linq_daemon)
+  add_subdirectory(libdatabase)
+  add_subdirectory(libhttp)
+  add_subdirectory(libdaemon)
   add_subdirectory(apps/linqd)
 endif()
 
 if(BUILD_USBD OR BUILD_USBH)
-  add_subdirectory(linq_usb/common)
+  add_subdirectory(libusb/common)
   if(BUILD_USBD)
-    add_subdirectory(linq_usb/device)
+    add_subdirectory(libusb/device)
     add_subdirectory(apps/usbd)
   endif()
   
   if(BUILD_USBH)
-    add_subdirectory(linq_usb/host)
+    add_subdirectory(libusb/host)
     add_subdirectory(apps/usbh)
   endif()
 endif()
