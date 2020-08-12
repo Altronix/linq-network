@@ -1,7 +1,7 @@
 add_library(daemon-static daemon.c daemon.h)
 list(APPEND LIBS 
   linq-network-static
-  linq-database-static
+  database-static
   linq-http-static
   linq-utils-static
   ${JSMN_WEB_TOKENS_LIBS}

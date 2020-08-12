@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 add_executable(test-database main.c)
 target_link_libraries(test-database
-                      linq-database-static
+                      database-static
                       mock-sqlite
                       mock-utils
                       helpers
