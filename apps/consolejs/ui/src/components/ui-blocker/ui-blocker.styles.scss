@@ -1,0 +1,21 @@
+.blocker {
+  position: relative;
+  .guard {
+    display: none;
+  }
+  &.is-active {
+    .blocked {
+      opacity: 0.1;
+    }
+    .guard {
+      position: absolute;
+      display: unset;
+      top: 50%;
+      left: 50%;
+      opacity: 0.4;
+      &[size='large'] {
+        margin: -24px -24px; // 1/2 48px (large spinner)
+      }
+    }
+  }
+}

@@ -6,6 +6,10 @@ import { connect } from '../../store/connect';
 import { RootState } from '../../store/reducers';
 import * as scss from './device-list.styles.scss';
 
+export interface DeviceListTableClickEvent {
+  device: Device;
+}
+
 @customElement('atx-device-list')
 export class AtxDeviceList extends connect(LitElement) {
   static styles = styles(scss.toString());
@@ -26,6 +30,16 @@ export class AtxDeviceList extends connect(LitElement) {
 
   stateChanged(state: RootState) {
     this.devices = state.devices.devices;
+  }
+
+  tableClick(device: Device) {
+    this.dispatchEvent(
+      new CustomEvent<DeviceListTableClickEvent>('device-list-table-click', {
+        bubbles: true,
+        composed: true,
+        detail: { device }
+      })
+    );
   }
 
   renderTable() {
@@ -71,7 +85,10 @@ export class AtxDeviceList extends connect(LitElement) {
             ${[...this.devices].splice(0, 10).map((d, n) => {
               const idx = this.start + 1 + n;
               return html`
-                <tr class="${classMap(c.row(idx))}">
+                <tr
+                  class="${classMap(c.row(idx))}"
+                  @click="${() => this.tableClick(d)}"
+                >
                   <td class="${classMap(c.column(true))}">${idx}</td>
                   <td class="${classMap(c.column())}">
                     <div class="truncate">

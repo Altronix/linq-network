@@ -5,8 +5,8 @@ import { RouterService } from './services/router/router.service';
 import { Subscription } from 'rxjs';
 import { connect } from './store/connect';
 import { RootState } from './store/reducers';
-import { actions } from './store/action';
 import { classMap } from 'lit-html/directives/class-map';
+import { DeviceListTableClickEvent } from './components/device-list/device-list';
 
 import { styles } from './components/bulma/styles';
 import * as scss from './app.styles.scss';
@@ -16,6 +16,7 @@ export class App extends connect(LitElement) {
   static styles = styles(scss.toString());
   @property({ type: Boolean }) ready: boolean = false;
   @property({ type: String }) route: string = '';
+  @property({ type: Boolean }) show: string = '';
   @domInject(SYMBOLS.ROUTER_SERVICE) router!: RouterService;
   @query('.outlet') outlet!: Element;
 
@@ -33,7 +34,6 @@ export class App extends connect(LitElement) {
   }
 
   go(route: string) {
-    console.log(route);
     this.store.dispatch(this.actions.router.route({ route }));
   }
 
@@ -47,6 +47,14 @@ export class App extends connect(LitElement) {
     ]);
   }
 
+  deviceListTableClick(e: CustomEvent<DeviceListTableClickEvent>) {
+    this.show = e.detail.device.serial;
+  }
+
+  close() {
+    this.show = '';
+  }
+
   render() {
     const isActive = (r0: string, r1?: string) =>
       this.route === r0 || this.route === r1;
@@ -57,13 +65,27 @@ export class App extends connect(LitElement) {
       <div class="container mt-5">
         <div class="columns">
           <div class="column">
-            <atx-device-list .height="${363}"></atx-device-list>
+            <atx-device-list
+              @device-list-table-click="${this.deviceListTableClick}"
+              .height="${363}"
+            ></atx-device-list>
           </div>
         </div>
       </div>
       <div class="container">
+        <div class="outlet"><slot></slot></div>
         <atx-footer></atx-footer>
       </div>
+      <b-modal @b-close="${this.close}" ?show="${this.show.length > 0}"">
+        <div class="is-clipped">
+          <div class="box">
+            <p class="popup-title mb-5">
+              Submit network settings for ${this.show}
+            </p>
+            <atx-form-netw></atx-form-netw>
+          </div>
+        </div>
+      </b-modal>
     `;
   }
 }

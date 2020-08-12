@@ -23,7 +23,7 @@ import {
 export const fetch$: RootEpic = (action$, state$, { io }): Observable<Action> =>
   action$.pipe(
     filter((e): e is Actions.Fetch => e.type === Actions.FETCH),
-    switchMap(action => {
+    switchMap((action) => {
       let url = 'api/v1/devices';
       let query = state$.value.devices;
       let keys = Object.keys(query.search) as (keyof Device)[];
@@ -33,12 +33,12 @@ export const fetch$: RootEpic = (action$, state$, { io }): Observable<Action> =>
       if (query.sort) url += `&sort=${query.sort}`;
       if (query.order) url += `&order=${query.order}`;
       return from(io.get<DeviceFromServer[]>(url)).pipe(
-        map(response =>
-          actions.device.fetchOk({ devices: fromServer(response.json) })
+        map((response) =>
+          actions.devices.fetchOk({ devices: fromServer(response.json) })
         )
       );
     }),
-    catchError(error => of(actions.device.fetchErr()))
+    catchError((error) => of(actions.devices.fetchErr()))
   );
 
 const query: Query<Device> = {
@@ -48,31 +48,31 @@ const query: Query<Device> = {
 export const poll$: RootEpic = (action$, state$): Observable<Action> =>
   action$.pipe(
     filter((e): e is Actions.PollStart => e.type === Actions.POLL_START),
-    switchMap(poll =>
+    switchMap((poll) =>
       action$.pipe(
         filter((e): e is Actions.FetchOk => e.type === Actions.FETCH_OK),
         delay(poll.ms || 5000),
-        map(() => actions.device.fetch({ query })),
+        map(() => actions.devices.fetch({ query })),
         repeat(),
-        takeUntil(action$.pipe(filter(e => e.type === Actions.POLL_STOP))),
-        startWith(actions.device.fetch({ query }))
+        takeUntil(action$.pipe(filter((e) => e.type === Actions.POLL_STOP))),
+        startWith(actions.devices.fetch({ query }))
       )
     ),
-    catchError(error => of(actions.device.fetchErr()))
+    catchError((error) => of(actions.devices.fetchErr()))
   );
 
 export const count$: RootEpic = (action$, state$, { io }): Observable<Action> =>
   action$.pipe(
     filter((e): e is Actions.Count => e.type === Actions.COUNT),
-    switchMap(response =>
+    switchMap((response) =>
       from(io.get<{ count: number }>('/api/v1/devices/count')).pipe(
-        map(response => {
+        map((response) => {
           const { count } = response.json;
-          return actions.device.countOk({ count });
+          return actions.devices.countOk({ count });
         })
       )
     ),
-    catchError(error => of(actions.device.countErr()))
+    catchError((error) => of(actions.devices.countErr()))
   );
 
 export default combineEpics(fetch$, poll$, count$);
