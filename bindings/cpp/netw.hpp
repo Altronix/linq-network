@@ -11,15 +11,14 @@
 #include <string>
 #include <vector>
 
-#include "linq_network.h"
+#include "netw.h"
 
 namespace altronix {
 
 static void on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
 static void on_heartbeat_fn(void*, const char*);
 static void on_new_fn(void*, const char*);
-static void
-on_alert_fn(void*, const char*, linq_network_alert_s*, linq_network_email_s*);
+static void on_alert_fn(void*, const char*, netw_alert_s*, netw_email_s*);
 static void on_ctrlc_fn(void*);
 
 using namespace std::placeholders;
@@ -36,7 +35,7 @@ class Linq
   public:
     Linq()
     {
-        linq_network_ = linq_network_create(&callbacks_, this);
+        netw_ = netw_create(&callbacks_, this);
         callbacks_.on_err = on_error_fn;
         callbacks_.on_new = on_new_fn;
         callbacks_.on_heartbeat = on_heartbeat_fn;
@@ -46,33 +45,24 @@ class Linq
 
     ~Linq()
     {
-        if (linq_network_) linq_network_destroy(&linq_network_);
+        if (netw_) netw_destroy(&netw_);
     }
 
     void early_destruct()
     {
-        if (linq_network_) linq_network_destroy(&linq_network_);
+        if (netw_) netw_destroy(&netw_);
     }
 
     // open up port for device conections
-    linq_network_socket listen(const char* str)
-    {
-        return linq_network_listen(linq_network_, str);
-    }
+    netw_socket listen(const char* str) { return netw_listen(netw_, str); }
 
     // connect to a remote linq node
-    linq_network_socket connect(const char* str)
-    {
-        return linq_network_connect(linq_network_, str);
-    }
+    netw_socket connect(const char* str) { return netw_connect(netw_, str); }
 
-    void close(linq_network_socket s) { linq_network_close(linq_network_, s); }
+    void close(netw_socket s) { netw_close(netw_, s); }
 
     // process io
-    E_LINQ_ERROR poll(uint32_t ms)
-    {
-        return linq_network_poll(linq_network_, ms);
-    }
+    E_LINQ_ERROR poll(uint32_t ms) { return netw_poll(netw_, ms); }
 
     static void on_response(
         void* context,
@@ -96,8 +86,8 @@ class Linq
     {
         Response* response = new Response{ LINQ_ERROR_OK, "", fn };
         if (meth == "POST" || meth == "PUT") {
-            linq_network_send(
-                this->linq_network_,
+            netw_send(
+                this->netw_,
                 serial.c_str(),
                 "POST",
                 path.c_str(),
@@ -107,8 +97,8 @@ class Linq
                 on_response,
                 response);
         } else if (meth == "DELETE") {
-            linq_network_send(
-                this->linq_network_,
+            netw_send(
+                this->netw_,
                 serial.c_str(),
                 "DELETE",
                 path.c_str(),
@@ -118,8 +108,8 @@ class Linq
                 on_response,
                 response);
         } else {
-            linq_network_send(
-                this->linq_network_,
+            netw_send(
+                this->netw_,
                 serial.c_str(),
                 "GET",
                 path.c_str(),
@@ -163,13 +153,13 @@ class Linq
 
     bool device_exists(const char* sid)
     {
-        return linq_network_device_exists(linq_network_, sid);
+        return netw_device_exists(netw_, sid);
     }
 
     // get number of devices connected to linq
-    uint32_t device_count() { return linq_network_device_count(linq_network_); }
+    uint32_t device_count() { return netw_device_count(netw_); }
 
-    uint32_t node_count() { return linq_network_node_count(linq_network_); }
+    uint32_t node_count() { return netw_node_count(netw_); }
 
     // call function fn on every heartbeat
     Linq& on_new(std::function<void(const char*)> fn)
@@ -187,8 +177,7 @@ class Linq
 
     // call function fn on every alert
     Linq& on_alert(
-        std::function<
-            void(const char*, linq_network_alert_s*, linq_network_email_s*)> fn)
+        std::function<void(const char*, netw_alert_s*, netw_email_s*)> fn)
     {
         on_alert_ = std::bind(fn, _1, _2, _3);
         return *this;
@@ -211,23 +200,18 @@ class Linq
     friend void on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
     friend void on_new_fn(void*, const char*);
     friend void on_heartbeat_fn(void*, const char*);
-    friend void on_alert_fn(
-        void*,
-        const char*,
-        linq_network_alert_s*,
-        linq_network_email_s*);
+    friend void on_alert_fn(void*, const char*, netw_alert_s*, netw_email_s*);
     friend void on_ctrlc_fn(void*);
 
   private:
     std::function<void(const char*)> on_new_;
     std::function<void(const char*)> on_heartbeat_;
-    std::function<
-        void(const char* serial, linq_network_alert_s*, linq_network_email_s*)>
+    std::function<void(const char* serial, netw_alert_s*, netw_email_s*)>
         on_alert_;
     std::function<void(E_LINQ_ERROR, const char*, const char*)> on_error_;
     std::function<void()> on_ctrlc_;
-    linq_network_s* linq_network_;
-    linq_network_callbacks callbacks_ = {};
+    netw_s* netw_;
+    netw_callbacks callbacks_ = {};
 };
 
 static void
@@ -255,8 +239,8 @@ static void
 on_alert_fn(
     void* context,
     const char* serial,
-    linq_network_alert_s* alert,
-    linq_network_email_s* email)
+    netw_alert_s* alert,
+    netw_email_s* email)
 {
     altronix::Linq* l = (altronix::Linq*)context;
     if (l->on_alert_) l->on_alert_(serial, alert, email);

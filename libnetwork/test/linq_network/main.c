@@ -4,13 +4,13 @@
 
 #include "device.h"
 #include "helpers.h"
-#include "linq_network.h"
-#include "linq_network_internal.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
 #include "mock_utils.h"
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
+#include "netw.h"
+#include "netw_internal.h"
 
 #define USER "unsafe_user"
 #define PASS "unsafe_pass"
@@ -63,8 +63,8 @@ static void
 test_alert_fn(
     void* pass,
     const char* serial,
-    linq_network_alert_s* alert,
-    linq_network_email_s* email)
+    netw_alert_s* alert,
+    netw_email_s* email)
 {
     assert_memory_equal(serial, expect_sid, strlen(expect_sid));
     assert_memory_equal(alert->who.p, "TestUser", 8);
@@ -80,13 +80,13 @@ test_alert_fn(
     *((bool*)pass) = true;
 }
 
-linq_network_callbacks callbacks = { .on_err = test_error_fn,
-                                     .on_new = test_new_fn,
-                                     .on_heartbeat = test_heartbeat_fn,
-                                     .on_alert = test_alert_fn };
+netw_callbacks callbacks = { .on_err = test_error_fn,
+                             .on_new = test_new_fn,
+                             .on_heartbeat = test_heartbeat_fn,
+                             .on_alert = test_alert_fn };
 
 static void
-test_linq_network_create(void** context_p)
+test_netw_create(void** context_p)
 {
     ((void)context_p);
     helpers_test_config_s config = { .callbacks = NULL,
@@ -101,7 +101,7 @@ test_linq_network_create(void** context_p)
 }
 
 static void
-test_linq_network_receive_protocol_error_short(void** context_p)
+test_netw_receive_protocol_error_short(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
@@ -118,7 +118,7 @@ test_linq_network_receive_protocol_error_short(void** context_p)
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
 
-    linq_network_poll(test->net, 5);
+    netw_poll(test->net, 5);
 
     assert_true(pass);
 
@@ -126,7 +126,7 @@ test_linq_network_receive_protocol_error_short(void** context_p)
 }
 
 static void
-test_linq_network_receive_protocol_error_serial(void** context_p)
+test_netw_receive_protocol_error_serial(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
@@ -147,7 +147,7 @@ test_linq_network_receive_protocol_error_serial(void** context_p)
 
     expect_error = LINQ_ERROR_PROTOCOL;
 
-    linq_network_poll(test->net, 5);
+    netw_poll(test->net, 5);
 
     assert_true(pass);
 
@@ -155,7 +155,7 @@ test_linq_network_receive_protocol_error_serial(void** context_p)
 }
 
 static void
-test_linq_network_receive_protocol_error_router(void** context_p)
+test_netw_receive_protocol_error_router(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
@@ -176,7 +176,7 @@ test_linq_network_receive_protocol_error_router(void** context_p)
 
     expect_error = LINQ_ERROR_PROTOCOL;
 
-    linq_network_poll(test->net, 5);
+    netw_poll(test->net, 5);
 
     assert_true(pass);
 
@@ -184,7 +184,7 @@ test_linq_network_receive_protocol_error_router(void** context_p)
 }
 
 static void
-test_linq_network_receive_heartbeat_ok(void** context_p)
+test_netw_receive_heartbeat_ok(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
@@ -207,10 +207,10 @@ test_linq_network_receive_heartbeat_ok(void** context_p)
     spy_sys_set_tick(100);
 
     // Receive a heartbeat
-    linq_network_poll(test->net, 5);
-    device_zmtp_s** d = (device_zmtp_s**)linq_network_device(test->net, serial);
+    netw_poll(test->net, 5);
+    device_zmtp_s** d = (device_zmtp_s**)netw_device(test->net, serial);
     assert_non_null(d);
-    assert_int_equal(linq_network_device_count(test->net), 1);
+    assert_int_equal(netw_device_count(test->net), 1);
     assert_int_equal(device_router(*d)->sz, 4);
     assert_memory_equal(device_router(*d)->id, "rid0", 4);
     assert_string_equal(device_serial(*d), serial);
@@ -219,9 +219,9 @@ test_linq_network_receive_heartbeat_ok(void** context_p)
 
     // Receive a second heartbeat , update router id and last seen
     spy_sys_set_tick(200);
-    linq_network_poll(test->net, 5);
+    netw_poll(test->net, 5);
     assert_non_null(d);
-    assert_int_equal(linq_network_device_count(test->net), 1);
+    assert_int_equal(netw_device_count(test->net), 1);
     assert_int_equal(device_router(*d)->sz, 5);
     assert_memory_equal(device_router(*d)->id, "rid00", 5);
     assert_string_equal(device_serial(*d), serial);
@@ -234,7 +234,7 @@ test_linq_network_receive_heartbeat_ok(void** context_p)
 }
 
 static void
-test_linq_network_receive_heartbeat_error_short(void** context_p)
+test_netw_receive_heartbeat_error_short(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
@@ -253,7 +253,7 @@ test_linq_network_receive_heartbeat_error_short(void** context_p)
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
 
-    linq_network_poll(test->net, 5);
+    netw_poll(test->net, 5);
 
     assert_true(pass);
 
@@ -261,7 +261,7 @@ test_linq_network_receive_heartbeat_error_short(void** context_p)
 }
 
 static void
-test_linq_network_receive_alert_ok(void** context_p)
+test_netw_receive_alert_ok(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
@@ -282,9 +282,9 @@ test_linq_network_receive_alert_ok(void** context_p)
     czmq_spy_mesg_push_incoming(&alert);
     czmq_spy_poll_set_incoming((0x01));
 
-    linq_network_poll(test->net, 5);
+    netw_poll(test->net, 5);
     pass = false;
-    linq_network_poll(test->net, 5);
+    netw_poll(test->net, 5);
 
     assert_true(pass);
 
@@ -292,7 +292,7 @@ test_linq_network_receive_alert_ok(void** context_p)
 }
 
 static void
-test_linq_network_receive_alert_error_short(void** context_p)
+test_netw_receive_alert_error_short(void** context_p)
 {
     ((void)context_p);
 }
@@ -307,7 +307,7 @@ on_response_ok(void* pass, const char* serial, int err, const char* data)
 }
 
 static void
-test_linq_network_receive_response_ok(void** context_p)
+test_netw_receive_response_ok(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
@@ -333,8 +333,8 @@ test_linq_network_receive_response_ok(void** context_p)
     // Send a get request
     // receive get response
     // make sure callback is as expect
-    linq_network_poll(test->net, 5);
-    linq_network_send(
+    netw_poll(test->net, 5);
+    netw_send(
         test->net,
         serial,
         "GET",
@@ -344,7 +344,7 @@ test_linq_network_receive_response_ok(void** context_p)
         0,
         on_response_ok,
         &pass);
-    linq_network_poll(test->net, 5);
+    netw_poll(test->net, 5);
     assert_true(pass);
 
     test_reset(&test);
@@ -364,7 +364,7 @@ on_response_error_timeout(
 }
 
 static void
-test_linq_network_receive_response_error_timeout(void** context_p)
+test_netw_receive_response_error_timeout(void** context_p)
 {
     ((void)context_p);
 
@@ -389,8 +389,8 @@ test_linq_network_receive_response_error_timeout(void** context_p)
 
     // Receive a new device @t=0
     spy_sys_set_tick(0);
-    linq_network_poll(test->net, 5);
-    d = (device_zmtp_s**)linq_network_device(test->net, serial);
+    netw_poll(test->net, 5);
+    d = (device_zmtp_s**)netw_device(test->net, serial);
     device_send(
         *d,
         REQUEST_METHOD_GET,
@@ -405,20 +405,20 @@ test_linq_network_receive_response_error_timeout(void** context_p)
     // Still waiting for response @t=9999
     spy_sys_set_tick(9999);
     czmq_spy_poll_set_incoming((0x00));
-    linq_network_poll(test->net, 5);
+    netw_poll(test->net, 5);
     assert_false(response_pass);
     assert_int_equal(device_request_pending_count(*d), 1);
 
     // Timeout callback happens @t=10000
     spy_sys_set_tick(10000);
-    linq_network_poll(test->net, 5);
+    netw_poll(test->net, 5);
     assert_true(response_pass);
     assert_int_equal(device_request_pending_count(*d), 0);
 
     // Response is resolved but there is no more request pending
     czmq_spy_poll_set_incoming((0x01));
     czmq_spy_mesg_push_incoming(&r);
-    linq_network_poll(test->net, 5);
+    netw_poll(test->net, 5);
 
     test_reset(&test);
 }
@@ -439,7 +439,7 @@ on_response_error_codes(
 }
 
 static void
-test_linq_network_receive_response_error_codes(void** context_p)
+test_netw_receive_response_error_codes(void** context_p)
 {
     ((void)context_p);
 
@@ -470,8 +470,8 @@ test_linq_network_receive_response_error_codes(void** context_p)
         czmq_spy_poll_set_incoming((0x01));
 
         // Setup code under test
-        linq_network_poll(test->net, 0);
-        d = (device_zmtp_s**)linq_network_device(test->net, serial);
+        netw_poll(test->net, 0);
+        d = (device_zmtp_s**)netw_device(test->net, serial);
         assert_non_null(d);
 
         // Start test
@@ -485,7 +485,7 @@ test_linq_network_receive_response_error_codes(void** context_p)
             on_response_error_codes,
             &pass);
         assert_int_equal(device_request_pending_count(*d), 1);
-        linq_network_poll(test->net, 0);
+        netw_poll(test->net, 0);
 
         // Measure test
         assert_true(pass);
@@ -504,7 +504,7 @@ on_response_error_504(void* pass, const char* serial, int err, const char* data)
 }
 
 static void
-test_linq_network_receive_response_error_504(void** context_p)
+test_netw_receive_response_error_504(void** context_p)
 {
     // Same as receive_response_ok_504 accept we add an extra 504 to incoming
     ((void)context_p);
@@ -539,8 +539,8 @@ test_linq_network_receive_response_error_504(void** context_p)
     spy_sys_set_tick(t);
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
-    linq_network_poll(test->net, 0);
-    d = (device_zmtp_s**)linq_network_device(test->net, serial);
+    netw_poll(test->net, 0);
+    d = (device_zmtp_s**)netw_device(test->net, serial);
     assert_non_null(d);
 
     // Start test @t=0
@@ -561,13 +561,13 @@ test_linq_network_receive_response_error_504(void** context_p)
         // incoming 504
         czmq_spy_mesg_push_incoming(&incoming[i]);
         czmq_spy_poll_set_incoming((0x01));
-        linq_network_poll(test->net, 0);
+        netw_poll(test->net, 0);
 
         // @t=retry-1, make sure do not send request
         t += LINQ_NETW_RETRY_TIMEOUT - 1;
         spy_sys_set_tick(t);
         czmq_spy_poll_set_incoming((0x00));
-        linq_network_poll(test->net, 0);
+        netw_poll(test->net, 0);
         outgoing = czmq_spy_mesg_pop_outgoing();
         assert_null(outgoing);
 
@@ -575,7 +575,7 @@ test_linq_network_receive_response_error_504(void** context_p)
         t++;
         spy_sys_set_tick(t);
         czmq_spy_poll_set_incoming((0x00));
-        linq_network_poll(test->net, 0);
+        netw_poll(test->net, 0);
         outgoing = czmq_spy_mesg_pop_outgoing();
         assert_non_null(outgoing); // TODO measure outgoing packets
         zmsg_destroy(&outgoing);
@@ -584,7 +584,7 @@ test_linq_network_receive_response_error_504(void** context_p)
     // Send the final amount of 504's we're willing to tollorate
     czmq_spy_mesg_push_incoming(&incoming[LINQ_NETW_MAX_RETRY]);
     czmq_spy_poll_set_incoming(0x01);
-    linq_network_poll(test->net, 0);
+    netw_poll(test->net, 0);
 
     assert_true(pass);
     test_reset(&test);
@@ -600,7 +600,7 @@ on_response_ok_504(void* pass, const char* serial, int err, const char* data)
 }
 
 static void
-test_linq_network_receive_response_ok_504(void** context_p)
+test_netw_receive_response_ok_504(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
@@ -634,8 +634,8 @@ test_linq_network_receive_response_ok_504(void** context_p)
     spy_sys_set_tick(t);
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
-    linq_network_poll(test->net, 0);
-    d = (device_zmtp_s**)linq_network_device(test->net, serial);
+    netw_poll(test->net, 0);
+    d = (device_zmtp_s**)netw_device(test->net, serial);
     assert_non_null(d);
 
     // Start test @t=0
@@ -656,13 +656,13 @@ test_linq_network_receive_response_ok_504(void** context_p)
         // incoming 504
         czmq_spy_mesg_push_incoming(&incoming[i]);
         czmq_spy_poll_set_incoming((0x01));
-        linq_network_poll(test->net, 0);
+        netw_poll(test->net, 0);
 
         // @t=retry-1, make sure do not send request
         t += LINQ_NETW_RETRY_TIMEOUT - 1;
         spy_sys_set_tick(t);
         czmq_spy_poll_set_incoming((0x00));
-        linq_network_poll(test->net, 0);
+        netw_poll(test->net, 0);
         outgoing = czmq_spy_mesg_pop_outgoing();
         assert_null(outgoing);
 
@@ -670,7 +670,7 @@ test_linq_network_receive_response_ok_504(void** context_p)
         t++;
         spy_sys_set_tick(t);
         czmq_spy_poll_set_incoming((0x00));
-        linq_network_poll(test->net, 0);
+        netw_poll(test->net, 0);
         outgoing = czmq_spy_mesg_pop_outgoing();
         assert_non_null(outgoing); // TODO measure outgoing packets
         zmsg_destroy(&outgoing);
@@ -679,14 +679,14 @@ test_linq_network_receive_response_ok_504(void** context_p)
 
     czmq_spy_mesg_push_incoming(&ok);
     czmq_spy_poll_set_incoming(0x01);
-    linq_network_poll(test->net, 0);
+    netw_poll(test->net, 0);
 
     assert_true(pass);
     test_reset(&test);
 }
 
 static void
-test_linq_network_receive_hello(void** context_p)
+test_netw_receive_hello(void** context_p)
 {
     ((void)context_p);
     helpers_test_config_s config = { .callbacks = NULL,
@@ -702,15 +702,15 @@ test_linq_network_receive_hello(void** context_p)
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
 
-    assert_int_equal(linq_network_node_count(test->net), 0);
-    linq_network_poll(test->net, 5);
-    assert_int_equal(linq_network_node_count(test->net), 1);
+    assert_int_equal(netw_node_count(test->net), 0);
+    netw_poll(test->net, 5);
+    assert_int_equal(netw_node_count(test->net), 1);
 
     test_reset(&test);
 }
 
 static void
-test_linq_network_receive_hello_double_id(void** context_p)
+test_netw_receive_hello_double_id(void** context_p)
 {
     ((void)context_p);
     zmsg_t* m0 = helpers_make_hello("router", "node");
@@ -728,17 +728,17 @@ test_linq_network_receive_hello_double_id(void** context_p)
     czmq_spy_mesg_push_incoming(&m1);
     czmq_spy_poll_set_incoming((0x01));
 
-    assert_int_equal(linq_network_node_count(test->net), 0);
-    linq_network_poll(test->net, 5);
-    assert_int_equal(linq_network_node_count(test->net), 1);
-    linq_network_poll(test->net, 5);
-    assert_int_equal(linq_network_node_count(test->net), 1);
+    assert_int_equal(netw_node_count(test->net), 0);
+    netw_poll(test->net, 5);
+    assert_int_equal(netw_node_count(test->net), 1);
+    netw_poll(test->net, 5);
+    assert_int_equal(netw_node_count(test->net), 1);
 
     test_reset(&test);
 }
 
 static void
-test_linq_network_broadcast_heartbeat_receive(void** context_p)
+test_netw_broadcast_heartbeat_receive(void** context_p)
 {
     ((void)context_p);
     zmsg_t* hb = helpers_make_heartbeat(NULL, "serial", "product", "site");
@@ -751,18 +751,18 @@ test_linq_network_broadcast_heartbeat_receive(void** context_p)
 
     helpers_test_context_s* test = test_init(&config);
 
-    linq_network_connect(test->net, "ipc:///123");
+    netw_connect(test->net, "ipc:///123");
 
     // TODO - this heartbeat comes from a dealer socket
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
-    linq_network_poll(test->net, 5);
+    netw_poll(test->net, 5);
 
     test_reset(&test);
 }
 
 static void
-test_linq_network_broadcast_heartbeat(void** context_p)
+test_netw_broadcast_heartbeat(void** context_p)
 {
     ((void)context_p);
     helpers_test_config_s config = { .callbacks = NULL,
@@ -787,9 +787,9 @@ test_linq_network_broadcast_heartbeat(void** context_p)
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
 
-    linq_network_poll(test->net, 5); // receive hello
-    linq_network_poll(test->net, 5); // recieve hello
-    linq_network_poll(test->net, 5); // receive heartbeat
+    netw_poll(test->net, 5); // receive hello
+    netw_poll(test->net, 5); // recieve hello
+    netw_poll(test->net, 5); // receive heartbeat
 
     // outgoing should have a heartbeat with client router
     for (int i = 0; i < 2; i++) {
@@ -824,7 +824,7 @@ test_linq_network_broadcast_heartbeat(void** context_p)
 }
 
 static void
-test_linq_network_broadcast_alert(void** context_p)
+test_netw_broadcast_alert(void** context_p)
 {
     ((void)context_p);
     helpers_test_config_s config = { .callbacks = NULL,
@@ -851,10 +851,10 @@ test_linq_network_broadcast_alert(void** context_p)
     czmq_spy_mesg_push_incoming(&alert);
     czmq_spy_poll_set_incoming((0x01));
 
-    linq_network_poll(test->net, 5); // receive heartbeat
-    linq_network_poll(test->net, 5); // receive hello
-    linq_network_poll(test->net, 5); // recieve hello
-    linq_network_poll(test->net, 5); // receive alert
+    netw_poll(test->net, 5); // receive heartbeat
+    netw_poll(test->net, 5); // receive hello
+    netw_poll(test->net, 5); // recieve hello
+    netw_poll(test->net, 5); // receive alert
 
     // outgoing should have a heartbeat with client router
     for (int i = 0; i < 2; i++) {
@@ -892,7 +892,7 @@ test_linq_network_broadcast_alert(void** context_p)
 }
 
 static void
-test_linq_network_forward_request(void** context_p)
+test_netw_forward_request(void** context_p)
 {
     ((void)context_p);
     helpers_test_config_s config = { .callbacks = NULL,
@@ -918,10 +918,10 @@ test_linq_network_forward_request(void** context_p)
     czmq_spy_mesg_push_incoming(&response); // device response
     czmq_spy_poll_set_incoming((0x01));
 
-    linq_network_poll(test->net, 5);
-    linq_network_poll(test->net, 5);
-    linq_network_poll(test->net, 5);
-    linq_network_poll(test->net, 5);
+    netw_poll(test->net, 5);
+    netw_poll(test->net, 5);
+    netw_poll(test->net, 5);
+    netw_poll(test->net, 5);
 
     // First outgoing message is to the device
     outgoing = czmq_spy_mesg_pop_outgoing();
@@ -970,7 +970,7 @@ test_linq_network_forward_request(void** context_p)
 }
 
 static void
-test_linq_network_forward_client_request(void** context_p)
+test_netw_forward_client_request(void** context_p)
 {
     ((void)context_p);
     helpers_test_config_s config = { .callbacks = NULL,
@@ -990,11 +990,11 @@ test_linq_network_forward_client_request(void** context_p)
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming(0x01);
 
-    linq_network_connect(test->net, "ipc:///test");
+    netw_connect(test->net, "ipc:///test");
 
-    linq_network_poll(test->net, 5); // add a device
+    netw_poll(test->net, 5); // add a device
 
-    linq_network_send(
+    netw_send(
         test->net, "device123", "GET", "/ATX/hello", 10, NULL, 0, NULL, NULL);
     outgoing = czmq_spy_mesg_pop_outgoing();
     assert_non_null(outgoing);
@@ -1020,10 +1020,10 @@ test_linq_network_forward_client_request(void** context_p)
 }
 
 static void
-test_linq_network_connect(void** context_p)
+test_netw_connect(void** context_p)
 {
     ((void)context_p);
-    linq_network_socket s;
+    netw_socket s;
 
     helpers_test_config_s config = { .callbacks = NULL,
                                      .context = NULL,
@@ -1033,7 +1033,7 @@ test_linq_network_connect(void** context_p)
                                      .pass = PASS };
     helpers_test_context_s* test = test_init(&config);
 
-    s = linq_network_connect(test->net, "ipc:///filex");
+    s = netw_connect(test->net, "ipc:///filex");
     assert_true(!(LINQ_ERROR_OK == s));
 
     zmsg_t* outgoing = czmq_spy_mesg_pop_outgoing();
@@ -1057,7 +1057,7 @@ test_linq_network_connect(void** context_p)
 }
 
 static void
-test_linq_network_close_router(void** context_p)
+test_netw_close_router(void** context_p)
 {
     ((void)context_p);
     helpers_test_config_s config = { .callbacks = NULL,
@@ -1069,14 +1069,10 @@ test_linq_network_close_router(void** context_p)
 
     helpers_test_context_s* test = test_init(&config);
 
-    linq_network_socket l0 =
-        linq_network_listen(test->net, "tcp://1.2.3.4:8080");
-    linq_network_socket l1 =
-        linq_network_listen(test->net, "tcp://5.6.7.8:8080");
-    linq_network_socket c0 =
-        linq_network_connect(test->net, "tcp://11.22.33.44:8888");
-    linq_network_socket c1 =
-        linq_network_connect(test->net, "tcp://55.66.77.88:8888");
+    netw_socket l0 = netw_listen(test->net, "tcp://1.2.3.4:8080");
+    netw_socket l1 = netw_listen(test->net, "tcp://5.6.7.8:8080");
+    netw_socket c0 = netw_connect(test->net, "tcp://11.22.33.44:8888");
+    netw_socket c1 = netw_connect(test->net, "tcp://55.66.77.88:8888");
     zmsg_t* hb0 = helpers_make_heartbeat("r0", "dev1", "pid", "site");
     zmsg_t* hb1 = helpers_make_heartbeat("r1", "dev2", "pid", "site");
     zmsg_t* hb2 = helpers_make_heartbeat(NULL, "dev3", "pid", "site");
@@ -1095,28 +1091,25 @@ test_linq_network_close_router(void** context_p)
     czmq_spy_mesg_push_incoming(&hb6);
     czmq_spy_mesg_push_incoming(&hb7);
     czmq_spy_poll_set_incoming((0b1111)); // Knowledge of innards
-    linq_network_poll(test->net, 5);
-    linq_network_poll(test->net, 5);
-    assert_int_equal(linq_network_device_count(test->net), 8);
-    linq_network_close(test->net, l0);
-    assert_int_equal(linq_network_device_count(test->net), 6);
-    linq_network_close(test->net, l1);
-    assert_int_equal(linq_network_device_count(test->net), 4);
-    linq_network_close(test->net, c0);
-    assert_int_equal(linq_network_device_count(test->net), 2);
-    assert_int_equal(linq_network_node_count(test->net), 1);
-    linq_network_close(test->net, c1);
-    assert_int_equal(linq_network_device_count(test->net), 0);
-    assert_int_equal(linq_network_node_count(test->net), 0);
+    netw_poll(test->net, 5);
+    netw_poll(test->net, 5);
+    assert_int_equal(netw_device_count(test->net), 8);
+    netw_close(test->net, l0);
+    assert_int_equal(netw_device_count(test->net), 6);
+    netw_close(test->net, l1);
+    assert_int_equal(netw_device_count(test->net), 4);
+    netw_close(test->net, c0);
+    assert_int_equal(netw_device_count(test->net), 2);
+    assert_int_equal(netw_node_count(test->net), 1);
+    netw_close(test->net, c1);
+    assert_int_equal(netw_device_count(test->net), 0);
+    assert_int_equal(netw_node_count(test->net), 0);
 
     test_reset(&test);
 }
 
 static void
-test_linq_network_devices_callback(
-    void* context,
-    const char* sid,
-    const char* pid)
+test_netw_devices_callback(void* context, const char* sid, const char* pid)
 {
     uint32_t *mask = context, idx = 0;
     assert_memory_equal(sid, "dev", 3);
@@ -1127,7 +1120,7 @@ test_linq_network_devices_callback(
 }
 
 static void
-test_linq_network_devices_foreach(void** context_p)
+test_netw_devices_foreach(void** context_p)
 {
     ((void)context_p);
     helpers_test_config_s config = { .callbacks = NULL,
@@ -1139,10 +1132,10 @@ test_linq_network_devices_foreach(void** context_p)
 
     helpers_test_context_s* test = test_init(&config);
 
-    linq_network_listen(test->net, "tcp://1.2.3.4:8080");
-    linq_network_listen(test->net, "tcp://5.6.7.8:8080");
-    linq_network_connect(test->net, "tcp://11.22.33.44:8888");
-    linq_network_connect(test->net, "tcp://55.66.77.88:8888");
+    netw_listen(test->net, "tcp://1.2.3.4:8080");
+    netw_listen(test->net, "tcp://5.6.7.8:8080");
+    netw_connect(test->net, "tcp://11.22.33.44:8888");
+    netw_connect(test->net, "tcp://55.66.77.88:8888");
     zmsg_t* hb0 = helpers_make_heartbeat("r0", "dev0", "pid0", "site");
     zmsg_t* hb1 = helpers_make_heartbeat("r1", "dev1", "pid1", "site");
     zmsg_t* hb2 = helpers_make_heartbeat(NULL, "dev2", "pid2", "site");
@@ -1161,13 +1154,12 @@ test_linq_network_devices_foreach(void** context_p)
     czmq_spy_mesg_push_incoming(&hb6);
     czmq_spy_mesg_push_incoming(&hb7);
     czmq_spy_poll_set_incoming((0b1111)); // Knowledge of innards
-    linq_network_poll(test->net, 5);
-    linq_network_poll(test->net, 5);
-    assert_int_equal(linq_network_device_count(test->net), 8);
+    netw_poll(test->net, 5);
+    netw_poll(test->net, 5);
+    assert_int_equal(netw_device_count(test->net), 8);
 
     uint32_t mask = 0x00;
-    linq_network_devices_foreach(
-        test->net, test_linq_network_devices_callback, &mask);
+    netw_devices_foreach(test->net, test_netw_devices_callback, &mask);
     assert_int_equal(mask, 0b11111111);
 
     test_reset(&test);
@@ -1180,29 +1172,29 @@ main(int argc, char* argv[])
     ((void)argv);
     int err;
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_linq_network_create),
-        cmocka_unit_test(test_linq_network_receive_protocol_error_short),
-        cmocka_unit_test(test_linq_network_receive_protocol_error_serial),
-        cmocka_unit_test(test_linq_network_receive_protocol_error_router),
-        cmocka_unit_test(test_linq_network_receive_heartbeat_ok),
-        cmocka_unit_test(test_linq_network_receive_heartbeat_error_short),
-        cmocka_unit_test(test_linq_network_receive_alert_ok),
-        cmocka_unit_test(test_linq_network_receive_alert_error_short),
-        cmocka_unit_test(test_linq_network_receive_response_ok),
-        cmocka_unit_test(test_linq_network_receive_response_error_timeout),
-        cmocka_unit_test(test_linq_network_receive_response_error_codes),
-        cmocka_unit_test(test_linq_network_receive_response_error_504),
-        cmocka_unit_test(test_linq_network_receive_response_ok_504),
-        cmocka_unit_test(test_linq_network_receive_hello),
-        cmocka_unit_test(test_linq_network_receive_hello_double_id),
-        cmocka_unit_test(test_linq_network_broadcast_heartbeat),
-        cmocka_unit_test(test_linq_network_broadcast_heartbeat_receive),
-        cmocka_unit_test(test_linq_network_broadcast_alert),
-        cmocka_unit_test(test_linq_network_forward_request),
-        cmocka_unit_test(test_linq_network_forward_client_request),
-        cmocka_unit_test(test_linq_network_connect),
-        cmocka_unit_test(test_linq_network_close_router),
-        cmocka_unit_test(test_linq_network_devices_foreach)
+        cmocka_unit_test(test_netw_create),
+        cmocka_unit_test(test_netw_receive_protocol_error_short),
+        cmocka_unit_test(test_netw_receive_protocol_error_serial),
+        cmocka_unit_test(test_netw_receive_protocol_error_router),
+        cmocka_unit_test(test_netw_receive_heartbeat_ok),
+        cmocka_unit_test(test_netw_receive_heartbeat_error_short),
+        cmocka_unit_test(test_netw_receive_alert_ok),
+        cmocka_unit_test(test_netw_receive_alert_error_short),
+        cmocka_unit_test(test_netw_receive_response_ok),
+        cmocka_unit_test(test_netw_receive_response_error_timeout),
+        cmocka_unit_test(test_netw_receive_response_error_codes),
+        cmocka_unit_test(test_netw_receive_response_error_504),
+        cmocka_unit_test(test_netw_receive_response_ok_504),
+        cmocka_unit_test(test_netw_receive_hello),
+        cmocka_unit_test(test_netw_receive_hello_double_id),
+        cmocka_unit_test(test_netw_broadcast_heartbeat),
+        cmocka_unit_test(test_netw_broadcast_heartbeat_receive),
+        cmocka_unit_test(test_netw_broadcast_alert),
+        cmocka_unit_test(test_netw_forward_request),
+        cmocka_unit_test(test_netw_forward_client_request),
+        cmocka_unit_test(test_netw_connect),
+        cmocka_unit_test(test_netw_close_router),
+        cmocka_unit_test(test_netw_devices_foreach)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);

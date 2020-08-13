@@ -2,12 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "linq_network.h"
 #include "helpers.h"
 #include "http.h"
-#include "linq_network_internal.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
+#include "netw.h"
+#include "netw_internal.h"
 
 #include <cmocka.h>
 #include <setjmp.h>
@@ -18,11 +18,11 @@ test_http_create(void** c_p)
     ((void)c_p);
     mongoose_spy_init();
     sqlite_spy_init();
-    linq_network_s* l = linq_network_create(NULL, NULL);
+    netw_s* l = netw_create(NULL, NULL);
     http_s http;
     http_init(&http, l);
     http_deinit(&http);
-    linq_network_destroy(&l);
+    netw_destroy(&l);
     mongoose_spy_deinit();
     sqlite_spy_deinit();
 }
@@ -51,7 +51,7 @@ test_http_simple_get(void** context_p)
     bool pass = false;
 
     // Init http
-    linq_network_s* l = linq_network_create(NULL, NULL);
+    netw_s* l = netw_create(NULL, NULL);
     http_s http;
     http_init(&http, l);
     http_listen(&http, "80");
@@ -75,7 +75,7 @@ test_http_simple_get(void** context_p)
     http_deinit(&http);
     mongoose_spy_deinit();
     sqlite_spy_deinit();
-    linq_network_destroy(&l);
+    netw_destroy(&l);
 }
 
 static void
@@ -123,7 +123,7 @@ test_http_simple_query(void** context_p)
     bool pass = false;
 
     // Init http
-    linq_network_s* l = linq_network_create(NULL, NULL);
+    netw_s* l = netw_create(NULL, NULL);
     http_s http;
     http_init(&http, l);
     http_listen(&http, "80");
@@ -148,7 +148,7 @@ test_http_simple_query(void** context_p)
     http_deinit(&http);
     mongoose_spy_deinit();
     sqlite_spy_deinit();
-    linq_network_destroy(&l);
+    netw_destroy(&l);
 }
 
 static void
@@ -187,7 +187,7 @@ test_http_invalid_query(void** context_p)
     int pass = 0;
 
     // Init http
-    linq_network_s* l = linq_network_create(NULL, NULL);
+    netw_s* l = netw_create(NULL, NULL);
     http_s http;
     http_init(&http, l);
     http_listen(&http, "80");
@@ -212,7 +212,7 @@ test_http_invalid_query(void** context_p)
     http_deinit(&http);
     mongoose_spy_deinit();
     sqlite_spy_deinit();
-    linq_network_destroy(&l);
+    netw_destroy(&l);
 }
 
 int

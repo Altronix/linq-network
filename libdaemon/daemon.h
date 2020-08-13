@@ -2,7 +2,7 @@
 #define LINQ_DAEMON_H
 
 #include "http.h"
-#include "linq_network.h"
+#include "netw.h"
 #include "sys.h"
 
 // clang-format off
@@ -38,7 +38,7 @@ extern "C"
 
     typedef struct daemon_s
     {
-        linq_network_s* netw;
+        netw_s* netw;
         http_s http;
         bool shutdown;
     } daemon_s;

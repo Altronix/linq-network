@@ -17,7 +17,7 @@ typedef struct request_zmtp_s
     uint32_t retry_at;
     uint32_t retry_count;
     void* ctx;
-    linq_network_request_complete_fn on_complete;
+    netw_request_complete_fn on_complete;
     zframe_t* frames[FRAME_REQ_DATA_IDX + 1];
 } request_zmtp_s;
 static void request_destroy(request_zmtp_s** r_p);
@@ -80,7 +80,7 @@ request_alloc_mem(
     uint32_t plen,
     const char* d,
     uint32_t dlen,
-    linq_network_request_complete_fn fn,
+    netw_request_complete_fn fn,
     void* context)
 {
     bool hop = device_hops(device);
@@ -111,7 +111,7 @@ request_alloc(
     E_REQUEST_METHOD method,
     const char* path,
     const char* json,
-    linq_network_request_complete_fn on_complete,
+    netw_request_complete_fn on_complete,
     void* context)
 {
     return request_alloc_mem(
@@ -294,7 +294,7 @@ device_send(
     uint32_t plen,
     const char* json,
     uint32_t jlen,
-    linq_network_request_complete_fn fn,
+    netw_request_complete_fn fn,
     void* context)
 {
     request_zmtp_s* r =
@@ -312,7 +312,7 @@ device_send_raw(
     device_zmtp_s* d,
     const char* path,
     const char* json,
-    linq_network_request_complete_fn fn,
+    netw_request_complete_fn fn,
     void* context)
 {
     uint32_t plen = strlen(path), jlen = json ? strlen(json) : 0;

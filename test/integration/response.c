@@ -9,7 +9,7 @@
 #include <string.h>
 
 #include "fixture.h"
-#include "linq_network.h"
+#include "netw.h"
 
 void
 on_request_complete(
@@ -34,7 +34,7 @@ main(int argc, char* argv[])
     ((void)argc);
     ((void)argv);
     int err = -1;
-    linq_network_socket s;
+    netw_socket s;
     bool pass = false;
 
     err = 0; // TODO
@@ -42,31 +42,31 @@ main(int argc, char* argv[])
     fixture_context* fixture = fixture_create("dummy", 32820);
     if (!fixture) return -1;
 
-    linq_network_s* server = linq_network_create(NULL, NULL);
+    netw_s* server = netw_create(NULL, NULL);
     if (!server) {
         fixture_destroy(&fixture);
         return -1;
     }
 
-    s = linq_network_listen(server, "tcp://127.0.0.1:32820");
+    s = netw_listen(server, "tcp://127.0.0.1:32820");
     if (s == LINQ_ERROR_SOCKET) {
         printf("%s", "[S] Listen Failure!\n");
         fixture_destroy(&fixture);
-        linq_network_destroy(&server);
+        netw_destroy(&server);
         return -1;
     }
 
     bool request_sent = false;
     while (!(pass)) {
         fixture_poll(fixture);
-        err = linq_network_poll(server, 5);
+        err = netw_poll(server, 5);
         if (err) break;
-        err = linq_network_poll(server, 5);
+        err = netw_poll(server, 5);
         if (err) break;
 
-        if (!request_sent && linq_network_device_count(server)) {
+        if (!request_sent && netw_device_count(server)) {
             printf("%s", "[C] Request Sent!");
-            linq_network_send(
+            netw_send(
                 server,
                 "dummy",
                 "GET",
@@ -83,7 +83,7 @@ main(int argc, char* argv[])
     err = pass ? 0 : -1;
 
     fixture_destroy(&fixture);
-    linq_network_destroy(&server);
+    netw_destroy(&server);
 
     return err;
 }

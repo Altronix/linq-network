@@ -7,7 +7,7 @@
 
 #include "containers.h"
 #include "database.h"
-#include "linq_network.h"
+#include "netw.h"
 #include "sys.h"
 
 #include "mongoose.h"
@@ -66,13 +66,13 @@ extern "C"
         struct mg_connection* https;
         struct mg_mgr connections;
         struct mg_serve_http_opts serve_opts;
-        linq_network_s* linq;
+        netw_s* linq;
         routes_map_s* routes;
         database_s db;
     } http_s;
 
     // Public methods (internal to this library)
-    LINQ_HTTP_EXPORT void http_init(http_s* http, linq_network_s* l);
+    LINQ_HTTP_EXPORT void http_init(http_s* http, netw_s* l);
     LINQ_HTTP_EXPORT void http_deinit(http_s* http);
     LINQ_HTTP_EXPORT E_LINQ_ERROR http_poll(http_s*, int32_t);
     LINQ_HTTP_EXPORT void http_listen(http_s* http, const char* port);

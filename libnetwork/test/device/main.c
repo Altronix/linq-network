@@ -4,8 +4,8 @@
 
 #include "device.h"
 #include "helpers.h"
-#include "linq_network.h"
-#include "linq_network_internal.h"
+#include "netw.h"
+#include "netw_internal.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
 #include "mock_utils.h"

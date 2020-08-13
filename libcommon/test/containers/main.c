@@ -4,7 +4,7 @@
 
 #include "containers.h"
 #include "helpers.h"
-#include "linq_network.h"
+#include "netw.h"
 
 #include <cmocka.h>
 #include <setjmp.h>

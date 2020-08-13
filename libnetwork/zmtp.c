@@ -118,7 +118,7 @@ pop_le(zmsg_t* msg, uint32_t le)
 
 // read incoming zmq frame and test valid json
 static zframe_t*
-pop_alert(zmsg_t* msg, linq_network_alert_s* a)
+pop_alert(zmsg_t* msg, netw_alert_s* a)
 {
     int count, sz;
     zframe_t* f = pop_le(msg, JSON_LEN);
@@ -146,7 +146,7 @@ pop_alert(zmsg_t* msg, linq_network_alert_s* a)
 }
 
 static zframe_t*
-pop_email(zmsg_t* msg, linq_network_email_s* emails)
+pop_email(zmsg_t* msg, netw_email_s* emails)
 {
     int count, sz;
     zframe_t* f = pop_le(msg, JSON_LEN);
@@ -350,8 +350,8 @@ process_alert(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     char alert_data[JSON_LEN];
     char email_data[JSON_LEN];
-    linq_network_alert_s alert;
-    linq_network_email_s email;
+    netw_alert_s alert;
+    netw_email_s email;
     memset(&alert, 0, sizeof(alert));
     memset(&email, 0, sizeof(email));
     alert.data = alert_data;
@@ -465,7 +465,7 @@ zmtp_init(
     zmtp_s* zmtp,
     device_map_s** devices_p,
     node_map_s** nodes_p,
-    const linq_network_callbacks* callbacks,
+    const netw_callbacks* callbacks,
     void* context)
 {
     zmtp->devices_p = devices_p;
@@ -486,7 +486,7 @@ zmtp_deinit(zmtp_s* zmtp)
     log_debug("(ZMTP) Context destroyed...");
 }
 
-linq_network_socket
+netw_socket
 zmtp_listen(zmtp_s* zmtp, const char* ep)
 {
     zsock_t* socket = zsock_new_router(ep);
@@ -500,7 +500,7 @@ zmtp_listen(zmtp_s* zmtp, const char* ep)
     }
 }
 
-linq_network_socket
+netw_socket
 zmtp_connect(zmtp_s* zmtp, const char* ep)
 {
     zsock_t* socket = zsock_new_dealer(ep);
@@ -527,7 +527,7 @@ foreach_device_remove_if_sock_eq(
     device_zmtp_s** device_p)
 {
     zsock_t* eq = ctx;
-    linq_network_socket_s* socket = ((linq_network_socket_s*)*device_p);
+    netw_socket_s* socket = ((netw_socket_s*)*device_p);
     if (eq == socket->sock) device_map_remove(self, serial);
 }
 
@@ -539,7 +539,7 @@ foreach_node_remove_if_sock_eq(
     node_s** device_p)
 {
     zsock_t* eq = ctx;
-    linq_network_socket_s* socket = ((linq_network_socket_s*)*device_p);
+    netw_socket_s* socket = ((netw_socket_s*)*device_p);
     if (eq == socket->sock) node_map_remove(self, serial);
 }
 
@@ -556,7 +556,7 @@ remove_nodes(zsock_t** s, node_map_s* nodes)
 }
 
 E_LINQ_ERROR
-zmtp_close_router(zmtp_s* zmtp, linq_network_socket handle)
+zmtp_close_router(zmtp_s* zmtp, netw_socket handle)
 {
     int socket = ATX_NET_SOCKET(handle);
     zsock_t** s = socket_map_resolve(zmtp->routers, socket);
@@ -570,7 +570,7 @@ zmtp_close_router(zmtp_s* zmtp, linq_network_socket handle)
 }
 
 E_LINQ_ERROR
-zmtp_close_dealer(zmtp_s* zmtp, linq_network_socket handle)
+zmtp_close_dealer(zmtp_s* zmtp, netw_socket handle)
 {
     int socket = ATX_NET_SOCKET(handle);
     zsock_t** s = socket_map_resolve(zmtp->dealers, socket);
@@ -687,7 +687,7 @@ zmtp_poll(zmtp_s* zmtp, int32_t ms)
 }
 
 static void
-send_error(linq_network_request_complete_fn fn, void* context, E_LINQ_ERROR e)
+send_error(netw_request_complete_fn fn, void* context, E_LINQ_ERROR e)
 {
     char err[32];
     if (fn) {
@@ -705,7 +705,7 @@ zmtp_device_send(
     uint32_t plen,
     const char* json,
     uint32_t jlen,
-    linq_network_request_complete_fn fn,
+    netw_request_complete_fn fn,
     void* ctx)
 {
     device_zmtp_s** d = device_get(zmtp, sid);

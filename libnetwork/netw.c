@@ -2,27 +2,27 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "linq_network.h"
+#include "netw.h"
 #include "log.h"
 #include "node.h"
 #include "sys.h"
 #include "zmtp.h"
 
 // Main class
-typedef struct linq_network_s
+typedef struct netw_s
 {
     void* context;
-    const linq_network_callbacks* callbacks;
+    const netw_callbacks* callbacks;
     device_map_s* devices;
     node_map_s* nodes;
     zmtp_s zmtp;
-} linq_network_s;
+} netw_s;
 
 static void
 on_zmtp_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 {
     log_error("(ZMTP) Event Error [%d]", e);
-    linq_network_s* l = ctx;
+    netw_s* l = ctx;
     if (l->callbacks && l->callbacks->on_err) {
         l->callbacks->on_err(l->context, e, what, serial);
     }
@@ -31,7 +31,7 @@ on_zmtp_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 static void
 on_zmtp_new(void* ctx, const char* sid)
 {
-    linq_network_s* l = ctx;
+    netw_s* l = ctx;
     log_debug("(ZMTP) [%.6s...] Event New Device", sid);
     if (l->callbacks && l->callbacks->on_new) {
         l->callbacks->on_new(l->context, sid);
@@ -41,7 +41,7 @@ on_zmtp_new(void* ctx, const char* sid)
 static void
 on_zmtp_heartbeat(void* ctx, const char* sid)
 {
-    linq_network_s* l = ctx;
+    netw_s* l = ctx;
     log_debug("(ZMTP) [%.6s...] Event Heartbeat", sid);
     if (l->callbacks && l->callbacks->on_heartbeat) {
         l->callbacks->on_heartbeat(l->context, sid);
@@ -52,10 +52,10 @@ static void
 on_zmtp_alert(
     void* ctx,
     const char* serial,
-    linq_network_alert_s* a,
-    linq_network_email_s* email)
+    netw_alert_s* a,
+    netw_email_s* email)
 {
-    linq_network_s* l = ctx;
+    netw_s* l = ctx;
     log_debug("(ZMTP) [%.6s...] Event Alert", serial);
     if (l->callbacks && l->callbacks->on_alert) {
         l->callbacks->on_alert(l->context, serial, a, email);
@@ -66,13 +66,13 @@ static void
 on_zmtp_ctrlc(void* ctx)
 {
     log_info("(ZMTP) Received shutdown signal...");
-    linq_network_s* l = ctx;
+    netw_s* l = ctx;
     if (l->callbacks && l->callbacks->on_ctrlc) {
         l->callbacks->on_ctrlc(l->context);
     }
 }
 
-static linq_network_callbacks zmtp_callbacks = {
+static netw_callbacks zmtp_callbacks = {
     .on_err = on_zmtp_error,
     .on_new = on_zmtp_new,
     .on_heartbeat = on_zmtp_heartbeat,
@@ -81,10 +81,10 @@ static linq_network_callbacks zmtp_callbacks = {
 };
 
 // Create main context for the caller
-linq_network_s*
-linq_network_create(const linq_network_callbacks* cb, void* context)
+netw_s*
+netw_create(const netw_callbacks* cb, void* context)
 {
-    linq_network_s* l = linq_network_malloc(sizeof(linq_network_s));
+    netw_s* l = linq_network_malloc(sizeof(netw_s));
     if (l) {
         l->devices = device_map_create();
         l->nodes = node_map_create();
@@ -97,10 +97,10 @@ linq_network_create(const linq_network_callbacks* cb, void* context)
 
 // Free main context after use
 void
-linq_network_destroy(linq_network_s** linq_network_p)
+netw_destroy(netw_s** netw_p)
 {
-    linq_network_s* l = *linq_network_p;
-    *linq_network_p = NULL;
+    netw_s* l = *netw_p;
+    *netw_p = NULL;
     device_map_destroy(&l->devices);
     node_map_destroy(&l->nodes);
     zmtp_deinit(&l->zmtp);
@@ -108,14 +108,14 @@ linq_network_destroy(linq_network_s** linq_network_p)
 }
 
 void
-linq_network_context_set(linq_network_s* linq, void* ctx)
+netw_context_set(netw_s* linq, void* ctx)
 {
     linq->context = ctx;
 }
 
 // Listen for incoming device connections on "endpoint"
-linq_network_socket
-linq_network_listen(linq_network_s* l, const char* ep)
+netw_socket
+netw_listen(netw_s* l, const char* ep)
 {
     int ep_len = strlen(ep);
     log_info("(ZMTP) Listening... [%s]", ep);
@@ -123,14 +123,14 @@ linq_network_listen(linq_network_s* l, const char* ep)
 }
 
 // connect to a remote linq and send hello frames
-linq_network_socket
-linq_network_connect(linq_network_s* l, const char* ep)
+netw_socket
+netw_connect(netw_s* l, const char* ep)
 {
     return zmtp_connect(&l->zmtp, ep);
 }
 
 E_LINQ_ERROR
-linq_network_close(linq_network_s* l, linq_network_socket handle)
+netw_close(netw_s* l, netw_socket handle)
 {
     E_LINQ_ERROR e = LINQ_ERROR_OK;
     if (ATX_NET_SOCKET_TYPE_IS_ROUTER(handle)) {
@@ -147,7 +147,7 @@ linq_network_close(linq_network_s* l, linq_network_socket handle)
 
 // poll network socket file handles
 E_LINQ_ERROR
-linq_network_poll(linq_network_s* l, int32_t ms)
+netw_poll(netw_s* l, int32_t ms)
 {
     E_LINQ_ERROR err = zmtp_poll(&l->zmtp, ms);
     if (err) log_error("(ZMTP) polling error %d", err);
@@ -156,34 +156,34 @@ linq_network_poll(linq_network_s* l, int32_t ms)
 
 // get a device from the device map
 void**
-linq_network_device(const linq_network_s* l, const char* serial)
+netw_device(const netw_s* l, const char* serial)
 {
     return (void**)device_map_get(l->devices, serial);
 }
 
 // Check if the serial number is known in our hash table
 bool
-linq_network_device_exists(const linq_network_s* linq, const char* sid)
+netw_device_exists(const netw_s* linq, const char* sid)
 {
     return device_map_get(linq->devices, sid) ? true : false;
 }
 
 // return how many devices are connected to linq
 uint32_t
-linq_network_device_count(const linq_network_s* l)
+netw_device_count(const netw_s* l)
 {
     return device_map_size(l->devices);
 }
 
-// Context used for linq_network_devices_foreach HOF (Higher Order Function)
+// Context used for netw_devices_foreach HOF (Higher Order Function)
 typedef struct
 {
-    const linq_network_s* l;
-    linq_network_devices_foreach_fn fn;
+    const netw_s* l;
+    netw_devices_foreach_fn fn;
     void* ctx;
 } foreach_device_print_sid_ctx;
 
-// linq_network_device_foreach HOF
+// netw_device_foreach HOF
 static void
 foreach_device_print_sid(
     device_map_s* self,
@@ -198,10 +198,7 @@ foreach_device_print_sid(
 
 // Print a list of serial numbers to caller
 void
-linq_network_devices_foreach(
-    const linq_network_s* l,
-    linq_network_devices_foreach_fn fn,
-    void* ctx)
+netw_devices_foreach(const netw_s* l, netw_devices_foreach_fn fn, void* ctx)
 {
     foreach_device_print_sid_ctx foreach_ctx = { l,
                                                  fn,
@@ -211,22 +208,22 @@ linq_network_devices_foreach(
 
 // return how many nodes are connected to linq
 uint32_t
-linq_network_node_count(const linq_network_s* l)
+netw_node_count(const netw_s* l)
 {
     return node_map_size(l->nodes);
 }
 
 // send a get request to a device connected to us
 E_LINQ_ERROR
-linq_network_send(
-    const linq_network_s* linq,
+netw_send(
+    const netw_s* linq,
     const char* serial,
     const char* method,
     const char* path,
     uint32_t path_len,
     const char* json,
     uint32_t json_len,
-    linq_network_request_complete_fn callback,
+    netw_request_complete_fn callback,
     void* context)
 {
     return zmtp_device_send(

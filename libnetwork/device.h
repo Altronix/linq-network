@@ -8,7 +8,7 @@
 // includes
 #include "containers.h"
 #include "czmq.h"
-#include "linq_network_internal.h"
+#include "netw_internal.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -44,13 +44,13 @@ extern "C"
         uint32_t plen,
         const char* json,
         uint32_t jlen,
-        linq_network_request_complete_fn fn,
+        netw_request_complete_fn fn,
         void* context);
     void device_send_raw(
         device_zmtp_s* d,
         const char* path,
         const char* json,
-        linq_network_request_complete_fn fn,
+        netw_request_complete_fn fn,
         void* context);
 
     uint32_t device_request_sent_at(device_zmtp_s* d);

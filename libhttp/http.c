@@ -261,7 +261,7 @@ ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
 }
 
 void
-http_init(http_s* http, linq_network_s* l)
+http_init(http_s* http, netw_s* l)
 {
 #define ADD_ROUTE(http, path, fn, ctx) http_use(http, path, fn, ctx)
     memset(http, 0, sizeof(http_s));

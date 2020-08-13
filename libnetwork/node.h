@@ -7,7 +7,7 @@
 
 #include "containers.h"
 #include "czmq.h"
-#include "linq_network_internal.h"
+#include "netw_internal.h"
 
 #ifdef __cplusplus
 extern "C"

@@ -1,9 +1,9 @@
-#include "linq_network.h"
 #include "helpers.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
+#include "netw.h"
 #include "sys.h"
 
 #include <setjmp.h>
@@ -33,7 +33,7 @@ test_route_proxy_get(void** context_p)
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
 
-    linq_network_poll(test->net, 5);
+    netw_poll(test->net, 5);
     sqlite_spy_outgoing_statement_flush();
 
     // Mock sqlite database response
@@ -87,7 +87,7 @@ test_route_proxy_post(void** context_p)
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
 
-    linq_network_poll(test->net, 5);
+    netw_poll(test->net, 5);
     sqlite_spy_outgoing_statement_flush();
 
     // Mock sqlite database response
@@ -140,7 +140,7 @@ test_route_proxy_404(void** context_p)
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
-    linq_network_poll(test->net, 5);
+    netw_poll(test->net, 5);
     sqlite_spy_outgoing_statement_flush();
 
     // Mock sqlite database response
@@ -179,7 +179,7 @@ test_route_proxy_400_too_short(void** context_p)
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
-    linq_network_poll(test->net, 5);
+    netw_poll(test->net, 5);
     sqlite_spy_outgoing_statement_flush();
 
     // Mock sqlite database response

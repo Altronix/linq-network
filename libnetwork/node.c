@@ -5,11 +5,11 @@
 #include "node.h"
 #include "containers.h"
 
-// main class struct (extends linq_network_socket_s)
+// main class struct (extends netw_socket_s)
 typedef struct node_s
 {
-    zsock_t* sock;   // linq_network_socket_s expects zsock_t to be first
-    router_s router; // linq_network_socket_s expects router to be second
+    zsock_t* sock;   // netw_socket_s expects zsock_t to be first
+    router_s router; // netw_socket_s expects router to be second
     char serial[SID_LEN];
 } node_s;
 MAP_INIT(node, node_s, node_destroy);

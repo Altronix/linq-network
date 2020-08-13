@@ -9,7 +9,7 @@
 #include <string.h>
 
 #include "fixture.h"
-#include "linq_network.h"
+#include "netw.h"
 
 static bool received_new_device = false;
 static bool received_alert = false;
@@ -28,8 +28,8 @@ static void
 on_alert(
     void* count,
     const char* serial,
-    linq_network_alert_s* alert,
-    linq_network_email_s* mail)
+    netw_alert_s* alert,
+    netw_email_s* mail)
 {
     (*(uint32_t*)count)++;
     received_alert = true;
@@ -47,9 +47,9 @@ on_heartbeat(void* count, const char* serial)
     printf("%s", "[S] Received new device\n");
 }
 
-linq_network_callbacks callbacks = { .on_err = on_error,
-                                     .on_alert = on_alert,
-                                     .on_heartbeat = on_heartbeat };
+netw_callbacks callbacks = { .on_err = on_error,
+                             .on_alert = on_alert,
+                             .on_heartbeat = on_heartbeat };
 
 int
 main(int argc, char* argv[])
@@ -59,26 +59,26 @@ main(int argc, char* argv[])
 
     uint32_t count = 0;
     int err;
-    linq_network_socket s = 0;
+    netw_socket s = 0;
     fixture_context* fixture = fixture_create("serial", 32820);
     if (!fixture) return -1;
 
-    linq_network_s* linq = linq_network_create(&callbacks, &count);
-    s = linq_network_listen(linq, "tcp://127.0.0.1:32820");
+    netw_s* linq = netw_create(&callbacks, &count);
+    s = netw_listen(linq, "tcp://127.0.0.1:32820");
     if (s == LINQ_ERROR_SOCKET) {
         printf("%s", "[S] Listen Failure!\n");
         fixture_destroy(&fixture);
-        linq_network_destroy(&linq);
+        netw_destroy(&linq);
         return -1;
     }
 
     while (!(received_new_device && received_alert)) {
         fixture_poll(fixture);
-        err = linq_network_poll(linq, 5);
+        err = netw_poll(linq, 5);
         if (err) break;
     }
 
     fixture_destroy(&fixture);
-    linq_network_destroy(&linq);
+    netw_destroy(&linq);
     return received_new_device && received_alert ? 0 : -1;
 }

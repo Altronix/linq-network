@@ -17,7 +17,7 @@
 
 #include "database.h"
 #include "http.h"
-#include "linq_network_internal.h"
+#include "netw_internal.h"
 
 #include "czmq.h"
 #undef closesocket    // Mongoose and czmq both define these
@@ -75,13 +75,13 @@ extern "C"
 
     typedef struct helpers_test_context_s
     {
-        linq_network_s* net;
+        netw_s* net;
         http_s http;
     } helpers_test_context_s;
 
     typedef struct helpers_test_config_s
     {
-        linq_network_callbacks* callbacks;
+        netw_callbacks* callbacks;
         void* context;
         uint32_t zmtp;
         uint32_t http;
@@ -92,7 +92,7 @@ extern "C"
     void helpers_test_init();
     void helpers_test_reset();
     void helpers_test_create_admin(
-        linq_network_s*,
+        netw_s*,
         const char* user,
         const char* password);
 

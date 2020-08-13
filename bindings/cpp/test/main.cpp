@@ -3,16 +3,16 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "device.h"
-#include "linq_network.hpp"
+#include "netw.hpp"
 
 extern "C"
 {
 #include "helpers.h"
-#include "linq_network_internal.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
+#include "netw_internal.h"
 
 #include <czmq.h>
 
@@ -33,7 +33,7 @@ test_reset()
 }
 
 static void
-test_linq_network_create(void** context_p)
+test_netw_create(void** context_p)
 {
     ((void)context_p);
 
@@ -46,7 +46,7 @@ test_linq_network_create(void** context_p)
 }
 
 static void
-test_linq_network_early_destruct(void** context_p)
+test_netw_early_destruct(void** context_p)
 {
     ((void)context_p);
 
@@ -59,7 +59,7 @@ test_linq_network_early_destruct(void** context_p)
 }
 
 static void
-test_linq_network_device(void** context_p)
+test_netw_device(void** context_p)
 {
     ((void)context_p);
 
@@ -81,7 +81,7 @@ test_linq_network_device(void** context_p)
 }
 
 static void
-test_linq_network_devices(void** context_p)
+test_netw_devices(void** context_p)
 {
     ((void)context_p);
 
@@ -105,7 +105,7 @@ test_linq_network_devices(void** context_p)
 }
 
 static void
-test_linq_network_alert(void** context_p)
+test_netw_alert(void** context_p)
 {
     ((void)context_p);
 
@@ -123,23 +123,22 @@ test_linq_network_alert(void** context_p)
     czmq_spy_poll_set_incoming((0x01));
 
     l.listen("tcp://*:32820");
-    l.on_alert([&alert_pass](
-                   const char* serial,
-                   linq_network_alert_s* alert,
-                   linq_network_email_s* email) {
-        assert_string_equal(serial, "serial");
-        assert_memory_equal(alert->who.p, "TestUser", 8);
-        assert_memory_equal(alert->what.p, "TestAlert", 9);
-        assert_memory_equal(alert->where.p, "Altronix Site ID", 16);
-        assert_memory_equal(alert->when.p, "1", 1);
-        assert_memory_equal(alert->mesg.p, "Test Alert Message", 18);
-        assert_memory_equal(email->to0.p, "mail0@gmail.com", 15);
-        assert_memory_equal(email->to1.p, "mail1@gmail.com", 15);
-        assert_memory_equal(email->to2.p, "mail2@gmail.com", 15);
-        assert_memory_equal(email->to3.p, "mail3@gmail.com", 15);
-        assert_memory_equal(email->to4.p, "mail4@gmail.com", 15);
-        alert_pass = true;
-    });
+    l.on_alert(
+        [&alert_pass](
+            const char* serial, netw_alert_s* alert, netw_email_s* email) {
+            assert_string_equal(serial, "serial");
+            assert_memory_equal(alert->who.p, "TestUser", 8);
+            assert_memory_equal(alert->what.p, "TestAlert", 9);
+            assert_memory_equal(alert->where.p, "Altronix Site ID", 16);
+            assert_memory_equal(alert->when.p, "1", 1);
+            assert_memory_equal(alert->mesg.p, "Test Alert Message", 18);
+            assert_memory_equal(email->to0.p, "mail0@gmail.com", 15);
+            assert_memory_equal(email->to1.p, "mail1@gmail.com", 15);
+            assert_memory_equal(email->to2.p, "mail2@gmail.com", 15);
+            assert_memory_equal(email->to3.p, "mail3@gmail.com", 15);
+            assert_memory_equal(email->to4.p, "mail4@gmail.com", 15);
+            alert_pass = true;
+        });
 
     // Read heartbeat and alert
     l.poll(5);
@@ -150,7 +149,7 @@ test_linq_network_alert(void** context_p)
 }
 
 void
-test_linq_network_send(void** context_p)
+test_netw_send(void** context_p)
 {
     ((void)context_p);
     zmsg_t* hb = helpers_make_heartbeat("rid0", "serial0", "pid", "sid");
@@ -187,11 +186,11 @@ main(int argc, char* argv[])
     ((void)argv);
     int err;
     const struct CMUnitTest tests[] = //
-        { cmocka_unit_test(test_linq_network_device),
-          cmocka_unit_test(test_linq_network_devices),
-          cmocka_unit_test(test_linq_network_create),
-          cmocka_unit_test(test_linq_network_alert),
-          cmocka_unit_test(test_linq_network_send) };
+        { cmocka_unit_test(test_netw_device),
+          cmocka_unit_test(test_netw_devices),
+          cmocka_unit_test(test_netw_create),
+          cmocka_unit_test(test_netw_alert),
+          cmocka_unit_test(test_netw_send) };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
     return err;

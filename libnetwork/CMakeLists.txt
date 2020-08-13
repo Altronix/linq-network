@@ -1,16 +1,16 @@
 set(SOURCES
-    linq_network.c
+    netw.c
     device.c
     node.c
     zmtp.c)
   set(HEADERS
-    linq_network.h
-    linq_network_internal.h
+    netw.h
+    netw_internal.h
     device.h
     node.h
     zmtp.h)
 
-set(INSTALL_HEADERS linq_network.h)
+set(INSTALL_HEADERS netw.h)
 set(LIBS ${CMAKE_THREAD_LIBS_INIT} ${ZMQ_LIBS} common-static)
 
 append_log_level_compiler_flags(definitions)
