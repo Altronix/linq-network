@@ -27,7 +27,7 @@ if(ENABLE_TESTING)
   add_library(network-test-static STATIC ${SOURCES} ${HEADERS})
   target_link_libraries(network-test-static ${LIBS})
   target_compile_definitions(network-test-static PUBLIC 
-    "LINQ_NETWORK_STATIC" 
+    "LINQ_STATIC" 
     ${definitions})
   set_target_properties(network-test-static PROPERTIES 
     PUBLIC_HEADER "${INSTALL_HEADERS}"
@@ -41,7 +41,7 @@ if(BUILD_STATIC)
   add_library(network-static STATIC ${SOURCES} ${HEADERS})
   target_link_libraries(network-static ${LIBS})
   target_compile_definitions(network-static PUBLIC 
-    "LINQ_NETWORK_STATIC" 
+    "LINQ_STATIC" 
     ${definitions})
   target_include_directories(network-static PUBLIC ${INCS})
   target_include_directories(network-static PUBLIC ./)

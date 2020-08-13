@@ -32,8 +32,8 @@
 
 #define RID_LEN 256
 #define B64_RID_LEN (B64_LEN(RID_LEN) + 1)
-#define SID_LEN 64
-#define TID_LEN 64
+#define SID_LEN LINQ_SID_LEN
+#define TID_LEN LINQ_TID_LEN
 #define SITE_LEN 64
 #define JSON_LEN 1024
 

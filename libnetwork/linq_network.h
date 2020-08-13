@@ -5,20 +5,21 @@
 #ifndef LINQ_H_
 #define LINQ_H_
 
-#include <stdbool.h>
-#include <stdint.h>
+#include "sys.h"
+
+#include "common.h"
 
 // clang-format off
 #if defined _WIN32
-#  if defined LINQ_NETWORK_STATIC
-#    define LINQ_NETWORK_EXPORT
+#  if defined LINQ_STATIC
+#    define LINQ_EXPORT
 #  elif defined DLL_EXPORT
-#    define LINQ_NETWORK_EXPORT __declspec(dllexport)
+#    define LINQ_EXPORT __declspec(dllexport)
 #  else
-#    define LINQ_NETWORK_EXPORT __declspec(dllimport)
+#    define LINQ_EXPORT __declspec(dllimport)
 #  endif
 #else
-#  define LINQ_NETWORK_EXPORT
+#  define LINQ_EXPORT
 #endif
 // clang-format on
 
@@ -50,31 +51,6 @@ extern "C"
         const char* p;
         uint32_t len;
     } atx_str;
-
-    typedef enum E_REQUEST_METHOD
-    {
-        REQUEST_METHOD_RAW = 0,
-        REQUEST_METHOD_GET = 1,
-        REQUEST_METHOD_POST = 2,
-        REQUEST_METHOD_DELETE = 3
-    } E_REQUEST_METHOD;
-
-    typedef enum
-    {
-        LINQ_ERROR_OK = 0,
-        LINQ_ERROR_OOM = -1,
-        LINQ_ERROR_BAD_ARGS = -2,
-        LINQ_ERROR_PROTOCOL = -3,
-        LINQ_ERROR_IO = -4,
-        LINQ_ERROR_DEVICE_NOT_FOUND = -5,
-        LINQ_ERROR_TIMEOUT = -6,
-        LINQ_ERROR_SHUTTING_DOWN = -7,
-        LINQ_ERROR_400 = 400,
-        LINQ_ERROR_403 = 403,
-        LINQ_ERROR_404 = 404,
-        LINQ_ERROR_500 = 500,
-        LINQ_ERROR_504 = 504,
-    } E_LINQ_ERROR;
 
     typedef struct linq_network_alert_s
     {
@@ -143,41 +119,36 @@ extern "C"
     } linq_network_callbacks;
 
     // Linq API
-    LINQ_NETWORK_EXPORT linq_network_s* linq_network_create(
+    LINQ_EXPORT linq_network_s* linq_network_create(
         const linq_network_callbacks*,
         void*);
-    LINQ_NETWORK_EXPORT void linq_network_destroy(linq_network_s**);
-    LINQ_NETWORK_EXPORT database_s* linq_network_database(linq_network_s* l);
-    LINQ_NETWORK_EXPORT void
+    LINQ_EXPORT void linq_network_destroy(linq_network_s**);
+    LINQ_EXPORT database_s* linq_network_database(linq_network_s* l);
+    LINQ_EXPORT void
     linq_network_init(linq_network_s*, const linq_network_callbacks*, void*);
-    LINQ_NETWORK_EXPORT void linq_network_deinit(linq_network_s*);
-    LINQ_NETWORK_EXPORT void linq_network_context_set(
-        linq_network_s* linq,
-        void* ctx);
-    LINQ_NETWORK_EXPORT linq_network_socket
+    LINQ_EXPORT void linq_network_deinit(linq_network_s*);
+    LINQ_EXPORT void linq_network_context_set(linq_network_s* linq, void* ctx);
+    LINQ_EXPORT linq_network_socket
     linq_network_listen(linq_network_s*, const char* ep);
-    LINQ_NETWORK_EXPORT linq_network_socket
+    LINQ_EXPORT linq_network_socket
     linq_network_connect(linq_network_s* l, const char* ep);
-    LINQ_NETWORK_EXPORT E_LINQ_ERROR
+    LINQ_EXPORT E_LINQ_ERROR
     linq_network_close(linq_network_s*, linq_network_socket);
-    LINQ_NETWORK_EXPORT E_LINQ_ERROR
-    linq_network_poll(linq_network_s* l, int32_t ms);
+    LINQ_EXPORT E_LINQ_ERROR linq_network_poll(linq_network_s* l, int32_t ms);
     // TODO linq_network_device() is deprecated but it is currently used by some
     // tests...
-    LINQ_NETWORK_EXPORT void** linq_network_device(
+    LINQ_EXPORT void** linq_network_device(
         const linq_network_s* l,
         const char* serial);
-    LINQ_NETWORK_EXPORT bool linq_network_device_exists(
+    LINQ_EXPORT bool linq_network_device_exists(
         const linq_network_s*,
         const char* sid);
-    LINQ_NETWORK_EXPORT uint32_t
-    linq_network_device_count(const linq_network_s*);
-    LINQ_NETWORK_EXPORT void linq_network_devices_foreach(
+    LINQ_EXPORT uint32_t linq_network_device_count(const linq_network_s*);
+    LINQ_EXPORT void linq_network_devices_foreach(
         const linq_network_s* l,
         linq_network_devices_foreach_fn,
         void*);
-    LINQ_NETWORK_EXPORT uint32_t
-    linq_network_node_count(const linq_network_s* linq);
+    LINQ_EXPORT uint32_t linq_network_node_count(const linq_network_s* linq);
     E_LINQ_ERROR
     linq_network_send(
         const linq_network_s* linq,
@@ -191,7 +162,7 @@ extern "C"
         void* ctx);
 
     // Sys API
-    LINQ_NETWORK_EXPORT bool sys_running();
+    LINQ_EXPORT bool sys_running();
 #ifdef __cplusplus
 }
 #endif
