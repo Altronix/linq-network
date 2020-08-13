@@ -42,6 +42,9 @@ list(APPEND libs
   ${CMAKE_JS_LIB}
   uuid
 )
+if(NOT MSVC)
+  list(APPEND libs -static-libgcc)
+endif()
 
 message(STATUS "libs: ${libs}")
 
