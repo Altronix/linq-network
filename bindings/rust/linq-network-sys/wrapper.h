@@ -5,20 +5,21 @@
 #ifndef LINQ_H_
 #define LINQ_H_
 
-#include <stdbool.h>
-#include <stdint.h>
+#include "sys.h"
+
+#include "common.h"
 
 // clang-format off
 #if defined _WIN32
-#  if defined LINQ_NETWORK_STATIC
-#    define LINQ_NETWORK_EXPORT
+#  if defined LINQ_STATIC
+#    define LINQ_EXPORT
 #  elif defined DLL_EXPORT
-#    define LINQ_NETWORK_EXPORT __declspec(dllexport)
+#    define LINQ_EXPORT __declspec(dllexport)
 #  else
-#    define LINQ_NETWORK_EXPORT __declspec(dllimport)
+#    define LINQ_EXPORT __declspec(dllimport)
 #  endif
 #else
-#  define LINQ_NETWORK_EXPORT
+#  define LINQ_EXPORT
 #endif
 // clang-format on
 
@@ -42,8 +43,8 @@ extern "C"
 #endif
 
     typedef struct database_s database_s;
-    typedef struct linq_network_s linq_network_s;
-    typedef uint32_t linq_network_socket;
+    typedef struct netw_s netw_s;
+    typedef uint32_t netw_socket;
 
     typedef struct atx_str
     {
@@ -51,32 +52,7 @@ extern "C"
         uint32_t len;
     } atx_str;
 
-    typedef enum E_REQUEST_METHOD
-    {
-        REQUEST_METHOD_RAW = 0,
-        REQUEST_METHOD_GET = 1,
-        REQUEST_METHOD_POST = 2,
-        REQUEST_METHOD_DELETE = 3
-    } E_REQUEST_METHOD;
-
-    typedef enum
-    {
-        LINQ_ERROR_OK = 0,
-        LINQ_ERROR_OOM = -1,
-        LINQ_ERROR_BAD_ARGS = -2,
-        LINQ_ERROR_PROTOCOL = -3,
-        LINQ_ERROR_IO = -4,
-        LINQ_ERROR_DEVICE_NOT_FOUND = -5,
-        LINQ_ERROR_TIMEOUT = -6,
-        LINQ_ERROR_SHUTTING_DOWN = -7,
-        LINQ_ERROR_400 = 400,
-        LINQ_ERROR_403 = 403,
-        LINQ_ERROR_404 = 404,
-        LINQ_ERROR_500 = 500,
-        LINQ_ERROR_504 = 504,
-    } E_LINQ_ERROR;
-
-    typedef struct linq_network_alert_s
+    typedef struct netw_alert_s
     {
         atx_str who;
         atx_str what;
@@ -87,9 +63,9 @@ extern "C"
         atx_str product;
         atx_str email[5];
         char* data;
-    } linq_network_alert_s;
+    } netw_alert_s;
 
-    typedef struct linq_network_email_s
+    typedef struct netw_email_s
     {
         atx_str to0;
         atx_str to1;
@@ -104,94 +80,76 @@ extern "C"
         atx_str port;
         atx_str device;
         char* data;
-    } linq_network_email_s;
+    } netw_email_s;
 
     // REQUEST COMPLETE
-    typedef void (*linq_network_request_complete_fn)(
+    typedef void (*netw_request_complete_fn)(
         void*,
         const char* serial,
         E_LINQ_ERROR e,
         const char* json);
     // ERROR
-    typedef void (*linq_network_error_fn)(
+    typedef void (*netw_error_fn)(
         void* context,
         E_LINQ_ERROR error,
         const char*,
         const char*);
     // NEW
-    typedef void (*linq_network_new_fn)(void* context, const char* serial);
+    typedef void (*netw_new_fn)(void* context, const char* serial);
     // HEARTBEAT
-    typedef void (
-        *linq_network_heartbeat_fn)(void* context, const char* serial);
+    typedef void (*netw_heartbeat_fn)(void* context, const char* serial);
     // ALERT
-    typedef void (*linq_network_alert_fn)(
+    typedef void (*netw_alert_fn)(
         void* context,
         const char* serial,
-        linq_network_alert_s*,
-        linq_network_email_s*);
+        netw_alert_s*,
+        netw_email_s*);
     // CTRLC
-    typedef void (*linq_network_ctrlc_fn)(void* context);
+    typedef void (*netw_ctrlc_fn)(void* context);
     typedef void (
-        *linq_network_devices_foreach_fn)(void* ctx, const char*, const char*);
-    typedef struct linq_network_callbacks
+        *netw_devices_foreach_fn)(void* ctx, const char*, const char*);
+    typedef struct netw_callbacks
     {
-        linq_network_error_fn on_err;
-        linq_network_new_fn on_new;
-        linq_network_heartbeat_fn on_heartbeat;
-        linq_network_alert_fn on_alert;
-        linq_network_ctrlc_fn on_ctrlc;
-    } linq_network_callbacks;
+        netw_error_fn on_err;
+        netw_new_fn on_new;
+        netw_heartbeat_fn on_heartbeat;
+        netw_alert_fn on_alert;
+        netw_ctrlc_fn on_ctrlc;
+    } netw_callbacks;
 
     // Linq API
-    LINQ_NETWORK_EXPORT linq_network_s* linq_network_create(
-        const linq_network_callbacks*,
-        void*);
-    LINQ_NETWORK_EXPORT void linq_network_destroy(linq_network_s**);
-    LINQ_NETWORK_EXPORT database_s* linq_network_database(linq_network_s* l);
-    LINQ_NETWORK_EXPORT void
-    linq_network_init(linq_network_s*, const linq_network_callbacks*, void*);
-    LINQ_NETWORK_EXPORT void linq_network_deinit(linq_network_s*);
-    LINQ_NETWORK_EXPORT void linq_network_context_set(
-        linq_network_s* linq,
-        void* ctx);
-    LINQ_NETWORK_EXPORT linq_network_socket
-    linq_network_listen(linq_network_s*, const char* ep);
-    LINQ_NETWORK_EXPORT linq_network_socket
-    linq_network_connect(linq_network_s* l, const char* ep);
-    LINQ_NETWORK_EXPORT E_LINQ_ERROR
-    linq_network_close(linq_network_s*, linq_network_socket);
-    LINQ_NETWORK_EXPORT E_LINQ_ERROR
-    linq_network_poll(linq_network_s* l, int32_t ms);
-    // TODO linq_network_device() is deprecated but it is currently used by some
+    LINQ_EXPORT netw_s* netw_create(const netw_callbacks*, void*);
+    LINQ_EXPORT void netw_destroy(netw_s**);
+    LINQ_EXPORT database_s* netw_database(netw_s* l);
+    LINQ_EXPORT void netw_init(netw_s*, const netw_callbacks*, void*);
+    LINQ_EXPORT void netw_deinit(netw_s*);
+    LINQ_EXPORT void netw_context_set(netw_s* linq, void* ctx);
+    LINQ_EXPORT netw_socket netw_listen(netw_s*, const char* ep);
+    LINQ_EXPORT netw_socket netw_connect(netw_s* l, const char* ep);
+    LINQ_EXPORT E_LINQ_ERROR netw_close(netw_s*, netw_socket);
+    LINQ_EXPORT E_LINQ_ERROR netw_poll(netw_s* l, int32_t ms);
+    // TODO netw_device() is deprecated but it is currently used by some
     // tests...
-    LINQ_NETWORK_EXPORT void** linq_network_device(
-        const linq_network_s* l,
-        const char* serial);
-    LINQ_NETWORK_EXPORT bool linq_network_device_exists(
-        const linq_network_s*,
-        const char* sid);
-    LINQ_NETWORK_EXPORT uint32_t
-    linq_network_device_count(const linq_network_s*);
-    LINQ_NETWORK_EXPORT void linq_network_devices_foreach(
-        const linq_network_s* l,
-        linq_network_devices_foreach_fn,
-        void*);
-    LINQ_NETWORK_EXPORT uint32_t
-    linq_network_node_count(const linq_network_s* linq);
+    LINQ_EXPORT void** netw_device(const netw_s* l, const char* serial);
+    LINQ_EXPORT bool netw_device_exists(const netw_s*, const char* sid);
+    LINQ_EXPORT uint32_t netw_device_count(const netw_s*);
+    LINQ_EXPORT void
+    netw_devices_foreach(const netw_s* l, netw_devices_foreach_fn, void*);
+    LINQ_EXPORT uint32_t netw_node_count(const netw_s* linq);
     E_LINQ_ERROR
-    linq_network_send(
-        const linq_network_s* linq,
+    netw_send(
+        const netw_s* linq,
         const char* sid,
         const char* meth,
         const char* path,
         uint32_t plen,
         const char* json,
         uint32_t jlen,
-        linq_network_request_complete_fn fn,
+        netw_request_complete_fn fn,
         void* ctx);
 
     // Sys API
-    LINQ_NETWORK_EXPORT bool sys_running();
+    LINQ_EXPORT bool sys_running();
 #ifdef __cplusplus
 }
 #endif

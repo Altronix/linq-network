@@ -1,4 +1,4 @@
-#include "linq_network_js.h"
+#include "NetwJS.h"
 #include "napi.h"
 #include <chrono>
 
@@ -67,8 +67,8 @@ LinqNetwork::LinqNetwork(const Napi::CallbackInfo& info)
         })
         .on_alert([this](
                       const char* serial,
-                      linq_network_alert_s* alert,
-                      linq_network_email_s* email) {
+                      netw_alert_s* alert,
+                      netw_email_s* email) {
             // Create event edata
             auto env = this->r_callback_.Env();
             Napi::Object obj = Napi::Object::New(env);

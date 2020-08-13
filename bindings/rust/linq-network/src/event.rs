@@ -125,8 +125,8 @@ extern "C" fn on_heartbeat(
 extern "C" fn on_alert(
     ctx: *mut raw::c_void,
     serial: *const raw::c_char,
-    _arg2: *mut linq_network_alert_s,
-    _arg3: *mut linq_network_email_s,
+    _arg2: *mut netw_alert_s,
+    _arg3: *mut netw_email_s,
 ) -> () {
     let cstr = unsafe { CStr::from_ptr(serial) };
     let cstr = cstr.to_str().expect("to_str() fail!");
@@ -138,7 +138,7 @@ extern "C" fn on_ctrlc(ctx: *mut raw::c_void) -> () {
     load_event(ctx, Event::Ctrlc);
 }
 
-pub static CALLBACKS: linq_network_callbacks = linq_network_callbacks {
+pub static CALLBACKS: netw_callbacks = netw_callbacks {
     on_err: Some(on_error),
     on_new: Some(on_new),
     on_heartbeat: Some(on_heartbeat),

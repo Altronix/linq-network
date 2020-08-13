@@ -1,12 +1,12 @@
 #ifdef BUILD_LINQD
-#include "linq_daemon_js.h"
+#include "DaemonJS.h"
 #endif
 
 #ifdef BUILD_USBH
-#include "linq_usbh_js.h"
+#include "UsbhJS.h"
 #endif
 
-#include "linq_network_js.h"
+#include "NetwJS.h"
 #include <napi.h>
 
 Napi::Object

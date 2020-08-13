@@ -26,13 +26,21 @@ fn find_root() -> String {
 // TODO - Find openssl
 // for reference https://github.com/sfackler/rust-openssl/blob/master/openssl-sys
 
-fn gen_header() {
-    let header = format!("{}/libnetwork/linq_network.h", find_root());
+fn gen_common_headers(root: &str) {
+    let header = format!("{}/libnetwork/netw.h", root);
     let header = fs::read(header).unwrap();
     fs::write("./wrapper.h", header).unwrap();
+    let header = format!("{}/libcommon/common.h", root);
+    let header = fs::read(header).unwrap();
+    fs::write("./common.h", header).unwrap();
 }
 
 fn print_windows(out: &std::path::Display<'_>) {
+    let root = find_root();
+    let header = format!("{}/libcommon/sys/win/sys.h", root);
+    let header = fs::read(header).unwrap();
+    fs::write("./sys.h", header).unwrap();
+    gen_common_headers(&root);
     // Parse the name of libzmq library and remove the extention.
     let libzmq = format!("{}/build/libzmq-static-loc.txt", out);
     let libzmq = fs::read(libzmq).unwrap();
@@ -49,6 +57,11 @@ fn print_windows(out: &std::path::Display<'_>) {
 }
 
 fn print_linux(out: &std::path::Display<'_>) {
+    let root = find_root();
+    let header = format!("{}/libcommon/sys/unix/sys.h", root);
+    let header = fs::read(header).unwrap();
+    fs::write("./sys.h", header).unwrap();
+    gen_common_headers(&root);
     println!("{}", out);
     println!("cargo:rustc-link-lib=static=zmq");
     println!("cargo:rustc-link-search=native={}/lib", out);
@@ -80,7 +93,6 @@ fn generator() -> Option<String> {
 }
 
 fn main() {
-    gen_header();
     let dst = if let Some(generator) = generator() {
         cmake::Config::new(find_root())
             .generator(generator)

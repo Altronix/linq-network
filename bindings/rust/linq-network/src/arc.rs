@@ -5,7 +5,7 @@
 use crate::event;
 use crate::polling;
 use crate::simple_future::SimpleFuture;
-use polling::{linq_network_socket, Endpoint, Request, Response};
+use polling::{netw_socket, Endpoint, Request, Response};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
@@ -42,15 +42,15 @@ impl Context {
         self.mutex.lock().unwrap().context.events()
     }
 
-    pub fn listen(&self, ep: Endpoint) -> linq_network_socket {
+    pub fn listen(&self, ep: Endpoint) -> netw_socket {
         self.mutex.lock().unwrap().context.listen(ep)
     }
 
-    pub fn connect(&self, ep: Endpoint) -> linq_network_socket {
+    pub fn connect(&self, ep: Endpoint) -> netw_socket {
         self.mutex.lock().unwrap().context.connect(ep)
     }
 
-    pub fn close(&self, s: &linq_network_socket) -> &Self {
+    pub fn close(&self, s: &netw_socket) -> &Self {
         self.mutex.lock().unwrap().context.close(s);
         self
     }

@@ -1,7 +1,7 @@
 #ifndef LINQNETWORK_H
 #define LINQNETWORK_H
 
-#include "linq_network.hpp"
+#include "netw.hpp"
 #include <napi.h>
 
 class LinqNetwork : public Napi::ObjectWrap<LinqNetwork>

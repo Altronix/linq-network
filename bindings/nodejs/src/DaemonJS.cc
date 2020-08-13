@@ -1,4 +1,4 @@
-#include "linq_daemon_js.h"
+#include "DaemonJS.h"
 #include "napi.h"
 #include <iostream>
 

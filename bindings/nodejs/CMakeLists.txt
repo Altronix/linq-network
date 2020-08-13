@@ -10,13 +10,13 @@ execute_process(COMMAND node -p "require('node-addon-api').include"
 string(REPLACE "\n" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
 string(REPLACE "\"" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
 
-set(sources ./src/binding.cc ./src/linq_network_js.cc)
-set(headers ./src/linq_network_js.h)
+set(sources ./src/binding.cc ./src/NetwJS.cc)
+set(headers ./src/NetwJS.h)
 set(defs "LINQ_NETWORK_NODEJS_BINDING")
 
 if(BUILD_LINQD)
-  list(APPEND sources ./src/linq_daemon_js.cc)
-  list(APPEND headers ./src/linq_daemon_js.h)
+  list(APPEND sources ./src/DaemonJS.cc)
+  list(APPEND headers ./src/DaemonJS.h)
   list(APPEND defs "-DBUILD_LINQD=TRUE")
   list(APPEND libs 
     daemon-static
@@ -28,8 +28,8 @@ if(BUILD_LINQD)
 endif()
 
 if(BUILD_USBH)
-  list(APPEND sources ./src/linq_usbh_js.cc)
-  list(APPEND headers ./src/linq_usbh_js.h)
+  list(APPEND sources ./src/UsbhJS.cc)
+  list(APPEND headers ./src/UsbhJS.h)
   list(APPEND defs "-DBUILD_USBH=TRUE")
   list(APPEND libs usbh-static)
 endif()

@@ -1,4 +1,4 @@
-#include "linq_usbh_js.h"
+#include "UsbhJS.h"
 #include "napi.h"
 
 Napi::FunctionReference LinqUsbh::constructor;
