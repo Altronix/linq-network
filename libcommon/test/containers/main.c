@@ -41,7 +41,7 @@ car_free(car_s** p)
     linq_network_free(c);
 }
 
-// LIST_INIT_H(item, item);
+// LIST_INIT_H(item, item_s);
 LIST_INIT(item, item_s, item_free);
 LIST_INIT(cars, car_s, car_free);
 
