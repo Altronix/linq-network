@@ -7,17 +7,14 @@
 
 #define exe_on_complete(rp, err, dat, dp)                                      \
     do {                                                                       \
-        if ((*rp)->on_complete) (*rp)->on_complete((*rp)->ctx, err, dat, dp);  \
+        if ((*rp)->base.callback)                                              \
+            (*rp)->base.callback((*rp)->base.ctx, err, dat, dp);               \
     } while (0)
 
 typedef struct request_zmtp_s
 {
+    request_s base;
     router_s forward;
-    uint32_t sent_at;
-    uint32_t retry_at;
-    uint32_t retry_count;
-    void* ctx;
-    linq_request_complete_fn on_complete;
     zframe_t* frames[FRAME_REQ_DATA_IDX + 1];
 } request_zmtp_s;
 static void request_destroy(request_zmtp_s** r_p);
@@ -89,8 +86,8 @@ request_alloc_mem(
     request_zmtp_s* r = linq_network_malloc(sizeof(request_zmtp_s));
     if (r) {
         memset(r, 0, sizeof(request_zmtp_s));
-        r->on_complete = fn;
-        r->ctx = context;
+        r->base.callback = fn;
+        r->base.ctx = context;
         r->frames[FRAME_VER_IDX] = zframe_new("\0", 1);
         r->frames[FRAME_TYP_IDX] = zframe_new("\1", 1);
         r->frames[FRAME_SID_IDX] = hop ? zframe_new(s, slen) : NULL;
@@ -164,7 +161,7 @@ request_send(request_zmtp_s* r, zsock_t* sock)
         c++;
     }
     if (r->frames[c]) zmsg_append(msg, &r->frames[c]);
-    r->sent_at = sys_tick();
+    r->base.sent_at = sys_tick();
     err = zmsg_send(&msg, sock);
     if (err) zmsg_destroy(&msg);
     return err;
@@ -322,28 +319,28 @@ device_send_raw(
 uint32_t
 device_request_sent_at(device_zmtp_s* r)
 {
-    return r->request_pending ? r->request_pending->sent_at : 0;
+    return r->request_pending ? r->request_pending->base.sent_at : 0;
 }
 
 uint32_t
 device_request_retry_count(device_zmtp_s* r)
 {
     linq_network_assert(r->request_pending);
-    return r->request_pending->retry_count;
+    return r->request_pending->base.retry_count;
 }
 
 uint32_t
 device_request_retry_at(device_zmtp_s* r)
 {
     linq_network_assert(r->request_pending);
-    return r->request_pending->retry_at;
+    return r->request_pending->base.retry_at;
 }
 
 void
 device_request_retry_at_set(device_zmtp_s* r, uint32_t set)
 {
     linq_network_assert(r->request_pending);
-    r->request_pending->retry_at = set;
+    r->request_pending->base.retry_at = set;
 }
 
 void
@@ -375,8 +372,8 @@ device_request_retry(device_zmtp_s* d)
 {
     linq_network_assert(d->request_pending);
     request_zmtp_s** r_p = &d->request_pending;
-    (*r_p)->retry_at = 0;
-    (*r_p)->retry_count++;
+    (*r_p)->base.retry_at = 0;
+    (*r_p)->base.retry_count++;
     if (d->router.sz) request_router_id_set(*r_p, d->router.id, d->router.sz);
     if (request_send(*r_p, d->sock) < 0) {
         exe_on_complete(r_p, d->serial, LINQ_ERROR_IO, NULL);
