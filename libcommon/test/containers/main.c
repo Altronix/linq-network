@@ -36,9 +36,12 @@ car_free(car** p)
     linq_network_free(c);
 }
 
+// LIST_INIT_H(item, item);
 LIST_INIT(item, item, item_free);
 LIST_INIT(cars, car, car_free);
 
+MAP_INIT_H(car, car);
+MAP_INIT_H(item, item);
 MAP_INIT(item, item, item_free);
 MAP_INIT(car, car, car_free);
 

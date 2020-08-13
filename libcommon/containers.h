@@ -31,7 +31,6 @@ extern "C"
 
 #define LIST_INIT_H(tag, type)                                                 \
     typedef struct kl_##tag##_t tag##_list_s;                                  \
-    typedef struct kl1_##tag tag##_item_s;                                     \
     tag##_list_s* tag##_list_create();                                         \
     void tag##_list_destroy(tag##_list_s** list_p);                            \
     type* tag##_list_front(tag##_list_s* list);                                \
@@ -52,14 +51,12 @@ extern "C"
 
 #define LIST_INIT(tag, type, list_free_fn)                                     \
     KLIST_INIT(tag, type*, FREE_FN)                                            \
-                                                                               \
-    kl_##tag##_t* tag##_list_create();                                         \
-    void tag##_list_destroy(kl_##tag##_t**);                                   \
-    void tag##_list_push(kl_##tag##_t*, type**);                               \
-    type* tag##_list_pop(kl_##tag##_t*);                                       \
-                                                                               \
     typedef kl_##tag##_t tag##_list_s;                                         \
-    typedef kl1_##tag tag##_item_s;                                            \
+                                                                               \
+    tag##_list_s* tag##_list_create();                                         \
+    void tag##_list_destroy(tag##_list_s**);                                   \
+    void tag##_list_push(tag##_list_s*, type**);                               \
+    type* tag##_list_pop(tag##_list_s*);                                       \
                                                                                \
     tag##_list_s* tag##_list_create() { return kl_init_##tag(); }              \
                                                                                \
