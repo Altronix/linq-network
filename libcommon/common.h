@@ -43,21 +43,20 @@ extern "C"
 
     typedef void (*linq_request_complete_fn)(
         void*,
-        const char*,
+        const char* serial,
         E_LINQ_ERROR e,
-        const char* j,
-        uint32_t jlen);
+        const char* json);
 
-    typedef struct request_base_s
+    typedef struct request_s
     {
         linq_request_complete_fn callback;
         uint32_t sent_at;
         uint32_t retry_at;
         uint32_t retry_count;
         void* ctx;
-    } request_base_s;
+    } request_s;
 
-    typedef struct device_base_s
+    typedef struct node_s
     {
         struct request_list_s* requests;
         struct request_s* pending;
@@ -66,7 +65,7 @@ extern "C"
         uint32_t birth;
         uint32_t uptime;
         uint32_t last_seen;
-    } device_base_s;
+    } node_s;
 
 #ifdef __cplusplus
 }

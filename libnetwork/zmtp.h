@@ -49,7 +49,7 @@ extern "C"
         uint32_t plen,
         const char* json,
         uint32_t jlen,
-        netw_request_complete_fn fn,
+        linq_request_complete_fn fn,
         void* ctx);
 #ifdef __cplusplus
 }

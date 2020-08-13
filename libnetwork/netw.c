@@ -223,7 +223,7 @@ netw_send(
     uint32_t path_len,
     const char* json,
     uint32_t json_len,
-    netw_request_complete_fn callback,
+    linq_request_complete_fn callback,
     void* context)
 {
     return zmtp_device_send(

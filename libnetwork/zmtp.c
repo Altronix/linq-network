@@ -204,7 +204,7 @@ device_resolve(zmtp_s* l, zsock_t* sock, zframe_t** frames, bool insert)
 }
 
 // Node is resolved by grabing object with base64_encoded key of the router id
-static node_s**
+static node_zmtp_s**
 node_resolve(zsock_t* sock, node_map_s* map, zframe_t** frames, bool insert)
 {
     uint32_t rid_len = 0;
@@ -216,12 +216,12 @@ node_resolve(zsock_t* sock, node_map_s* map, zframe_t** frames, bool insert)
     char sid[B64_RID_LEN];
     size_t sid_len = sizeof(sid);
     b64_encode((uchar*)sid, &sid_len, (uchar*)rid, rid_len);
-    node_s** d = node_map_get(map, sid);
+    node_zmtp_s** d = node_map_get(map, sid);
     if (d) {
         if (rid) node_update_router(*d, rid, rid_len);
     } else {
         if (insert) {
-            node_s* node = node_create(sock, rid, rid_len, sid);
+            node_zmtp_s* node = node_create(sock, rid, rid_len, sid);
             if (node) d = node_map_add(map, node_serial(node), &node);
         }
     }
@@ -234,7 +234,7 @@ foreach_node_forward_message(
     node_map_s* self,
     void* ctx,
     const char* key,
-    node_s** n)
+    node_zmtp_s** n)
 {
     ((void)self);
     ((void)key);
@@ -252,7 +252,7 @@ on_device_response(
     const char* json)
 {
     int16_t e = error;
-    node_s** node = ctx;
+    node_zmtp_s** node = ctx;
     node_send_frames_n(
         *node,
         5,
@@ -281,7 +281,7 @@ process_request(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
         if (zmsg_size(*msg) == 1) {
             data = frames[FRAME_REQ_DATA_IDX] = pop_le(*msg, JSON_LEN);
         }
-        node_s** n = node_resolve(sock, *l->nodes_p, frames, false);
+        node_zmtp_s** n = node_resolve(sock, *l->nodes_p, frames, false);
         device_zmtp_s** d = device_get_from_frame(l, frames[FRAME_SID_IDX]);
         if (n && d) {
             print_null_terminated(url, sizeof(url), path);
@@ -387,7 +387,7 @@ process_hello(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
     ((void)socket);
     ((void)frames);
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
-    node_s** s = node_resolve(socket, *z->nodes_p, frames, true);
+    node_zmtp_s** s = node_resolve(socket, *z->nodes_p, frames, true);
     if (s) e = LINQ_ERROR_OK;
     return e;
 }
@@ -506,7 +506,7 @@ zmtp_connect(zmtp_s* zmtp, const char* ep)
     zsock_t* socket = zsock_new_dealer(ep);
     if (socket) {
         socket_map_add(zmtp->dealers, ep, &socket);
-        node_s* n =
+        node_zmtp_s* n =
             node_create(*socket_map_get(zmtp->dealers, ep), NULL, 0, ep);
         if (n) {
             node_send_hello(n);
@@ -536,7 +536,7 @@ foreach_node_remove_if_sock_eq(
     node_map_s* self,
     void* ctx,
     const char* serial,
-    node_s** device_p)
+    node_zmtp_s** device_p)
 {
     zsock_t* eq = ctx;
     netw_socket_s* socket = ((netw_socket_s*)*device_p);
@@ -687,7 +687,7 @@ zmtp_poll(zmtp_s* zmtp, int32_t ms)
 }
 
 static void
-send_error(netw_request_complete_fn fn, void* context, E_LINQ_ERROR e)
+send_error(linq_request_complete_fn fn, void* context, E_LINQ_ERROR e)
 {
     char err[32];
     if (fn) {
@@ -705,7 +705,7 @@ zmtp_device_send(
     uint32_t plen,
     const char* json,
     uint32_t jlen,
-    netw_request_complete_fn fn,
+    linq_request_complete_fn fn,
     void* ctx)
 {
     device_zmtp_s** d = device_get(zmtp, sid);

@@ -44,13 +44,13 @@ extern "C"
         uint32_t plen,
         const char* json,
         uint32_t jlen,
-        netw_request_complete_fn fn,
+        linq_request_complete_fn fn,
         void* context);
     void device_send_raw(
         device_zmtp_s* d,
         const char* path,
         const char* json,
-        netw_request_complete_fn fn,
+        linq_request_complete_fn fn,
         void* context);
 
     uint32_t device_request_sent_at(device_zmtp_s* d);

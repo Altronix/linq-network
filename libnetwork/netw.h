@@ -82,12 +82,6 @@ extern "C"
         char* data;
     } netw_email_s;
 
-    // REQUEST COMPLETE
-    typedef void (*netw_request_complete_fn)(
-        void*,
-        const char* serial,
-        E_LINQ_ERROR e,
-        const char* json);
     // ERROR
     typedef void (*netw_error_fn)(
         void* context,
@@ -145,7 +139,7 @@ extern "C"
         uint32_t plen,
         const char* json,
         uint32_t jlen,
-        netw_request_complete_fn fn,
+        linq_request_complete_fn fn,
         void* ctx);
 
     // Sys API
