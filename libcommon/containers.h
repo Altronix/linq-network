@@ -53,12 +53,14 @@ extern "C"
     KLIST_INIT(tag, type*, UNUSED_FREE_FN)                                     \
     typedef kl_##tag##_t tag##_list_s;                                         \
                                                                                \
-    tag##_list_s* tag##_list_create();                                         \
-    void tag##_list_destroy(tag##_list_s**);                                   \
-    void tag##_list_push(tag##_list_s*, type**);                               \
-    type* tag##_list_pop(tag##_list_s*);                                       \
-                                                                               \
     tag##_list_s* tag##_list_create() { return kl_init_##tag(); }              \
+                                                                               \
+    type* tag##_list_pop(tag##_list_s* l)                                      \
+    {                                                                          \
+        type* ret = NULL;                                                      \
+        kl_shift_##tag(l, &ret);                                               \
+        return ret;                                                            \
+    }                                                                          \
                                                                                \
     void tag##_list_destroy(tag##_list_s** list_p)                             \
     {                                                                          \
@@ -80,13 +82,6 @@ extern "C"
         type* r = *r_p;                                                        \
         *r_p = NULL;                                                           \
         *kl_pushp_##tag(list) = r;                                             \
-    }                                                                          \
-                                                                               \
-    type* tag##_list_pop(tag##_list_s* l)                                      \
-    {                                                                          \
-        type* ret = NULL;                                                      \
-        kl_shift_##tag(l, &ret);                                               \
-        return ret;                                                            \
     }                                                                          \
                                                                                \
     uint32_t tag##_list_size(tag##_list_s* l) { return l->size; }
