@@ -10,7 +10,7 @@
         if ((*rp)->on_complete) (*rp)->on_complete((*rp)->ctx, err, dat, dp);  \
     } while (0)
 
-typedef struct request_s
+typedef struct request_zmtp_s
 {
     router_s forward;
     uint32_t sent_at;
@@ -19,24 +19,24 @@ typedef struct request_s
     void* ctx;
     linq_network_request_complete_fn on_complete;
     zframe_t* frames[FRAME_REQ_DATA_IDX + 1];
-} request_s;
-static void request_destroy(request_s** r_p);
-LIST_INIT(request, request_s, request_destroy);
+} request_zmtp_s;
+static void request_destroy(request_zmtp_s** r_p);
+LIST_INIT(request, request_zmtp_s, request_destroy);
 
 // main class struct (extends linq_network_socket_s)
-typedef struct device_s
+typedef struct device_zmtp_s
 {
     zsock_t* sock;   // linq_network_socket_s expects zsock_t* to be first
     router_s router; // linq_network_socket_s expects router to be second
     char serial[SID_LEN];
     request_list_s* requests;
-    request_s* request_pending;
+    request_zmtp_s* request_pending;
     char type[TID_LEN];
     uint32_t birth;
     uint32_t uptime;
     uint32_t last_seen;
-} device_s;
-MAP_INIT(device, device_s, device_destroy);
+} device_zmtp_s;
+MAP_INIT(device, device_zmtp_s, device_destroy);
 
 static zframe_t*
 write_path_to_frame(const char* method, const char* path, uint32_t path_len)
@@ -72,9 +72,9 @@ path_to_frame(E_REQUEST_METHOD method, const char* path, uint32_t path_len)
     return frame;
 }
 
-static request_s*
+static request_zmtp_s*
 request_alloc_mem(
-    device_s* device,
+    device_zmtp_s* device,
     E_REQUEST_METHOD method,
     const char* p,
     uint32_t plen,
@@ -86,9 +86,9 @@ request_alloc_mem(
     bool hop = device_hops(device);
     const char* s = device_serial(device);
     uint32_t slen = strlen(s);
-    request_s* r = linq_network_malloc(sizeof(request_s));
+    request_zmtp_s* r = linq_network_malloc(sizeof(request_zmtp_s));
     if (r) {
-        memset(r, 0, sizeof(request_s));
+        memset(r, 0, sizeof(request_zmtp_s));
         r->on_complete = fn;
         r->ctx = context;
         r->frames[FRAME_VER_IDX] = zframe_new("\0", 1);
@@ -105,9 +105,9 @@ request_alloc_mem(
     return r;
 }
 
-static request_s*
+static request_zmtp_s*
 request_alloc(
-    device_s* device,
+    device_zmtp_s* device,
     E_REQUEST_METHOD method,
     const char* path,
     const char* json,
@@ -126,9 +126,9 @@ request_alloc(
 }
 
 static void
-request_destroy(request_s** r_p)
+request_destroy(request_zmtp_s** r_p)
 {
-    request_s* r = *r_p;
+    request_zmtp_s* r = *r_p;
     *r_p = NULL;
     for (uint32_t i = 0; i < (sizeof(r->frames) / sizeof(zframe_t*)); i++) {
         if (r->frames[i]) zframe_destroy(&r->frames[i]);
@@ -137,7 +137,7 @@ request_destroy(request_s** r_p)
 }
 
 static void
-request_router_id_set(request_s* r, uint8_t* rid, uint32_t rid_len)
+request_router_id_set(request_zmtp_s* r, uint8_t* rid, uint32_t rid_len)
 {
     if (r->frames[FRAME_RID_IDX]) zframe_destroy(&r->frames[FRAME_RID_IDX]);
     r->frames[FRAME_RID_IDX] = zframe_new(rid, rid_len);
@@ -145,13 +145,13 @@ request_router_id_set(request_s* r, uint8_t* rid, uint32_t rid_len)
 }
 
 static const char*
-request_serial_get(request_s* r)
+request_serial_get(request_zmtp_s* r)
 {
     return (char*)zframe_data(r->frames[FRAME_SID_IDX]);
 }
 
 static int
-request_send(request_s* r, zsock_t* sock)
+request_send(request_zmtp_s* r, zsock_t* sock)
 {
     zmsg_t* msg = zmsg_new();
     int err, c = r->frames[FRAME_RID_IDX] ? 0 : 1;
@@ -170,7 +170,7 @@ request_send(request_s* r, zsock_t* sock)
     return err;
 }
 
-device_s*
+device_zmtp_s*
 device_create(
     zsock_t* sock,
     const uint8_t* router,
@@ -178,9 +178,9 @@ device_create(
     const char* serial,
     const char* type)
 {
-    device_s* d = linq_network_malloc(sizeof(device_s));
+    device_zmtp_s* d = linq_network_malloc(sizeof(device_zmtp_s));
     if (d) {
-        memset(d, 0, sizeof(device_s));
+        memset(d, 0, sizeof(device_zmtp_s));
         d->sock = sock;
         d->requests = request_list_create();
         d->birth = d->last_seen = sys_tick();
@@ -192,40 +192,40 @@ device_create(
 }
 
 void
-device_destroy(device_s** d_p)
+device_destroy(device_zmtp_s** d_p)
 {
-    device_s* d = *d_p;
+    device_zmtp_s* d = *d_p;
     while (d->request_pending) {
         device_request_resolve(
             d, LINQ_ERROR_SHUTTING_DOWN, "{\"error\":\"shutting down...\"}");
         d->request_pending = request_list_pop(d->requests);
     }
     request_list_destroy(&d->requests);
-    memset(d, 0, sizeof(device_s));
+    memset(d, 0, sizeof(device_zmtp_s));
     *d_p = NULL;
     linq_network_free(d);
 }
 
 const char*
-device_serial(device_s* d)
+device_serial(device_zmtp_s* d)
 {
     return d->serial;
 }
 
 const char*
-device_type(device_s* d)
+device_type(device_zmtp_s* d)
 {
     return d->type;
 }
 
 const router_s*
-device_router(device_s* d)
+device_router(device_zmtp_s* d)
 {
     return &d->router;
 }
 
 bool
-device_no_hops(device_s* d)
+device_no_hops(device_zmtp_s* d)
 {
     // Note that if a device has a router, than that means the device connected
     // to our listener directly (therefore no hops). This is opposed to a
@@ -234,7 +234,7 @@ device_no_hops(device_s* d)
 }
 
 bool
-device_hops(device_s* d)
+device_hops(device_zmtp_s* d)
 {
     // Note that if a device has a router, than that means the device connected
     // to our listener directly (therefore no hops). This is opposed to a
@@ -243,26 +243,26 @@ device_hops(device_s* d)
 }
 
 void
-device_update_router(device_s* d, const uint8_t* rid, uint32_t sz)
+device_update_router(device_zmtp_s* d, const uint8_t* rid, uint32_t sz)
 {
     memcpy(&d->router.id, rid, sz);
     d->router.sz = sz;
 }
 
 uint32_t
-device_last_seen(device_s* d)
+device_last_seen(device_zmtp_s* d)
 {
     return d->last_seen;
 }
 
 uint32_t
-device_uptime(device_s* d)
+device_uptime(device_zmtp_s* d)
 {
     return d->last_seen - d->birth;
 }
 
 void
-device_heartbeat(device_s* d)
+device_heartbeat(device_zmtp_s* d)
 {
     d->last_seen = sys_tick();
 }
@@ -288,7 +288,7 @@ device_method_from_str(const char* method)
 
 void
 device_send(
-    device_s* d,
+    device_zmtp_s* d,
     E_REQUEST_METHOD method,
     const char* path,
     uint32_t plen,
@@ -297,7 +297,7 @@ device_send(
     linq_network_request_complete_fn fn,
     void* context)
 {
-    request_s* r =
+    request_zmtp_s* r =
         request_alloc_mem(d, method, path, plen, json, jlen, fn, context);
     if (r) {
         request_list_push(d->requests, &r);
@@ -309,7 +309,7 @@ device_send(
 
 void
 device_send_raw(
-    device_s* d,
+    device_zmtp_s* d,
     const char* path,
     const char* json,
     linq_network_request_complete_fn fn,
@@ -320,47 +320,47 @@ device_send_raw(
 }
 
 uint32_t
-device_request_sent_at(device_s* r)
+device_request_sent_at(device_zmtp_s* r)
 {
     return r->request_pending ? r->request_pending->sent_at : 0;
 }
 
 uint32_t
-device_request_retry_count(device_s* r)
+device_request_retry_count(device_zmtp_s* r)
 {
     linq_network_assert(r->request_pending);
     return r->request_pending->retry_count;
 }
 
 uint32_t
-device_request_retry_at(device_s* r)
+device_request_retry_at(device_zmtp_s* r)
 {
     linq_network_assert(r->request_pending);
     return r->request_pending->retry_at;
 }
 
 void
-device_request_retry_at_set(device_s* r, uint32_t set)
+device_request_retry_at_set(device_zmtp_s* r, uint32_t set)
 {
     linq_network_assert(r->request_pending);
     r->request_pending->retry_at = set;
 }
 
 void
-device_request_resolve(device_s* d, E_LINQ_ERROR err, const char* str)
+device_request_resolve(device_zmtp_s* d, E_LINQ_ERROR err, const char* str)
 {
     char json[JSON_LEN + 1];
-    request_s** r_p = &d->request_pending;
+    request_zmtp_s** r_p = &d->request_pending;
     snprintf(json, sizeof(json), "%s", str);
     exe_on_complete(r_p, d->serial, err, json);
     request_destroy(r_p);
 }
 
 void
-device_request_flush(device_s* d)
+device_request_flush(device_zmtp_s* d)
 {
     linq_network_assert(d->request_pending == NULL);
-    request_s** r_p = &d->request_pending;
+    request_zmtp_s** r_p = &d->request_pending;
     *r_p = request_list_pop(d->requests);
     if (d->router.sz) request_router_id_set(*r_p, d->router.id, d->router.sz);
     if (request_send(*r_p, d->sock) < 0) {
@@ -371,10 +371,10 @@ device_request_flush(device_s* d)
 }
 
 void
-device_request_retry(device_s* d)
+device_request_retry(device_zmtp_s* d)
 {
     linq_network_assert(d->request_pending);
-    request_s** r_p = &d->request_pending;
+    request_zmtp_s** r_p = &d->request_pending;
     (*r_p)->retry_at = 0;
     (*r_p)->retry_count++;
     if (d->router.sz) request_router_id_set(*r_p, d->router.id, d->router.sz);
@@ -386,7 +386,7 @@ device_request_retry(device_s* d)
 }
 
 void
-device_request_flush_w_check(device_s* d)
+device_request_flush_w_check(device_zmtp_s* d)
 {
     if (request_list_size(d->requests) && !d->request_pending) {
         device_request_flush(d);
@@ -394,13 +394,13 @@ device_request_flush_w_check(device_s* d)
 }
 
 bool
-device_request_pending(device_s* n)
+device_request_pending(device_zmtp_s* n)
 {
     return n->request_pending ? true : false;
 }
 
 uint32_t
-device_request_pending_count(device_s* d)
+device_request_pending_count(device_zmtp_s* d)
 {
     return request_list_size(d->requests) + (d->request_pending ? 1 : 0);
 }

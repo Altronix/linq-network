@@ -59,7 +59,7 @@ static void
 test_device_create(void** context_p)
 {
     ((void)context_p);
-    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
+    device_zmtp_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     assert_non_null(d);
 
     device_send_get(d, "ATX", NULL, NULL);
@@ -78,7 +78,7 @@ static void
 test_device_send_get_no_prefix(void** context_p)
 {
     ((void)context_p);
-    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
+    device_zmtp_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     zmsg_t* msg;
     zframe_t *rid, *ver, *typ, *url;
 
@@ -109,7 +109,7 @@ static void
 test_device_send_get_with_prefix(void** context_p)
 {
     ((void)context_p);
-    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
+    device_zmtp_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     zmsg_t* msg;
     zframe_t *rid, *ver, *typ, *url;
 
@@ -140,7 +140,7 @@ static void
 test_device_send_delete_no_prefix(void** context_p)
 {
     ((void)context_p);
-    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
+    device_zmtp_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     zmsg_t* msg;
     zframe_t *rid, *ver, *typ, *url;
 
@@ -171,7 +171,7 @@ static void
 test_device_send_delete_with_prefix(void** context_p)
 {
     ((void)context_p);
-    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
+    device_zmtp_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     zmsg_t* msg;
     zframe_t *rid, *ver, *typ, *url;
 
@@ -202,7 +202,7 @@ static void
 test_device_send_post_no_prefix(void** context_p)
 {
     ((void)context_p);
-    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
+    device_zmtp_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     zmsg_t* msg;
     zframe_t *rid, *ver, *typ, *url, *dat;
 
@@ -236,7 +236,7 @@ static void
 test_device_send_post_with_prefix(void** context_p)
 {
     ((void)context_p);
-    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
+    device_zmtp_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     zmsg_t* msg;
     zframe_t *rid, *ver, *typ, *url, *dat;
 
@@ -274,7 +274,7 @@ test_device_response(void** context_p)
 {
     ((void)context_p);
     bool* pass = false;
-    device_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
+    device_zmtp_s* d = device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
     device_send_post(d, "/ATX/hardware", "{\"test\":1}", on_response, &pass);
 
     // TODO - add similiar test from linq.c which will test the parsing
@@ -291,7 +291,7 @@ static void
 test_device_send_hop_get_no_prefix(void** context_p)
 {
     ((void)context_p);
-    device_s* d = device_create(NULL, NULL, 3, "sid", "pid");
+    device_zmtp_s* d = device_create(NULL, NULL, 3, "sid", "pid");
     zmsg_t* msg;
     zframe_t *ver, *typ, *sid, *url;
 
@@ -322,7 +322,7 @@ static void
 test_device_send_hop_get_with_prefix(void** context_p)
 {
     ((void)context_p);
-    device_s* d = device_create(NULL, NULL, 3, "sid", "pid");
+    device_zmtp_s* d = device_create(NULL, NULL, 3, "sid", "pid");
     zmsg_t* msg;
     zframe_t *sid, *ver, *typ, *url;
 
@@ -353,7 +353,7 @@ static void
 test_device_send_hop_delete_no_prefix(void** context_p)
 {
     ((void)context_p);
-    device_s* d = device_create(NULL, NULL, 3, "sid", "pid");
+    device_zmtp_s* d = device_create(NULL, NULL, 3, "sid", "pid");
     zmsg_t* msg;
     zframe_t *ver, *typ, *sid, *url;
 
@@ -384,7 +384,7 @@ static void
 test_device_send_hop_delete_with_prefix(void** context_p)
 {
     ((void)context_p);
-    device_s* d = device_create(NULL, NULL, 3, "sid", "pid");
+    device_zmtp_s* d = device_create(NULL, NULL, 3, "sid", "pid");
     zmsg_t* msg;
     zframe_t *ver, *typ, *sid, *url;
 
@@ -415,7 +415,7 @@ static void
 test_device_send_hop_post_no_prefix(void** context_p)
 {
     ((void)context_p);
-    device_s* d = device_create(NULL, NULL, 3, "sid", "pid");
+    device_zmtp_s* d = device_create(NULL, NULL, 3, "sid", "pid");
     zmsg_t* msg;
     zframe_t *ver, *typ, *sid, *url, *dat;
 
@@ -449,7 +449,7 @@ static void
 test_device_send_hop_post_with_prefix(void** context_p)
 {
     ((void)context_p);
-    device_s* d = device_create(NULL, NULL, 3, "sid", "pid");
+    device_zmtp_s* d = device_create(NULL, NULL, 3, "sid", "pid");
     zmsg_t* msg;
     zframe_t *ver, *typ, *sid, *url, *dat;
 

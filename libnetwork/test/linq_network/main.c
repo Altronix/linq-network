@@ -208,7 +208,7 @@ test_linq_network_receive_heartbeat_ok(void** context_p)
 
     // Receive a heartbeat
     linq_network_poll(test->net, 5);
-    device_s** d = (device_s**)linq_network_device(test->net, serial);
+    device_zmtp_s** d = (device_zmtp_s**)linq_network_device(test->net, serial);
     assert_non_null(d);
     assert_int_equal(linq_network_device_count(test->net), 1);
     assert_int_equal(device_router(*d)->sz, 4);
@@ -376,7 +376,7 @@ test_linq_network_receive_response_error_timeout(void** context_p)
                                      .user = USER,
                                      .pass = PASS };
     const char* serial = expect_sid = "serial";
-    device_s** d;
+    device_zmtp_s** d;
     zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
     zmsg_t* r = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
 
@@ -390,7 +390,7 @@ test_linq_network_receive_response_error_timeout(void** context_p)
     // Receive a new device @t=0
     spy_sys_set_tick(0);
     linq_network_poll(test->net, 5);
-    d = (device_s**)linq_network_device(test->net, serial);
+    d = (device_zmtp_s**)linq_network_device(test->net, serial);
     device_send(
         *d,
         REQUEST_METHOD_GET,
@@ -451,7 +451,7 @@ test_linq_network_receive_response_error_codes(void** context_p)
                                      .user = USER,
                                      .pass = PASS };
     const char* serial = expect_sid = "serial";
-    device_s** d;
+    device_zmtp_s** d;
 
     int codes[] = { 0, 400, 403, 404, 500 };
     for (int i = 0; i < 5; i++) {
@@ -471,7 +471,7 @@ test_linq_network_receive_response_error_codes(void** context_p)
 
         // Setup code under test
         linq_network_poll(test->net, 0);
-        d = (device_s**)linq_network_device(test->net, serial);
+        d = (device_zmtp_s**)linq_network_device(test->net, serial);
         assert_non_null(d);
 
         // Start test
@@ -517,7 +517,7 @@ test_linq_network_receive_response_error_504(void** context_p)
                                      .pass = PASS };
     uint32_t t = 0;
     const char* serial = expect_sid = "serial";
-    device_s** d;
+    device_zmtp_s** d;
     zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
     zmsg_t* incoming[LINQ_NETW_MAX_RETRY + 1] = {
         helpers_make_response("rid0", serial, 504, "{\"error\":504}"),
@@ -540,7 +540,7 @@ test_linq_network_receive_response_error_504(void** context_p)
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
     linq_network_poll(test->net, 0);
-    d = (device_s**)linq_network_device(test->net, serial);
+    d = (device_zmtp_s**)linq_network_device(test->net, serial);
     assert_non_null(d);
 
     // Start test @t=0
@@ -612,7 +612,7 @@ test_linq_network_receive_response_ok_504(void** context_p)
                                      .pass = PASS };
     uint32_t t = 0;
     const char* serial = expect_sid = "serial";
-    device_s** d;
+    device_zmtp_s** d;
     zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
     zmsg_t* ok = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
     zmsg_t* incoming[LINQ_NETW_MAX_RETRY] = {
@@ -635,7 +635,7 @@ test_linq_network_receive_response_ok_504(void** context_p)
     czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_poll_set_incoming((0x01));
     linq_network_poll(test->net, 0);
-    d = (device_s**)linq_network_device(test->net, serial);
+    d = (device_zmtp_s**)linq_network_device(test->net, serial);
     assert_non_null(d);
 
     // Start test @t=0

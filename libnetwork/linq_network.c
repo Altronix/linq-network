@@ -189,7 +189,7 @@ foreach_device_print_sid(
     device_map_s* self,
     void* ctx,
     const char* serial,
-    device_s** d_p)
+    device_zmtp_s** d_p)
 {
     ((void)self);
     foreach_device_print_sid_ctx* foreach_ctx = ctx;
