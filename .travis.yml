@@ -1,3 +1,7 @@
+# Note 'bionic' libc is too old to link with our nodejs prebuilt binaries. So
+# for prebuilt binary test we use the focal vm.
+# An alternative would be to build the prebuilt binaries with:
+# https://github.com/wheybags/glibc_version_header
 git:
         submodules: false
 notifications:
