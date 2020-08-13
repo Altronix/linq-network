@@ -3,7 +3,7 @@ list(APPEND LIBS
   network-static
   database-static
   http-static
-  utils-static
+  common-static
   ${JSMN_WEB_TOKENS_LIBS}
   ${ZMQ_LIBS}
   ${TLS_LIBS})

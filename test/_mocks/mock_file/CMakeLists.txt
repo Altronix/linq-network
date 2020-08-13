@@ -1,5 +1,5 @@
 add_library(mock-file mock_file.c mock_file.h)
-target_link_libraries(mock-file cmocka stdc++ utils-static)
+target_link_libraries(mock-file cmocka stdc++ common-static)
 target_include_directories(mock-file PUBLIC .)
 
 function (append_mock_file_linker_flags dst)

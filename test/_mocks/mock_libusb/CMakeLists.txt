@@ -1,5 +1,5 @@
 add_library(mock-libusb mock_libusb.c mock_libusb.h)
-target_link_libraries(mock-libusb cmocka stdc++ utils-static libusb-static)
+target_link_libraries(mock-libusb cmocka stdc++ common-static libusb-static)
 target_include_directories(mock-libusb PUBLIC .)
 
 function (append_mock_libusb_linker_flags dst)

@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 add_executable(test-jsmn main.c)
 target_link_libraries(test-jsmn
-                      utils-static
+                      common-static
                       mock-utils
                       helpers
 		      cmocka)

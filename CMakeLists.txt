@@ -117,10 +117,10 @@ if(ENABLE_TESTING)
   add_subdirectory(libusb/host/test)
   add_subdirectory(libusb/device/test)
   add_subdirectory(libusb/common/test)
-  add_subdirectory(libutils/test/containers)
-  add_subdirectory(libutils/test/jsmn)
-  add_subdirectory(libutils/test/sys)
-  add_subdirectory(libutils/test/rlp)
+  add_subdirectory(libcommon/test/containers)
+  add_subdirectory(libcommon/test/jsmn)
+  add_subdirectory(libcommon/test/sys)
+  add_subdirectory(libcommon/test/rlp)
   add_subdirectory(libnetwork/test/linq_network)
   add_subdirectory(libnetwork/test/device)
   add_subdirectory(bindings/cpp/test)
@@ -131,8 +131,8 @@ if(ENABLE_TESTING)
     "examples/server/*"
     "libhttp/mongoose.*"
     "libdatabase/sqlite3.*"
-    "libutils/sys/mock/*"
-    "libutils/base64.*"
+    "libcommon/sys/mock/*"
+    "libcommon/base64.*"
     "external/http_parser/*")
 
   setup_target_for_coverage_lcov(NAME test-coverage
@@ -153,7 +153,7 @@ if(ENABLE_TESTING)
 
 endif()
 
-add_subdirectory(libutils)
+add_subdirectory(libcommon)
 add_subdirectory(libnetwork)
 
 if(BUILD_LINQD)

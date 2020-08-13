@@ -1,4 +1,4 @@
-set(LIBS utils-static)
+set(LIBS common-static)
 list(APPEND SOURCES wire.c)
 list(APPEND HEADERS wire.h)
 set(INCS "./")

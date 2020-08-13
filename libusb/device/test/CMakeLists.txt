@@ -1,5 +1,5 @@
 append_mock_file_linker_flags(wrap_flags)
-set(LIBS cmocka mock-file usbd-test-static utils-static)
+set(LIBS cmocka mock-file usbd-test-static common-static)
 
 add_executable(test-usbd main.c)
 set_target_properties(test-usbd PROPERTIES LINK_FLAGS ${wrap_flags})

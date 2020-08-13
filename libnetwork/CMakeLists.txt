@@ -11,7 +11,7 @@ set(SOURCES
     zmtp.h)
 
 set(INSTALL_HEADERS linq_network.h)
-set(LIBS ${CMAKE_THREAD_LIBS_INIT} ${ZMQ_LIBS} utils-static)
+set(LIBS ${CMAKE_THREAD_LIBS_INIT} ${ZMQ_LIBS} common-static)
 
 append_log_level_compiler_flags(definitions)
 
