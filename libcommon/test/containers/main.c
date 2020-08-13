@@ -9,6 +9,11 @@
 #include <cmocka.h>
 #include <setjmp.h>
 
+typedef struct foo
+{
+    int foo;
+} foo;
+
 typedef struct test
 {
     int val;
@@ -44,6 +49,7 @@ MAP_INIT_H(car, car);
 MAP_INIT_H(item, item);
 MAP_INIT(item, item, item_free);
 MAP_INIT(car, car, car_free);
+MAP_INIT_W_FREE(foo, foo);
 
 static void
 test_container_list_create(void** context_p)
