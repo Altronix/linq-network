@@ -18,37 +18,37 @@ typedef struct test
 {
     int val;
     void* ctx;
-} item;
+} item_s;
 
 typedef struct car
 {
     void* ctx;
-} car;
+} car_s;
 
 void
-item_free(item** p)
+item_free(item_s** p)
 {
-    item* t = *p;
+    item_s* t = *p;
     *p = NULL;
     linq_network_free(t);
 }
 
 void
-car_free(car** p)
+car_free(car_s** p)
 {
-    car* c = *p;
+    car_s* c = *p;
     *p = NULL;
     linq_network_free(c);
 }
 
 // LIST_INIT_H(item, item);
-LIST_INIT(item, item, item_free);
-LIST_INIT(cars, car, car_free);
+LIST_INIT(item, item_s, item_free);
+LIST_INIT(cars, car_s, car_free);
 
-MAP_INIT_H(car, car);
-MAP_INIT_H(item, item);
-MAP_INIT(item, item, item_free);
-MAP_INIT(car, car, car_free);
+MAP_INIT_H(car, car_s);
+MAP_INIT_H(item, item_s);
+MAP_INIT(item, item_s, item_free);
+MAP_INIT(car, car_s, car_free);
 MAP_INIT_W_FREE(foo, foo);
 
 static void
@@ -56,9 +56,9 @@ test_container_list_create(void** context_p)
 {
     ((void)context_p);
     item_list_s* list = item_list_create();
-    item* item0 = linq_network_malloc(sizeof(item));
-    item* item1 = linq_network_malloc(sizeof(item));
-    item* item2 = linq_network_malloc(sizeof(item));
+    item_s* item0 = linq_network_malloc(sizeof(item_s));
+    item_s* item1 = linq_network_malloc(sizeof(item_s));
+    item_s* item2 = linq_network_malloc(sizeof(item_s));
 
     item_list_push(list, &item0);
     assert_null(item0);
@@ -85,9 +85,9 @@ test_container_map_create(void** context_p)
 {
     ((void)context_p);
     item_map_s* hash = item_map_create();
-    item* item0 = linq_network_malloc(sizeof(item));
-    item* item1 = linq_network_malloc(sizeof(item));
-    item* item2 = linq_network_malloc(sizeof(item));
+    item_s* item0 = linq_network_malloc(sizeof(item_s));
+    item_s* item1 = linq_network_malloc(sizeof(item_s));
+    item_s* item2 = linq_network_malloc(sizeof(item_s));
     item0->val = 0;
     item1->val = 1;
     item2->val = 2;
@@ -110,7 +110,7 @@ test_container_map_create(void** context_p)
 
     assert_int_equal(2, item_map_size(hash));
 
-    item** ret = item_map_get(hash, "1");
+    item_s** ret = item_map_get(hash, "1");
     assert_int_equal((*ret)->val, 1);
 
     item_map_destroy(&hash);
