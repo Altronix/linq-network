@@ -70,7 +70,7 @@ matrix:
                 - os: linux
                   env:
                           - LINQ_NETWORK_USE_PREBUILT=ON
-                  dist: bionic
+                  dist: focal
                   language: node_js
                   node_js:
                           - 12
