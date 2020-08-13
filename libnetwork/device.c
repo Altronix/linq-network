@@ -23,8 +23,9 @@ LIST_INIT(request, request_zmtp_s, request_destroy);
 // main class struct (extends linq_network_socket_s)
 typedef struct device_zmtp_s
 {
-    zsock_t* sock;   // linq_network_socket_s expects zsock_t* to be first
-    router_s router; // linq_network_socket_s expects router to be second
+    node_s base;     // will cast into netw_socket_s ...must be on top
+    zsock_t* sock;   // will cast into netw_socket_s ...must be on top
+    router_s router; // will cast into netw_socket_s ...must be on top
     char serial[SID_LEN];
     request_list_s* requests;
     request_zmtp_s* request_pending;

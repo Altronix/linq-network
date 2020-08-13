@@ -8,6 +8,9 @@
 // System includes
 #include "sys.h"
 
+// Common lib
+#include "common.h"
+
 // Dependencies includes
 #include "czmq.h"
 #undef closesocket    // Mongoose and czmq both define these
@@ -96,6 +99,7 @@ extern "C"
 
     typedef struct
     {
+        node_s base;
         zsock_t* sock;
         router_s* router;
     } netw_socket_s;

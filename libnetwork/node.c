@@ -8,8 +8,9 @@
 // main class struct (extends netw_socket_s)
 typedef struct node_zmtp_s
 {
-    zsock_t* sock;   // netw_socket_s expects zsock_t to be first
-    router_s router; // netw_socket_s expects router to be second
+    node_s base;     // will cast into netw_socket_s ...must be on top
+    zsock_t* sock;   // will cast into netw_socket_s ...must be on top
+    router_s router; // will cast into netw_socket_s ...must be on top
     char serial[SID_LEN];
 } node_zmtp_s;
 MAP_INIT(node, node_zmtp_s, node_destroy);
