@@ -27,7 +27,7 @@ extern "C"
     void type##_free_fn(type** ctx_p) {}
 
     static inline void __list_free_fn(void* ctx) { ((void)ctx); }
-#define FREE_FN(x) __list_free_fn(x->data)
+#define UNUSED_FREE_FN(x) __list_free_fn(x->data)
 
 #define LIST_INIT_H(tag, type)                                                 \
     typedef struct kl_##tag##_t tag##_list_s;                                  \
@@ -50,7 +50,7 @@ extern "C"
     for (iter = list->head; iter != list->tail; iter = iter->next)
 
 #define LIST_INIT(tag, type, list_free_fn)                                     \
-    KLIST_INIT(tag, type*, FREE_FN)                                            \
+    KLIST_INIT(tag, type*, UNUSED_FREE_FN)                                     \
     typedef kl_##tag##_t tag##_list_s;                                         \
                                                                                \
     tag##_list_s* tag##_list_create();                                         \
