@@ -31,11 +31,7 @@ if(BUILD_USBH)
   list(APPEND sources ./src/linq_usbh_js.cc)
   list(APPEND headers ./src/linq_usbh_js.h)
   list(APPEND defs "-DBUILD_USBH=TRUE")
-  if(NOT MSVC)
-    list(APPEND libs usbh-shared)
-  else()
-    list(APPEND libs usbh-static)
-  endif()
+  list(APPEND libs usbh-static)
 endif()
 
 list(APPEND libs
