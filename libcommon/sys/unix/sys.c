@@ -23,7 +23,7 @@ set_blocking(sys_file* fd, bool block)
         fileno(fd), F_SETFL, block ? flags & ~O_NONBLOCK : flags | O_NONBLOCK);
 }
 
-LINQ_UTILS_EXPORT void
+LINQ_EXPORT void
 optind_set(int val)
 {
     optind = val;

@@ -17,15 +17,15 @@
 
 // clang-format off
 #if defined _WIN32
-#  if defined LINQ_UTILS_STATIC
-#    define LINQ_UTILS_EXPORT
+#  if defined LINQ_STATIC
+#    define LINQ_EXPORT
 #  elif defined DLL_EXPORT
-#    define LINQ_UTILS_EXPORT __declspec(dllexport)
+#    define LINQ_EXPORT __declspec(dllexport)
 #  else
-#    define LINQ_UTILS_EXPORT __declspec(dllimport)
+#    define LINQ_EXPORT __declspec(dllimport)
 #  endif
 #else
-#  define LINQ_UTILS_EXPORT
+#  define LINQ_EXPORT
 #endif
 // clang-format on
 
@@ -57,20 +57,20 @@ extern "C"
     typedef FILE sys_file;
     typedef pid_t sys_pid;
 
-    LINQ_UTILS_EXPORT void optind_set(int val);
-    LINQ_UTILS_EXPORT int32_t sys_tick();
-    LINQ_UTILS_EXPORT uint32_t sys_unix();
-    LINQ_UTILS_EXPORT void sys_uuid(char*);
-    LINQ_UTILS_EXPORT sys_file* sys_open(const char* path, E_FILE_MODE mode);
-    LINQ_UTILS_EXPORT int sys_read_buffer(sys_file*, char*, uint32_t*);
-    LINQ_UTILS_EXPORT int sys_read(sys_file*, char**, uint32_t*);
-    LINQ_UTILS_EXPORT int sys_write(sys_file*, const char*, uint32_t);
-    LINQ_UTILS_EXPORT int sys_vfprintf(sys_file* f, const char* fmt, va_list);
-    LINQ_UTILS_EXPORT int sys_fprintf(sys_file* f, const char* fmt, ...);
-    LINQ_UTILS_EXPORT void sys_close(sys_file** f_p);
-    LINQ_UTILS_EXPORT void sys_make_absolute(const char*, char*, uint32_t*);
-    LINQ_UTILS_EXPORT int sys_daemonize(const char*, sys_file**, sys_pid*);
-    LINQ_UTILS_EXPORT void sys_msleep(uint32_t);
+    LINQ_EXPORT void optind_set(int val);
+    LINQ_EXPORT int32_t sys_tick();
+    LINQ_EXPORT uint32_t sys_unix();
+    LINQ_EXPORT void sys_uuid(char*);
+    LINQ_EXPORT sys_file* sys_open(const char* path, E_FILE_MODE mode);
+    LINQ_EXPORT int sys_read_buffer(sys_file*, char*, uint32_t*);
+    LINQ_EXPORT int sys_read(sys_file*, char**, uint32_t*);
+    LINQ_EXPORT int sys_write(sys_file*, const char*, uint32_t);
+    LINQ_EXPORT int sys_vfprintf(sys_file* f, const char* fmt, va_list);
+    LINQ_EXPORT int sys_fprintf(sys_file* f, const char* fmt, ...);
+    LINQ_EXPORT void sys_close(sys_file** f_p);
+    LINQ_EXPORT void sys_make_absolute(const char*, char*, uint32_t*);
+    LINQ_EXPORT int sys_daemonize(const char*, sys_file**, sys_pid*);
+    LINQ_EXPORT void sys_msleep(uint32_t);
 
 #ifdef __cplusplus
 }
