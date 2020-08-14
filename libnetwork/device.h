@@ -34,7 +34,6 @@ extern "C"
     uint32_t device_last_seen(node_s* d);
     uint32_t device_uptime(node_s* d);
     void device_heartbeat(node_s* d);
-    E_REQUEST_METHOD device_method_from_str(const char*);
     void device_send(
         node_s* d,
         E_REQUEST_METHOD method,

@@ -268,25 +268,6 @@ device_heartbeat(node_s* d)
     d->last_seen = sys_tick();
 }
 
-E_REQUEST_METHOD
-device_method_from_str(const char* method)
-{
-    uint32_t l = strlen(method);
-    if (l == 3) {
-        if (!memcmp(method, "GET", l)) {
-            return REQUEST_METHOD_GET;
-        } else if (!(memcmp(method, "PUT", l))) {
-            return REQUEST_METHOD_POST; // TODO support PUT
-        }
-    } else if (l == 4 && !memcmp(method, "POST", l)) {
-        return REQUEST_METHOD_POST;
-    } else if (l == 6 && !memcmp(method, "DELETE", l)) {
-        return REQUEST_METHOD_DELETE;
-    }
-    assert(false);
-    return -1; // should never return
-}
-
 void
 device_send(
     node_s* base,
