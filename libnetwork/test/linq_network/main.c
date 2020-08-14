@@ -2,6 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include "device.h"
 #include "helpers.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
@@ -213,9 +214,9 @@ test_netw_receive_heartbeat_ok(void** context_p)
     assert_int_equal(netw_device_count(test->net), 1);
     assert_int_equal(zmtp_device_router(*d)->sz, 4);
     assert_memory_equal(zmtp_device_router(*d)->id, "rid0", 4);
-    assert_string_equal(zmtp_device_serial(*d), serial);
-    assert_string_equal(zmtp_device_type(*d), "product");
-    assert_int_equal(zmtp_device_uptime(*d), 0);
+    assert_string_equal(device_serial(*d), serial);
+    assert_string_equal(device_type(*d), "product");
+    assert_int_equal(device_uptime(*d), 0);
 
     // Receive a second heartbeat , update router id and last seen
     spy_sys_set_tick(200);
@@ -224,9 +225,9 @@ test_netw_receive_heartbeat_ok(void** context_p)
     assert_int_equal(netw_device_count(test->net), 1);
     assert_int_equal(zmtp_device_router(*d)->sz, 5);
     assert_memory_equal(zmtp_device_router(*d)->id, "rid00", 5);
-    assert_string_equal(zmtp_device_serial(*d), serial);
-    assert_string_equal(zmtp_device_type(*d), "product");
-    assert_int_equal(zmtp_device_uptime(*d), 100);
+    assert_string_equal(device_serial(*d), serial);
+    assert_string_equal(device_type(*d), "product");
+    assert_int_equal(device_uptime(*d), 100);
 
     assert_true(pass);
 

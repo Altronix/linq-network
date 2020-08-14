@@ -22,15 +22,10 @@ extern "C"
         const char* serial,
         const char* type);
     void zmtp_device_destroy(node_s** d_p);
-    const char* zmtp_device_serial(node_s* d);
-    const char* zmtp_device_type(node_s* d);
     const router_s* zmtp_device_router(node_s* d);
     bool zmtp_device_no_hops(node_s* d);
     bool zmtp_device_hops(node_s* d);
     void zmtp_device_update_router(node_s* d, const uint8_t* rid, uint32_t sz);
-    uint32_t zmtp_device_last_seen(node_s* d);
-    uint32_t zmtp_device_uptime(node_s* d);
-    void zmtp_device_heartbeat(node_s* d);
     void zmtp_device_send(
         node_s* d,
         E_REQUEST_METHOD method,

@@ -15,6 +15,11 @@ extern "C"
 #endif
 
     MAP_INIT_H(device, node_s);
+    const char* device_type(node_s* d);
+    const char* device_serial(node_s* d);
+    uint32_t device_last_seen(node_s* d);
+    uint32_t device_uptime(node_s* d);
+    void device_heartbeat(node_s* d);
     uint32_t device_map_foreach_remove_if(
         device_map_s* hash,
         bool (*remove)(node_s*, void*),

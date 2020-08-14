@@ -4,6 +4,7 @@
 
 #include "zmtp_device.h"
 #include "containers.h"
+#include "device.h"
 #include "log.h"
 
 #define exe_on_complete(rp, err, dat, dp)                                      \
@@ -76,7 +77,7 @@ request_alloc_mem(
 {
     zmtp_device_s* device = (zmtp_device_s*)base;
     bool hop = zmtp_device_hops(&device->base);
-    const char* s = zmtp_device_serial(&device->base);
+    const char* s = device_serial(&device->base);
     uint32_t slen = strlen(s);
     request_zmtp_s* r = linq_network_malloc(sizeof(request_zmtp_s));
     if (r) {
@@ -207,18 +208,6 @@ zmtp_device_destroy(node_s** base)
     linq_network_free(d);
 }
 
-const char*
-zmtp_device_serial(node_s* d)
-{
-    return d->serial;
-}
-
-const char*
-zmtp_device_type(node_s* d)
-{
-    return d->type;
-}
-
 const router_s*
 zmtp_device_router(node_s* base)
 {
@@ -250,24 +239,6 @@ zmtp_device_update_router(node_s* base, const uint8_t* rid, uint32_t sz)
     zmtp_device_s* d = (zmtp_device_s*)base;
     memcpy(&d->router.id, rid, sz);
     d->router.sz = sz;
-}
-
-uint32_t
-zmtp_device_last_seen(node_s* d)
-{
-    return d->last_seen;
-}
-
-uint32_t
-zmtp_device_uptime(node_s* d)
-{
-    return d->last_seen - d->birth;
-}
-
-void
-zmtp_device_heartbeat(node_s* d)
-{
-    d->last_seen = sys_tick();
 }
 
 void

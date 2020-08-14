@@ -190,12 +190,12 @@ device_resolve(zmtp_s* l, zsock_t* sock, zframe_t** frames, bool insert)
     print_null_terminated(tid, TID_LEN, frames[FRAME_HB_TID_IDX]);
     node_s** d = device_map_get(map, sid);
     if (d) {
-        zmtp_device_heartbeat(*d);
+        device_heartbeat(*d);
         if (rid) zmtp_device_update_router(*d, rid, rid_sz);
     } else {
         if (insert) {
             node_s* node = zmtp_device_create(sock, rid, rid_sz, sid, tid);
-            if (node) d = device_map_add(map, zmtp_device_serial(node), &node);
+            if (node) d = device_map_add(map, device_serial(node), &node);
             if (l->callbacks && l->callbacks->on_new) {
                 l->callbacks->on_new(l->context, sid);
             }
@@ -319,14 +319,14 @@ process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
                         LINQ_NETW_MAX_RETRY) {
                         log_warn(
                             "(ZMTP) [%.6s...] (%.3d)",
-                            zmtp_device_serial(*d),
+                            device_serial(*d),
                             err_code);
                         zmtp_device_request_resolve(*d, err_code, json);
                         zmtp_device_request_flush_w_check(*d);
                     } else {
                         log_warn(
                             "(ZMTP) [%.6s...] (%.3d) retrying...",
-                            zmtp_device_serial(*d),
+                            device_serial(*d),
                             err_code);
                         uint32_t retry = sys_tick() + LINQ_NETW_RETRY_TIMEOUT;
                         zmtp_device_request_retry_at_set(*d, retry);
@@ -373,7 +373,7 @@ process_alert(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
             }
             if (z->callbacks && z->callbacks->on_alert) {
                 z->callbacks->on_alert(
-                    z->context, zmtp_device_serial(*d), &alert, &email);
+                    z->context, device_serial(*d), &alert, &email);
             }
             e = LINQ_ERROR_OK;
         }
@@ -412,7 +412,7 @@ process_heartbeat(zmtp_s* z, zsock_t* s, zmsg_t** msg, zframe_t** frames)
                 node_map_foreach(*z->nodes_p, foreach_node_forward_message, &f);
             }
             if (z->callbacks && z->callbacks->on_heartbeat) {
-                z->callbacks->on_heartbeat(z->context, zmtp_device_serial(*d));
+                z->callbacks->on_heartbeat(z->context, device_serial(*d));
             }
             e = LINQ_ERROR_OK;
         }

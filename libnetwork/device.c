@@ -15,6 +15,36 @@ node_destroy(node_s** node_p)
 
 MAP_INIT(device, node_s, node_destroy);
 
+const char*
+device_type(node_s* d)
+{
+    return d->type;
+}
+
+const char*
+device_serial(node_s* d)
+{
+    return d->serial;
+}
+
+uint32_t
+device_last_seen(node_s* d)
+{
+    return d->last_seen;
+}
+
+uint32_t
+device_uptime(node_s* d)
+{
+    return d->last_seen - d->birth;
+}
+
+void
+device_heartbeat(node_s* d)
+{
+    d->last_seen = sys_tick();
+}
+
 uint32_t
 device_map_foreach_remove_if(
     device_map_s* hash,
