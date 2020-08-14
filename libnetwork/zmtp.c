@@ -519,30 +519,6 @@ zmtp_connect(zmtp_s* zmtp, const char* ep)
     return LINQ_ERROR_SOCKET;
 }
 
-static void
-foreach_device_remove_if_sock_eq(
-    device_map_s* self,
-    void* ctx,
-    const char* serial,
-    node_s** device_p)
-{
-    zsock_t* eq = ctx;
-    netw_socket_s* socket = ((netw_socket_s*)*device_p);
-    if (eq == socket->sock) device_map_remove(self, serial);
-}
-
-static void
-foreach_node_remove_if_sock_eq(
-    node_map_s* self,
-    void* ctx,
-    const char* serial,
-    node_zmtp_s** device_p)
-{
-    zsock_t* eq = ctx;
-    netw_socket_s* socket = ((netw_socket_s*)*device_p);
-    if (eq == socket->sock) node_map_remove(self, serial);
-}
-
 E_LINQ_ERROR
 zmtp_close_router(zmtp_s* zmtp, netw_socket handle)
 {
