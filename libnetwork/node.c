@@ -11,7 +11,6 @@ typedef struct node_zmtp_s
     node_s base;     // will cast into netw_socket_s ...must be on top
     zsock_t* sock;   // will cast into netw_socket_s ...must be on top
     router_s router; // will cast into netw_socket_s ...must be on top
-    char serial[SID_LEN];
 } node_zmtp_s;
 MAP_INIT(node, node_zmtp_s, node_destroy);
 
@@ -26,8 +25,11 @@ node_create(
     if (node) {
         memset(node, 0, sizeof(node_zmtp_s));
         node->sock = s;
+        node->base.transport = TRANSPORT_ZMTP;
         if (router_sz) node_update_router(node, router, router_sz);
-        if (sid) snprintf(node->serial, sizeof(node->serial), "%s", sid);
+        if (sid) {
+            snprintf(node->base.serial, sizeof(node->base.serial), "%s", sid);
+        }
     }
     return node;
 }
@@ -51,7 +53,7 @@ node_update_router(node_zmtp_s* node, const uint8_t* r, uint32_t sz)
 const char*
 node_serial(node_zmtp_s* node)
 {
-    return node->serial;
+    return node->base.serial;
 }
 
 static int
@@ -125,18 +127,19 @@ node_send_frames_n(node_zmtp_s* node, uint32_t n, ...)
     }
 }
 
-// A socket is closing. Remove all our nodes that reference this socket
 uint32_t
-node_foreach_remove_if_sock_eq(node_map_s* hash, zsock_t* z)
+node_map_foreach_remove_if(
+    node_map_s* hash,
+    bool (*remove)(node_s*, void*),
+    void* ctx)
 {
     uint32_t n = 0;
     map_iter iter;
+    node_s* v;
     map_foreach(hash, iter)
     {
-        if (map_has_key(hash, iter)) {
-            node_zmtp_s* v = map_val(hash, iter);
-            netw_socket_s* s = (netw_socket_s*)v;
-            if (s->sock == z) {
+        if (map_has_key(hash, iter) && (v = (node_s*)map_val(hash, iter))) {
+            if (remove(v, ctx)) {
                 node_map_remove(hash, v->serial);
                 n++;
             }
@@ -144,3 +147,4 @@ node_foreach_remove_if_sock_eq(node_map_s* hash, zsock_t* z)
     }
     return n;
 }
+

@@ -558,7 +558,7 @@ zmtp_close_dealer(zmtp_s* zmtp, netw_socket handle)
         // remove_nodes(s, *zmtp->nodes_p);
         count = device_map_foreach_remove_if(*zmtp->devices_p, remove_if, s);
         log_info("(ZMTP) [%d] device nodes closed");
-        count = node_foreach_remove_if_sock_eq(*zmtp->nodes_p, *s);
+        count = node_map_foreach_remove_if(*zmtp->nodes_p, remove_if, s);
         log_info("(ZMTP) [%d] client nodes closed");
         socket_map_remove_iter(zmtp->dealers, socket);
         return LINQ_ERROR_OK;
