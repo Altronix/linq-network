@@ -58,8 +58,7 @@ extern "C"
 
     typedef struct node_s
     {
-        struct request_list_s* requests;
-        struct request_s* pending;
+        request_s* pending;
         char serial[LINQ_SID_LEN];
         char type[LINQ_TID_LEN];
         uint32_t birth;
