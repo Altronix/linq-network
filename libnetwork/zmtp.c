@@ -522,6 +522,16 @@ zmtp_connect(zmtp_s* zmtp, const char* ep)
     return LINQ_ERROR_SOCKET;
 }
 
+static bool
+remove_if(node_s* v, void* socket)
+{
+    if (v->transport == TRANSPORT_ZMTP) {
+        netw_socket_s* s = (netw_socket_s*)v;
+        if (s->sock == *(zsock_t**)socket) return true;
+    }
+    return false;
+}
+
 E_LINQ_ERROR
 zmtp_close_router(zmtp_s* zmtp, netw_socket handle)
 {
@@ -529,7 +539,7 @@ zmtp_close_router(zmtp_s* zmtp, netw_socket handle)
     zsock_t** s = socket_map_resolve(zmtp->routers, socket);
     if (s) {
         // remove_devices(s, *zmtp->devices_p);
-        count = device_map_foreach_remove_if_sock_eq(*zmtp->devices_p, *s);
+        count = device_map_foreach_remove_if(*zmtp->devices_p, remove_if, s);
         log_info("(ZMTP) [%d] device nodes closed");
         socket_map_remove_iter(zmtp->routers, socket);
         return LINQ_ERROR_OK;
@@ -546,7 +556,7 @@ zmtp_close_dealer(zmtp_s* zmtp, netw_socket handle)
     if (s) {
         // remove_devices(s, *zmtp->devices_p);
         // remove_nodes(s, *zmtp->nodes_p);
-        count = device_map_foreach_remove_if_sock_eq(*zmtp->devices_p, *s);
+        count = device_map_foreach_remove_if(*zmtp->devices_p, remove_if, s);
         log_info("(ZMTP) [%d] device nodes closed");
         count = node_foreach_remove_if_sock_eq(*zmtp->nodes_p, *s);
         log_info("(ZMTP) [%d] client nodes closed");

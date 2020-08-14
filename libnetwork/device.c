@@ -15,9 +15,11 @@ node_destroy(node_s** node_p)
 
 MAP_INIT(device, node_s, node_destroy);
 
-// A socket is closing. Remove all our nodes that reference this socket
 uint32_t
-device_map_foreach_remove_if_sock_eq(device_map_s* hash, zsock_t* z)
+device_map_foreach_remove_if(
+    device_map_s* hash,
+    bool (*remove)(node_s*, void*),
+    void* ctx)
 {
     uint32_t n = 0;
     map_iter iter;
@@ -25,12 +27,9 @@ device_map_foreach_remove_if_sock_eq(device_map_s* hash, zsock_t* z)
     map_foreach(hash, iter)
     {
         if (map_has_key(hash, iter) && (v = map_val(hash, iter))) {
-            if (v->transport == TRANSPORT_ZMTP) {
-                netw_socket_s* s = (netw_socket_s*)v;
-                if (s->sock == z) {
-                    device_map_remove(hash, v->serial);
-                    n++;
-                }
+            if (remove(v, ctx)) {
+                device_map_remove(hash, v->serial);
+                n++;
             }
         }
     }

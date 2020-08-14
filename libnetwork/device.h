@@ -6,9 +6,8 @@
 #define DEVICE_H_
 
 // includes
+#include "common.h"
 #include "containers.h"
-#include "czmq.h"
-#include "netw_internal.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -16,7 +15,10 @@ extern "C"
 #endif
 
     MAP_INIT_H(device, node_s);
-    uint32_t device_map_foreach_remove_if_sock_eq(device_map_s*, zsock_t* z);
+    uint32_t device_map_foreach_remove_if(
+        device_map_s* hash,
+        bool (*remove)(node_s*, void*),
+        void* ctx);
     void device_map_foreach_poll(device_map_s*);
 
 #ifdef __cplusplus
