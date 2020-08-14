@@ -28,6 +28,7 @@ extern "C"
     void node_send_hello(node_zmtp_s* node);
     void node_send_frames(node_zmtp_s* node, uint32_t n, zframe_t** frames);
     void node_send_frames_n(node_zmtp_s* node, uint32_t n, ...);
+    uint32_t node_foreach_remove_if_sock_eq(node_map_s* hash, zsock_t* z);
 
 #ifdef __cplusplus
 }

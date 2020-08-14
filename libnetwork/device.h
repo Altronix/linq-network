@@ -63,6 +63,7 @@ extern "C"
     void device_request_retry(device_zmtp_s* d);
     bool device_request_pending(device_zmtp_s* n);
     uint32_t device_request_pending_count(device_zmtp_s* d);
+    uint32_t device_foreach_remove_if_sock_eq(device_map_s* hash, zsock_t* z);
 
 #ifdef __cplusplus
 }

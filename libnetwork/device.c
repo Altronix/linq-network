@@ -398,3 +398,23 @@ device_request_pending_count(device_zmtp_s* d)
 {
     return request_list_size(d->requests) + (d->base.pending ? 1 : 0);
 }
+
+// A socket is closing. Remove all our nodes that reference this socket
+uint32_t
+device_foreach_remove_if_sock_eq(device_map_s* hash, zsock_t* z)
+{
+    uint32_t n = 0;
+    map_iter iter;
+    map_foreach(hash, iter)
+    {
+        if (map_has_key(hash, iter)) {
+            device_zmtp_s* v = map_val(hash, iter);
+            netw_socket_s* s = (netw_socket_s*)v;
+            if (s->sock == z) {
+                device_map_remove(hash, v->base.serial);
+                n++;
+            }
+        }
+    }
+    return n;
+}

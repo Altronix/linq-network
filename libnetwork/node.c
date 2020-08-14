@@ -124,3 +124,23 @@ node_send_frames_n(node_zmtp_s* node, uint32_t n, ...)
         }
     }
 }
+
+// A socket is closing. Remove all our nodes that reference this socket
+uint32_t
+node_foreach_remove_if_sock_eq(node_map_s* hash, zsock_t* z)
+{
+    uint32_t n = 0;
+    map_iter iter;
+    map_foreach(hash, iter)
+    {
+        if (map_has_key(hash, iter)) {
+            node_zmtp_s* v = map_val(hash, iter);
+            netw_socket_s* s = (netw_socket_s*)v;
+            if (s->sock == z) {
+                node_map_remove(hash, v->serial);
+                n++;
+            }
+        }
+    }
+    return n;
+}
