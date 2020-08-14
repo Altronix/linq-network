@@ -16,6 +16,12 @@ extern "C"
 {
 #endif
 
+    typedef enum E_TRANSPORT
+    {
+        TRANSPORT_USB,
+        TRANSPORT_ZMTP,
+    } E_TRANSPORT;
+
     typedef enum E_REQUEST_METHOD
     {
         REQUEST_METHOD_RAW = 0,
@@ -64,6 +70,7 @@ extern "C"
         uint32_t birth;
         uint32_t uptime;
         uint32_t last_seen;
+        E_TRANSPORT transport;
     } node_s;
 
 #ifdef __cplusplus

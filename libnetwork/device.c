@@ -177,10 +177,11 @@ device_create(
     device_zmtp_s* d = linq_network_malloc(sizeof(device_zmtp_s));
     if (d) {
         memset(d, 0, sizeof(device_zmtp_s));
+        if (router) device_update_router(&d->base, router, router_sz);
         d->sock = sock;
         d->requests = request_list_create();
         d->base.birth = d->base.last_seen = sys_tick();
-        if (router) device_update_router(&d->base, router, router_sz);
+        d->base.transport = TRANSPORT_ZMTP;
         snprintf(d->base.serial, sizeof(d->base.serial), "%s", serial);
         snprintf(d->base.type, sizeof(d->base.type), "%s", type);
     }
@@ -416,14 +417,16 @@ device_foreach_remove_if_sock_eq(device_map_s* hash, zsock_t* z)
 {
     uint32_t n = 0;
     map_iter iter;
+    node_s* v;
     map_foreach(hash, iter)
     {
-        if (map_has_key(hash, iter)) {
-            node_s* v = map_val(hash, iter);
-            netw_socket_s* s = (netw_socket_s*)v;
-            if (s->sock == z) {
-                device_map_remove(hash, v->serial);
-                n++;
+        if (map_has_key(hash, iter) && (v = map_val(hash, iter))) {
+            if (v->transport == TRANSPORT_ZMTP) {
+                netw_socket_s* s = (netw_socket_s*)v;
+                if (s->sock == z) {
+                    device_map_remove(hash, v->serial);
+                    n++;
+                }
             }
         }
     }
@@ -433,25 +436,27 @@ device_foreach_remove_if_sock_eq(device_map_s* hash, zsock_t* z)
 void
 device_foreach_check_request(device_map_s* hash)
 {
+    node_s* base;
     map_iter iter;
     map_foreach(hash, iter)
     {
-        if (map_has_key(hash, iter)) {
-            node_s* base = map_val(hash, iter);
-            device_zmtp_s* d = (device_zmtp_s*)base;
-            if (device_request_pending(&d->base)) {
-                uint32_t tick = sys_tick();
-                uint32_t retry_at = device_request_retry_at(&d->base);
-                if (device_request_sent_at(base) + 10000 <= tick) {
-                    log_info("(DEVICE) timeout [%s]", d->base.serial);
-                    device_request_resolve(
-                        &d->base,
-                        LINQ_ERROR_TIMEOUT,
-                        "{\"error\":\"timeout\"}");
-                    device_request_flush_w_check(&d->base);
-                } else if (retry_at && retry_at <= tick) {
-                    log_info("(DEVICE) retry [%s]", d->base.serial);
-                    device_request_retry(&d->base);
+        if (map_has_key(hash, iter) && (base = map_val(hash, iter))) {
+            if (base->transport == TRANSPORT_ZMTP) {
+                device_zmtp_s* d = (device_zmtp_s*)base;
+                if (device_request_pending(&d->base)) {
+                    uint32_t tick = sys_tick();
+                    uint32_t retry_at = device_request_retry_at(&d->base);
+                    if (device_request_sent_at(base) + 10000 <= tick) {
+                        log_info("(DEVICE) timeout [%s]", d->base.serial);
+                        device_request_resolve(
+                            &d->base,
+                            LINQ_ERROR_TIMEOUT,
+                            "{\"error\":\"timeout\"}");
+                        device_request_flush_w_check(&d->base);
+                    } else if (retry_at && retry_at <= tick) {
+                        log_info("(DEVICE) retry [%s]", d->base.serial);
+                        device_request_retry(&d->base);
+                    }
                 }
             }
         }
