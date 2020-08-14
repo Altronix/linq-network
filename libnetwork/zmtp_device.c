@@ -183,6 +183,7 @@ zmtp_device_create(
         d->base.transport = TRANSPORT_ZMTP;
         d->base.poll = zmtp_device_poll;
         d->base.free = zmtp_device_destroy;
+        d->base.send = zmtp_device_send;
         snprintf(d->base.serial, sizeof(d->base.serial), "%s", serial);
         snprintf(d->base.type, sizeof(d->base.type), "%s", type);
     }

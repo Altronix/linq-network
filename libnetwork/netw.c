@@ -217,6 +217,25 @@ netw_node_count(const netw_s* l)
     return node_map_size(l->nodes);
 }
 
+static E_REQUEST_METHOD
+method_from_str(const char* method)
+{
+    uint32_t l = strlen(method);
+    if (l == 3) {
+        if (!memcmp(method, "GET", l)) {
+            return REQUEST_METHOD_GET;
+        } else if (!(memcmp(method, "PUT", l))) {
+            return REQUEST_METHOD_POST; // TODO support PUT
+        }
+    } else if (l == 4 && !memcmp(method, "POST", l)) {
+        return REQUEST_METHOD_POST;
+    } else if (l == 6 && !memcmp(method, "DELETE", l)) {
+        return REQUEST_METHOD_DELETE;
+    }
+    assert(false);
+    return -1; // should never return
+}
+
 // send a get request to a device connected to us
 E_LINQ_ERROR
 netw_send(
@@ -224,20 +243,22 @@ netw_send(
     const char* serial,
     const char* method,
     const char* path,
-    uint32_t path_len,
+    uint32_t plen,
     const char* json,
-    uint32_t json_len,
-    linq_request_complete_fn callback,
+    uint32_t jlen,
+    linq_request_complete_fn fn,
     void* context)
 {
-    return zmtp_send(
-        &linq->zmtp,
-        serial,
-        method,
-        path,
-        path_len,
-        json,
-        json_len,
-        callback,
-        context);
+    E_LINQ_ERROR error = LINQ_ERROR_OK;
+    char e[32];
+    node_s** node = device_map_get(linq->devices, serial);
+    if (!node) {
+        snprintf(e, sizeof(e), "{\"error\":%d}", LINQ_ERROR_DEVICE_NOT_FOUND);
+        error = LINQ_ERROR_DEVICE_NOT_FOUND;
+        fn(context, "", error, e);
+    } else {
+        E_REQUEST_METHOD m = method_from_str(method);
+        (*node)->send(*node, m, path, plen, json, jlen, fn, context);
+    }
+    return error;
 }

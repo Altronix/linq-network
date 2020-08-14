@@ -73,6 +73,15 @@ extern "C"
         E_TRANSPORT transport;
         void (*poll)(struct node_s*, void*);
         void (*free)(struct node_s**);
+        void (*send)(
+            struct node_s*,
+            E_REQUEST_METHOD method,
+            const char* path,
+            uint32_t plen,
+            const char* json,
+            uint32_t jlen,
+            linq_request_complete_fn,
+            void*);
     } node_s;
 
 #ifdef __cplusplus
