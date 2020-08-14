@@ -608,67 +608,44 @@ foreach_device_check_request(
     }
 }
 
-typedef struct foreach_socket_process_context
-{
-    zmtp_s* zmtp;
-    zmq_pollitem_t** poll_p;
-} foreach_socket_process_context;
-
-static void
-foreach_socket_process(
-    socket_map_s* self,
-    void* context,
-    const char* key,
-    zsock_t** sock_p)
-{
-    ((void)self);
-    ((void)key);
-    foreach_socket_process_context* ctx = context;
-    if ((*(zmq_pollitem_t**)ctx->poll_p)->revents && ZMQ_POLLIN) {
-        int err = process_packet(ctx->zmtp, *sock_p);
-        ((void)err);
+#define populate_sockets(hash, iter, ptr)                                      \
+    map_foreach(hash, iter)                                                    \
+    {                                                                          \
+        if (map_has_key(hash, iter)) {                                         \
+            ptr->socket = zsock_resolve(map_val(hash, iter));                  \
+            ptr->events = ZMQ_POLLIN;                                          \
+            ptr++;                                                             \
+        }                                                                      \
     }
-    (*(zmq_pollitem_t**)ctx->poll_p)++;
-}
-
-static void
-foreach_socket_populate_poll(
-    socket_map_s* self,
-    void* ctx,
-    const char* key,
-    zsock_t** sock_p)
-{
-    ((void)self);
-    ((void)key);
-    (*(zmq_pollitem_t**)ctx)->socket = zsock_resolve(*sock_p);
-    (*(zmq_pollitem_t**)ctx)->events = ZMQ_POLLIN;
-    (*(zmq_pollitem_t**)ctx)++;
-}
-
-static void
-populate_sockets(socket_map_s* h, zmq_pollitem_t** ptr_p)
-{
-    socket_map_foreach(h, foreach_socket_populate_poll, ptr_p);
-}
-
+#define process_sockets(err, zmtp, hash, iter, ptr)                            \
+    map_foreach(hash, iter)                                                    \
+    {                                                                          \
+        if (map_has_key(hash, iter)) {                                         \
+            if (ptr->revents && ZMQ_POLLIN) {                                  \
+                err = process_packet(zmtp, map_val(hash, iter));               \
+            }                                                                  \
+            ptr++;                                                             \
+        }                                                                      \
+    }
 E_LINQ_ERROR
 zmtp_poll(zmtp_s* zmtp, int32_t ms)
 {
+    map_iter iter;
     zmq_pollitem_t items[MAX_CONNECTIONS], *ptr = items;
     int err, n_router = socket_map_size(zmtp->routers),
              n_dealer = socket_map_size(zmtp->dealers);
     linq_network_assert(n_router + n_dealer < MAX_CONNECTIONS);
-
     memset(items, 0, sizeof(items));
-    populate_sockets(zmtp->routers, &ptr);
-    populate_sockets(zmtp->dealers, &ptr);
 
     ptr = items;
+    populate_sockets(zmtp->routers, iter, ptr);
+    populate_sockets(zmtp->dealers, iter, ptr);
+
     err = zmq_poll(items, n_router + n_dealer, ms);
     if (!(err < 0)) {
-        foreach_socket_process_context ctx = { .zmtp = zmtp, .poll_p = &ptr };
-        socket_map_foreach(zmtp->routers, foreach_socket_process, &ctx);
-        socket_map_foreach(zmtp->dealers, foreach_socket_process, &ctx);
+        ptr = items;
+        process_sockets(err, zmtp, zmtp->routers, iter, ptr);
+        process_sockets(err, zmtp, zmtp->dealers, iter, ptr);
         err = 0;
     }
 

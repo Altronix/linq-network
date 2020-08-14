@@ -114,6 +114,7 @@ extern "C"
 #define map_has_key kh_exist
 #define map_key kh_key
 #define map_val kh_val
+#define map_iter khiter_t
 
 #define MAP_INIT(tag, type, map_free_fn)                                       \
     KHASH_MAP_INIT_STR(tag, type*)                                             \
