@@ -53,16 +53,16 @@ extern "C"
     KLIST_INIT(tag, type*, UNUSED_FREE_FN)                                     \
     typedef kl_##tag##_t tag##_list_s;                                         \
                                                                                \
-    tag##_list_s* tag##_list_create() { return kl_init_##tag(); }              \
+    static tag##_list_s* tag##_list_create() { return kl_init_##tag(); }       \
                                                                                \
-    type* tag##_list_pop(tag##_list_s* l)                                      \
+    static type* tag##_list_pop(tag##_list_s* l)                               \
     {                                                                          \
         type* ret = NULL;                                                      \
         kl_shift_##tag(l, &ret);                                               \
         return ret;                                                            \
     }                                                                          \
                                                                                \
-    void tag##_list_destroy(tag##_list_s** list_p)                             \
+    static void tag##_list_destroy(tag##_list_s** list_p)                      \
     {                                                                          \
         tag##_list_s* list = *list_p;                                          \
         *list_p = NULL;                                                        \
@@ -75,16 +75,19 @@ extern "C"
         kl_destroy_##tag(list);                                                \
     }                                                                          \
                                                                                \
-    type* tag##_list_front(tag##_list_s* list) { return list->head->data; }    \
+    static type* tag##_list_front(tag##_list_s* list)                          \
+    {                                                                          \
+        return list->head->data;                                               \
+    }                                                                          \
                                                                                \
-    void tag##_list_push(tag##_list_s* list, type** r_p)                       \
+    static void tag##_list_push(tag##_list_s* list, type** r_p)                \
     {                                                                          \
         type* r = *r_p;                                                        \
         *r_p = NULL;                                                           \
         *kl_pushp_##tag(list) = r;                                             \
     }                                                                          \
                                                                                \
-    uint32_t tag##_list_size(tag##_list_s* l) { return l->size; }
+    static uint32_t tag##_list_size(tag##_list_s* l) { return l->size; }
 
 #define MAP_INIT_H(tag, type)                                                  \
     typedef struct kh_##tag##_s tag##_map_s;                                   \

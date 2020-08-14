@@ -2,13 +2,15 @@ set(SOURCES
     netw.c
     device.c
     node.c
-    zmtp.c)
+    zmtp.c
+    zmtp_device.c)
   set(HEADERS
     netw.h
     netw_internal.h
     device.h
     node.h
-    zmtp.h)
+    zmtp.h
+    zmtp_device.h)
 
 set(INSTALL_HEADERS netw.h)
 set(LIBS ${CMAKE_THREAD_LIBS_INIT} ${ZMQ_LIBS} common-static)

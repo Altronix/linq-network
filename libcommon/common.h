@@ -71,6 +71,8 @@ extern "C"
         uint32_t uptime;
         uint32_t last_seen;
         E_TRANSPORT transport;
+        void (*poll)(struct node_s*, void*);
+        void (*free)(struct node_s**);
     } node_s;
 
 #ifdef __cplusplus

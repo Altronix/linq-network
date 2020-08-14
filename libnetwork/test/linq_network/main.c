@@ -2,7 +2,6 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "device.h"
 #include "helpers.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
@@ -11,6 +10,7 @@
 #include "mock_zpoll.h"
 #include "netw.h"
 #include "netw_internal.h"
+#include "zmtp_device.h"
 
 #define USER "unsafe_user"
 #define PASS "unsafe_pass"
@@ -211,22 +211,22 @@ test_netw_receive_heartbeat_ok(void** context_p)
     node_s** d = (node_s**)netw_device(test->net, serial);
     assert_non_null(d);
     assert_int_equal(netw_device_count(test->net), 1);
-    assert_int_equal(device_router(*d)->sz, 4);
-    assert_memory_equal(device_router(*d)->id, "rid0", 4);
-    assert_string_equal(device_serial(*d), serial);
-    assert_string_equal(device_type(*d), "product");
-    assert_int_equal(device_uptime(*d), 0);
+    assert_int_equal(zmtp_device_router(*d)->sz, 4);
+    assert_memory_equal(zmtp_device_router(*d)->id, "rid0", 4);
+    assert_string_equal(zmtp_device_serial(*d), serial);
+    assert_string_equal(zmtp_device_type(*d), "product");
+    assert_int_equal(zmtp_device_uptime(*d), 0);
 
     // Receive a second heartbeat , update router id and last seen
     spy_sys_set_tick(200);
     netw_poll(test->net, 5);
     assert_non_null(d);
     assert_int_equal(netw_device_count(test->net), 1);
-    assert_int_equal(device_router(*d)->sz, 5);
-    assert_memory_equal(device_router(*d)->id, "rid00", 5);
-    assert_string_equal(device_serial(*d), serial);
-    assert_string_equal(device_type(*d), "product");
-    assert_int_equal(device_uptime(*d), 100);
+    assert_int_equal(zmtp_device_router(*d)->sz, 5);
+    assert_memory_equal(zmtp_device_router(*d)->id, "rid00", 5);
+    assert_string_equal(zmtp_device_serial(*d), serial);
+    assert_string_equal(zmtp_device_type(*d), "product");
+    assert_int_equal(zmtp_device_uptime(*d), 100);
 
     assert_true(pass);
 
@@ -391,7 +391,7 @@ test_netw_receive_response_error_timeout(void** context_p)
     spy_sys_set_tick(0);
     netw_poll(test->net, 5);
     d = netw_device(test->net, serial);
-    device_send(
+    zmtp_device_send(
         *d,
         REQUEST_METHOD_GET,
         "/ATX/test",
@@ -400,20 +400,20 @@ test_netw_receive_response_error_timeout(void** context_p)
         0,
         on_response_error_timeout,
         &response_pass);
-    assert_int_equal(device_request_pending_count(*d), 1);
+    assert_int_equal(zmtp_device_request_pending_count(*d), 1);
 
     // Still waiting for response @t=9999
     spy_sys_set_tick(9999);
     czmq_spy_poll_set_incoming((0x00));
     netw_poll(test->net, 5);
     assert_false(response_pass);
-    assert_int_equal(device_request_pending_count(*d), 1);
+    assert_int_equal(zmtp_device_request_pending_count(*d), 1);
 
     // Timeout callback happens @t=10000
     spy_sys_set_tick(10000);
     netw_poll(test->net, 5);
     assert_true(response_pass);
-    assert_int_equal(device_request_pending_count(*d), 0);
+    assert_int_equal(zmtp_device_request_pending_count(*d), 0);
 
     // Response is resolved but there is no more request pending
     czmq_spy_poll_set_incoming((0x01));
@@ -475,7 +475,7 @@ test_netw_receive_response_error_codes(void** context_p)
         assert_non_null(d);
 
         // Start test
-        device_send(
+        zmtp_device_send(
             *d,
             REQUEST_METHOD_GET,
             "/ATX/test",
@@ -484,7 +484,7 @@ test_netw_receive_response_error_codes(void** context_p)
             0,
             on_response_error_codes,
             &pass);
-        assert_int_equal(device_request_pending_count(*d), 1);
+        assert_int_equal(zmtp_device_request_pending_count(*d), 1);
         netw_poll(test->net, 0);
 
         // Measure test
@@ -544,7 +544,7 @@ test_netw_receive_response_error_504(void** context_p)
     assert_non_null(d);
 
     // Start test @t=0
-    device_send(
+    zmtp_device_send(
         *d,
         REQUEST_METHOD_GET,
         "/ATX/test",
@@ -639,7 +639,7 @@ test_netw_receive_response_ok_504(void** context_p)
     assert_non_null(d);
 
     // Start test @t=0
-    device_send(
+    zmtp_device_send(
         *d,
         REQUEST_METHOD_GET,
         "/ATX/test",

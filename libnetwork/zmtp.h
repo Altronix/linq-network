@@ -9,6 +9,7 @@
 #include "device.h"
 #include "netw_internal.h"
 #include "node.h"
+#include "zmtp_device.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -41,7 +42,7 @@ extern "C"
     E_LINQ_ERROR
     zmtp_poll(zmtp_s* self, int32_t ms);
     E_LINQ_ERROR
-    zmtp_device_send(
+    zmtp_send(
         const zmtp_s* zmtp,
         const char* sid,
         const char* meth,

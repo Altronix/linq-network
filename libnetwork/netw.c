@@ -226,7 +226,7 @@ netw_send(
     linq_request_complete_fn callback,
     void* context)
 {
-    return zmtp_device_send(
+    return zmtp_send(
         &linq->zmtp,
         serial,
         method,

@@ -7,6 +7,7 @@
 #include "device.h"
 #include "log.h"
 #include "sys.h"
+#include "zmtp_device.h"
 
 #include "json.h"
 
@@ -189,12 +190,12 @@ device_resolve(zmtp_s* l, zsock_t* sock, zframe_t** frames, bool insert)
     print_null_terminated(tid, TID_LEN, frames[FRAME_HB_TID_IDX]);
     node_s** d = device_map_get(map, sid);
     if (d) {
-        device_heartbeat(*d);
-        if (rid) device_update_router(*d, rid, rid_sz);
+        zmtp_device_heartbeat(*d);
+        if (rid) zmtp_device_update_router(*d, rid, rid_sz);
     } else {
         if (insert) {
-            node_s* node = device_create(sock, rid, rid_sz, sid, tid);
-            if (node) d = device_map_add(map, device_serial(node), &node);
+            node_s* node = zmtp_device_create(sock, rid, rid_sz, sid, tid);
+            if (node) d = device_map_add(map, zmtp_device_serial(node), &node);
             if (l->callbacks && l->callbacks->on_new) {
                 l->callbacks->on_new(l->context, sid);
             }
@@ -286,7 +287,8 @@ process_request(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
         if (n && d) {
             print_null_terminated(url, sizeof(url), path);
             if (data) print_null_terminated(json, sizeof(json), data);
-            device_send_raw(*d, url, data ? json : NULL, on_device_response, n);
+            zmtp_device_send_raw(
+                *d, url, data ? json : NULL, on_device_response, n);
             e = LINQ_ERROR_OK;
         } else {
             // TODO send 404 response (device not here)
@@ -310,23 +312,24 @@ process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
         node_s** d = device_resolve(l, sock, frames, false);
         if (d) {
             print_null_terminated(json, sizeof(json), dat);
-            if (device_request_pending(*d)) {
+            if (zmtp_device_request_pending(*d)) {
                 err_code = zframe_data(err)[1] | zframe_data(err)[0] << 8;
                 if (err_code == LINQ_ERROR_504) {
-                    if (device_request_retry_count(*d) >= LINQ_NETW_MAX_RETRY) {
+                    if (zmtp_device_request_retry_count(*d) >=
+                        LINQ_NETW_MAX_RETRY) {
                         log_warn(
                             "(ZMTP) [%.6s...] (%.3d)",
-                            device_serial(*d),
+                            zmtp_device_serial(*d),
                             err_code);
-                        device_request_resolve(*d, err_code, json);
-                        device_request_flush_w_check(*d);
+                        zmtp_device_request_resolve(*d, err_code, json);
+                        zmtp_device_request_flush_w_check(*d);
                     } else {
                         log_warn(
                             "(ZMTP) [%.6s...] (%.3d) retrying...",
-                            device_serial(*d),
+                            zmtp_device_serial(*d),
                             err_code);
                         uint32_t retry = sys_tick() + LINQ_NETW_RETRY_TIMEOUT;
-                        device_request_retry_at_set(*d, retry);
+                        zmtp_device_request_retry_at_set(*d, retry);
                     }
                 } else {
                     log_debug(
@@ -334,8 +337,8 @@ process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
                         device_serial(*d),
                         err_code,
                         json);
-                    device_request_resolve(*d, err_code, json);
-                    device_request_flush_w_check(*d);
+                    zmtp_device_request_resolve(*d, err_code, json);
+                    zmtp_device_request_flush_w_check(*d);
                 }
             }
         }
@@ -363,14 +366,14 @@ process_alert(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
         node_s** d = device_resolve(z, socket, frames, false);
         frames_s f = { 6, &frames[1] };
         if (d) {
-            if (device_no_hops(*d)) {
+            if (zmtp_device_no_hops(*d)) {
                 // We only broadcast when the device is directly connected
                 // otherwize, nodes would rebroadcast to eachother infinite
                 node_map_foreach(*z->nodes_p, foreach_node_forward_message, &f);
             }
             if (z->callbacks && z->callbacks->on_alert) {
                 z->callbacks->on_alert(
-                    z->context, device_serial(*d), &alert, &email);
+                    z->context, zmtp_device_serial(*d), &alert, &email);
             }
             e = LINQ_ERROR_OK;
         }
@@ -403,13 +406,13 @@ process_heartbeat(zmtp_s* z, zsock_t* s, zmsg_t** msg, zframe_t** frames)
         node_s** d = device_resolve(z, s, frames, true);
         frames_s f = { 5, &frames[1] };
         if (d) {
-            if (device_no_hops(*d)) {
+            if (zmtp_device_no_hops(*d)) {
                 // We only broadcast when the device is directly connected
                 // otherwize, nodes would rebroadcast to eachother infinite
                 node_map_foreach(*z->nodes_p, foreach_node_forward_message, &f);
             }
             if (z->callbacks && z->callbacks->on_heartbeat) {
-                z->callbacks->on_heartbeat(z->context, device_serial(*d));
+                z->callbacks->on_heartbeat(z->context, zmtp_device_serial(*d));
             }
             e = LINQ_ERROR_OK;
         }
@@ -526,7 +529,7 @@ zmtp_close_router(zmtp_s* zmtp, netw_socket handle)
     zsock_t** s = socket_map_resolve(zmtp->routers, socket);
     if (s) {
         // remove_devices(s, *zmtp->devices_p);
-        count = device_foreach_remove_if_sock_eq(*zmtp->devices_p, *s);
+        count = device_map_foreach_remove_if_sock_eq(*zmtp->devices_p, *s);
         log_info("(ZMTP) [%d] device nodes closed");
         socket_map_remove_iter(zmtp->routers, socket);
         return LINQ_ERROR_OK;
@@ -543,7 +546,7 @@ zmtp_close_dealer(zmtp_s* zmtp, netw_socket handle)
     if (s) {
         // remove_devices(s, *zmtp->devices_p);
         // remove_nodes(s, *zmtp->nodes_p);
-        count = device_foreach_remove_if_sock_eq(*zmtp->devices_p, *s);
+        count = device_map_foreach_remove_if_sock_eq(*zmtp->devices_p, *s);
         log_info("(ZMTP) [%d] device nodes closed");
         count = node_foreach_remove_if_sock_eq(*zmtp->nodes_p, *s);
         log_info("(ZMTP) [%d] client nodes closed");
@@ -596,7 +599,7 @@ zmtp_poll(zmtp_s* zmtp, int32_t ms)
     }
 
     // Loop through devices
-    device_foreach_check_request(*zmtp->devices_p);
+    device_map_foreach_poll(*zmtp->devices_p);
 
     // Check if we received a ctrlc and generate an event
     // TODO needs test
@@ -639,7 +642,7 @@ method_from_str(const char* method)
 }
 
 E_LINQ_ERROR
-zmtp_device_send(
+zmtp_send(
     const zmtp_s* zmtp,
     const char* sid,
     const char* meth,
@@ -656,7 +659,7 @@ zmtp_device_send(
         return LINQ_ERROR_DEVICE_NOT_FOUND;
     } else {
         E_REQUEST_METHOD m = method_from_str(meth);
-        device_send(*d, m, path, plen, json, jlen, fn, ctx);
+        zmtp_device_send(*d, m, path, plen, json, jlen, fn, ctx);
         return LINQ_ERROR_OK;
     }
 }
