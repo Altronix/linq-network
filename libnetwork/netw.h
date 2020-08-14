@@ -124,7 +124,7 @@ extern "C"
     LINQ_EXPORT E_LINQ_ERROR netw_poll(netw_s* l, int32_t ms);
     // TODO netw_device() is deprecated but it is currently used by some
     // tests...
-    LINQ_EXPORT void** netw_device(const netw_s* l, const char* serial);
+    LINQ_EXPORT node_s** netw_device(const netw_s* l, const char* serial);
     LINQ_EXPORT bool netw_device_exists(const netw_s*, const char* sid);
     LINQ_EXPORT uint32_t netw_device_count(const netw_s*);
     LINQ_EXPORT void

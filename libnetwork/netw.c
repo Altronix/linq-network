@@ -155,10 +155,10 @@ netw_poll(netw_s* l, int32_t ms)
 }
 
 // get a device from the device map
-void**
+node_s**
 netw_device(const netw_s* l, const char* serial)
 {
-    return (void**)device_map_get(l->devices, serial);
+    return device_map_get(l->devices, serial);
 }
 
 // Check if the serial number is known in our hash table
@@ -175,36 +175,36 @@ netw_device_count(const netw_s* l)
     return device_map_size(l->devices);
 }
 
-// Context used for netw_devices_foreach HOF (Higher Order Function)
-typedef struct
-{
-    const netw_s* l;
-    netw_devices_foreach_fn fn;
-    void* ctx;
-} foreach_device_print_sid_ctx;
-
-// netw_device_foreach HOF
-static void
-foreach_device_print_sid(
-    device_map_s* self,
-    void* ctx,
-    const char* serial,
-    device_zmtp_s** d_p)
-{
-    ((void)self);
-    foreach_device_print_sid_ctx* foreach_ctx = ctx;
-    foreach_ctx->fn(foreach_ctx->ctx, serial, device_type(*d_p));
-}
-
-// Print a list of serial numbers to caller
-void
-netw_devices_foreach(const netw_s* l, netw_devices_foreach_fn fn, void* ctx)
-{
-    foreach_device_print_sid_ctx foreach_ctx = { l,
-                                                 fn,
-                                                 ctx ? ctx : l->context };
-    device_map_foreach(l->devices, foreach_device_print_sid, &foreach_ctx);
-}
+// // Context used for netw_devices_foreach HOF (Higher Order Function)
+// typedef struct
+// {
+//     const netw_s* l;
+//     netw_devices_foreach_fn fn;
+//     void* ctx;
+// } foreach_device_print_sid_ctx;
+//
+// // netw_device_foreach HOF
+// static void
+// foreach_device_print_sid(
+//     device_map_s* self,
+//     void* ctx,
+//     const char* serial,
+//     device_zmtp_s** d_p)
+// {
+//     ((void)self);
+//     foreach_device_print_sid_ctx* foreach_ctx = ctx;
+//     foreach_ctx->fn(foreach_ctx->ctx, serial, device_type(*d_p));
+// }
+//
+// // Print a list of serial numbers to caller
+// void
+// netw_devices_foreach(const netw_s* l, netw_devices_foreach_fn fn, void* ctx)
+// {
+//     foreach_device_print_sid_ctx foreach_ctx = { l,
+//                                                  fn,
+//                                                  ctx ? ctx : l->context };
+//     device_map_foreach(l->devices, foreach_device_print_sid, &foreach_ctx);
+// }
 
 // return how many nodes are connected to linq
 uint32_t

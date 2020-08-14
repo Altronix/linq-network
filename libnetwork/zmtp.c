@@ -63,13 +63,13 @@ print_null_terminated(char* c, uint32_t sz, zframe_t* f)
     }
 }
 
-static device_zmtp_s**
+static node_s**
 device_get(const zmtp_s* zmtp, const char* serial)
 {
     return device_map_get(*zmtp->devices_p, serial);
 }
 
-device_zmtp_s**
+node_s**
 device_get_from_frame(zmtp_s* l, zframe_t* frame)
 {
     char sid[SID_LEN];
@@ -174,7 +174,7 @@ pop_email(zmsg_t* msg, netw_email_s* emails)
 }
 
 // A device is resolved by the serial number frame
-static device_zmtp_s**
+static node_s**
 device_resolve(zmtp_s* l, zsock_t* sock, zframe_t** frames, bool insert)
 {
     uint32_t rid_sz = 0;
@@ -187,13 +187,13 @@ device_resolve(zmtp_s* l, zsock_t* sock, zframe_t** frames, bool insert)
     char sid[SID_LEN], tid[TID_LEN] = { 0 };
     print_null_terminated(sid, SID_LEN, frames[FRAME_SID_IDX]);
     print_null_terminated(tid, TID_LEN, frames[FRAME_HB_TID_IDX]);
-    device_zmtp_s** d = device_map_get(map, sid);
+    node_s** d = device_map_get(map, sid);
     if (d) {
         device_heartbeat(*d);
         if (rid) device_update_router(*d, rid, rid_sz);
     } else {
         if (insert) {
-            device_zmtp_s* node = device_create(sock, rid, rid_sz, sid, tid);
+            node_s* node = device_create(sock, rid, rid_sz, sid, tid);
             if (node) d = device_map_add(map, device_serial(node), &node);
             if (l->callbacks && l->callbacks->on_new) {
                 l->callbacks->on_new(l->context, sid);
@@ -282,7 +282,7 @@ process_request(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
             data = frames[FRAME_REQ_DATA_IDX] = pop_le(*msg, JSON_LEN);
         }
         node_zmtp_s** n = node_resolve(sock, *l->nodes_p, frames, false);
-        device_zmtp_s** d = device_get_from_frame(l, frames[FRAME_SID_IDX]);
+        node_s** d = device_get_from_frame(l, frames[FRAME_SID_IDX]);
         if (n && d) {
             print_null_terminated(url, sizeof(url), path);
             if (data) print_null_terminated(json, sizeof(json), data);
@@ -307,7 +307,7 @@ process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
         (err = frames[FRAME_RES_ERR_IDX] = pop_eq(*msg, 2)) &&
         (dat = frames[FRAME_RES_DAT_IDX] = pop_le(*msg, JSON_LEN))) {
         e = LINQ_ERROR_OK;
-        device_zmtp_s** d = device_resolve(l, sock, frames, false);
+        node_s** d = device_resolve(l, sock, frames, false);
         if (d) {
             print_null_terminated(json, sizeof(json), dat);
             if (device_request_pending(*d)) {
@@ -360,7 +360,7 @@ process_alert(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
         (frames[FRAME_ALERT_TID_IDX] = pop_le(*msg, TID_LEN)) &&
         (frames[FRAME_ALERT_DAT_IDX] = pop_alert(*msg, &alert)) &&
         (frames[FRAME_ALERT_DST_IDX] = pop_email(*msg, &email))) {
-        device_zmtp_s** d = device_resolve(z, socket, frames, false);
+        node_s** d = device_resolve(z, socket, frames, false);
         frames_s f = { 6, &frames[1] };
         if (d) {
             if (device_no_hops(*d)) {
@@ -400,7 +400,7 @@ process_heartbeat(zmtp_s* z, zsock_t* s, zmsg_t** msg, zframe_t** frames)
     if (zmsg_size(*msg) == 2 &&
         (frames[FRAME_HB_TID_IDX] = pop_le(*msg, TID_LEN)) &&
         (frames[FRAME_HB_SITE_IDX] = pop_le(*msg, SITE_LEN))) {
-        device_zmtp_s** d = device_resolve(z, s, frames, true);
+        node_s** d = device_resolve(z, s, frames, true);
         frames_s f = { 5, &frames[1] };
         if (d) {
             if (device_no_hops(*d)) {
@@ -524,7 +524,7 @@ foreach_device_remove_if_sock_eq(
     device_map_s* self,
     void* ctx,
     const char* serial,
-    device_zmtp_s** device_p)
+    node_s** device_p)
 {
     zsock_t* eq = ctx;
     netw_socket_s* socket = ((netw_socket_s*)*device_p);
@@ -578,30 +578,6 @@ zmtp_close_dealer(zmtp_s* zmtp, netw_socket handle)
     }
 }
 
-// loop through each node and resolve any requests that have timed out
-static void
-foreach_device_check_request(
-    device_map_s* self,
-    void* ctx,
-    const char* serial,
-    device_zmtp_s** d)
-{
-    ((void)self);
-    ((void)ctx);
-    ((void)serial);
-    if (device_request_pending(*d)) {
-        uint32_t tick = sys_tick();
-        uint32_t retry_at = device_request_retry_at(*d);
-        if (device_request_sent_at(*d) + 10000 <= tick) {
-            device_request_resolve(
-                *d, LINQ_ERROR_TIMEOUT, "{\"error\":\"timeout\"}");
-            device_request_flush_w_check(*d);
-        } else if (retry_at && retry_at <= tick) {
-            device_request_retry(*d);
-        }
-    }
-}
-
 #define populate_sockets(hash, iter, ptr)                                      \
     map_foreach(hash, iter)                                                    \
     {                                                                          \
@@ -644,7 +620,7 @@ zmtp_poll(zmtp_s* zmtp, int32_t ms)
     }
 
     // Loop through devices
-    device_map_foreach(*zmtp->devices_p, foreach_device_check_request, zmtp);
+    device_foreach_check_request(*zmtp->devices_p);
 
     // Check if we received a ctrlc and generate an event
     // TODO needs test
@@ -679,7 +655,7 @@ zmtp_device_send(
     linq_request_complete_fn fn,
     void* ctx)
 {
-    device_zmtp_s** d = device_get(zmtp, sid);
+    node_s** d = device_get(zmtp, sid);
     if (!d) {
         send_error(fn, ctx, LINQ_ERROR_DEVICE_NOT_FOUND);
         return LINQ_ERROR_DEVICE_NOT_FOUND;
