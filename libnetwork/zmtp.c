@@ -598,9 +598,6 @@ zmtp_poll(zmtp_s* zmtp, int32_t ms)
         err = 0;
     }
 
-    // Loop through devices
-    device_map_foreach_poll(*zmtp->devices_p);
-
     // Check if we received a ctrlc and generate an event
     // TODO needs test
     if (!sys_running()) {

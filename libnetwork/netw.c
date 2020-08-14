@@ -151,6 +151,10 @@ netw_poll(netw_s* l, int32_t ms)
 {
     E_LINQ_ERROR err = zmtp_poll(&l->zmtp, ms);
     if (err) log_error("(ZMTP) polling error %d", err);
+
+    // Loop through devices
+    device_map_foreach_poll(l->devices);
+
     return err;
 }
 
