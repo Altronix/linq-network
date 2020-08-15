@@ -7,7 +7,6 @@
 
 #include "containers.h"
 #include "device.h"
-#include "netw_internal.h"
 #include "node.h"
 
 #ifndef LINQ_NETW_MAX_RETRY
@@ -51,6 +50,29 @@
 
 // Maximum sockets
 #define MAX_CONNECTIONS 10
+
+#define LINQ_ERROR_SOCKET 0xFFFFFFFF
+
+#define B64_LEN(x) ((4 / 3) * (x + 2))
+
+#define RID_LEN 256
+#define B64_RID_LEN (B64_LEN(RID_LEN) + 1)
+#define SID_LEN LINQ_SID_LEN
+#define TID_LEN LINQ_TID_LEN
+#define SITE_LEN 64
+#define JSON_LEN 1024
+
+#define ATX_NET_SOCKET(socket) ((0x00FF) & socket)
+#define ATX_NET_SOCKET_TYPE(socket) ((socket & 0xFF00) >> 0x08)
+#define ATX_NET_SOCKET_TYPE_ROUTER (0x01)
+#define ATX_NET_SOCKET_TYPE_DEALER (0x02)
+#define ATX_NET_SOCKET_TYPE_HTTP (0x03)
+#define ATX_NET_SOCKET_TYPE_IS_ROUTER(socket)                                  \
+    (ATX_NET_SOCKET_TYPE(socket) == ATX_NET_SOCKET_TYPE_ROUTER)
+#define ATX_NET_SOCKET_TYPE_IS_DEALER(socket)                                  \
+    (ATX_NET_SOCKET_TYPE(socket) == ATX_NET_SOCKET_TYPE_DEALER)
+#define ATX_NET_SOCKET_TYPE_IS_HTTP(socket)                                    \
+    (ATX_NET_SOCKET_TYPE(socket) == ATX_NET_SOCKET_TYPE_HTTP)
 
 #ifdef __cplusplus
 extern "C"
@@ -122,6 +144,7 @@ extern "C"
         uint32_t jlen,
         linq_request_complete_fn fn,
         void* ctx);
+    LINQ_EXPORT bool sys_running();
 #ifdef __cplusplus
 }
 #endif

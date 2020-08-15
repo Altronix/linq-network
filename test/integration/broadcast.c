@@ -10,6 +10,7 @@
 
 #include "fixture.h"
 #include "netw.h"
+#include "zmtp.h"
 
 static bool received_new_device = false;
 static bool received_alert = false;

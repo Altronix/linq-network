@@ -10,7 +10,7 @@
 #include "czmq.h"
 #undef closesocket    // Mongoose and czmq both define these
 #undef INVALID_SOCKET // Mongoose and czmq both define these
-#include "netw_internal.h"
+// #include "netw_internal.h"
 
 #ifdef __cplusplus
 extern "C"

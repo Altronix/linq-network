@@ -23,8 +23,6 @@
 #endif
 // clang-format on
 
-#define LINQ_ERROR_SOCKET 0xFFFFFFFF
-
 #ifdef __cplusplus
 extern "C"
 {
@@ -60,7 +58,6 @@ extern "C"
         void* ctx);
 
     // Sys API
-    LINQ_EXPORT bool sys_running();
 #ifdef BUILD_LINQD
     typedef struct database_s database_s;
     LINQ_EXPORT database_s* netw_database(netw_s* l);
