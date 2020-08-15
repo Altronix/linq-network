@@ -11,30 +11,33 @@
 // Common lib
 #include "common.h"
 
-// Dependencies includes
-#include "czmq.h"
-#undef closesocket    // Mongoose and czmq both define these
-#undef INVALID_SOCKET // Mongoose and czmq both define these
-
 // project includes
-#include "netw.h"
-
+#include "device.h"
+#include "node.h"
+#include "zmtp.h"
 #if BUILD_LINQD
 #include "database.h"
 #include "http.h"
 #endif
 
-// [router, version, type, serial]
-// [router, version, 0x00, serial, type, siteId]         = HEARTBEAT
-// [router, version, 0x01, serial, path [, data] ]       = REQUEST
-// [router, version, 0x02, serial, error, data]          = RESPONSE
-// [router, version, 0x03, serial, type, alert, mail]    = ALERT
-// [router, version, 0x04, serial, ...]                  = HELLO
-
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+    // Main class
+    typedef struct netw_s
+    {
+        const netw_callbacks* callbacks;
+        void* context;
+        device_map_s* devices;
+        node_map_s* nodes;
+        zmtp_s zmtp;
+#ifdef BUILD_LINQD
+        http_s http;
+        database_s database;
+#endif
+    } netw_s;
 
 #ifdef __cplusplus
 }

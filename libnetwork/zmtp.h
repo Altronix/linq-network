@@ -9,6 +9,13 @@
 #include "device.h"
 #include "node.h"
 
+// [router, version, type, serial]
+// [router, version, 0x00, serial, type, siteId]         = HEARTBEAT
+// [router, version, 0x01, serial, path [, data] ]       = REQUEST
+// [router, version, 0x02, serial, error, data]          = RESPONSE
+// [router, version, 0x03, serial, type, alert, mail]    = ALERT
+// [router, version, 0x04, serial, ...]                  = HELLO
+
 #ifndef LINQ_NETW_MAX_RETRY
 #define LINQ_NETW_MAX_RETRY 5
 #endif

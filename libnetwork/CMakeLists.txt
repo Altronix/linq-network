@@ -1,10 +1,12 @@
 set(SOURCES
+    callbacks.c
     netw.c
     device.c
     node.c
     zmtp.c
     zmtp_device.c)
   set(HEADERS
+    callbacks.h
     netw.h
     netw_internal.h
     device.h
