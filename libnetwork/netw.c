@@ -16,8 +16,8 @@
 // Main class
 typedef struct netw_s
 {
-    void* context;
     const netw_callbacks* callbacks;
+    void* context;
     device_map_s* devices;
     node_map_s* nodes;
     zmtp_s zmtp;

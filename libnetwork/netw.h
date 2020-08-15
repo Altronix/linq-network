@@ -42,7 +42,6 @@ extern "C"
 #define LINQ_NETW_MAX_RESPONSE_SIZE 8096
 #endif
 
-    typedef struct database_s database_s;
     typedef struct netw_s netw_s;
     typedef uint32_t netw_socket;
 
@@ -93,15 +92,11 @@ extern "C"
     // HEARTBEAT
     typedef void (*netw_heartbeat_fn)(void* context, const char* serial);
     // ALERT
-    typedef void (*netw_alert_fn)(
-        void* context,
-        const char* serial,
-        netw_alert_s*,
-        netw_email_s*);
-    // CTRLC
-    typedef void (*netw_ctrlc_fn)(void* context);
     typedef void (
-        *netw_devices_foreach_fn)(void* ctx, const char*, const char*);
+        *netw_alert_fn)(void*, const char*, netw_alert_s*, netw_email_s*);
+    // CTRLC
+    typedef void (*netw_ctrlc_fn)(void*);
+    typedef void (*netw_devices_foreach_fn)(void*, const char*, const char*);
     typedef struct netw_callbacks
     {
         netw_error_fn on_err;
