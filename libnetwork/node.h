@@ -5,8 +5,11 @@
 #ifndef NODE_H_
 #define NODE_H_
 
+#include "common.h"
 #include "containers.h"
 #include "czmq.h"
+#undef closesocket    // Mongoose and czmq both define these
+#undef INVALID_SOCKET // Mongoose and czmq both define these
 #include "netw_internal.h"
 
 #ifdef __cplusplus

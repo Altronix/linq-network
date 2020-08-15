@@ -8,7 +8,9 @@
 // includes
 #include "containers.h"
 #include "czmq.h"
-#include "netw_internal.h"
+#undef closesocket    // Mongoose and czmq both define these
+#undef INVALID_SOCKET // Mongoose and czmq both define these
+#include "zmtp.h"
 
 #ifdef __cplusplus
 extern "C"

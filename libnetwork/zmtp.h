@@ -9,7 +9,6 @@
 #include "device.h"
 #include "netw_internal.h"
 #include "node.h"
-#include "zmtp_device.h"
 
 #ifdef __cplusplus
 extern "C"

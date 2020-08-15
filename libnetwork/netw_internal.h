@@ -19,8 +19,8 @@
 // project includes
 #include "netw.h"
 
-#if WITH_SQLITE
-#include "database/database.h"
+#if BUILD_LINQD
+#include "database.h"
 #include "http.h"
 #endif
 
