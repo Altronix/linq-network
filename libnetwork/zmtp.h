@@ -18,6 +18,40 @@
 #define LINQ_NETW_RETRY_TIMEOUT 500
 #endif
 
+#define FRAME_VER_0 ('\x0')
+#define FRAME_TYP_HEARTBEAT ('\x0')
+#define FRAME_TYP_REQUEST ('\x1')
+#define FRAME_TYP_RESPONSE ('\x2')
+#define FRAME_TYP_ALERT ('\x3')
+#define FRAME_TYP_HELLO ('\x4')
+
+// Basic packet index's
+#define FRAME_MAX 7
+#define FRAME_RID_IDX 0
+#define FRAME_VER_IDX 1
+#define FRAME_TYP_IDX 2
+#define FRAME_SID_IDX 3
+
+// Heartbeat IDX
+#define FRAME_HB_TID_IDX 4
+#define FRAME_HB_SITE_IDX 5
+
+// Alert IDX
+#define FRAME_ALERT_TID_IDX 4
+#define FRAME_ALERT_DAT_IDX 5
+#define FRAME_ALERT_DST_IDX 6
+
+// Request IDX
+#define FRAME_REQ_PATH_IDX 4
+#define FRAME_REQ_DATA_IDX 5
+
+// Response IDX
+#define FRAME_RES_ERR_IDX 4
+#define FRAME_RES_DAT_IDX 5
+
+// Maximum sockets
+#define MAX_CONNECTIONS 10
+
 #ifdef __cplusplus
 extern "C"
 {
