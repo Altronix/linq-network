@@ -9,7 +9,6 @@
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
 #include "netw.h"
-#include "netw_internal.h"
 #include "zmtp_device.h"
 
 #define device_send_get(d, path, cb, ctx)                                      \

@@ -12,7 +12,6 @@ extern "C"
 #include "mock_sqlite.h"
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
-#include "netw_internal.h"
 
 #include <czmq.h>
 

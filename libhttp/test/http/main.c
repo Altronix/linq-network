@@ -7,7 +7,6 @@
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
 #include "netw.h"
-#include "netw_internal.h"
 
 #include <cmocka.h>
 #include <setjmp.h>
