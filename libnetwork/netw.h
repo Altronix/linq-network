@@ -138,7 +138,7 @@ extern "C"
     // Sys API
     LINQ_EXPORT bool sys_running();
 #ifdef BUILD_LINQD
-#include "http.h"
+    typedef struct database_s database_s;
     LINQ_EXPORT database_s* netw_database(netw_s* l);
     LINQ_EXPORT void
     netw_use(netw_s* netw, const char* path, http_route_cb cb, void* context);

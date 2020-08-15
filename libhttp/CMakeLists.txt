@@ -14,6 +14,7 @@ append_sqlite_compiler_flags(definitions)
 set(INSTALL_HEADERS http.h)
 list(APPEND definitions "-DCZMQ_STATIC")
 list(APPEND definitions "-DZMQ_STATIC")
+list(APPEND definitions "-DBUILD_LINQD")
 
 set(LIBS
   database-static

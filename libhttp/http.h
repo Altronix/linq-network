@@ -40,22 +40,6 @@ extern "C"
 {
 #endif
 
-    // Type of request
-    typedef enum
-    {
-        HTTP_METHOD_GET,
-        HTTP_METHOD_POST,
-        HTTP_METHOD_PUT,
-        HTTP_METHOD_DELETE,
-    } HTTP_METHOD;
-
-    // Callback for a http request
-    typedef struct http_route_context http_route_context;
-    typedef void (*http_route_cb)(
-        http_route_context*,
-        HTTP_METHOD,
-        uint32_t,
-        const char*);
     typedef struct http_route_context
     {
         http_route_cb cb;
