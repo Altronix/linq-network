@@ -1,17 +1,12 @@
 set(SOURCES 
   ./mongoose.c
   ./http.c
-  ./http_auth.c
-  ./route_alerts.c
-  ./route_devices.c
-  ./route_proxy.c
-  ./route_users.c)
+  ./http_auth.c)
 set(HEADERS
   ./mongoose.h
   ./http.h
   ./http_auth.h
-  ./http_auth_unsafe.h
-  ./routes.h)
+  ./http_auth_unsafe.h)
 
 append_log_level_compiler_flags(definitions)
 append_mongoose_compiler_flags(definitions)
@@ -21,7 +16,6 @@ list(APPEND definitions "-DCZMQ_STATIC")
 list(APPEND definitions "-DZMQ_STATIC")
 
 set(LIBS
-  network-static
   database-static
   common-static
   ${JSMN_WEB_TOKENS_LIBS}

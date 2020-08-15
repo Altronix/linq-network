@@ -20,7 +20,7 @@ test_http_create(void** c_p)
     sqlite_spy_init();
     netw_s* l = netw_create(NULL, NULL);
     http_s http;
-    http_init(&http, l);
+    http_init(&http, NULL);
     http_deinit(&http);
     netw_destroy(&l);
     mongoose_spy_deinit();
@@ -45,17 +45,14 @@ static void
 test_http_simple_get(void** context_p)
 {
     ((void)context_p);
-    database_s db;
     mongoose_spy_init();
     sqlite_spy_init();
     bool pass = false;
 
     // Init http
     netw_s* l = netw_create(NULL, NULL);
-    http_s http;
-    http_init(&http, l);
-    http_listen(&http, "80");
-    http_use(&http, "/hello", test_http_hello_route, &pass);
+    netw_listen_http(l, "80");
+    netw_use(l, "/hello", test_http_hello_route, &pass);
 
     // Mock sqlite database response
     sqlite_spy_step_return_push(SQLITE_ROW); // user exists
@@ -63,7 +60,7 @@ test_http_simple_get(void** context_p)
 
     // Generate some events
     mongoose_spy_event_request_push(UNSAFE_TOKEN, "GET", "/hello", NULL);
-    while (http_poll(&http, 0)) {};
+    while (netw_poll(l, 0)) {};
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
     assert_non_null(response);
@@ -72,10 +69,9 @@ test_http_simple_get(void** context_p)
     mock_mongoose_response_destroy(&response);
 
     assert_true(pass);
-    http_deinit(&http);
+    netw_destroy(&l);
     mongoose_spy_deinit();
     sqlite_spy_deinit();
-    netw_destroy(&l);
 }
 
 static void
@@ -124,10 +120,8 @@ test_http_simple_query(void** context_p)
 
     // Init http
     netw_s* l = netw_create(NULL, NULL);
-    http_s http;
-    http_init(&http, l);
-    http_listen(&http, "80");
-    http_use(&http, "/hello", test_http_query_route, &pass);
+    netw_listen_http(l, "80");
+    netw_use(l, "/hello", test_http_hello_route, &pass);
 
     // Mock sqlite database response
     sqlite_spy_step_return_push(SQLITE_ROW); // user exists
@@ -136,7 +130,7 @@ test_http_simple_query(void** context_p)
     // Generate some events
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "GET", "/hello?a=1&param=echo&start=22&b=2", NULL);
-    while (http_poll(&http, 0)) {};
+    while (netw_poll(l, 0)) {};
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
     assert_non_null(response);
@@ -145,10 +139,9 @@ test_http_simple_query(void** context_p)
     mock_mongoose_response_destroy(&response);
 
     assert_true(pass);
-    http_deinit(&http);
+    netw_destroy(&l);
     mongoose_spy_deinit();
     sqlite_spy_deinit();
-    netw_destroy(&l);
 }
 
 static void
@@ -188,10 +181,8 @@ test_http_invalid_query(void** context_p)
 
     // Init http
     netw_s* l = netw_create(NULL, NULL);
-    http_s http;
-    http_init(&http, l);
-    http_listen(&http, "80");
-    http_use(&http, "/hello", test_http_invalid_query_route, &pass);
+    netw_listen_http(l, "80");
+    netw_use(l, "/hello", test_http_hello_route, &pass);
 
     // Mock sqlite database response
     sqlite_spy_step_return_push(SQLITE_ROW); // user exists
@@ -200,7 +191,7 @@ test_http_invalid_query(void** context_p)
     // Generate some events
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "GET", "/hello?invalid&alsoinvalid", NULL);
-    while (http_poll(&http, 0)) {};
+    while (netw_poll(l, 0)) {};
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
     assert_non_null(response);
@@ -209,10 +200,9 @@ test_http_invalid_query(void** context_p)
     mock_mongoose_response_destroy(&response);
 
     assert_int_equal(pass, 1);
-    http_deinit(&http);
+    netw_destroy(&l);
     mongoose_spy_deinit();
     sqlite_spy_deinit();
-    netw_destroy(&l);
 }
 
 int

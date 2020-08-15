@@ -11,9 +11,18 @@ set(SOURCES
     node.h
     zmtp.h
     zmtp_device.h)
-
 set(INSTALL_HEADERS netw.h)
 set(LIBS ${CMAKE_THREAD_LIBS_INIT} ${ZMQ_LIBS} common-static)
+if(BUILD_LINQD)
+  list(APPEND SOURCES 
+    ./routes/alerts.c
+    ./routes/devices.c
+    ./routes/proxy.c
+    ./routes/users.c)
+  list(APPEND HEADERS ./routes/routes.h)
+  list(APPEND LIBS database-static http-static)
+  list(APPEND definitions "BUILD_LINQD")
+endif()
 
 append_log_level_compiler_flags(definitions)
 
@@ -27,7 +36,7 @@ endif()
 
 if(ENABLE_TESTING)
   add_library(network-test-static STATIC ${SOURCES} ${HEADERS})
-  target_link_libraries(network-test-static ${LIBS})
+  target_link_libraries(network-test-static mock-czmq ${LIBS})
   target_compile_definitions(network-test-static PUBLIC 
     "LINQ_STATIC" 
     ${definitions})

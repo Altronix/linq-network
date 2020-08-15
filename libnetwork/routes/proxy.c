@@ -17,7 +17,7 @@ on_response(void* ctx, const char* serial, E_LINQ_ERROR error, const char* json)
 }
 
 void
-route_proxy(
+proxy(
     http_route_context* ctx,
     HTTP_METHOD meth,
     uint32_t jlen,
@@ -26,7 +26,7 @@ route_proxy(
     char serial[64];
     uint32_t plen;
     const char *url = &ctx->curr_message->uri.p[API_URI_LEN], *ptr = url;
-    netw_s* linq = ((http_s*)ctx->context)->linq;
+    netw_s* linq = ctx->context;
     ptr = memchr(url, '/', ctx->curr_message->uri.len - API_URI_LEN);
     if (!ptr) ptr = memchr(url, '\\', ctx->curr_message->uri.len - API_URI_LEN);
     if (ptr) {

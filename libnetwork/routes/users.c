@@ -7,13 +7,9 @@
 #include "openssl/sha.h"
 
 void
-route_login(
-    http_route_context* ctx,
-    HTTP_METHOD meth,
-    uint32_t l,
-    const char* body)
+login(http_route_context* ctx, HTTP_METHOD meth, uint32_t l, const char* body)
 {
-    database_s* db = &((http_s*)ctx->context)->db;
+    database_s* db = netw_database(ctx->context);
     char user_str[USER_MAX_LEN];
     char pass_str[PASS_MAX_LEN];
     char* token_str = NULL;
@@ -61,17 +57,13 @@ route_login(
 }
 
 void
-route_users(
-    http_route_context* ctx,
-    HTTP_METHOD meth,
-    uint32_t l,
-    const char* body)
+users(http_route_context* ctx, HTTP_METHOD meth, uint32_t l, const char* body)
 {}
 
 static void
 process_create_admin(http_route_context* ctx, uint32_t l, const char* body)
 {
-    database_s* db = &((http_s*)ctx->context)->db;
+    database_s* db = netw_database(ctx->context);
     char k[128], v[256], h[HASH_LEN], s[SALT_LEN], uid[UUID_MAX_LEN];
     uint32_t klen, vlen, ulen, plen;
     int count, err;
@@ -120,13 +112,13 @@ process_create_admin(http_route_context* ctx, uint32_t l, const char* body)
 }
 
 void
-route_create_admin(
+create_admin(
     http_route_context* ctx,
     HTTP_METHOD meth,
     uint32_t l,
     const char* body)
 {
-    database_s* db = &((http_s*)ctx->context)->db;
+    database_s* db = netw_database(ctx->context);
     if (database_count(db, "users")) {
         http_printf_json(ctx->curr_connection, 503, JERROR_503);
     } else {

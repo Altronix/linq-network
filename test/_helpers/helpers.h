@@ -17,7 +17,7 @@
 
 #include "database.h"
 #include "http.h"
-#include "netw_internal.h"
+#include "netw.h"
 
 #include "czmq.h"
 #undef closesocket    // Mongoose and czmq both define these
@@ -76,7 +76,6 @@ extern "C"
     typedef struct helpers_test_context_s
     {
         netw_s* net;
-        http_s http;
     } helpers_test_context_s;
 
     typedef struct helpers_test_config_s
@@ -91,10 +90,8 @@ extern "C"
 
     void helpers_test_init();
     void helpers_test_reset();
-    void helpers_test_create_admin(
-        netw_s*,
-        const char* user,
-        const char* password);
+    void
+    helpers_test_create_admin(netw_s*, const char* user, const char* password);
 
     helpers_test_context_s* helpers_test_context_create(
         helpers_test_config_s* config);

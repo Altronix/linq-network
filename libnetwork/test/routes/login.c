@@ -3,7 +3,6 @@
 #include "mock_sqlite.h"
 #include "mock_utils.h"
 #include "netw.h"
-#include "routes.h"
 
 #include "main.h"
 
@@ -34,7 +33,7 @@ test_route_login_ok(void** context_p)
 
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "POST", "/api/v1/public/login", body);
-    for (int i = 0; i < 4; i++) http_poll(&test->http, -1);
+    for (int i = 0; i < 4; i++) netw_poll(test->net, -1);
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
 

@@ -5,7 +5,9 @@
 #include "http.h"
 #include "http_auth.h"
 #include "log.h"
-#include "routes.h"
+
+#define UNSECURE_API "/api/v1/public"
+#define UNSECURE_API_LEN (sizeof(UNSECURE_API) - 1)
 
 #define HTTP_FORMAT_HEADERS                                                    \
     "HTTP/1.0 %d \r\n"                                                         \
@@ -215,7 +217,7 @@ ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
                     !(memcmp(UNSECURE_API, path->p, UNSECURE_API_LEN))) {
                     process_route(r, c, m);
                 } else {
-                    if (http_auth_is_authorized(&http->db, c, m)) {
+                    if (http_auth_is_authorized(http->db, c, m)) {
                         process_route(r, c, m);
                     } else {
                         log_warn(
@@ -261,21 +263,12 @@ ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
 }
 
 void
-http_init(http_s* http, netw_s* l)
+http_init(http_s* http, database_s* db)
 {
-#define ADD_ROUTE(http, path, fn, ctx) http_use(http, path, fn, ctx)
     memset(http, 0, sizeof(http_s));
-    http->linq = l;
-    database_init(&http->db);
+    http->db = db;
     mg_mgr_init(&http->connections, http);
     http->routes = routes_map_create();
-    ADD_ROUTE(http, "/api/v1/public/create_admin", route_create_admin, http);
-    ADD_ROUTE(http, "/api/v1/public/login", route_login, http);
-    ADD_ROUTE(http, "/api/v1/users", route_users, http);
-    ADD_ROUTE(http, "/api/v1/devices", route_devices, http);
-    ADD_ROUTE(http, "/api/v1/alerts", route_alerts, http);
-    ADD_ROUTE(http, "/api/v1/proxy/...", route_proxy, http);
-#undef ADD_ROUTE
 }
 
 void
@@ -283,7 +276,6 @@ http_deinit(http_s* http)
 {
     mg_mgr_free(&http->connections);
     routes_map_destroy(&http->routes);
-    database_deinit(&http->db);
 }
 
 E_LINQ_ERROR

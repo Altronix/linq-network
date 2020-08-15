@@ -5,9 +5,9 @@
 #ifndef HTTP_H
 #define HTTP_H
 
+#include "common.h"
 #include "containers.h"
 #include "database.h"
-#include "netw.h"
 #include "sys.h"
 
 #include "mongoose.h"
@@ -27,6 +27,13 @@
 #  define LINQ_HTTP_EXPORT
 #endif
 // clang-format on
+
+#define JERROR_200 "{\"error\":\"Ok\"}"
+#define JERROR_400 "{\"error\":\"Bad request\"}"
+#define JERROR_404 "{\"error\":\"Not found\"}"
+#define JERROR_500 "{\"error\":\"Server error\"}"
+#define JERROR_503 "{\"error\":\"Unauthorized\"}"
+#define JERROR_504 "{\"error\":\"Server busy\"}"
 
 #ifdef __cplusplus
 extern "C"
@@ -66,13 +73,12 @@ extern "C"
         struct mg_connection* https;
         struct mg_mgr connections;
         struct mg_serve_http_opts serve_opts;
-        netw_s* linq;
         routes_map_s* routes;
-        database_s db;
+        database_s* db;
     } http_s;
 
     // Public methods (internal to this library)
-    LINQ_HTTP_EXPORT void http_init(http_s* http, netw_s* l);
+    LINQ_HTTP_EXPORT void http_init(http_s* http, database_s*);
     LINQ_HTTP_EXPORT void http_deinit(http_s* http);
     LINQ_HTTP_EXPORT E_LINQ_ERROR http_poll(http_s*, int32_t);
     LINQ_HTTP_EXPORT void http_listen(http_s* http, const char* port);

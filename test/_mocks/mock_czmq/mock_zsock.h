@@ -6,12 +6,15 @@
 #define MOCK_ZSOCK_H_
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <czmq.h>
+#undef closesocket    // Mongoose and czmq both define these
+#undef INVALID_SOCKET // Mongoose and czmq both define these
 
-int czmq_spy_push_incoming_mesg(zmsg_t** msg_p);
+    int czmq_spy_push_incoming_mesg(zmsg_t** msg_p);
 
 #ifdef __cplusplus
 }

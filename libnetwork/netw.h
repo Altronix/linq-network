@@ -114,16 +114,14 @@ extern "C"
     // Linq API
     LINQ_EXPORT netw_s* netw_create(const netw_callbacks*, void*);
     LINQ_EXPORT void netw_destroy(netw_s**);
-    LINQ_EXPORT database_s* netw_database(netw_s* l);
     LINQ_EXPORT void netw_init(netw_s*, const netw_callbacks*, void*);
     LINQ_EXPORT void netw_deinit(netw_s*);
     LINQ_EXPORT void netw_context_set(netw_s* linq, void* ctx);
     LINQ_EXPORT netw_socket netw_listen(netw_s*, const char* ep);
+    LINQ_EXPORT netw_socket netw_listen_http(netw_s*, const char* ep);
     LINQ_EXPORT netw_socket netw_connect(netw_s* l, const char* ep);
     LINQ_EXPORT E_LINQ_ERROR netw_close(netw_s*, netw_socket);
     LINQ_EXPORT E_LINQ_ERROR netw_poll(netw_s* l, int32_t ms);
-    // TODO netw_device() is deprecated but it is currently used by some
-    // tests...
     LINQ_EXPORT node_s** netw_device(const netw_s* l, const char* serial);
     LINQ_EXPORT bool netw_device_exists(const netw_s*, const char* sid);
     LINQ_EXPORT uint32_t netw_device_count(const netw_s*);
@@ -144,6 +142,12 @@ extern "C"
 
     // Sys API
     LINQ_EXPORT bool sys_running();
+#ifdef BUILD_LINQD
+#include "http.h"
+    LINQ_EXPORT database_s* netw_database(netw_s* l);
+    LINQ_EXPORT void
+    netw_use(netw_s* netw, const char* path, http_route_cb cb, void* context);
+#endif
 #ifdef __cplusplus
 }
 #endif

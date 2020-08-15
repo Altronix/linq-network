@@ -15,7 +15,8 @@ add_executable(test-routes
                       create_admin.c
                       create_admin.h)
 target_link_libraries(test-routes
-                      http-test
+                      network-test-static
+                      database-static
                       mock-utils
                       ${LIBZMQ_STATIC_LIBS}
                       helpers

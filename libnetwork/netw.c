@@ -7,6 +7,11 @@
 #include "node.h"
 #include "sys.h"
 #include "zmtp.h"
+#ifdef BUILD_LINQD
+#include "database.h"
+#include "http.h"
+#include "routes/routes.h"
+#endif
 
 // Main class
 typedef struct netw_s
@@ -16,6 +21,10 @@ typedef struct netw_s
     device_map_s* devices;
     node_map_s* nodes;
     zmtp_s zmtp;
+#ifdef BUILD_LINQD
+    http_s http;
+    database_s database;
+#endif
 } netw_s;
 
 static void
@@ -91,6 +100,18 @@ netw_create(const netw_callbacks* cb, void* context)
         l->callbacks = cb;
         l->context = context ? context : l;
         zmtp_init(&l->zmtp, &l->devices, &l->nodes, &zmtp_callbacks, l);
+#ifdef BUILD_LINQD
+#define ADD_ROUTE(http, path, fn, ctx) http_use(http, path, fn, ctx)
+        database_init(&l->database);
+        http_init(&l->http, &l->database);
+        ADD_ROUTE(&l->http, "/api/v1/public/create_admin", create_admin, l);
+        ADD_ROUTE(&l->http, "/api/v1/public/login", login, l);
+        ADD_ROUTE(&l->http, "/api/v1/users", users, l);
+        ADD_ROUTE(&l->http, "/api/v1/devices", devices, l);
+        ADD_ROUTE(&l->http, "/api/v1/alerts", alerts, l);
+        ADD_ROUTE(&l->http, "/api/v1/proxy/...", proxy, l);
+#undef ADD_ROUTE
+#endif
     }
     return l;
 }
@@ -101,6 +122,10 @@ netw_destroy(netw_s** netw_p)
 {
     netw_s* l = *netw_p;
     *netw_p = NULL;
+#if BUILD_LINQD
+    http_deinit(&l->http);
+    database_deinit(&l->database);
+#endif
     device_map_destroy(&l->devices);
     node_map_destroy(&l->nodes);
     zmtp_deinit(&l->zmtp);
@@ -122,6 +147,14 @@ netw_listen(netw_s* l, const char* ep)
     return zmtp_listen(&l->zmtp, ep);
 }
 
+netw_socket
+netw_listen_http(netw_s* l, const char* ep)
+{
+    int ep_len = strlen(ep);
+    log_info("(ZMTP) Listening... [%s]", ep);
+    http_listen(&l->http, ep);
+    return LINQ_ERROR_OK; // TODO return socket handle
+}
 // connect to a remote linq and send hello frames
 netw_socket
 netw_connect(netw_s* l, const char* ep)
@@ -151,6 +184,11 @@ netw_poll(netw_s* l, int32_t ms)
 {
     E_LINQ_ERROR err = zmtp_poll(&l->zmtp, ms);
     if (err) log_error("(ZMTP) polling error %d", err);
+
+#if BUILD_LINQD
+    err = http_poll(&l->http, ms);
+    if (err) log_error("(HTTP) polling error %d", err);
+#endif
 
     // Loop through devices
     device_map_foreach_poll(l->devices);
@@ -262,3 +300,17 @@ netw_send(
     }
     return error;
 }
+
+#ifdef BUILD_LINQD
+LINQ_EXPORT database_s*
+netw_database(netw_s* l)
+{
+    return &l->database;
+}
+
+LINQ_EXPORT void
+netw_use(netw_s* netw, const char* path, http_route_cb cb, void* context)
+{
+    http_use(&netw->http, path, cb, context);
+}
+#endif

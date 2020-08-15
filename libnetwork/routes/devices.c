@@ -1,19 +1,15 @@
 #include "routes.h"
 #include "sys.h"
 
-#define ALERT                                                                  \
-    "{"                                                                        \
-    "\"alert_id\":\"%s\","                                                     \
-    "\"device_id\":\"%s\","                                                    \
-    "\"who\":\"%s\","                                                          \
-    "\"what\":\"%s\","                                                         \
-    "\"site_id\":\"%s\","                                                      \
-    "\"when\":%d,"                                                             \
-    "\"mesg\":\"%s\""                                                          \
+#define DEVICE                                                                 \
+    "\"%s\":{"                                                                 \
+    "\"product\":\"%s\","                                                      \
+    "\"prj_version\":\"%s\","                                                  \
+    "\"atx_version\":\"%s\""                                                   \
     "}"
 
 void
-route_alerts(
+devices(
     http_route_context* ctx,
     HTTP_METHOD meth,
     uint32_t _l,
@@ -26,8 +22,8 @@ route_alerts(
     char b[LINQ_NETW_MAX_RESPONSE_SIZE];
     const char *count = NULL, *offset = NULL;
     uint32_t countl, offsetl;
-    database_s* db = &((http_s*)ctx->context)->db;
-    alert_s a;
+    device_s d;
+    database_s* db = netw_database(ctx->context);
 
     if (!(meth == HTTP_METHOD_GET)) {
         http_printf_json(
@@ -38,7 +34,6 @@ route_alerts(
     // Parse query params if provided then generate sql
     http_parse_query_str(ctx, "count", &count, &countl);
     http_parse_query_str(ctx, "offset", &offset, &offsetl);
-
     // TODO test should compare db statements with query string vs no query str
     if (count && offset && countl < 6 && offsetl < 6) {
         snprintf(b, sizeof(b), "%.*s", countl, count);
@@ -48,34 +43,31 @@ route_alerts(
     }
 
     // Convert database output to json
-    l = snprintf(b, sizeof(b), "{\"alerts\":[");
-    err = database_alert_open(db, &a, countl, offsetl);
+    l = snprintf(b, sizeof(b), "{\"devices\":{");
+    err = database_device_open(db, &d, countl, offsetl);
     if (!err) {
         while (err != DATABASE_DONE && l < sizeof(b)) {
             l += snprintf(
                 &b[l],
                 sizeof(b) - l,
-                ALERT,
-                a.id,
-                a.device,
-                a.who,
-                a.what,
-                a.site,
-                a.time,
-                a.mesg);
-            // err = sqlite3_step(stmt);
-            err = database_alert_next(&a);
+                DEVICE,
+                d.id,
+                d.product,
+                d.prj_version,
+                d.atx_version);
+            err = database_device_next(&d);
             if (err != DATABASE_DONE && l < sizeof(b)) {
                 l += snprintf(&b[l], sizeof(b) - l, ",");
             }
         }
-        database_alert_close(&a);
+        database_device_close(&d);
     }
     if (l < sizeof(b)) {
-        l += snprintf(&b[l], sizeof(b) - l, "]}");
+        l += snprintf(&b[l], sizeof(b) - l, "}}");
         http_printf_json(ctx->curr_connection, 200, b);
     } else {
         snprintf(b, sizeof(b), "{\"error\":\"Response too large\"}");
         http_printf_json(ctx->curr_connection, 400, b);
     }
 }
+

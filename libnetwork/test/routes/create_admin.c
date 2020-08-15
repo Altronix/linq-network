@@ -2,7 +2,6 @@
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
 #include "netw.h"
-#include "routes.h"
 #include "sys.h"
 
 #include <setjmp.h>
@@ -45,7 +44,7 @@ test_route_create_admin_ok(void** context_p)
 
     // Simulate http request
     mongoose_spy_event_request_push(UNSAFE_TOKEN, "POST", req_path, req_body);
-    for (int i = 0; i < 4; i++) http_poll(&test->http, -1);
+    for (int i = 0; i < 4; i++) netw_poll(test->net, -1);
 
     // Process request
     mongoose_parser_context* response = mongoose_spy_response_pop();
@@ -92,7 +91,7 @@ test_route_create_admin_fail_exists(void** context_p)
 
     // Simulate http request
     mongoose_spy_event_request_push(UNSAFE_TOKEN, "POST", req_path, req_body);
-    for (int i = 0; i < 4; i++) http_poll(&test->http, -1);
+    for (int i = 0; i < 4; i++) netw_poll(test->net, -1);
 
     // Process request
     mongoose_parser_context* response = mongoose_spy_response_pop();
