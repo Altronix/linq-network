@@ -30,18 +30,6 @@ extern "C"
 {
 #endif
 
-#ifndef LINQ_NETW_MAX_RETRY
-#define LINQ_NETW_MAX_RETRY 5
-#endif
-
-#ifndef LINQ_NETW_RETRY_TIMEOUT
-#define LINQ_NETW_RETRY_TIMEOUT 500
-#endif
-
-#ifndef LINQ_NETW_MAX_RESPONSE_SIZE
-#define LINQ_NETW_MAX_RESPONSE_SIZE 8096
-#endif
-
     // Linq API
     LINQ_EXPORT netw_s* netw_create(const netw_callbacks*, void*);
     LINQ_EXPORT void netw_destroy(netw_s**);

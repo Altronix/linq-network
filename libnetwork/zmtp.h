@@ -10,10 +10,47 @@
 #include "netw_internal.h"
 #include "node.h"
 
+#ifndef LINQ_NETW_MAX_RETRY
+#define LINQ_NETW_MAX_RETRY 5
+#endif
+
+#ifndef LINQ_NETW_RETRY_TIMEOUT
+#define LINQ_NETW_RETRY_TIMEOUT 500
+#endif
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+    // helpful struct for maintaining frames
+    typedef struct
+    {
+        uint32_t n;
+        zframe_t** frames;
+    } frames_s;
+
+    typedef unsigned char uchar;
+
+    extern char g_frame_ver_0;
+    extern char g_frame_typ_heartbeat;
+    extern char g_frame_typ_request;
+    extern char g_frame_typ_response;
+    extern char g_frame_typ_alert;
+    extern char g_frame_typ_hello;
+
+    typedef struct
+    {
+        uint8_t id[256];
+        uint32_t sz;
+    } router_s;
+
+    typedef struct
+    {
+        node_s base;
+        zsock_t* sock;
+        router_s* router;
+    } netw_socket_s;
 
     MAP_INIT_H(socket, zsock_t);
     typedef struct zmtp_s

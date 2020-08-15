@@ -4,6 +4,7 @@
 
 #include "node.h"
 #include "containers.h"
+#include "zmtp.h"
 
 // main class struct (extends netw_socket_s)
 typedef struct node_zmtp_s

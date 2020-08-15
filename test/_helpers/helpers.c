@@ -4,7 +4,7 @@
 
 #include "helpers.h"
 #include "database.h"
-#include "netw_internal.h"
+#include "zmtp.h"
 
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"

@@ -6,6 +6,10 @@
 #endif
 #include "netw.h"
 
+#ifndef LINQ_NETW_MAX_RESPONSE_SIZE
+#define LINQ_NETW_MAX_RESPONSE_SIZE 8096
+#endif
+
 #ifdef __cplusplus
 extern "C"
 {
