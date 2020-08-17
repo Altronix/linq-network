@@ -14,7 +14,6 @@ set(SOURCES
     zmtp.h
     zmtp_device.h)
 set(INSTALL_HEADERS netw.h)
-set(LIBS ${CMAKE_THREAD_LIBS_INIT} ${ZMQ_LIBS} common-static)
 if(BUILD_LINQD)
   list(APPEND SOURCES 
     ./routes/alerts.c
@@ -25,6 +24,7 @@ if(BUILD_LINQD)
   list(APPEND LIBS database-static http-static)
   list(APPEND definitions "BUILD_LINQD")
 endif()
+list(APPEND LIBS ${CMAKE_THREAD_LIBS_INIT} ${ZMQ_LIBS} common-static)
 
 append_log_level_compiler_flags(definitions)
 
