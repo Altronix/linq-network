@@ -22,7 +22,7 @@ use std::sync::{Arc, Mutex};
 pub use linq_network_sys::netw_socket;
 
 pub fn running() -> bool {
-    unsafe { sys_running() }
+    unsafe { netw_running() }
 }
 
 pub enum Request<'a> {

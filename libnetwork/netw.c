@@ -78,8 +78,11 @@ netw_listen_http(netw_s* l, const char* ep)
 {
     int ep_len = strlen(ep);
     log_info("(ZMTP) Listening... [%s]", ep);
+#ifdef BUILD_LINQD
     http_listen(&l->http, ep);
     return LINQ_ERROR_OK; // TODO return socket handle
+#endif
+    return LINQ_ERROR_PROTOCOL;
 }
 // connect to a remote linq and send hello frames
 netw_socket
@@ -228,7 +231,7 @@ netw_send(
 }
 
 bool
-netw_running(netw_s* netw)
+netw_running()
 {
     return sys_running();
 }
