@@ -149,7 +149,6 @@ if(ENABLE_TESTING)
     COMMAND test-database
     COMMAND test-routes
     COMMAND test-callbacks
-    COMMAND test-linqd
     COMMAND binding-network-cpp-test)
 
 endif()
