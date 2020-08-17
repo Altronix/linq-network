@@ -153,18 +153,22 @@ test_netw_send(void** context_p)
     ((void)context_p);
     zmsg_t* hb = helpers_make_heartbeat("rid0", "serial0", "pid", "sid");
     zmsg_t* r = helpers_make_response("rid0", "serial0", 0, "{\"response\":0}");
+    zmsg_t* a = helpers_make_response("rid0", "serial0", 0, "{\"about\":null}");
     bool pass = false;
 
     test_init();
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
     czmq_spy_mesg_push_incoming(&hb);
+    czmq_spy_mesg_push_incoming(&a);
     czmq_spy_mesg_push_incoming(&r);
     czmq_spy_poll_set_incoming((0x01));
 
     altronix::Linq linq{};
     linq.listen("tcp://*:32820");
     linq.poll(0); // receive heartbeat
+    linq.poll(0); // receive about response from heartbeat
+    czmq_spy_mesg_flush_outgoing();
 
     // send get request
     linq.get("serial0", "/ATX/about", [&pass](altronix::Response& response) {

@@ -24,17 +24,11 @@ test_route_proxy_get(void** context_p)
                                      .pass = PASS };
 
     const char* serial = "serial1234";
-    zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "product", "site");
     zmsg_t* outgoing;
     zframe_t *rid, *ver, *typ, *url;
 
     helpers_test_context_s* test = test_init(&config);
-
-    czmq_spy_mesg_push_incoming(&hb);
-    czmq_spy_poll_set_incoming((0x01));
-
-    netw_poll(test->net, 5);
-    sqlite_spy_outgoing_statement_flush();
+    helpers_add_device(test, serial, "rid0", "product", "site");
 
     // Mock sqlite database response
     sqlite_spy_step_return_push(SQLITE_ROW); // user exists
@@ -76,18 +70,14 @@ test_route_proxy_post(void** context_p)
                                      .pass = PASS };
 
     const char* serial = "serial1234";
-    zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "product", "site");
     zmsg_t* outgoing;
     zframe_t *rid, *ver, *typ, *url, *dat;
 
     helpers_test_context_s* test = test_init(&config);
-
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
-    czmq_spy_mesg_push_incoming(&hb);
-    czmq_spy_poll_set_incoming((0x01));
 
-    netw_poll(test->net, 5);
+    helpers_add_device(test, serial, "rid0", "product", "site");
     sqlite_spy_outgoing_statement_flush();
 
     // Mock sqlite database response
