@@ -15,11 +15,8 @@ set(headers ./src/NetwJS.h)
 set(defs "LINQ_NETWORK_NODEJS_BINDING")
 
 if(BUILD_LINQD)
-  list(APPEND sources ./src/DaemonJS.cc)
-  list(APPEND headers ./src/DaemonJS.h)
   list(APPEND defs "-DBUILD_LINQD=TRUE")
   list(APPEND libs 
-    daemon-static
     database-static
     http-static   
     ${JSMN_WEB_TOKENS_STATIC_LIBS}
@@ -28,8 +25,6 @@ if(BUILD_LINQD)
 endif()
 
 if(BUILD_USBH)
-  list(APPEND sources ./src/UsbhJS.cc)
-  list(APPEND headers ./src/UsbhJS.h)
   list(APPEND defs "-DBUILD_USBH=TRUE")
   list(APPEND libs usbh-static)
 endif()

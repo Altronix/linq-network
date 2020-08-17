@@ -1,7 +1,3 @@
-#ifdef BUILD_USBH
-#include "UsbhJS.h"
-#endif
-
 #include "NetwJS.h"
 #include <napi.h>
 
@@ -12,9 +8,6 @@ Init(Napi::Env env, Napi::Object exports)
     obj.Set("version", "0.0.1");
     obj.Set("network", LinqNetwork::Init(env, exports));
 
-#ifdef BUILD_USBH
-    obj.Set("usbh", LinqUsbh::Init(env, exports));
-#endif
     return obj;
 }
 
