@@ -17,6 +17,7 @@
 #define IO_M5_MAX_INCOMING 4096
 #endif
 
+#include "device.h"
 #include "io.h"
 #include "wire.h"
 
@@ -25,8 +26,8 @@ extern "C"
 {
 #endif
 
-    io_s* io_m5_init(libusb_device* d, struct libusb_device_descriptor);
-    void io_m5_free(io_s** io_p);
+    node_s* io_m5_init(libusb_device* d, struct libusb_device_descriptor);
+    void io_m5_free(node_s** io_p);
 
 #ifdef __cplusplus
 }

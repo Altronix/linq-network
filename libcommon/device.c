@@ -6,6 +6,14 @@
 #include "containers.h"
 #include "log.h"
 
+#define SCAN_FMT                                                               \
+    "\"%s\":{"                                                                 \
+    "\"idVendor\":%s,"                                                         \
+    "\"idProduct\":%s,"                                                        \
+    "\"manufacturer\":\"%s\","                                                 \
+    "\"product\":\"%s\""                                                       \
+    "}"
+
 static void
 node_destroy(node_s** node_p)
 {
@@ -77,4 +85,34 @@ device_map_foreach_poll(device_map_s* hash)
             base->poll(base, NULL);
         }
     }
+}
+
+int
+device_map_print(device_map_s* d, char* b, uint32_t l)
+{
+    uint32_t n = device_map_size(d), sz = l;
+    l = 1;
+    if (sz) *b = '{';
+    node_s* device;
+    device_iter iter;
+    map_foreach(d, iter)
+    {
+        if (map_has_key(d, iter) && (device = map_val(d, iter))) {
+            l += snprintf(
+                &b[l],
+                sz - l,
+                SCAN_FMT,
+                device->serial,
+                "0x????",
+                "0x????",
+                "Altronix Corp.",
+                device->type);
+            if (--n) {
+                if (l < sz) b[(l)++] = ',';
+            }
+        }
+    }
+    if (l < sz) b[(l)++] = '}';
+    if (l < sz) b[(l)] = '\0';
+    return l;
 }

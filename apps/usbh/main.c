@@ -8,7 +8,9 @@ main(int argc, char* argv[])
     char b[128];
     uint16_t code;
     usbh_s usb;
-    usbh_init(&usb);
+    // TODO use netw_() wrapper
+    device_map_s* devices = device_map_create();
+    usbh_init(&usb, &devices);
 
     // Scan for device
     rc = usbh_scan(&usb, 0x3333, 0x4444);
@@ -34,5 +36,6 @@ main(int argc, char* argv[])
 
     // cleanup
     log_info("(APP) - received [%d] [%s]", code, b);
+    device_map_destroy(&devices); // Note devices must be free'd before usb
     usbh_free(&usb);
 }

@@ -16,6 +16,7 @@
 // clang-format on
 
 #include "sys.h"
+#include "device.h"
 #include "containers.h"
 #include "io.h"
 #include "libusb-1.0/libusb.h"
@@ -33,15 +34,13 @@ extern "C"
 {
 #endif
 
-    MAP_INIT_H(usbh_device, io_s);
-
     typedef struct usbh_s
     {
         libusb_context* context;
-        usbh_device_map_s* devices;
+        device_map_s** devices_p;
     } usbh_s;
 
-    LINQ_USB_EXPORT void usbh_init(usbh_s* usb);
+    LINQ_USB_EXPORT void usbh_init(usbh_s* usb, device_map_s** devices_p);
     LINQ_USB_EXPORT void usbh_free(usbh_s* usb);
     LINQ_USB_EXPORT int usbh_scan(usbh_s*, uint16_t, uint16_t);
     LINQ_USB_EXPORT uint32_t usbh_device_count(usbh_s* usb);

@@ -500,3 +500,4 @@ main(int argc, char* argv[])
     err = cmocka_run_group_tests(tests, NULL, NULL);
     return err;
 }
+

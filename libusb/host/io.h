@@ -11,6 +11,7 @@ extern "C"
 {
 #endif
 
+    // TODO deprecate "ops" because node_s has the ops now
     typedef const char cchar;
     struct io_s;
     typedef struct io_ops_s
@@ -21,7 +22,7 @@ extern "C"
         int (*vtx_sync)(struct io_s*, cchar*, cchar*, cchar*, va_list);
         int (*rx)(struct io_s*, uint16_t*, char*, uint32_t);
         int (*rx_sync)(struct io_s*, uint16_t*, char*, uint32_t);
-        void (*free)(struct io_s**);
+        // void (*free)(struct node_s**);
     } io_ops_s;
 
     typedef struct io_s

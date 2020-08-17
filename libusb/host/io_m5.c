@@ -123,7 +123,7 @@ EXIT:
 #undef err_exit
 }
 
-io_s*
+node_s*
 io_m5_init(libusb_device* d, struct libusb_device_descriptor descriptor)
 {
     uint8_t encoding[] = { 0x80, 0x25, 0x00, 0x00, 0x00, 0x00, 0x08 };
@@ -183,17 +183,19 @@ io_m5_init(libusb_device* d, struct libusb_device_descriptor descriptor)
             device->io.ops.tx_sync = io_m5_send_http_request_sync;
             device->io.ops.vtx_sync = io_m5_vsend_http_request_sync;
             device->io.ops.rx_sync = io_m5_recv_http_response_sync;
-            device->io.ops.free = io_m5_free;
+            device->io.base.free = io_m5_free;
+            // device->io.base.poll = // TODO
+            // device->io.base.send = // TODO
             // TODO - install io driver per product type
             //      - Optionally ? libusb_set_configuration( ...
             //      - Optionally ? libusb_claim_interface( ...
         }
     }
-    return (io_s*)device;
+    return (node_s*)device;
 }
 
 void
-io_m5_free(io_s** io_p)
+io_m5_free(node_s** io_p)
 {
     io_m5_s* io = *(io_m5_s**)io_p;
     io_p = NULL;

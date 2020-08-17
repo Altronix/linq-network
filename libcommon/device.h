@@ -20,6 +20,7 @@ extern "C"
     uint32_t device_last_seen(node_s* d);
     uint32_t device_uptime(node_s* d);
     void device_heartbeat(node_s* d);
+    int device_map_print(device_map_s* d, char* b, uint32_t l);
     uint32_t device_map_foreach_remove_if(
         device_map_s* hash,
         bool (*remove)(node_s*, void*),
