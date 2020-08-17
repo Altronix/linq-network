@@ -89,7 +89,7 @@ main(int argc, char* argv[])
         // netw_listen_https(netw, endpoint); // TODO
     }
 
-    while (netw_running(netw)) { err = netw_poll(netw, 5); };
+    while (netw_running()) { err = netw_poll(netw, 5); };
 
     netw_destroy(&netw);
     return 0;
