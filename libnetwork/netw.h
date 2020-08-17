@@ -56,6 +56,7 @@ extern "C"
         uint32_t jlen,
         linq_request_complete_fn fn,
         void* ctx);
+    LINQ_EXPORT bool netw_running(netw_s* netw);
 
     // Sys API
 #ifdef BUILD_LINQD

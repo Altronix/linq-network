@@ -1,5 +1,17 @@
-#include "daemon.h"
 #include "log.h"
+#include "netw.h"
+
+typedef struct config_s
+{
+    uint32_t zmtp;
+    uint32_t http;
+    uint32_t https;
+    const char* db_path;
+    const char* cert;
+    const char* key;
+    const char* log;
+    bool daemon;
+} config_s;
 
 static void
 print_usage_and_exit(int err)
@@ -24,7 +36,7 @@ print_usage_and_exit(int err)
 }
 
 static void
-parse_args(daemon_config_s* config, int argc, char* argv[])
+parse_args(config_s* config, int argc, char* argv[])
 {
     int opt, arglen;
     optind_set(0);
@@ -47,22 +59,38 @@ int
 main(int argc, char* argv[])
 {
     int err = 0;
-    daemon_config_s config = { .zmtp = 33248,
-                               .http = 8000,
-                               .https = 0,
-                               .cert = NULL,
-                               .key = NULL,
-                               .db_path = "./test.db" };
+    char endpoint[128];
+    netw_s* netw;
+    config_s config = { .zmtp = 33248,
+                        .http = 8000,
+                        .https = 0,
+                        .cert = NULL,
+                        .key = NULL,
+                        .db_path = "./test.db" };
     parse_args(&config, argc, argv);
-    if (config.cert && config.key && config.https) {
-        // TODO install tls
+    netw = netw_create(NULL, NULL);
+    assert(netw);
+
+    if (config.zmtp) {
+        snprintf(endpoint, sizeof(endpoint), "tcp://*:%d", config.zmtp);
+        netw_listen(netw, endpoint);
     }
 
-    daemon_s linqd;
-    daemon_init(&linqd, &config);
+    if (config.http) {
+        snprintf(endpoint, sizeof(endpoint), "%d", config.http);
+        netw_listen_http(netw, endpoint);
+    }
 
-    while (sys_running()) { err = daemon_poll(&linqd, 5); };
+    if (config.https) {
+        if (config.cert && config.key && config.https) {
+            // TODO install tls
+        }
+        snprintf(endpoint, sizeof(endpoint), "%d", config.http);
+        // netw_listen_https(netw, endpoint); // TODO
+    }
 
-    daemon_free(&linqd);
+    while (netw_running(netw)) { err = netw_poll(netw, 5); };
+
+    netw_destroy(&netw);
     return 0;
 }

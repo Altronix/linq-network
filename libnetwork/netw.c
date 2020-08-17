@@ -227,6 +227,12 @@ netw_send(
     return error;
 }
 
+bool
+netw_running(netw_s* netw)
+{
+    return sys_running();
+}
+
 #ifdef BUILD_LINQD
 LINQ_EXPORT database_s*
 netw_database(netw_s* l)
