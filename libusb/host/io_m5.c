@@ -146,21 +146,15 @@ io_m5_init(libusb_device* d, struct libusb_device_descriptor descriptor)
             if (err) { log_error("(USB) - cfg [%s]", libusb_strerror(err)); }
             err = libusb_get_string_descriptor_ascii(
                 device->io.handle,
-                descriptor.iManufacturer,
-                device->io.manufacturer,
-                sizeof(device->io.manufacturer));
-            if (err < 0) log_error("(USB) - str [%s]", libusb_strerror(err));
-            err = libusb_get_string_descriptor_ascii(
-                device->io.handle,
                 descriptor.iProduct,
-                device->io.product,
-                sizeof(device->io.product));
+                (unsigned char*)device->io.base.type,
+                sizeof(device->io.base.type));
             if (err < 0) log_error("(USB) - str [%s]", libusb_strerror(err));
             err = libusb_get_string_descriptor_ascii(
                 device->io.handle,
                 descriptor.iSerialNumber,
-                device->io.serial,
-                sizeof(device->io.serial));
+                (unsigned char*)device->io.base.serial,
+                sizeof(device->io.base.serial));
             if (err < 0) log_error("(USB) - str [%s]", libusb_strerror(err));
             for (int i = 0; i < 2; i++) {
                 if (libusb_kernel_driver_active(device->io.handle, i)) {

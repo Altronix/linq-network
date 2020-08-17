@@ -1,6 +1,7 @@
 #ifndef IO_H
 #define IO_H
 
+#include "common.h"
 #include "containers.h"
 #include "libusb-1.0/libusb.h"
 #include "sys.h"
@@ -25,13 +26,14 @@ extern "C"
 
     typedef struct io_s
     {
+        node_s base;
         libusb_device_handle* handle;
         libusb_device* device;
         struct libusb_device_descriptor desc_dev;
         struct libusb_config_descriptor* desc_cfg;
-        unsigned char manufacturer[64];
-        unsigned char product[64];
-        unsigned char serial[64];
+        // unsigned char manufacturer[64];
+        // unsigned char product[64];
+        // unsigned char serial[64];
         io_ops_s ops;
     } io_s;
 

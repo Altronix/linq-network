@@ -56,11 +56,11 @@ usbh_print_devices(usbh_s* usb, char* b, uint32_t l)
                 &b[l],
                 sz - l,
                 SCAN_FMT,
-                device->serial,
+                device->base.serial,
                 device->desc_dev.idVendor,
                 device->desc_dev.idProduct,
-                device->manufacturer,
-                device->product);
+                "Altronix Corp.",
+                device->base.type);
             if (--n) {
                 if (l < sz) b[(l)++] = ',';
             }
@@ -90,8 +90,8 @@ usbh_scan(usbh_s* usb, uint16_t vend, uint16_t prod)
                     // TODO this should be opaque init function
                     d = io_m5_init(dev, desc);
                     if (d) {
-                        log_info("(USB) - disc [%d] [%s]", n + 1, d->serial);
-                        serial = (const char*)d->serial;
+                        log_info("(USB) - disc [%s]", d->base.serial);
+                        serial = (const char*)d->base.serial;
                         usbh_device_map_add(usb->devices, serial, &d);
                         ++n;
                     }
@@ -142,3 +142,15 @@ usbh_recv_http_response_sync(
     }
     return err;
 }
+
+void
+usbh_send(
+    struct node_s* node,
+    E_REQUEST_METHOD method,
+    const char* path,
+    uint32_t plen,
+    const char* json,
+    uint32_t jlen,
+    linq_request_complete_fn fn,
+    void* ctx)
+{}
