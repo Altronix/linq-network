@@ -311,21 +311,19 @@ test_netw_receive_response_ok(void** context_p)
 {
     ((void)context_p);
     bool pass = false;
-    helpers_test_config_s config = { .callbacks = &callbacks,
-                                     .context = &pass,
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
                                      .zmtp = 32820,
                                      .http = 0,
                                      .user = USER,
                                      .pass = PASS };
     const char* serial = expect_sid = "serial";
-    zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
+    // zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
     zmsg_t* r = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
 
     helpers_test_context_s* test = test_init(&config);
-    // sqlite_spy_step_return_push(SQLITE_ROW);
-    // sqlite_spy_column_int_return_push(1);
+    helpers_add_device(test, serial, "rid", "pid", "sid");
 
-    czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_mesg_push_incoming(&r);
     czmq_spy_poll_set_incoming((0x01));
 
@@ -333,7 +331,6 @@ test_netw_receive_response_ok(void** context_p)
     // Send a get request
     // receive get response
     // make sure callback is as expect
-    netw_poll(test->net, 5);
     netw_send(
         test->net,
         serial,
@@ -377,19 +374,14 @@ test_netw_receive_response_error_timeout(void** context_p)
                                      .pass = PASS };
     const char* serial = expect_sid = "serial";
     node_s** d;
-    zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
     zmsg_t* r = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
 
     helpers_test_context_s* test = test_init(&config);
-    // sqlite_spy_step_return_push(SQLITE_ROW);
-    // sqlite_spy_column_int_return_push(1);
-
-    czmq_spy_mesg_push_incoming(&hb);
-    czmq_spy_poll_set_incoming((0x01));
 
     // Receive a new device @t=0
     spy_sys_set_tick(0);
-    netw_poll(test->net, 5);
+    helpers_add_device(test, serial, "rid0", "pid", "sid");
+    czmq_spy_poll_set_incoming((0x01));
     d = netw_device(test->net, serial);
     zmtp_device_send(
         *d,
@@ -463,14 +455,9 @@ test_netw_receive_response_error_codes(void** context_p)
         char data[32];
         snprintf(data, sizeof(data), "{\"error\":%d}", codes[i]);
         expect_error = codes[i];
-        zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
         zmsg_t* r = helpers_make_response("rid0", serial, codes[i], data);
-        czmq_spy_mesg_push_incoming(&hb);
-        czmq_spy_mesg_push_incoming(&r);
-        czmq_spy_poll_set_incoming((0x01));
-
         // Setup code under test
-        netw_poll(test->net, 0);
+        helpers_add_device(test, serial, "rid0", "pid", "sid");
         d = netw_device(test->net, serial);
         assert_non_null(d);
 
@@ -485,6 +472,9 @@ test_netw_receive_response_error_codes(void** context_p)
             on_response_error_codes,
             &pass);
         assert_int_equal(zmtp_device_request_pending_count(*d), 1);
+
+        czmq_spy_mesg_push_incoming(&r);
+        czmq_spy_poll_set_incoming((0x01));
         netw_poll(test->net, 0);
 
         // Measure test
@@ -518,7 +508,6 @@ test_netw_receive_response_error_504(void** context_p)
     uint32_t t = 0;
     const char* serial = expect_sid = "serial";
     node_s** d;
-    zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
     zmsg_t* incoming[LINQ_NETW_MAX_RETRY + 1] = {
         helpers_make_response("rid0", serial, 504, "{\"error\":504}"),
         helpers_make_response("rid0", serial, 504, "{\"error\":504}"),
@@ -537,9 +526,7 @@ test_netw_receive_response_error_504(void** context_p)
 
     // Receive a new device @t=0
     spy_sys_set_tick(t);
-    czmq_spy_mesg_push_incoming(&hb);
-    czmq_spy_poll_set_incoming((0x01));
-    netw_poll(test->net, 0);
+    helpers_add_device(test, serial, "rid0", "pid", "sid");
     d = netw_device(test->net, serial);
     assert_non_null(d);
 
@@ -613,7 +600,6 @@ test_netw_receive_response_ok_504(void** context_p)
     uint32_t t = 0;
     const char* serial = expect_sid = "serial";
     node_s** d;
-    zmsg_t* hb = helpers_make_heartbeat("rid0", serial, "pid", "sid");
     zmsg_t* ok = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
     zmsg_t* incoming[LINQ_NETW_MAX_RETRY] = {
         helpers_make_response("rid0", serial, 504, "{\"error\":504}"),
@@ -632,9 +618,7 @@ test_netw_receive_response_ok_504(void** context_p)
 
     // Receive a new device @t=0
     spy_sys_set_tick(t);
-    czmq_spy_mesg_push_incoming(&hb);
-    czmq_spy_poll_set_incoming((0x01));
-    netw_poll(test->net, 0);
+    helpers_add_device(test, serial, "rid0", "pid", "sid");
     d = netw_device(test->net, serial);
     assert_non_null(d);
 
@@ -778,6 +762,7 @@ test_netw_broadcast_heartbeat(void** context_p)
     zmsg_t* outgoing;
 
     helpers_test_context_s* test = test_init(&config);
+    helpers_add_device(test, "serial", "rid0", "pid", "sid");
     // sqlite_spy_step_return_push(SQLITE_ROW);
     // sqlite_spy_column_int_return_push(1);
 
@@ -789,7 +774,7 @@ test_netw_broadcast_heartbeat(void** context_p)
 
     netw_poll(test->net, 5); // receive hello
     netw_poll(test->net, 5); // recieve hello
-    netw_poll(test->net, 5); // receive heartbeat
+    netw_poll(test->net, 5); // recieve heartbeat
 
     // outgoing should have a heartbeat with client router
     for (int i = 0; i < 2; i++) {
@@ -834,24 +819,22 @@ test_netw_broadcast_alert(void** context_p)
                                      .user = USER,
                                      .pass = PASS };
 
-    zmsg_t* hb = helpers_make_heartbeat("rid0", "sid", "pid", "site");
     zmsg_t* alert = helpers_make_alert("rid", "sid", "pid");
     zmsg_t* m0 = helpers_make_hello("client-router0", "node0");
     zmsg_t* m1 = helpers_make_hello("client-router1", "node1");
     zmsg_t* outgoing;
 
     helpers_test_context_s* test = test_init(&config);
+    helpers_add_device(test, "sid", "rid0", "pid", "sid");
     // sqlite_spy_step_return_push(SQLITE_ROW);
     // sqlite_spy_column_int_return_push(1);
 
     // device sends heartbeat to server, two clients connect, device sends alert
-    czmq_spy_mesg_push_incoming(&hb);
     czmq_spy_mesg_push_incoming(&m0);
     czmq_spy_mesg_push_incoming(&m1);
     czmq_spy_mesg_push_incoming(&alert);
     czmq_spy_poll_set_incoming((0x01));
 
-    netw_poll(test->net, 5); // receive heartbeat
     netw_poll(test->net, 5); // receive hello
     netw_poll(test->net, 5); // recieve hello
     netw_poll(test->net, 5); // receive alert
@@ -909,6 +892,7 @@ test_netw_forward_request(void** context_p)
     response = helpers_make_response("router-d", "device123", 0, "world");
 
     helpers_test_context_s* test = test_init(&config);
+    helpers_add_device(test, "device123", "router-d", "pid", "site");
     // sqlite_spy_step_return_push(SQLITE_ROW);
     // sqlite_spy_column_int_return_push(1);
 
@@ -981,6 +965,7 @@ test_netw_forward_client_request(void** context_p)
                                      .pass = PASS };
     zframe_t *ver, *typ, *sid, *url;
     zmsg_t* hb = helpers_make_heartbeat(NULL, "device123", "pid", "site");
+    zmsg_t* a = helpers_make_response(NULL, "device123", 0, "{\"about\":null}");
     zmsg_t* outgoing = NULL;
 
     helpers_test_context_s* test = test_init(&config);
@@ -988,17 +973,20 @@ test_netw_forward_client_request(void** context_p)
     // sqlite_spy_column_int_return_push(1);
 
     czmq_spy_mesg_push_incoming(&hb);
+    czmq_spy_mesg_push_incoming(&a);
     czmq_spy_poll_set_incoming(0x01);
 
     netw_connect(test->net, "ipc:///test");
 
     netw_poll(test->net, 5); // add a device
+    netw_poll(test->net, 5);
+    czmq_spy_mesg_flush_outgoing(); // delete hello frames and /about request
 
     netw_send(
         test->net, "device123", "GET", "/ATX/hello", 10, NULL, 0, NULL, NULL);
-    outgoing = czmq_spy_mesg_pop_outgoing();
-    assert_non_null(outgoing);
-    zmsg_destroy(&outgoing); // delete outgoing hello frames
+    // outgoing = czmq_spy_mesg_pop_outgoing();
+    // assert_non_null(outgoing);
+    // zmsg_destroy(&outgoing); // delete outgoing hello frames
     outgoing = czmq_spy_mesg_pop_outgoing();
     assert_non_null(outgoing);
     assert_int_equal(zmsg_size(outgoing), 4);

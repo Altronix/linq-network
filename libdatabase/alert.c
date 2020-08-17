@@ -77,7 +77,7 @@ alert_insert(database_s* db, const char* serial, alert_insert_s* a)
         vlen = snprintf(
             vals,
             sizeof(vals),
-            "\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",%.*s,\"%.*s\",\"%.*s\""
+            "\"%.*s\",\"%.*s\",\"%.*s\",\"%.*s\",%.*s,\"%.*s\",\"%.*s\","
             "\"%.*s\",\"%.*s\""
             ,
             32,       uuid,

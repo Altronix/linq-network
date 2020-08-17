@@ -19,14 +19,8 @@ static mock_zmsg_s* outgoing = NULL;
 void
 czmq_spy_mesg_reset()
 {
-    while (incoming) {
-        zmsg_t* m = czmq_spy_mesg_pop_incoming();
-        zmsg_destroy(&m);
-    }
-    while (outgoing) {
-        zmsg_t* m = czmq_spy_mesg_pop_outgoing();
-        zmsg_destroy(&m);
-    }
+    czmq_spy_mesg_flush_incoming();
+    czmq_spy_mesg_flush_outgoing();
 }
 
 static void
@@ -70,6 +64,15 @@ czmq_spy_mesg_pop_incoming()
 }
 
 void
+czmq_spy_mesg_flush_incoming()
+{
+    while (incoming) {
+        zmsg_t* m = czmq_spy_mesg_pop_incoming();
+        zmsg_destroy(&m);
+    }
+}
+
+void
 czmq_spy_mesg_push_outgoing(zmsg_t** msg_p)
 {
     czmq_spy_mesg_push(&outgoing, msg_p);
@@ -79,6 +82,15 @@ zmsg_t*
 czmq_spy_mesg_pop_outgoing()
 {
     return czmq_spy_mesg_pop(&outgoing);
+}
+
+void
+czmq_spy_mesg_flush_outgoing()
+{
+    while (outgoing) {
+        zmsg_t* m = czmq_spy_mesg_pop_outgoing();
+        zmsg_destroy(&m);
+    }
 }
 
 zmsg_t*

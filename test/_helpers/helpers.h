@@ -96,6 +96,12 @@ extern "C"
     helpers_test_context_s* helpers_test_context_create(
         helpers_test_config_s* config);
     void helpers_test_context_destroy(helpers_test_context_s** ctx_p);
+    void helpers_add_device(
+        helpers_test_context_s* ctx,
+        const char* ser,
+        const char* rid,
+        const char* pid,
+        const char* sid);
     zmsg_t* helpers_make_heartbeat(
         const char* router,
         const char* serial,

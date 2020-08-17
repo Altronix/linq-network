@@ -120,6 +120,7 @@ if(ENABLE_TESTING)
   add_subdirectory(libcommon/test/jsmn)
   add_subdirectory(libcommon/test/sys)
   add_subdirectory(libcommon/test/rlp)
+  add_subdirectory(libnetwork/test/callbacks)
   add_subdirectory(libnetwork/test/linq_network)
   add_subdirectory(libnetwork/test/device)
   add_subdirectory(libnetwork/test/routes)
@@ -148,6 +149,7 @@ if(ENABLE_TESTING)
     COMMAND test-http
     COMMAND test-database
     COMMAND test-routes
+    COMMAND test-callbacks
     COMMAND test-linqd
     COMMAND binding-network-cpp-test)
 

@@ -90,6 +90,26 @@ helpers_test_context_flush()
     mongoose_spy_outgoing_data_flush();
 }
 
+void
+helpers_add_device(
+    helpers_test_context_s* ctx,
+    const char* ser,
+    const char* rid,
+    const char* pid,
+    const char* sid)
+{
+    // When we receive a heartbeat, we flush out the about request/response
+    // that is created by the event
+    zmsg_t* hb = helpers_make_heartbeat(rid, ser, pid, sid);
+    zmsg_t* r = helpers_make_response(rid, ser, 0, "{\"about\":null}");
+    czmq_spy_mesg_push_incoming(&hb);
+    czmq_spy_mesg_push_incoming(&r);
+    czmq_spy_poll_set_incoming((0x01));
+    netw_poll(ctx->net, 5);
+    netw_poll(ctx->net, 5);
+    czmq_spy_mesg_flush_outgoing();
+}
+
 zmsg_t*
 helpers_make_heartbeat(
     const char* rid,
