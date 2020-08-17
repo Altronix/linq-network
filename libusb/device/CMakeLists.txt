@@ -1,7 +1,7 @@
 set(LIBS usb-common-static common-static)
-list(APPEND SOURCES linq_usbd.c)
-list(APPEND HEADERS linq_usbd.h)
-set(INSTALL_HEADERS linq_usbd.h)
+list(APPEND SOURCES usbd.c)
+list(APPEND HEADERS usbd.h)
+set(INSTALL_HEADERS usbd.h)
 set(INCS "./")
 
 append_log_level_compiler_flags(DEFS)

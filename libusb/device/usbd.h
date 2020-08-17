@@ -30,27 +30,25 @@ extern "C"
         USB_EVENTS_TYPE_HTTP = 0
     } E_USB_EVENTS;
 
-    typedef struct linq_usbd_s
+    typedef struct usbd_s
     {
         sys_file* io;
         uint8_t incoming[LINQ_USB_BUFFER_INCOMING_SIZE];
         uint8_t outgoing[LINQ_USB_BUFFER_OUTGOING_SIZE];
-    } linq_usbd_s;
-    typedef void (*usbd_event_fn)(linq_usbd_s*, void*, E_USB_EVENTS, ...);
+    } usbd_s;
+    typedef void (*usbd_event_fn)(usbd_s*, void*, E_USB_EVENTS, ...);
 
-    LINQ_USB_EXPORT int linq_usbd_init(linq_usbd_s* usb);
-    LINQ_USB_EXPORT void linq_usbd_free(linq_usbd_s* usb);
-    LINQ_USB_EXPORT int linq_usbd_poll(linq_usbd_s*, usbd_event_fn, void*);
-    LINQ_USB_EXPORT int linq_usbd_write_http_request(
-        linq_usbd_s* usb,
+    LINQ_USB_EXPORT int usbd_init(usbd_s* usb);
+    LINQ_USB_EXPORT void usbd_free(usbd_s* usb);
+    LINQ_USB_EXPORT int usbd_poll(usbd_s*, usbd_event_fn, void*);
+    LINQ_USB_EXPORT int usbd_write_http_request(
+        usbd_s* usb,
         const char* meth,
         const char* path,
         const char* data,
         ...);
-    LINQ_USB_EXPORT int linq_usbd_write_http_response(
-        linq_usbd_s* usb,
-        uint16_t code,
-        const char* message);
+    LINQ_USB_EXPORT int
+    usbd_write_http_response(usbd_s* usb, uint16_t code, const char* message);
 
 #ifdef __cplusplus
 }

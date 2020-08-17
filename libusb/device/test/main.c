@@ -1,6 +1,6 @@
 #include "json.h"
-#include "linq_usbd.h"
 #include "sys.h"
+#include "usbd.h"
 
 #include <setjmp.h>
 
@@ -11,13 +11,13 @@
 static void
 test_usb_init(void** context_p)
 {
-    linq_usbd_s usb;
-    linq_usbd_init(&usb);
-    linq_usbd_free(&usb);
+    usbd_s usb;
+    usbd_init(&usb);
+    usbd_free(&usb);
 }
 
 static void
-test_usb_recv_callback(linq_usbd_s* usb, void* ctx, E_USB_EVENTS e, ...)
+test_usb_recv_callback(usbd_s* usb, void* ctx, E_USB_EVENTS e, ...)
 {
     const char *meth, *path, *data;
 
@@ -39,7 +39,7 @@ test_usb_recv(void** context_p)
 {
     bool pass = false;
     int err;
-    linq_usbd_s usb;
+    usbd_s usb;
     spy_file_init();
 
     uint8_t b[256];
@@ -47,16 +47,16 @@ test_usb_recv(void** context_p)
     int e = wire_print_http_request(b, &l, "POST", "/network", NULL);
     assert_int_equal(e, 0);
 
-    linq_usbd_init(&usb);
+    usbd_init(&usb);
     spy_file_push_incoming((char*)b, l);
-    e = linq_usbd_poll(&usb, test_usb_recv_callback, &pass);
+    e = usbd_poll(&usb, test_usb_recv_callback, &pass);
     assert_true(pass);
 
     spy_file_free();
 }
 
 static void
-test_usb_recv_data_callback(linq_usbd_s* usb, void* ctx, E_USB_EVENTS e, ...)
+test_usb_recv_data_callback(usbd_s* usb, void* ctx, E_USB_EVENTS e, ...)
 {
     const char *meth, *path, *data;
 
@@ -78,7 +78,7 @@ test_usb_recv_data(void** context_p)
 {
     bool pass = false;
     int err;
-    linq_usbd_s usb;
+    usbd_s usb;
     spy_file_init();
 
     uint8_t b[256];
@@ -87,9 +87,9 @@ test_usb_recv_data(void** context_p)
         wire_print_http_request(b, &l, "POST", "/network", "{\"foo\":\"bar\"}");
     assert_int_equal(e, 0);
 
-    linq_usbd_init(&usb);
+    usbd_init(&usb);
     spy_file_push_incoming((char*)b, l);
-    e = linq_usbd_poll(&usb, test_usb_recv_data_callback, &pass);
+    e = usbd_poll(&usb, test_usb_recv_data_callback, &pass);
     assert_true(pass);
 
     spy_file_free();
@@ -99,11 +99,11 @@ static void
 test_usb_write_http_request(void** context_p)
 {
     spy_file_init();
-    linq_usbd_s usb;
-    linq_usbd_init(&usb);
+    usbd_s usb;
+    usbd_init(&usb);
     spy_file_packet_s* packet;
     spy_file_packet_flush_outgoing();
-    int err = linq_usbd_write_http_request(
+    int err = usbd_write_http_request(
         &usb, "POST", "api/v1/network/ip", "{\"ip\":\"%s\"}", "1.1.1.1");
     assert_true(err > 0);
     packet = spy_file_packet_pop_outgoing();
@@ -116,7 +116,7 @@ test_usb_write_http_request(void** context_p)
     assert_string_equal(rlp_as_str(rlp_at(rlp, 4)), "{\"ip\":\"1.1.1.1\"}");
     rlp_free(&rlp);
     spy_file_packet_free(&packet);
-    linq_usbd_free(&usb);
+    usbd_free(&usb);
     spy_file_free();
 }
 
@@ -124,11 +124,11 @@ static void
 test_usb_write_http_response(void** context_p)
 {
     spy_file_init();
-    linq_usbd_s usb;
-    linq_usbd_init(&usb);
+    usbd_s usb;
+    usbd_init(&usb);
     spy_file_packet_s* packet;
     spy_file_packet_flush_outgoing();
-    int err = linq_usbd_write_http_response(&usb, 200, "{\"error\":\"Ok\"}");
+    int err = usbd_write_http_response(&usb, 200, "{\"error\":\"Ok\"}");
     assert_true(err > 0);
     packet = spy_file_packet_pop_outgoing();
     rlp* rlp = rlp_parse((uint8_t*)packet->bytes, packet->len);
@@ -139,7 +139,7 @@ test_usb_write_http_response(void** context_p)
     assert_string_equal(rlp_as_str(rlp_at(rlp, 3)), "{\"error\":\"Ok\"}");
     rlp_free(&rlp);
     spy_file_packet_free(&packet);
-    linq_usbd_free(&usb);
+    usbd_free(&usb);
     spy_file_free();
 }
 

@@ -1,4 +1,4 @@
-#include "linq_usbh.h"
+#include "usbh.h"
 #include "errno.h"
 #include "io_m5.h"
 #include "libusb-1.0/libusb.h"
@@ -16,9 +16,9 @@ typedef libusb_context usb_context;
 MAP_INIT(usbh_device, io_s, io_m5_free);
 
 void
-linq_usbh_init(linq_usbh_s* usb)
+usbh_init(usbh_s* usb)
 {
-    memset(usb, 0, sizeof(linq_usbh_s));
+    memset(usb, 0, sizeof(usbh_s));
     int err = libusb_init(&usb->context);
     usb->devices = usbh_device_map_create();
     assert(err == 0);
@@ -27,21 +27,21 @@ linq_usbh_init(linq_usbh_s* usb)
 }
 
 void
-linq_usbh_free(linq_usbh_s* usb)
+usbh_free(usbh_s* usb)
 {
     usbh_device_map_destroy(&usb->devices);
     libusb_exit(usb->context);
-    memset(usb, 0, sizeof(linq_usbh_s));
+    memset(usb, 0, sizeof(usbh_s));
 }
 
 uint32_t
-linq_usbh_device_count(linq_usbh_s* usb)
+usbh_device_count(usbh_s* usb)
 {
     return usbh_device_map_size(usb->devices);
 }
 
 int
-linq_usbh_print_devices(linq_usbh_s* usb, char* b, uint32_t l)
+usbh_print_devices(usbh_s* usb, char* b, uint32_t l)
 {
     uint32_t n = usbh_device_map_size(usb->devices), sz = l;
     l = 1;
@@ -72,7 +72,7 @@ linq_usbh_print_devices(linq_usbh_s* usb, char* b, uint32_t l)
 }
 
 int
-linq_usbh_scan(linq_usbh_s* usb, uint16_t vend, uint16_t prod)
+usbh_scan(usbh_s* usb, uint16_t vend, uint16_t prod)
 {
     io_s* d;
     libusb_device **devs, *dev;
@@ -106,8 +106,8 @@ linq_usbh_scan(linq_usbh_s* usb, uint16_t vend, uint16_t prod)
 }
 
 int
-linq_usbh_send_http_request_sync(
-    linq_usbh_s* usb,
+usbh_send_http_request_sync(
+    usbh_s* usb,
     const char* serial,
     const char* meth,
     const char* path,
@@ -127,8 +127,8 @@ linq_usbh_send_http_request_sync(
 }
 
 int
-linq_usbh_recv_http_response_sync(
-    linq_usbh_s* usb,
+usbh_recv_http_response_sync(
+    usbh_s* usb,
     const char* serial,
     uint16_t* code,
     char* buff,

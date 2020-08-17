@@ -1,6 +1,6 @@
-#include "linq_usbd.h"
 #include "log.h"
 #include "sys.h"
+#include "usbd.h"
 #include <signal.h>
 
 #ifndef USBD_LOG_DEFAULT
@@ -55,7 +55,7 @@ args_parse(usbd_config_s* config, int argc, char* argv[])
 }
 
 static void
-usbd_event(linq_usbd_s* usb, void* ctx, E_USB_EVENTS e, ...)
+usbd_event(usbd_s* usb, void* ctx, E_USB_EVENTS e, ...)
 {
     if (USB_EVENTS_TYPE_HTTP == e) {
         const char *meth, *path, *data;
@@ -65,7 +65,7 @@ usbd_event(linq_usbd_s* usb, void* ctx, E_USB_EVENTS e, ...)
         path = va_arg(list, const char*);
         data = va_arg(list, const char*);
         log_info("(USB) RECV [%s] [%s] [%s]", meth, path, data ? data : "");
-        linq_usbd_write_http_response(usb, 200, "{\"error\":\"Ok\"}");
+        usbd_write_http_response(usb, 200, "{\"error\":\"Ok\"}");
         va_end(list);
     } else if (USB_EVENTS_ERROR == e) {
         int ret;
@@ -86,16 +86,16 @@ main(int argc, char* argv[])
     args_parse(&config, argc, argv);
     sys_file* f = NULL;
     sys_pid pid = 0;
-    linq_usbd_s usb;
+    usbd_s usb;
 
     if (config.daemon) { sys_daemonize(config.log, &f, &pid); }
-    linq_usbd_init(&usb);
+    usbd_init(&usb);
 
     while (running) {
         sys_msleep(50);
-        linq_usbd_poll(&usb, usbd_event, &usb);
+        usbd_poll(&usb, usbd_event, &usb);
     }
 
-    linq_usbd_free(&usb);
+    usbd_free(&usb);
     return 0;
 }

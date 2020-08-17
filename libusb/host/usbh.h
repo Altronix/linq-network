@@ -35,26 +35,26 @@ extern "C"
 
     MAP_INIT_H(usbh_device, io_s);
 
-    typedef struct linq_usbh_s
+    typedef struct usbh_s
     {
         libusb_context* context;
         usbh_device_map_s* devices;
-    } linq_usbh_s;
+    } usbh_s;
 
-    LINQ_USB_EXPORT void linq_usbh_init(linq_usbh_s* usb);
-    LINQ_USB_EXPORT void linq_usbh_free(linq_usbh_s* usb);
-    LINQ_USB_EXPORT int linq_usbh_scan(linq_usbh_s*, uint16_t, uint16_t);
-    LINQ_USB_EXPORT uint32_t linq_usbh_device_count(linq_usbh_s* usb);
-    LINQ_USB_EXPORT int linq_usbh_print_devices(linq_usbh_s*, char*, uint32_t);
-    LINQ_USB_EXPORT int linq_usbh_send_http_request_sync(
-        linq_usbh_s* usb,
+    LINQ_USB_EXPORT void usbh_init(usbh_s* usb);
+    LINQ_USB_EXPORT void usbh_free(usbh_s* usb);
+    LINQ_USB_EXPORT int usbh_scan(usbh_s*, uint16_t, uint16_t);
+    LINQ_USB_EXPORT uint32_t usbh_device_count(usbh_s* usb);
+    LINQ_USB_EXPORT int usbh_print_devices(usbh_s*, char*, uint32_t);
+    LINQ_USB_EXPORT int usbh_send_http_request_sync(
+        usbh_s* usb,
         const char* serial,
         const char* meth,
         const char* path,
         const char* data,
         ...);
-    LINQ_USB_EXPORT int linq_usbh_recv_http_response_sync(
-        linq_usbh_s* usb,
+    LINQ_USB_EXPORT int usbh_recv_http_response_sync(
+        usbh_s* usb,
         const char* serial,
         uint16_t* code,
         char* buff,

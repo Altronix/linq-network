@@ -1,4 +1,4 @@
-#include "linq_usbd.h"
+#include "usbd.h"
 #include "errno.h"
 #include "log.h"
 #include "wire.h"
@@ -11,16 +11,16 @@
 #define LOG_INFO_FREE "(USB) device close [%s]"
 
 static int
-usb_read(linq_usbd_s* usb)
+usb_read(usbd_s* usb)
 {
     uint32_t sz = sizeof(usb->incoming);
     return sys_read_buffer(usb->io, (char*)usb->incoming, &sz);
 }
 
 int
-linq_usbd_init(linq_usbd_s* usb)
+usbd_init(usbd_s* usb)
 {
-    memset(usb, 0, sizeof(linq_usbd_s));
+    memset(usb, 0, sizeof(usbd_s));
     usb->io = sys_open(LINQ_USB_CONFIG_IO, FILE_MODE_READ_WRITE);
     if (!usb->io) {
         log_error(LOG_ERROR_DEVICE, LINQ_USB_CONFIG_IO);
@@ -31,17 +31,17 @@ linq_usbd_init(linq_usbd_s* usb)
 }
 
 void
-linq_usbd_free(linq_usbd_s* usb)
+usbd_free(usbd_s* usb)
 {
     if (usb->io) {
         sys_close(&usb->io);
         log_info(LOG_INFO_FREE, LINQ_USB_CONFIG_IO);
     }
-    memset(usb, 0, sizeof(linq_usbd_s));
+    memset(usb, 0, sizeof(usbd_s));
 }
 
 int
-linq_usbd_poll(linq_usbd_s* usb, usbd_event_fn fn, void* ctx)
+usbd_poll(usbd_s* usb, usbd_event_fn fn, void* ctx)
 {
     int len = usb_read(usb), count;
     if (len > 0) {
@@ -68,8 +68,8 @@ linq_usbd_poll(linq_usbd_s* usb, usbd_event_fn fn, void* ctx)
 }
 
 int
-linq_usbd_write_http_request(
-    linq_usbd_s* usb,
+usbd_write_http_request(
+    usbd_s* usb,
     const char* meth,
     const char* path,
     const char* data,
@@ -87,10 +87,7 @@ linq_usbd_write_http_request(
 }
 
 int
-linq_usbd_write_http_response(
-    linq_usbd_s* usb,
-    uint16_t code,
-    const char* message)
+usbd_write_http_response(usbd_s* usb, uint16_t code, const char* message)
 {
     int ret;
     uint32_t sz = sizeof(usb->outgoing);
