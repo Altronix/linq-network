@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "device.h"
 #include "helpers.h"
+#include "libcommon/device.h"
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
 #include "mock_utils.h"

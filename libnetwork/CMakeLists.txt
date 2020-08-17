@@ -1,7 +1,6 @@
 set(SOURCES
     callbacks.c
     netw.c
-    device.c
     node.c
     zmtp.c
     zmtp_device.c)
@@ -9,11 +8,11 @@ set(SOURCES
     callbacks.h
     netw.h
     netw_internal.h
-    device.h
     node.h
     zmtp.h
     zmtp_device.h)
 set(INSTALL_HEADERS netw.h)
+set(INCS ../)
 if(BUILD_LINQD)
   list(APPEND SOURCES 
     ./routes/alerts.c

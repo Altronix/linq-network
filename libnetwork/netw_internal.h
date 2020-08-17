@@ -12,7 +12,7 @@
 #include "common.h"
 
 // project includes
-#include "device.h"
+#include "libcommon/device.h"
 #include "node.h"
 #include "zmtp.h"
 #if BUILD_LINQD

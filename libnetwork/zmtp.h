@@ -6,7 +6,7 @@
 #define ZMTP_H
 
 #include "containers.h"
-#include "device.h"
+#include "libcommon/device.h"
 #include "node.h"
 
 // [router, version, type, serial]
