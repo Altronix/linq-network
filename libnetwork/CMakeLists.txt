@@ -32,6 +32,7 @@ if(NOT MSVC)
 else()
   list(APPEND definitions "-DCZMQ_STATIC")
   list(APPEND definitions "-DZMQ_STATIC")
+  list(APPEND definitions "-DJSMN_TOKENS_STATIC")
   list(APPEND LIBS ws2_32 iphlpapi wldap32 uuid Rpcrt4)
 endif()
 

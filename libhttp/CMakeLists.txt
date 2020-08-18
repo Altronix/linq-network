@@ -14,8 +14,13 @@ append_log_level_compiler_flags(definitions)
 append_mongoose_compiler_flags(definitions)
 append_sqlite_compiler_flags(definitions)
 set(INSTALL_HEADERS http.h)
+# NOTE adding DLL_EXPORT definition will pass to external dep and then can
+# incorrectly create a static lib with declspec(export) linkage. We specify
+# static manually with -Dxxx_STATIC as ZMQ and JSMN_TOKENS support this in
+# the header
 list(APPEND definitions "-DCZMQ_STATIC")
 list(APPEND definitions "-DZMQ_STATIC")
+list(APPEND definitions "-DJSMN_TOKENS_STATIC")
 list(APPEND definitions "-DBUILD_LINQD")
 
 set(LIBS
