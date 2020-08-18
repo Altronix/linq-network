@@ -4,6 +4,7 @@
 
 #include "http.h"
 #include "http_auth.h"
+#include "http_users.h"
 #include "log.h"
 
 #define UNSECURE_API "/api/v1/public"
@@ -269,6 +270,10 @@ http_init(http_s* http, database_s* db)
     http->db = db;
     mg_mgr_init(&http->connections, http);
     http->routes = routes_map_create();
+
+    http_use(http, "/api/v1/public/create_admin", create_admin, http);
+    http_use(http, "/api/v1/public/login", login, http);
+    http_use(http, "/api/v1/users", users, http);
 }
 
 void

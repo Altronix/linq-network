@@ -112,6 +112,7 @@ if(ENABLE_TESTING)
   add_subdirectory(test/_mocks/mock_sqlite)
   add_subdirectory(libdatabase/test)
   add_subdirectory(libhttp/test/http)
+  add_subdirectory(libhttp/test/routes)
   add_subdirectory(libusb/host/test)
   add_subdirectory(libusb/device/test)
   add_subdirectory(libusb/common/test)
@@ -147,6 +148,7 @@ if(ENABLE_TESTING)
     COMMAND test-device
     COMMAND test-jsmn
     COMMAND test-http
+    COMMAND test-http-routes
     COMMAND test-database
     COMMAND test-routes
     COMMAND test-callbacks

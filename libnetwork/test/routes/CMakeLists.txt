@@ -8,12 +8,8 @@ add_executable(test-routes
                       alerts.h
                       devices.c
                       devices.h
-                      login.c
-                      login.h
                       proxy.c
-                      proxy.h
-                      create_admin.c
-                      create_admin.h)
+                      proxy.h)
 target_link_libraries(test-routes
                       network-test-static
                       database-static

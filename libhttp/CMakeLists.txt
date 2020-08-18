@@ -1,10 +1,12 @@
 set(SOURCES 
   ./mongoose.c
   ./http.c
+  ./http_users.c
   ./http_auth.c)
 set(HEADERS
   ./mongoose.h
   ./http.h
+  ./http_users.h
   ./http_auth.h
   ./http_auth_unsafe.h)
 
