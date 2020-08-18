@@ -11,6 +11,7 @@ option(BUILD_LINQD "Whether or not to build the daemon" ON)
 option(BUILD_USBD "Whether or not to build USB device support" OFF)
 option(BUILD_USBH "Whether or not to build USB host support" OFF)
 option(BUILD_DEBUG "Build with debug flags?" OFF)
+option(BUILD_APPS "Build the applications in apps folder" ON)
 
 # bindings
 option(WITH_NODEJS_BINDING "Build the NODEJS bindings" OFF)

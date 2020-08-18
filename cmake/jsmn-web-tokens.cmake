@@ -25,7 +25,9 @@ ExternalProject_Add(jsmn-web-tokens-project
     CMAKE_ARGS
         -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
         -DWITH_CRYPTO:STRING=OPENSSL
-        -DWITH_SYSTEM_DEPENDENCIES:BOOL=ON)
+        -DWITH_SYSTEM_DEPENDENCIES:BOOL=ON
+        -DBUILD_SHARED:BOOL=OFF
+        -DENABLE_TESTING:BOOL=OFF)
 ExternalProject_Get_Property(jsmn-web-tokens-project INSTALL_DIR)
 set(JSMN_WEB_TOKENS_INCLUDE_DIR ${INSTALL_DIR}/include)
 FILE(MAKE_DIRECTORY ${INSTALL_DIR}/include)
@@ -50,7 +52,7 @@ set_property(TARGET jsmn-web-tokens-static PROPERTY INTERFACE_INCLUDE_DIRECTORIE
 add_dependencies(jsmn-web-tokens-static jsmn-web-tokens-project)
 
 # jsmn-web-tokens-shared
-add_library(jsmn-web-tokens-shared STATIC IMPORTED)
-set_property(TARGET jsmn-web-tokens-shared PROPERTY IMPORTED_LOCATION ${JSMN_WEB_TOKENS_SHARED_LIBRARY})
-set_property(TARGET jsmn-web-tokens-shared PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${JSMN_WEB_TOKENS_INCLUDE_DIR})
-add_dependencies(jsmn-web-tokens-shared jsmn-web-tokens-project)
+# add_library(jsmn-web-tokens-shared SHARED IMPORTED)
+# set_property(TARGET jsmn-web-tokens-shared PROPERTY IMPORTED_LOCATION ${JSMN_WEB_TOKENS_SHARED_LIBRARY})
+# set_property(TARGET jsmn-web-tokens-shared PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${JSMN_WEB_TOKENS_INCLUDE_DIR})
+# add_dependencies(jsmn-web-tokens-shared jsmn-web-tokens-project)

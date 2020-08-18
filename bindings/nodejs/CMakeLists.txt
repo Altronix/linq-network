@@ -14,12 +14,20 @@ set(sources ./src/binding.cc ./src/NetwJS.cc)
 set(headers ./src/NetwJS.h)
 set(defs "LINQ_NETWORK_NODEJS_BINDING")
 
+set(libs
+  network-static
+  network-cpp-binding
+  ${LIBCZMQ_STATIC_LIBS}
+  ${LIBZMQ_STATIC_LIBS}
+  ${CMAKE_JS_LIB}
+  uuid
+)
+
 if(BUILD_LINQD)
   list(APPEND defs "-DBUILD_LINQD=TRUE")
   list(APPEND libs 
     database-static
     http-static   
-    ${JSMN_WEB_TOKENS_STATIC_LIBS}
     ${TLS_SHARED_LIBRARIES}
   )
 endif()
@@ -28,15 +36,6 @@ if(BUILD_USBH)
   list(APPEND defs "-DBUILD_USBH=TRUE")
   list(APPEND libs usbh-static)
 endif()
-
-list(APPEND libs
-  network-static
-  network-cpp-binding
-  ${LIBCZMQ_STATIC_LIBS}
-  ${LIBZMQ_STATIC_LIBS}
-  ${CMAKE_JS_LIB}
-  uuid
-)
 
 message(STATUS "libs: ${libs}")
 

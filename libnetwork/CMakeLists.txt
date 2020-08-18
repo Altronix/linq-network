@@ -20,7 +20,7 @@ if(BUILD_LINQD)
     ./routes/proxy.c
     ./routes/users.c)
   list(APPEND HEADERS ./routes/routes.h)
-  list(APPEND LIBS database-static http-static)
+  list(APPEND LIBS ${JSMN_WEB_TOKENS_LIBS} database-static http-static)
   list(APPEND definitions "BUILD_LINQD")
 endif()
 list(APPEND LIBS ${CMAKE_THREAD_LIBS_INIT} ${ZMQ_LIBS} common-static)

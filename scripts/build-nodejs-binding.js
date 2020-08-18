@@ -57,7 +57,9 @@ const cmakeArgs = (json) =>
   `${system(withSystem(json))} ` +
   `${linqd(withDaemon(json))} ` +
   `${usbh(withUsbh(json))} ` +
-  `--CDCMAKE_INSTALL_PREFIX=./ --CDBUILD_SHARED=ON --CDWITH_NODEJS_BINDING ` +
+  `--CDCMAKE_INSTALL_PREFIX=./ --CDBUILD_SHARED=OFF ` +
+  `--CDBUILD_APPS=OFF ` +
+  `--CDWITH_NODEJS_BINDING ` +
   `--CDCMAKE_BUILD_TYPE=Release build --target=install`;
 
 // Find the prebuilt binary (Only used if native build fails)
