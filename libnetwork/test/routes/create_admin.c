@@ -18,12 +18,6 @@ void
 test_route_create_admin_ok(void** context_p)
 {
     ((void)context_p);
-    helpers_test_config_s config = { .callbacks = NULL,
-                                     .context = NULL,
-                                     .zmtp = 32820,
-                                     .http = 8000,
-                                     .user = NULL,
-                                     .pass = NULL };
     const char* req_path = "/api/v1/public/create_admin";
     const char* req_body = "{"
                            "\"user\":\"" UNSAFE_USER "\","
@@ -42,7 +36,6 @@ test_route_create_admin_ok(void** context_p)
     outgoing_statement* statement = NULL;
 
     // Setup uut
-    // // helpers_test_context_s* test = test_init(&config);
     helpers_test_init();
     database_s db;
     http_s http;
@@ -57,7 +50,6 @@ test_route_create_admin_ok(void** context_p)
     // Simulate http request
     mongoose_spy_event_request_push(UNSAFE_TOKEN, "POST", req_path, req_body);
     for (int i = 0; i < 4; i++) http_poll(&http, -1);
-    // // for (int i = 0; i < 4; i++) netw_poll(test->net, -1);
 
     // Process request
     mongoose_parser_context* response = mongoose_spy_response_pop();
@@ -79,7 +71,6 @@ test_route_create_admin_ok(void** context_p)
     assert_memory_equal(expect_insert, statement->data, statement->len);
     linq_network_free(statement);
 
-    // // test_reset(&test);
     http_deinit(&http);
     database_deinit(&db);
     helpers_test_reset();
@@ -91,23 +82,24 @@ test_route_create_admin_fail_exists(void** context_p)
     // TODO add check to not create admin if a user exists and add new behavior
     // to test helper context create
     ((void)context_p);
-    helpers_test_config_s config = { .callbacks = NULL,
-                                     .context = NULL,
-                                     .zmtp = 32820,
-                                     .http = 8000,
-                                     .user = USER,
-                                     .pass = PASS };
     const char* req_path = "/api/v1/public/create_admin";
     const char* req_body = "{\"user\":\"admin\",\"pass\":\"password1234\"}";
 
     // Setup uut
-    helpers_test_context_s* test = test_init(&config);
+    helpers_test_init();
+    database_s db;
+    http_s http;
+    database_init(&db);
+    http_init(&http, &db);
+    http_listen(&http, "8000");
+    http_use(&http, "/api/v1/public/create_admin", create_admin, &http);
+    helpers_test_context_flush();
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_column_int_return_push(1);
 
     // Simulate http request
     mongoose_spy_event_request_push(UNSAFE_TOKEN, "POST", req_path, req_body);
-    for (int i = 0; i < 4; i++) netw_poll(test->net, -1);
+    for (int i = 0; i < 4; i++) http_poll(&http, -1);
 
     // Process request
     mongoose_parser_context* response = mongoose_spy_response_pop();
@@ -117,5 +109,7 @@ test_route_create_admin_fail_exists(void** context_p)
 
     // Expect user added in database and response OK
 
-    test_reset(&test);
+    http_deinit(&http);
+    database_deinit(&db);
+    helpers_test_reset();
 }
