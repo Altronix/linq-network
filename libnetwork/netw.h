@@ -57,9 +57,7 @@ extern "C"
         void* ctx);
     LINQ_EXPORT bool netw_running();
 
-#ifdef BUILD_USBH
-    LINQ_EXPORT uint32_t netw_scan();
-#endif
+    LINQ_EXPORT int netw_scan(netw_s*);
 
 #ifdef BUILD_LINQD
     typedef struct database_s database_s;

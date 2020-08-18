@@ -17,8 +17,8 @@ export class LinqNetwork extends Events.EventEmitter {
   constructor(b?: Binding) {
     super();
     let self = this;
-    this.netw = b || new binding.network.LinqNetwork();
-    this.netw.registerCallback(async function(
+    this.netw = b || new binding.LinqNetwork();
+    this.netw.registerCallback(async function (
       event: LINQ_EVENTS,
       ...args: any[]
     ) {
@@ -36,7 +36,7 @@ export class LinqNetwork extends Events.EventEmitter {
           }
           break;
         case "heartbeat":
-          if (self.devices[args[0]]){
+          if (self.devices[args[0]]) {
             self.devices[args[0]].lastSeen = new Date();
           }
         case "alert":
@@ -128,10 +128,14 @@ export class LinqNetwork extends Events.EventEmitter {
     return this;
   }
 
+  scan(): number {
+    return this.netw.scan();
+  }
+
   // run
   run(ms: number) {
     let self = this;
-    this.shutdownPromise = new Promise(resolve => {
+    this.shutdownPromise = new Promise((resolve) => {
       self.shutdownResolve = resolve;
       (function poll() {
         self.shutdownTimer = setTimeout(() => {

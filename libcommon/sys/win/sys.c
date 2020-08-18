@@ -5,6 +5,8 @@
 #include "sys.h"
 
 #include <Rpc.h>
+
+#define _WINSOCKAPI_
 #include <windows.h>
 
 #undef optind

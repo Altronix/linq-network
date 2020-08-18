@@ -248,13 +248,16 @@ netw_running()
     return sys_running();
 }
 
-#ifdef BUILD_USBH
-LINQ_EXPORT uint32_t
+LINQ_EXPORT int
 netw_scan(netw_s* linq)
 {
+#ifdef BUILD_USBH
     return usbh_scan(&linq->usb, 0x3333, 0x4444);
-}
+#else
+    log_error("(NETW) usb support not compiled into library!");
+    return -1;
 #endif
+}
 
 #ifdef BUILD_LINQD
 LINQ_EXPORT database_s*

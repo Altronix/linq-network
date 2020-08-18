@@ -197,6 +197,8 @@ class Linq
         return *this;
     }
 
+    int scan() { return netw_scan(this->netw_); }
+
     friend void on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
     friend void on_new_fn(void*, const char*);
     friend void on_heartbeat_fn(void*, const char*);

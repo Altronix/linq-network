@@ -24,8 +24,8 @@ const isTrue = (opt) =>
   opt === 1;
 
 // Build command string from user argument linqd option
-const linqd = (opt) => `--CDBUILD_LINQD=${opt ? "ON" : "OFF"}`;
-const usbh = (opt) => `--CDBUILD_USBH=${opt ? "ON" : "OFF"}`;
+const linqd = (opt) => `${opt ? "--CDBUILD_LINQD" : ""}`;
+const usbh = (opt) => `${opt ? "--CDBUILD_USBH" : ""}`;
 
 // Build command string from user argument system option
 const system = (opt) =>

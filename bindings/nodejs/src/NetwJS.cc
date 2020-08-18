@@ -16,22 +16,21 @@ LinqNetwork::Init(Napi::Env env, Napi::Object exports)
     Napi::Function func = DefineClass(
         env,
         "LinqNetwork",
-        {
-            InstanceMethod("earlyDestruct", &LinqNetwork::EarlyDestruct),
-            InstanceMethod("version", &LinqNetwork::Version),
-            InstanceMethod("registerCallback", &LinqNetwork::RegisterCallback),
-            InstanceMethod("isRunning", &LinqNetwork::IsRunning),
-            InstanceMethod("poll", &LinqNetwork::Poll),
-            InstanceMethod("listen", &LinqNetwork::Listen),
-            InstanceMethod("connect", &LinqNetwork::Connect),
-            InstanceMethod("close", &LinqNetwork::Close),
-            InstanceMethod("deviceCount", &LinqNetwork::DeviceCount),
-            InstanceMethod("nodeCount", &LinqNetwork::NodeCount),
-            InstanceMethod("send", &LinqNetwork::Send),
-            InstanceMethod("sendGet", &LinqNetwork::Get),
-            InstanceMethod("sendPost", &LinqNetwork::Post),
-            InstanceMethod("sendDelete", &LinqNetwork::Del),
-        });
+        { InstanceMethod("earlyDestruct", &LinqNetwork::EarlyDestruct),
+          InstanceMethod("version", &LinqNetwork::Version),
+          InstanceMethod("registerCallback", &LinqNetwork::RegisterCallback),
+          InstanceMethod("isRunning", &LinqNetwork::IsRunning),
+          InstanceMethod("poll", &LinqNetwork::Poll),
+          InstanceMethod("listen", &LinqNetwork::Listen),
+          InstanceMethod("connect", &LinqNetwork::Connect),
+          InstanceMethod("close", &LinqNetwork::Close),
+          InstanceMethod("deviceCount", &LinqNetwork::DeviceCount),
+          InstanceMethod("nodeCount", &LinqNetwork::NodeCount),
+          InstanceMethod("send", &LinqNetwork::Send),
+          InstanceMethod("sendGet", &LinqNetwork::Get),
+          InstanceMethod("sendPost", &LinqNetwork::Post),
+          InstanceMethod("sendDelete", &LinqNetwork::Del),
+          InstanceMethod("scan", &LinqNetwork::Scan) });
     constructor = Napi::Persistent(func);
     constructor.SuppressDestruct();
     exports.Set("LinqNetwork", func);
@@ -65,56 +64,55 @@ LinqNetwork::LinqNetwork(const Napi::CallbackInfo& info)
                 this->r_callback_.Call({ event, sid });
             }
         })
-        .on_alert([this](
-                      const char* serial,
-                      netw_alert_s* alert,
-                      netw_email_s* email) {
-            // Create event edata
-            auto env = this->r_callback_.Env();
-            Napi::Object obj = Napi::Object::New(env);
-            Napi::Array arr = Napi::Array::New(env, 5);
-            std::string who{ alert->who.p, alert->who.len };
-            std::string what{ alert->what.p, alert->what.len };
-            int when{ std::stoi({ alert->when.p, alert->when.len }) };
-            std::string where{ alert->where.p, alert->where.len };
-            std::string mesg{ alert->mesg.p, alert->mesg.len };
-            std::string name{ alert->name.p, alert->name.len };
-            std::string product{ alert->product.p, alert->product.len };
-            std::string from{ email->from.p, email->from.len };
-            std::string subject{ email->subject.p, email->subject.len };
-            std::string user{ email->user.p, email->user.len };
-            std::string password{ email->password.p, email->password.len };
-            std::string server{ email->server.p, email->server.len };
-            std::string port{ email->port.p, email->port.len };
-            std::string device{ email->device.p, email->device.len };
-            std::string sid{ serial };
-            std::string to[] = { { email->to0.p, email->to0.len },
-                                 { email->to1.p, email->to1.len },
-                                 { email->to2.p, email->to2.len },
-                                 { email->to3.p, email->to3.len },
-                                 { email->to4.p, email->to4.len } };
-            for (int i = 0; i < 5; i++) { arr[i] = to[i]; }
-            obj.Set("who", who);
-            obj.Set("what", what);
-            obj.Set("where", where);
-            obj.Set("when", when);
-            obj.Set("mesg", mesg);
-            obj.Set("name", name);
-            obj.Set("product", product);
-            obj.Set("serial", sid);
-            obj.Set("from", from);
-            obj.Set("subject", subject);
-            obj.Set("user", user);
-            obj.Set("password", password);
-            obj.Set("server", server);
-            obj.Set("port", port);
-            obj.Set("device", device);
-            obj.Set("to", arr);
+        .on_alert(
+            [this](
+                const char* serial, netw_alert_s* alert, netw_email_s* email) {
+                // Create event edata
+                auto env = this->r_callback_.Env();
+                Napi::Object obj = Napi::Object::New(env);
+                Napi::Array arr = Napi::Array::New(env, 5);
+                std::string who{ alert->who.p, alert->who.len };
+                std::string what{ alert->what.p, alert->what.len };
+                int when{ std::stoi({ alert->when.p, alert->when.len }) };
+                std::string where{ alert->where.p, alert->where.len };
+                std::string mesg{ alert->mesg.p, alert->mesg.len };
+                std::string name{ alert->name.p, alert->name.len };
+                std::string product{ alert->product.p, alert->product.len };
+                std::string from{ email->from.p, email->from.len };
+                std::string subject{ email->subject.p, email->subject.len };
+                std::string user{ email->user.p, email->user.len };
+                std::string password{ email->password.p, email->password.len };
+                std::string server{ email->server.p, email->server.len };
+                std::string port{ email->port.p, email->port.len };
+                std::string device{ email->device.p, email->device.len };
+                std::string sid{ serial };
+                std::string to[] = { { email->to0.p, email->to0.len },
+                                     { email->to1.p, email->to1.len },
+                                     { email->to2.p, email->to2.len },
+                                     { email->to3.p, email->to3.len },
+                                     { email->to4.p, email->to4.len } };
+                for (int i = 0; i < 5; i++) { arr[i] = to[i]; }
+                obj.Set("who", who);
+                obj.Set("what", what);
+                obj.Set("where", where);
+                obj.Set("when", when);
+                obj.Set("mesg", mesg);
+                obj.Set("name", name);
+                obj.Set("product", product);
+                obj.Set("serial", sid);
+                obj.Set("from", from);
+                obj.Set("subject", subject);
+                obj.Set("user", user);
+                obj.Set("password", password);
+                obj.Set("server", server);
+                obj.Set("port", port);
+                obj.Set("device", device);
+                obj.Set("to", arr);
 
-            // emit
-            auto event = Napi::String::New(env, "alert");
-            this->r_callback_.Call({ event, obj });
-        })
+                // emit
+                auto event = Napi::String::New(env, "alert");
+                this->r_callback_.Call({ event, obj });
+            })
         .on_error([this](E_LINQ_ERROR e, const char* serial, const char* err) {
             ((void)serial);
             ((void)err);
@@ -291,7 +289,9 @@ LinqNetwork::Send(const Napi::CallbackInfo& info)
         auto env = Env();
         auto err = Napi::Number::New(env, response.error);
         auto json = Napi::String::New(env, response.response);
-        err.Int32Value() == 0 ? deferred.Resolve(json) : deferred.Reject(err);
+        (err.Int32Value() == 0 || err.Int32Value() == 200)
+            ? deferred.Resolve(json)
+            : deferred.Reject(err);
     });
     return deferred.Promise();
 }
@@ -300,4 +300,12 @@ void
 LinqNetwork::shutdown()
 {
     this->shutdown_ = true;
+}
+
+Napi::Value
+LinqNetwork::Scan(const Napi::CallbackInfo& info)
+{
+    Napi::Env env = info.Env();
+    int ret = this->linq_.scan();
+    return Napi::Number::New(env, ret);
 }

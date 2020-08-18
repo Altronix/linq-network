@@ -24,7 +24,7 @@ set(libs
 )
 
 if(BUILD_LINQD)
-  list(APPEND defs "-DBUILD_LINQD=TRUE")
+  list(APPEND defs "-DBUILD_LINQD")
   list(APPEND libs 
     database-static
     http-static   
@@ -33,7 +33,7 @@ if(BUILD_LINQD)
 endif()
 
 if(BUILD_USBH)
-  list(APPEND defs "-DBUILD_USBH=TRUE")
+  list(APPEND defs "-DBUILD_USBH")
   list(APPEND libs usbh-static)
 endif()
 
