@@ -49,12 +49,17 @@ netw_destroy(netw_s** netw_p)
 {
     netw_s* l = *netw_p;
     *netw_p = NULL;
+    device_map_destroy(&l->devices);
+    node_map_destroy(&l->nodes);
+
+#if BUILD_USBH
+    usbh_free(&l->usb);
+#endif
+
 #if BUILD_LINQD
     http_deinit(&l->http);
     database_deinit(&l->database);
 #endif
-    device_map_destroy(&l->devices);
-    node_map_destroy(&l->nodes);
     zmtp_deinit(&l->zmtp);
     linq_network_free(l);
 }
@@ -190,6 +195,7 @@ netw_node_count(const netw_s* l)
     return node_map_size(l->nodes);
 }
 
+// TODO move to common
 static E_REQUEST_METHOD
 method_from_str(const char* method)
 {

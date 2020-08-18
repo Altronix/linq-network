@@ -32,10 +32,49 @@ typedef struct io_m5_s
     uint8_t in[IO_M5_MAX_INCOMING];
 } io_m5_s;
 
+// TODO move to common
+static E_REQUEST_METHOD
+method_from_str(const char* method)
+{
+    uint32_t l = strlen(method);
+    if (l == 3) {
+        if (!memcmp(method, "GET", l)) {
+            return REQUEST_METHOD_GET;
+        } else if (!(memcmp(method, "PUT", l))) {
+            return REQUEST_METHOD_POST; // TODO support PUT
+        }
+    } else if (l == 4 && !memcmp(method, "POST", l)) {
+        return REQUEST_METHOD_POST;
+    } else if (l == 6 && !memcmp(method, "DELETE", l)) {
+        return REQUEST_METHOD_DELETE;
+    }
+    assert(false);
+    return -1; // should never return
+}
+
+// TODO move to common
+static const char*
+method_to_str(E_REQUEST_METHOD m)
+{
+    static const char* put = "PUT";
+    static const char* post = "POST";
+    static const char* delete = "DELETE";
+    static const char* get = "GET";
+    if (REQUEST_METHOD_GET == m) {
+        return get;
+    } else if (REQUEST_METHOD_POST == m) {
+        return post;
+    } else if (REQUEST_METHOD_DELETE == m) {
+        return delete;
+    } else {
+        return put;
+    }
+}
+
 static int
 io_m5_vsend_http_request_sync(
     io_s* io_base,
-    const char* meth,
+    E_REQUEST_METHOD method,
     const char* path,
     const char* data,
     va_list list)
@@ -43,6 +82,7 @@ io_m5_vsend_http_request_sync(
     // TODO "transferred (ie txed) may not always equal sz
     // Will have to send in loop since we are allowed to be sync here
     io_m5_s* io = (io_m5_s*)io_base;
+    const char* meth = method_to_str(method);
     int txed, ret;
     uint32_t sz = sizeof(io->out);
     uint8_t* p = io->out;
@@ -59,7 +99,7 @@ io_m5_vsend_http_request_sync(
 static int
 io_m5_send_http_request_sync(
     io_s* io_base,
-    const char* meth,
+    E_REQUEST_METHOD method,
     const char* path,
     const char* data,
     ...)
@@ -67,7 +107,7 @@ io_m5_send_http_request_sync(
     int ret;
     va_list list;
     va_start(list, data);
-    ret = io_m5_vsend_http_request_sync(io_base, meth, path, data, list);
+    ret = io_m5_vsend_http_request_sync(io_base, method, path, data, list);
     va_end(list);
     return ret;
 }
@@ -121,6 +161,42 @@ EXIT:
     log_info("(USB) - rx result [%d]", ret);
     return ret;
 #undef err_exit
+}
+
+static void
+io_m5_send(
+    struct node_s* base,
+    E_REQUEST_METHOD method,
+    const char* path,
+    uint32_t plen,
+    const char* json,
+    uint32_t jlen,
+    linq_request_complete_fn fn,
+    void* ctx)
+{
+    // TODO lengths are ignored (assumed strings)
+    // TODO Need linked list to store data and get rid of stack abusages
+    char mesg[8192];
+    const char* e;
+    io_s* io = (io_s*)base;
+    int err = io_m5_send_http_request_sync(io, method, path, json);
+    if (!err) {
+        uint16_t code;
+        err = io_m5_recv_http_response_sync(io, &code, mesg, sizeof(mesg));
+        if (!err) {
+            fn(ctx, device_serial(&io->base), code, mesg);
+        } else {
+            e = libusb_strerror(err);
+            log_error("(USB) rx err %s", e);
+            snprintf(mesg, sizeof(mesg), "{\"error\": %d}", err);
+            fn(ctx, device_serial(&io->base), err, e);
+        }
+    } else {
+        e = libusb_strerror(err);
+        log_error("(USB) tx err %s", e);
+        snprintf(mesg, sizeof(mesg), "{\"error\": %d}", err);
+        fn(ctx, device_serial(&io->base), err, e);
+    }
 }
 
 node_s*
@@ -180,10 +256,8 @@ io_m5_init(libusb_device* d, struct libusb_device_descriptor descriptor)
                 sizeof(encoding),
                 0);
             if (err < 0) log_error("USB) - ctr [%s]", libusb_strerror(err));
-            device->io.ops.tx_sync = io_m5_send_http_request_sync;
-            device->io.ops.vtx_sync = io_m5_vsend_http_request_sync;
-            device->io.ops.rx_sync = io_m5_recv_http_response_sync;
             device->io.base.free = io_m5_free;
+            device->io.base.send = io_m5_send;
             // device->io.base.poll = // TODO
             // device->io.base.send = // TODO
             // TODO - install io driver per product type

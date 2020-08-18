@@ -46,19 +46,6 @@ extern "C"
     LINQ_USB_EXPORT int usbh_scan(usbh_s*, uint16_t, uint16_t);
     LINQ_USB_EXPORT uint32_t usbh_device_count(usbh_s* usb);
     LINQ_USB_EXPORT int usbh_print_devices(usbh_s*, char*, uint32_t);
-    LINQ_USB_EXPORT int usbh_send_http_request_sync(
-        usbh_s* usb,
-        const char* serial,
-        const char* meth,
-        const char* path,
-        const char* data,
-        ...);
-    LINQ_USB_EXPORT int usbh_recv_http_response_sync(
-        usbh_s* usb,
-        const char* serial,
-        uint16_t* code,
-        char* buff,
-        uint32_t l);
 #ifdef __cplusplus
 }
 #endif

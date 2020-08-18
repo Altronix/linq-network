@@ -1,41 +1,32 @@
 #include "log.h"
-#include "usbh.h"
+#include "netw.h"
+
+static void
+response(void* ctx, const char* serial, E_LINQ_ERROR e, const char* mesg)
+{
+    log_info("(APP) response [%d] [%s]", e, mesg);
+    *((bool*)ctx) = true;
+}
 
 int
 main(int argc, char* argv[])
 {
     int rc;
-    char b[128];
-    uint16_t code;
-    usbh_s usb;
-    // TODO use netw_() wrapper
-    device_map_s* devices = device_map_create();
-    usbh_init(&usb, &devices);
+    bool done = false;
+    netw_s* netw = netw_create(NULL, NULL);
+    assert(netw);
 
-    // Scan for device
-    rc = usbh_scan(&usb, 0x3333, 0x4444);
-    if (!rc) {
-        log_error("(APP) - device not found");
-        usbh_free(&usb);
-        exit(-1);
-    }
+    rc = netw_scan(netw);
+    log_info("(APP) usb scan [%d]", rc);
 
-    // Send a request
-    rc = usbh_send_http_request_sync(&usb, "N/A", "GET", "/foo", NULL);
+    rc = netw_send(netw, "N/A", "GET", "/foo", 4, NULL, 0, response, &done);
     if (rc < 0) {
-        log_error("(APP) tx io error (%d)", rc);
-        exit(-1);
+        log_error("(APP) send error [%d]", rc);
+        netw_destroy(&netw);
+        exit(rc);
     }
 
-    // Receive response
-    rc = usbh_recv_http_response_sync(&usb, "N/A", &code, b, sizeof(b));
-    if (rc < 0) {
-        log_error("(APP) rc io error (%d)", rc);
-        exit(-1);
-    }
+    while (!done) { netw_poll(netw, 50); }
 
-    // cleanup
-    log_info("(APP) - received [%d] [%s]", code, b);
-    device_map_destroy(&devices); // Note devices must be free'd before usb
-    usbh_free(&usb);
+    netw_destroy(&netw);
 }

@@ -70,6 +70,7 @@ usbh_scan(usbh_s* usb, uint16_t vend, uint16_t prod)
     return n;
 }
 
+/*
 int
 usbh_send_http_request_sync(
     usbh_s* usb,
@@ -107,15 +108,4 @@ usbh_recv_http_response_sync(
     }
     return err;
 }
-
-void
-usbh_send(
-    struct node_s* node,
-    E_REQUEST_METHOD method,
-    const char* path,
-    uint32_t plen,
-    const char* json,
-    uint32_t jlen,
-    linq_request_complete_fn fn,
-    void* ctx)
-{}
+*/
