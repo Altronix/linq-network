@@ -2,7 +2,6 @@
 #include "mock_mongoose.h"
 #include "mock_sqlite.h"
 #include "mock_utils.h"
-#include "netw.h"
 
 #include "main.h"
 
@@ -11,18 +10,19 @@ test_route_login_ok(void** context_p)
 {
     ((void)context_p);
     int l;
-    helpers_test_config_s config = { .callbacks = NULL,
-                                     .context = NULL,
-                                     .zmtp = 32820,
-                                     .http = 8000,
-                                     .user = USER,
-                                     .pass = PASS };
     const char* body = "{"
                        "\"user\":\"" UNSAFE_USER "\","
                        "\"pass\":\"" UNSAFE_PASS "\""
                        "}";
 
-    helpers_test_context_s* test = test_init(&config);
+    helpers_test_init();
+    database_s db;
+    http_s http;
+    database_init(&db);
+    http_init(&http, &db);
+    http_listen(&http, "8000");
+    helpers_test_create_admin(&http, USER, PASS);
+    helpers_test_context_flush();
     spy_sys_set_unix(UNSAFE_IAT); // unsafe "issued at"
 
     sqlite_spy_step_return_push(SQLITE_ROW);
@@ -33,7 +33,7 @@ test_route_login_ok(void** context_p)
 
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "POST", "/api/v1/public/login", body);
-    for (int i = 0; i < 4; i++) netw_poll(test->net, -1);
+    for (int i = 0; i < 4; i++) http_poll(&http, -1);
 
     mongoose_parser_context* response = mongoose_spy_response_pop();
 
@@ -63,7 +63,9 @@ test_route_login_ok(void** context_p)
     jwt_free(jwt);
     */
     mock_mongoose_response_destroy(&response);
-    test_reset(&test);
+    http_deinit(&http);
+    database_deinit(&db);
+    helpers_test_reset();
 }
 
 void

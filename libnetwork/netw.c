@@ -30,9 +30,10 @@ netw_create(const netw_callbacks* cb, void* context)
 #define ADD_ROUTE(http, path, fn, ctx) http_use(http, path, fn, ctx)
         database_init(&l->database);
         http_init(&l->http, &l->database);
-        ADD_ROUTE(&l->http, "/api/v1/public/create_admin", create_admin, l);
-        ADD_ROUTE(&l->http, "/api/v1/public/login", login, l);
-        ADD_ROUTE(&l->http, "/api/v1/users", users, l);
+        ADD_ROUTE(
+            &l->http, "/api/v1/public/create_admin", create_admin, &l->http);
+        ADD_ROUTE(&l->http, "/api/v1/public/login", login, &l->http);
+        ADD_ROUTE(&l->http, "/api/v1/users", users, &l->http);
         ADD_ROUTE(&l->http, "/api/v1/devices", devices, l);
         ADD_ROUTE(&l->http, "/api/v1/alerts", alerts, l);
         ADD_ROUTE(&l->http, "/api/v1/proxy/...", proxy, l);

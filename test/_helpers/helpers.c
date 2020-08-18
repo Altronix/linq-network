@@ -4,6 +4,7 @@
 
 #include "helpers.h"
 #include "database.h"
+#include "netw_internal.h"
 #include "zmtp.h"
 
 #include "mock_mongoose.h"
@@ -33,14 +34,14 @@ helpers_test_reset()
 }
 
 void
-helpers_test_create_admin(netw_s* netw, const char* user, const char* pass)
+helpers_test_create_admin(http_s* http, const char* user, const char* pass)
 {
     const char* req_path = "/api/v1/public/create_admin";
     char b[128];
     snprintf(b, sizeof(b), "{\"user\":\"%s\",\"pass\":\"%s\"}", user, pass);
 
     mongoose_spy_event_request_push("", "POST", req_path, b);
-    for (int i = 0; i < 4; i++) netw_poll(netw, -1);
+    for (int i = 0; i < 4; i++) http_poll(http, -1);
 }
 
 helpers_test_context_s*
@@ -65,7 +66,7 @@ helpers_test_context_create(helpers_test_config_s* config)
     }
 
     if (config->user) {
-        helpers_test_create_admin(ctx->net, config->user, config->pass);
+        helpers_test_create_admin(&ctx->net->http, config->user, config->pass);
     }
 
     helpers_test_context_flush();

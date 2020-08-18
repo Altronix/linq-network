@@ -9,6 +9,7 @@
 #include "mock_zmsg.h"
 #include "mock_zpoll.h"
 #include "netw.h"
+#include "netw_internal.h"
 
 // TODO a failing test can break passing test :/
 //      need to refactor so that we reset on start of each test
@@ -24,7 +25,7 @@ test_daemon_receive_heartbeat_insert(void** context_p)
     netw_listen_http(netw, "8000");
 
     // Add user
-    helpers_test_create_admin(netw, "unsafe_user", "unsafe_pass");
+    helpers_test_create_admin(&netw->http, "unsafe_user", "unsafe_pass");
     helpers_test_context_flush();
 
     const char* expect_insert =
@@ -83,7 +84,7 @@ test_daemon_receive_alert_insert(void** context_p)
     netw_listen_http(netw, "8000");
 
     // Add user
-    helpers_test_create_admin(netw, "unsafe_user", "unsafe_pass");
+    helpers_test_create_admin(&netw->http, "unsafe_user", "unsafe_pass");
     helpers_test_context_flush();
 
     const char* expect_keys =

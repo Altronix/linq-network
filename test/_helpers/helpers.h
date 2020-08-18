@@ -91,7 +91,7 @@ extern "C"
     void helpers_test_init();
     void helpers_test_reset();
     void
-    helpers_test_create_admin(netw_s*, const char* user, const char* password);
+    helpers_test_create_admin(http_s*, const char* user, const char* password);
 
     helpers_test_context_s* helpers_test_context_create(
         helpers_test_config_s* config);

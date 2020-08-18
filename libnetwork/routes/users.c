@@ -9,7 +9,7 @@
 void
 login(http_route_context* ctx, HTTP_METHOD meth, uint32_t l, const char* body)
 {
-    database_s* db = netw_database(ctx->context);
+    database_s* db = ((http_s*)ctx->context)->db;
     char user_str[USER_MAX_LEN];
     char pass_str[PASS_MAX_LEN];
     char* token_str = NULL;
@@ -63,7 +63,7 @@ users(http_route_context* ctx, HTTP_METHOD meth, uint32_t l, const char* body)
 static void
 process_create_admin(http_route_context* ctx, uint32_t l, const char* body)
 {
-    database_s* db = netw_database(ctx->context);
+    database_s* db = ((http_s*)ctx->context)->db;
     char k[128], v[256], h[HASH_LEN], s[SALT_LEN], uid[UUID_MAX_LEN];
     uint32_t klen, vlen, ulen, plen;
     int count, err;
@@ -118,7 +118,7 @@ create_admin(
     uint32_t l,
     const char* body)
 {
-    database_s* db = netw_database(ctx->context);
+    database_s* db = ((http_s*)ctx->context)->db;
     if (database_count(db, "users")) {
         http_printf_json(ctx->curr_connection, 503, JERROR_503);
     } else {
