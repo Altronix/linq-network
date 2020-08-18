@@ -19,6 +19,9 @@
 #include "database.h"
 #include "http.h"
 #endif
+#ifdef BUILD_USBH
+#include "usbh.h"
+#endif
 
 #ifdef __cplusplus
 extern "C"
@@ -33,6 +36,9 @@ extern "C"
         device_map_s* devices;
         node_map_s* nodes;
         zmtp_s zmtp;
+#ifdef BUILD_USBH
+        usbh_s usb;
+#endif
 #ifdef BUILD_LINQD
         http_s http;
         database_s database;

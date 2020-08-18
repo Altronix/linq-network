@@ -42,6 +42,7 @@ extern "C"
 
     LINQ_USB_EXPORT void usbh_init(usbh_s* usb, device_map_s** devices_p);
     LINQ_USB_EXPORT void usbh_free(usbh_s* usb);
+    LINQ_USB_EXPORT int usbh_poll(usbh_s* usb, uint32_t ms);
     LINQ_USB_EXPORT int usbh_scan(usbh_s*, uint16_t, uint16_t);
     LINQ_USB_EXPORT uint32_t usbh_device_count(usbh_s* usb);
     LINQ_USB_EXPORT int usbh_print_devices(usbh_s*, char*, uint32_t);

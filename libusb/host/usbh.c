@@ -24,6 +24,12 @@ usbh_free(usbh_s* usb)
     memset(usb, 0, sizeof(usbh_s));
 }
 
+int
+usbh_poll(usbh_s* usb, uint32_t ms)
+{
+    return 0;
+}
+
 uint32_t
 usbh_device_count(usbh_s* usb)
 {

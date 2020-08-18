@@ -26,6 +26,10 @@ netw_create(const netw_callbacks* cb, void* context)
         l->callbacks = cb;
         l->context = context ? context : l;
         zmtp_init(&l->zmtp, &l->devices, &l->nodes, &zmtp_callbacks, l);
+#ifdef BUILD_USBH
+        usbh_init(&l->usb, &l->devices);
+#endif
+
 #ifdef BUILD_LINQD
 #define ADD_ROUTE(http, path, fn, ctx) http_use(http, path, fn, ctx)
         database_init(&l->database);
@@ -110,6 +114,11 @@ netw_poll(netw_s* l, int32_t ms)
 {
     E_LINQ_ERROR err = zmtp_poll(&l->zmtp, ms);
     if (err) log_error("(ZMTP) polling error %d", err);
+
+#if BUILD_USBH
+    err = usbh_poll(&l->usb, ms);
+    if (err) log_error("(USB) polling error %d", err);
+#endif
 
 #if BUILD_LINQD
     err = http_poll(&l->http, ms);
@@ -232,6 +241,14 @@ netw_running()
 {
     return sys_running();
 }
+
+#ifdef BUILD_USBH
+LINQ_EXPORT uint32_t
+netw_scan(netw_s* linq)
+{
+    return usbh_scan(&linq->usb, 0x3333, 0x4444);
+}
+#endif
 
 #ifdef BUILD_LINQD
 LINQ_EXPORT database_s*
