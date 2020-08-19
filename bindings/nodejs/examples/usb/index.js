@@ -1,5 +1,4 @@
 let netw = require("@altronix/linq-network").network;
-console.log(netw);
 
 // Demonstration using USB
 // Note the M5 has hard coded serial number as "N/A" and vendor product
