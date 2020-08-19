@@ -17,8 +17,7 @@ if(BUILD_LINQD)
   list(APPEND SOURCES 
     ./routes/alerts.c
     ./routes/devices.c
-    ./routes/proxy.c
-    ./routes/users.c)
+    ./routes/proxy.c)
   list(APPEND HEADERS ./routes/routes.h)
   list(APPEND LIBS ${JSMN_WEB_TOKENS_LIBS} database-static http-static)
   list(APPEND definitions "BUILD_LINQD")

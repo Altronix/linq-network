@@ -19,7 +19,6 @@ extern "C"
 
     void create_admin(PROTO_ARGS);
     void login(PROTO_ARGS);
-    void users(PROTO_ARGS);
     void alerts(PROTO_ARGS);
     void devices(PROTO_ARGS);
     void proxy(PROTO_ARGS);
