@@ -1,6 +1,5 @@
+#include "netw.h"
 #include "routes.h"
-
-#include "device.h"
 
 #define API_URI "/api/v1/proxy/"
 #define API_URI_LEN (sizeof(API_URI) - 1)

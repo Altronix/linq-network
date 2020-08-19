@@ -4,7 +4,6 @@
 #if defined BUILD_LINQD
 #include "http.h"
 #endif
-#include "netw.h"
 
 #ifndef LINQ_NETW_MAX_RESPONSE_SIZE
 #define LINQ_NETW_MAX_RESPONSE_SIZE 8096

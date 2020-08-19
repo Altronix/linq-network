@@ -2,9 +2,6 @@
 #include "json.h"
 #include "log.h"
 #include "routes.h"
-#include "sys.h"
-
-#include "openssl/sha.h"
 
 void
 login(http_route_context* ctx, HTTP_METHOD meth, uint32_t l, const char* body)

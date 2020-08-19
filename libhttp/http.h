@@ -10,6 +10,7 @@
 #include "database.h"
 #include "sys.h"
 
+#define _WINSOCKAPI_
 #include "mongoose.h"
 #undef closesocket    // Mongoose and czmq both define these
 #undef INVALID_SOCKET // Mongoose and czmq both define these
