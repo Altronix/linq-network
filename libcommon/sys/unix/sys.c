@@ -147,26 +147,26 @@ sys_make_absolute(const char* path, char* buffer, uint32_t* l)
 }
 
 int
-sys_daemonize(const char* log, sys_file** file, sys_pid* pid)
+sys_daemonize(const char* log, sys_file** f, sys_pid* pid)
 {
     // www.netzmafia.de/skripten/unix/linux-daemon-howto.html
-    sys_file* f = NULL;
     char buff[128];
     uint32_t l = sizeof(buff);
     int err = fork();
-    if (err < 0) exit(EXIT_FAILURE);                          // Fork parent
-    if (err > 0) exit(EXIT_SUCCESS);                          // Exit if parent
-    umask(0);                                                 // Erase user
-    if (log) f = sys_open(log, FILE_MODE_READ_APPEND_CREATE); // create log
-    *pid = setsid();                                          // create new sid
-    if (*pid < 0) exit(EXIT_FAILURE);                         //
-    err = chdir("/");                                         // change cwd
-    if (err) exit(EXIT_FAILURE);                              //
-    if (f) log_set_fd(&f);                                    //
-    close(STDIN_FILENO);                                      // close io
-    close(STDOUT_FILENO);                                     //
-    close(STDERR_FILENO);                                     //
-    *file = f;
+    if (err < 0) exit(EXIT_FAILURE);                           // Fork parent
+    if (err > 0) exit(EXIT_SUCCESS);                           // Exit if parent
+    umask(0);                                                  // Erase user
+    if (log) *f = sys_open(log, FILE_MODE_READ_APPEND_CREATE); // create log
+    *pid = setsid();                                           // create new sid
+    if (*pid < 0) exit(EXIT_FAILURE);                          //
+    err = chdir("/");                                          // change cwd
+    if (err) exit(EXIT_FAILURE);                               //
+    if (*f) {                                                  //
+        log_set_fd(*f);                                        //
+        close(STDIN_FILENO);                                   // close io
+        close(STDOUT_FILENO);                                  //
+        close(STDERR_FILENO);                                  //
+    }
     return err;
 }
 
