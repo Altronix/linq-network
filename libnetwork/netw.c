@@ -21,6 +21,7 @@ netw_create(const netw_callbacks* cb, void* context)
 {
     netw_s* l = linq_network_malloc(sizeof(netw_s));
     if (l) {
+        memset(l, 0, sizeof(netw_s));
         l->devices = device_map_create();
         l->nodes = node_map_create();
         l->callbacks = cb;

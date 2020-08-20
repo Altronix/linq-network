@@ -112,6 +112,10 @@ io_m5_send_http_request_sync(
     return ret;
 }
 
+static void
+io_m5_poll(node_s* io_base, void* ctx)
+{}
+
 static int
 io_m5_recv_http_response_sync(
     struct io_s* io_base,
@@ -258,6 +262,7 @@ io_m5_init(libusb_device* d, struct libusb_device_descriptor descriptor)
             if (err < 0) log_error("USB) - ctr [%s]", libusb_strerror(err));
             device->io.base.free = io_m5_free;
             device->io.base.send = io_m5_send;
+            device->io.base.poll = io_m5_poll;
             // device->io.base.poll = // TODO
             // device->io.base.send = // TODO
             // TODO - install io driver per product type
