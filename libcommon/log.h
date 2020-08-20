@@ -119,7 +119,7 @@ extern "C"
 #define LOG_BACKGROUND_LIGHT_WHITE "\x1b[107m"
 
     static FILE** logger = NULL;
-    static void log_set_fd(FILE** f) { *logger = *f; }
+    static void log_set_fd(FILE** f) { logger = f; }
 
 #define FMT_STRING                                                             \
     LOG_WHITE "=> " LOG_RESET "%5d %s%s " LOG_RESET LOG_MAGENTA                \

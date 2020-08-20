@@ -1,5 +1,22 @@
 #include "log.h"
 #include "netw.h"
+#include <signal.h>
+
+#ifndef LINQD_LOG_DEFAULT
+#define LINQD_LOG_DEFAULT "/var/log/atx-linqd.log"
+#endif
+
+static volatile int running = 1;
+
+void
+ctrlc(int dummy)
+{
+    running = 0;
+}
+
+void
+sighup(int dummy)
+{}
 
 typedef struct config_s
 {
@@ -47,7 +64,9 @@ parse_args(config_s* config, int argc, char* argv[])
             case 'z': config->zmtp = atoi(argv[optind]); break;
             case 'p': config->http = atoi(argv[optind]); break;
             case 's': config->https = atoi(argv[optind]); break;
+            case 'd': config->daemon = true; break;
             case 'D': config->db_path = argv[optind]; break;
+            case 'l': config->log = argv[optind]; break;
             case 'c': config->cert = argv[optind]; break;
             case 'k': config->key = argv[optind]; break;
             case '?':
@@ -60,6 +79,8 @@ parse_args(config_s* config, int argc, char* argv[])
 int
 main(int argc, char* argv[])
 {
+    signal(SIGINT, ctrlc);
+    signal(SIGHUP, sighup);
     int err = 0;
     char endpoint[128];
     netw_s* netw;
@@ -67,9 +88,16 @@ main(int argc, char* argv[])
                         .http = 8000,
                         .https = 0,
                         .cert = NULL,
+                        .log = LINQD_LOG_DEFAULT,
+                        .daemon = false,
                         .key = NULL,
                         .db_path = "./test.db" };
+    sys_file* f = NULL;
+    sys_pid pid = 0;
     parse_args(&config, argc, argv);
+
+    if (config.daemon) sys_daemonize(config.log, &f, &pid);
+
     netw = netw_create(NULL, NULL);
     assert(netw);
 

@@ -48,6 +48,7 @@ else()
     set(ZMQ_LIBS zmq czmq)
   else()
     # When building for buildroot outside of buildroot use BUILDROOT_DIR=/...
+    message(STATUS "Building for remote buildroot")
     set(TRIPPLE "arm-buildroot-linux-gnueabihf")
     set(CMAKE_SYSTEM_NAME Linux)
     set(CMAKE_SYSTEM_PROCESSOR arm)
