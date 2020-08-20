@@ -33,6 +33,7 @@ extern "C"
     {
         const netw_callbacks* callbacks;
         void* context;
+        bool shutdown;
         device_map_s* devices;
         node_map_s* nodes;
         zmtp_s zmtp;

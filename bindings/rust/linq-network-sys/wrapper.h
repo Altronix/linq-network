@@ -45,8 +45,7 @@ extern "C"
     LINQ_EXPORT void
     netw_devices_foreach(const netw_s* l, netw_devices_foreach_fn, void*);
     LINQ_EXPORT uint32_t netw_node_count(const netw_s* linq);
-    E_LINQ_ERROR
-    netw_send(
+    LINQ_EXPORT E_LINQ_ERROR netw_send(
         const netw_s* linq,
         const char* sid,
         const char* meth,
@@ -56,9 +55,11 @@ extern "C"
         uint32_t jlen,
         linq_request_complete_fn fn,
         void* ctx);
-    LINQ_EXPORT bool netw_running();
+    LINQ_EXPORT bool netw_running(netw_s* netw);
 
-    // Sys API
+    LINQ_EXPORT int netw_scan(netw_s*);
+    LINQ_EXPORT void netw_shutdown(netw_s* netw);
+
 #ifdef BUILD_LINQD
     typedef struct database_s database_s;
     LINQ_EXPORT database_s* netw_database(netw_s* l);

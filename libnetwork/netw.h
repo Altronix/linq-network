@@ -55,7 +55,7 @@ extern "C"
         uint32_t jlen,
         linq_request_complete_fn fn,
         void* ctx);
-    LINQ_EXPORT bool netw_running();
+    LINQ_EXPORT bool netw_running(netw_s* netw);
 
     LINQ_EXPORT int netw_scan(netw_s*);
     LINQ_EXPORT void netw_shutdown(netw_s* netw);

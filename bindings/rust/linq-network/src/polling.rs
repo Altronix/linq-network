@@ -21,10 +21,6 @@ use std::sync::{Arc, Mutex};
 
 pub use linq_network_sys::netw_socket;
 
-pub fn running() -> bool {
-    unsafe { netw_running() }
-}
-
 pub enum Request<'a> {
     Get(&'a str),
     Post(&'a str, &'a str),
@@ -237,6 +233,10 @@ impl Context {
 
     pub fn node_count(&self) -> u32 {
         unsafe { netw_node_count(self.c_ctx) }
+    }
+
+    pub fn running(&self) -> bool {
+        unsafe { netw_running(self.c_ctx) }
     }
 }
 

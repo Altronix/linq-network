@@ -245,14 +245,15 @@ netw_send(
 }
 
 bool
-netw_running()
+netw_running(netw_s* netw)
 {
-    return sys_running();
+    return sys_running() && !netw->shutdown;
 }
 
 void
 netw_shutdown(netw_s* netw)
 {
+    netw->shutdown = true;
     if (netw->callbacks && netw->callbacks->on_ctrlc) {
         netw->callbacks->on_ctrlc(netw->context);
     }

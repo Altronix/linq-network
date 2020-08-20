@@ -30,7 +30,7 @@ test_route_quit(void** context_p)
     bool pass = false;
     char resp[256];
     uint32_t l;
-    l = snprintf(resp, 256, "{\"error\":\"%s\"}", http_error_message(200));
+    l = snprintf(resp, 256, "{\"error\":\"%s\"}", http_error_message(0));
 
     mongoose_spy_init();
     ctx.context = &pass;

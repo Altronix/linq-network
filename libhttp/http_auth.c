@@ -134,7 +134,7 @@ http_auth_login(
     err = database_user_open(db, &u, user);
     if (!err) {
         err = -1;
-        l = snprintf(concat, sizeof(concat), "%s%s", u.pass, u.salt);
+        l = snprintf(concat, sizeof(concat), "%s%s", pass, u.salt);
         if (l <= sizeof(concat)) {
             now = sys_unix();
             hash_256(concat, l, test);
