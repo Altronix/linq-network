@@ -22,6 +22,7 @@ extern "C"
     void alerts(PROTO_ARGS);
     void devices(PROTO_ARGS);
     void proxy(PROTO_ARGS);
+    void scan(PROTO_ARGS);
 
 #ifdef __cplusplus
 }

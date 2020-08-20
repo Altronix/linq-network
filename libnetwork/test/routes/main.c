@@ -14,6 +14,7 @@
 #include "alerts.h"
 #include "devices.h"
 #include "proxy.h"
+#include "scan.h"
 
 helpers_test_context_s*
 test_init(helpers_test_config_s* config)
@@ -46,6 +47,7 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_route_proxy_post),
         cmocka_unit_test(test_route_proxy_404),
         cmocka_unit_test(test_route_proxy_400_too_short),
+        cmocka_unit_test(test_route_scan)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
