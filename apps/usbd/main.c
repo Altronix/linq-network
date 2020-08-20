@@ -1,6 +1,8 @@
 #include "log.h"
+#include "make_request.h"
 #include "sys.h"
 #include "usbd.h"
+#include <errno.h>
 #include <signal.h>
 
 #ifndef USBD_LOG_DEFAULT
@@ -55,6 +57,16 @@ args_parse(usbd_config_s* config, int argc, char* argv[])
 }
 
 static void
+on_resp(void* ctx, uint16_t code, const char* body)
+{
+    int rc;
+    log_info("(USB) response [%s]", body);
+    usbd_s* usb = ctx;
+    rc = usbd_write_http_response(usb, code, body);
+    if (rc < 0) { log_error("(USB) response error [%s]", strerror(errno)); }
+}
+
+static void
 usbd_event(usbd_s* usb, void* ctx, E_USB_EVENTS e, ...)
 {
     if (USB_EVENTS_TYPE_HTTP == e) {
@@ -65,7 +77,7 @@ usbd_event(usbd_s* usb, void* ctx, E_USB_EVENTS e, ...)
         path = va_arg(list, const char*);
         data = va_arg(list, const char*);
         log_info("(USB) RECV [%s] [%s] [%s]", meth, path, data ? data : "");
-        usbd_write_http_response(usb, 200, "{\"error\":\"Ok\"}");
+        make_request(meth, path, data, data ? strlen(data) : 0, on_resp, usb);
         va_end(list);
     } else if (USB_EVENTS_ERROR == e) {
         int ret;
