@@ -1,8 +1,0 @@
-add_executable(atx-usbd 
-  main.c 
-  make_request.c
-  make_request.h
-  http_parser.c 
-  http_parser.h)
-target_link_libraries(atx-usbd usbd-static common-static)
-install(TARGETS atx-usbd RUNTIME DESTINATION bin)
