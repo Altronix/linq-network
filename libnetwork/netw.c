@@ -38,7 +38,7 @@ netw_create(const netw_callbacks* cb, void* context)
         ADD_ROUTE(&l->http, "/api/v1/devices", devices, l);
         ADD_ROUTE(&l->http, "/api/v1/alerts", alerts, l);
         ADD_ROUTE(&l->http, "/api/v1/exe/scan", scan, l);
-        ADD_ROUTE(&l->http, "/api/v1/exe/quit", quit, l);
+        ADD_ROUTE(&l->http, "/api/v1/exe/kill", quit, l);
         ADD_ROUTE(&l->http, "/api/v1/proxy/...", proxy, l);
 #undef ADD_ROUTE
 #endif

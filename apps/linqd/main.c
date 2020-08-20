@@ -21,7 +21,7 @@ print_usage_and_exit(int err)
         io,
         "linqd 0.0.1\n"
         "Welcome to linqd\n\n"
-        "USAGE:\n\tlinqd [-zsdwh?]\n\n"
+        "USAGE:\n\tlinqd [-zpskcdDlw?]\n\n"
         "EXAMPLE:\n\tlinqd -z 33248 -s 8080 -w /etc/www -d ./sqlite.db\n\n"
         "FLAGS:\n"
         "\t-z ZMTP port to listen for incoming devices\n"
@@ -29,8 +29,10 @@ print_usage_and_exit(int err)
         "\t-s Server HTTPS API on secure port\n"
         "\t-k TLS key directory\n"
         "\t-c TLS cert file\n"
-        "\t-d Database location on local drive\n"
+        "\t-d Detatch in daemon mode\n"
+        "\t-D Database location on local drive\n"
         "\t   Will create a database if one does not already exist\n"
+        "\t-l Log file\n"
         "\t-w Webpage ROOT\n");
     exit(err);
 }
@@ -40,12 +42,12 @@ parse_args(config_s* config, int argc, char* argv[])
 {
     int opt, arglen;
     optind_set(0);
-    while ((opt = getopt(argc, argv, "zpsdck?h")) != -1) {
+    while ((opt = getopt(argc, argv, "zpskcdDlw?h")) != -1) {
         switch (opt) {
             case 'z': config->zmtp = atoi(argv[optind]); break;
             case 'p': config->http = atoi(argv[optind]); break;
             case 's': config->https = atoi(argv[optind]); break;
-            case 'd': config->db_path = argv[optind]; break;
+            case 'D': config->db_path = argv[optind]; break;
             case 'c': config->cert = argv[optind]; break;
             case 'k': config->key = argv[optind]; break;
             case '?':

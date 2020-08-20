@@ -6,7 +6,7 @@
 #include <signal.h>
 
 #ifndef USBD_LOG_DEFAULT
-#define USBD_LOG_DEFAULT "/var/log/usbd.log"
+#define USBD_LOG_DEFAULT "/var/log/atx-ttyd.log"
 #endif
 
 typedef struct usbd_config_s
