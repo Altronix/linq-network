@@ -86,7 +86,7 @@ static void
 on_zmtp_heartbeat(void* ctx, const char* s)
 {
     netw_s* l = ctx;
-    log_debug("(ZMTP) [%.6s...] Event Heartbeat", sid);
+    log_debug("(ZMTP) [%.6s...] Event Heartbeat", s);
     if (l->callbacks && l->callbacks->on_heartbeat) {
         l->callbacks->on_heartbeat(l->context, s);
     }

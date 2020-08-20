@@ -122,5 +122,6 @@ main(int argc, char* argv[])
     while (netw_running(netw)) { err = netw_poll(netw, 5); };
 
     netw_destroy(&netw);
+    if (f) sys_close(&f);
     return 0;
 }

@@ -169,10 +169,8 @@ req_send(int* fd, const char* b, uint32_t len)
     ssize_t bytes_sent = 0;
     bytes_sent = send(*fd, (char*)b, len, 0);
     if (bytes_sent < 0) {
-        log_warn("(APP) tx [%d] [%s]", bytes_sent, strerror(errno));
         if (errno == EAGAIN || errno == EWOULDBLOCK) { bytes_sent = 0; }
     }
-    log_info("(APP) tx [%d]", bytes_sent);
     return bytes_sent;
 }
 
@@ -182,13 +180,10 @@ req_recv(int* fd, const char* b, uint32_t len)
     ssize_t bytes_read = 0;
     bytes_read = recv(*fd, (char*)b, len, 0);
     if (bytes_read < 0) {
-        log_warn("(APP) rx [%d] [%s]", bytes_read, strerror(errno));
         if (errno == EAGAIN || errno == EWOULDBLOCK) { bytes_read = 0; }
     } else if (bytes_read == 0) {
-        log_warn("(APP) rx [%d] [%s]", bytes_read, strerror(errno));
         bytes_read = -1;
     }
-    log_info("(APP) rx [%d]", bytes_read);
     return bytes_read;
 }
 

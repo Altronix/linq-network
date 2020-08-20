@@ -27,7 +27,7 @@ void
 sighup(int dummy)
 {}
 
-const char* usage = "Usage: atx-update [-pchd]\n"
+const char* usage = "Usage: atx-update [-chd]\n"
                     "  -l  log file (default: " USBD_LOG_DEFAULT ")\n"
                     "  -d  Detatch in daemon mode\n"
                     "  -h  Print this help menu\n";
@@ -45,12 +45,12 @@ args_parse(usbd_config_s* config, int argc, char* argv[])
 {
     int opt, arglen;
     optind_set(0);
-    while ((opt = getopt(argc, argv, "ld?h")) != -1) {
+    while ((opt = getopt(argc, argv, "ldh?")) != -1) {
         switch (opt) {
-            case 'd': config->daemon = true; break;
             case 'l': config->log = argv[optind]; break;
-            case '?':
+            case 'd': config->daemon = true; break;
             case 'h':
+            case '?':
             default: print_usage_and_exit(0); break;
         }
     }
@@ -101,6 +101,7 @@ main(int argc, char* argv[])
     usbd_s usb;
 
     if (config.daemon) { sys_daemonize(config.log, &f, &pid); }
+
     usbd_init(&usb);
 
     while (running) {
@@ -109,5 +110,6 @@ main(int argc, char* argv[])
     }
 
     usbd_free(&usb);
+    if (f) fclose(f);
     return 0;
 }
