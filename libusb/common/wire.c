@@ -319,6 +319,7 @@ wire_read_sz(uint32_t* result, uint8_t* b, uint32_t l)
             ret = szofsz + 1;
         } else {
             assert(szofsz <= 8);
+            *result = 0;
             wire_read_be(result, sizeof(uint32_t), szofsz, ++b);
             *result += 1 + szofsz;
         }
