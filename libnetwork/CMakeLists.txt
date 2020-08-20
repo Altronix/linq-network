@@ -18,6 +18,7 @@ if(BUILD_LINQD)
     ./routes/alerts.c
     ./routes/devices.c
     ./routes/proxy.c
+    ./routes/quit.c
     ./routes/scan.c)
   list(APPEND HEADERS ./routes/routes.h)
   list(APPEND LIBS ${JSMN_WEB_TOKENS_LIBS} database-static http-static)

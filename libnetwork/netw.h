@@ -58,6 +58,7 @@ extern "C"
     LINQ_EXPORT bool netw_running();
 
     LINQ_EXPORT int netw_scan(netw_s*);
+    LINQ_EXPORT void netw_shutdown(netw_s* netw);
 
 #ifdef BUILD_LINQD
     typedef struct database_s database_s;

@@ -1,4 +1,4 @@
-#include "scan.h"
+#include "quit.h"
 #include "helpers.h"
 #include "mock_mongoose.h"
 #include "netw.h"
@@ -9,31 +9,38 @@
 #include <cmocka.h>
 
 #include "main.h"
-void scan(
+void quit(
     http_route_context* ctx,
     HTTP_METHOD meth,
     uint32_t jlen,
     const char* body);
 
-int
-__wrap_netw_scan(netw_s* netw)
+void
+__wrap_netw_shutdown(netw_s* netw)
 {
-    return 3;
+    *((bool*)netw) = true;
 }
 
 void
-test_route_scan(void** context_p)
+test_route_quit(void** context_p)
 {
     http_route_context ctx;
     memset(&ctx, 0, sizeof(ctx));
     mongoose_parser_context* parser;
+    bool pass = false;
+    char resp[256];
+    uint32_t l;
+    l = snprintf(resp, 256, "{\"error\":\"%s\"}", http_error_message(200));
 
     mongoose_spy_init();
-    scan(&ctx, HTTP_METHOD_GET, 0, NULL);
+    ctx.context = &pass;
+    quit(&ctx, HTTP_METHOD_GET, 0, NULL);
     parser = mongoose_spy_response_pop();
+    assert_true(pass);
     assert_non_null(parser);
-    assert_int_equal(parser->content_length, 11);
-    assert_memory_equal("{\"count\":3}", parser->body, 11);
+    assert_int_equal(parser->content_length, l);
+    assert_memory_equal(resp, parser->body, l);
     free(parser);
     mongoose_spy_deinit();
 }
+
