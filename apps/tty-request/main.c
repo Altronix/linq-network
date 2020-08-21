@@ -20,7 +20,16 @@ main(int argc, char* argv[])
     rc = netw_scan(netw);
     log_info("(APP) usb scan [%d]", rc);
 
-    rc = netw_send(netw, "N/A", "GET", req, 4, NULL, 0, response, &done);
+    rc = netw_send(
+        netw,
+        "linqm5serialnumberhere",
+        "GET",
+        req,
+        4,
+        NULL,
+        0,
+        response,
+        &done);
     if (rc < 0) {
         log_error("(APP) send error [%d]", rc);
         netw_destroy(&netw);
