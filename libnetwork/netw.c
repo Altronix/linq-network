@@ -78,8 +78,18 @@ netw_socket
 netw_listen(netw_s* l, const char* ep)
 {
     int ep_len = strlen(ep);
-    log_info("(ZMTP) Listening... [%s]", ep);
-    return zmtp_listen(&l->zmtp, ep);
+    if (*ep == 'i' || *ep == 't') {
+        log_info("(ZMTP) Listening... [%s]", ep);
+        return zmtp_listen(&l->zmtp, ep);
+    } else {
+        if (ep_len > 9 && !memcmp(ep, "http://*:", 9)) {
+            http_listen(&l->http, ep + 9);
+            return LINQ_ERROR_OK;
+        } else {
+            http_listen(&l->http, ep);
+            return LINQ_ERROR_OK;
+        }
+    }
 }
 
 netw_socket
