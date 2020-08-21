@@ -107,8 +107,8 @@ main(int argc, char* argv[])
     }
 
     if (config.http) {
-        snprintf(endpoint, sizeof(endpoint), "%d", config.http);
-        netw_listen_http(netw, endpoint);
+        snprintf(endpoint, sizeof(endpoint), "http://*:%d", config.http);
+        netw_listen(netw, endpoint);
     }
 
     if (config.https) {

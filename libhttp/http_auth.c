@@ -165,6 +165,9 @@ http_auth_is_authorized(
     struct mg_connection* c,
     struct http_message* m)
 {
+#ifdef DISABLE_PASSWORD
+    return true;
+#else
     jsmn_token_decode_s jwt;
     struct mg_str token;
     int err = -1;
@@ -173,6 +176,7 @@ http_auth_is_authorized(
     get_secret((char*)key);
     err = jsmn_token_decode(&jwt, key, JSMN_ALG_HS256, token.p, token.len);
     return err ? false : token_ok(db, &jwt);
+#endif
 }
 
 /// http_auth_generate_uuid() - Generate a unique user id

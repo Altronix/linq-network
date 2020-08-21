@@ -19,6 +19,7 @@ option(WITH_CPP_BINDING "Build the C++ bindings" ON)
 
 # Testing (TODO - set USBD/USBH/LINQD if test suite is enabled)
 option(ENABLE_TESTING "Build test suite" OFF)
+option(DISABLE_PASSWORD "Disable password for http service" OFF)
 
 # LinQ Log Level Options
 list(APPEND LOG_OPTIONS "TRACE" "DEBUG" "INFO" "WARN" "FATAL" "NONE")

@@ -30,6 +30,10 @@ set(LIBS
   ${ZMQ_LIBS}
   ${TLS_LIBS})
 
+if(DISABLE_PASSWORD)
+  list(APPEND definitions "DISABLE_PASSWORD")
+endif()
+
 if(ENABLE_TESTING)
   add_library(http-test STATIC ${SOURCES} ${HEADERS})
   target_link_libraries(http-test ${LIBS})

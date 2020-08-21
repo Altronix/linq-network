@@ -60,7 +60,7 @@ matrix:
                   node_js:
                           - 12
                   env:
-                          - LINQ_NETWORK_WITH_DAEMON=ON
+                          - LINQ_NETWORK_WITH_LINQD=ON
                   script:
                           - ./scripts/ci/build-nodejs.sh
                 - os: linux

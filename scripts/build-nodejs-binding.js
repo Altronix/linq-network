@@ -24,18 +24,19 @@ const isTrue = (opt) =>
   opt === 1;
 
 // Build command string from user argument linqd option
-const linqd = (opt) => `${opt ? "--CDBUILD_LINQD" : ""}`;
-const usbh = (opt) => `${opt ? "--CDBUILD_USBH" : ""}`;
+const linqdOpt = (opt) => `${opt ? "--CDBUILD_LINQD" : ""}`;
+const usbhOpt = (opt) => `${opt ? "--CDBUILD_USBH" : ""}`;
+const disablePassOpt = (opt) => `${opt ? "--CDDISABLE_PASSWORD" : ""}`;
 
 // Build command string from user argument system option
-const system = (opt) =>
+const systemOpt = (opt) =>
   opt
     ? `--CDUSE_SYSTEM_ZMQ=ON --CDUSE_SYSTEM_JSMN_WEB_TOKENS=ON`
     : `--CDUSE_SYSTEM_ZMQ=OFF --CDUSE_SYSTEM_JSMN_WEB_TOKENS=OFF`;
 
 // Parse user options for linqd
-const withDaemon = (json) =>
-  isTrue(process.env.LINQ_NETWORK_WITH_DAEMON) ||
+const withLinqd = (json) =>
+  isTrue(process.env.LINQ_NETWORK_WITH_LINQD) ||
   args._.indexOf("linqd") >= 0 ||
   (json && json.linqd) ||
   !!args.d;
@@ -43,7 +44,8 @@ const withDaemon = (json) =>
 const withUsbh = (json) =>
   isTrue(process.env.LINQ_NETWORK_WITH_USBH) ||
   args._.indexOf("usbh") >= 0 ||
-  (json && json.usbh);
+  (json && json.usbh) ||
+  false;
 
 // Parse user options for system
 const withSystem = (json) =>
@@ -51,12 +53,18 @@ const withSystem = (json) =>
   args._.indexOf("system") >= 0 ||
   !!args.s;
 
+const withDisablePass = (json) =>
+  isTrue(process.env.LINQ_NETWORK_DISABLE_PASSWORD) ||
+  (json && json.disablePassword) ||
+  false;
+
 // Generate cmake-js argument
 const cmakeCmd = process.platform === "win32" ? `cmake-js.cmd` : `cmake-js`;
 const cmakeArgs = (json) =>
-  `${system(withSystem(json))} ` +
-  `${linqd(withDaemon(json))} ` +
-  `${usbh(withUsbh(json))} ` +
+  `${systemOpt(withSystem(json))} ` +
+  `${linqdOpt(withLinqd(json))} ` +
+  `${usbhOpt(withUsbh(json))} ` +
+  `${disablePassOpt(withDisablePass(json))} ` +
   `--CDCMAKE_INSTALL_PREFIX=./ --CDBUILD_SHARED=OFF ` +
   `--CDBUILD_APPS=OFF ` +
   `--CDWITH_NODEJS_BINDING ` +
@@ -80,8 +88,9 @@ const installPrebuilt = () => {
 const tryBuild = async (json) => {
   logger.info("Attempting build with your compiler");
   logger.info(`Settings: WITH_SYSTEM_DEPENDENCIES -> ${withSystem(json)}`);
-  logger.info(`Settings: WITH_DAEMON              -> ${withDaemon(json)}`);
+  logger.info(`Settings: WITH_DAEMON              -> ${withLinqd(json)}`);
   logger.info(`Settings: WITH_USBH                -> ${withUsbh(json)}`);
+  logger.info(`Settings: DISABLE_PASSWORD         -> ${withDisablePass(json)}`);
 
   // Call cmake-js
   const result = cp.spawnSync(cmakeCmd, cmakeArgs(json).split(" "), {
