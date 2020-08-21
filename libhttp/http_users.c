@@ -113,6 +113,18 @@ process_create_admin(http_route_context* ctx, uint32_t l, const char* body)
 }
 
 void
+has_admin(
+    http_route_context* ctx,
+    HTTP_METHOD meth,
+    uint32_t l,
+    const char* body)
+{
+    database_s* db = ((http_s*)ctx->context)->db;
+    int ret = database_count(db, "users") ? 1 : 0;
+    http_printf_json(ctx->curr_connection, 200, "%d", ret);
+}
+
+void
 create_admin(
     http_route_context* ctx,
     HTTP_METHOD meth,

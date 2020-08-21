@@ -272,6 +272,7 @@ http_init(http_s* http, database_s* db)
     http->routes = routes_map_create();
 
     http_use(http, "/api/v1/public/create_admin", create_admin, http);
+    http_use(http, "/api/v1/public/has_admin", has_admin, http);
     http_use(http, "/api/v1/public/login", login, http);
     http_use(http, "/api/v1/users", users, http);
 }
