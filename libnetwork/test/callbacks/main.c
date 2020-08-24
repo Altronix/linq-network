@@ -22,7 +22,7 @@ test_daemon_receive_heartbeat_insert(void** context_p)
 
     netw_s* netw = netw_create(NULL, NULL);
     netw_listen(netw, "tcp://*:32820");
-    netw_listen_http(netw, "8000");
+    netw_listen(netw, "8000");
 
     // Add user
     helpers_test_create_admin(&netw->http, "unsafe_user", "unsafe_pass");
@@ -81,7 +81,7 @@ test_daemon_receive_alert_insert(void** context_p)
     // Create LinQD
     netw_s* netw = netw_create(NULL, NULL);
     netw_listen(netw, "tcp://*:32820");
-    netw_listen_http(netw, "8000");
+    netw_listen(netw, "8000");
 
     // Add user
     helpers_test_create_admin(&netw->http, "unsafe_user", "unsafe_pass");

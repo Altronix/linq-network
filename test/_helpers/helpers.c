@@ -62,7 +62,7 @@ helpers_test_context_create(helpers_test_config_s* config)
 
     if (config->http) {
         snprintf(endpoint, sizeof(endpoint), "%d", config->http);
-        netw_listen_http(ctx->net, endpoint);
+        netw_listen(ctx->net, endpoint);
     }
 
     if (config->user) {

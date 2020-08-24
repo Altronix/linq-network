@@ -50,7 +50,7 @@ test_http_simple_get(void** context_p)
 
     // Init http
     netw_s* l = netw_create(NULL, NULL);
-    netw_listen_http(l, "80");
+    netw_listen(l, "80");
     netw_use(l, "/hello", test_http_hello_route, &pass);
 
     // Mock sqlite database response
@@ -119,7 +119,7 @@ test_http_simple_query(void** context_p)
 
     // Init http
     netw_s* l = netw_create(NULL, NULL);
-    netw_listen_http(l, "80");
+    netw_listen(l, "80");
     netw_use(l, "/hello", test_http_hello_route, &pass);
 
     // Mock sqlite database response
@@ -180,7 +180,7 @@ test_http_invalid_query(void** context_p)
 
     // Init http
     netw_s* l = netw_create(NULL, NULL);
-    netw_listen_http(l, "80");
+    netw_listen(l, "80");
     netw_use(l, "/hello", test_http_hello_route, &pass);
 
     // Mock sqlite database response

@@ -63,9 +63,9 @@ main(int argc, char* argv[])
     ((void)argc);
     ((void)argv);
     int err;
-    const struct CMUnitTest tests[] = { cmocka_unit_test(test_scan),
-                                        cmocka_unit_test(test_io_recv)
-
+    const struct CMUnitTest tests[] = {
+        cmocka_unit_test(test_scan),
+        cmocka_unit_test(test_io_recv),
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
