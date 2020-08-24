@@ -91,7 +91,7 @@ io_m5_vsend_http_request_sync(
         ret = libusb_bulk_transfer(io->io.handle, OUT, io->out, sz, &txed, 0);
         log_info("(USB) - tx [%d/%d] bytes", txed, sz);
         if (!(ret < 0) && !(txed == sz)) log_error("TODO tx_sync incomplete!");
-        if (ret < 0) log_error("(USB) - TX [%s]", libusb_strerror(ret));
+        if (ret < 0) log_error("(USB) - tx [%s]", libusb_strerror(ret));
     }
     return ret;
 }
@@ -246,6 +246,7 @@ io_m5_init(libusb_device* d, struct libusb_device_descriptor descriptor)
                 err = libusb_claim_interface(device->io.handle, i);
                 if (err) log_error("(USB) - [%s]", libusb_strerror(err));
             }
+
             // https://github.com/tytouf/libusb-cdc-example/blob/master/cdc_example.c
             err = libusb_control_transfer(
                 device->io.handle, 0x21, 0x22, 0x01 | 0x02, 0, NULL, 0, 0);

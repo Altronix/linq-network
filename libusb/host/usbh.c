@@ -52,6 +52,8 @@ usbh_scan(usbh_s* usb, uint16_t vend, uint16_t prod)
             if (err == 0) {
                 log_info("(USB) - scan [%d/%d]", desc.idVendor, desc.idProduct);
                 if (desc.idVendor == vend && desc.idProduct == prod) {
+                    // TODO if device already exists, update last seen and do
+                    //      not add again
                     // TODO this should be opaque init function
                     d = io_m5_init(dev, desc);
                     if (d) {
@@ -69,43 +71,3 @@ usbh_scan(usbh_s* usb, uint16_t vend, uint16_t prod)
 
     return n;
 }
-
-/*
-int
-usbh_send_http_request_sync(
-    usbh_s* usb,
-    const char* serial,
-    const char* meth,
-    const char* path,
-    const char* data,
-    ...)
-{
-    int err = -1;
-    io_s** d_p = (io_s**)device_map_get(*usb->devices_p, serial);
-    if (d_p) {
-        io_s* d = *d_p;
-        va_list list;
-        va_start(list, data);
-        err = d->ops.vtx_sync(d, meth, path, data, list);
-        va_end(list);
-    }
-    return err;
-}
-
-int
-usbh_recv_http_response_sync(
-    usbh_s* usb,
-    const char* serial,
-    uint16_t* code,
-    char* buff,
-    uint32_t l)
-{
-    int err = -1;
-    io_s** d_p = (io_s**)device_map_get(*usb->devices_p, serial);
-    if (d_p) {
-        io_s* d = *d_p;
-        err = d->ops.rx_sync(d, code, buff, l);
-    }
-    return err;
-}
-*/
