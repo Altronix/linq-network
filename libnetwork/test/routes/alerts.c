@@ -53,9 +53,10 @@ test_route_alerts(void** context_p)
 
     helpers_test_context_s* test = test_init(&config);
 
-    // Mock sqlite database response
-    sqlite_spy_step_return_push(SQLITE_ROW); // user exists
-    sqlite_spy_column_int_return_push(1);    // user exists
+    // Mock sqlite database response (when password is enabled)
+    // TODO when password is enabled then mock user is needed in database
+    // sqlite_spy_step_return_push(SQLITE_ROW); // user exists
+    // sqlite_spy_column_int_return_push(1);    // user exists
 
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_step_return_push(SQLITE_ROW);
@@ -174,9 +175,10 @@ test_route_alerts_response_empty(void** context_p)
     helpers_test_context_s* test = test_init(&config);
     sqlite_spy_outgoing_statement_flush();
 
-    // Mock sqlite database response
-    sqlite_spy_step_return_push(SQLITE_ROW); // user exists
-    sqlite_spy_column_int_return_push(1);    // user exists
+    // Mock sqlite database response (when password is enabled)
+    // TODO when password is enabled then mock user is needed in database
+    // sqlite_spy_step_return_push(SQLITE_ROW); // user exists
+    // sqlite_spy_column_int_return_push(1);    // user exists
 
     mongoose_spy_event_request_push(
         UNSAFE_TOKEN, "GET", "/api/v1/alerts", NULL);

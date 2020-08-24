@@ -231,9 +231,11 @@ netw_send(
 {
     E_LINQ_ERROR error = LINQ_ERROR_OK;
     char e[32];
+    const char* m;
     node_s** node = device_map_get(linq->devices, serial);
     if (!node) {
-        snprintf(e, sizeof(e), "{\"error\":%d}", LINQ_ERROR_DEVICE_NOT_FOUND);
+        m = http_error_message(LINQ_ERROR_DEVICE_NOT_FOUND);
+        snprintf(e, sizeof(e), "{\"error\":\"%s\"}", m);
         error = LINQ_ERROR_DEVICE_NOT_FOUND;
         fn(context, "", error, e);
     } else {
