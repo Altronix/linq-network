@@ -7,29 +7,29 @@ if ! [[ -z "${BUILD_DEPENDENCIES}" ]]; then args+=("-DBUILD_DEPENDENCIES=ON"); f
 if ! [[ -z "${BUILD_LINQD}" ]]; then args+=("-DBUILD_LINQD=ON"); fi
 if ! [[ -z "${BUILD_USBD}" ]]; then args+=("-DBUILD_USBD=ON"); fi
 if ! [[ -z "${BUILD_USBH}" ]]; then args+=("-DBUILD_USBH=ON"); fi
-
 echo "ENABLE_TESTING            : ${ENABLE_TESTING}"
 echo "BUILD_DEPENDENCIES        : ${BUILD_DEPENDENCIES}"
 echo "BUILD_LINQD               : ${BUILD_LINQD}"
 echo "BUILD_USBD                : ${BUILD_USBD}"
 echo "BUILD_USBH                : ${BUILD_USBH}"
-echo "ARGS                      : ${args[@]}"
 
 # If a generator is provided we are assuming a windows build for now
 # Travis wants CMAKE_GENERATOR_PLATFORM to find correct libraries
 if [ "$GENERATOR" == "Visual Studio 15 2017 Win64" ]; then
+	args+=("-G ${GENERATOR}")
 	echo "GENERATOR                 : ${GENERATOR}"
 	echo "GENERATOR_PLATFORM        : x64"
-	args+=("-G $GENERATOR")
+	echo "ARGS                      : ${args[@]}"
 	(
 		cmake ${args[@]}
 		cmake --build . --target install
 	) || exit 1
 elif [ "$GENERATOR" == "Visual Studio 16 2019" ]; then
+	args+=("-G ${GENERATOR}")
+	args+=("-A x64")
 	echo "GENERATOR                 : ${GENERATOR}"
 	echo "GENERATOR_PLATFORM        : x64"
-	args+=("-G $GENERATOR")
-	args+=("-A x64")
+	echo "ARGS                      : ${args[@]}"
 	(
 		cmake ${args[@]}
 		cmake --build . --target install
