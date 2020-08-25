@@ -33,8 +33,8 @@ test_route_devices(void** context_p)
 
     // Mock sqlite database response (when password is enabled)
     // TODO when password is enabled then mock user is needed in database
-    // sqlite_spy_step_return_push(SQLITE_ROW); // user exists
-    // sqlite_spy_column_int_return_push(1);    // user exists
+    sqlite_spy_step_return_push(SQLITE_ROW); // user exists
+    sqlite_spy_column_int_return_push(1);    // user exists
 
     sqlite_spy_step_return_push(SQLITE_ROW);
     sqlite_spy_step_return_push(SQLITE_ROW);
@@ -150,8 +150,8 @@ test_route_devices_response_empty(void** context_p)
 
     // Mock sqlite database response (when password is enabled)
     // TODO when password is enabled then mock user is needed in database
-    // sqlite_spy_step_return_push(SQLITE_ROW); // user exists
-    // sqlite_spy_column_int_return_push(1);    // user exists
+    sqlite_spy_step_return_push(SQLITE_ROW); // user exists
+    sqlite_spy_column_int_return_push(1);    // user exists
 
     sqlite_spy_step_return_push(SQLITE_DONE);
     mongoose_spy_event_request_push(

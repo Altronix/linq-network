@@ -165,17 +165,21 @@ http_auth_is_authorized(
     struct mg_connection* c,
     struct http_message* m)
 {
-#ifdef DISABLE_PASSWORD
-    return true;
-#else
     jsmn_token_decode_s jwt;
     struct mg_str token;
     int err = -1;
     char key[SECRET_LEN];
+    bool ret = false;
     get_jwt(m, &token);
     get_secret((char*)key);
     err = jsmn_token_decode(&jwt, key, JSMN_ALG_HS256, token.p, token.len);
-    return err ? false : token_ok(db, &jwt);
+    if (!err && token_ok(db, &jwt)) ret = true;
+#ifdef DISABLE_PASSWORD
+    // TODO TESTING needs refactor in order to support no password case.
+    //      So when there is no password we still check the db for now.
+    ret = true;
+#else
+    return ret;
 #endif
 }
 
