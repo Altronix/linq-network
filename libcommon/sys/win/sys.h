@@ -43,6 +43,19 @@ extern "C"
 {
 #endif
 
+    typedef enum E_FILE_MODE
+    {
+        FILE_MODE_READ = 0,               // READ ONLY (MUST EXIST)
+        FILE_MODE_WRITE = 1,              // WRITE (DESTROY IF EXISTS)
+        FILE_MODE_APPEND = 2,             // APPEND (CREATE IF NOT EXISTS)
+        FILE_MODE_READ_WRITE = 3,         // READ/WRITE (MUST EXIST)
+        FILE_MODE_READ_WRITE_CREATE = 4,  // READ/WRITE (DESTROY IF EXISTS)
+        FILE_MODE_READ_APPEND_CREATE = 5, // READ/APPEND (CREATE IF NOT EXISTS)
+    } E_FILE_MODE;
+
+    typedef FILE sys_file;
+    typedef int sys_pid;
+
     LINQ_EXPORT extern char* optarg;
     LINQ_EXPORT extern int optind;
     LINQ_EXPORT int optind_get();

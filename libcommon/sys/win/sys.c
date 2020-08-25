@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "sys.h"
+#include "log.h"
 
 #include <Rpc.h>
 
@@ -106,3 +107,11 @@ sys_uuid(char* dst)
     UuidCreate(&uuid);
     uuid_set(dst, (uint8_t*)&uuid);
 }
+
+int
+sys_daemonize(const char* log, sys_file** f, sys_pid* pid)
+{
+    log_error("(SYS) daemon mode not supported on windows atm");
+    return -1;
+}
+
