@@ -22,7 +22,7 @@
     "host: atx-usbd\r\n"                                                       \
     "Content-Length: %d\r\n"                                                   \
     "\r\n"                                                                     \
-    "%*.s"
+    "%.*s"
 
 typedef struct
 {
