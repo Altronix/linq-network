@@ -96,12 +96,10 @@ fn main() {
     let dst = if let Some(generator) = generator() {
         cmake::Config::new(find_root())
             .generator(generator)
-            .define("BUILD_LINQD", "OFF")
             .define("WITH_CPP_BINDING", "OFF")
             .build()
     } else {
         cmake::Config::new(find_root())
-            .define("BUILD_LINQD", "OFF")
             .define("WITH_CPP_BINDING", "OFF")
             .build()
     };
