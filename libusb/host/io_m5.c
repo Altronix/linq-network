@@ -72,12 +72,13 @@ method_to_str(E_REQUEST_METHOD m)
 }
 
 static int
-io_m5_vsend_http_request_sync(
+io_m5_send_http_request_sync(
     io_s* io_base,
     E_REQUEST_METHOD method,
     const char* path,
+    uint32_t plen,
     const char* data,
-    va_list list)
+    uint32_t dlen)
 {
     // TODO "transferred (ie txed) may not always equal sz
     // Will have to send in loop since we are allowed to be sync here
@@ -86,29 +87,13 @@ io_m5_vsend_http_request_sync(
     int txed, ret;
     uint32_t sz = sizeof(io->out);
     uint8_t* p = io->out;
-    ret = wire_print_http_request_ptr(&p, &sz, meth, path, data, list);
+    ret = wire_print_http_request_n(&p, &sz, meth, path, plen, data, dlen);
     if (ret == 0) {
         ret = libusb_bulk_transfer(io->io.handle, OUT, io->out, sz, &txed, 0);
         log_info("(USB) - tx [%d/%d] bytes", txed, sz);
         if (!(ret < 0) && !(txed == sz)) log_error("TODO tx_sync incomplete!");
         if (ret < 0) log_error("(USB) - tx [%s]", libusb_strerror(ret));
     }
-    return ret;
-}
-
-static int
-io_m5_send_http_request_sync(
-    io_s* io_base,
-    E_REQUEST_METHOD method,
-    const char* path,
-    const char* data,
-    ...)
-{
-    int ret;
-    va_list list;
-    va_start(list, data);
-    ret = io_m5_vsend_http_request_sync(io_base, method, path, data, list);
-    va_end(list);
     return ret;
 }
 
@@ -178,12 +163,11 @@ io_m5_send(
     linq_request_complete_fn fn,
     void* ctx)
 {
-    // TODO lengths are ignored (assumed strings)
     // TODO Need linked list to store data and get rid of stack abusages
     char mesg[8192];
     const char* e;
     io_s* io = (io_s*)base;
-    int err = io_m5_send_http_request_sync(io, method, path, json);
+    int err = io_m5_send_http_request_sync(io, method, path, plen, json, jlen);
     if (!err) {
         uint16_t code;
         err = io_m5_recv_http_response_sync(io, &code, mesg, sizeof(mesg));
