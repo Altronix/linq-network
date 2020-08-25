@@ -186,6 +186,11 @@ extern "C"
         return rlp_push_u8_arr(r, (const uint8_t*)str, strlen(str));
     }
 
+    static inline int rlp_push_strn(rlp* r, const char* str, uint32_t l)
+    {
+        return rlp_push_u8_arr(r, (const uint8_t*)str, l);
+    }
+
 #ifdef __cplusplus
 }
 #endif

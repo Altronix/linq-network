@@ -67,6 +67,14 @@ extern "C"
         const char* path,
         const char* data,
         va_list list);
+    int wire_print_http_request_n(
+        uint8_t** buffer_p,
+        uint32_t* l,
+        const char* meth,
+        const char* path,
+        uint32_t plen,
+        const char* data,
+        uint32_t dlen);
     int wire_parse_http_request(
         uint8_t* rlp,
         uint32_t l,
@@ -87,6 +95,12 @@ extern "C"
         uint32_t* l,
         uint16_t code,
         const char* message);
+    int wire_print_http_response_n(
+        uint8_t** buffer_p,
+        uint32_t* l,
+        uint16_t code,
+        const char* message,
+        uint32_t mlen);
     int wire_parse_http_response(
         uint8_t* rlp,
         uint32_t l,

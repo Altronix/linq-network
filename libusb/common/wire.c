@@ -93,6 +93,36 @@ wire_print_http_request_ptr(
     const char* data,
     va_list list)
 {
+    va_list dupe;
+    uint32_t rc, ret;
+    char* mem;
+    if (data) {
+        va_copy(dupe, list);
+        rc = vsnprintf(NULL, 0, data, dupe);
+        va_end(dupe);
+        mem = malloc(rc + 1);
+        assert(mem);
+        rc = vsnprintf(mem, rc + 1, data, list);
+        ret = wire_print_http_request_n(
+            buffer_p, l, meth, path, strlen(path), mem, rc);
+        free(mem);
+    } else {
+        ret = wire_print_http_request_n(
+            buffer_p, l, meth, path, strlen(path), NULL, 0);
+    }
+    return ret;
+}
+
+int
+wire_print_http_request_n(
+    uint8_t** buffer_p,
+    uint32_t* l,
+    const char* meth,
+    const char* path,
+    uint32_t plen,
+    const char* data,
+    uint32_t dlen)
+{
     rlp* r;
     uint32_t sz = *l;
     int err;
@@ -100,8 +130,8 @@ wire_print_http_request_ptr(
         !rlp_push_u8(r, 0) &&                         // vers
         !rlp_push_u8(r, 0) &&                         // type
         !rlp_push_str(r, meth) &&                     // meth
-        !rlp_push_str(r, path) &&                     // path
-        (data ? !rlp_vpush_str(r, data, list) : true) // data
+        !rlp_push_strn(r, path, plen) &&              // path
+        (data ? !rlp_push_strn(r, data, dlen) : true) // data
     ) {
         if (!(*buffer_p)) {
             *l = sz = rlp_print_size(r) + 1;
@@ -170,16 +200,27 @@ wire_print_http_response_ptr(
     uint8_t** buffer_p,
     uint32_t* l,
     uint16_t code,
-    const char* message)
+    const char* m)
+{
+    return wire_print_http_response_n(buffer_p, l, code, m, strlen(m));
+}
+
+int
+wire_print_http_response_n(
+    uint8_t** buffer_p,
+    uint32_t* l,
+    uint16_t code,
+    const char* message,
+    uint32_t mlen)
 {
     rlp* r;
     uint32_t sz = *l;
     int err;
-    if ((r = rlp_list()) &&       //
-        !rlp_push_u8(r, 0) &&     // vers
-        !rlp_push_u8(r, 0) &&     // type
-        !rlp_push_u16(r, code) && // code
-        !rlp_push_str(r, message) // message
+    if ((r = rlp_list()) &&              //
+        !rlp_push_u8(r, 0) &&            // vers
+        !rlp_push_u8(r, 0) &&            // type
+        !rlp_push_u16(r, code) &&        // code
+        !rlp_push_strn(r, message, mlen) // message
     ) {
         if (!(*buffer_p)) {
             *l = sz = rlp_print_size(r) + 1;
