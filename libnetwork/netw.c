@@ -119,16 +119,16 @@ E_LINQ_ERROR
 netw_poll(netw_s* l, int32_t ms)
 {
     E_LINQ_ERROR err = zmtp_poll(&l->zmtp, ms);
-    if (err) log_error("(ZMTP) polling error %d", err);
+    if (err < 0) log_error("(ZMTP) polling error %d", err);
 
 #if BUILD_USBH
     err = usbh_poll(&l->usb, ms);
-    if (err) log_error("(USB) polling error %d", err);
+    if (err < 0) log_error("(USB) polling error %d", err);
 #endif
 
 #if BUILD_LINQD
     err = http_poll(&l->http, ms);
-    if (err) log_error("(HTTP) polling error %d", err);
+    if (err < 0) log_error("(HTTP) polling error %d", err);
 #endif
 
     // Loop through devices

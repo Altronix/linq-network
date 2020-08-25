@@ -52,6 +52,7 @@ usbh_scan(usbh_s* usb, uint16_t vend, uint16_t prod)
             if (err == 0) {
                 log_info("(USB) - scan [%d/%d]", desc.idVendor, desc.idProduct);
                 if (desc.idVendor == vend && desc.idProduct == prod) {
+                    d = io_m5_init(dev, desc);
                     if (d) {
                         log_info("(USB) - disc [%s]", d->serial);
                         serial = (const char*)d->serial;
@@ -59,7 +60,6 @@ usbh_scan(usbh_s* usb, uint16_t vend, uint16_t prod)
                             device_map_add(*usb->devices_p, serial, &d);
                             ++n;
                         } else {
-                            // TODO update last seen
                             io_m5_free(&d);
                         }
                     }
