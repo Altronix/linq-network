@@ -20,7 +20,7 @@ echo "ARGS                      : ${args[@]}"
 if [ "$GENERATOR" == "Visual Studio 15 2017 Win64" ]; then
 	echo "GENERATOR                 : ${GENERATOR}"
 	echo "GENERATOR_PLATFORM        : x64"
-	args+=(-G "$GENERATOR")
+	args+=("-G $GENERATOR")
 	(
 		cmake ${args[@]}
 		cmake --build . --target install
@@ -28,8 +28,8 @@ if [ "$GENERATOR" == "Visual Studio 15 2017 Win64" ]; then
 elif [ "$GENERATOR" == "Visual Studio 16 2019" ]; then
 	echo "GENERATOR                 : ${GENERATOR}"
 	echo "GENERATOR_PLATFORM        : x64"
-	args+=(-G "$GENERATOR")
-	args+=(-A "x64")
+	args+=("-G $GENERATOR")
+	args+=("-A x64")
 	(
 		cmake ${args[@]}
 		cmake --build . --target install
