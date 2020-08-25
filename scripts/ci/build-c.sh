@@ -16,7 +16,7 @@ echo "BUILD_USBH                : ${BUILD_USBH}"
 # If a generator is provided we are assuming a windows build for now
 # Travis wants CMAKE_GENERATOR_PLATFORM to find correct libraries
 if [ "$GENERATOR" == "Visual Studio 15 2017 Win64" ]; then
-	args+=("-G Visual Studio 15 2017 Win64")
+	args+=("-G \"Visual Studio 15 2017 Win64\"")
 	echo "GENERATOR                 : ${GENERATOR}"
 	echo "GENERATOR_PLATFORM        : x64"
 	echo "ARGS                      : ${args[@]}"
@@ -25,7 +25,7 @@ if [ "$GENERATOR" == "Visual Studio 15 2017 Win64" ]; then
 		cmake --build . --target install
 	) || exit 1
 elif [ "$GENERATOR" == "Visual Studio 16 2019" ]; then
-	args+=("-G Visual Studio 16 2019")
+	args+=("-G \"Visual Studio 16 2019\"")
 	args+=("-A x64")
 	echo "GENERATOR                 : ${GENERATOR}"
 	echo "GENERATOR_PLATFORM        : x64"
