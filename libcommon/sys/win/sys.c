@@ -13,6 +13,10 @@
 #undef optind
 #undef optarg
 
+static int
+set_blocking(sys_file* fd, bool block)
+{}
+
 char* optarg = NULL;
 int optind = 1;
 
@@ -106,6 +110,61 @@ sys_uuid(char* dst)
     linq_network_assert(sizeof(uuid) == UUID_LEN);
     UuidCreate(&uuid);
     uuid_set(dst, (uint8_t*)&uuid);
+}
+
+sys_file*
+sys_open(const char* path, E_FILE_MODE mode)
+{
+    return NULL;
+}
+
+int
+sys_read_buffer(sys_file* f, char* buffer, uint32_t* sz)
+{
+    return -1;
+}
+
+int
+sys_read(sys_file* f, char** data_p, uint32_t* len)
+{
+    return -1;
+}
+
+int
+sys_write(sys_file* f, const char* data, uint32_t len)
+{
+    return -1;
+}
+
+int
+sys_vfprintf(sys_file* f, const char* fmt, va_list list)
+{
+    return -1;
+}
+
+int
+sys_fprintf(sys_file* f, const char* fmt, ...)
+{
+    return -1;
+}
+
+void
+sys_close(sys_file** f_p)
+{}
+
+void
+sys_make_absolute(const char* path, char* buffer, uint32_t* l)
+{
+    uint32_t c;
+    if (*path == '/' || *path == '\\') {
+        // Already absolute
+        *l = snprintf(buffer, *l, "%s", path);
+    } else {
+        getcwd(buffer, *l);
+        c = strlen(buffer);
+        if (c < *l - c) buffer[c++] = '/';
+        *l = snprintf(&buffer[c], *l - c, "%s", path);
+    }
 }
 
 int

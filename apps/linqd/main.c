@@ -80,7 +80,7 @@ int
 main(int argc, char* argv[])
 {
     signal(SIGINT, ctrlc);
-    signal(SIGHUP, sighup);
+    // signal(SIGHUP, sighup);
     int err = 0;
     char endpoint[128];
     netw_s* netw;
