@@ -67,7 +67,7 @@ print_null_terminated(char* c, uint32_t sz, zframe_t* f)
 static node_s**
 device_get(const zmtp_s* zmtp, const char* serial)
 {
-    return device_map_get(*zmtp->devices_p, serial);
+    return devices_get(*zmtp->devices_p, serial);
 }
 
 node_s**
@@ -188,14 +188,14 @@ device_resolve(zmtp_s* l, zsock_t* sock, zframe_t** frames, bool insert)
     char sid[SID_LEN], tid[TID_LEN] = { 0 };
     print_null_terminated(sid, SID_LEN, frames[FRAME_SID_IDX]);
     print_null_terminated(tid, TID_LEN, frames[FRAME_HB_TID_IDX]);
-    node_s** d = device_map_get(map, sid);
+    node_s** d = devices_get(map, sid);
     if (d) {
         device_heartbeat(*d);
         if (rid) zmtp_device_update_router(*d, rid, rid_sz);
     } else {
         if (insert) {
             node_s* node = zmtp_device_create(sock, rid, rid_sz, sid, tid);
-            if (node) d = device_map_add(map, device_serial(node), &node);
+            if (node) d = devices_add(map, device_serial(node), &node);
             if (l->callbacks && l->callbacks->on_new) {
                 l->callbacks->on_new(l->context, sid);
             }
@@ -539,7 +539,7 @@ zmtp_close_router(zmtp_s* zmtp, netw_socket handle)
     zsock_t** s = socket_map_resolve(zmtp->routers, socket);
     if (s) {
         // remove_devices(s, *zmtp->devices_p);
-        count = device_map_foreach_remove_if(*zmtp->devices_p, remove_if, s);
+        count = devices_foreach_remove_if(*zmtp->devices_p, remove_if, s);
         log_info("(ZMTP) [%d] device nodes closed");
         socket_map_remove_iter(zmtp->routers, socket);
         return LINQ_ERROR_OK;
@@ -556,7 +556,7 @@ zmtp_close_dealer(zmtp_s* zmtp, netw_socket handle)
     if (s) {
         // remove_devices(s, *zmtp->devices_p);
         // remove_nodes(s, *zmtp->nodes_p);
-        count = device_map_foreach_remove_if(*zmtp->devices_p, remove_if, s);
+        count = devices_foreach_remove_if(*zmtp->devices_p, remove_if, s);
         log_info("(ZMTP) [%d] device nodes closed");
         count = node_map_foreach_remove_if(*zmtp->nodes_p, remove_if, s);
         log_info("(ZMTP) [%d] client nodes closed");

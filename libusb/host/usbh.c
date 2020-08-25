@@ -33,7 +33,7 @@ usbh_poll(usbh_s* usb, uint32_t ms)
 uint32_t
 usbh_device_count(usbh_s* usb)
 {
-    return device_map_size(*usb->devices_p);
+    return devices_size(*usb->devices_p);
 }
 
 int
@@ -57,8 +57,8 @@ usbh_scan(usbh_s* usb, uint16_t vend, uint16_t prod)
                         ++n;
                         log_info("(USB) - disc [%s]", d->serial);
                         serial = (const char*)d->serial;
-                        if (!device_map_get(*usb->devices_p, serial)) {
-                            device_map_add(*usb->devices_p, serial, &d);
+                        if (!devices_get(*usb->devices_p, serial)) {
+                            devices_add(*usb->devices_p, serial, &d);
                         } else {
                             io_m5_free(&d);
                         }

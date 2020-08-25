@@ -22,7 +22,7 @@ netw_create(const netw_callbacks* cb, void* context)
     netw_s* l = linq_network_malloc(sizeof(netw_s));
     if (l) {
         memset(l, 0, sizeof(netw_s));
-        l->devices = device_map_create();
+        l->devices = devices_create();
         l->nodes = node_map_create();
         l->callbacks = cb;
         l->context = context ? context : l;
@@ -52,7 +52,7 @@ netw_destroy(netw_s** netw_p)
 {
     netw_s* l = *netw_p;
     *netw_p = NULL;
-    device_map_destroy(&l->devices);
+    devices_destroy(&l->devices);
     node_map_destroy(&l->nodes);
 
 #if BUILD_USBH
@@ -132,7 +132,7 @@ netw_poll(netw_s* l, int32_t ms)
 #endif
 
     // Loop through devices
-    device_map_foreach_poll(l->devices);
+    devices_foreach_poll(l->devices);
 
     return err;
 }
@@ -141,21 +141,21 @@ netw_poll(netw_s* l, int32_t ms)
 node_s**
 netw_device(const netw_s* l, const char* serial)
 {
-    return device_map_get(l->devices, serial);
+    return devices_get(l->devices, serial);
 }
 
 // Check if the serial number is known in our hash table
 bool
 netw_device_exists(const netw_s* linq, const char* sid)
 {
-    return device_map_get(linq->devices, sid) ? true : false;
+    return devices_get(linq->devices, sid) ? true : false;
 }
 
 // return how many devices are connected to linq
 uint32_t
 netw_device_count(const netw_s* l)
 {
-    return device_map_size(l->devices);
+    return devices_size(l->devices);
 }
 
 // // Context used for netw_devices_foreach HOF (Higher Order Function)
@@ -232,7 +232,7 @@ netw_send(
     E_LINQ_ERROR error = LINQ_ERROR_OK;
     char e[32];
     const char* m;
-    node_s** node = device_map_get(linq->devices, serial);
+    node_s** node = devices_get(linq->devices, serial);
     if (!node) {
         m = http_error_message(LINQ_ERROR_DEVICE_NOT_FOUND);
         snprintf(e, sizeof(e), "{\"error\":\"%s\"}", m);

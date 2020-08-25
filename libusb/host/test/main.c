@@ -32,7 +32,7 @@ test_scan(void** context_p)
                                              .idProduct = 4444 },
                                     dev2 = { .idVendor = 5555,
                                              .idProduct = 6666 };
-    device_map_s* devices = device_map_create();
+    device_map_s* devices = devices_create();
     usbh_s usb;
     usbh_init(&usb, &devices);
 
@@ -53,7 +53,7 @@ test_scan(void** context_p)
     assert_int_equal(usbh_device_count(&usb), 3);
 
     usbh_free(&usb);
-    device_map_destroy(&devices);
+    devices_destroy(&devices);
     spy_libusb_free();
 }
 
