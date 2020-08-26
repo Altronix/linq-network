@@ -346,7 +346,7 @@ http_use(http_s* http, const char* path, http_route_cb cb, void* context)
 }
 
 void
-http_serve(http_s* http, const char* path)
+http_root(http_s* http, const char* path)
 {
     log_info("(HTTP) Serving... [%s]", path);
     http->serve_opts.document_root = path;

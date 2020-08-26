@@ -52,6 +52,11 @@ export class LinqNetwork extends Events.EventEmitter {
     return this.netw.version();
   }
 
+  root(path: string): LinqNetwork {
+    this.netw.root(path);
+    return this;
+  }
+
   // listen
   listen(port: number): LinqNetwork;
   listen(port: string): LinqNetwork;

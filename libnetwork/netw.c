@@ -84,6 +84,16 @@ netw_context_set(netw_s* linq, void* ctx)
     linq->context = ctx;
 }
 
+void
+netw_root(netw_s* linq, const char* root)
+{
+#ifdef BUILD_LINQD
+    http_root(&linq->http, root);
+#else
+    log_error("(HTTP) http support not enabled!");
+#endif
+}
+
 // Listen for incoming device connections on "endpoint"
 netw_socket
 netw_listen(netw_s* l, const char* ep)

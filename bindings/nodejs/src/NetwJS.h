@@ -18,6 +18,7 @@ class LinqNetwork : public Napi::ObjectWrap<LinqNetwork>
     Napi::Value RegisterCallback(const Napi::CallbackInfo& info);
     Napi::Value IsRunning(const Napi::CallbackInfo& info);
     Napi::Value Poll(const Napi::CallbackInfo& info);
+    Napi::Value Root(const Napi::CallbackInfo& info);
     Napi::Value Listen(const Napi::CallbackInfo& info);
     Napi::Value Connect(const Napi::CallbackInfo& info);
     Napi::Value Close(const Napi::CallbackInfo& info);

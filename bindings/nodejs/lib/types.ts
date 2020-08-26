@@ -26,6 +26,7 @@ export interface Binding {
   on: (event: LINQ_EVENTS, fn: (...args: any[]) => void) => void;
   isRunning: () => boolean;
   poll: (ms: number) => Promise<any>;
+  root: (arg: string) => Binding;
   listen: (arg: string | number) => Binding;
   connect: (arg: string | number) => Binding;
   close: (arg: number) => Binding;

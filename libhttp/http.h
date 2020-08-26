@@ -70,7 +70,7 @@ extern "C"
     LINQ_HTTP_EXPORT void
     http_listen_tls(http_s*, const char*, const char*, const char*);
     LINQ_HTTP_EXPORT void http_use(http_s*, const char*, http_route_cb, void*);
-    LINQ_HTTP_EXPORT void http_serve(http_s* http, const char* path);
+    LINQ_HTTP_EXPORT void http_root(http_s* http, const char* path);
     LINQ_HTTP_EXPORT void http_parse_query_str(
         http_route_context* c,
         const char* want,

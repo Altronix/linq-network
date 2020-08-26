@@ -21,6 +21,7 @@ LinqNetwork::Init(Napi::Env env, Napi::Object exports)
           InstanceMethod("registerCallback", &LinqNetwork::RegisterCallback),
           InstanceMethod("isRunning", &LinqNetwork::IsRunning),
           InstanceMethod("poll", &LinqNetwork::Poll),
+          InstanceMethod("root", &LinqNetwork::Root),
           InstanceMethod("listen", &LinqNetwork::Listen),
           InstanceMethod("connect", &LinqNetwork::Connect),
           InstanceMethod("close", &LinqNetwork::Close),
@@ -185,6 +186,17 @@ LinqNetwork::Poll(const Napi::CallbackInfo& info)
     uint32_t ms = info[0].ToNumber();
     this->linq_.poll(ms);
     return info.Env().Null();
+}
+
+Napi::Value
+LinqNetwork::Root(const Napi::CallbackInfo& info)
+{
+    Napi::Env env = info.Env();
+    if (!(info.Length())) _NTHROW(env, "Incorrect number of arguments!");
+    if (!(info[0].IsString())) _NTHROW(env, "Expect arg[0] as String!");
+    std::string root = info[0].ToString();
+    this->linq_.root(root.c_str());
+    return info.This();
 }
 
 Napi::Value

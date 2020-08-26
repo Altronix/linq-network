@@ -35,6 +35,7 @@ extern "C"
     LINQ_EXPORT void netw_init(netw_s*, const netw_callbacks*, void*);
     LINQ_EXPORT void netw_deinit(netw_s*);
     LINQ_EXPORT void netw_context_set(netw_s* linq, void* ctx);
+    LINQ_EXPORT void netw_root(netw_s* linq, const char* root);
     LINQ_EXPORT netw_socket netw_listen(netw_s*, const char* ep);
     LINQ_EXPORT netw_socket netw_connect(netw_s* l, const char* ep);
     LINQ_EXPORT E_LINQ_ERROR netw_close(netw_s*, netw_socket);

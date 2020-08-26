@@ -23,6 +23,7 @@ typedef struct config_s
     uint32_t zmtp;
     uint32_t http;
     uint32_t https;
+    const char* web_root_path;
     const char* db_path;
     const char* cert;
     const char* key;
@@ -79,7 +80,7 @@ parse_args(config_s* config, int argc, char* argv[])
             case 'l': config->log = argv[optind]; break;
             case 'c': config->cert = argv[optind]; break;
             case 'k': config->key = argv[optind]; break;
-            case 'w': break;
+            case 'w': config->web_root_path = argv[optind]; break;
             case 'v': print_version_and_exit(); break;
             case 'h':
             case '?':
@@ -122,6 +123,8 @@ main(int argc, char* argv[])
         snprintf(endpoint, sizeof(endpoint), "http://*:%d", config.http);
         netw_listen(netw, endpoint);
     }
+
+    if (config.web_root_path) { netw_root(netw, config.web_root_path); }
 
     if (config.https) {
         if (config.cert && config.key && config.https) {

@@ -53,6 +53,8 @@ class Linq
         if (netw_) netw_destroy(&netw_);
     }
 
+    void root(const char* str) { return netw_root(netw_, str); }
+
     // open up port for device conections
     netw_socket listen(const char* str) { return netw_listen(netw_, str); }
 
