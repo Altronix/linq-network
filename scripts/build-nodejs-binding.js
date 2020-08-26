@@ -83,7 +83,7 @@ const installPrebuilt = () => {
 const tryBuild = async (json) => {
   logger.info("Attempting build with your compiler");
   logger.info(`Settings: WITH_SYSTEM_DEPENDENCIES -> ${withSystem(json)}`);
-  logger.info(`Settings: WITH_DAEMON              -> ${withLinqd(json)}`);
+  logger.info(`Settings: WITH_LINQD               -> ${withLinqd(json)}`);
   logger.info(`Settings: WITH_USBH                -> ${withUsbh(json)}`);
   logger.info(`Settings: DISABLE_PASSWORD         -> ${withDisablePass(json)}`);
 
