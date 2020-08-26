@@ -15,7 +15,7 @@ option(BUILD_APPS "Build the applications in apps folder" OFF)
 
 # bindings
 option(WITH_NODEJS_BINDING "Build the NODEJS bindings" OFF)
-option(WITH_CPP_BINDING "Build the C++ bindings" OFF)
+option(WITH_CPP_BINDING "Build the C++ bindings" ON)
 
 # Testing (TODO - set USBD/USBH/LINQD if test suite is enabled)
 option(ENABLE_TESTING "Build test suite" OFF)
