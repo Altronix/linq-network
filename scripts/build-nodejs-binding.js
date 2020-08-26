@@ -27,12 +27,7 @@ const isTrue = (opt) =>
 const linqdOpt = (opt) => `${opt ? "--CDBUILD_LINQD" : ""}`;
 const usbhOpt = (opt) => `${opt ? "--CDBUILD_USBH" : ""}`;
 const disablePassOpt = (opt) => `${opt ? "--CDDISABLE_PASSWORD" : ""}`;
-
-// Build command string from user argument system option
-const systemOpt = (opt) =>
-  opt
-    ? `--CDUSE_SYSTEM_ZMQ=ON --CDUSE_SYSTEM_JSMN_WEB_TOKENS=ON`
-    : `--CDUSE_SYSTEM_ZMQ=OFF --CDUSE_SYSTEM_JSMN_WEB_TOKENS=OFF`;
+const systemOpt = (opt) => (opt ? `--CDBUILD_DEPENDENCIES=ON` : "");
 
 // Parse user options for linqd
 const withLinqd = (json) =>
