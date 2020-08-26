@@ -82,6 +82,7 @@ netw_listen(netw_s* l, const char* ep)
         log_info("(ZMTP) Listening... [%s]", ep);
         return zmtp_listen(&l->zmtp, ep);
     } else {
+#ifdef BUILD_LINQD
         if (ep_len > 9 && !memcmp(ep, "http://*:", 9)) {
             http_listen(&l->http, ep + 9);
             return LINQ_ERROR_OK;
@@ -89,6 +90,10 @@ netw_listen(netw_s* l, const char* ep)
             http_listen(&l->http, ep);
             return LINQ_ERROR_OK;
         }
+#else
+        log_error("(HTTP) not supported");
+        return -1;
+#endif
     }
 }
 
@@ -234,7 +239,7 @@ netw_send(
     const char* m;
     node_s** node = devices_get(linq->devices, serial);
     if (!node) {
-        m = http_error_message(LINQ_ERROR_DEVICE_NOT_FOUND);
+        m = "not found";
         snprintf(e, sizeof(e), "{\"error\":\"%s\"}", m);
         error = LINQ_ERROR_DEVICE_NOT_FOUND;
         fn(context, "", error, e);
