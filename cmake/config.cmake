@@ -5,7 +5,7 @@ set(V_PATCH 3)
 set(V_RC -rc12)
 set(LINQ_NETWORK_VERSION "v${V_MAJOR}.${V_MINOR}.${V_PATCH}${V_RC}")
 function (append_version_compiler_flags dst)
-  set(${dst} "LINQ_NETWORK_VERSION=\"${LINQ_NETWORK_VERSION}\"" PARENT_SCOPE)
+  list(APPEND ${dst} "LINQ_NETWORK_VERSION=\"${LINQ_NETWORK_VERSION}\"" PARENT_SCOPE)
 endfunction()
 
 # Library Output options
