@@ -97,10 +97,12 @@ fn main() {
         cmake::Config::new(find_root())
             .generator(generator)
             .define("WITH_CPP_BINDING", "OFF")
+            .define("BUILD_DEPENDENCIES", "ON")
             .build()
     } else {
         cmake::Config::new(find_root())
             .define("WITH_CPP_BINDING", "OFF")
+            .define("BUILD_DEPENDENCIES", "ON")
             .build()
     };
     let out = dst.display();
