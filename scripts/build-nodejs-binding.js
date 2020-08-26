@@ -24,10 +24,10 @@ const isTrue = (opt) =>
   opt === 1;
 
 // Build command string from user argument linqd option
-const linqdOpt = (opt) => `${opt ? "--CDBUILD_LINQD" : ""}`;
-const usbhOpt = (opt) => `${opt ? "--CDBUILD_USBH" : ""}`;
-const disablePassOpt = (opt) => `${opt ? "--CDDISABLE_PASSWORD" : ""}`;
-const systemOpt = (opt) => (opt ? `--CDBUILD_DEPENDENCIES=ON` : "");
+const linqdOpt = (opt) => `${opt ? "--CDBUILD_LINQD=ON" : ""}`;
+const usbhOpt = (opt) => `${opt ? "--CDBUILD_USBH=ON" : ""}`;
+const disablePassOpt = (opt) => `${opt ? "--CDDISABLE_PASSWORD=ON" : ""}`;
+const systemOpt = (opt) => (opt ? "" : `--CDBUILD_DEPENDENCIES=ON`);
 
 // Parse user options for linqd
 const withLinqd = (json) =>
