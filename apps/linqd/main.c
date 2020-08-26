@@ -36,22 +36,32 @@ print_usage_and_exit(int err)
     void* io = err ? stderr : stdout;
     fprintf(
         io,
-        "linqd 0.0.1\n"
-        "Welcome to linqd\n\n"
-        "USAGE:\n\tlinqd [-zpskcdDlw?]\n\n"
+        "\n"
+        "Welcome to linqd (%s)\n\n"
+        "USAGE:\n\tlinqd [-zpskcdDlwvh?]\n\n"
         "EXAMPLE:\n\tlinqd -z 33248 -s 8080 -w /etc/www -d ./sqlite.db\n\n"
         "FLAGS:\n"
         "\t-z ZMTP port to listen for incoming devices\n"
         "\t-p Serve HTTP API on port \n"
         "\t-s Server HTTPS API on secure port\n"
-        "\t-k TLS key directory\n"
-        "\t-c TLS cert file\n"
         "\t-d Detatch in daemon mode\n"
         "\t-D Database location on local drive\n"
-        "\t   Will create a database if one does not already exist\n"
         "\t-l Log file\n"
-        "\t-w Webpage ROOT\n");
+        "\t-c TLS cert file\n"
+        "\t-k TLS key directory\n"
+        "\t   Will create a database if one does not already exist\n"
+        "\t-w Webpage ROOT\n"
+        "\t-v Print version and exit\n"
+        "\t-h Print help menu and exit\n",
+        netw_version());
     exit(err);
+}
+
+static void
+print_version_and_exit()
+{
+    fprintf(stdout, "%s\n", netw_version());
+    exit(0);
 }
 
 static void
@@ -59,7 +69,7 @@ parse_args(config_s* config, int argc, char* argv[])
 {
     int opt, arglen;
     optind_set(0);
-    while ((opt = getopt(argc, argv, "zpskcdDlw?h")) != -1) {
+    while ((opt = getopt(argc, argv, "zpskcdDlwvh?")) != -1) {
         switch (opt) {
             case 'z': config->zmtp = atoi(argv[optind]); break;
             case 'p': config->http = atoi(argv[optind]); break;
@@ -69,8 +79,10 @@ parse_args(config_s* config, int argc, char* argv[])
             case 'l': config->log = argv[optind]; break;
             case 'c': config->cert = argv[optind]; break;
             case 'k': config->key = argv[optind]; break;
-            case '?':
+            case 'w': break;
+            case 'v': print_version_and_exit(); break;
             case 'h':
+            case '?':
             default: print_usage_and_exit(0); break;
         }
     }

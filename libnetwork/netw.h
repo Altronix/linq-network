@@ -29,6 +29,7 @@ extern "C"
 #endif
 
     // Linq API
+    LINQ_EXPORT const char* netw_version();
     LINQ_EXPORT netw_s* netw_create(const netw_callbacks*, void*);
     LINQ_EXPORT void netw_destroy(netw_s**);
     LINQ_EXPORT void netw_init(netw_s*, const netw_callbacks*, void*);

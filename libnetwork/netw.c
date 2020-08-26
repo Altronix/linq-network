@@ -15,6 +15,17 @@
 #include "callbacks.h"
 #include "netw_internal.h"
 
+LINQ_EXPORT const char*
+netw_version()
+{
+#ifdef LINQ_NETWORK_VERSION
+    static const char* version = LINQ_NETWORK_VERSION;
+#else
+    static const char* version = "undefined";
+#endif
+    return version;
+}
+
 // Create main context for the caller
 netw_s*
 netw_create(const netw_callbacks* cb, void* context)

@@ -9,6 +9,8 @@
 #define USBD_LOG_DEFAULT "/var/log/atx-ttyd.log"
 #endif
 
+#define TTYD_VERSION "v0.0.0"
+
 typedef struct usbd_config_s
 {
     bool daemon;
@@ -27,16 +29,29 @@ void
 sighup(int dummy)
 {}
 
-const char* usage = "Usage: atx-update [-chd]\n"
-                    "  -l  log file (default: " USBD_LOG_DEFAULT ")\n"
-                    "  -d  Detatch in daemon mode\n"
-                    "  -h  Print this help menu\n";
+static void
+print_version_and_exit()
+{
+    fprintf(stdout, "%s\n", TTYD_VERSION);
+    exit(0);
+}
 
 static void
 print_usage_and_exit(int err)
 {
     void* io = err ? stderr : stdout;
-    fprintf(io, "%s", usage);
+    fprintf(
+        io,
+        "\n"
+        "Welcome to atx-ttyd (%s)\n\n"
+        "USAGE: atx-update [-ldvh?]\n"
+        "EXAMPLE:\n\tatx-ttyd -l ttyd.log -d\n\n"
+        "FLAGS:\n"
+        "  -l  log file (default: " USBD_LOG_DEFAULT ")\n"
+        "  -d  Detatch in daemon mode\n"
+        "  -v  print version and exit\n"
+        "  -h  Print this help menu\n",
+        TTYD_VERSION);
     exit(err);
 }
 
@@ -49,6 +64,7 @@ args_parse(usbd_config_s* config, int argc, char* argv[])
         switch (opt) {
             case 'l': config->log = argv[optind]; break;
             case 'd': config->daemon = true; break;
+            case 'v': print_version_and_exit(); break;
             case 'h':
             case '?':
             default: print_usage_and_exit(0); break;
