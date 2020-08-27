@@ -1,4 +1,4 @@
-let netw = require("@altronix/linq-network").network;
+let netw = require("@altronix/linq").network;
 
 // Demonstration using USB
 // Note the M5 has hard coded serial number as "N/A" and vendor product
@@ -7,7 +7,11 @@ let netw = require("@altronix/linq-network").network;
 (async () => {
   let count = netw.scan();
   if (count) {
-    let response = await netw.send("N/A", "GET", "api/v1/network");
+    let response = await netw.send(
+      "linqm5serialnumberhere",
+      "GET",
+      "api/v1/network"
+    );
     console.log(response);
   } else {
     console.log("No LinQ device detected");

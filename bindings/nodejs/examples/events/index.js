@@ -1,4 +1,4 @@
-let netw = require("@altronix/linq-network").default;
+let netw = require("@altronix/linq").network;
 
 (async () =>
   await netw
