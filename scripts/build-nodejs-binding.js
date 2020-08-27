@@ -28,6 +28,7 @@ const linqdOpt = (opt) => `${opt ? "--CDBUILD_LINQD=ON" : ""}`;
 const usbhOpt = (opt) => `${opt ? "--CDBUILD_USBH=ON" : ""}`;
 const disablePassOpt = (opt) => `${opt ? "--CDDISABLE_PASSWORD=ON" : ""}`;
 const systemOpt = (opt) => (opt ? "" : `--CDBUILD_DEPENDENCIES=ON`);
+const logOpt = (opt) => (opt ? `--CDLOG_LEVEL=${opt}` : ``);
 
 // Parse user options for linqd
 const withLinqd = (json) =>
@@ -35,6 +36,9 @@ const withLinqd = (json) =>
   args._.indexOf("linqd") >= 0 ||
   (json && json.linqd) ||
   !!args.d;
+
+const withLog = (json) =>
+  process.env.LINQ_NETWORK_LOG_LEVEL || (json && json.log) || false;
 
 const withUsbh = (json) =>
   isTrue(process.env.LINQ_NETWORK_WITH_USBH) ||
@@ -60,6 +64,7 @@ const cmakeArgs = (json) =>
   `${linqdOpt(withLinqd(json))} ` +
   `${usbhOpt(withUsbh(json))} ` +
   `${disablePassOpt(withDisablePass(json))} ` +
+  `${logOpt(withLog(json))} ` +
   `--CDCMAKE_INSTALL_PREFIX=./ --CDBUILD_SHARED=OFF ` +
   `--CDBUILD_APPS=OFF ` +
   `--CDWITH_NODEJS_BINDING ` +
@@ -86,6 +91,7 @@ const tryBuild = async (json) => {
   logger.info(`Settings: WITH_LINQD               -> ${withLinqd(json)}`);
   logger.info(`Settings: WITH_USBH                -> ${withUsbh(json)}`);
   logger.info(`Settings: DISABLE_PASSWORD         -> ${withDisablePass(json)}`);
+  logger.info(`Settings: LOG_LEVEL                -> ${withLog(json)}`);
 
   // Call cmake-js
   const result = cp.spawnSync(cmakeCmd, cmakeArgs(json).split(" "), {

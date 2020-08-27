@@ -134,7 +134,7 @@ main(int argc, char* argv[])
         // netw_listen_https(netw, endpoint); // TODO
     }
 
-    while (netw_running(netw)) { err = netw_poll(netw, 50); };
+    while (netw_running(netw)) { err = netw_poll(netw, 10); };
 
     netw_destroy(&netw);
     if (f) sys_close(&f);

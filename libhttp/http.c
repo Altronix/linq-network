@@ -209,6 +209,7 @@ process_file(http_s* http, struct mg_connection* c, struct http_message* m)
     if (err) {
         log_debug("(HTTP) [%s] not found... Serving root", b);
         snprintf(b, sizeof(b), "%s%s", root, "/index.html");
+        log_debug("(HTTP) (root) [%s]", b);
         mg_http_serve_file(c, m, b, mg_mk_str("text/html"), mg_mk_str(""));
     } else {
         log_debug("(HTTP) [%s] found... ", b);
