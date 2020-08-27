@@ -66,7 +66,7 @@ static void
 on_zmtp_new(void* ctx, const char* sid)
 {
     netw_s* netw = ctx;
-    log_debug("(ZMTP) [%.6s...] Event New Device", sid);
+    log_info("(ZMTP) [%.6s...] Event New Device", sid);
     if (netw->callbacks && netw->callbacks->on_new) {
         netw->callbacks->on_new(netw->context, sid);
     }
@@ -86,7 +86,7 @@ static void
 on_zmtp_heartbeat(void* ctx, const char* s)
 {
     netw_s* l = ctx;
-    log_debug("(ZMTP) [%.6s...] Event Heartbeat", s);
+    log_info("(ZMTP) [%.6s...] Event Heartbeat", s);
     if (l->callbacks && l->callbacks->on_heartbeat) {
         l->callbacks->on_heartbeat(l->context, s);
     }
@@ -110,7 +110,7 @@ on_zmtp_alert(
                              .time = { .p = a->when.p, .len = a->when.len },
                              .mesg = { .p = a->mesg.p, .len = a->mesg.len } };
 
-    log_debug("(ZMTP) [%.6s...] Event Alert", serial);
+    log_info("(ZMTP) [%.6s...] Event Alert", serial);
     if (l->callbacks && l->callbacks->on_alert) {
         l->callbacks->on_alert(l->context, serial, a, email);
     }
@@ -153,7 +153,7 @@ static void
 on_zmtp_new(void* ctx, const char* sid)
 {
     netw_s* l = ctx;
-    log_debug("(ZMTP) [%.6s...] Event New Device", sid);
+    log_info("(ZMTP) [%.6s...] Event New Device", sid);
     if (l->callbacks && l->callbacks->on_new) {
         l->callbacks->on_new(l->context, sid);
     }
@@ -163,7 +163,7 @@ static void
 on_zmtp_heartbeat(void* ctx, const char* sid)
 {
     netw_s* l = ctx;
-    log_debug("(ZMTP) [%.6s...] Event Heartbeat", sid);
+    log_info("(ZMTP) [%.6s...] Event Heartbeat", sid);
     if (l->callbacks && l->callbacks->on_heartbeat) {
         l->callbacks->on_heartbeat(l->context, sid);
     }
@@ -177,7 +177,7 @@ on_zmtp_alert(
     netw_email_s* email)
 {
     netw_s* l = ctx;
-    log_debug("(ZMTP) [%.6s...] Event Alert", serial);
+    log_info("(ZMTP) [%.6s...] Event Alert", serial);
     if (l->callbacks && l->callbacks->on_alert) {
         l->callbacks->on_alert(l->context, serial, a, email);
     }
