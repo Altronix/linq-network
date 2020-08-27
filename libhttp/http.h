@@ -60,6 +60,7 @@ extern "C"
         struct mg_serve_http_opts serve_opts;
         routes_map_s* routes;
         database_s* db;
+        char root[256];
     } http_s;
 
     // Public methods (internal to this library)
