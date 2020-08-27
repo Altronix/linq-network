@@ -15,11 +15,11 @@ set(INSTALL_HEADERS netw.h)
 set(INCS ../)
 if(BUILD_LINQD)
   list(APPEND SOURCES 
-    ./routes/alerts.c
-    ./routes/devices.c
-    ./routes/proxy.c
-    ./routes/quit.c
-    ./routes/scan.c)
+    ./routes/route_alerts.c
+    ./routes/route_devices.c
+    ./routes/route_proxy.c
+    ./routes/route_quit.c
+    ./routes/route_scan.c)
   list(APPEND HEADERS ./routes/routes.h)
   list(APPEND LIBS ${JSMN_WEB_TOKENS_LIBS} database-static http-static)
   list(APPEND definitions "BUILD_LINQD")

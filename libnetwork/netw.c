@@ -46,11 +46,11 @@ netw_create(const netw_callbacks* cb, void* context)
 #define ADD_ROUTE(http, path, fn, ctx) http_use(http, path, fn, ctx)
         database_init(&l->database);
         http_init(&l->http, &l->database);
-        ADD_ROUTE(&l->http, "/api/v1/devices", devices, l);
-        ADD_ROUTE(&l->http, "/api/v1/alerts", alerts, l);
-        ADD_ROUTE(&l->http, "/api/v1/exe/scan", scan, l);
-        ADD_ROUTE(&l->http, "/api/v1/exe/kill", quit, l);
-        ADD_ROUTE(&l->http, "/api/v1/proxy/...", proxy, l);
+        ADD_ROUTE(&l->http, "/api/v1/devices", route_devices, l);
+        ADD_ROUTE(&l->http, "/api/v1/alerts", route_alerts, l);
+        ADD_ROUTE(&l->http, "/api/v1/exe/scan", route_scan, l);
+        ADD_ROUTE(&l->http, "/api/v1/exe/kill", route_quit, l);
+        ADD_ROUTE(&l->http, "/api/v1/proxy/...", route_proxy, l);
 #undef ADD_ROUTE
 #endif
     }

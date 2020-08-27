@@ -2,7 +2,11 @@
 #include "routes.h"
 
 void
-quit(http_route_context* ctx, HTTP_METHOD meth, uint32_t jlen, const char* body)
+route_quit(
+    http_route_context* ctx,
+    HTTP_METHOD meth,
+    uint32_t jlen,
+    const char* body)
 {
     netw_s* netw = ctx->context;
     netw_shutdown(netw);

@@ -12,7 +12,7 @@ on_response(void* ctx, const char* serial, E_LINQ_ERROR error, const char* json)
 }
 
 void
-proxy(
+route_proxy(
     http_route_context* ctx,
     HTTP_METHOD meth,
     uint32_t jlen,

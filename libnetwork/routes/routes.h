@@ -17,13 +17,13 @@ extern "C"
 #define PROTO_ARGS                                                             \
     http_route_context *, HTTP_METHOD meth, uint32_t, const char *
 
-    void create_admin(PROTO_ARGS);
-    void login(PROTO_ARGS);
-    void alerts(PROTO_ARGS);
-    void devices(PROTO_ARGS);
-    void proxy(PROTO_ARGS);
-    void scan(PROTO_ARGS);
-    void quit(PROTO_ARGS);
+    void route_create_admin(PROTO_ARGS);
+    void route_login(PROTO_ARGS);
+    void route_alerts(PROTO_ARGS);
+    void route_devices(PROTO_ARGS);
+    void route_proxy(PROTO_ARGS);
+    void route_scan(PROTO_ARGS);
+    void route_quit(PROTO_ARGS);
 
 #ifdef __cplusplus
 }

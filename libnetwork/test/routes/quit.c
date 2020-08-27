@@ -2,6 +2,7 @@
 #include "helpers.h"
 #include "mock_mongoose.h"
 #include "netw.h"
+#include "routes/routes.h"
 #include "sys.h"
 
 #include <setjmp.h>
@@ -9,11 +10,6 @@
 #include <cmocka.h>
 
 #include "main.h"
-void quit(
-    http_route_context* ctx,
-    HTTP_METHOD meth,
-    uint32_t jlen,
-    const char* body);
 
 void
 __wrap_netw_shutdown(netw_s* netw)
@@ -34,7 +30,7 @@ test_route_quit(void** context_p)
 
     mongoose_spy_init();
     ctx.context = &pass;
-    quit(&ctx, HTTP_METHOD_GET, 0, NULL);
+    route_quit(&ctx, HTTP_METHOD_GET, 0, NULL);
     parser = mongoose_spy_response_pop();
     assert_true(pass);
     assert_non_null(parser);

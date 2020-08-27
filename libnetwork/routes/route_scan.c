@@ -2,7 +2,11 @@
 #include "routes.h"
 
 void
-scan(http_route_context* ctx, HTTP_METHOD meth, uint32_t jlen, const char* body)
+route_scan(
+    http_route_context* ctx,
+    HTTP_METHOD meth,
+    uint32_t jlen,
+    const char* body)
 {
     int rc;
     netw_s* netw = ctx->context;

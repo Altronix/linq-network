@@ -9,7 +9,7 @@
     "}"
 
 void
-devices(
+route_devices(
     http_route_context* ctx,
     HTTP_METHOD meth,
     uint32_t _l,
