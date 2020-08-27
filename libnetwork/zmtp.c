@@ -497,8 +497,10 @@ zmtp_listen(zmtp_s* zmtp, const char* ep)
         socket_map_add(zmtp->routers, ep, &socket);
         int key = socket_map_key(zmtp->routers, ep);
         key |= ATX_NET_SOCKET_TYPE_ROUTER << 0x08;
+        log_info("(ZMTP) bind socket success [%s]", ep);
         return key;
     } else {
+        log_error("(ZMTP) failed to bind socket [%s]", ep);
         return LINQ_ERROR_SOCKET;
     }
 }
