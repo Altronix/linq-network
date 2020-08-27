@@ -4,15 +4,10 @@ let netw = require("@altronix/linq").network;
   await netw
     .listen("tcp://*:33455")
     .on("new", (serial, about) => console.log(about))
-    .on(
-      "heartbeat",
-      sid => {}
-      // netw
-      // .send(sid, "GET", "/ATX/about")
-      // .then(response => console.log("Response: %s", response))
-      // .catch(e => console.log(e))
-    )
-    .on("alert", alert_data => {
+    .on("heartbeat", (sid) => console.log(`HEARTBEAT [${sid}]`))
+    .on("error", (error) => console.log(`ERROR [${error}]`))
+    .on("ctrlc", () => console.log(`EXIT`))
+    .on("alert", (alert_data) => {
       console.log("ALERT from [%s]", alert_data.serial);
       console.log("ALERT who [%s]", alert_data.who);
       console.log("ALERT what [%s]", alert_data.what);
