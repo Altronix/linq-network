@@ -2,7 +2,7 @@
 set(V_MAJOR 0)
 set(V_MINOR 0)
 set(V_PATCH 3)
-set(V_RC -rc16)
+set(V_RC -rc17)
 set(LINQ_NETWORK_VERSION "v${V_MAJOR}.${V_MINOR}.${V_PATCH}${V_RC}")
 function (append_version_compiler_flags dst)
   list(APPEND ${dst} "LINQ_NETWORK_VERSION=\"${LINQ_NETWORK_VERSION}\"" PARENT_SCOPE)
