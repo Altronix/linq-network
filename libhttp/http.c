@@ -194,6 +194,29 @@ process_route(
 }
 
 static void
+process_file(http_s* http, struct mg_connection* c, struct http_message* m)
+{
+    char b[512];
+    const char* root = http->serve_opts.document_root;
+    int err;
+    unsigned int _p;
+    struct stat st;
+    struct mg_str _s, _u, _h, path, _q, _f;
+    err = mg_parse_uri(m->uri, &_s, &_u, &_h, &_p, &path, &_q, &_f);
+    if (err) return;
+    snprintf(b, sizeof(b), "%s%.*s", root, (int)path.len, path.p);
+    err = stat(b, &st);
+    if (err) {
+        log_debug("(HTTP) [%s] not found... Serving root", b);
+        snprintf(b, sizeof(b), "%s%s", root, "/index.html");
+        mg_http_serve_file(c, m, b, mg_mk_str("text/html"), mg_mk_str(""));
+    } else {
+        log_debug("(HTTP) [%s] found... ", b);
+        mg_serve_http(c, m, http->serve_opts);
+    }
+}
+
+static void
 ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
 {
     switch (ev) {
@@ -232,7 +255,7 @@ ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
                     }
                 }
             } else if (http->serve_opts.document_root) {
-                mg_serve_http(c, m, http->serve_opts);
+                process_file(http, c, m);
             } else {
                 log_warn("%06s %04s %s [%s]", "(HTTP)", "Req.", "(404)", path);
                 c_printf_json(c, 404, "{\"error\":\"%s\"}", "not found");
