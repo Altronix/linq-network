@@ -212,6 +212,7 @@ ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
             http_s* http = user_data;
             struct http_message* m = (struct http_message*)p;
             struct mg_str* path = &m->uri;
+            log_info("(HTTP) serve [%.*s]", path->len, path->p);
             http_route_context** r = resolve_route(http, path);
             if (r) {
                 if (path->len >= UNSECURE_API_LEN &&
