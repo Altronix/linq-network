@@ -12,6 +12,7 @@
 #include <cmocka.h>
 
 #include "alerts.h"
+#include "connect.h"
 #include "devices.h"
 #include "proxy.h"
 #include "quit.h"
@@ -49,7 +50,8 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_route_proxy_404),
         cmocka_unit_test(test_route_proxy_400_too_short),
         cmocka_unit_test(test_route_scan),
-        cmocka_unit_test(test_route_quit)
+        cmocka_unit_test(test_route_quit),
+        cmocka_unit_test(test_route_connect)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);

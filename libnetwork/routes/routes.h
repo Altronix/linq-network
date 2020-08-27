@@ -22,6 +22,7 @@ extern "C"
     void route_alerts(PROTO_ARGS);
     void route_devices(PROTO_ARGS);
     void route_proxy(PROTO_ARGS);
+    void route_connect(PROTO_ARGS);
     void route_scan(PROTO_ARGS);
     void route_quit(PROTO_ARGS);
 

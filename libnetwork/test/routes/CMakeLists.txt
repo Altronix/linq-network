@@ -6,6 +6,8 @@ add_executable(test-routes
                       main.h
                       alerts.c
                       alerts.h
+                      connect.c
+                      connect.h
                       devices.c
                       devices.h
                       proxy.c

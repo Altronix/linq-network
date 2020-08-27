@@ -16,6 +16,7 @@ set(INCS ../)
 if(BUILD_LINQD)
   list(APPEND SOURCES 
     ./routes/route_alerts.c
+    ./routes/route_connect.c
     ./routes/route_devices.c
     ./routes/route_proxy.c
     ./routes/route_quit.c
