@@ -8,6 +8,9 @@
 #define IN 1 | LIBUSB_ENDPOINT_IN
 #define OUT 2 | LIBUSB_ENDPOINT_OUT
 
+// TODO handle LIBUSB_ERROR_NO_DEVICE (-4) By removing device from device_map
+//      handle LIBUSB_ERROR_TIMEOUT (-7)
+
 typedef enum E_IO_STATE
 {
     IO_STATE_IDLE,
@@ -164,26 +167,26 @@ io_m5_send(
     void* ctx)
 {
     // TODO Need linked list to store data and get rid of stack abusages
-    char mesg[8192];
+    char m[8192];
     const char* e;
     io_s* io = (io_s*)base;
     int err = io_m5_send_http_request_sync(io, method, path, plen, json, jlen);
     if (!err) {
         uint16_t code;
-        err = io_m5_recv_http_response_sync(io, &code, mesg, sizeof(mesg));
+        err = io_m5_recv_http_response_sync(io, &code, m, sizeof(m));
         if (!err) {
-            fn(ctx, device_serial(&io->base), code, mesg);
+            fn(ctx, device_serial(&io->base), code, m);
         } else {
             e = libusb_strerror(err);
             log_error("(USB) rx err %s", e);
-            snprintf(mesg, sizeof(mesg), "{\"error\": %d}", err);
-            fn(ctx, device_serial(&io->base), err, e);
+            snprintf(m, sizeof(m), "{\"error\": \"%s\",\"code\":%d}", e, err);
+            fn(ctx, device_serial(&io->base), err, m);
         }
     } else {
         e = libusb_strerror(err);
         log_error("(USB) tx err %s", e);
-        snprintf(mesg, sizeof(mesg), "{\"error\": %d}", err);
-        fn(ctx, device_serial(&io->base), err, e);
+        snprintf(m, sizeof(m), "{\"error\": \"%s\",\"code\":%d}", e, err);
+        fn(ctx, device_serial(&io->base), err, m);
     }
 }
 
