@@ -54,6 +54,7 @@ handle_about_response(
     E_LINQ_ERROR e,
     const char* r)
 {
+    log_trace("(ZMTP) [%.6s...] About data received", r);
     netw_s* l = ctx;
     if (e) {
         log_warn("(LINQ) [%.6s...] (%.3d) About request failed!", serial, e);

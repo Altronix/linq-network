@@ -188,12 +188,15 @@ device_resolve(zmtp_s* l, zsock_t* sock, zframe_t** frames, bool insert)
     char sid[SID_LEN], tid[TID_LEN] = { 0 };
     print_null_terminated(sid, SID_LEN, frames[FRAME_SID_IDX]);
     print_null_terminated(tid, TID_LEN, frames[FRAME_HB_TID_IDX]);
+    log_trace("(ZMTP) [%s] Heartbeat received", sid);
     node_s** d = devices_get(map, sid);
     if (d) {
+        log_trace("(ZMTP) [%s] Device exists", sid);
         device_heartbeat(*d);
         if (rid) zmtp_device_update_router(*d, rid, rid_sz);
     } else {
         if (insert) {
+            log_trace("(ZMTP) [%s] New device", sid);
             node_s* node = zmtp_device_create(sock, rid, rid_sz, sid, tid);
             if (node) d = devices_add(map, device_serial(node), &node);
             if (l->callbacks && l->callbacks->on_new) {
@@ -252,6 +255,7 @@ on_device_response(
     E_LINQ_ERROR error,
     const char* json)
 {
+    log_trace("(ZMTP) Device response received");
     int16_t e = error;
     node_zmtp_s** node = ctx;
     node_send_frames_n(
@@ -274,6 +278,7 @@ on_device_response(
 static E_LINQ_ERROR
 process_request(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
 {
+    log_trace("(ZMTP) Processing request");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     zframe_t *path = NULL, *data = NULL;
     char url[128] = { 0 }, json[JSON_LEN] = { 0 };
@@ -287,13 +292,16 @@ process_request(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
         if (n && d) {
             print_null_terminated(url, sizeof(url), path);
             if (data) print_null_terminated(json, sizeof(json), data);
+            log_trace("(ZMTP) Sending request");
             zmtp_device_send_raw(
                 *d, url, data ? json : NULL, on_device_response, n);
             e = LINQ_ERROR_OK;
         } else {
+            log_trace("(ZMTP) Device does not exist");
             // TODO send 404 response (device not here)
         }
     }
+    log_trace("(ZMTP) Request result [%d]", (int)e);
     return e;
 }
 
@@ -301,6 +309,7 @@ process_request(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
 static E_LINQ_ERROR
 process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
 {
+    log_trace("(ZMTP) Processing response");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     zframe_t *err, *dat;
     int16_t err_code;
@@ -343,6 +352,7 @@ process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
             }
         }
     }
+    log_trace("(ZMTP) Response result [%d]", (int)e);
     return e;
 }
 
@@ -350,6 +360,7 @@ process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
 static E_LINQ_ERROR
 process_alert(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
 {
+    log_trace("(ZMTP) Processing alert");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     char alert_data[JSON_LEN];
     char email_data[JSON_LEN];
@@ -372,6 +383,7 @@ process_alert(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
                 node_map_foreach(*z->nodes_p, foreach_node_forward_message, &f);
             }
             if (z->callbacks && z->callbacks->on_alert) {
+                log_trace("(ZMTP) Executing alert callback");
                 z->callbacks->on_alert(
                     z->context, device_serial(*d), &alert, &email);
             }
@@ -379,6 +391,7 @@ process_alert(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
         }
     }
 
+    log_trace("(ZMTP) Alert result [%d]", (int)e);
     return e;
 }
 
@@ -399,6 +412,7 @@ process_hello(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
 static E_LINQ_ERROR
 process_heartbeat(zmtp_s* z, zsock_t* s, zmsg_t** msg, zframe_t** frames)
 {
+    log_trace("(ZMTP) Processing heartbeat");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     if (zmsg_size(*msg) == 2 &&
         (frames[FRAME_HB_TID_IDX] = pop_le(*msg, TID_LEN)) &&
@@ -412,11 +426,13 @@ process_heartbeat(zmtp_s* z, zsock_t* s, zmsg_t** msg, zframe_t** frames)
                 node_map_foreach(*z->nodes_p, foreach_node_forward_message, &f);
             }
             if (z->callbacks && z->callbacks->on_heartbeat) {
+                log_trace("(ZMTP) Executing heartbeat callback");
                 z->callbacks->on_heartbeat(z->context, device_serial(*d));
             }
             e = LINQ_ERROR_OK;
         }
     }
+    log_trace("(ZMTP) Heartbeat result [%d]", (int)e);
     return e;
 }
 
@@ -424,6 +440,7 @@ process_heartbeat(zmtp_s* z, zsock_t* s, zmsg_t** msg, zframe_t** frames)
 static E_LINQ_ERROR
 process_packet(zmtp_s* z, zsock_t* s)
 {
+    log_trace("(ZMTP) Processing packet");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     int total_frames = 0, start = 1;
     bool router = is_router(s);
@@ -451,6 +468,7 @@ process_packet(zmtp_s* z, zsock_t* s)
         }
     }
     if (e) {
+        log_error("(ZMTP) Processing packet error [%d]", (int)e);
         if (z->callbacks && z->callbacks->on_err) {
             z->callbacks->on_err(z->context, e, "", "");
         }
