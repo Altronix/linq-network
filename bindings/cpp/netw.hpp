@@ -27,7 +27,15 @@ struct Response
 class Linq
 {
   public:
-    Linq() { netw_ = netw_create(&callbacks_, this); }
+    Linq()
+    {
+        this->callbacks_.on_err = &Linq::zmtp_error_callback;
+        this->callbacks_.on_new = &Linq::zmtp_new_callback;
+        this->callbacks_.on_heartbeat = &Linq::zmtp_hb_callback;
+        this->callbacks_.on_alert = &Linq::zmtp_alert_callback;
+        this->callbacks_.on_ctrlc = &Linq::zmtp_ctrlc_callback;
+        netw_ = netw_create(&callbacks_, this);
+    }
 
     ~Linq()
     {
@@ -233,11 +241,7 @@ class Linq
     std::function<void(E_LINQ_ERROR, const char*, const char*)> on_error_;
     std::function<void()> on_ctrlc_;
     netw_s* netw_;
-    netw_callbacks callbacks_ = { .on_err = &Linq::zmtp_error_callback,
-                                  .on_new = &Linq::zmtp_new_callback,
-                                  .on_heartbeat = &Linq::zmtp_hb_callback,
-                                  .on_alert = &Linq::zmtp_alert_callback,
-                                  .on_ctrlc = &Linq::zmtp_ctrlc_callback };
+    netw_callbacks callbacks_;
 };
 
 } // namespace altronix
