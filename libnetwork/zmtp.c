@@ -200,6 +200,7 @@ device_resolve(zmtp_s* l, zsock_t* sock, zframe_t** frames, bool insert)
             node_s* node = zmtp_device_create(sock, rid, rid_sz, sid, tid);
             if (node) d = devices_add(map, device_serial(node), &node);
             if (l->callbacks && l->callbacks->on_new) {
+                log_trace("(ZMTP) Executing new callback", sid);
                 l->callbacks->on_new(l->context, sid);
             }
         }
@@ -470,6 +471,7 @@ process_packet(zmtp_s* z, zsock_t* s)
     if (e) {
         log_error("(ZMTP) Processing packet error [%d]", (int)e);
         if (z->callbacks && z->callbacks->on_err) {
+            log_trace("(ZMTP) Executing error callback");
             z->callbacks->on_err(z->context, e, "", "");
         }
     }
@@ -632,6 +634,7 @@ zmtp_poll(zmtp_s* zmtp, int32_t ms)
     // TODO needs test
     if (!sys_running()) {
         if (zmtp->callbacks && zmtp->callbacks->on_ctrlc) {
+            log_trace("(ZMTP) Executing ctrlc callback");
             zmtp->callbacks->on_ctrlc(zmtp->context);
         }
     }
