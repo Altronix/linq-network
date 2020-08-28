@@ -15,12 +15,6 @@
 
 namespace altronix {
 
-static void on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
-static void on_heartbeat_fn(void*, const char*);
-static void on_new_fn(void*, const char*);
-static void on_alert_fn(void*, const char*, netw_alert_s*, netw_email_s*);
-static void on_ctrlc_fn(void*);
-
 using namespace std::placeholders;
 
 struct Response
@@ -33,19 +27,49 @@ struct Response
 class Linq
 {
   public:
-    Linq()
-    {
-        netw_ = netw_create(&callbacks_, this);
-        callbacks_.on_err = on_error_fn;
-        callbacks_.on_new = on_new_fn;
-        callbacks_.on_heartbeat = on_heartbeat_fn;
-        callbacks_.on_alert = on_alert_fn;
-        callbacks_.on_ctrlc = on_ctrlc_fn;
-    }
+    Linq() { netw_ = netw_create(&callbacks_, this); }
 
     ~Linq()
     {
         if (netw_) netw_destroy(&netw_);
+    }
+
+    static void zmtp_error_callback(
+        void* context,
+        E_LINQ_ERROR e,
+        const char* what,
+        const char* serial)
+    {
+        altronix::Linq* l = (altronix::Linq*)context;
+        if (l->on_error_) l->on_error_(e, what, serial);
+    }
+
+    static void zmtp_hb_callback(void* context, const char* serial)
+    {
+        altronix::Linq* l = (altronix::Linq*)context;
+        if (l->on_heartbeat_) l->on_heartbeat_(serial);
+    }
+
+    static void zmtp_new_callback(void* context, const char* serial)
+    {
+        altronix::Linq* l = (altronix::Linq*)context;
+        if (l->on_new_) l->on_new_(serial);
+    }
+
+    static void zmtp_alert_callback(
+        void* context,
+        const char* serial,
+        netw_alert_s* alert,
+        netw_email_s* email)
+    {
+        altronix::Linq* l = (altronix::Linq*)context;
+        if (l->on_alert_) l->on_alert_(serial, alert, email);
+    }
+
+    static void zmtp_ctrlc_callback(void* context)
+    {
+        altronix::Linq* l = (altronix::Linq*)context;
+        if (l->on_ctrlc_) l->on_ctrlc_();
     }
 
     void early_destruct()
@@ -201,12 +225,6 @@ class Linq
 
     int scan() { return netw_scan(this->netw_); }
 
-    friend void on_error_fn(void*, E_LINQ_ERROR, const char*, const char*);
-    friend void on_new_fn(void*, const char*);
-    friend void on_heartbeat_fn(void*, const char*);
-    friend void on_alert_fn(void*, const char*, netw_alert_s*, netw_email_s*);
-    friend void on_ctrlc_fn(void*);
-
   private:
     std::function<void(const char*)> on_new_;
     std::function<void(const char*)> on_heartbeat_;
@@ -215,47 +233,12 @@ class Linq
     std::function<void(E_LINQ_ERROR, const char*, const char*)> on_error_;
     std::function<void()> on_ctrlc_;
     netw_s* netw_;
-    netw_callbacks callbacks_ = {};
+    netw_callbacks callbacks_ = { .on_err = &Linq::zmtp_error_callback,
+                                  .on_new = &Linq::zmtp_new_callback,
+                                  .on_heartbeat = &Linq::zmtp_hb_callback,
+                                  .on_alert = &Linq::zmtp_alert_callback,
+                                  .on_ctrlc = &Linq::zmtp_ctrlc_callback };
 };
-
-static void
-on_error_fn(void* context, E_LINQ_ERROR e, const char* what, const char* serial)
-{
-    altronix::Linq* l = (altronix::Linq*)context;
-    if (l->on_error_) l->on_error_(e, what, serial);
-}
-
-static void
-on_heartbeat_fn(void* context, const char* serial)
-{
-    altronix::Linq* l = (altronix::Linq*)context;
-    if (l->on_heartbeat_) l->on_heartbeat_(serial);
-}
-
-static void
-on_new_fn(void* context, const char* serial)
-{
-    altronix::Linq* l = (altronix::Linq*)context;
-    if (l->on_new_) l->on_new_(serial);
-}
-
-static void
-on_alert_fn(
-    void* context,
-    const char* serial,
-    netw_alert_s* alert,
-    netw_email_s* email)
-{
-    altronix::Linq* l = (altronix::Linq*)context;
-    if (l->on_alert_) l->on_alert_(serial, alert, email);
-}
-
-static void
-on_ctrlc_fn(void* context)
-{
-    altronix::Linq* l = (altronix::Linq*)context;
-    if (l->on_ctrlc_) l->on_ctrlc_();
-}
 
 } // namespace altronix
 #endif /* LINQ_HPP_ */
