@@ -421,11 +421,16 @@ process_heartbeat(zmtp_s* z, zsock_t* s, zmsg_t** msg, zframe_t** frames)
         node_s** d = device_resolve(z, s, frames, true);
         frames_s f = { 5, &frames[1] };
         if (d) {
+            log_trace("(ZMTP) Device resolved");
             if (zmtp_device_no_hops(*d)) {
                 // We only broadcast when the device is directly connected
                 // otherwize, nodes would rebroadcast to eachother infinite
                 node_map_foreach(*z->nodes_p, foreach_node_forward_message, &f);
             }
+            log_trace(
+                "(ZMTP) Callbacks [%d] [%d]",
+                (int)z->callbacks,
+                z->callbacks ? (int)z->callbacks->on_heartbeat : 0);
             if (z->callbacks && z->callbacks->on_heartbeat) {
                 log_trace("(ZMTP) Executing heartbeat callback");
                 z->callbacks->on_heartbeat(z->context, device_serial(*d));
