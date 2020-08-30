@@ -23,31 +23,31 @@ export namespace TlsTerminate {
   export const listen = (options: Options) => {
     return new Promise((resolve, reject) => {
       let tlsOptions = {
-        cert: fs.readFileSync(options.cert),
-        key: fs.readFileSync(options.key)
+        cert: options.cert,
+        key: options.key,
       };
       let netOptions = {
-        port: options.zmtp
+        port: options.zmtp,
       };
       let server = tls
-        .createServer(tlsOptions, tlsSocket => {
+        .createServer(tlsOptions, (tlsSocket) => {
           let tcpSocket = net.connect(netOptions);
           tlsSocket.pipe(tcpSocket);
           tcpSocket.pipe(tlsSocket);
-          tlsSocket.on("error", function(e) {
+          tlsSocket.on("error", function (e) {
             console.log(e);
             tlsSocket.destroy();
             tcpSocket.end();
           });
-          tcpSocket.on("error", function(e: any) {
+          tcpSocket.on("error", function (e: any) {
             console.log(e);
             tcpSocket.destroy();
             tlsSocket.end();
           });
-          tlsSocket.on("end", function() {
+          tlsSocket.on("end", function () {
             tcpSocket.end();
           });
-          tcpSocket.on("end", function() {
+          tcpSocket.on("end", function () {
             tlsSocket.end();
           });
         })
@@ -55,4 +55,3 @@ export namespace TlsTerminate {
     });
   };
 }
-
