@@ -10,6 +10,7 @@ extern "C"
 #endif
 
     netw_callbacks zmtp_callbacks;
+    void zmtp_callbacks_init();
 
 #ifdef __cplusplus
 }

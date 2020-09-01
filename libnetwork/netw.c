@@ -32,6 +32,9 @@ netw_create(const netw_callbacks* cb, void* context)
 {
     netw_s* l = linq_network_malloc(sizeof(netw_s));
     if (l) {
+#if defined _WIN32
+        zmtp_callbacks_init();
+#endif
         memset(l, 0, sizeof(netw_s));
         l->devices = devices_create();
         l->nodes = node_map_create();

@@ -203,3 +203,15 @@ netw_callbacks zmtp_callbacks = {
     .on_ctrlc = on_zmtp_ctrlc,
 };
 
+void
+zmtp_callbacks_init()
+{
+    // https://developercommunity.visualstudio.com/content/problem/76456/optimizer-deletes-custom-static-initializer.html
+    // developercommunity "problem" 76456 as "Won't fix" because VS removes
+    // "Unused Variables".
+    zmtp_callbacks.on_err = on_zmtp_error;
+    zmtp_callbacks.on_new = on_zmtp_new;
+    zmtp_callbacks.on_heartbeat = on_zmtp_heartbeat;
+    zmtp_callbacks.on_alert = on_zmtp_alert;
+    zmtp_callbacks.on_ctrlc = on_zmtp_ctrlc;
+}
