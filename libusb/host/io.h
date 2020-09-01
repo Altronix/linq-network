@@ -13,16 +13,6 @@ extern "C"
 
     typedef const char cchar;
     struct io_s;
-    // typedef struct io_ops_s
-    // {
-    //     int (*tx)(struct io_s*, cchar*, cchar*, cchar*, ...);
-    //     int (*tx_sync)(struct io_s*, cchar*, cchar*, cchar*, ...);
-    //     int (*vtx)(struct io_s*, cchar*, cchar*, cchar*, va_list);
-    //     int (*vtx_sync)(struct io_s*, cchar*, cchar*, cchar*, va_list);
-    //     int (*rx)(struct io_s*, uint16_t*, char*, uint32_t);
-    //     int (*rx_sync)(struct io_s*, uint16_t*, char*, uint32_t);
-    //     // void (*free)(struct node_s**);
-    // } io_ops_s;
 
     typedef struct io_s
     {
@@ -31,9 +21,6 @@ extern "C"
         libusb_device* device;
         struct libusb_device_descriptor desc_dev;
         struct libusb_config_descriptor* desc_cfg;
-        // unsigned char manufacturer[64];
-        // unsigned char product[64];
-        // unsigned char serial[64];
     } io_s;
 
     void io_free(io_s** io_p);
