@@ -71,6 +71,16 @@ extern "C"
         size_t haystack_len,
         const void* const needle,
         const size_t needle_len);
+    LINQ_EXPORT sys_file* sys_open(const char* path, E_FILE_MODE mode);
+    LINQ_EXPORT int sys_read_buffer(sys_file*, char*, uint32_t*);
+    LINQ_EXPORT int sys_read(sys_file*, char**, uint32_t*);
+    LINQ_EXPORT int sys_write(sys_file*, const char*, uint32_t);
+    LINQ_EXPORT int sys_vfprintf(sys_file* f, const char* fmt, va_list);
+    LINQ_EXPORT int sys_fprintf(sys_file* f, const char* fmt, ...);
+    LINQ_EXPORT void sys_close(sys_file** f_p);
+    LINQ_EXPORT void sys_make_absolute(const char*, char*, uint32_t*);
+
+    LINQ_EXPORT int sys_daemonize(const char* log, sys_file** f, sys_pid* pid);
 #define optind optind_get()
 #define optarg optarg_get()
 
