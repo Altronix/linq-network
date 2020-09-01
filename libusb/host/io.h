@@ -14,9 +14,16 @@ extern "C"
     typedef const char cchar;
     struct io_s;
 
+    typedef struct
+    {
+        void (*err)(node_s* n, void*, int err);
+    } io_callbacks_s;
+
     typedef struct io_s
     {
         node_s base;
+        io_callbacks_s* callbacks;
+        void* ctx;
         libusb_device_handle* handle;
         libusb_device* device;
         struct libusb_device_descriptor desc_dev;

@@ -26,7 +26,11 @@ extern "C"
 {
 #endif
 
-    node_s* io_m5_init(libusb_device* d, struct libusb_device_descriptor);
+    node_s* io_m5_init(
+        libusb_device* d,
+        struct libusb_device_descriptor,
+        io_callbacks_s* callbacks,
+        void* ctx);
     void io_m5_free(node_s** io_p);
 
 #ifdef __cplusplus

@@ -156,9 +156,23 @@ EXIT:
 }
 
 static void
+process_io_error(io_s* io, int err, linq_request_complete_fn fn, void* ctx)
+{
+    const char* e;
+    char buff[512];
+    e = libusb_strerror(err);
+    log_error("(USB) rx err %s", e);
+    snprintf(buff, sizeof(buff), "{\"error\": \"%s\",\"code\":%d}", e, err);
+    fn(ctx, device_serial(&io->base), err, buff);
+    if (io->callbacks && io->callbacks->err) {
+        io->callbacks->err(&io->base, io->ctx, err);
+    }
+}
+
+static void
 io_m5_send(
     struct node_s* base,
-    E_REQUEST_METHOD method,
+    E_REQUEST_METHOD meth,
     const char* path,
     uint32_t plen,
     const char* json,
@@ -166,38 +180,37 @@ io_m5_send(
     linq_request_complete_fn fn,
     void* ctx)
 {
-    // TODO Need linked list to store data and get rid of stack abusages
-    char m[8192];
+    char m[8192]; // TODO need linked list to of requests and get rid of stack
     const char* e;
+    uint16_t code;
     io_s* io = (io_s*)base;
-    int err = io_m5_send_http_request_sync(io, method, path, plen, json, jlen);
+    int err = io_m5_send_http_request_sync(io, meth, path, plen, json, jlen);
     if (!err) {
-        uint16_t code;
         err = io_m5_recv_http_response_sync(io, &code, m, sizeof(m));
         if (!err) {
             fn(ctx, device_serial(&io->base), code, m);
         } else {
-            e = libusb_strerror(err);
-            log_error("(USB) rx err %s", e);
-            snprintf(m, sizeof(m), "{\"error\": \"%s\",\"code\":%d}", e, err);
-            fn(ctx, device_serial(&io->base), err, m);
+            process_io_error(io, err, fn, ctx);
         }
     } else {
-        e = libusb_strerror(err);
-        log_error("(USB) tx err %s", e);
-        snprintf(m, sizeof(m), "{\"error\": \"%s\",\"code\":%d}", e, err);
-        fn(ctx, device_serial(&io->base), err, m);
+        process_io_error(io, err, fn, ctx);
     }
 }
 
 node_s*
-io_m5_init(libusb_device* d, struct libusb_device_descriptor descriptor)
+io_m5_init(
+    libusb_device* d,
+    struct libusb_device_descriptor descriptor,
+    io_callbacks_s* callbacks,
+    void* ctx)
 {
     uint8_t encoding[] = { 0x80, 0x25, 0x00, 0x00, 0x00, 0x00, 0x08 };
     int err;
     io_m5_s* device = malloc(sizeof(io_m5_s));
     if (device) {
         memset(device, 0, sizeof(io_m5_s));
+        device->io.callbacks = callbacks;
+        device->io.ctx = ctx;
         err = libusb_open(d, &device->io.handle);
         if (err) {
             free(device);

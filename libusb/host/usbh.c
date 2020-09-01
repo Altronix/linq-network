@@ -6,6 +6,19 @@
 
 typedef libusb_context usb_context;
 
+static void
+io_error_fn(node_s* n, void* ctx, int err)
+{
+    usbh_s* usb = ctx;
+    const char* serial = device_serial(n);
+    if (LIBUSB_ERROR_NO_DEVICE == err) {
+        log_error("(USB) device not available, removing device [%s]", serial);
+        devices_remove(*usb->devices_p, serial);
+    }
+}
+
+static io_callbacks_s callbacks = { .err = io_error_fn };
+
 void
 usbh_init(usbh_s* usb, device_map_s** devices_p)
 {
@@ -52,7 +65,7 @@ usbh_scan(usbh_s* usb, uint16_t vend, uint16_t prod)
             if (err == 0) {
                 log_info("(USB) - scan [%d/%d]", desc.idVendor, desc.idProduct);
                 if (desc.idVendor == vend && desc.idProduct == prod) {
-                    d = io_m5_init(dev, desc);
+                    d = io_m5_init(dev, desc, &callbacks, usb);
                     if (d) {
                         ++n;
                         log_info("(USB) - disc [%s]", d->serial);
