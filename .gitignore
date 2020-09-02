@@ -44,6 +44,9 @@ Cargo.lock
 node_modules
 dist
 
+#externals
+external/cmocka-1.1.5
+
 #sqlite
 **/*/test.db
 test.db

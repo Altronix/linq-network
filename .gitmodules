@@ -4,9 +4,6 @@
 [submodule "external/czmq"]
 	path = external/czmq
 	url = https://github.com/zeromq/czmq
-[submodule "external/cmocka"]
-	path = external/cmocka
-	url = git://git.cryptomilk.org/projects/cmocka.git
 [submodule "external/linq-common"]
 	path = external/linq-common
 	url = https://bitbucket.org/Altronix/linq-common

@@ -1,13 +1,13 @@
 # cmocka
 
-set(CMOCKA_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/cmocka)
-
+set(CMOCKA_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/cmocka-1.1.5)
 if(NOT EXISTS ${CMOCKA_SOURCE_DIR}/CMakeLists.txt)
 	execute_process(
-		COMMAND ${GIT_EXECUTABLE} submodule update --init external/cmocka
+		COMMAND tar -xzvf ${CMAKE_SOURCE_DIR}/dl/cmocka-1.1.5.tar.gz 
+			    -C ${CMAKE_SOURCE_DIR}/external
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-		RESULT_VARIABLE GIT_CLONE_CMOCKA_RESULT)
-	message(STATUS "GIT_CLONE_CMOCKA_RESULT: ${GIT_CLONE_CMOCKA_RESULT}")
+		RESULT_VARIABLE EXTRACT_CMOCKA_RESULT)
+	message(STATUS "EXTRACT_CMOCKA_RESULT: ${EXTRACT_CMOCKA_RESULT}")
 endif()
 
 ExternalProject_Add(cmocka-project
