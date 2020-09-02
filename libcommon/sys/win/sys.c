@@ -4,6 +4,8 @@
 
 #include "sys.h"
 #include "log.h"
+#include "time.h"
+#include <sys/timeb.h>
 
 #include <Rpc.h>
 
@@ -94,13 +96,21 @@ uuid_set(char* dst, const uint8_t* src)
 int32_t
 sys_tick()
 {
-    return 0;
+    static int64_t start_tick = 0;
+    int64_t now;
+    struct __timeb64 t;
+    _ftime64_s(&t);
+    now = t.time * 1000 + t.millitm;
+    if (!start_tick) start_tick = now;
+    return now - start_tick;
 }
 
 uint32_t
 sys_unix()
 {
-    return 0;
+    struct __timeb64 t;
+    _ftime64_s(&t);
+    return t.time;
 }
 
 void

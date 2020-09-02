@@ -55,6 +55,18 @@ method_from_str(const char* method)
     return -1; // should never return
 }
 
+static E_LINQ_ERROR
+map_libusb_error(int err)
+{
+    E_LINQ_ERROR e = err;
+    if (LIBUSB_ERROR_NO_DEVICE == err) {
+        e = LINQ_ERROR_404;
+    } else if (LIBUSB_ERROR_TIMEOUT == err) {
+        e = LINQ_ERROR_504;
+    }
+    return e;
+}
+
 // TODO move to common
 static const char*
 method_to_str(E_REQUEST_METHOD m)
@@ -163,7 +175,7 @@ process_io_error(io_s* io, int err, linq_request_complete_fn fn, void* ctx)
     e = libusb_strerror(err);
     log_error("(USB) rx err %s", e);
     snprintf(buff, sizeof(buff), "{\"error\": \"%s\",\"code\":%d}", e, err);
-    fn(ctx, device_serial(&io->base), err, buff);
+    fn(ctx, device_serial(&io->base), map_libusb_error(err), buff);
     if (io->callbacks && io->callbacks->err) {
         io->callbacks->err(&io->base, io->ctx, err);
     }
