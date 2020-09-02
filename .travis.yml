@@ -121,6 +121,6 @@ matrix:
                   env: GENERATOR="Visual Studio 15 2017"
                   language: rust
                   rust:
-                          - stable
+                          - nightly
                   script:
                           - ./scripts/ci/build-rust.sh
