@@ -13,8 +13,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 // clang-format off
@@ -41,9 +41,9 @@
 
 #define UUID_LEN 16
 #define SYS_CONFIG_DIRS(var)                                                   \
-    const char* var[4] = { "~/.config/altronix/%s",                            \
-                           "~/.config/atx/%s",                                 \
-                           "/etc/atx.%s.config",                               \
+    const char* var[4] = { "~/.config/altronix/%s.json",                       \
+                           "~/.config/atx/%s.json",                            \
+                           "/etc/atx.%s.config.json",                          \
                            NULL }
 
 #ifdef __cplusplus

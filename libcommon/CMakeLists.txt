@@ -1,7 +1,8 @@
 # Main source files
-set(SOURCES device.c base64.c rlp.c json.c)
+set(SOURCES config.c device.c base64.c rlp.c json.c)
 set(HEADERS 
   common.h
+  config.h
   device.h
   base64.h 
   json.h 
