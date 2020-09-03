@@ -1,4 +1,5 @@
 #include "json.h"
+#include "mock_file.h"
 #include "sys.h"
 
 #include "../parse_config.h"
@@ -64,6 +65,18 @@ test_print_config(void** context_p)
         .key = { .p = "keyValue", .len = 8 },
         .log = { .p = "logValue", .len = 8 },
     };
+    spy_file_packet_s* pack;
+
+    spy_file_init();
+
+    print_config(NULL, &c);
+    pack = spy_file_packet_pop_outgoing();
+    assert_non_null(pack);
+    assert_int_equal(pack->len, strlen(config));
+    assert_memory_equal(pack->bytes, config, pack->len);
+    spy_file_packet_free(&pack);
+
+    spy_file_free();
 }
 
 int

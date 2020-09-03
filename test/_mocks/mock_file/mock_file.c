@@ -3,6 +3,7 @@
 int __real_fwrite(void* data, size_t size, size_t n, FILE* stream);
 int __real_fread(void* data, size_t size, size_t n, FILE* stream);
 int __real_vfprintf(FILE*, const char* fmt, va_list list);
+int __real_fprintf(FILE*, const char* fmt, ...);
 FILE* __real_fopen(const char* path, const char* mode);
 int __real_fclose(FILE*);
 
@@ -181,6 +182,17 @@ __wrap_vfprintf(FILE* f, const char* fmt, va_list list)
     } else {
         return __real_vfprintf(f, fmt, list);
     }
+}
+
+int
+__wrap_fprintf(FILE* f, const char* fmt, ...)
+{
+    int rc;
+    va_list list;
+    va_start(list, fmt);
+    rc = __wrap_vfprintf(f, fmt, list);
+    va_end(list);
+    return rc;
 }
 
 // This is a simple mock that simply sets the callers param with a control
