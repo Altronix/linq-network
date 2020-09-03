@@ -1,4 +1,4 @@
-add_library(atx-linqd-lib parse_config.c parse_config.h)
+add_library(atx-linqd-lib config.c config.h)
 target_link_libraries(atx-linqd-lib network-static)
 
 add_executable(atx-linqd main.c)

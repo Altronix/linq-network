@@ -2,34 +2,34 @@
 #include "mock_file.h"
 #include "sys.h"
 
-#include "../parse_config.h"
+#include "../config.h"
 
 #include <setjmp.h>
 
 #include "cmocka.h"
 
 static const char* config = "{"
-                            "\"ports\":{"
-                            "\"zmtp\":100,"
-                            "\"http\":200,"
-                            "\"https\":333"
-                            "},"
-                            "\"nodes\":{"
-                            "\"primary\":\"tcp://primary\","
-                            "\"secondary\":\"tcp://secondary\""
-                            "}"
-                            "\"webRootPath\":\"webRootPathValue\","
-                            "\"dbPath\":\"dbPathValue\","
-                            "\"certPath\":\"certValue\","
-                            "\"keyPath\":\"keyValue\","
-                            "\"logPath\":\"logValue\""
+                            "\t\"ports\":{"
+                            "\t\t\"zmtp\":100,"
+                            "\t\t\"http\":200,"
+                            "\t\t\"https\":333"
+                            "\t},"
+                            "\t\"nodes\":{"
+                            "\t\t\"primary\":\"tcp://primary\","
+                            "\t\t\"secondary\":\"tcp://secondary\""
+                            "\t},"
+                            "\t\"webRootPath\":\"webRootPathValue\","
+                            "\t\"dbPath\":\"dbPathValue\","
+                            "\t\"certPath\":\"certValue\","
+                            "\t\"keyPath\":\"keyValue\","
+                            "\t\"logPath\":\"logValue\""
                             "}";
 static void
-test_parse_config(void** context_p)
+test_config_parse(void** context_p)
 {
 
     config_s c;
-    int rc = parse_config(config, strlen(config), &c);
+    int rc = config_parse(config, strlen(config), &c);
     assert_int_equal(rc, 0);
     assert_int_equal(c.zmtp, 100);
     assert_int_equal(c.http, 200);
@@ -51,7 +51,7 @@ test_parse_config(void** context_p)
 }
 
 static void
-test_print_config(void** context_p)
+test_config_fprint(void** context_p)
 {
     config_s c = {
         .zmtp = 100,
@@ -69,7 +69,7 @@ test_print_config(void** context_p)
 
     spy_file_init();
 
-    print_config(NULL, &c);
+    config_fprint(NULL, &c);
     pack = spy_file_packet_pop_outgoing();
     assert_non_null(pack);
     assert_int_equal(pack->len, strlen(config));
@@ -79,6 +79,28 @@ test_print_config(void** context_p)
     spy_file_free();
 }
 
+static void
+test_config_print(void** context_p)
+{
+    config_s c = {
+        .zmtp = 100,
+        .http = 200,
+        .https = 333,
+        .node_primary = { .p = "tcp://primary", .len = 13 },
+        .node_secondary = { .p = "tcp://secondary", .len = 15 },
+        .web_root_path = { .p = "webRootPathValue", .len = 16 },
+        .db_path = { .p = "dbPathValue", .len = 11 },
+        .cert = { .p = "certValue", .len = 9 },
+        .key = { .p = "keyValue", .len = 8 },
+        .log = { .p = "logValue", .len = 8 },
+    };
+    char buffer[512];
+
+    config_print(buffer, sizeof(buffer), &c);
+    assert_int_equal(strlen(buffer), strlen(config));
+    assert_memory_equal(buffer, config, strlen(buffer));
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -86,8 +108,9 @@ main(int argc, char* argv[])
     ((void)argv);
     int err;
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_parse_config),
-        cmocka_unit_test(test_print_config),
+        cmocka_unit_test(test_config_parse),
+        cmocka_unit_test(test_config_fprint),
+        cmocka_unit_test(test_config_print),
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);

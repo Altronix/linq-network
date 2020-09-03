@@ -1,11 +1,7 @@
+#include "config.h"
 #include "log.h"
 #include "netw.h"
-#include "parse_config.h"
 #include <signal.h>
-
-#ifndef LINQD_LOG_DEFAULT
-#define LINQD_LOG_DEFAULT "/var/log/atx-linqd.log"
-#endif
 
 static volatile int running = 1;
 
@@ -27,7 +23,7 @@ print_usage_and_exit(int err)
         io,
         "\n"
         "Welcome to linqd (%s)\n\n"
-        "USAGE:\n\tlinqd [-zpskcdDlwvh?]\n\n"
+        "USAGE:\n\tlinqd [-zpskcdDlwAPvh?]\n\n"
         "EXAMPLE:\n\tlinqd -z 33248 -s 8080 -w /etc/www -d ./sqlite.db\n\n"
         "FLAGS:\n"
         "\t-z ZMTP port to listen for incoming devices\n"
@@ -40,6 +36,8 @@ print_usage_and_exit(int err)
         "\t-k TLS key directory\n"
         "\t   Will create a database if one does not already exist\n"
         "\t-w Webpage ROOT\n"
+        "\t-A S(A)ve config\n"
+        "\t-P (P)rint config\n"
         "\t-v Print version and exit\n"
         "\t-h Print help menu and exit\n",
         netw_version());
@@ -65,7 +63,7 @@ parse_args(config_s* config, int argc, char* argv[])
 {
     int opt, arglen;
     optind_set(0);
-    while ((opt = getopt(argc, argv, "zpskcdDlwvh?")) != -1) {
+    while ((opt = getopt(argc, argv, "zpskcdDlwAPvh?")) != -1) {
         switch (opt) {
             case 'z': config->zmtp = atoi(argv[optind]); break;
             case 'p': config->http = atoi(argv[optind]); break;
@@ -77,6 +75,8 @@ parse_args(config_s* config, int argc, char* argv[])
             case 'k': config->key = parse_arg(argv[optind]); break;
             case 'w': config->web_root_path = parse_arg(argv[optind]); break;
             case 'v': print_version_and_exit(); break;
+            case 'A': break;
+            case 'P': break;
             case 'h':
             case '?':
             default: print_usage_and_exit(0); break;
