@@ -70,11 +70,11 @@ sys_uuid(char* dst)
 }
 
 sys_file*
-sys_open(const char* path, E_FILE_MODE mode)
+sys_open(const char* path, E_FILE_MODE mode, E_FILE_BLOCKING blocking)
 {
     static const char* modes[] = { "r", "w", "a", "r+", "w+", "a+" };
     FILE* f = fopen(path, modes[mode]);
-    if (f) set_blocking(f, false);
+    if (f) set_blocking(f, blocking ? true : false);
     return f;
 }
 
@@ -150,22 +150,28 @@ int
 sys_daemonize(const char* log, sys_file** f, sys_pid* pid)
 {
     // www.netzmafia.de/skripten/unix/linux-daemon-howto.html
+    // Fork parent
+    // Exit if parent
+    // Erase user
+    // create log
+    // create new sid
+    // change cwd
     char buff[128];
     uint32_t l = sizeof(buff);
     int err = fork();
-    if (err < 0) exit(EXIT_FAILURE);                           // Fork parent
-    if (err > 0) exit(EXIT_SUCCESS);                           // Exit if parent
-    umask(0);                                                  // Erase user
-    if (log) *f = sys_open(log, FILE_MODE_READ_APPEND_CREATE); // create log
-    *pid = setsid();                                           // create new sid
-    if (*pid < 0) exit(EXIT_FAILURE);                          //
-    err = chdir("/");                                          // change cwd
-    if (err) exit(EXIT_FAILURE);                               //
-    if (*f) {                                                  //
-        log_set_fd(*f);                                        //
-        close(STDIN_FILENO);                                   // close io
-        close(STDOUT_FILENO);                                  //
-        close(STDERR_FILENO);                                  //
+    if (err < 0) exit(EXIT_FAILURE);
+    if (err > 0) exit(EXIT_SUCCESS);
+    umask(0);
+    if (log) *f = sys_open(log, FILE_MODE_READ_APPEND_CREATE, FILE_BLOCKING);
+    *pid = setsid();
+    if (*pid < 0) exit(EXIT_FAILURE);
+    err = chdir("/");
+    if (err) exit(EXIT_FAILURE);
+    if (*f) {
+        log_set_fd(*f);
+        close(STDIN_FILENO);
+        close(STDOUT_FILENO);
+        close(STDERR_FILENO);
     }
     return err;
 }

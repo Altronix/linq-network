@@ -53,6 +53,12 @@ extern "C"
         FILE_MODE_READ_APPEND_CREATE = 5, // READ/APPEND (CREATE IF NOT EXISTS)
     } E_FILE_MODE;
 
+    typedef enum E_FILE_BLOCKING
+    {
+        FILE_NON_BLOCKING = 0,
+        FILE_BLOCKING = 1
+    } E_FILE_BLOCKING;
+
     typedef FILE sys_file;
     typedef int sys_pid;
 
@@ -71,7 +77,7 @@ extern "C"
         size_t haystack_len,
         const void* const needle,
         const size_t needle_len);
-    LINQ_EXPORT sys_file* sys_open(const char* path, E_FILE_MODE mode);
+    LINQ_EXPORT sys_file* sys_open(const char*, E_FILE_MODE, E_FILE_BLOCKING);
     LINQ_EXPORT int sys_read_buffer(sys_file*, char*, uint32_t*);
     LINQ_EXPORT int sys_read(sys_file*, char**, uint32_t*);
     LINQ_EXPORT int sys_write(sys_file*, const char*, uint32_t);

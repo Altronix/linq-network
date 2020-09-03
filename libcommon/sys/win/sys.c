@@ -123,7 +123,7 @@ sys_uuid(char* dst)
 }
 
 sys_file*
-sys_open(const char* path, E_FILE_MODE mode)
+sys_open(const char* path, E_FILE_MODE mode, E_FILE_BLOCKING blocking)
 {
     return NULL;
 }

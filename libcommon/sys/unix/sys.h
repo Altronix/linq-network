@@ -13,6 +13,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 // clang-format off
@@ -38,6 +40,11 @@
 #define linq_network_assert(x) linq_network_assert_fn(x)
 
 #define UUID_LEN 16
+#define SYS_CONFIG_DIRS(var)                                                   \
+    const char* var[4] = { "~/.config/altronix/%s",                            \
+                           "~/.config/atx/%s",                                 \
+                           "/etc/atx.%s.config",                               \
+                           NULL }
 
 #ifdef __cplusplus
 extern "C"
@@ -54,6 +61,12 @@ extern "C"
         FILE_MODE_READ_APPEND_CREATE = 5, // READ/APPEND (CREATE IF NOT EXISTS)
     } E_FILE_MODE;
 
+    typedef enum E_FILE_BLOCKING
+    {
+        FILE_NON_BLOCKING = 0,
+        FILE_BLOCKING = 1
+    } E_FILE_BLOCKING;
+
     typedef FILE sys_file;
     typedef pid_t sys_pid;
 
@@ -61,7 +74,7 @@ extern "C"
     LINQ_EXPORT int32_t sys_tick();
     LINQ_EXPORT uint32_t sys_unix();
     LINQ_EXPORT void sys_uuid(char*);
-    LINQ_EXPORT sys_file* sys_open(const char* path, E_FILE_MODE mode);
+    LINQ_EXPORT sys_file* sys_open(const char*, E_FILE_MODE, E_FILE_BLOCKING);
     LINQ_EXPORT int sys_read_buffer(sys_file*, char*, uint32_t*);
     LINQ_EXPORT int sys_read(sys_file*, char**, uint32_t*);
     LINQ_EXPORT int sys_write(sys_file*, const char*, uint32_t);

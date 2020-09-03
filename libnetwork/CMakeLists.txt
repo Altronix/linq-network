@@ -33,7 +33,6 @@ list(APPEND LIBS ${CMAKE_THREAD_LIBS_INIT} ${ZMQ_LIBS} common-static)
 
 append_log_level_compiler_flags(definitions)
 append_version_compiler_flags(definitions)
-message(STATUS "definitions: ${definitions}")
 
 if(NOT MSVC)
   list(APPEND LIBS rt m stdc++ uuid dl)

@@ -21,7 +21,8 @@ int
 usbd_init(usbd_s* usb)
 {
     memset(usb, 0, sizeof(usbd_s));
-    usb->io = sys_open(LINQ_USB_CONFIG_IO, FILE_MODE_READ_WRITE);
+    const char* p = LINQ_USB_CONFIG_IO;
+    usb->io = sys_open(p, FILE_MODE_READ_WRITE, FILE_NON_BLOCKING);
     if (!usb->io) {
         log_error(LOG_ERROR_DEVICE, LINQ_USB_CONFIG_IO);
     } else {
