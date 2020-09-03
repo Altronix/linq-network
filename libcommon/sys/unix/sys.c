@@ -78,6 +78,14 @@ sys_open(const char* path, E_FILE_MODE mode, E_FILE_BLOCKING blocking)
     return f;
 }
 
+uint32_t
+sys_len(sys_file* f)
+{
+    int n, rc;
+    rc = ioctl(fileno(f), FIONREAD, &n);
+    return rc == 0 ? n : 0;
+}
+
 int
 sys_read_buffer(sys_file* f, char* buffer, uint32_t* sz)
 {

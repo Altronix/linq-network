@@ -1,6 +1,7 @@
 #include "config.h"
 #include "log.h"
 #include "netw.h"
+#include "route_config.h"
 #include <signal.h>
 
 static volatile int running = 1;
@@ -153,6 +154,7 @@ main(int argc, char* argv[])
     if (config.http) {
         snprintf(b, sizeof(b), "http://*:%d", config.http);
         netw_listen(netw, b);
+        netw_use(netw, "/api/v1/config", route_config, netw);
     }
 
     if (config.web_root.p) {
