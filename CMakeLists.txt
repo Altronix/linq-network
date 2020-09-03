@@ -128,6 +128,9 @@ if(ENABLE_TESTING)
   add_subdirectory(libnetwork/test/device)
   add_subdirectory(libnetwork/test/routes)
   add_subdirectory(bindings/cpp/test)
+  if(BUILD_APPS)
+    add_subdirectory(apps/linqd/test)
+  endif()
 
   # add test coverage
   APPEND_COVERAGE_COMPILER_FLAGS()
