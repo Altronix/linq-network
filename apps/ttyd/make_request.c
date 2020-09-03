@@ -132,6 +132,19 @@ http_parser_settings parse_http_settings_response = {
 };
 
 static int
+map_port(const char* path)
+{
+    // TODO this is going to be deprecated in favor of nginx
+    int port;
+    if (!(strcmp(path, "/api/v1/network"))) {
+        port = 33888; // send request to atx-sys
+    } else {
+        port = 33887; // send request to atx-linqd
+    }
+    return port;
+}
+
+static int
 req_connect(int* sock_p, const char* host, int port)
 {
     int ret = 0;
@@ -214,7 +227,7 @@ make_request(
         snprintf(req, l + 1, FMT_POST, meth, path, dlen, dlen, data);
     }
 
-    rc = req_connect(&sock, "http://127.0.0.1", 33888);
+    rc = req_connect(&sock, "http://127.0.0.1", map_port(path));
     if (!rc) {
         log_error("(APP) failed to connect!");
         free(req);
