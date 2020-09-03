@@ -17,39 +17,44 @@
 #endif
 
 #ifndef APP_CONFIG_WEB_ROOT_PATH
-#define APP_CONFIG_WEB_ROOT_PATH ""
+#define APP_CONFIG_WEB_ROOT_PATH NULL
 #endif
-#define APP_CONFIG_WEB_ROOT_PATH_LEN (sizeof(APP_CONFIG_WEB_ROOT_PATH) - 1)
+#define APP_CONFIG_WEB_ROOT_PATH_LEN                                           \
+    (APP_CONFIG_WEB_ROOT_PATH ? sizeof(APP_CONFIG_WEB_ROOT_PATH) - 1 : 0)
 
 #ifndef APP_CONFIG_DB_PATH
-#define APP_CONFIG_DB_PATH ""
+#define APP_CONFIG_DB_PATH NULL
 #endif
-#define APP_CONFIG_DB_PATH_LEN (sizeof(APP_CONFIG_DB_PATH) - 1)
+#define APP_CONFIG_DB_PATH_LEN                                                 \
+    (APP_CONFIG_DB_PATH ? sizeof(APP_CONFIG_DB_PATH) - 1 : 0)
 
 #ifndef APP_CONFIG_CERT
-#define APP_CONFIG_CERT ""
+#define APP_CONFIG_CERT NULL
 #endif
-#define APP_CONFIG_CERT_LEN (sizeof(APP_CONFIG_CERT) - 1)
+#define APP_CONFIG_CERT_LEN                                                    \
+    (APP_CONFIG_CERT ? (sizeof(APP_CONFIG_CERT) - 1) : 0)
 
 #ifndef APP_CONFIG_KEY
-#define APP_CONFIG_KEY ""
+#define APP_CONFIG_KEY NULL
 #endif
-#define APP_CONFIG_KEY_LEN (sizeof(APP_CONFIG_KEY) - 1)
+#define APP_CONFIG_KEY_LEN (APP_CONFIG_KEY ? sizeof(APP_CONFIG_KEY) - 1 : 0)
 
 #ifndef APP_CONFIG_LOG
 #define APP_CONFIG_LOG "/var/log/atx-linqd.log"
 #endif
-#define APP_CONFIG_LOG_LEN (sizeof(APP_CONFIG_LOG) - 1)
+#define APP_CONFIG_LOG_LEN (APP_CONFIG_LOG ? sizeof(APP_CONFIG_LOG) - 1 : 0)
 
 #ifndef APP_CONFIG_NODE_PRIMARY
-#define APP_CONFIG_NODE_PRIMARY ""
+#define APP_CONFIG_NODE_PRIMARY NULL
 #endif
-#define APP_CONFIG_NODE_PRIMARY_LEN (sizeof(APP_CONFIG_NODE_PRIMARY) - 1)
+#define APP_CONFIG_NODE_PRIMARY_LEN                                            \
+    (APP_CONFIG_NODE_PRIMARY ? sizeof(APP_CONFIG_NODE_PRIMARY) - 1 : 0)
 
 #ifndef APP_CONFIG_NODE_SECONDARY
-#define APP_CONFIG_NODE_SECONDARY ""
+#define APP_CONFIG_NODE_SECONDARY NULL
 #endif
-#define APP_CONFIG_NODE_SECONDARY_LEN (sizeof(APP_CONFIG_NODE_SECONDARY) - 1)
+#define APP_CONFIG_NODE_SECONDARY_LEN                                          \
+    (APP_CONFIG_NODE_SECONDARY ? sizeof(APP_CONFIG_NODE_SECONDARY) - 1 : 0)
 
 #ifdef __cplusplus
 extern "C"
