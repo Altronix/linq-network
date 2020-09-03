@@ -1,5 +1,6 @@
 #include "log.h"
 #include "netw.h"
+#include "parse_config.h"
 #include <signal.h>
 
 #ifndef LINQD_LOG_DEFAULT
@@ -17,19 +18,6 @@ ctrlc(int dummy)
 void
 sighup(int dummy)
 {}
-
-typedef struct config_s
-{
-    uint32_t zmtp;
-    uint32_t http;
-    uint32_t https;
-    const char* web_root_path;
-    const char* db_path;
-    const char* cert;
-    const char* key;
-    const char* log;
-    bool daemon;
-} config_s;
 
 static void
 print_usage_and_exit(int err)
@@ -65,6 +53,13 @@ print_version_and_exit()
     exit(0);
 }
 
+static json_value
+parse_arg(const char* arg)
+{
+    json_value v = { .p = arg, .len = strlen(arg) };
+    return v;
+}
+
 static void
 parse_args(config_s* config, int argc, char* argv[])
 {
@@ -76,11 +71,11 @@ parse_args(config_s* config, int argc, char* argv[])
             case 'p': config->http = atoi(argv[optind]); break;
             case 's': config->https = atoi(argv[optind]); break;
             case 'd': config->daemon = true; break;
-            case 'D': config->db_path = argv[optind]; break;
-            case 'l': config->log = argv[optind]; break;
-            case 'c': config->cert = argv[optind]; break;
-            case 'k': config->key = argv[optind]; break;
-            case 'w': config->web_root_path = argv[optind]; break;
+            case 'D': config->db_path = parse_arg(argv[optind]); break;
+            case 'l': config->log = parse_arg(argv[optind]); break;
+            case 'c': config->cert = parse_arg(argv[optind]); break;
+            case 'k': config->key = parse_arg(argv[optind]); break;
+            case 'w': config->web_root_path = parse_arg(argv[optind]); break;
             case 'v': print_version_and_exit(); break;
             case 'h':
             case '?':
@@ -95,7 +90,7 @@ main(int argc, char* argv[])
     signal(SIGINT, ctrlc);
     // signal(SIGHUP, sighup);
     int err = 0;
-    char endpoint[128];
+    char buffer[128];
     netw_s* netw;
     config_s config = { .zmtp = 33248,
                         .http = 8000,
@@ -109,29 +104,40 @@ main(int argc, char* argv[])
     sys_pid pid = 0;
     parse_args(&config, argc, argv);
 
-    if (config.daemon) sys_daemonize(config.log, &f, &pid);
+    if (config.daemon) {
+        snprintf(buffer, sizeof(buffer), "%.*s", config.log.len, config.log.p);
+        sys_daemonize(buffer, &f, &pid);
+    }
 
     netw = netw_create(NULL, NULL);
     assert(netw);
 
     if (config.zmtp) {
-        snprintf(endpoint, sizeof(endpoint), "tcp://*:%d", config.zmtp);
-        netw_listen(netw, endpoint);
+        snprintf(buffer, sizeof(buffer), "tcp://*:%d", config.zmtp);
+        netw_listen(netw, buffer);
     }
 
     if (config.http) {
-        snprintf(endpoint, sizeof(endpoint), "http://*:%d", config.http);
-        netw_listen(netw, endpoint);
+        snprintf(buffer, sizeof(buffer), "http://*:%d", config.http);
+        netw_listen(netw, buffer);
     }
 
-    if (config.web_root_path) { netw_root(netw, config.web_root_path); }
+    if (config.web_root_path.p) {
+        snprintf(
+            buffer,
+            sizeof(buffer),
+            "%.*s",
+            config.web_root_path.len,
+            config.web_root_path.p);
+        netw_root(netw, buffer);
+    }
 
     if (config.https) {
-        if (config.cert && config.key && config.https) {
+        if (config.cert.p && config.key.p && config.https) {
             // TODO install tls
         }
-        snprintf(endpoint, sizeof(endpoint), "%d", config.http);
-        // netw_listen_https(netw, endpoint); // TODO
+        snprintf(buffer, sizeof(buffer), "%d", config.http);
+        // netw_listen_https(netw, buffer); // TODO
     }
 
     while (netw_running(netw)) { err = netw_poll(netw, 10); };
