@@ -74,7 +74,7 @@ parse_args(config_s* config, int argc, char* argv[])
             case 'c': config->cert = parse_arg(argv[optind]); break;
             case 'k': config->key = parse_arg(argv[optind]); break;
             case 'w': config->web_root = parse_arg(argv[optind]); break;
-            case 'A': config->save = true; break;
+            case 'A': config->save = parse_arg(argv[optind]); break;
             case 'P': config->print = true; break;
             case 'v': print_version_and_exit(); break;
             case 'h':
@@ -90,10 +90,10 @@ print_config(config_s* c)
     log_info("(APP) Print config requested...");
     log_info("(APP) [        daemon] [%s]", c->daemon ? "true" : "false");
     log_info("(APP) [         print] [%s]", c->print ? "true" : "false");
-    log_info("(APP) [          save] [%s]", c->save ? "true" : "false");
     log_info("(APP) [          zmtp] [%d]", c->zmtp);
     log_info("(APP) [          http] [%d]", c->http);
     log_info("(APP) [         https] [%d]", c->https);
+    log_info("(APP) [          save] [%.*s]", c->save.len, c->save.p);
     log_info("(APP) [      web_root] [%.*s]", c->web_root.len, c->web_root.p);
     log_info("(APP) [            db] [%.*s]", c->db.len, c->db.p);
     log_info("(APP) [          cert] [%.*s]", c->cert.len, c->cert.p);
@@ -115,7 +115,7 @@ main(int argc, char* argv[])
     signal(SIGINT, ctrlc);
     // signal(SIGHUP, sighup);
     int err = 0;
-    char buffer[512];
+    char b[512];
     netw_s* netw;
     config_s config;
     config_init(&config);
@@ -125,40 +125,47 @@ main(int argc, char* argv[])
 
     if (config.print) { print_config(&config); }
 
+    if (config.save.p) {
+        snprintf(b, sizeof(b), "%.*s", config.save.len, config.save.p);
+        sys_file* f = sys_open(b, FILE_MODE_READ_WRITE_CREATE, FILE_BLOCKING);
+        if (f) {
+            log_info("(APP) Saving config to [%s]", b);
+            config_fprint(f, &config);
+            sys_close(&f);
+        } else {
+            log_error("(APP) Failed to open file for saving!");
+        }
+    }
+
     if (config.daemon) {
-        snprintf(buffer, sizeof(buffer), "%.*s", config.log.len, config.log.p);
-        sys_daemonize(buffer, &f, &pid);
+        snprintf(b, sizeof(b), "%.*s", config.log.len, config.log.p);
+        sys_daemonize(b, &f, &pid);
     }
 
     netw = netw_create(NULL, NULL);
     assert(netw);
 
     if (config.zmtp) {
-        snprintf(buffer, sizeof(buffer), "tcp://*:%d", config.zmtp);
-        netw_listen(netw, buffer);
+        snprintf(b, sizeof(b), "tcp://*:%d", config.zmtp);
+        netw_listen(netw, b);
     }
 
     if (config.http) {
-        snprintf(buffer, sizeof(buffer), "http://*:%d", config.http);
-        netw_listen(netw, buffer);
+        snprintf(b, sizeof(b), "http://*:%d", config.http);
+        netw_listen(netw, b);
     }
 
     if (config.web_root.p) {
-        snprintf(
-            buffer,
-            sizeof(buffer),
-            "%.*s",
-            config.web_root.len,
-            config.web_root.p);
-        netw_root(netw, buffer);
+        snprintf(b, sizeof(b), "%.*s", config.web_root.len, config.web_root.p);
+        netw_root(netw, b);
     }
 
     if (config.https) {
         if (config.cert.p && config.key.p && config.https) {
             // TODO install tls
         }
-        snprintf(buffer, sizeof(buffer), "%d", config.http);
-        // netw_listen_https(netw, buffer); // TODO
+        snprintf(b, sizeof(b), "%d", config.http);
+        // netw_listen_https(netw, b); // TODO
     }
 
     while (netw_running(netw)) { err = netw_poll(netw, 10); };

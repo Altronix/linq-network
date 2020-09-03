@@ -16,17 +16,21 @@
 #define APP_CONFIG_HTTPS 8443
 #endif
 
-#ifndef APP_CONFIG_WEB_ROOT_PATH
-#define APP_CONFIG_WEB_ROOT_PATH NULL
+#ifndef APP_CONFIG_SAVE
+#define APP_CONFIG_SAVE NULL
 #endif
-#define APP_CONFIG_WEB_ROOT_PATH_LEN                                           \
-    (APP_CONFIG_WEB_ROOT_PATH ? sizeof(APP_CONFIG_WEB_ROOT_PATH) - 1 : 0)
+#define APP_CONFIG_SAVE_LEN (APP_CONFIG_SAVE ? sizeof(APP_CONFIG_SAVE) - 1 : 0)
 
-#ifndef APP_CONFIG_DB_PATH
-#define APP_CONFIG_DB_PATH NULL
+#ifndef APP_CONFIG_WEB_ROOT
+#define APP_CONFIG_WEB_ROOT NULL
 #endif
-#define APP_CONFIG_DB_PATH_LEN                                                 \
-    (APP_CONFIG_DB_PATH ? sizeof(APP_CONFIG_DB_PATH) - 1 : 0)
+#define APP_CONFIG_WEB_ROOT_LEN                                                \
+    (APP_CONFIG_WEB_ROOT ? sizeof(APP_CONFIG_WEB_ROOT) - 1 : 0)
+
+#ifndef APP_CONFIG_DB
+#define APP_CONFIG_DB NULL
+#endif
+#define APP_CONFIG_DB_LEN (APP_CONFIG_DB ? sizeof(APP_CONFIG_DB) - 1 : 0)
 
 #ifndef APP_CONFIG_CERT
 #define APP_CONFIG_CERT NULL
@@ -65,10 +69,10 @@ extern "C"
     {
         bool daemon;
         bool print;
-        bool save;
         int zmtp;
         int http;
         int https;
+        json_value save;
         json_value web_root;
         json_value db;
         json_value cert;

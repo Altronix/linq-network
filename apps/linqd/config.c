@@ -49,18 +49,19 @@ config_init(config_s* c)
 {
     c->daemon = false;
     c->print = false;
-    c->save = false;
     c->zmtp = APP_CONFIG_ZMTP;
     c->http = APP_CONFIG_HTTP;
     c->https = APP_CONFIG_HTTPS;
+    c->save.p = APP_CONFIG_SAVE;
+    c->save.len = APP_CONFIG_SAVE_LEN;
     c->node_primary.p = APP_CONFIG_NODE_PRIMARY;
     c->node_primary.len = APP_CONFIG_NODE_PRIMARY_LEN;
     c->node_secondary.p = APP_CONFIG_NODE_SECONDARY;
     c->node_secondary.len = APP_CONFIG_NODE_SECONDARY_LEN;
-    c->web_root.p = APP_CONFIG_WEB_ROOT_PATH,
-    c->web_root.len = APP_CONFIG_WEB_ROOT_PATH_LEN;
-    c->db.p = APP_CONFIG_DB_PATH;
-    c->db.len = APP_CONFIG_DB_PATH_LEN;
+    c->web_root.p = APP_CONFIG_WEB_ROOT,
+    c->web_root.len = APP_CONFIG_WEB_ROOT_LEN;
+    c->db.p = APP_CONFIG_DB;
+    c->db.len = APP_CONFIG_DB_LEN;
     c->cert.p = APP_CONFIG_CERT;
     c->cert.len = APP_CONFIG_CERT_LEN;
     c->key.p = APP_CONFIG_KEY;
