@@ -1,4 +1,21 @@
 #include "parse_config.h"
+#define CONFIG_FMT                                                             \
+    "{"                                                                        \
+    "\"ports\":{"                                                              \
+    "\"zmtp\":%d,"                                                             \
+    "\"http\":%d,"                                                             \
+    "\"https\":%d"                                                             \
+    "},"                                                                       \
+    "\"nodes\":{"                                                              \
+    "\"primary\":\"%.*s\","                                                    \
+    "\"secondary\":\"%.*s\""                                                   \
+    "}"                                                                        \
+    "\"webRootPath\":\"%.*s\","                                                \
+    "\"dbPath\":\"%.*s\","                                                     \
+    "\"certPath\":\"%.*s\","                                                   \
+    "\"keyPath\":\"%.*s\","                                                    \
+    "\"logPath\":\"%.*s\""                                                     \
+    "}"
 
 // TODO move to json
 static int
@@ -55,4 +72,20 @@ parse_config(const char* buff, uint32_t l, config_s* config)
 
 int
 print_config(FILE* f, config_s* config)
-{}
+{
+    // clang-format off
+    return fprintf(
+        f,
+        CONFIG_FMT,
+        config->zmtp,
+        config->http,
+        config->https,
+        config->node_primary.len,   config->node_primary.p,
+        config->node_secondary.len, config->node_secondary.p,
+        config->web_root_path.len,  config->web_root_path.p,
+        config->db_path.len,        config->db_path.p,
+        config->cert.len,           config->cert.p,
+        config->key.len,            config->key.p,
+        config->log.len,            config->log.p);
+    // clang-format on
+}

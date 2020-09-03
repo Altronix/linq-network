@@ -7,25 +7,26 @@
 
 #include "cmocka.h"
 
+static const char* config = "{"
+                            "\"ports\":{"
+                            "\"zmtp\":100,"
+                            "\"http\":200,"
+                            "\"https\":333"
+                            "},"
+                            "\"nodes\":{"
+                            "\"primary\":\"tcp://primary\","
+                            "\"secondary\":\"tcp://secondary\""
+                            "}"
+                            "\"webRootPath\":\"webRootPathValue\","
+                            "\"dbPath\":\"dbPathValue\","
+                            "\"certPath\":\"certValue\","
+                            "\"keyPath\":\"keyValue\","
+                            "\"logPath\":\"logValue\""
+                            "}";
 static void
 test_parse_config(void** context_p)
 {
-    static const char* config = "{"
-                                "\"ports\":{"
-                                "\"zmtp\":100,"
-                                "\"http\":200,"
-                                "\"https\":333"
-                                "},"
-                                "\"nodes\":{"
-                                "\"primary\":\"tcp://primary\","
-                                "\"secondary\":\"tcp://secondary\""
-                                "}"
-                                "\"webRootPath\":\"webRootPathValue\","
-                                "\"dbPath\":\"dbPathValue\","
-                                "\"certPath\":\"certValue\","
-                                "\"keyPath\":\"keyValue\","
-                                "\"logPath\":\"logValue\""
-                                "}";
+
     config_s c;
     int rc = parse_config(config, strlen(config), &c);
     assert_int_equal(rc, 0);
@@ -50,7 +51,20 @@ test_parse_config(void** context_p)
 
 static void
 test_print_config(void** context_p)
-{}
+{
+    config_s c = {
+        .zmtp = 100,
+        .http = 200,
+        .https = 333,
+        .node_primary = { .p = "tcp://primary", .len = 13 },
+        .node_secondary = { .p = "tcp://secondary", .len = 15 },
+        .web_root_path = { .p = "webRootPathValue", .len = 16 },
+        .db_path = { .p = "dbPathValue", .len = 11 },
+        .cert = { .p = "certValue", .len = 9 },
+        .key = { .p = "keyValue", .len = 8 },
+        .log = { .p = "logValue", .len = 8 },
+    };
+}
 
 int
 main(int argc, char* argv[])
