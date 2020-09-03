@@ -4,45 +4,52 @@
 #include "json.h"
 #include "sys.h"
 
-#ifndef LINQD_ZMTP_DEFAULT
-#define LINQD_ZMTP_DEFAULT 33247
+#ifndef APP_CONFIG_ZMTP
+#define APP_CONFIG_ZMTP 33247
 #endif
 
-#ifndef LINQD_HTTP_DEFAULT
-#define LINQD_HTTP_DEFAULT 8080
+#ifndef APP_CONFIG_HTTP
+#define APP_CONFIG_HTTP 8080
 #endif
 
-#ifndef LINQD_HTTPS_DEFAULT
-#define LINQD_HTTPS_DEFAULT 8443
+#ifndef APP_CONFIG_HTTPS
+#define APP_CONFIG_HTTPS 8443
 #endif
 
-#ifndef LINQD_WEB_ROOT_PATH_DEFAULT
-#define LINQD_WEB_ROOT_PATH_DEFAULT ""
+#ifndef APP_CONFIG_WEB_ROOT_PATH
+#define APP_CONFIG_WEB_ROOT_PATH ""
 #endif
+#define APP_CONFIG_WEB_ROOT_PATH_LEN (sizeof(APP_CONFIG_WEB_ROOT_PATH) - 1)
 
-#ifndef LINQD_DB_PATH_DEFAULT
-#define LINQD_DB_PATH_DEFAULT ""
+#ifndef APP_CONFIG_DB_PATH
+#define APP_CONFIG_DB_PATH ""
 #endif
+#define APP_CONFIG_DB_PATH_LEN (sizeof(APP_CONFIG_DB_PATH) - 1)
 
-#ifndef LINQD_CERT_DEFAULT
-#define LINQD_CERT_DEFAULT ""
+#ifndef APP_CONFIG_CERT
+#define APP_CONFIG_CERT ""
 #endif
+#define APP_CONFIG_CERT_LEN (sizeof(APP_CONFIG_CERT) - 1)
 
-#ifndef LINQD_KEY_DEFAULT
-#define LINQD_KEY_DEFAULT ""
+#ifndef APP_CONFIG_KEY
+#define APP_CONFIG_KEY ""
 #endif
+#define APP_CONFIG_KEY_LEN (sizeof(APP_CONFIG_KEY) - 1)
 
-#ifndef LINQD_LOG_DEFAULT
-#define LINQD_LOG_DEFAULT "/var/log/atx-linqd.log"
+#ifndef APP_CONFIG_LOG
+#define APP_CONFIG_LOG "/var/log/atx-linqd.log"
 #endif
+#define APP_CONFIG_LOG_LEN (sizeof(APP_CONFIG_LOG) - 1)
 
-#ifndef LINQD_NODE_PRIMARY_DEFAULT
-#define LINQD_NODE_PRIMARY_DEFAULT ""
+#ifndef APP_CONFIG_NODE_PRIMARY
+#define APP_CONFIG_NODE_PRIMARY ""
 #endif
+#define APP_CONFIG_NODE_PRIMARY_LEN (sizeof(APP_CONFIG_NODE_PRIMARY) - 1)
 
-#ifndef LINQD_NODE_SECONDARY_DEFAULT
-#define LINQD_NODE_SECONDARY_DEFAULT ""
+#ifndef APP_CONFIG_NODE_SECONDARY
+#define APP_CONFIG_NODE_SECONDARY ""
 #endif
+#define APP_CONFIG_NODE_SECONDARY_LEN (sizeof(APP_CONFIG_NODE_SECONDARY) - 1)
 
 #ifdef __cplusplus
 extern "C"
@@ -51,22 +58,25 @@ extern "C"
 
     typedef struct config_s
     {
+        bool daemon;
+        bool print;
+        bool save;
         int zmtp;
         int http;
         int https;
-        json_value web_root_path;
-        json_value db_path;
+        json_value web_root;
+        json_value db;
         json_value cert;
         json_value key;
         json_value log;
         json_value node_primary;
         json_value node_secondary;
-        bool daemon;
     } config_s;
 
-    int config_parse(const char* buff, uint32_t l, config_s* config);
-    int config_fprint(FILE* f, config_s* config);
-    int config_print(char* buff, uint32_t l, config_s* config);
+    LINQ_EXPORT void config_init(config_s* config);
+    LINQ_EXPORT int config_parse(const char*, uint32_t l, config_s*);
+    LINQ_EXPORT int config_fprint(FILE* f, config_s* config);
+    LINQ_EXPORT int config_print(char* buff, uint32_t l, config_s* config);
 
 #ifdef __cplusplus
 }

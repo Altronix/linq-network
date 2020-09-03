@@ -69,19 +69,44 @@ parse_args(config_s* config, int argc, char* argv[])
             case 'p': config->http = atoi(argv[optind]); break;
             case 's': config->https = atoi(argv[optind]); break;
             case 'd': config->daemon = true; break;
-            case 'D': config->db_path = parse_arg(argv[optind]); break;
+            case 'D': config->db = parse_arg(argv[optind]); break;
             case 'l': config->log = parse_arg(argv[optind]); break;
             case 'c': config->cert = parse_arg(argv[optind]); break;
             case 'k': config->key = parse_arg(argv[optind]); break;
-            case 'w': config->web_root_path = parse_arg(argv[optind]); break;
+            case 'w': config->web_root = parse_arg(argv[optind]); break;
+            case 'A': config->save = true; break;
+            case 'P': config->print = true; break;
             case 'v': print_version_and_exit(); break;
-            case 'A': break;
-            case 'P': break;
             case 'h':
             case '?':
             default: print_usage_and_exit(0); break;
         }
     }
+}
+
+static void
+print_config(config_s* c)
+{
+    log_info("(APP) Print config requested...");
+    log_info("(APP) [        daemon] [%s]", c->daemon ? "true" : "false");
+    log_info("(APP) [         print] [%s]", c->print ? "true" : "false");
+    log_info("(APP) [          save] [%s]", c->save ? "true" : "false");
+    log_info("(APP) [          zmtp] [%d]", c->zmtp);
+    log_info("(APP) [          http] [%d]", c->http);
+    log_info("(APP) [         https] [%d]", c->https);
+    log_info("(APP) [      web_root] [%.*s]", c->web_root.len, c->web_root.p);
+    log_info("(APP) [            db] [%.*s]", c->db.len, c->db.p);
+    log_info("(APP) [          cert] [%.*s]", c->cert.len, c->cert.p);
+    log_info("(APP) [           key] [%.*s]", c->key.len, c->key.p);
+    log_info("(APP) [           log] [%.*s]", c->log.len, c->log.p);
+    log_info(
+        "(APP) [  node_primary] [%.*s]",
+        c->node_primary.len,
+        c->node_primary.p);
+    log_info(
+        "(APP) [node_secondary] [%.*s]",
+        c->node_secondary.len,
+        c->node_secondary.p);
 }
 
 int
@@ -90,19 +115,15 @@ main(int argc, char* argv[])
     signal(SIGINT, ctrlc);
     // signal(SIGHUP, sighup);
     int err = 0;
-    char buffer[128];
+    char buffer[512];
     netw_s* netw;
-    config_s config = { .zmtp = 33248,
-                        .http = 8000,
-                        .https = 0,
-                        .cert = NULL,
-                        .log = LINQD_LOG_DEFAULT,
-                        .daemon = false,
-                        .key = NULL,
-                        .db_path = "./test.db" };
+    config_s config;
+    config_init(&config);
     sys_file* f = NULL;
     sys_pid pid = 0;
     parse_args(&config, argc, argv);
+
+    if (config.print) { print_config(&config); }
 
     if (config.daemon) {
         snprintf(buffer, sizeof(buffer), "%.*s", config.log.len, config.log.p);
@@ -122,13 +143,13 @@ main(int argc, char* argv[])
         netw_listen(netw, buffer);
     }
 
-    if (config.web_root_path.p) {
+    if (config.web_root.p) {
         snprintf(
             buffer,
             sizeof(buffer),
             "%.*s",
-            config.web_root_path.len,
-            config.web_root_path.p);
+            config.web_root.len,
+            config.web_root.p);
         netw_root(netw, buffer);
     }
 
