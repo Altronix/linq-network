@@ -11,14 +11,16 @@ extern "C"
 
     typedef struct config_s
     {
-        uint32_t zmtp;
-        uint32_t http;
-        uint32_t https;
+        int zmtp;
+        int http;
+        int https;
         json_value web_root_path;
         json_value db_path;
         json_value cert;
         json_value key;
         json_value log;
+        json_value node_primary;
+        json_value node_secondary;
         bool daemon;
     } config_s;
 

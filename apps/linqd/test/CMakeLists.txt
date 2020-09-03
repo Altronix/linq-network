@@ -1,5 +1,6 @@
 add_executable(test-linqd-parse-config main.c)
 target_link_libraries(test-linqd-parse-config 
+  atx-linqd-lib
   network-test-static 
   mock-utils 
   cmocka)
