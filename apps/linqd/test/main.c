@@ -161,7 +161,31 @@ test_route_config_get_404(void** context_p)
 
 static void
 test_route_config_post_200(void** context_p)
-{}
+{
+    spy_file_init();
+    mongoose_spy_init();
+    http_route_context ctx = { 0 };
+    config_s c;
+    const char* expect = "{\"error\":\"ok\"}";
+    int expect_len = strlen(expect);
+
+    spy_file_packet_s* packet;
+    mongoose_parser_context* response;
+    sys_config_dir_return = "foo";
+    route_config(&ctx, HTTP_METHOD_POST, strlen(config), config);
+    packet = spy_file_packet_pop_outgoing();
+    response = mongoose_spy_response_pop();
+    assert_non_null(packet);
+    assert_non_null(response);
+    assert_int_equal(response->content_length, expect_len);
+    assert_memory_equal(response->body, expect, expect_len);
+    assert_int_equal(config_parse(packet->bytes, packet->len, &c), 0);
+
+    mock_mongoose_response_destroy(&response);
+    spy_file_packet_free(&packet);
+    spy_file_free();
+    mongoose_spy_deinit();
+}
 
 static void
 test_route_config_post_500(void** context_p)

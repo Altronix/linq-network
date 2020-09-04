@@ -18,7 +18,7 @@ get(http_route_context* ctx, uint32_t l, const char* b)
         http_printf_json(ctx->curr_connection, 200, buffer);
         sys_close(&f);
     } else {
-        log_error("(SYS) req 404");
+        log_error("(APP) req 404");
         const char* err404 = "{\"error\":\"Not found\"}";
         http_printf_json(ctx->curr_connection, 404, err404);
     }
@@ -26,7 +26,29 @@ get(http_route_context* ctx, uint32_t l, const char* b)
 
 static void
 put(http_route_context* ctx, uint32_t l, const char* b)
-{}
+{
+    static const char* errfmt = "{\"error\":\"%s\"}";
+    int err, i;
+    FILE* f = NULL;
+    const char *r = "{\"error\":\"ok\"}", *dir = NULL;
+    config_s c;
+    err = config_parse(b, l, &c);
+    if (err == 0 && (dir = sys_config_dir("linqd")) &&
+        (f = sys_open(dir, FILE_MODE_WRITE, FILE_BLOCKING))) {
+        err = config_fprint(f, &c);
+        if (!(err < 0)) {
+            http_printf_json(ctx->curr_connection, 200, r);
+        } else {
+            r = strerror(errno);
+            log_error("(APP) file io error [%s]", r);
+            http_printf_json(ctx->curr_connection, 500, errfmt, r);
+        }
+    } else {
+        r = strerror(errno);
+        log_error("(APP) file io error [%s]", r);
+        http_printf_json(ctx->curr_connection, 500, errfmt, r);
+    }
+}
 
 void
 route_config(

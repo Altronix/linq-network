@@ -28,6 +28,47 @@ json_parse(
     return jsmn_parse(parser, js, len, tokens, num_tokens);
 }
 
+int
+json_parse_int(const char* buff, jsontok* toks, const char* guide, int* result)
+{
+    const jsontok* t = json_delve(buff, toks, guide);
+    if (t) {
+        json_parse_int_tok(buff, t, result);
+        return 0;
+    } else {
+        return -1;
+    }
+}
+LINQ_EXPORT void
+json_parse_int_tok(const char* buff, const jsontok* t, int* result)
+{
+    char b[12];
+    snprintf(b, sizeof(b), "%.*s", t->end - t->start, &buff[t->start]);
+    *result = atoi(b);
+}
+
+int
+json_parse_value(
+    const char* buff,
+    jsontok* toks,
+    const char* guide,
+    json_value* v)
+{
+    const jsontok* t = json_delve(buff, toks, guide);
+    if (t) {
+        json_parse_value_tok(buff, t, v);
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
+LINQ_EXPORT void
+json_parse_value_tok(const char* buff, const jsontok* t, json_value* v)
+{
+    *v = json_tok_value(buff, t);
+}
+
 bool
 json_tok_is_null(const char* buffer, const jsmntok_t* tok)
 {

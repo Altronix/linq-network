@@ -1,4 +1,6 @@
 #include "config.h"
+#define parse_int json_parse_int
+#define parse_value json_parse_value
 static const char* config_fmt = "{"
                                 "\"ports\":{"
                                 "\"zmtp\":%d,"
@@ -15,34 +17,6 @@ static const char* config_fmt = "{"
                                 "\"keyPath\":\"%.*s\","
                                 "\"logPath\":\"%.*s\""
                                 "}";
-
-// TODO move to json
-static int
-parse_int(const char* buff, jsontok* toks, const char* guide, int* result)
-{
-    char b[12];
-    const jsontok* t = json_delve(buff, toks, guide);
-    if (t) {
-        snprintf(b, sizeof(b), "%.*s", t->end - t->start, &buff[t->start]);
-        *result = atoi(b);
-        return 0;
-    } else {
-        return -1;
-    }
-}
-
-// TODO move to json
-static int
-parse_value(const char* buff, jsontok* toks, const char* guide, json_value* v)
-{
-    const jsontok* t = json_delve(buff, toks, guide);
-    if (t) {
-        *v = json_tok_value(buff, t);
-        return 0;
-    } else {
-        return -1;
-    }
-}
 
 LINQ_EXPORT void
 config_init(config_s* c)

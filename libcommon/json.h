@@ -25,6 +25,20 @@ extern "C"
         const size_t len,
         jsmntok_t* tokens,
         const unsigned int num_tokens);
+    LINQ_EXPORT void
+    json_parse_int_tok(const char* buff, const jsontok* t, int* result);
+    LINQ_EXPORT int json_parse_int(
+        const char* buff,
+        jsontok* toks,
+        const char* guide,
+        int* result);
+    LINQ_EXPORT int json_parse_value(
+        const char* buff,
+        jsontok* toks,
+        const char* guide,
+        json_value* v);
+    LINQ_EXPORT void
+    json_parse_value_tok(const char* buff, const jsontok* t, json_value* v);
     LINQ_EXPORT bool json_tok_is_null(const char* buffer, const jsmntok_t* tok);
     LINQ_EXPORT const jsmntok_t* json_next(const jsmntok_t* tok);
     LINQ_EXPORT bool
