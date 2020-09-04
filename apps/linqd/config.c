@@ -81,8 +81,8 @@ config_fprint(FILE* f, config_s* config)
         config->https,
         config->node_primary.len,   config->node_primary.p,
         config->node_secondary.len, config->node_secondary.p,
-        config->web_root.len,  config->web_root.p,
-        config->db.len,        config->db.p,
+        config->web_root.len,       config->web_root.p,
+        config->db.len,             config->db.p,
         config->cert.len,           config->cert.p,
         config->key.len,            config->key.p,
         config->log.len,            config->log.p);

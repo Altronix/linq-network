@@ -34,8 +34,9 @@ put(http_route_context* ctx, uint32_t l, const char* b)
     config_s c;
     err = config_parse(b, l, &c);
     if (err == 0 && (dir = sys_config_dir("linqd")) &&
-        (f = sys_open(dir, FILE_MODE_WRITE, FILE_BLOCKING))) {
+        (f = sys_open(dir, FILE_MODE_READ_WRITE_CREATE, FILE_BLOCKING))) {
         err = config_fprint(f, &c);
+        sys_close(&f);
         if (!(err < 0)) {
             http_printf_json(ctx->curr_connection, 200, r);
         } else {
