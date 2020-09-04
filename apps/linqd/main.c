@@ -1,4 +1,5 @@
 #include "config.h"
+#include "libcommon/config.h"
 #include "log.h"
 #include "netw.h"
 #include "route_config.h"
@@ -85,6 +86,42 @@ parse_args(config_s* config, int argc, char* argv[])
     }
 }
 
+static int
+parse_config_file(config_s* config)
+{
+    int rc;
+    char buff[1024];
+    uint32_t l = sizeof(buff);
+    const char* dir;
+    sys_file* f = NULL;
+
+    log_info("(APP) Loading config file...");
+
+    // Find config file
+    dir = sys_config_dir("linqd");
+    if (!dir) return ENOENT;
+
+    // Open config file
+    log_info("(APP) Loading config file [%s]", dir);
+    f = sys_open(dir, FILE_MODE_READ, FILE_BLOCKING);
+    if (!f) return EIO;
+
+    // Read config file
+    rc = sys_read_buffer(f, buff, &l);
+    if ((rc <= 0)) {
+        sys_close(&f);
+        return EIO;
+    }
+
+    // Parse config file
+    rc = config_parse(buff, l, config);
+    if (rc) {
+        sys_close(&f);
+        return EIO;
+    }
+    return 0;
+}
+
 static void
 print_config(config_s* c)
 {
@@ -118,10 +155,18 @@ main(int argc, char* argv[])
     int err = 0;
     char b[512];
     netw_s* netw;
-    config_s config;
-    config_init(&config);
     sys_file* f = NULL;
     sys_pid pid = 0;
+    config_s config;
+
+    // Load configuration from defaults
+    config_init(&config);
+
+    // Load configuration from config file (overrides default)
+    err = parse_config_file(&config);
+    if (err) { log_error("(APP) Config file error [%s]", strerror(err)); }
+
+    // Load configuration from command line (overrides default and config file)
     parse_args(&config, argc, argv);
 
     if (config.print) { print_config(&config); }
