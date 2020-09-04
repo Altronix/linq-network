@@ -8,6 +8,8 @@ extern "C"
 {
 #endif
 
+#define fcntl __wrap_fcntl
+
     typedef enum E_SPY_FILE_PUSH
     {
         SPY_FILE_PUSH_INCOMING,

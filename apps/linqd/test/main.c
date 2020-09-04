@@ -1,12 +1,28 @@
 #include "json.h"
 #include "mock_file.h"
+#include "mock_mongoose.h"
 #include "sys.h"
 
 #include "../config.h"
+#include "../route_config.h"
 
 #include <setjmp.h>
 
 #include "cmocka.h"
+
+static const char* sys_config_dir_return = NULL;
+const char*
+__wrap_sys_config_dir(const char* name)
+{
+    return sys_config_dir_return;
+}
+
+sys_file*
+__wrap_sys_open(const char* path, E_FILE_MODE m, E_FILE_BLOCKING b)
+{
+    static int mock_file = 1;
+    return (void*)&mock_file;
+}
 
 static const char* config = "{"
                             "\"ports\":{"
@@ -101,6 +117,56 @@ test_config_print(void** context_p)
     assert_memory_equal(buffer, config, strlen(buffer));
 }
 
+static void
+test_route_config_get_200(void** context_p)
+{
+    spy_file_init();
+    mongoose_spy_init();
+    int data = 0;
+
+    mongoose_parser_context* response;
+
+    sys_config_dir_return = "foo";
+    spy_file_push_incoming("123", 3);
+    route_config((http_route_context*)&data, HTTP_METHOD_GET, 0, NULL);
+    response = mongoose_spy_response_pop();
+    assert_int_equal(response->content_length, 3);
+    assert_memory_equal("123", response->body, 3);
+
+    mock_mongoose_response_destroy(&response);
+    spy_file_free();
+    mongoose_spy_deinit();
+}
+
+static void
+test_route_config_get_404(void** context_p)
+{
+    spy_file_init();
+    mongoose_spy_init();
+    const char* expect = "{\"error\":\"Not found\"}";
+    int data = 0, expect_len = strlen(expect);
+
+    mongoose_parser_context* response;
+
+    sys_config_dir_return = NULL;
+    route_config((http_route_context*)&data, HTTP_METHOD_GET, 0, NULL);
+    response = mongoose_spy_response_pop();
+    assert_int_equal(response->content_length, expect_len);
+    assert_memory_equal(expect, response->body, expect_len);
+
+    mock_mongoose_response_destroy(&response);
+    spy_file_free();
+    mongoose_spy_deinit();
+}
+
+static void
+test_route_config_post_200(void** context_p)
+{}
+
+static void
+test_route_config_post_500(void** context_p)
+{}
+
 int
 main(int argc, char* argv[])
 {
@@ -111,6 +177,10 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_config_parse),
         cmocka_unit_test(test_config_fprint),
         cmocka_unit_test(test_config_print),
+        cmocka_unit_test(test_route_config_get_200),
+        cmocka_unit_test(test_route_config_get_404),
+        cmocka_unit_test(test_route_config_post_200),
+        cmocka_unit_test(test_route_config_post_500),
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);

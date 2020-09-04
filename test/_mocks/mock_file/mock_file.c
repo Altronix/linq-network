@@ -221,7 +221,19 @@ __wrap_ioctl(int fd, unsigned long request, ...)
 }
 
 int
+__wrap_fcntl(int fd, int cmd, ...)
+{
+    return 0;
+}
+
+int
 __wrap_fileno(FILE* f)
+{
+    return 0;
+}
+
+int
+__wrap_fileno_unlocked(FILE* f)
 {
     return 0;
 }
