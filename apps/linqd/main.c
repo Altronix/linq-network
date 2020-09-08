@@ -95,14 +95,11 @@ parse_config_file(config_s* config)
     const char* dir;
     sys_file* f = NULL;
 
-    log_info("(APP) Loading config file...");
-
     // Find config file
     dir = sys_config_dir("linqd");
     if (!dir) return ENOENT;
 
     // Open config file
-    log_info("(APP) Loading config file [%s]", dir);
     f = sys_open(dir, FILE_MODE_READ, FILE_BLOCKING);
     if (!f) return EIO;
 
@@ -164,7 +161,7 @@ main(int argc, char* argv[])
 
     // Load configuration from config file (overrides default)
     err = parse_config_file(&config);
-    if (err) { log_error("(APP) Config file error [%s]", strerror(err)); }
+    if (err) {}
 
     // Load configuration from command line (overrides default and config file)
     parse_args(&config, argc, argv);
