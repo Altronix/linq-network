@@ -1,4 +1,4 @@
-add_library(atx-linqd-lib config.c config.h route_config.c route_config.h)
+add_library(atx-linqd-lib STATIC config.c config.h route_config.c route_config.h)
 target_link_libraries(atx-linqd-lib network-static)
 
 add_executable(atx-linqd main.c)
