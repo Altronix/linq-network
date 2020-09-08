@@ -202,6 +202,16 @@ main(int argc, char* argv[])
         netw_use(netw, "/api/v1/config", route_config, netw);
     }
 
+    if (config.node_primary.p) {
+        snprintf(
+            b,
+            sizeof(b),
+            "%.*s",
+            config.node_primary.len,
+            config.node_primary.p);
+        netw_connect(netw, b);
+    }
+
     if (config.web_root.p) {
         snprintf(b, sizeof(b), "%.*s", config.web_root.len, config.web_root.p);
         netw_root(netw, b);

@@ -125,7 +125,11 @@ netw_listen(netw_s* l, const char* ep)
 netw_socket
 netw_connect(netw_s* l, const char* ep)
 {
-    return zmtp_connect(&l->zmtp, ep);
+    netw_socket s;
+    log_info("(ZMTP) Connecting... [%s]", ep);
+    s = zmtp_connect(&l->zmtp, ep);
+    log_info("(ZMTP) Connecting result [%d]", s);
+    return s;
 }
 
 E_LINQ_ERROR
