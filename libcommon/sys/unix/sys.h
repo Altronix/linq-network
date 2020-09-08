@@ -43,7 +43,7 @@
 #define SYS_CONFIG_DIRS(var)                                                   \
     const char* var[4] = { "~/.config/altronix/%s.json",                       \
                            "~/.config/atx/%s.json",                            \
-                           "/etc/atx.%s.config.json",                          \
+                           "/etc/atx.config.%s.json",                          \
                            NULL }
 
 #ifdef __cplusplus

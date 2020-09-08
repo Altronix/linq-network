@@ -36,7 +36,7 @@ test_sys_config_dir(void** context_p)
 
     count = 2;
     result = sys_config_dir("foo");
-    assert_string_equal(result, "/etc/atx.foo.config.json");
+    assert_string_equal(result, "/etc/atx.config.foo.json");
 
     count = -1;
     result = sys_config_dir("foo");
