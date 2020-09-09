@@ -25,8 +25,6 @@ extern "C"
         const char* type);
     void zmtp_device_destroy(node_s** d_p);
     const router_s* zmtp_device_router(node_s* d);
-    bool zmtp_device_no_hops(node_s* d);
-    bool zmtp_device_hops(node_s* d);
     void zmtp_device_update_router(node_s* d, const uint8_t* rid, uint32_t sz);
     void zmtp_device_send(
         node_s* d,

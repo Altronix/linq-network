@@ -30,6 +30,9 @@
 #define FRAME_TYP_RESPONSE ('\x2')
 #define FRAME_TYP_ALERT ('\x3')
 #define FRAME_TYP_HELLO ('\x4')
+#define FRAME_TYPE(x) ((x) & (~(0x80)))
+#define FRAME_IS_BROADCAST(x) (((x) & ((0x80))) == 0x80)
+#define FRAME_SET_BROADCAST(x) ((x) |= (0x80))
 
 // Basic packet index's
 #define FRAME_MAX 7

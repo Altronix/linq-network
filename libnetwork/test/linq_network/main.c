@@ -789,7 +789,7 @@ test_netw_broadcast_heartbeat(void** context_p)
         loc = zmsg_pop(outgoing);
         assert_memory_equal(zframe_data(rid), "client-router", 13);
         assert_memory_equal(zframe_data(ver), "\x0", 1);
-        assert_memory_equal(zframe_data(typ), "\x0", 1);
+        assert_memory_equal(zframe_data(typ), "\x80", 1);
         assert_memory_equal(zframe_data(sid), "serial", 6);
         assert_memory_equal(zframe_data(pid), "product", 6);
         assert_memory_equal(zframe_data(loc), "site", 4);
@@ -853,7 +853,7 @@ test_netw_broadcast_alert(void** context_p)
         email = zmsg_pop(outgoing);
         assert_memory_equal(zframe_data(rid), "client-router", 13);
         assert_memory_equal(zframe_data(ver), "\x0", 1);
-        assert_memory_equal(zframe_data(typ), "\x3", 1);
+        assert_memory_equal(zframe_data(typ), "\x83", 1);
         assert_memory_equal(zframe_data(sid), "sid", 3);
         assert_memory_equal(zframe_data(pid), "pid", 3);
         assert_memory_equal(zframe_data(alert), TEST_ALERT, strlen(TEST_ALERT));

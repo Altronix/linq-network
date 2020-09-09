@@ -76,7 +76,7 @@ request_alloc_mem(
     void* context)
 {
     zmtp_device_s* device = (zmtp_device_s*)base;
-    bool hop = zmtp_device_hops(&device->base);
+    bool hop = device->router.sz ? false : true; // TODO unsure about this
     const char* s = device_serial(&device->base);
     uint32_t slen = strlen(s);
     request_zmtp_s* r = linq_network_malloc(sizeof(request_zmtp_s));
@@ -213,24 +213,6 @@ zmtp_device_router(node_s* base)
 {
     zmtp_device_s* d = (zmtp_device_s*)base;
     return &d->router;
-}
-
-bool
-zmtp_device_no_hops(node_s* d)
-{
-    // Note that if a device has a router, than that means the device connected
-    // to our listener directly (therefore no hops). This is opposed to a
-    // device who we discovered via broadcasting heartbeats from remote nodes
-    return zmtp_device_router(d)->sz ? true : false;
-}
-
-bool
-zmtp_device_hops(node_s* d)
-{
-    // Note that if a device has a router, than that means the device connected
-    // to our listener directly (therefore no hops). This is opposed to a
-    // device who we discovered via broadcasting heartbeats from remote nodes
-    return !zmtp_device_no_hops(d);
 }
 
 void

@@ -378,9 +378,8 @@ process_alert(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
         node_s** d = device_resolve(z, socket, frames, false);
         frames_s f = { 6, &frames[1] };
         if (d) {
-            if (zmtp_device_no_hops(*d)) {
-                // We only broadcast when the device is directly connected
-                // otherwize, nodes would rebroadcast to eachother infinite
+            if (!FRAME_IS_BROADCAST(zframe_data(frames[FRAME_TYP_IDX])[0])) {
+                zframe_data(frames[FRAME_TYP_IDX])[0] |= 0x80;
                 node_map_foreach(*z->nodes_p, foreach_node_forward_message, &f);
             }
             if (z->callbacks && z->callbacks->on_alert) {
@@ -422,9 +421,10 @@ process_heartbeat(zmtp_s* z, zsock_t* s, zmsg_t** msg, zframe_t** frames)
         frames_s f = { 5, &frames[1] };
         if (d) {
             log_trace("(ZMTP) Device resolved");
-            if (zmtp_device_no_hops(*d)) {
+            if (!FRAME_IS_BROADCAST(zframe_data(frames[FRAME_TYP_IDX])[0])) {
                 // We only broadcast when the device is directly connected
                 // otherwize, nodes would rebroadcast to eachother infinite
+                zframe_data(frames[FRAME_TYP_IDX])[0] |= 0x80;
                 node_map_foreach(*z->nodes_p, foreach_node_forward_message, &f);
             }
             if (z->callbacks && z->callbacks->on_heartbeat) {
@@ -461,7 +461,8 @@ process_packet(zmtp_s* z, zsock_t* s)
         (f[FRAME_VER_IDX] = pop_eq(msg, 1)) &&
         (f[FRAME_TYP_IDX] = pop_eq(msg, 1)) &&
         (f[FRAME_SID_IDX] = pop_le(msg, SID_LEN))) {
-        switch ((E_TYPE)zframe_data(f[FRAME_TYP_IDX])[0]) {
+        E_TYPE typ = FRAME_TYPE(zframe_data(f[FRAME_TYP_IDX])[0]);
+        switch (typ) {
             case TYPE_HEARTBEAT: e = process_heartbeat(z, s, &msg, f); break;
             case TYPE_REQUEST: e = process_request(z, s, &msg, f); break;
             case TYPE_RESPONSE: e = process_response(z, s, &msg, f); break;
