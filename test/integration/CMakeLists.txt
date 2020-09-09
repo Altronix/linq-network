@@ -33,3 +33,8 @@ target_link_libraries(integration-504-test
                       linq-common-fixture 
                       network-static)
 add_test(NAME integration-504-test COMMAND integration-504-test)
+
+# swarm test
+add_executable(swarm-test swarm.c)
+target_link_libraries(swarm-test network-static)
+install(TARGETS swarm-test RUNTIME DESTINATION bin)

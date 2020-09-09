@@ -25,7 +25,7 @@ print_usage_and_exit(int err)
         io,
         "\n"
         "Welcome to linqd (%s)\n\n"
-        "USAGE:\n\tlinqd [-zpskcdDlwAPvh?]\n\n"
+        "USAGE:\n\tlinqd [-zpskcdDlnwCPvh?]\n\n"
         "EXAMPLE:\n\tlinqd -z 33248 -s 8080 -w /etc/www -d ./sqlite.db\n\n"
         "FLAGS:\n"
         "\t-z ZMTP port to listen for incoming devices\n"
@@ -34,11 +34,12 @@ print_usage_and_exit(int err)
         "\t-d Detatch in daemon mode\n"
         "\t-D Database location on local drive\n"
         "\t-l Log file\n"
+        "\t-n Connect to node\n"
         "\t-c TLS cert file\n"
         "\t-k TLS key directory\n"
         "\t   Will create a database if one does not already exist\n"
         "\t-w Webpage ROOT\n"
-        "\t-A S(A)ve config\n"
+        "\t-C Config\n"
         "\t-P (P)rint config\n"
         "\t-v Print version and exit\n"
         "\t-h Print help menu and exit\n",
@@ -65,7 +66,7 @@ parse_args(config_s* config, int argc, char* argv[])
 {
     int opt, arglen;
     optind_set(0);
-    while ((opt = getopt(argc, argv, "zpskcdDlwAPvh?")) != -1) {
+    while ((opt = getopt(argc, argv, "zpskcdDlnwCPvh?")) != -1) {
         switch (opt) {
             case 'z': config->zmtp = atoi(argv[optind]); break;
             case 'p': config->http = atoi(argv[optind]); break;
@@ -73,10 +74,11 @@ parse_args(config_s* config, int argc, char* argv[])
             case 'd': config->daemon = true; break;
             case 'D': config->db = parse_arg(argv[optind]); break;
             case 'l': config->log = parse_arg(argv[optind]); break;
+            case 'n': config->node_primary = parse_arg(argv[optind]); break;
             case 'c': config->cert = parse_arg(argv[optind]); break;
             case 'k': config->key = parse_arg(argv[optind]); break;
             case 'w': config->web_root = parse_arg(argv[optind]); break;
-            case 'A': config->save = parse_arg(argv[optind]); break;
+            case 'C': config->save = parse_arg(argv[optind]); break;
             case 'P': config->print = true; break;
             case 'v': print_version_and_exit(); break;
             case 'h':
