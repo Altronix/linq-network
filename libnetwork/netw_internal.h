@@ -44,6 +44,7 @@ extern "C"
         http_s http;
         database_s database;
 #endif
+        char uuid[UUID_LEN * 2 + 1];
     } netw_s;
 
 #ifdef __cplusplus

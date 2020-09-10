@@ -40,6 +40,7 @@ netw_create(const netw_callbacks* cb, void* context)
         l->nodes = node_map_create();
         l->callbacks = cb;
         l->context = context ? context : l;
+        sys_uuid(l->uuid);
         zmtp_init(&l->zmtp, &l->devices, &l->nodes, &zmtp_callbacks, l);
 #ifdef BUILD_USBH
         usbh_init(&l->usb, &l->devices);

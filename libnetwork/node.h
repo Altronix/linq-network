@@ -34,6 +34,7 @@ extern "C"
         node_map_s* hash,
         bool (*remove)(node_s*, void*),
         void* ctx);
+    node_zmtp_s** node_map_find_by_sock(node_map_s* hash, zsock_t* sock);
 #ifdef __cplusplus
 }
 #endif

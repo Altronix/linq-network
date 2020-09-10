@@ -209,28 +209,56 @@ device_resolve(zmtp_s* l, zsock_t* sock, zframe_t** frames, bool insert)
 }
 
 // Node is resolved by grabing object with base64_encoded key of the router id
+// If node == router => node = map[router]
+// else              => node = seek(map[iter].sock == sock)
 static node_zmtp_s**
 node_resolve(zsock_t* sock, node_map_s* map, zframe_t** frames, bool insert)
 {
-    uint32_t rid_len = 0;
+    static uint32_t dealer_key_gen = 0;
+    char key[B64_RID_LEN];
+    uint32_t ridlen = 0;
+    size_t keylen = sizeof(key);
     uint8_t* rid = NULL;
+    node_zmtp_s** node = NULL;
     if (frames[FRAME_RID_IDX]) {
-        rid_len = zframe_size(frames[FRAME_RID_IDX]);
+        log_debug("(ZMTP) node resolve via router");
+        ridlen = zframe_size(frames[FRAME_RID_IDX]);
         rid = zframe_data(frames[FRAME_RID_IDX]);
-    }
-    char sid[B64_RID_LEN];
-    size_t sid_len = sizeof(sid);
-    b64_encode((uchar*)sid, &sid_len, (uchar*)rid, rid_len);
-    node_zmtp_s** d = node_map_get(map, sid);
-    if (d) {
-        if (rid) node_update_router(*d, rid, rid_len);
+        b64_encode((uint8_t*)key, &keylen, rid, ridlen);
+        log_debug("(ZMTP) node resolve key [%s] [%d]", key, keylen);
+        node = node_map_get(map, key);
+        if (!node) {
+            log_debug("(ZMTP) unknown node (does not exist in hash map)");
+            if (insert) {
+                log_debug("(ZMTP) inserting node into hash map");
+                node_zmtp_s* n = node_create(sock, rid, ridlen, key);
+                if (n) {
+                    node_map_add(map, node_serial(n), &n);
+                    node = node_map_get(map, key);
+                } else {
+                    log_error("(ZMTP) failed to create node! [%s]", key);
+                }
+            }
+        }
     } else {
-        if (insert) {
-            node_zmtp_s* node = node_create(sock, rid, rid_len, sid);
-            if (node) d = node_map_add(map, node_serial(node), &node);
+        log_debug("(ZMTP) node resolve via seek");
+        node = node_map_find_by_sock(map, sock);
+        if (!node) {
+            log_debug("(ZMTP) unknown node (does not exist in hash map)");
+            if (insert) {
+                log_debug("(ZMTP) inserting node into hash map");
+                snprintf(key, sizeof(key), "%d", dealer_key_gen++);
+                node_zmtp_s* n = node_create(sock, rid, ridlen, key);
+                if (n) {
+                    node_map_add(map, node_serial(n), &n);
+                    node = node_map_get(map, key);
+                } else {
+                    log_error("(ZMTP) failed to create node! [%s]", key);
+                }
+            }
         }
     }
-    return d;
+    return node;
 }
 
 // Broadcast x frames to each node (router frame is added per each node)
@@ -258,6 +286,7 @@ on_device_response(
 {
     log_trace("(ZMTP) Device response received");
     int16_t e = error;
+    // TODO use zsock_send_frames_n(...)
     node_zmtp_s** node = ctx;
     node_send_frames_n(
         *node,
@@ -298,6 +327,10 @@ process_request(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
                 *d, url, data ? json : NULL, on_device_response, n);
             e = LINQ_ERROR_OK;
         } else {
+            // TODO we arrive here because n == NULL
+            //      need to figure how to resolve node (ie use zsock)
+            //      The node_zmtp_s* is client abstraction to represent a
+            //      connection but the zsock should be used instead
             log_trace("(ZMTP) Device does not exist");
             // TODO send 404 response (device not here)
         }
@@ -396,15 +429,18 @@ process_alert(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
 }
 
 // check the zmq hello message is valid and add a node if it does not exist
+// TODO nodes are not resolvable from hello packet
 static E_LINQ_ERROR
 process_hello(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
 {
     ((void)msg);
     ((void)socket);
     ((void)frames);
+    log_trace("(ZMTP) Processing hello");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     node_zmtp_s** s = node_resolve(socket, *z->nodes_p, frames, true);
     if (s) e = LINQ_ERROR_OK;
+    log_trace("(ZMTP) Hello result [%d]", (int)e);
     return e;
 }
 
@@ -537,7 +573,7 @@ zmtp_connect(zmtp_s* zmtp, const char* ep)
             node_create(*socket_map_get(zmtp->dealers, ep), NULL, 0, ep);
         if (n) {
             node_send_hello(n);
-            node_map_add(*zmtp->nodes_p, ep, &n);
+            node_map_add(*zmtp->nodes_p, node_serial(n), &n);
         }
         int key = socket_map_key(zmtp->dealers, ep);
         key |= ATX_NET_SOCKET_TYPE_DEALER << 0x08;

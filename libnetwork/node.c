@@ -149,3 +149,15 @@ node_map_foreach_remove_if(
     return n;
 }
 
+node_zmtp_s**
+node_map_find_by_sock(node_map_s* hash, zsock_t* sock)
+{
+    map_iter iter;
+    map_foreach(hash, iter)
+    {
+        if (map_has_key(hash, iter)) {
+            if (map_val(hash, iter)->sock == sock) return &map_val(hash, iter);
+        }
+    }
+    return NULL;
+}
