@@ -75,8 +75,8 @@ request_alloc_mem(
     linq_request_complete_fn fn,
     void* context)
 {
+    // When sending a request to a device we don't include the serial number
     zmtp_device_s* device = (zmtp_device_s*)base;
-    bool hop = device->router.sz ? false : true; // TODO unsure about this
     const char* s = device_serial(&device->base);
     uint32_t slen = strlen(s);
     request_zmtp_s* r = linq_network_malloc(sizeof(request_zmtp_s));
@@ -86,12 +86,12 @@ request_alloc_mem(
         r->base.ctx = context;
         r->frames[FRAME_VER_IDX] = zframe_new("\0", 1);
         r->frames[FRAME_TYP_IDX] = zframe_new("\1", 1);
-        r->frames[FRAME_SID_IDX] = hop ? zframe_new(s, slen) : NULL;
+        r->frames[FRAME_SID_IDX] = zframe_new(s, slen);
         r->frames[FRAME_REQ_PATH_IDX] = path_to_frame(method, p, plen);
         r->frames[FRAME_REQ_DATA_IDX] = d && dlen ? zframe_new(d, dlen) : NULL;
         if (!(r->frames[FRAME_VER_IDX] && r->frames[FRAME_TYP_IDX] &&
-              ((d && r->frames[FRAME_REQ_DATA_IDX]) || !d) &&
-              ((hop && r->frames[FRAME_SID_IDX]) || !hop))) {
+              r->frames[FRAME_SID_IDX] &&
+              ((d && r->frames[FRAME_REQ_DATA_IDX]) || !d))) {
             request_destroy((request_s**)&r);
         }
     }

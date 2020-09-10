@@ -2,7 +2,7 @@
 #include "netw.h"
 
 #ifndef SWARM_NODES
-#define SWARM_NODES 3
+#define SWARM_NODES 2
 #endif
 
 #ifndef SWARM_ZMTP_START

@@ -910,19 +910,22 @@ test_netw_forward_request(void** context_p)
     // First outgoing message is to the device
     outgoing = czmq_spy_mesg_pop_outgoing();
     assert_non_null(outgoing);
-    assert_int_equal(zmsg_size(outgoing), 4);
+    assert_int_equal(zmsg_size(outgoing), 5);
     rid = zmsg_pop(outgoing);
     ver = zmsg_pop(outgoing);
     typ = zmsg_pop(outgoing);
+    sid = zmsg_pop(outgoing);
     url = zmsg_pop(outgoing);
 
     assert_memory_equal(zframe_data(rid), "router-d", 8);
     assert_memory_equal(zframe_data(ver), "\x0", 1);
     assert_memory_equal(zframe_data(typ), "\x1", 1);
+    assert_memory_equal(zframe_data(sid), "device123", 9);
     assert_memory_equal(zframe_data(url), "GET /hello", 10);
     zframe_destroy(&rid);
     zframe_destroy(&ver);
     zframe_destroy(&typ);
+    zframe_destroy(&sid);
     zframe_destroy(&url);
     zmsg_destroy(&outgoing);
 

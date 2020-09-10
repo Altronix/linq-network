@@ -25,7 +25,7 @@ test_route_proxy_get(void** context_p)
 
     const char* serial = "serial1234";
     zmsg_t* outgoing;
-    zframe_t *rid, *ver, *typ, *url;
+    zframe_t *rid, *ver, *typ, *sid, *url;
 
     helpers_test_context_s* test = test_init(&config);
     helpers_add_device(test, serial, "rid0", "product", "site");
@@ -44,14 +44,17 @@ test_route_proxy_get(void** context_p)
     rid = zmsg_pop(outgoing);
     ver = zmsg_pop(outgoing);
     typ = zmsg_pop(outgoing);
+    sid = zmsg_pop(outgoing);
     url = zmsg_pop(outgoing);
     assert_memory_equal(zframe_data(rid), "rid0", 4);
     assert_memory_equal(zframe_data(ver), "\x0", 1);
     assert_memory_equal(zframe_data(typ), "\x1", 1);
+    assert_memory_equal(zframe_data(sid), "serial1234", 1);
     assert_memory_equal(zframe_data(url), "GET /ATX/about", 14);
     zframe_destroy(&rid);
     zframe_destroy(&ver);
     zframe_destroy(&typ);
+    zframe_destroy(&sid);
     zframe_destroy(&url);
     zmsg_destroy(&outgoing);
 
@@ -71,7 +74,7 @@ test_route_proxy_post(void** context_p)
 
     const char* serial = "serial1234";
     zmsg_t* outgoing;
-    zframe_t *rid, *ver, *typ, *url, *dat;
+    zframe_t *rid, *ver, *typ, *url, *sid, *dat;
 
     helpers_test_context_s* test = test_init(&config);
     sqlite_spy_step_return_push(SQLITE_ROW);
@@ -97,16 +100,19 @@ test_route_proxy_post(void** context_p)
     rid = zmsg_pop(outgoing);
     ver = zmsg_pop(outgoing);
     typ = zmsg_pop(outgoing);
+    sid = zmsg_pop(outgoing);
     url = zmsg_pop(outgoing);
     dat = zmsg_pop(outgoing);
     assert_memory_equal(zframe_data(rid), "rid0", 4);
     assert_memory_equal(zframe_data(ver), "\x0", 1);
     assert_memory_equal(zframe_data(typ), "\x1", 1);
+    assert_memory_equal(zframe_data(sid), "serial1234", 10);
     assert_memory_equal(zframe_data(url), "POST /ATX/about", 14);
     assert_memory_equal(zframe_data(dat), "{\"test\":\"data\"}", 15);
     zframe_destroy(&rid);
     zframe_destroy(&ver);
     zframe_destroy(&typ);
+    zframe_destroy(&sid);
     zframe_destroy(&url);
     zframe_destroy(&dat);
     zmsg_destroy(&outgoing);
