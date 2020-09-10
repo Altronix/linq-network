@@ -5,6 +5,9 @@
 LINQ_EXPORT const char*
 sys_config_dir(const char* name)
 {
+#if defined _WIN32
+    return NULL;
+#else
     static char path[128];
     uint32_t c = 0;
     int rc;
@@ -17,4 +20,5 @@ sys_config_dir(const char* name)
         c++;
     }
     return NULL;
+#endif
 }
