@@ -267,13 +267,16 @@ netw_send(
     E_LINQ_ERROR error = LINQ_ERROR_OK;
     char e[32];
     const char* m;
+    log_info("(NETW) send [%.6s...] [%s] [%.*s]", serial, method, plen, path);
     node_s** node = devices_get(linq->devices, serial);
     if (!node) {
+        log_error("(NETW) send [%.6s...] not found!", serial);
         m = "not found";
         snprintf(e, sizeof(e), "{\"error\":\"%s\"}", m);
         error = LINQ_ERROR_DEVICE_NOT_FOUND;
         fn(context, "", error, e);
     } else {
+        log_info("(NETW) send [%.6s...] sent!", serial);
         E_REQUEST_METHOD m = method_from_str(method);
         (*node)->send(*node, m, path, plen, json, jlen, fn, context);
     }
