@@ -67,7 +67,7 @@
 #define SID_LEN LINQ_SID_LEN
 #define TID_LEN LINQ_TID_LEN
 #define SITE_LEN 64
-#define JSON_LEN 1024
+#define JSON_LEN 8192
 
 #define ATX_NET_SOCKET(socket) ((0x00FF) & socket)
 #define ATX_NET_SOCKET_TYPE(socket) ((socket & 0xFF00) >> 0x08)
