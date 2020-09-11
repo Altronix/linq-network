@@ -45,6 +45,7 @@ extern "C"
     {
         http_route_cb cb;
         void* context;
+        bool more;
         struct mg_connection* curr_connection;
         struct http_message* curr_message;
         struct http_route_context* self;

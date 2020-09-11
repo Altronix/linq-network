@@ -145,55 +145,51 @@ get_addr(const struct mg_connection* c, char* buff, uint32_t sbuff)
         &c->sa, buff, sbuff, MG_SOCK_STRINGIFY_IP | MG_SOCK_STRINGIFY_PORT);
 }
 
-typedef struct foreach_route_check_path_context
-{
-    const char* path;
-    http_route_context*** found_p;
-} foreach_route_check_path_context;
-
-static void
-foreach_route_check_path(
-    routes_map_s* self,
-    void* data,
-    const char* test_path,
-    http_route_context** r_p)
-{
-    ((void)self);
-    foreach_route_check_path_context* ctx = data;
-    if (!*ctx->found_p) {
-        uint32_t plen = strlen(ctx->path), tlen = strlen(test_path);
-        if (tlen >= 4 && !(memcmp(&test_path[tlen - 4], "/...", 4))) {
-            if (plen > tlen && !(memcmp(test_path, ctx->path, tlen - 4))) {
-                *ctx->found_p = r_p;
-            }
-        }
-    }
-}
-
 static http_route_context**
 resolve_route(http_s* http, struct mg_str* uri)
 {
     static char path[128];
+    routes_iter iter;
     linq_network_assert(uri->len < sizeof(path));
     http_route_context** r_p = NULL;
     snprintf(path, sizeof(path), "%.*s", (uint32_t)uri->len, uri->p);
-    foreach_route_check_path_context ctx = { .path = path, .found_p = &r_p };
     r_p = routes_map_get(http->routes, path);
-    if (!r_p) routes_map_foreach(http->routes, foreach_route_check_path, &ctx);
+    if (!r_p) {
+        map_foreach(http->routes, iter)
+        {
+            if (map_has_key(http->routes, iter)) {
+                const char* key = map_key(http->routes, iter);
+                uint32_t tlen = strlen(key), plen = strlen(path);
+                if (tlen >= 4 &&                          //
+                    plen > tlen &&                        //
+                    !memcmp(&key[tlen - 4], "/...", 4) && //
+                    !memcmp(key, path, tlen - 4)) {
+                    r_p = &map_val(http->routes, iter);
+                }
+            }
+        }
+    }
     return r_p;
 }
 
 static void
-process_route(
-    http_route_context** r,
+process_request(
+    http_s* http,
+    http_route_context** route_p,
     struct mg_connection* c,
     struct http_message* m)
 {
-    // TODO need to push this request into container and remove container when
-    // closed or serviced
-    (*r)->curr_connection = c;
-    (*r)->curr_message = m;
-    (*r)->cb(*r, get_method(m), m->body.len, m->body.p);
+    static uint32_t reqidx = 0;
+    (*route_p)->curr_connection = c;
+    (*route_p)->curr_message = m;
+    (*route_p)->cb(*route_p, get_method(m), m->body.len, m->body.p);
+    if ((*route_p)->more) {
+        http_request_s* r = malloc(sizeof(http_request_s));
+        assert(r);
+        r->route_p = route_p;
+        snprintf(r->key, sizeof(r->key), "%d", reqidx++);
+        requests_map_add(http->requests, r->key, &r);
+    }
 }
 
 static void
@@ -244,10 +240,10 @@ ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
             if (r) {
                 if (path->len >= UNSECURE_API_LEN &&
                     !(memcmp(UNSECURE_API, path->p, UNSECURE_API_LEN))) {
-                    process_route(r, c, m);
+                    process_request(http, r, c, m);
                 } else {
                     if (http_auth_is_authorized(http->db, c, m)) {
-                        process_route(r, c, m);
+                        process_request(http, r, c, m);
                     } else {
                         log_warn(
                             "%06s %04s %s [%s]",
