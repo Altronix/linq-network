@@ -184,7 +184,8 @@ process_request(
     assert(r);
     r->route_p = route_p;
     r->connection = c;
-    r->more = false;
+    r->http = http;
+    r->closed = r->more = false;
     (*r->route_p)->curr_message = m;
     (*r->route_p)->cb(r, get_method(m), m->body.len, m->body.p);
     if (r->more) {
@@ -229,7 +230,17 @@ ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
         case MG_EV_RECV: log_trace("%06s %04s", "(HTTP)", "Recv"); break;
         case MG_EV_SEND: log_trace("%06s %04s", "(HTTP)", "Send"); break;
         case MG_EV_CLOSE: {
+            http_s* http = user_data;
             char addr[48];
+            requests_iter iter;
+            map_foreach(http->requests, iter)
+            {
+                if (map_has_key(http->requests, iter)) {
+                    if (map_val(http->requests, iter)->connection == c) {
+                        map_val(http->requests, iter)->closed = true;
+                    }
+                }
+            }
             get_addr(c, addr, sizeof(addr));
             log_info("(HTTP) (%s) Connection close", addr);
         } break;
@@ -446,6 +457,21 @@ http_broadcast_json(http_s* http, int code, const char* fmt, ...)
             mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, mem, len);
         }
     }
+}
+LINQ_HTTP_EXPORT void
+http_resolve_json(http_request_s* r, int code, const char* fmt, ...)
+{
+    size_t l;
+    va_list ap;
+
+    if (!r->closed) {
+        // Send data
+        va_get_len(ap, fmt, l);
+        va_start(ap, fmt);
+        c_vprintf(r->connection, code, "application/json", l, fmt, ap);
+        va_end(ap);
+    }
+    requests_map_remove(r->http->requests, r->key);
 }
 
 void

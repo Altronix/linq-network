@@ -54,6 +54,8 @@ extern "C"
     {
         http_route_context** route_p;
         bool more;
+        bool closed;
+        struct http_s* http;
         struct mg_connection* connection;
         char key[9];
     } http_request_s;
@@ -91,6 +93,8 @@ extern "C"
         http_request_s* r);
     LINQ_HTTP_EXPORT void
     http_broadcast_json(http_s* http, int code, const char* fmt, ...);
+    LINQ_HTTP_EXPORT void
+    http_resolve_json(http_request_s* r, int code, const char* fmt, ...);
     LINQ_HTTP_EXPORT void http_printf_json(
         struct mg_connection* connection,
         int code,

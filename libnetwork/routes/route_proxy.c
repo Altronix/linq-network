@@ -5,10 +5,10 @@
 #define API_URI_LEN (sizeof(API_URI) - 1)
 
 static void
-on_response(void* ctx, const char* serial, E_LINQ_ERROR error, const char* json)
+cb(void* ctx, const char* serial, E_LINQ_ERROR error, const char* json)
 {
-    struct mg_connection* connection = ctx;
-    http_printf_json(connection, http_error_code(error), "%s", json);
+    http_request_s* r = ctx;
+    http_resolve_json(r, http_error_code(error), "%s", json);
 }
 
 void
@@ -29,40 +29,13 @@ route_proxy(
         snprintf(serial, sizeof(serial), "%.*s", (int)(ptr - url), url);
         plen = m->uri.len - (ptr - m->uri.p);
         if (meth == HTTP_METHOD_POST || meth == HTTP_METHOD_PUT) {
-            netw_send(
-                linq,
-                serial,
-                "POST",
-                ptr,
-                plen,
-                body,
-                jlen,
-                on_response,
-                r->connection);
+            netw_send(linq, serial, "POST", ptr, plen, body, jlen, cb, r);
             r->more = true;
         } else if (meth == HTTP_METHOD_DELETE) {
-            netw_send(
-                linq,
-                serial,
-                "DELETE",
-                ptr,
-                plen,
-                NULL,
-                0,
-                on_response,
-                r->connection);
+            netw_send(linq, serial, "DELETE", ptr, plen, NULL, 0, cb, r);
             r->more = true;
         } else {
-            netw_send(
-                linq,
-                serial,
-                "GET",
-                ptr,
-                plen,
-                NULL,
-                0,
-                on_response,
-                r->connection);
+            netw_send(linq, serial, "GET", ptr, plen, NULL, 0, cb, r);
             r->more = true;
         }
     } else {
