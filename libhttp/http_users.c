@@ -8,9 +8,9 @@
 #include "openssl/sha.h"
 
 void
-login(http_route_context* ctx, HTTP_METHOD meth, uint32_t l, const char* body)
+login(http_request_s* r, HTTP_METHOD meth, uint32_t l, const char* body)
 {
-    database_s* db = ((http_s*)ctx->context)->db;
+    database_s* db = ((http_s*)http_request_context(r))->db;
     char user_str[USER_MAX_LEN];
     char pass_str[PASS_MAX_LEN];
     char* token_str = NULL;
@@ -45,26 +45,26 @@ login(http_route_context* ctx, HTTP_METHOD meth, uint32_t l, const char* body)
                 token.len,
                 token.b);
             // Send token
-            http_printf_json(ctx->curr_connection, 200, response);
+            http_printf_json(r->connection, 200, response);
             linq_network_free(token_str);
         } else {
             // Unauthorized
-            http_printf_json(ctx->curr_connection, 503, JERROR_503);
+            http_printf_json(r->connection, 503, JERROR_503);
         }
     } else {
         // Bad arguments
-        http_printf_json(ctx->curr_connection, 400, JERROR_400);
+        http_printf_json(r->connection, 400, JERROR_400);
     }
 }
 
 void
-users(http_route_context* ctx, HTTP_METHOD meth, uint32_t l, const char* body)
+users(http_request_s* ctx, HTTP_METHOD meth, uint32_t l, const char* body)
 {}
 
 static void
-process_create_admin(http_route_context* ctx, uint32_t l, const char* body)
+process_create_admin(http_request_s* r, uint32_t l, const char* body)
 {
-    database_s* db = ((http_s*)ctx->context)->db;
+    database_s* db = ((http_s*)http_request_context(r))->db;
     char k[128], v[256], h[HASH_LEN], s[SALT_LEN], uid[UUID_MAX_LEN];
     uint32_t klen, vlen, ulen, plen;
     int count, err;
@@ -100,41 +100,33 @@ process_create_admin(http_route_context* ctx, uint32_t l, const char* body)
             // clang-format on
             err = database_insert_raw_n(db, "users", k, klen, v, vlen);
             if (!err) {
-                http_printf_json(ctx->curr_connection, 200, JERROR_200);
+                http_printf_json(http_request_connection(r), 200, JERROR_200);
             } else {
-                http_printf_json(ctx->curr_connection, 500, JERROR_500);
+                http_printf_json(http_request_connection(r), 500, JERROR_500);
             }
         } else {
-            http_printf_json(ctx->curr_connection, 400, JERROR_400);
+            http_printf_json(http_request_connection(r), 400, JERROR_400);
         }
     } else {
-        http_printf_json(ctx->curr_connection, 400, JERROR_400);
+        http_printf_json(http_request_connection(r), 400, JERROR_400);
     }
 }
 
 void
-has_admin(
-    http_route_context* ctx,
-    HTTP_METHOD meth,
-    uint32_t l,
-    const char* body)
+has_admin(http_request_s* r, HTTP_METHOD meth, uint32_t l, const char* body)
 {
-    database_s* db = ((http_s*)ctx->context)->db;
+    database_s* db = ((http_s*)http_request_context(r))->db;
     int ret = database_count(db, "users") ? 1 : 0;
-    http_printf_json(ctx->curr_connection, 200, "%d", ret);
+    http_printf_json(http_request_connection(r), 200, "%d", ret);
 }
 
 void
-create_admin(
-    http_route_context* ctx,
-    HTTP_METHOD meth,
-    uint32_t l,
-    const char* body)
+create_admin(http_request_s* r, HTTP_METHOD meth, uint32_t l, const char* body)
 {
-    database_s* db = ((http_s*)ctx->context)->db;
+    database_s* db = ((http_s*)http_request_context(r))->db;
     if (database_count(db, "users")) {
-        http_printf_json(ctx->curr_connection, 503, JERROR_503);
+        http_printf_json(http_request_connection(r), 503, JERROR_503);
     } else {
-        process_create_admin(ctx, l, body);
+        process_create_admin(r, l, body);
     }
 }

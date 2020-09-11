@@ -45,8 +45,6 @@ extern "C"
     {
         http_route_cb cb;
         void* context;
-        bool more;
-        struct mg_connection* curr_connection;
         struct http_message* curr_message;
         struct http_route_context* self;
     } http_route_context;
@@ -55,6 +53,8 @@ extern "C"
     typedef struct http_request_s
     {
         http_route_context** route_p;
+        bool more;
+        struct mg_connection* connection;
         char key[9];
     } http_request_s;
     MAP_INIT_H(requests, http_request_s);
@@ -86,6 +86,9 @@ extern "C"
         const char* want,
         const char** result,
         uint32_t* l);
+    LINQ_HTTP_EXPORT void* http_request_context(http_request_s*);
+    LINQ_HTTP_EXPORT struct mg_connection* http_request_connection(
+        http_request_s* r);
     LINQ_HTTP_EXPORT void
     http_broadcast_json(http_s* http, int code, const char* fmt, ...);
     LINQ_HTTP_EXPORT void http_printf_json(

@@ -123,12 +123,16 @@ test_route_config_get_200(void** context_p)
     spy_file_init();
     mongoose_spy_init();
     int data = 0;
+    http_request_s r;
+    http_route_context route, *route_p = &route;
+    route.context = &data;
+    r.route_p = &route_p;
 
     mongoose_parser_context* response;
 
     sys_config_dir_return = "foo";
     spy_file_push_incoming("123", 3);
-    route_config((http_route_context*)&data, HTTP_METHOD_GET, 0, NULL);
+    route_config(&r, HTTP_METHOD_GET, 0, NULL);
     response = mongoose_spy_response_pop();
     assert_int_equal(response->content_length, 3);
     assert_memory_equal("123", response->body, 3);
@@ -145,11 +149,15 @@ test_route_config_get_404(void** context_p)
     mongoose_spy_init();
     const char* expect = "{\"error\":\"Not found\"}";
     int data = 0, expect_len = strlen(expect);
+    http_request_s r;
+    http_route_context route, *route_p = &route;
+    route.context = &data;
+    r.route_p = &route_p;
 
     mongoose_parser_context* response;
 
     sys_config_dir_return = NULL;
-    route_config((http_route_context*)&data, HTTP_METHOD_GET, 0, NULL);
+    route_config(&r, HTTP_METHOD_GET, 0, NULL);
     response = mongoose_spy_response_pop();
     assert_int_equal(response->content_length, expect_len);
     assert_memory_equal(expect, response->body, expect_len);
@@ -168,11 +176,14 @@ test_route_config_post_200(void** context_p)
     config_s c;
     const char* expect = "{\"error\":\"ok\"}";
     int expect_len = strlen(expect);
+    http_request_s r;
+    http_route_context route, *route_p = &route;
+    r.route_p = &route_p;
 
     spy_file_packet_s* packet;
     mongoose_parser_context* response;
     sys_config_dir_return = "foo";
-    route_config(&ctx, HTTP_METHOD_POST, strlen(config), config);
+    route_config(&r, HTTP_METHOD_POST, strlen(config), config);
     packet = spy_file_packet_pop_outgoing();
     response = mongoose_spy_response_pop();
     assert_non_null(packet);

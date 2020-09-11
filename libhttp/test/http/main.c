@@ -28,7 +28,7 @@ test_http_create(void** c_p)
 
 static void
 test_http_hello_route(
-    http_route_context* ctx,
+    http_request_s* r,
     HTTP_METHOD meth,
     uint32_t l,
     const char* body)
@@ -36,8 +36,8 @@ test_http_hello_route(
     assert_int_equal(meth, HTTP_METHOD_GET);
     assert_int_equal(l, 0);
     assert_null(body);
-    *((bool*)ctx->context) = true;
-    http_printf_json(ctx->curr_connection, 200, "{\"hello\":\"world\"}");
+    *((bool*)http_request_context(r)) = true;
+    http_printf_json(r->connection, 200, "{\"hello\":\"world\"}");
 }
 
 static void
@@ -75,7 +75,7 @@ test_http_simple_get(void** context_p)
 
 static void
 test_http_query_route(
-    http_route_context* ctx,
+    http_request_s* r,
     HTTP_METHOD meth,
     uint32_t l,
     const char* body)
@@ -83,29 +83,29 @@ test_http_query_route(
     assert_int_equal(meth, HTTP_METHOD_GET);
     assert_int_equal(l, 0);
     assert_null(body);
-    *((bool*)ctx->context) = true;
+    *((bool*)http_request_context(r)) = true;
     const char* query = "BOO";
     uint32_t len = 3;
-    http_parse_query_str(ctx, "notfound", &query, &len);
+    http_parse_query_str(*r->route_p, "notfound", &query, &len);
     assert_null(query);
     assert_int_equal(len, 0);
-    http_parse_query_str(ctx, "a", &query, &len);
+    http_parse_query_str(*r->route_p, "a", &query, &len);
     assert_non_null(query);
     assert_int_equal(len, 1);
     assert_memory_equal(query, "1", 1);
-    http_parse_query_str(ctx, "param", &query, &len);
+    http_parse_query_str(*r->route_p, "param", &query, &len);
     assert_non_null(query);
     assert_int_equal(len, (sizeof("echo") - 1));
     assert_memory_equal(query, "echo", len);
-    http_parse_query_str(ctx, "start", &query, &len);
+    http_parse_query_str(*r->route_p, "start", &query, &len);
     assert_non_null(query);
     assert_int_equal(len, (sizeof("22") - 1));
     assert_memory_equal(query, "22", len);
-    http_parse_query_str(ctx, "b", &query, &len);
+    http_parse_query_str(*r->route_p, "b", &query, &len);
     assert_non_null(query);
     assert_int_equal(len, 1);
     assert_memory_equal(query, "2", 1);
-    http_printf_json(ctx->curr_connection, 200, "{\"hello\":\"world\"}");
+    http_printf_json(r->connection, 200, "{\"hello\":\"world\"}");
 }
 
 static void
@@ -145,7 +145,7 @@ test_http_simple_query(void** context_p)
 
 static void
 test_http_invalid_query_route(
-    http_route_context* ctx,
+    http_request_s* r,
     HTTP_METHOD meth,
     uint32_t l,
     const char* body)
@@ -156,17 +156,17 @@ test_http_invalid_query_route(
     const char* test = "BOO";
     const char* query = test;
     uint32_t len = 3;
-    (*((int*)ctx->context))++;
+    (*((int*)http_request_context(r)))++;
 
-    http_parse_query_str(ctx, "invalid", &query, &len);
+    http_parse_query_str(*r->route_p, "invalid", &query, &len);
     assert_null(query);
     assert_int_equal(len, 0);
     query = test;
     len = 3;
-    http_parse_query_str(ctx, "alsoinvalid", &query, &len);
+    http_parse_query_str(*r->route_p, "alsoinvalid", &query, &len);
     assert_null(query);
     assert_int_equal(len, 0);
-    http_printf_json(ctx->curr_connection, 200, "{\"hello\":\"world\"}");
+    http_printf_json(r->connection, 200, "{\"hello\":\"world\"}");
 }
 
 static void

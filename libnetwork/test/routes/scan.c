@@ -20,12 +20,14 @@ __wrap_netw_scan(netw_s* netw)
 void
 test_route_scan(void** context_p)
 {
-    http_route_context ctx;
-    memset(&ctx, 0, sizeof(ctx));
+    http_request_s r;
+    http_route_context route, *route_p = &route;
+    memset(&r, 0, sizeof(r));
     mongoose_parser_context* parser;
 
     mongoose_spy_init();
-    route_scan(&ctx, HTTP_METHOD_GET, 0, NULL);
+    r.route_p = &route_p;
+    route_scan(&r, HTTP_METHOD_GET, 0, NULL);
     parser = mongoose_spy_response_pop();
     assert_non_null(parser);
     assert_int_equal(parser->content_length, 11);

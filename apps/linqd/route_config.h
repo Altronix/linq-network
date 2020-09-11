@@ -9,7 +9,7 @@ extern "C"
 #endif
 
     void route_config(
-        http_route_context* ctx,
+        http_request_s* ctx,
         HTTP_METHOD meth,
         uint32_t l,
         const char* b);

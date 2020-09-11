@@ -5,7 +5,7 @@
 #include "sys.h"
 
 static void
-get(http_route_context* ctx, uint32_t l, const char* b)
+get(http_request_s* r, uint32_t l, const char* b)
 {
     sys_file* f = NULL;
     char buffer[1024];
@@ -15,22 +15,22 @@ get(http_route_context* ctx, uint32_t l, const char* b)
         (f = sys_open(dir, FILE_MODE_READ, FILE_BLOCKING))) {
         sz = sys_read_buffer(f, buffer, &sz);
         buffer[sz] = 0;
-        http_printf_json(ctx->curr_connection, 200, buffer);
+        http_printf_json(r->connection, 200, buffer);
         sys_close(&f);
     } else {
         log_error("(APP) req 404");
         const char* err404 = "{\"error\":\"Not found\"}";
-        http_printf_json(ctx->curr_connection, 404, err404);
+        http_printf_json(r->connection, 404, err404);
     }
 }
 
 static void
-put(http_route_context* ctx, uint32_t l, const char* b)
+put(http_request_s* r, uint32_t l, const char* b)
 {
     static const char* errfmt = "{\"error\":\"%s\"}";
     int err, i;
     FILE* f = NULL;
-    const char *r = "{\"error\":\"ok\"}", *dir = NULL;
+    const char *e = "{\"error\":\"ok\"}", *dir = NULL;
     config_s c;
     err = config_parse(b, l, &c);
     if (err == 0 && (dir = sys_config_dir("linqd")) &&
@@ -38,25 +38,21 @@ put(http_route_context* ctx, uint32_t l, const char* b)
         err = config_fprint(f, &c);
         sys_close(&f);
         if (!(err < 0)) {
-            http_printf_json(ctx->curr_connection, 200, r);
+            http_printf_json(r->connection, 200, e);
         } else {
-            r = strerror(errno);
+            e = strerror(errno);
             log_error("(APP) file io error [%s]", r);
-            http_printf_json(ctx->curr_connection, 500, errfmt, r);
+            http_printf_json(r->connection, 500, errfmt, r);
         }
     } else {
-        r = strerror(errno);
+        e = strerror(errno);
         log_error("(APP) file io error [%s]", r);
-        http_printf_json(ctx->curr_connection, 500, errfmt, r);
+        http_printf_json(r->connection, 500, errfmt, r);
     }
 }
 
 void
-route_config(
-    http_route_context* ctx,
-    HTTP_METHOD meth,
-    uint32_t l,
-    const char* b)
+route_config(http_request_s* ctx, HTTP_METHOD meth, uint32_t l, const char* b)
 {
     switch (meth) {
         case HTTP_METHOD_GET: get(ctx, l, b); break;

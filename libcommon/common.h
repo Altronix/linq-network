@@ -28,11 +28,9 @@ extern "C"
 
     // Callback for a http request
     typedef struct http_route_context http_route_context;
-    typedef void (*http_route_cb)(
-        http_route_context*,
-        HTTP_METHOD,
-        uint32_t,
-        const char*);
+    typedef struct http_request_s http_request_s;
+    typedef void (
+        *http_route_cb)(http_request_s*, HTTP_METHOD, uint32_t, const char*);
 #endif
 
     typedef enum E_TRANSPORT

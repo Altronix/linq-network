@@ -14,8 +14,7 @@ extern "C"
 {
 #endif
 
-#define PROTO_ARGS                                                             \
-    http_route_context *, HTTP_METHOD meth, uint32_t, const char *
+#define PROTO_ARGS http_request_s *, HTTP_METHOD meth, uint32_t, const char *
 
     void route_create_admin(PROTO_ARGS);
     void route_login(PROTO_ARGS);

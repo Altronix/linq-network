@@ -180,15 +180,18 @@ process_request(
     struct http_message* m)
 {
     static uint32_t reqidx = 0;
-    (*route_p)->curr_connection = c;
-    (*route_p)->curr_message = m;
-    (*route_p)->cb(*route_p, get_method(m), m->body.len, m->body.p);
-    if ((*route_p)->more) {
-        http_request_s* r = malloc(sizeof(http_request_s));
-        assert(r);
-        r->route_p = route_p;
+    http_request_s* r = malloc(sizeof(http_request_s));
+    assert(r);
+    r->route_p = route_p;
+    r->connection = c;
+    r->more = false;
+    (*r->route_p)->curr_message = m;
+    (*r->route_p)->cb(r, get_method(m), m->body.len, m->body.p);
+    if (r->more) {
         snprintf(r->key, sizeof(r->key), "%d", reqidx++);
         requests_map_add(http->requests, r->key, &r);
+    } else {
+        free(r);
     }
 }
 
@@ -410,6 +413,18 @@ http_parse_query_str(
             *l = 0;
         }
     }
+}
+
+void*
+http_request_context(http_request_s* r)
+{
+    return (*r->route_p)->context;
+}
+
+struct mg_connection*
+http_request_connection(http_request_s* r)
+{
+    return r->connection;
 }
 
 void

@@ -20,8 +20,9 @@ __wrap_netw_shutdown(netw_s* netw)
 void
 test_route_quit(void** context_p)
 {
-    http_route_context ctx;
-    memset(&ctx, 0, sizeof(ctx));
+    http_request_s r;
+    http_route_context route, *route_p = &route;
+    memset(&r, 0, sizeof(r));
     mongoose_parser_context* parser;
     bool pass = false;
     char resp[256];
@@ -29,8 +30,9 @@ test_route_quit(void** context_p)
     l = snprintf(resp, 256, "{\"error\":\"%s\"}", http_error_message(0));
 
     mongoose_spy_init();
-    ctx.context = &pass;
-    route_quit(&ctx, HTTP_METHOD_GET, 0, NULL);
+    route.context = &pass;
+    r.route_p = &route_p;
+    route_quit(&r, HTTP_METHOD_GET, 0, NULL);
     parser = mongoose_spy_response_pop();
     assert_true(pass);
     assert_non_null(parser);

@@ -14,7 +14,7 @@
 
 void
 route_alerts(
-    http_route_context* ctx,
+    http_request_s* r,
     HTTP_METHOD meth,
     uint32_t _l,
     const char* _body)
@@ -26,18 +26,17 @@ route_alerts(
     char b[LINQ_NETW_MAX_RESPONSE_SIZE];
     const char *count = NULL, *offset = NULL;
     uint32_t countl, offsetl;
-    database_s* db = netw_database(ctx->context);
+    database_s* db = netw_database(http_request_context(r));
     alert_s a;
 
     if (!(meth == HTTP_METHOD_GET)) {
-        http_printf_json(
-            ctx->curr_connection, 400, "{\"error\":\"Bad request\"}");
+        http_printf_json(r->connection, 400, "{\"error\":\"Bad request\"}");
         return;
     }
 
     // Parse query params if provided then generate sql
-    http_parse_query_str(ctx, "count", &count, &countl);
-    http_parse_query_str(ctx, "offset", &offset, &offsetl);
+    http_parse_query_str(*r->route_p, "count", &count, &countl);
+    http_parse_query_str(*r->route_p, "offset", &offset, &offsetl);
 
     // TODO test should compare db statements with query string vs no query str
     if (count && offset && countl < 6 && offsetl < 6) {
@@ -73,9 +72,9 @@ route_alerts(
     }
     if (l < sizeof(b)) {
         l += snprintf(&b[l], sizeof(b) - l, "]}");
-        http_printf_json(ctx->curr_connection, 200, b);
+        http_printf_json(r->connection, 200, b);
     } else {
         snprintf(b, sizeof(b), "{\"error\":\"Response too large\"}");
-        http_printf_json(ctx->curr_connection, 400, b);
+        http_printf_json(r->connection, 400, b);
     }
 }
