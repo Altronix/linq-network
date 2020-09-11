@@ -28,8 +28,9 @@
     result = vsnprintf(NULL, 0, __fmt, __list);                                \
     va_end(__list);
 
-// Hash map of URL's to routes
+// Hash map of URL's to routes and requests
 MAP_INIT_W_FREE(routes, http_route_context);
+MAP_INIT_W_FREE(requests, http_request_s);
 
 const char*
 http_error_message(E_LINQ_ERROR e)
@@ -188,6 +189,8 @@ process_route(
     struct mg_connection* c,
     struct http_message* m)
 {
+    // TODO need to push this request into container and remove container when
+    // closed or serviced
     (*r)->curr_connection = c;
     (*r)->curr_message = m;
     (*r)->cb(*r, get_method(m), m->body.len, m->body.p);
@@ -295,6 +298,7 @@ http_init(http_s* http, database_s* db)
     http->db = db;
     mg_mgr_init(&http->connections, http);
     http->routes = routes_map_create();
+    http->requests = requests_map_create();
 
     http_use(http, "/api/v1/public/create_admin", create_admin, http);
     http_use(http, "/api/v1/public/has_admin", has_admin, http);
@@ -307,6 +311,7 @@ http_deinit(http_s* http)
 {
     mg_mgr_free(&http->connections);
     routes_map_destroy(&http->routes);
+    requests_map_destroy(&http->requests);
 }
 
 E_LINQ_ERROR

@@ -9,6 +9,7 @@ on_response(void* ctx, const char* serial, E_LINQ_ERROR error, const char* json)
 {
     struct mg_connection* connection = ctx;
     http_printf_json(connection, http_error_code(error), "%s", json);
+    // http_resolve_request(code,json);
 }
 
 void

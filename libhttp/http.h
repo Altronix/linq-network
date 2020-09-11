@@ -51,6 +51,13 @@ extern "C"
     } http_route_context;
     MAP_INIT_H(routes, http_route_context);
 
+    typedef struct http_request_s
+    {
+        http_route_context** route_p;
+        char key[9];
+    } http_request_s;
+    MAP_INIT_H(requests, http_request_s);
+
     // Main class context (internal use only)
     typedef struct http_s
     {
@@ -59,6 +66,7 @@ extern "C"
         struct mg_mgr connections;
         struct mg_serve_http_opts serve_opts;
         routes_map_s* routes;
+        requests_map_s* requests;
         database_s* db;
         char root[256];
     } http_s;
