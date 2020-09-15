@@ -111,6 +111,11 @@ export class LinqNetwork extends Events.EventEmitter {
     return this.send(serial, "DELETE", path);
   }
 
+  // Alias for deviceCount
+  count(): number {
+    return this.deviceCount();
+  }
+
   // deviceCount
   deviceCount(): number {
     return this.netw.deviceCount();
@@ -119,6 +124,12 @@ export class LinqNetwork extends Events.EventEmitter {
   // nodeCount
   nodeCount(): number {
     return this.netw.nodeCount();
+  }
+
+  // remove
+  remove(sid: string): LinqNetwork {
+    this.netw.deviceRemove(sid);
+    return this;
   }
 
   // Shutdown our run timer

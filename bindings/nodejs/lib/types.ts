@@ -31,6 +31,7 @@ export interface Binding {
   connect: (arg: string | number) => Binding;
   close: (arg: number) => Binding;
   deviceCount: () => number;
+  deviceRemove: (sid: string) => number;
   nodeCount: () => number;
   scan: () => number;
   run: (val: number) => void;

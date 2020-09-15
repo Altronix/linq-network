@@ -43,6 +43,7 @@ extern "C"
     LINQ_EXPORT node_s** netw_device(const netw_s* l, const char* serial);
     LINQ_EXPORT bool netw_device_exists(const netw_s*, const char* sid);
     LINQ_EXPORT uint32_t netw_device_count(const netw_s*);
+    LINQ_EXPORT int netw_device_remove(const netw_s* l, const char* sid);
     LINQ_EXPORT void
     netw_devices_foreach(const netw_s* l, netw_devices_foreach_fn, void*);
     LINQ_EXPORT uint32_t netw_node_count(const netw_s* linq);

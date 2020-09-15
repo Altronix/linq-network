@@ -1155,6 +1155,46 @@ test_netw_devices_foreach(void** context_p)
 }
 */
 
+static void
+test_netw_device_remove(void** context_p)
+{
+    ((void)context_p);
+    bool pass = false;
+    int ret;
+    const char* serial = expect_sid = "serial";
+    helpers_test_config_s config = { .callbacks = &callbacks,
+                                     .context = &pass,
+                                     .zmtp = 32820,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
+    zmsg_t* hb0 = helpers_make_heartbeat("rid0", serial, "product", "site");
+
+    helpers_test_context_s* test = test_init(&config);
+
+    // Push some incoming heartbeats
+    czmq_spy_mesg_push_incoming(&hb0);
+    czmq_spy_poll_set_incoming((0x01));
+    spy_sys_set_tick(100);
+    assert_int_equal(netw_device_count(test->net), 0);
+
+    // Receive a heartbeat
+    netw_poll(test->net, 5);
+    node_s** d = (node_s**)netw_device(test->net, serial);
+    assert_non_null(d);
+    assert_int_equal(netw_device_count(test->net), 1);
+
+    ret = netw_device_remove(test->net, serial);
+    assert_int_equal(ret, 0);
+    assert_int_equal(netw_device_count(test->net), 0);
+    ret = netw_device_remove(test->net, serial);
+    assert_int_equal(ret, -1);
+
+    assert_true(pass);
+
+    test_reset(&test);
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -1184,6 +1224,7 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_netw_forward_client_request),
         cmocka_unit_test(test_netw_connect),
         cmocka_unit_test(test_netw_close_router),
+        cmocka_unit_test(test_netw_device_remove),
         // cmocka_unit_test(test_netw_devices_foreach)
     };
 

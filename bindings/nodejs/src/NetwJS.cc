@@ -26,6 +26,7 @@ LinqNetwork::Init(Napi::Env env, Napi::Object exports)
           InstanceMethod("connect", &LinqNetwork::Connect),
           InstanceMethod("close", &LinqNetwork::Close),
           InstanceMethod("deviceCount", &LinqNetwork::DeviceCount),
+          InstanceMethod("deviceRemove", &LinqNetwork::DeviceRemove),
           InstanceMethod("nodeCount", &LinqNetwork::NodeCount),
           InstanceMethod("send", &LinqNetwork::Send),
           InstanceMethod("sendGet", &LinqNetwork::Get),
@@ -248,6 +249,16 @@ Napi::Value
 LinqNetwork::NodeCount(const Napi::CallbackInfo& info)
 {
     return Napi::Number::New(info.Env(), this->linq_.node_count());
+}
+
+Napi::Value
+LinqNetwork::DeviceRemove(const Napi::CallbackInfo& info)
+{
+    Napi::Env env = Env();
+    if (!(info.Length() >= 1)) _NTHROW(env, "Incorrect number of arguments!");
+    if (!(info[0].IsString())) _NTHROW(env, "Expect arg[0] as String!");
+    std::string sid = info[0].ToString();
+    return Napi::Number::New(info.Env(), this->linq_.device_remove(sid));
 }
 
 Napi::Value
