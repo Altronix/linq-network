@@ -193,6 +193,17 @@ netw_device_count(const netw_s* l)
     return devices_size(l->devices);
 }
 
+int
+netw_device_remove(const netw_s* l, const char* sid)
+{
+    if (netw_device_exists(l, sid)) {
+        devices_remove(l->devices, sid);
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
 // // Context used for netw_devices_foreach HOF (Higher Order Function)
 // typedef struct
 // {

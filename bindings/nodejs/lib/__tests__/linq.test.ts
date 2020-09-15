@@ -16,7 +16,9 @@ test("Should run", () => {
 
 test("Linq should send", async () => {
   let { binding, network } = setup();
-  binding.send.mockReturnValue(new Promise(resolve => resolve('{"mock":42}')));
+  binding.send.mockReturnValue(
+    new Promise((resolve) => resolve('{"mock":42}'))
+  );
   await network.send("serial", "GET", "/ATX");
   expect(binding.send).toHaveBeenCalledTimes(1);
   binding.send.mockClear();
@@ -56,6 +58,13 @@ test("Linq should connect with string", async () => {
   expect(binding.connect).toHaveBeenCalledWith("tcp://*:33");
   expect(binding.connect).toHaveBeenCalledTimes(1);
   binding.connect.mockClear();
+});
+
+test("Linq should remove a device", async () => {
+  let { binding, network } = setup();
+  network.remove("foo");
+  expect(binding.deviceRemove).toHaveBeenCalledWith("foo");
+  binding.deviceRemove.mockClear();
 });
 
 test("Linq should run", async () => {
