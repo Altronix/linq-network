@@ -122,9 +122,9 @@ LinqNetwork::LinqNetwork(const Napi::CallbackInfo& info)
             auto code = Napi::Number::New(env, e);
             std::string sid{ serial };
             std::string msg{ err };
-            obj.Set("serial", sid);
             obj.Set("errorCode", code);
             obj.Set("errorMessage", msg);
+            if (sid.length()) obj.Set("serial", sid);
 
             // emit
             auto event = Napi::String::New(env, "error");
