@@ -482,6 +482,7 @@ process_packet(zmtp_s* z, zsock_t* s)
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     int total_frames = 0, start = 1;
     bool router = is_router(s);
+    char sid[SID_LEN] = "";
     zframe_t* f[FRAME_MAX];
     memset(f, 0, sizeof(f));
     zmsg_t* msg = zmsg_recv(s); // TODO can be null
@@ -510,7 +511,10 @@ process_packet(zmtp_s* z, zsock_t* s)
         log_error("(ZMTP) Processing packet error [%d]", (int)e);
         if (z->callbacks && z->callbacks->on_err) {
             log_trace("(ZMTP) Executing error callback");
-            z->callbacks->on_err(z->context, e, "", "");
+            if (f[FRAME_SID_IDX]) {
+                print_null_terminated(sid, SID_LEN, f[FRAME_SID_IDX]);
+            }
+            z->callbacks->on_err(z->context, e, sid, "");
         }
     }
     zmsg_destroy(&msg);

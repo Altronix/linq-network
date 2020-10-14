@@ -37,7 +37,7 @@ test_reset(helpers_test_context_s** test_p)
 }
 
 static void
-test_error_fn(void* pass, E_LINQ_ERROR e, const char* what, const char* serial)
+test_error_fn(void* pass, E_LINQ_ERROR e, const char* serial, const char* what)
 {
     assert_int_equal(e, expect_error);
     assert_string_equal(what, expect_what);
@@ -117,6 +117,40 @@ test_netw_receive_protocol_error_short(void** context_p)
     expect_error = LINQ_ERROR_PROTOCOL;
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
+
+    netw_poll(test->net, 5);
+
+    assert_true(pass);
+
+    test_reset(&test);
+}
+
+static void
+test_netw_receive_protocol_error_callback_has_serial(void** context_p)
+{
+    ((void)context_p);
+    bool pass = false;
+    helpers_test_config_s config = { .callbacks = &callbacks,
+                                     .context = &pass,
+                                     .zmtp = 32820,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
+    // clang-format off
+    zmsg_t* m = helpers_create_message_mem(
+        5, 
+        "router", 6, 
+        "\x0", 1, 
+        "\x8", 1, 
+        "bar", 3, 
+        "car", 3);
+    // clang-format on
+
+    helpers_test_context_s* test = test_init(&config);
+    expect_error = LINQ_ERROR_PROTOCOL;
+    czmq_spy_mesg_push_incoming(&m);
+    czmq_spy_poll_set_incoming((0x01));
+    expect_sid = "bar";
 
     netw_poll(test->net, 5);
 
@@ -245,13 +279,14 @@ test_netw_receive_heartbeat_error_short(void** context_p)
                                      .user = USER,
                                      .pass = PASS };
     zmsg_t* m = helpers_create_message_mem(
-        4, "router", 6, "\x0", 1, "\x0", 1, "product", 7);
+        4, "router", 6, "\x0", 1, "\x0", 1, "sid", 3);
 
     helpers_test_context_s* test = test_init(&config);
 
     expect_error = LINQ_ERROR_PROTOCOL;
     czmq_spy_mesg_push_incoming(&m);
     czmq_spy_poll_set_incoming((0x01));
+    expect_sid = "sid";
 
     netw_poll(test->net, 5);
 
@@ -1207,6 +1242,7 @@ main(int argc, char* argv[])
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_netw_create),
         cmocka_unit_test(test_netw_receive_protocol_error_short),
+        cmocka_unit_test(test_netw_receive_protocol_error_callback_has_serial),
         cmocka_unit_test(test_netw_receive_protocol_error_serial),
         cmocka_unit_test(test_netw_receive_protocol_error_router),
         cmocka_unit_test(test_netw_receive_heartbeat_ok),

@@ -116,8 +116,6 @@ LinqNetwork::LinqNetwork(const Napi::CallbackInfo& info)
                 this->r_callback_.Call({ event, obj });
             })
         .on_error([this](E_LINQ_ERROR e, const char* serial, const char* err) {
-            ((void)serial);
-            ((void)err);
             // Create event data
             auto env = this->r_callback_.Env();
             Napi::Object obj = Napi::Object::New(env);
