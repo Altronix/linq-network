@@ -1,5 +1,9 @@
 import * as fs from "fs";
-import { isUpdate, isUpdateDashboard } from "../update";
+import {
+  isUpdate,
+  isUpdateDashboard,
+  normalizeUpdateDashboard,
+} from "../update";
 import { UpdateDashboard } from "../types";
 
 const testFile = __dirname + "/__data__/dashboard-update-test.json";
@@ -77,4 +81,13 @@ test("isDashboardUpdate should fail with currupt data in file", () => {
   expect(isUpdateDashboard(u)).toBeTruthy();
   u.files[0].update[10].type = "foobar";
   expect(isUpdateDashboard(u)).toBeFalsy();
+});
+
+test("normalizeDashboardUpdate should return normalized Update array", () => {
+  const update = updateReal as UpdateDashboard;
+  const ret = normalizeUpdateDashboard(update);
+  const len = update.files[0].update.length + update.files[1].update.length;
+  expect(ret.length).toEqual(len);
+  expect(ret[0].type === "firmware").toBeTruthy();
+  expect(ret[len - 1].type === "website").toBeTruthy();
 });

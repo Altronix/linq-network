@@ -71,5 +71,5 @@ export interface UpdateWebsite extends Update {
   type: "website";
 }
 export interface UpdateDashboard {
-  files: [{ update: Update[] }];
+  files: [{ update: Update[] }, { update: Update[] }];
 }

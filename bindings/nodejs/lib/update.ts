@@ -1,9 +1,12 @@
 import { Update, UpdateDashboard } from "./types";
 
+// Make sure property has a key
 function hasProp(a: any, key: string): boolean {
   return a.hasOwnProperty(key);
 }
 
+// Make sure a JSON object has the required fields to be an "update"
+// TODO validate md5?
 export function isUpdate(d: any): d is Update {
   // prettier-ignore
   if (
@@ -18,6 +21,7 @@ export function isUpdate(d: any): d is Update {
   return false;
 }
 
+// Check a Dashboard update has all the right properties
 export function isUpdateDashboard(update: any): update is UpdateDashboard {
   return (
     update.files &&
@@ -31,4 +35,11 @@ export function isUpdateDashboard(update: any): update is UpdateDashboard {
       );
     }).length === 2
   );
+}
+
+// Take a dashboard update and reduce the fields into a single array
+export function normalizeUpdateDashboard(update: UpdateDashboard): Update[] {
+  let ret: Update[] = [];
+  update.files.forEach((f) => (ret = [...ret, ...f.update]));
+  return ret;
 }
