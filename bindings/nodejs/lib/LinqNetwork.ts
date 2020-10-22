@@ -1,5 +1,6 @@
 import * as Events from "events";
 import { inherits } from "util";
+import { of, from } from "rxjs";
 import { isUpdate, isUpdateDashboard } from "./update";
 import {
   Method,

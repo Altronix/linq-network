@@ -1,4 +1,6 @@
 import { Update, UpdateDashboard } from "./types";
+import { Observable, from } from "rxjs";
+import { switchMap } from "rxjs/operators";
 
 // Make sure property has a key
 function hasProp(a: any, key: string): boolean {
@@ -41,3 +43,19 @@ export function isUpdateDashboard(update: any): update is UpdateDashboard {
 export function normalizeUpdateDashboard(update: UpdateDashboard): Update[] {
   return [...update.files[0].update, ...update.files[1].update];
 }
+
+export const normalize = () => (
+  source:
+    | Observable<string>
+    | Observable<Update[]>
+    | Observable<UpdateDashboard>
+): Observable<Update[]> =>
+  source.pipe(
+    switchMap((obs) => {
+      if (typeof obs === "string") {
+      } else if (isUpdateDashboard(obs)) {
+      } else {
+      }
+      return [];
+    })
+  );
