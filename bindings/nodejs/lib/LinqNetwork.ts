@@ -165,10 +165,17 @@ export class LinqNetwork extends Events.EventEmitter {
     return this.netw.scan();
   }
 
-  update<T>(serial: string, update: Update[] | UpdateDashboard): Observable<T> {
+  update<T>(
+    serial: string,
+    update: Update[] | UpdateDashboard
+  ): Observable<UpdateResponse<T>> {
     return of(update).pipe(
       normalize(),
-      switchMap((u) => this.send<T>(serial, "POST", "/ATX/exe/update", u))
+      switchMap((u) =>
+        this.send<T>(serial, "POST", "/ATX/exe/update", u).then((response) => {
+          return { response, remaining: u.remaining };
+        })
+      )
     );
   }
 
