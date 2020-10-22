@@ -16,6 +16,22 @@ export interface AboutData {
   sid: string;
 }
 
+interface AlertData {
+  who: string;
+  what: string;
+  where: string;
+  when: number;
+  mesg: string;
+  serial: string;
+  from: string;
+  subject: string;
+  user: string;
+  password: string;
+  server: string;
+  port: number;
+  to: string[];
+}
+
 export interface Devices {
   [x: string]: AboutData & { lastSeen?: Date };
 }
@@ -64,19 +80,58 @@ export interface Update {
   payload: string;
   md5: string;
 }
+
 export interface UpdateFirmware extends Update {
   type: "firmware";
 }
+
 export interface UpdateWebsite extends Update {
   type: "website";
 }
+
 export interface UpdateDashboard {
   files: [{ update: Update[] }, { update: Update[] }];
 }
+
 export interface UpdateNormalized extends Update {
   remaining: number;
 }
+
 export interface UpdateResponse<T = any> {
   response: T;
   remaining: number;
 }
+
+export interface EventNew extends AboutData {
+  type: "new";
+  serial: string;
+}
+
+export interface EventHeartbeat {
+  type: "heartbeat";
+  serial: string;
+}
+
+export interface EventAlert extends AlertData {
+  type: "alert";
+}
+
+export interface EventError {
+  type: "error";
+  serial: string;
+  errorCode: number;
+  errorMessage: string;
+}
+
+export interface EventCtrlc {
+  type: "ctrlc";
+}
+
+export type Events =
+  | EventNew
+  | EventHeartbeat
+  | EventAlert
+  | EventError
+  | EventCtrlc;
+
+export type EventData<Event> = Omit<Event, "type">;

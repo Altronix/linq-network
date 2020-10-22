@@ -1,7 +1,7 @@
 import * as Events from "events";
 import { inherits } from "util";
-import { of, from, Observable } from "rxjs";
-import { switchMap, map } from "rxjs/operators";
+import { of, from, Observable, Subject } from "rxjs";
+import { switchMap, map, filter } from "rxjs/operators";
 import { normalize } from "./update";
 import {
   Method,
@@ -13,6 +13,13 @@ import {
   UpdateDashboard,
   UpdateTypes,
   UpdateResponse,
+  Events as Event,
+  EventNew,
+  EventHeartbeat,
+  EventAlert,
+  EventError,
+  EventCtrlc,
+  EventFromNode,
 } from "./types";
 const binding = require("bindings")("linq");
 
@@ -20,6 +27,7 @@ export class LinqNetwork extends Events.EventEmitter {
   netw: Binding;
   running: boolean = true;
   shutdownPromise: any;
+  events$: Subject<Event> = new Subject<Event>();
   private shutdownTimer: any;
   private shutdownResolve: any;
   private _devices: Devices = {};
@@ -48,8 +56,10 @@ export class LinqNetwork extends Events.EventEmitter {
             self.devices[serial] = about;
             self.devices[serial].lastSeen = new Date();
             self.emit(event, { serial, ...about });
+            self.events$.next({ type: "new", serial, ...about });
           } catch (e) {
             self.emit("error", { serial, error: e });
+            // TODO emit error on observable
           }
           break;
         case "heartbeat":
@@ -63,6 +73,10 @@ export class LinqNetwork extends Events.EventEmitter {
           self.emit(event, ...args);
       }
     });
+  }
+
+  events(ev?: LINQ_EVENTS) {
+    return this.events$.pipe(filter((e) => (ev ? e.type == ev : true)));
   }
 
   version() {
