@@ -1,11 +1,19 @@
 let linq = require("../../../../build/install/lib/").network;
-const { from } = require("rxjs");
-const { takeWhile, take ,switchMap} = require("rxjs/operators");
+const { from, of } = require("rxjs");
+const { takeWhile, take, switchMap } = require("rxjs/operators");
 const fs = require("fs");
 
-linq.events("heartbeat").pipe(
-	takeWhile(linq.run(10)), 
-	take(1),
-	switchMap(e => {
-	})
-);
+let running = linq.run(10);
+
+linq
+  .listen(33455)
+  .events()
+  .pipe(
+    take(1),
+    switchMap((e) => of(e))
+  )
+  .subscribe((e) => {
+    console.log(e);
+    linq.shutdown();
+  });
+linq.on("new", (data) => console.log(data));

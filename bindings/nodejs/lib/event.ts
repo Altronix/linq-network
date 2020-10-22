@@ -24,24 +24,41 @@ type sender = <R, T = any>(
   data?: T
 ) => Promise<R>;
 
-export function isEventDataNew(data: any): data is EventDataNew {
-  return false;
+export function isEventDataNew(data: Object): data is EventDataNew {
+  return typeof data === "string";
 }
 
-export function isEventDataAbout(data: any): data is EventDataAbout {
-  return false;
+export function isEventDataAbout(data: Object): data is EventDataAbout {
+  return (
+    data.hasOwnProperty("serial") &&
+    data.hasOwnProperty("product") &&
+    data.hasOwnProperty("prjVersion") &&
+    data.hasOwnProperty("atxVersion") &&
+    data.hasOwnProperty("siteId")
+  );
 }
 
-export function isEventDataHeartbeat(data: any): data is EventDataHeartbeat {
-  return false;
+export function isEventDataHeartbeat(data: Object): data is EventDataHeartbeat {
+  return typeof data === "string";
 }
 
-export function isEventDataAlert(data: any): data is EventDataAlert {
-  return false;
+export function isEventDataAlert(data: Object): data is EventDataAlert {
+  return (
+    data.hasOwnProperty("who") &&
+    data.hasOwnProperty("what") &&
+    data.hasOwnProperty("where") &&
+    data.hasOwnProperty("when") &&
+    data.hasOwnProperty("mesg") &&
+    data.hasOwnProperty("serial")
+  );
 }
 
-export function isEventDataError(data: any): data is EventDataError {
-  return false;
+export function isEventDataError(data: Object): data is EventDataError {
+  return (
+    data.hasOwnProperty("serial") &&
+    data.hasOwnProperty("errorCode") &&
+    data.hasOwnProperty("errorMessage")
+  );
 }
 
 export const whenEvent = <T extends Events>(key: LINQ_EVENTS | "_new") => (
