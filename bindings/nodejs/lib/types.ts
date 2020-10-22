@@ -64,6 +64,12 @@ export interface Update {
   payload: string;
   md5: string;
 }
+export interface UpdateFirmware extends Update {
+  type: "firmware";
+}
+export interface UpdateWebsite extends Update {
+  type: "website";
+}
 export interface UpdateDashboard {
   files: [{ update: Update[] }];
 }

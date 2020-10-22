@@ -19,17 +19,16 @@ export function isUpdate(d: any): d is Update {
 }
 
 export function isUpdateDashboard(update: any): update is UpdateDashboard {
-  if (update.files && Array.isArray(update.files)) {
-    for (let f in update.files) {
-      if (update.files[f].update && Array.isArray(update.files[f].update)) {
-        for (let u in update.files[f].update) {
-          if (!isUpdate(update.files[f].update[u])) return false;
-        }
-        return true;
-      }
-      return false;
-    }
-    return false;
-  }
-  return false;
+  return (
+    update.files &&
+    Array.isArray(update.files) &&
+    update.files.filter((f: any) => {
+      return (
+        f.update &&
+        Array.isArray(f.update) &&
+        f.update.length &&
+        f.update.length === f.update.filter((u: any) => isUpdate(u)).length
+      );
+    }).length === 2
+  );
 }
