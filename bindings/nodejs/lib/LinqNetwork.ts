@@ -38,6 +38,10 @@ import {
   isEventDataError,
   whenNew,
   whenAbout,
+  whenHeartbeat,
+  whenAlert,
+  whenError,
+  whenCtrlc,
   request,
   takeWhileRunning,
 } from "./event";
@@ -106,8 +110,32 @@ export class LinqNetwork extends Events.EventEmitter {
       });
   }
 
-  events(ev?: LINQ_EVENTS): Observable<Event> {
-    return this.events$.pipe();
+  events(ev: "_new"): Observable<EventNew>;
+  events(ev: "new"): Observable<EventAbout>;
+  events(ev: "heartbeat"): Observable<EventHeartbeat>;
+  events(ev: "alert"): Observable<EventAlert>;
+  events(ev: "error"): Observable<EventError>;
+  events(ev: "ctrlc"): Observable<EventCtrlc>;
+  events(): Observable<Event>;
+  events(ev?: "_new" | LINQ_EVENTS): Observable<Event> {
+    if (ev) {
+      switch (ev) {
+        case "_new":
+          return this.events().pipe(whenNew());
+        case "new":
+          return this.events().pipe(whenAbout());
+        case "heartbeat":
+          return this.events().pipe(whenHeartbeat());
+        case "alert":
+          return this.events().pipe(whenAlert());
+        case "error":
+          return this.events().pipe(whenError());
+        case "ctrlc":
+          return this.events().pipe(whenCtrlc());
+      }
+    } else {
+      return this.events$.asObservable();
+    }
   }
 
   version() {

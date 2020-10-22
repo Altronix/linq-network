@@ -44,27 +44,27 @@ export function isEventDataError(data: any): data is EventDataError {
   return false;
 }
 
-export const events = <T extends Events>(key: LINQ_EVENTS | "_new") => (
+export const whenEvent = <T extends Events>(key: LINQ_EVENTS | "_new") => (
   source: Observable<Events>
 ) => source.pipe(filter((e): e is T => e.type === key));
 
 export const whenNew = () => (source: Observable<Events>) =>
-  source.pipe(events<EventNew>("_new"));
+  source.pipe(whenEvent<EventNew>("_new"));
 
 export const whenAbout = () => (source: Observable<Events>) =>
-  source.pipe(events<EventAbout>("new"));
+  source.pipe(whenEvent<EventAbout>("new"));
 
 export const whenHeartbeat = () => (source: Observable<Events>) =>
-  source.pipe(events<EventHeartbeat>("heartbeat"));
+  source.pipe(whenEvent<EventHeartbeat>("heartbeat"));
 
 export const whenAlert = () => (source: Observable<Events>) =>
-  source.pipe(events<EventAlert>("alert"));
+  source.pipe(whenEvent<EventAlert>("alert"));
 
 export const whenError = () => (source: Observable<Events>) =>
-  source.pipe(events<EventError>("error"));
+  source.pipe(whenEvent<EventError>("error"));
 
 export const whenCtrlc = () => (source: Observable<Events>) =>
-  source.pipe(events<EventError>("ctrlc"));
+  source.pipe(whenEvent<EventCtrlc>("ctrlc"));
 
 export const request = <T>(
   s: sender,
