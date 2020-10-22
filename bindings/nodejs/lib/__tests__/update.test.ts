@@ -90,4 +90,7 @@ test("normalizeDashboardUpdate should return normalized Update array", () => {
   expect(ret.length).toEqual(len);
   expect(ret[0].type === "firmware").toBeTruthy();
   expect(ret[len - 1].type === "website").toBeTruthy();
+  ret.forEach((u, i) => {
+    expect(u.remaining).toEqual(len - i);
+  });
 });

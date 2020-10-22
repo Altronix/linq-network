@@ -1,7 +1,8 @@
 import * as Events from "events";
 import { inherits } from "util";
-import { of, from } from "rxjs";
-import { isUpdate, isUpdateDashboard } from "./update";
+import { of, from, Observable } from "rxjs";
+import { switchMap, map } from "rxjs/operators";
+import { normalize } from "./update";
 import {
   Method,
   LINQ_EVENTS,
@@ -11,6 +12,7 @@ import {
   Update,
   UpdateDashboard,
   UpdateTypes,
+  UpdateResponse,
 } from "./types";
 const binding = require("bindings")("linq");
 
@@ -37,7 +39,11 @@ export class LinqNetwork extends Events.EventEmitter {
         case "new":
           let serial: string = args[0];
           try {
-            let response = await self.send(serial, "GET", "/ATX/about");
+            let response = await self.send<{ about: AboutData }>(
+              serial,
+              "GET",
+              "/ATX/about"
+            );
             const about = (response.about || response) as AboutData;
             self.devices[serial] = about;
             self.devices[serial].lastSeen = new Date();
@@ -92,16 +98,16 @@ export class LinqNetwork extends Events.EventEmitter {
     return this;
   }
 
-  async send<T>(
+  async send<R, T = any>(
     serial: string,
     meth: Method,
     path: string,
     data?: T
-  ): Promise<any> {
+  ): Promise<R> {
     const d = data ? JSON.stringify(data) : "";
     let response = await this.netw.send(serial, meth, path, d);
     try {
-      return JSON.parse(response);
+      return JSON.parse(response) as R;
     } catch (e) {
       throw e;
     }
@@ -159,11 +165,12 @@ export class LinqNetwork extends Events.EventEmitter {
     return this.netw.scan();
   }
 
-  async update(file: string, type: UpdateTypes): Promise<void>;
-  async update(
-    file: string | Update[] | UpdateDashboard,
-    type?: UpdateTypes
-  ): Promise<void> {}
+  update<T>(serial: string, update: Update[] | UpdateDashboard): Observable<T> {
+    return of(update).pipe(
+      normalize(),
+      switchMap((u) => this.send<T>(serial, "POST", "/ATX/exe/update", u))
+    );
+  }
 
   // run
   run(ms: number) {
