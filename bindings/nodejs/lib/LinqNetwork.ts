@@ -69,7 +69,6 @@ export class LinqNetwork extends Events.EventEmitter {
       ...args: any[]
     ) {
       // Listen to events from our lower level binding, and emit as observable
-      console.log(event);
       if (event === "new" && isEventDataNew(args[0])) {
         self._events$.next({ type: "_new", serial: args[0] });
       } else if (event === "heartbeat" && isEventDataHeartbeat(args[0])) {
@@ -90,15 +89,12 @@ export class LinqNetwork extends Events.EventEmitter {
     self._events$
       .asObservable()
       .pipe(
-        tap(() => console.log("HIT")),
         takeWhileRunning(self),
-        tap(() => console.log("HIT 0")),
-        mergeMap(() =>
+        merge(
           self._events$.asObservable().pipe(
-            tap(() => console.log("HIT 1")),
             takeWhileRunning(self),
             whenNew(),
-            request<AboutResponse>(this.send, "GET", "/ATX/about"),
+            request<AboutResponse>(this.send.bind(this), "GET", "/ATX/about"),
             map((response) => {
               return { type: "new", ...response.about } as EventAbout;
             }),
