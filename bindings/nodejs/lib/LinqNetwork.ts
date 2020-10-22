@@ -1,6 +1,16 @@
 import * as Events from "events";
 import { inherits } from "util";
-import { Method, LINQ_EVENTS, AboutData, Binding, Devices } from "./types";
+import { isUpdate, isUpdateDashboard } from "./update";
+import {
+  Method,
+  LINQ_EVENTS,
+  AboutData,
+  Binding,
+  Devices,
+  Update,
+  UpdateDashboard,
+  UpdateTypes,
+} from "./types";
 const binding = require("bindings")("linq");
 
 export class LinqNetwork extends Events.EventEmitter {
@@ -147,6 +157,12 @@ export class LinqNetwork extends Events.EventEmitter {
   scan(): number {
     return this.netw.scan();
   }
+
+  async update(file: string, type: UpdateTypes): Promise<void>;
+  async update(
+    file: string | Update[] | UpdateDashboard,
+    type?: UpdateTypes
+  ): Promise<void> {}
 
   // run
   run(ms: number) {

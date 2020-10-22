@@ -55,3 +55,15 @@ export interface UsbhResponse<T = any> {
   data: T;
 }
 export type UsbhResponseBinding = Omit<UsbhResponse, "data"> & { data: string };
+
+export type UpdateTypes = "firmware" | "website" | "dashboard";
+export interface Update {
+  type: "firmware" | "website";
+  size: number;
+  offset: number;
+  payload: string;
+  md5: string;
+}
+export interface UpdateDashboard {
+  files: [{ update: Update[] }];
+}
