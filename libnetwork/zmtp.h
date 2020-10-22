@@ -21,7 +21,7 @@
 #endif
 
 #ifndef LINQ_NETW_RETRY_TIMEOUT
-#define LINQ_NETW_RETRY_TIMEOUT 35000
+#define LINQ_NETW_RETRY_TIMEOUT 10000
 #endif
 
 #define FRAME_VER_0 ('\x0')

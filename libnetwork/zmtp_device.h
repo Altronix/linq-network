@@ -46,10 +46,10 @@ extern "C"
     uint32_t zmtp_device_request_retry_count(node_s* r);
     uint32_t zmtp_device_request_retry_at(node_s* d);
     void zmtp_device_request_retry_at_set(node_s* d, uint32_t);
+    void zmtp_device_request_retry(node_s* d);
     void zmtp_device_request_resolve(node_s* d, int err, const char*);
     void zmtp_device_request_flush(node_s* d);
     void zmtp_device_request_flush_w_check(node_s* d);
-    void zmtp_device_request_retry(node_s* d);
     bool zmtp_device_request_pending(node_s* n);
     uint32_t zmtp_device_request_pending_count(node_s* d);
     void zmtp_device_poll(node_s* base, void* ctx);

@@ -371,8 +371,7 @@ process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
                             "(ZMTP) [%.6s...] (%.3d) retrying...",
                             device_serial(*d),
                             err_code);
-                        uint32_t retry = sys_tick() + LINQ_NETW_RETRY_TIMEOUT;
-                        zmtp_device_request_retry_at_set(*d, retry);
+                        zmtp_device_request_retry(*d);
                     }
                 } else {
                     log_debug(
