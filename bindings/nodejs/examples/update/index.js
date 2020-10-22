@@ -15,7 +15,7 @@ linq
     switchMap((e) =>
       from(fs.promises.readFile(update, "utf-8")).pipe(
         map((update) => JSON.parse(update)),
-        switchMap((update) => from(linq.update(e.serial, update)))
+        switchMap((update) => linq.update(e.serial, update))
       )
     )
   )

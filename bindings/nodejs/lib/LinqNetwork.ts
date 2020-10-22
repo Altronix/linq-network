@@ -251,7 +251,6 @@ export class LinqNetwork extends Events.EventEmitter {
     return of(update).pipe(
       normalize(),
       concatMap((u) => {
-        console.log(`sending ${u.remaining}`);
         return from(this.send<T>(serial, "POST", "/ATX/exe/update", u)).pipe(
           map((response) => {
             return { response, remaining: u.remaining };
