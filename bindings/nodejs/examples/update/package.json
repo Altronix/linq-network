@@ -1,0 +1,17 @@
+{
+  "name": "atx-net-events",
+  "version": "0.0.1",
+  "description": "demonstrate atx-net-js",
+  "main": "index.js",
+  "linq": {
+    "debug": "TRACE"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@altronix/linq": "file:../../../.."
+  }
+}
