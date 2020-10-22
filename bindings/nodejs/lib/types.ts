@@ -1,39 +1,9 @@
 export type Method = "GET" | "POST" | "DELETE";
 export type LINQ_EVENTS = "heartbeat" | "alert" | "error" | "new" | "ctrlc";
-
-export interface AboutData {
-  siteId: string;
-  prjVersion: string;
-  productKey: string;
-  product: string;
-  mqxVersion: string;
-  atxVersion: string;
-  sslVersion: string;
-  webVersion: string;
-  mfg: string;
-  user: string;
-  mac: string;
-  sid: string;
-}
-
-interface AlertData {
-  who: string;
-  what: string;
-  where: string;
-  when: number;
-  mesg: string;
-  serial: string;
-  from: string;
-  subject: string;
-  user: string;
-  password: string;
-  server: string;
-  port: number;
-  to: string[];
-}
+export type LINQ_EVENTS_DATA = string | EventDataAlert | EventDataError;
 
 export interface Devices {
-  [x: string]: AboutData & { lastSeen?: Date };
+  [x: string]: EventDataAbout & { lastSeen?: Date };
 }
 
 export interface Binding {
@@ -102,9 +72,52 @@ export interface UpdateResponse<T = any> {
   remaining: number;
 }
 
-export interface EventNew extends AboutData {
-  type: "new";
+export type EventDataNew = string;
+export type EventDataHeartbeat = string;
+export interface EventDataAbout {
+  siteId: string;
+  prjVersion: string;
+  productKey: string;
+  product: string;
+  mqxVersion: string;
+  atxVersion: string;
+  sslVersion: string;
+  webVersion: string;
+  mfg: string;
+  user: string;
+  mac: string;
+  sid: string;
+}
+
+export interface EventDataAlert {
+  who: string;
+  what: string;
+  where: string;
+  when: number;
+  mesg: string;
   serial: string;
+  from: string;
+  subject: string;
+  user: string;
+  password: string;
+  server: string;
+  port: number;
+  to: string[];
+}
+
+export interface EventDataError {
+  serial: string;
+  errorCode: number;
+  errorMessage: string;
+}
+
+export interface EventNew {
+  type: "_new";
+  serial: string;
+}
+
+export interface EventAbout extends EventDataAbout {
+  type: "new";
 }
 
 export interface EventHeartbeat {
@@ -112,15 +125,12 @@ export interface EventHeartbeat {
   serial: string;
 }
 
-export interface EventAlert extends AlertData {
+export interface EventAlert extends EventDataAlert {
   type: "alert";
 }
 
-export interface EventError {
+export interface EventError extends EventDataError {
   type: "error";
-  serial: string;
-  errorCode: number;
-  errorMessage: string;
 }
 
 export interface EventCtrlc {
@@ -129,6 +139,7 @@ export interface EventCtrlc {
 
 export type Events =
   | EventNew
+  | EventAbout
   | EventHeartbeat
   | EventAlert
   | EventError

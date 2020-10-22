@@ -1,12 +1,19 @@
 import * as Events from "events";
 import { inherits } from "util";
 import { of, from, Observable, Subject } from "rxjs";
-import { switchMap, map, filter } from "rxjs/operators";
+import {
+  switchMap,
+  map,
+  tap,
+  filter,
+  mergeMap,
+  merge,
+  takeWhile,
+} from "rxjs/operators";
 import { normalize } from "./update";
 import {
   Method,
   LINQ_EVENTS,
-  AboutData,
   Binding,
   Devices,
   Update,
@@ -16,11 +23,24 @@ import {
   Events as Event,
   EventNew,
   EventHeartbeat,
+  EventAbout,
   EventAlert,
   EventError,
   EventCtrlc,
-  EventFromNode,
+  EventData,
+  EventDataAbout,
 } from "./types";
+import {
+  isEventDataNew,
+  isEventDataAbout,
+  isEventDataHeartbeat,
+  isEventDataAlert,
+  isEventDataError,
+  whenNew,
+  whenAbout,
+  request,
+  takeWhileRunning,
+} from "./event";
 const binding = require("bindings")("linq");
 
 export class LinqNetwork extends Events.EventEmitter {
@@ -28,6 +48,7 @@ export class LinqNetwork extends Events.EventEmitter {
   running: boolean = true;
   shutdownPromise: any;
   events$: Subject<Event> = new Subject<Event>();
+  private _events$: Subject<Event> = new Subject<Event>();
   private shutdownTimer: any;
   private shutdownResolve: any;
   private _devices: Devices = {};
@@ -43,40 +64,50 @@ export class LinqNetwork extends Events.EventEmitter {
       event: LINQ_EVENTS,
       ...args: any[]
     ) {
-      switch (event) {
-        case "new":
-          let serial: string = args[0];
-          try {
-            let response = await self.send<{ about: AboutData }>(
-              serial,
-              "GET",
-              "/ATX/about"
-            );
-            const about = (response.about || response) as AboutData;
-            self.devices[serial] = about;
-            self.devices[serial].lastSeen = new Date();
-            self.emit(event, { serial, ...about });
-            self.events$.next({ type: "new", serial, ...about });
-          } catch (e) {
-            self.emit("error", { serial, error: e });
-            // TODO emit error on observable
-          }
-          break;
-        case "heartbeat":
-          if (self.devices[args[0]]) {
-            self.devices[args[0]].lastSeen = new Date();
-          }
-        case "alert":
-        case "error":
-        case "ctrlc":
-        default:
-          self.emit(event, ...args);
+      // Listen to events from our lower level binding, and emit as observable
+      if (event === "new" && isEventDataNew(args[0])) {
+        self._events$.next({ type: "_new", serial: args[0] });
+      } else if (event === "heartbeat" && isEventDataHeartbeat(args[0])) {
+        self._events$.next({ type: "heartbeat", serial: args[0] });
+      } else if (event === "alert" && isEventDataAlert(args[0])) {
+        self._events$.next({ type: "alert", ...args[0] });
+      } else if (event === "error" && isEventDataError(args[0])) {
+        self._events$.next({ type: "error", ...args[0] });
+      } else if (event === "ctrlc") {
+        self._events$.next({ type: "ctrlc", ...args[0] });
+      } else {
+        // TODO log
       }
     });
+
+    // Subscribe to our observable and expose traditional event emitter api
+    type AboutResponse = { about: EventDataAbout };
+    self._events$
+      .pipe(
+        takeWhileRunning(self),
+        merge(
+          self._events$.pipe(
+            takeWhileRunning(self),
+            whenNew(),
+            request<AboutResponse>(this.send, "GET", "/ATX/about"),
+            map((response) => {
+              return { type: "new", ...response.about } as EventAbout;
+            }),
+            tap((event) => {
+              self.devices[event.sid] = event;
+              self.devices[event.sid].lastSeen = new Date();
+            })
+          )
+        )
+      )
+      .subscribe((e) => {
+        self.events$.next(e);
+        self.emit(e.type, { ...e });
+      });
   }
 
-  events(ev?: LINQ_EVENTS) {
-    return this.events$.pipe(filter((e) => (ev ? e.type == ev : true)));
+  events(ev?: LINQ_EVENTS): Observable<Event> {
+    return this.events$.pipe();
   }
 
   version() {
@@ -207,6 +238,7 @@ export class LinqNetwork extends Events.EventEmitter {
             // Arrive here, then we received ctrlc signal or caller told us to
             // shutdown. We use earlyDestruct() because node garbage collector
             // usually doesn't free our binding...
+            self.running = false;
             self.netw.earlyDestruct();
             self.shutdownResolve();
           }
