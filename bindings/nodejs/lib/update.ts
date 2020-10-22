@@ -39,7 +39,5 @@ export function isUpdateDashboard(update: any): update is UpdateDashboard {
 
 // Take a dashboard update and reduce the fields into a single array
 export function normalizeUpdateDashboard(update: UpdateDashboard): Update[] {
-  let ret: Update[] = [];
-  update.files.forEach((f) => (ret = [...ret, ...f.update]));
-  return ret;
+  return [...update.files[0].update, ...update.files[1].update];
 }
