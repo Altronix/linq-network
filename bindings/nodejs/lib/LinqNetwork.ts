@@ -3,6 +3,7 @@ import { inherits } from "util";
 import { of, from, Observable, Subject } from "rxjs";
 import {
   switchMap,
+  concatMap,
   map,
   tap,
   filter,
@@ -96,7 +97,11 @@ export class LinqNetwork extends Events.EventEmitter {
             whenNew(),
             request<AboutResponse>(this.send.bind(this), "GET", "/ATX/about"),
             map((response) => {
-              return { type: "new", ...response.about } as EventAbout;
+              return {
+                type: "new",
+                serial: response.about.sid,
+                ...response.about,
+              } as EventAbout;
             }),
             tap((event) => {
               self.devices[event.sid] = event;
@@ -245,11 +250,14 @@ export class LinqNetwork extends Events.EventEmitter {
   ): Observable<UpdateResponse<T>> {
     return of(update).pipe(
       normalize(),
-      switchMap((u) =>
-        this.send<T>(serial, "POST", "/ATX/exe/update", u).then((response) => {
-          return { response, remaining: u.remaining };
-        })
-      )
+      concatMap((u) => {
+        console.log(`sending ${u.remaining}`);
+        return from(this.send<T>(serial, "POST", "/ATX/exe/update", u)).pipe(
+          map((response) => {
+            return { response, remaining: u.remaining };
+          })
+        );
+      })
     );
   }
 
