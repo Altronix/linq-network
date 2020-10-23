@@ -48,6 +48,7 @@ test_mock_push_outgoing(void** context_p)
     ((void)context_p);
     zmsg_t *a, *b, *c;
 
+    // Push 3
     a = helpers_make_legacy_alert();
     b = helpers_make_legacy_alert();
     c = helpers_make_legacy_alert();
@@ -57,6 +58,7 @@ test_mock_push_outgoing(void** context_p)
     assert_null(a);
     assert_null(b);
     assert_null(c);
+    // Pop 3
     a = czmq_spy_mesg_pop_outgoing(NULL);
     b = czmq_spy_mesg_pop_outgoing(NULL);
     c = czmq_spy_mesg_pop_outgoing(NULL);
@@ -66,6 +68,10 @@ test_mock_push_outgoing(void** context_p)
     zmsg_destroy(&a);
     zmsg_destroy(&b);
     zmsg_destroy(&c);
+    // Make sure empty
+    assert_null(czmq_spy_mesg_pop_outgoing(NULL));
+
+    // Make sure can re up
     a = helpers_make_legacy_alert();
     assert_non_null(a);
     czmq_spy_mesg_push_outgoing(&a);

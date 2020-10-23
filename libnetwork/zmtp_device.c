@@ -21,6 +21,9 @@ typedef struct request_zmtp_s
 static void request_destroy(request_s** r_p);
 LIST_INIT(request, request_s, request_destroy);
 
+static int retry_timeout = LINQ_NETW_RETRY_TIMEOUT;
+static int max_retry = LINQ_NETW_MAX_RETRY;
+
 // main class struct (extends linq_network_socket_s)
 typedef struct zmtp_device_s
 {
@@ -84,7 +87,7 @@ request_alloc_mem(
         memset(r, 0, sizeof(request_zmtp_s));
         r->base.callback = fn;
         r->base.ctx = context;
-        r->base.retry_at = sys_tick() + LINQ_NETW_RETRY_TIMEOUT;
+        r->base.retry_at = sys_tick() + retry_timeout;
         r->frames[FRAME_VER_IDX] = zframe_new("\0", 1);
         r->frames[FRAME_TYP_IDX] = zframe_new("\1", 1);
         r->frames[FRAME_SID_IDX] = zframe_new(s, slen);
@@ -280,10 +283,11 @@ zmtp_device_request_retry_at(node_s* base)
 }
 
 void
-zmtp_device_request_retry_at_set(node_s* base, uint32_t set)
+zmtp_device_request_retry_at_set(node_s* base, int set)
 {
     linq_network_assert(base->pending);
-    base->pending->retry_at = set;
+    base->pending->retry_at = set >= 0 ? set : sys_tick() + retry_timeout;
+    ;
 }
 
 void
@@ -317,7 +321,7 @@ zmtp_device_request_retry(node_s* base)
     zmtp_device_s* d = (zmtp_device_s*)base;
     linq_network_assert(d->base.pending);
     request_s** r_p = &d->base.pending;
-    (*r_p)->retry_at = sys_tick() + LINQ_NETW_RETRY_TIMEOUT;
+    (*r_p)->retry_at = sys_tick() + retry_timeout;
     (*r_p)->retry_count++;
     if (d->router.sz) request_router_id_set(*r_p, d->router.id, d->router.sz);
     if (request_send(*r_p, d->sock) < 0) {
@@ -359,7 +363,7 @@ zmtp_device_poll(node_s* base, void* ctx)
         uint32_t retry_count = zmtp_device_request_retry_count(&d->base);
         if (tick >= retry_at) {
             log_info("(ZMTP) timeout [%s]", d->base.serial);
-            if (!(retry_count > LINQ_NETW_MAX_RETRY)) {
+            if (!(retry_count >= max_retry)) {
                 log_info("(ZMTP) retry (%d) [%s]", retry_count, d->base.serial);
                 zmtp_device_request_retry(&d->base);
             } else {
@@ -368,14 +372,30 @@ zmtp_device_poll(node_s* base, void* ctx)
                 zmtp_device_request_flush_w_check(&d->base);
             }
         }
-        // if (zmtp_device_request_sent_at(base) + 10000 <= tick) {
-        //     log_info("(DEVICE) timeout [%s]", d->base.serial);
-        //     zmtp_device_request_resolve(
-        //         &d->base, LINQ_ERROR_TIMEOUT, "{\"error\":\"timeout\"}");
-        //     zmtp_device_request_flush_w_check(&d->base);
-        // } else if (retry_at && retry_at <= tick) {
-        //     log_info("(DEVICE) retry [%s]", d->base.serial);
-        //     zmtp_device_request_retry(&d->base);
-        // }
     }
 }
+
+void
+zmtp_device_retry_timeout_set(int val)
+{
+    retry_timeout = val;
+}
+
+int
+zmtp_device_retry_timeout_get()
+{
+    return retry_timeout;
+}
+
+void
+zmtp_device_max_retry_set(int val)
+{
+    max_retry = val;
+}
+
+int
+zmtp_device_max_retry_get()
+{
+    return max_retry;
+}
+

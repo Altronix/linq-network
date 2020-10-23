@@ -60,6 +60,10 @@ extern "C"
     LINQ_EXPORT bool netw_running(netw_s* netw);
 
     LINQ_EXPORT int netw_scan(netw_s*);
+    LINQ_EXPORT void netw_retry_timeout_set(int);
+    LINQ_EXPORT int netw_retry_timeout_get();
+    LINQ_EXPORT void netw_max_retry_set(int);
+    LINQ_EXPORT int netw_max_retry_get();
     LINQ_EXPORT void netw_shutdown(netw_s* netw);
 
 #ifdef BUILD_LINQD

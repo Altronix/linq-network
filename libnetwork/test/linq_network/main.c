@@ -20,9 +20,14 @@ static const char* empty = "";
 static const char* expect_what = "";
 static const char* expect_sid = "";
 
+#define TEST_RETRY_TIMEOUT 100
+#define TEST_MAX_RETRY 5
+
 static helpers_test_context_s*
 test_init(helpers_test_config_s* config)
 {
+    zmtp_device_retry_timeout_set(TEST_RETRY_TIMEOUT);
+    zmtp_device_max_retry_set(TEST_MAX_RETRY);
     return helpers_test_context_create(config);
 }
 
@@ -430,14 +435,19 @@ test_netw_receive_response_error_timeout(void** context_p)
     assert_int_equal(zmtp_device_request_pending_count(*d), 1);
 
     // Still waiting for response @t=9999
-    spy_sys_set_tick(9999);
+    spy_sys_set_tick(TEST_RETRY_TIMEOUT - 1);
     czmq_spy_poll_set_incoming((0x00));
     netw_poll(test->net, 5);
     assert_false(response_pass);
     assert_int_equal(zmtp_device_request_pending_count(*d), 1);
 
-    // Timeout callback happens @t=10000
-    spy_sys_set_tick(10000);
+    for (int i = 0; i < TEST_MAX_RETRY; i++) {
+        spy_sys_set_tick(TEST_RETRY_TIMEOUT * (1 + i));
+        netw_poll(test->net, 5);
+        assert_false(response_pass);
+    }
+
+    spy_sys_set_tick(TEST_RETRY_TIMEOUT * (1 + TEST_MAX_RETRY));
     netw_poll(test->net, 5);
     assert_true(response_pass);
     assert_int_equal(zmtp_device_request_pending_count(*d), 0);
@@ -543,7 +553,7 @@ test_netw_receive_response_error_504(void** context_p)
     uint32_t t = 0;
     const char* serial = expect_sid = "serial";
     node_s** d;
-    zmsg_t* incoming[LINQ_NETW_MAX_RETRY + 1] = {
+    zmsg_t* incoming[TEST_MAX_RETRY + 1] = {
         helpers_make_response("rid0", serial, 504, "{\"error\":504}"),
         helpers_make_response("rid0", serial, 504, "{\"error\":504}"),
         helpers_make_response("rid0", serial, 504, "{\"error\":504}"),
@@ -579,14 +589,14 @@ test_netw_receive_response_error_504(void** context_p)
     assert_non_null(outgoing);
     zmsg_destroy(&outgoing);
 
-    for (int i = 0; i < LINQ_NETW_MAX_RETRY; i++) {
+    for (int i = 0; i < TEST_MAX_RETRY; i++) {
         // incoming 504
         czmq_spy_mesg_push_incoming(&incoming[i]);
         czmq_spy_poll_set_incoming((0x01));
         netw_poll(test->net, 0);
 
         // @t=retry-1, make sure do not send request
-        t += LINQ_NETW_RETRY_TIMEOUT - 1;
+        t += TEST_RETRY_TIMEOUT - 1;
         spy_sys_set_tick(t);
         czmq_spy_poll_set_incoming((0x00));
         netw_poll(test->net, 0);
@@ -604,7 +614,7 @@ test_netw_receive_response_error_504(void** context_p)
     }
 
     // Send the final amount of 504's we're willing to tollorate
-    czmq_spy_mesg_push_incoming(&incoming[LINQ_NETW_MAX_RETRY]);
+    czmq_spy_mesg_push_incoming(&incoming[TEST_MAX_RETRY]);
     czmq_spy_poll_set_incoming(0x01);
     netw_poll(test->net, 0);
 
@@ -636,7 +646,7 @@ test_netw_receive_response_ok_504(void** context_p)
     const char* serial = expect_sid = "serial";
     node_s** d;
     zmsg_t* ok = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
-    zmsg_t* incoming[LINQ_NETW_MAX_RETRY] = {
+    zmsg_t* incoming[TEST_MAX_RETRY] = {
         helpers_make_response("rid0", serial, 504, "{\"error\":504}"),
         helpers_make_response("rid0", serial, 504, "{\"error\":504}"),
         helpers_make_response("rid0", serial, 504, "{\"error\":504}"),
@@ -671,14 +681,14 @@ test_netw_receive_response_ok_504(void** context_p)
     assert_non_null(outgoing);
     zmsg_destroy(&outgoing);
 
-    for (int i = 0; i < LINQ_NETW_MAX_RETRY; i++) {
+    for (int i = 0; i < TEST_MAX_RETRY; i++) {
         // incoming 504
         czmq_spy_mesg_push_incoming(&incoming[i]);
         czmq_spy_poll_set_incoming((0x01));
         netw_poll(test->net, 0);
 
         // @t=retry-1, make sure do not send request
-        t += LINQ_NETW_RETRY_TIMEOUT - 1;
+        t += TEST_RETRY_TIMEOUT - 1;
         spy_sys_set_tick(t);
         czmq_spy_poll_set_incoming((0x00));
         netw_poll(test->net, 0);

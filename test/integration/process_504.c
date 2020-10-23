@@ -33,6 +33,9 @@ main(int argc, char* argv[])
     netw_socket s;
     bool pass = false;
 
+    netw_retry_timeout_set(200);
+    netw_max_retry_set(3);
+
     // Create test fixture
     fixture_context* fixture = fixture_create("dummy", PORT);
     if (!fixture) return -1;

@@ -7,6 +7,7 @@
 #include "node.h"
 #include "sys.h"
 #include "zmtp.h"
+#include "zmtp_device.h"
 #ifdef BUILD_LINQD
 #include "database.h"
 #include "http.h"
@@ -298,6 +299,30 @@ bool
 netw_running(netw_s* netw)
 {
     return sys_running() && !netw->shutdown;
+}
+
+LINQ_EXPORT void
+netw_retry_timeout_set(int val)
+{
+    zmtp_device_retry_timeout_set(val);
+}
+
+LINQ_EXPORT int
+netw_retry_timeout_get()
+{
+    return zmtp_device_retry_timeout_get();
+}
+
+LINQ_EXPORT void
+netw_max_retry_set(int val)
+{
+    zmtp_device_max_retry_set(val);
+}
+
+LINQ_EXPORT int
+netw_max_retry_get()
+{
+    return zmtp_device_max_retry_get();
 }
 
 void

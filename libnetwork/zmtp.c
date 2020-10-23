@@ -371,7 +371,9 @@ process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
                             "(ZMTP) [%.6s...] (%.3d) retrying...",
                             device_serial(*d),
                             err_code);
-                        zmtp_device_request_retry(*d);
+                        // After 504 we don't send retry right away. We wait
+                        // a timeout period and then try again
+                        zmtp_device_request_retry_at_set(*d, -1);
                     }
                 } else {
                     log_debug(
