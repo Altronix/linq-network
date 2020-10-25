@@ -1,7 +1,8 @@
 import { Observable, of, from } from "rxjs";
-import { switchMap, filter, takeWhile } from "rxjs/operators";
+import { switchMap, filter, takeWhile, map } from "rxjs/operators";
 import {
   LINQ_EVENTS,
+  AboutResponse,
   Events,
   EventNew,
   EventAbout,
@@ -90,6 +91,15 @@ export const request = <T>(
   data?: any
 ) => (source: Observable<{ serial: string }>) =>
   source.pipe(switchMap((o) => s<T>(o.serial, meth, path, data)));
+
+export const mapAboutResponse = () => (
+  source: Observable<AboutResponse>
+): Observable<EventAbout> =>
+  source.pipe(
+    map((response) => {
+      return { type: "new", serial: response.about.sid, ...response.about };
+    })
+  );
 
 export const takeWhileRunning = (running: { running: boolean }) => (
   source: Observable<Events>

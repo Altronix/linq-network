@@ -72,6 +72,7 @@ export interface UpdateResponse<T = any> {
   remaining: number;
 }
 
+export type AboutResponse = { about: EventDataAbout };
 export type EventDataNew = string;
 export type EventDataHeartbeat = string;
 export interface EventDataAbout {

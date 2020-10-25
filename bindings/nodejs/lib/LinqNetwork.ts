@@ -21,6 +21,7 @@ import {
   UpdateDashboard,
   UpdateTypes,
   UpdateResponse,
+  AboutResponse,
   Events as Event,
   EventNew,
   EventHeartbeat,
@@ -37,6 +38,7 @@ import {
   isEventDataHeartbeat,
   isEventDataAlert,
   isEventDataError,
+  mapAboutResponse,
   whenNew,
   whenAbout,
   whenHeartbeat,
@@ -85,34 +87,31 @@ export class LinqNetwork extends Events.EventEmitter {
       }
     });
 
-    // Subscribe to our observable and expose traditional event emitter api
-    type AboutResponse = { about: EventDataAbout };
+    // Our observable passes through all the binding events, and listens for
+    // _new events to request about data. When about data response arrives we
+    // emit a more decorated "new" event.
     self._events$
       .asObservable()
       .pipe(
         takeWhileRunning(self),
-        merge(
-          self._events$.asObservable().pipe(
-            takeWhileRunning(self),
-            whenNew(),
-            request<AboutResponse>(this.send.bind(this), "GET", "/ATX/about"),
-            map((response) => {
-              return {
-                type: "new",
-                serial: response.about.sid,
-                ...response.about,
-              } as EventAbout;
-            }),
-            tap((event) => {
-              self.devices[event.sid] = event;
-              self.devices[event.sid].lastSeen = new Date();
-            })
-          )
+        mergeMap((o) =>
+          o.type !== "_new"
+            ? of(o)
+            : from(
+                self.send<AboutResponse>(o.serial, "GET", "/ATX/about")
+              ).pipe(
+                mapAboutResponse(),
+                tap((event) => {
+                  self.devices[event.sid] = event;
+                  self.devices[event.sid].lastSeen = new Date();
+                })
+              )
         )
       )
-      .subscribe((e) => {
-        self.events$.next(e);
-        self.emit(e.type, { ...e });
+      .subscribe((ev) => {
+        // Subscribe to our observable and expose traditional event emitter api
+        self.events$.next(ev);
+        self.emit(ev.type, { ...ev });
       });
   }
 
