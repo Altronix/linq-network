@@ -53,3 +53,7 @@ test.db
 
 compile_commands.json
 .clangd
+
+# tsc compiler output
+bindings/nodejs/examples/**/*.js
+test/integration/timeout/*.js

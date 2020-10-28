@@ -8,6 +8,8 @@
     "native-build": "node ./scripts/build-nodejs-binding.js",
     "native-clean": "cmake-js clean",
     "build": "npm run native-build && tsc -p ./bindings/nodejs/lib",
+    "build:examples": "tsc --build ./bindings/nodejs/examples/update/tsconfig.json",
+    "build:integration-test": "tsc --build ./test/integration/timeout/tsconfig.json",
     "postinstall": "npm run native-build && tsc -p ./bindings/nodejs/lib"
   },
   "files": [

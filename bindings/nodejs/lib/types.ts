@@ -72,7 +72,7 @@ export interface UpdateResponse<T = any> {
   remaining: number;
 }
 
-export type AboutResponse = { about: EventDataAbout };
+export type AboutResponse = { about: Omit<EventDataAbout, "serial"> };
 export type EventDataNew = string;
 export type EventDataHeartbeat = string;
 export interface EventDataAbout {
@@ -88,6 +88,7 @@ export interface EventDataAbout {
   user: string;
   mac: string;
   sid: string;
+  serial: string;
 }
 
 export interface EventDataAlert {

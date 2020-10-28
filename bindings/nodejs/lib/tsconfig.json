@@ -1,12 +1,7 @@
 {
+  "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "allowJs": false,
-    "declaration": true,
-    "outDir": "../../../build/install/lib",
-    "strict": true,
-    "esModuleInterop": true
+    "outDir": "../../../build/install/lib"
   },
   "include": ["./"],
   "exclude": ["node_modules", "__tests__"]
