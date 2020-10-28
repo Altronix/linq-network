@@ -27,6 +27,15 @@ cb_504(item_s* item, item_cb_s* cb)
     }
 }
 
+static int
+cb_to(item_s* item, item_cb_s* item_cb)
+{
+    atx_cb_s* cb = item_cb;
+    int timeout = cb->num ? cb->num : 10000;
+    osal_sleep(timeout);
+    return 0;
+}
+
 fixture_context*
 fixture_create(const char* sid, uint32_t port)
 {
@@ -66,7 +75,8 @@ fixture_create(const char* sid, uint32_t port)
           item_create_set_num_path(f->api.doc, "shutdown", 0, NULL, NULL) &&
           item_create_set_num_path(f->api.doc, "result", -1, NULL, NULL) &&
           item_create_set_num_path(f->api.doc, "alert", 0, NULL, NULL) &&
-          item_create_set_num_path(f->api.doc, "test_504", 0, cb_504, NULL))) {
+          item_create_set_num_path(f->api.doc, "test_504", 0, cb_504, NULL) &&
+          item_create_set_num_path(f->api.doc, "timeout", 0, cb_to, NULL))) {
         item_destroy(&f->api.doc);
         atxclient_destroy(&f->client);
         unet_destroy(&f->netw);
