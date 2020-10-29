@@ -1,4 +1,8 @@
-import { network as linq, LinqNetwork } from "../../../build/install/lib";
+import {
+  network as linq,
+  UpdateDashboard,
+  LinqNetwork,
+} from "../../../build/install/lib";
 import { from, of, timer, merge, concat, Observable } from "rxjs";
 import {
   catchError,
@@ -11,6 +15,11 @@ import {
   tap,
 } from "rxjs/operators";
 import { httpRequest } from "./http_request";
+import * as fs from "fs";
+
+async function readUpdate(path: string) {
+  return fs.promises.readFile(path, "utf-8");
+}
 
 function setCloudViaHttp(serial: string, enable: boolean) {
   return httpRequest(
@@ -24,20 +33,36 @@ function setCloudViaHttp(serial: string, enable: boolean) {
   );
 }
 
-function disableCloud(serial: string) {
-  return setCloudViaHttp(serial, false);
+function cloud(cloud: boolean, serial: string, t: number) {
+  return timer(t).pipe(
+    take(1),
+    switchMap(() => {
+      return setCloudViaHttp(serial, cloud).pipe(
+        mapTo({
+          serial,
+          step: `Cloud ${cloud ? "enabled" : "disabled"}`,
+          response: "",
+        })
+      );
+    })
+  );
 }
 
-function enableCloud(serial: string) {
-  return setCloudViaHttp(serial, true);
-}
+const enableCloud = (serial: string, timer: number) =>
+  cloud(true, serial, timer);
 
-function getAboutViaZmtp(serial: string) {
-  return from(linq.send(serial, "GET", "/ATX/about"));
-}
+const disableCloud = (serial: string, timer: number) =>
+  cloud(false, serial, timer);
 
+const update = __dirname + "/linq2-2.4.6-dashboard.json";
 let running = linq.run(10);
 
+/**
+ * @brief Listen for a device, and send an update. 2 seconds into an update
+ *        use the HTTP api to disable the cloud service.  Then 15 seconds
+ *        later, use the HTTP api to re-enable the cloud service.  The update
+ *        should continue
+ */
 linq
   .listen(33455)
   .events("new")
@@ -45,35 +70,28 @@ linq
     take(1),
     switchMap(({ serial }) =>
       merge(
-        // Disable cloud via HTTP request
-        disableCloud(serial).pipe(
-          mapTo({ serial, step: "cloud disabled", response: "" })
-        ),
-        // Send a GET request for About data, hopefully we receve!
-        getAboutViaZmtp(serial).pipe(
-          map((response) => {
-            return { response, serial, step: "response received" };
+        // Send an update
+        from(fs.promises.readFile(update, "utf-8")).pipe(
+          map((text) => JSON.parse(text) as UpdateDashboard),
+          switchMap((update) => linq.update(serial, update.files[1].update)),
+          map(({ response, remaining }) => {
+            return { step: remaining, response };
           })
         ),
-        // Wait x seconds and enable cloud via HTTP request
-        timer(15000).pipe(
-          take(1),
-          switchMap(() => {
-            return enableCloud(serial).pipe(
-              mapTo({ serial, step: "cloud enabled", response: "" })
-            );
-          })
-        )
+
+        // Disable cloud via HTTP request x seconds into update
+        disableCloud(serial, 2000),
+
+        // Restore cloud x seconds into update
+        enableCloud(serial, 15000)
       )
     )
   )
   .subscribe(
     ({ step, response }) => {
-      let resp = JSON.stringify(response);
-      if (resp.length > 15) resp = resp.substring(0, 15) + "...";
-      console.log(`step: [${step}]`);
-      if (resp.length > 2) console.log(`resp: [${resp}]`);
-      if (step == "response received") linq.shutdown();
+      console.log(step);
+      console.log(response);
+      if (step === 0) linq.shutdown();
     },
     (e) => {
       console.error(e);
