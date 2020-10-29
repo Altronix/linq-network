@@ -313,7 +313,7 @@ zmtp_device_request_flush(node_s* base)
         request_destroy(r_p);
         log_trace("(ZMTP) [%.6s...] send fail", device_serial(base));
     } else {
-        log_trace("(ZMTP) [%.6s...] send success", device_serial(base));
+        log_trace("(ZMTP) [%.6s...] send sent!", device_serial(base));
     }
 }
 
@@ -331,7 +331,7 @@ zmtp_device_request_retry(node_s* base)
         request_destroy(r_p);
         log_trace("(ZMTP) [%.6s...] retry fail", device_serial(base));
     } else {
-        log_trace("(ZMTP) [%.6s...] retry success", device_serial(base));
+        log_trace("(ZMTP) [%.6s...] retry sent!", device_serial(base));
     }
 }
 
