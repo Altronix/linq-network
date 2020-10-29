@@ -29,6 +29,7 @@ const usbhOpt = (opt) => `${opt ? "--CDBUILD_USBH=ON" : ""}`;
 const disablePassOpt = (opt) => `${opt ? "--CDDISABLE_PASSWORD=ON" : ""}`;
 const systemOpt = (opt) => (opt ? "" : `--CDBUILD_DEPENDENCIES=ON`);
 const logOpt = (opt) => (opt ? `--CDLOG_LEVEL=${opt}` : ``);
+const debugOpt = (opt) => `--CDCMAKE_BUILD_TYPE=${opt ? "Debug" : "Release"}`;
 
 // Parse user options for linqd
 const withLinqd = (json) =>
@@ -57,6 +58,9 @@ const withDisablePass = (json) =>
   (json && json.disablePassword) ||
   false;
 
+const withDebug = (json) =>
+  isTrue(process.env.LINQ_NETWORK_DEBUG) || (json && json.debug) || false;
+
 // Generate cmake-js argument
 const cmakeCmd = process.platform === "win32" ? `cmake-js.cmd` : `cmake-js`;
 const cmakeArgs = (json) =>
@@ -65,10 +69,11 @@ const cmakeArgs = (json) =>
   `${usbhOpt(withUsbh(json))} ` +
   `${disablePassOpt(withDisablePass(json))} ` +
   `${logOpt(withLog(json))} ` +
+  `${debugOpt(withDebug(json))} ` +
   `--CDCMAKE_INSTALL_PREFIX=./ --CDBUILD_SHARED=OFF ` +
   `--CDBUILD_APPS=OFF ` +
   `--CDWITH_NODEJS_BINDING ` +
-  `--CDCMAKE_BUILD_TYPE=Release build --target=install`;
+  `build --target=install`;
 
 // Find the prebuilt binary (Only used if native build fails)
 const getPrebuilt = () =>
@@ -92,6 +97,7 @@ const tryBuild = async (json) => {
   logger.info(`Settings: WITH_USBH                -> ${withUsbh(json)}`);
   logger.info(`Settings: DISABLE_PASSWORD         -> ${withDisablePass(json)}`);
   logger.info(`Settings: LOG_LEVEL                -> ${withLog(json)}`);
+  logger.info(`Settings: LINQ_NETWORK_DEBUG       -> ${withDebug(json)}`);
 
   // Call cmake-js
   const result = cp.spawnSync(cmakeCmd, cmakeArgs(json).split(" "), {
