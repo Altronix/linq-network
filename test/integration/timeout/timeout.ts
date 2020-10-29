@@ -1,22 +1,35 @@
-const update = __dirname + "/linq2-2.4.6-dashboard.json";
-import { network as linq } from "../../../build/install/lib";
-import { from, of } from "rxjs";
-import { takeWhile, take, switchMap, tap, map } from "rxjs/operators";
-import * as fs from "fs";
-let running = linq.run(10);
+import { network as linq, LinqNetwork } from "../../../build/install/lib";
+import { from, of, concat, Observable } from "rxjs";
+import {
+  catchError,
+  delay,
+  takeWhile,
+  take,
+  switchMap,
+  tap,
+} from "rxjs/operators";
+import { httpRequest } from "./http_request";
+import { linqRequest } from "./linq_request";
 
+/**
+ * @brief TODO figure out why turning portEn off will cause linq-common hang
+ */
+let running = linq.run(10);
 linq
   .listen(33455)
   .events("new")
   .pipe(
     take(1),
-    switchMap((e) =>
-      from(fs.promises.readFile(update, "utf-8")).pipe(
-        map((update) => JSON.parse(update)),
-        switchMap((update) => linq.update(e.serial, update))
-      )
-    )
+    /*
+    linqRequest(linq, "POST", "/ATX/network/zmtp/cloud/portEn", { portEn: 0 }),
+    */
+    linqRequest(linq, "GET", "/ATX/about"),
+    delay(5000),
+    httpRequest("127.0.0.1", 8080, "/ATX/network/zmtp/cloud/portEn", {
+      portEn: 1,
+    }),
+    catchError((e: number) => of({ error: e }))
   )
   .subscribe((e) => {
-    console.log(e);
+    linq.shutdown();
   });
