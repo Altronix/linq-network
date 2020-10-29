@@ -3,7 +3,6 @@ import { switchMap } from "rxjs/operators";
 import * as http from "http";
 
 export const httpRequest = <R>(
-  serial: string,
   dest: string,
   method: "GET" | "POST" | "DELETE",
   path: string,

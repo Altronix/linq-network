@@ -16,14 +16,29 @@ import {
 } from "rxjs/operators";
 import { httpRequest } from "./http_request";
 import * as fs from "fs";
+type AtxResponse = { error: number };
 
-async function readUpdate(path: string) {
-  return fs.promises.readFile(path, "utf-8");
+const update = __dirname + "/linq2-2.4.6-dashboard.json";
+
+// Read a JSON update from file system and send the update to device
+function sendUpdate(
+  path: string,
+  serial: string
+): Observable<{ step: number; response: AtxResponse }> {
+  return from(fs.promises.readFile(update, "utf-8")).pipe(
+    map((text) => JSON.parse(text) as UpdateDashboard),
+    switchMap((update) =>
+      linq.update<AtxResponse>(serial, update.files[1].update)
+    ),
+    map(({ response, remaining }) => {
+      return { step: remaining, response };
+    })
+  );
 }
 
-function setCloudViaHttp(serial: string, enable: boolean) {
-  return httpRequest(
-    serial,
+// Use HTTP api to enable/disable cloud of LinQ device
+function setCloudViaHttp(enable: boolean) {
+  return httpRequest<AtxResponse>(
     "127.0.0.1:8080",
     "POST",
     "/ATX/network/zmtp/cloud/portEn",
@@ -33,29 +48,28 @@ function setCloudViaHttp(serial: string, enable: boolean) {
   );
 }
 
-function cloud(cloud: boolean, serial: string, t: number) {
+// Wait t milliseconds and then enable / disable the cloud
+function cloud(
+  cloud: boolean,
+  t: number
+): Observable<{ response: AtxResponse; step: string }> {
   return timer(t).pipe(
     take(1),
     switchMap(() => {
-      return setCloudViaHttp(serial, cloud).pipe(
-        mapTo({
-          serial,
-          step: `Cloud ${cloud ? "enabled" : "disabled"}`,
-          response: "",
+      return setCloudViaHttp(cloud).pipe(
+        map((response) => {
+          return { response, step: `Cloud ${cloud ? "enabled" : "disabled"}` };
         })
       );
     })
   );
 }
 
-const enableCloud = (serial: string, timer: number) =>
-  cloud(true, serial, timer);
+// Small wrapper around cloudEnable/Disable
+const enableCloud = (timer: number) => cloud(true, timer);
 
-const disableCloud = (serial: string, timer: number) =>
-  cloud(false, serial, timer);
-
-const update = __dirname + "/linq2-2.4.6-dashboard.json";
-let running = linq.run(10);
+// Small wrapper around cloudEnable/Disable
+const disableCloud = (timer: number) => cloud(false, timer);
 
 /**
  * @brief Listen for a device, and send an update. 2 seconds into an update
@@ -63,6 +77,7 @@ let running = linq.run(10);
  *        later, use the HTTP api to re-enable the cloud service.  The update
  *        should continue
  */
+let running = linq.run(10);
 linq
   .listen(33455)
   .events("new")
@@ -71,19 +86,13 @@ linq
     switchMap(({ serial }) =>
       merge(
         // Send an update
-        from(fs.promises.readFile(update, "utf-8")).pipe(
-          map((text) => JSON.parse(text) as UpdateDashboard),
-          switchMap((update) => linq.update(serial, update.files[1].update)),
-          map(({ response, remaining }) => {
-            return { step: remaining, response };
-          })
-        ),
+        sendUpdate(update, serial),
 
-        // Disable cloud via HTTP request x seconds into update
-        disableCloud(serial, 2000),
+        // 2 seconds later disable cloud via HTTP request
+        disableCloud(2000),
 
-        // Restore cloud x seconds into update
-        enableCloud(serial, 15000)
+        // 15 seconds later kestore cloud via HTTP request
+        enableCloud(15000)
       )
     )
   )
