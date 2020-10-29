@@ -1,4 +1,4 @@
-import { Update, UpdateDashboard, UpdateNormalized } from "./types";
+import { Update, UpdateDashboard } from "./types";
 import { Observable, from, of } from "rxjs";
 import { switchMap } from "rxjs/operators";
 
@@ -45,34 +45,7 @@ export function isUpdateDashboard(update: any): update is UpdateDashboard {
   );
 }
 
-// Extend the prop with some helpful meta data
-export function normalizeUpdate(update: Update[]): UpdateNormalized[] {
-  return update.map((u, i) => {
-    return { ...u, remaining: update.length - i };
-  });
-}
-
 // Take a dashboard update and reduce the fields into a single array
-export function normalizeUpdateDashboard(
-  update: UpdateDashboard
-): UpdateNormalized[] {
-  return normalizeUpdate([
-    ...update.files[0].update,
-    ...update.files[1].update,
-  ]);
+export function normalizeUpdateDashboard(update: UpdateDashboard): Update[] {
+  return [...update.files[0].update, ...update.files[1].update];
 }
-
-export const normalize = () => (
-  source: Observable<Update[] | UpdateDashboard>
-): Observable<UpdateNormalized> =>
-  source.pipe(
-    switchMap((obs) => {
-      if (isUpdateDashboard(obs)) {
-        return from(normalizeUpdateDashboard(obs));
-      } else if (isUpdateArray(obs)) {
-        return from(normalizeUpdate(obs));
-      } else {
-        throw new Error("Invalid Update Properties!");
-      }
-    })
-  );

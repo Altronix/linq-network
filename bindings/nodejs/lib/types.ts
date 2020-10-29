@@ -63,10 +63,6 @@ export interface UpdateDashboard {
   files: [{ update: Update[] }, { update: Update[] }];
 }
 
-export interface UpdateNormalized extends Update {
-  remaining: number;
-}
-
 export interface UpdateResponse<T = any> {
   response: T;
   remaining: number;

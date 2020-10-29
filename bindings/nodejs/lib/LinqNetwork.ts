@@ -11,7 +11,7 @@ import {
   merge,
   takeWhile,
 } from "rxjs/operators";
-import { normalize } from "./update";
+import { isUpdateDashboard, normalizeUpdateDashboard } from "./update";
 import {
   Method,
   LINQ_EVENTS,
@@ -247,12 +247,15 @@ export class LinqNetwork extends Events.EventEmitter {
     serial: string,
     update: Update[] | UpdateDashboard
   ): Observable<UpdateResponse<T>> {
-    return of(update).pipe(
-      normalize(),
-      concatMap((u) => {
-        return from(this.send<T>(serial, "POST", "/ATX/exe/update", u)).pipe(
+    return of(
+      isUpdateDashboard(update) ? normalizeUpdateDashboard(update) : update
+    ).pipe(
+      switchMap((update) => {
+        let size = update.length;
+        return from(update).pipe(
+          concatMap((u) => this.send<T>(serial, "POST", "/ATX/exe/update", u)),
           map((response) => {
-            return { response, remaining: u.remaining };
+            return { response, remaining: --size };
           })
         );
       })
