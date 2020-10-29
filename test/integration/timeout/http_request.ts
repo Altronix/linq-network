@@ -2,43 +2,46 @@ import { Observable } from "rxjs";
 import { switchMap } from "rxjs/operators";
 import * as http from "http";
 
-interface SerialResponse<Response> {
-  serial: string;
-  response: Response;
-}
-export const httpRequest = (
-  host: string,
-  port: number,
+export const httpRequest = <R>(
+  serial: string,
+  dest: string,
+  method: "GET" | "POST" | "DELETE",
   path: string,
   data?: object
-) => (
-  source: Observable<{ serial: string }>
-): Observable<SerialResponse<http.IncomingMessage>> =>
-  source.pipe(
-    switchMap(
-      (o) =>
-        new Observable<SerialResponse<http.IncomingMessage>>((subscriber) => {
-          let post: string = data ? JSON.stringify(data) : "";
-          let opts: http.RequestOptions = {
-            host,
-            port,
-            path,
-            headers: { ["Content-Length"]: post.length },
-          };
-          let client = http.request(opts);
-          const resolve = (response: http.IncomingMessage) => {
-            subscriber.next({ response, serial: o.serial });
-            subscriber.complete();
-          };
-          const error = (r: any) => {
-            subscriber.error(r);
-            subscriber.complete();
-          };
-          client.on("error", (e) => error(e));
-          client.on("timeout", () => error({ error: "timeout" }));
-          client.on("response", (r) => resolve(r));
-          client.write(post);
-          client.end();
-        })
-    )
-  );
+): Observable<R> =>
+  new Observable<R>((subscriber) => {
+    const post: string = data ? JSON.stringify(data) : "";
+    const [host, port] = dest.split(":");
+    const auth = `Basic ${Buffer.from("admin:admin").toString("base64")}`;
+    const opts: http.RequestOptions = {
+      host,
+      port,
+      path,
+      method,
+      headers: {
+        ["Content-Length"]: post.length,
+        ["Authorization"]: auth,
+      },
+    };
+    const client = http.request(opts);
+    const resolve = (response: R) => {
+      subscriber.next(response);
+      subscriber.complete();
+    };
+    const error = (r: any) => {
+      subscriber.error(r);
+      subscriber.complete();
+    };
+    let response: string = "";
+    client.on("error", (e) => error(e));
+    client.on("timeout", () => error({ error: "timeout" }));
+    client.on("response", (r) => {
+      r.on("data", (data) => {
+        response += data;
+      });
+      r.on("end", () => resolve(JSON.parse(response)));
+      r.on("error", (e) => error({ error: e }));
+    });
+    client.write(post);
+    client.end();
+  });
