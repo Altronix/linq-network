@@ -154,16 +154,20 @@ request_send(request_s* base, zsock_t* sock)
 {
     request_zmtp_s* r = (request_zmtp_s*)base;
     zmsg_t* msg = zmsg_new();
+    zframe_t* f = NULL;
     int err, c = r->frames[FRAME_RID_IDX] ? 0 : 1;
     while (c < FRAME_REQ_DATA_IDX) {
         if (r->frames[c]) {
-            zframe_t* f = zframe_dup(r->frames[c]);
+            f = zframe_dup(r->frames[c]);
             linq_network_assert(f);
             zmsg_append(msg, &f);
         }
         c++;
     }
-    if (r->frames[c]) zmsg_append(msg, &r->frames[c]);
+    if (r->frames[c]) {
+        f = zframe_dup(r->frames[c]);
+        zmsg_append(msg, &f);
+    }
     r->base.sent_at = sys_tick();
     err = zmsg_send(&msg, sock);
     if (err) zmsg_destroy(&msg);
