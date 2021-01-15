@@ -182,9 +182,18 @@ main(int argc, char* argv[])
         }
     }
 
+    snprintf(b, sizeof(b), "%.*s", config.log.len, config.log.p);
     if (config.daemon) {
-        snprintf(b, sizeof(b), "%.*s", config.log.len, config.log.p);
         sys_daemonize(b, &f, &pid);
+    } else if (config.log.len) {
+        f = sys_open(b, FILE_MODE_READ_APPEND_CREATE, FILE_BLOCKING);
+        if (f) {
+            log_set_fd(f);
+            log_set_color(false);
+            close(STDIN_FILENO);
+            close(STDOUT_FILENO);
+            close(STDERR_FILENO);
+        }
     }
 
     netw = netw_create(NULL, NULL);
