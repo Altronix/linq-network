@@ -56,6 +56,7 @@ export class LinqNetwork extends Events.EventEmitter {
   running: boolean = true;
   shutdownPromise: any;
   events$: Subject<Event> = new Subject<Event>();
+  private logger: Logger;
   private _events$: Subject<Event> = new Subject<Event>();
   private shutdownTimer: any;
   private shutdownResolve: any;
@@ -64,10 +65,11 @@ export class LinqNetwork extends Events.EventEmitter {
     return this._devices;
   }
 
-  constructor(b?: Binding, private logger: Logger = new Logger()) {
+  constructor(b?: Binding, logger?: Logger) {
     super();
 
     let self = this;
+    this.logger = logger || new Logger();
     this.netw = b || new binding.LinqNetwork();
     this.netw.registerCallback(async function (
       event: LINQ_EVENTS,

@@ -5,8 +5,8 @@
 Napi::Object
 Init(Napi::Env env, Napi::Object exports)
 {
-    LinqNetwork::Init(env, exports);
     Logger::Init(env, exports);
+    LinqNetwork::Init(env, exports);
     return exports;
 }
 
