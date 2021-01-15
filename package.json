@@ -10,6 +10,8 @@
     "build": "npm run native-build && tsc -p ./bindings/nodejs/lib",
     "build:examples": "tsc --build ./bindings/nodejs/examples/update/tsconfig.json",
     "build:integration-test": "tsc --build ./test/integration/timeout/tsconfig.json",
+    "build:events": "tsc --build ./bindings/nodejs/examples/events",
+    "run:events": "node ./bindings/nodejs/examples/events/index.js",
     "postinstall": "npm run native-build && tsc -p ./bindings/nodejs/lib"
   },
   "files": [

@@ -1,6 +1,6 @@
 import * as Events from "events";
 import { inherits } from "util";
-import { of, from, Observable, Subject } from "rxjs";
+import { of, from, merge, Observable, Subject } from "rxjs";
 import {
   switchMap,
   concatMap,
@@ -8,7 +8,6 @@ import {
   tap,
   filter,
   mergeMap,
-  merge,
   takeWhile,
 } from "rxjs/operators";
 import { isUpdateDashboard, normalizeUpdateDashboard } from "./update";
@@ -16,6 +15,7 @@ import {
   Method,
   LINQ_EVENTS,
   Binding,
+  LogData,
   Devices,
   Update,
   UpdateDashboard,
@@ -48,6 +48,7 @@ import {
   request,
   takeWhileRunning,
 } from "./event";
+import { Logger } from "./Logger";
 const binding = require("bindings")("linq");
 
 export class LinqNetwork extends Events.EventEmitter {
@@ -63,8 +64,9 @@ export class LinqNetwork extends Events.EventEmitter {
     return this._devices;
   }
 
-  constructor(b?: Binding) {
+  constructor(b?: Binding, private logger: Logger = new Logger()) {
     super();
+
     let self = this;
     this.netw = b || new binding.LinqNetwork();
     this.netw.registerCallback(async function (
@@ -115,6 +117,10 @@ export class LinqNetwork extends Events.EventEmitter {
       });
   }
 
+  logs() {
+    return this.logger.listen();
+  }
+
   events(ev: "_new"): Observable<EventNew>;
   events(ev: "new"): Observable<EventAbout>;
   events(ev: "heartbeat"): Observable<EventHeartbeat>;
@@ -141,6 +147,10 @@ export class LinqNetwork extends Events.EventEmitter {
     } else {
       return this.events$.asObservable();
     }
+  }
+
+  watch(): Observable<Event | LogData> {
+    return merge(this.events(), this.logs());
   }
 
   version() {
@@ -260,6 +270,11 @@ export class LinqNetwork extends Events.EventEmitter {
         );
       })
     );
+  }
+
+  tick(ms: number) {
+    this.run(ms);
+    return this;
   }
 
   // run

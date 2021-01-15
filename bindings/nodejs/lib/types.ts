@@ -9,6 +9,7 @@ export interface Devices {
 export interface Binding {
   version: () => string;
   registerCallback: (arg: (ev: LINQ_EVENTS, ...args: any[]) => void) => void;
+  registerLogger: (arg: (log: LogData) => void) => void;
   on: (event: LINQ_EVENTS, fn: (...args: any[]) => void) => void;
   isRunning: () => boolean;
   poll: (ms: number) => Promise<any>;
@@ -41,6 +42,14 @@ export interface UsbhResponse<T = any> {
   data: T;
 }
 export type UsbhResponseBinding = Omit<UsbhResponse, "data"> & { data: string };
+
+export interface LogData {
+  tick: number;
+  line: number;
+  level: string;
+  file: string;
+  mesg: string;
+}
 
 export type UpdateTypes = "firmware" | "website" | "dashboard";
 export interface Update {

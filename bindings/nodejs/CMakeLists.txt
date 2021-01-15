@@ -10,8 +10,8 @@ execute_process(COMMAND node -p "require('node-addon-api').include"
 string(REPLACE "\n" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
 string(REPLACE "\"" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
 
-set(sources ./src/binding.cc ./src/NetwJS.cc)
-set(headers ./src/NetwJS.h)
+set(sources ./src/binding.cc ./src/NetwJS.cc ./src/LogJS.cc)
+set(headers ./src/NetwJS.h ./src/LogJS.h)
 set(defs "LINQ_NETWORK_NODEJS_BINDING")
 
 set(libs

@@ -95,30 +95,31 @@ log_log(E_LOG_LEVEL level, const char* file, int line, const char* fmt, ...)
     FILE* out = logger ? logger : stdout;
     uint32_t tick = sys_tick();
 
-    fprintf(
-        out,
-        color ? FMT : FMT_BW,
-        tick,
-        level_colors[level],
-        level_names[level],
-        file,
-        line);
-
-    va_start(args, fmt);
-    vfprintf(out, fmt, args);
-    va_end(args);
-    fprintf(out, "\n");
-    fflush(out);
-
     if (log_callback) {
         callback.file = file;
         callback.line = line;
         callback.tick = tick;
+        callback.level = level_names[level];
         callback.context = log_callback_context;
         va_start(args, fmt);
         snprintf(callback.message, sizeof(callback.message), fmt, args);
         va_end(args);
         log_callback(&callback);
+    } else {
+        fprintf(
+            out,
+            color ? FMT : FMT_BW,
+            tick,
+            level_colors[level],
+            level_names[level],
+            file,
+            line);
+
+        va_start(args, fmt);
+        vfprintf(out, fmt, args);
+        va_end(args);
+        fprintf(out, "\n");
+        fflush(out);
     }
 }
 
