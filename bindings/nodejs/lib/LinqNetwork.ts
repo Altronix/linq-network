@@ -8,6 +8,7 @@ import {
   tap,
   filter,
   mergeMap,
+  takeUntil,
   takeWhile,
 } from "rxjs/operators";
 import { isUpdateDashboard, normalizeUpdateDashboard } from "./update";
@@ -120,7 +121,7 @@ export class LinqNetwork extends Events.EventEmitter {
   }
 
   logs() {
-    return this.logger.listen();
+    return this.logger.listen().pipe(takeUntil(this.shutdownPromise));
   }
 
   events(ev: "_new"): Observable<EventNew>;
