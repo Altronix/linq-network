@@ -23,6 +23,7 @@ class Logger : public Napi::ObjectWrap<Logger>
             obj.Set("line", Napi::Number::New(env, callback->line));
             obj.Set("file", Napi::String::New(env, callback->file));
             obj.Set("level", Napi::String::New(env, callback->level));
+            obj.Set("category", Napi::String::New(env, callback->category));
             obj.Set("mesg", Napi::String::New(env, callback->message));
             l->callback.Call({ obj });
         }

@@ -85,6 +85,7 @@ extern "C"
         uint32_t tick;
         const char* file;
         const char* level;
+        const char* category;
         char message[LOG_MESSAGE_LEN];
     } log_callback_s;
     typedef void (*log_callback_fn)(log_callback_s*);

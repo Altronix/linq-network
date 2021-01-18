@@ -108,6 +108,7 @@ log_log(
         callback.line = line;
         callback.tick = tick;
         callback.level = level_names[level];
+        callback.category = cat;
         callback.context = log_callback_context;
         va_start(args, fmt);
         snprintf(callback.message, sizeof(callback.message), fmt, args);
