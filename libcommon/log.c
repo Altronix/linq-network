@@ -52,8 +52,10 @@
 #define LEVEL_BW "%.0s%s "
 #define LINE LOG_MAGENTA "%14s:%04d " LOG_RESET
 #define LINE_BW "%14s:%04d "
-#define FMT TICK LEVEL LINE ARROW
-#define FMT_BW TICK_BW LEVEL_BW LINE_BW ARROW_BW
+#define CAT LOG_LIGHT_CYAN "[%5s] " LOG_RESET
+#define CAT_BW "[%.5s] "
+#define FMT TICK LEVEL LINE CAT ARROW
+#define FMT_BW TICK_BW LEVEL_BW LINE_BW CAT ARROW_BW
 
 static FILE* logger = NULL;
 static bool color = true;
@@ -119,7 +121,8 @@ log_log(
             level_colors[level],
             level_names[level],
             file,
-            line);
+            line,
+            cat);
 
         va_start(args, fmt);
         vfprintf(out, fmt, args);
