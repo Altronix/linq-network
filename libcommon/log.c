@@ -85,7 +85,13 @@ log_set_color(bool c)
 }
 
 void
-log_log(E_LOG_LEVEL level, const char* file, int line, const char* fmt, ...)
+log_log(
+    E_LOG_LEVEL level,
+    const char* file,
+    int line,
+    const char* cat,
+    const char* fmt,
+    ...)
 {
     log_callback_s callback = {};
     size_t flen = strlen(file) - 1;

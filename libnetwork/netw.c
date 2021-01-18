@@ -16,6 +16,13 @@
 #include "callbacks.h"
 #include "netw_internal.h"
 
+#define netw_info(...) log_info("NETW", __VA_ARGS__)
+#define netw_warn(...) log_warn("NETW", __VA_ARGS__)
+#define netw_debug(...) log_debug("NETW", __VA_ARGS__)
+#define netw_trace(...) log_trace("NETW", __VA_ARGS__)
+#define netw_error(...) log_error("NETW", __VA_ARGS__)
+#define netw_fatal(...) log_fatal("NETW", __VA_ARGS__)
+
 LINQ_EXPORT const char*
 netw_version()
 {
@@ -96,7 +103,7 @@ netw_root(netw_s* linq, const char* root)
 #ifdef BUILD_LINQD
     http_root(&linq->http, root);
 #else
-    log_error("(HTTP) http support not enabled!");
+    netw_error("http support not enabled!");
 #endif
 }
 
@@ -106,7 +113,7 @@ netw_listen(netw_s* l, const char* ep)
 {
     int ep_len = strlen(ep);
     if (*ep == 'i' || *ep == 't') {
-        log_info("(ZMTP) Listening... [%s]", ep);
+        netw_info("Listening... [%s]", ep);
         return zmtp_listen(&l->zmtp, ep);
     } else {
 #ifdef BUILD_LINQD
@@ -118,7 +125,7 @@ netw_listen(netw_s* l, const char* ep)
             return LINQ_ERROR_OK;
         }
 #else
-        log_error("(HTTP) not supported");
+        netw_error("not supported");
         return -1;
 #endif
     }
@@ -128,9 +135,9 @@ netw_socket
 netw_connect(netw_s* l, const char* ep)
 {
     netw_socket s;
-    log_info("(ZMTP) Connecting... [%s]", ep);
+    netw_info("Connecting... [%s]", ep);
     s = zmtp_connect(&l->zmtp, ep);
-    log_info("(ZMTP) Connecting result [%d]", s);
+    netw_info("Connecting result [%d]", s);
     return s;
 }
 
@@ -155,16 +162,16 @@ E_LINQ_ERROR
 netw_poll(netw_s* l, int32_t ms)
 {
     E_LINQ_ERROR err = zmtp_poll(&l->zmtp, ms);
-    if (err < 0) log_error("(ZMTP) polling error %d", err);
+    if (err < 0) netw_error("polling error %d", err);
 
 #if BUILD_USBH
     err = usbh_poll(&l->usb, ms);
-    if (err < 0) log_error("(USB) polling error %d", err);
+    if (err < 0) netw_error("polling error %d", err);
 #endif
 
 #if BUILD_LINQD
     err = http_poll(&l->http, ms);
-    if (err < 0) log_error("(HTTP) polling error %d", err);
+    if (err < 0) netw_error("polling error %d", err);
 #endif
 
     // Loop through devices
@@ -279,16 +286,16 @@ netw_send(
     E_LINQ_ERROR error = LINQ_ERROR_OK;
     char e[32];
     const char* m;
-    log_info("(NETW) send [%.6s...] [%s] [%.*s]", serial, method, plen, path);
+    netw_info("send [%.6s...] [%s] [%.*s]", serial, method, plen, path);
     node_s** node = devices_get(linq->devices, serial);
     if (!node) {
-        log_error("(NETW) send [%.6s...] not found!", serial);
+        netw_error("send [%.6s...] not found!", serial);
         m = "not found";
         snprintf(e, sizeof(e), "{\"error\":\"%s\"}", m);
         error = LINQ_ERROR_DEVICE_NOT_FOUND;
         fn(context, "", error, e);
     } else {
-        log_info("(NETW) send [%.6s...] sent!", serial);
+        netw_info("send [%.6s...] sent!", serial);
         E_REQUEST_METHOD m = method_from_str(method);
         (*node)->send(*node, m, path, plen, json, jlen, fn, context);
     }
@@ -340,7 +347,7 @@ netw_scan(netw_s* linq)
 #ifdef BUILD_USBH
     return usbh_scan(&linq->usb, 0x3333, 0x4444);
 #else
-    log_error("(NETW) usb support not compiled into library!");
+    netw_error("usb support not compiled into library!");
     return -1;
 #endif
 }

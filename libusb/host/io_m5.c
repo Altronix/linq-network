@@ -5,6 +5,13 @@
 #include "wire.h"
 #include <string.h>
 
+#define usb_info(...) log_info("USB", __VA_ARGS__)
+#define usb_warn(...) log_warn("USB", __VA_ARGS__)
+#define usb_debug(...) log_debug("USB", __VA_ARGS__)
+#define usb_trace(...) log_trace("USB", __VA_ARGS__)
+#define usb_error(...) log_error("USB", __VA_ARGS__)
+#define usb_fatal(...) log_fatal("USB", __VA_ARGS__)
+
 #define IN 1 | LIBUSB_ENDPOINT_IN
 #define OUT 2 | LIBUSB_ENDPOINT_OUT
 
@@ -105,9 +112,9 @@ io_m5_send_http_request_sync(
     ret = wire_print_http_request_n(&p, &sz, meth, path, plen, data, dlen);
     if (ret == 0) {
         ret = libusb_bulk_transfer(io->io.handle, OUT, io->out, sz, &txed, 0);
-        log_info("(USB) - tx [%d/%d] bytes", txed, sz);
-        if (!(ret < 0) && !(txed == sz)) log_error("TODO tx_sync incomplete!");
-        if (ret < 0) log_error("(USB) - tx [%s]", libusb_strerror(ret));
+        usb_info("tx [%d/%d] bytes", txed, sz);
+        if (!(ret < 0) && !(txed == sz)) usb_error("TODO tx_sync incomplete!");
+        if (ret < 0) usb_error("tx [%s]", libusb_strerror(ret));
     }
     return ret;
 }
@@ -125,7 +132,7 @@ io_m5_recv_http_response_sync(
 {
 #define err_exit(code, m1, m2)                                                 \
     do {                                                                       \
-        log_error("(USB) - rx [%s %s]", m1, m2);                               \
+        usb_error("rx [%s %s]", m1, m2);                                       \
         goto EXIT;                                                             \
     } while (0)
 
@@ -138,18 +145,18 @@ io_m5_recv_http_response_sync(
     libusb_device_handle* handle = io->io.handle;
     ret = libusb_bulk_transfer(handle, IN, io->in, sz, &txed, 2000);
     if (ret < 0) err_exit(ret, libusb_strerror(ret), strerror(errno));
-    log_info("(USB) - rx [%d/%d]", txed, sz);
+    usb_info("rx [%d/%d]", txed, sz);
     while (!(ptr = memmem(io->in, txed, "\r\n", 2)) && txed) {
         n = txed;
         ret = libusb_bulk_transfer(handle, IN, &io->in[txed], sz, &txed, 2000);
         if (ret < 0) err_exit(ret, libusb_strerror(ret), strerror(errno));
-        log_info("(USB) - rx [%d/%d]", txed, sz);
+        usb_info("rx [%d/%d]", txed, sz);
         txed += n;
     }
 
     // Check advert size must equal received size (received = expect + \n)
     ret = wire_read_sz(&sz, io->in, txed);
-    log_info("(USB) - rx [%d/%d]", txed, sz);
+    usb_info("rx [%d/%d]", txed, sz);
     if (!(ret == 0)) err_exit(ret, "underflow detected", "");
     if (!(sz <= txed)) err_exit(-1, "size advertise missmatch", "");
 
@@ -162,7 +169,7 @@ io_m5_recv_http_response_sync(
         wire_parser_http_response_free(&r);
     }
 EXIT:
-    log_info("(USB) - rx result [%d]", ret);
+    usb_info("rx result [%d]", ret);
     return ret;
 #undef err_exit
 }
@@ -173,7 +180,7 @@ process_io_error(io_s* io, int err, linq_request_complete_fn fn, void* ctx)
     const char* e;
     char buff[512];
     e = libusb_strerror(err);
-    log_error("(USB) rx err %s", e);
+    usb_error("rx err %s", e);
     snprintf(buff, sizeof(buff), "{\"error\": \"%s\",\"code\":%d}", e, err);
     fn(ctx, device_serial(&io->base), map_libusb_error(err), buff);
     if (io->callbacks && io->callbacks->err) {
@@ -235,34 +242,34 @@ io_m5_init(
             assert(device->incoming && device->outgoing);
             err = libusb_get_config_descriptor(
                 device->io.device, 0, &device->io.desc_cfg);
-            if (err) { log_error("(USB) - cfg [%s]", libusb_strerror(err)); }
+            if (err) { usb_error("cfg [%s]", libusb_strerror(err)); }
             err = libusb_get_string_descriptor_ascii(
                 device->io.handle,
                 descriptor.iProduct,
                 (unsigned char*)device->io.base.type,
                 sizeof(device->io.base.type));
-            if (err < 0) log_error("(USB) - str [%s]", libusb_strerror(err));
+            if (err < 0) usb_error("str [%s]", libusb_strerror(err));
             err = libusb_get_string_descriptor_ascii(
                 device->io.handle,
                 descriptor.iSerialNumber,
                 (unsigned char*)device->io.base.serial,
                 sizeof(device->io.base.serial));
-            if (err < 0) log_error("(USB) - str [%s]", libusb_strerror(err));
+            if (err < 0) usb_error("str [%s]", libusb_strerror(err));
             for (int i = 0; i < 2; i++) {
                 if (libusb_kernel_driver_active(device->io.handle, i)) {
-                    log_info("(USB) - detatching kernel driver [%d]", i);
+                    usb_info("detatching kernel driver [%d]", i);
                     err = libusb_detach_kernel_driver(device->io.handle, i);
-                    if (err) log_error("(USB) - [%s]", libusb_strerror(err));
+                    if (err) usb_error("[%s]", libusb_strerror(err));
                 }
-                log_info("(USB) - claiming interface [%d]", i);
+                usb_info("claiming interface [%d]", i);
                 err = libusb_claim_interface(device->io.handle, i);
-                if (err) log_error("(USB) - [%s]", libusb_strerror(err));
+                if (err) usb_error("[%s]", libusb_strerror(err));
             }
 
             // https://github.com/tytouf/libusb-cdc-example/blob/master/cdc_example.c
             err = libusb_control_transfer(
                 device->io.handle, 0x21, 0x22, 0x01 | 0x02, 0, NULL, 0, 0);
-            if (err < 0) log_error("USB) - ctr [%s]", libusb_strerror(err));
+            if (err < 0) usb_error("ctr [%s]", libusb_strerror(err));
             err = libusb_control_transfer(
                 device->io.handle,
                 0x21,
@@ -272,7 +279,7 @@ io_m5_init(
                 encoding,
                 sizeof(encoding),
                 0);
-            if (err < 0) log_error("USB) - ctr [%s]", libusb_strerror(err));
+            if (err < 0) usb_error("ctr [%s]", libusb_strerror(err));
             device->io.base.free = io_m5_free;
             device->io.base.send = io_m5_send;
             device->io.base.poll = io_m5_poll;

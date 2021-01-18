@@ -10,6 +10,13 @@
 #define UNSECURE_API "/api/v1/public"
 #define UNSECURE_API_LEN (sizeof(UNSECURE_API) - 1)
 
+#define http_info(...) log_info("HTTP", __VA_ARGS__)
+#define http_warn(...) log_warn("HTTP", __VA_ARGS__)
+#define http_debug(...) log_debug("HTTP", __VA_ARGS__)
+#define http_trace(...) log_trace("HTTP", __VA_ARGS__)
+#define http_error(...) log_error("HTTP", __VA_ARGS__)
+#define http_fatal(...) log_fatal("HTTP", __VA_ARGS__)
+
 #define HTTP_FORMAT_HEADERS                                                    \
     "HTTP/1.0 %d \r\n"                                                         \
     "Server: Linq Embedded Web Server\r\n"                                     \
@@ -210,12 +217,12 @@ process_file(http_s* http, struct mg_connection* c, struct http_message* m)
     snprintf(b, sizeof(b), "%s%.*s", root, (int)path.len, path.p);
     err = stat(b, &st);
     if (err) {
-        log_debug("(HTTP) [%s] not found... Serving root", b);
+        http_debug("[%s] not found... Serving root", b);
         snprintf(b, sizeof(b), "%s%s", root, "/index.html");
-        log_debug("(HTTP) (root) [%s]", b);
+        http_debug("(root) [%s]", b);
         mg_http_serve_file(c, m, b, mg_mk_str("text/html"), mg_mk_str(""));
     } else {
-        log_debug("(HTTP) [%s] found... ", b);
+        http_debug("[%s] found... ", b);
         mg_serve_http(c, m, http->serve_opts);
     }
 }
@@ -225,10 +232,10 @@ ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
 {
     switch (ev) {
         case MG_EV_POLL: break;
-        case MG_EV_ACCEPT: log_trace("%06s %04s", "(HTTP)", "Accept"); break;
-        case MG_EV_CONNECT: log_trace("%06s %04s", "(HTTP)", "Connect"); break;
-        case MG_EV_RECV: log_trace("%06s %04s", "(HTTP)", "Recv"); break;
-        case MG_EV_SEND: log_trace("%06s %04s", "(HTTP)", "Send"); break;
+        case MG_EV_ACCEPT: http_trace("%04s", "Accept"); break;
+        case MG_EV_CONNECT: http_trace("%04s", "Connect"); break;
+        case MG_EV_RECV: http_trace("%04s", "Recv"); break;
+        case MG_EV_SEND: http_trace("%04s", "Send"); break;
         case MG_EV_CLOSE: {
             http_s* http = user_data;
             char addr[48];
@@ -242,14 +249,14 @@ ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
                 }
             }
             get_addr(c, addr, sizeof(addr));
-            log_info("(HTTP) (%s) Connection close", addr);
+            http_info("(%s) Connection close", addr);
         } break;
-        case MG_EV_TIMER: log_trace("%06s %04s", "(HTTP)", "Timer"); break;
+        case MG_EV_TIMER: http_trace("%04s", "Timer"); break;
         case MG_EV_HTTP_REQUEST: {
             http_s* http = user_data;
             struct http_message* m = (struct http_message*)p;
             struct mg_str* path = &m->uri;
-            log_info("(HTTP) serve [%.*s]", path->len, path->p);
+            http_info("serve [%.*s]", path->len, path->p);
             http_route_context** r = resolve_route(http, path);
             if (r) {
                 if (path->len >= UNSECURE_API_LEN &&
@@ -259,45 +266,37 @@ ev_handler(struct mg_connection* c, int ev, void* p, void* user_data)
                     if (http_auth_is_authorized(http->db, c, m)) {
                         process_request(http, r, c, m);
                     } else {
-                        log_warn(
-                            "%06s %04s %s [%s]",
-                            "(HTTP)",
-                            "Req.",
-                            "(503)",
-                            path);
+                        http_warn("%04s %s [%s]", "Req.", "(503)", path);
                         c_printf_json(c, 503, JERROR_503);
                     }
                 }
             } else if (http->serve_opts.document_root) {
                 process_file(http, c, m);
             } else {
-                log_warn("%06s %04s %s [%s]", "(HTTP)", "Req.", "(404)", path);
+                http_warn("%04s %s [%s]", "Req.", "(404)", path);
                 c_printf_json(c, 404, "{\"error\":\"%s\"}", "not found");
             }
         } break;
-        case MG_EV_HTTP_REPLY: log_trace("%06s %04s", "(HTTP)", "Reply"); break;
-        case MG_EV_HTTP_CHUNK: log_trace("%06s %04s", "(HTTP)", "Chunk"); break;
+        case MG_EV_HTTP_REPLY: http_trace("%04s", "Reply"); break;
+        case MG_EV_HTTP_CHUNK: http_trace("%04s", "Chunk"); break;
         case MG_EV_WEBSOCKET_HANDSHAKE_REQUEST: {
             char addr[48];
             get_addr(c, addr, sizeof(addr));
-            log_info("(HTTP) (%s) Received websocket request...", addr);
+            http_info("(%s) Received websocket request...", addr);
         } break;
         case MG_EV_WEBSOCKET_HANDSHAKE_DONE:
-        case MG_EV_WEBSOCKET_FRAME:
-            log_trace("%06s %04s", "(HTTP)", "Websocket frame");
+        case MG_EV_WEBSOCKET_FRAME: http_trace("%04s", "Websocket frame");
         case MG_EV_WEBSOCKET_CONTROL_FRAME:
-            log_trace("%06s %04s", "(HTTP)", "Websocket ctrl frame");
+            http_trace("%04s", "Websocket ctrl frame");
             break;
         case MG_EV_HTTP_MULTIPART_REQUEST:
         case MG_EV_HTTP_PART_BEGIN:
         case MG_EV_HTTP_PART_DATA:
         case MG_EV_HTTP_PART_END:
         case MG_EV_HTTP_MULTIPART_REQUEST_END:
-            log_trace("%06s %04s", "(HTTP)", "Recv");
+            http_trace("%04s", "Recv");
             break;
-        default:
-            log_error("%06s %04s %s (%d)", "(HTTP)", "Recv", "Unkown", ev);
-            break;
+        default: http_error("%04s %s (%d)", "Recv", "Unkown", ev); break;
     }
 }
 
@@ -335,11 +334,11 @@ void
 http_listen(http_s* http, const char* port)
 {
     if (http->http) {
-        log_fatal("%10s", "HTTP can only listen to one server at a time!");
-        log_fatal("%10s", "Please shutdown HTTP server before listening again");
+        http_fatal("%10s", "HTTP can only listen to one server at a time!");
+        http_fatal("%10s", "Please shutdown HTTP server ");
         linq_network_assert(http->http);
     }
-    log_info("(HTTP) Listening... [http://*:%s]", port);
+    http_info("Listening... [http://*:%s]", port);
     http->http = mg_bind(&http->connections, port, ev_handler, http);
     mg_set_protocol_http_websocket(http->http);
 }
@@ -354,8 +353,8 @@ http_listen_tls(
     const char* err;
     struct mg_bind_opts opts;
     if (http->https) {
-        log_fatal("%10s", "HTTP can only listen to one server at a time!");
-        log_fatal("%10s", "Please shutdown HTTP server before listening again");
+        http_fatal("%10s", "HTTP can only listen to one server at a time!");
+        http_fatal("%10s", "Please shutdown HTTP server");
         linq_network_assert(http->http);
     }
     memset(&opts, 0, sizeof(opts));
@@ -365,13 +364,13 @@ http_listen_tls(
     opts.user_data = http;
     http->https = mg_bind_opt(&http->connections, port, ev_handler, http, opts);
     if (!(http->https == NULL)) {
-        log_info("(HTTP) Listening... [https://*:%s]", port);
+        http_info("Listening... [https://*:%s]", port);
         mg_set_protocol_http_websocket(http->https);
     } else {
-        log_error("(HTTP) Listening error [%s]", err);
-        log_error("(HTTP) CERT: [%s]", cert);
-        log_error("(HTTP)  KEY: [%s]", key);
-        log_error("(HTTP) PORT: [%s]", port);
+        http_error("Listening error [%s]", err);
+        http_error("CERT: [%s]", cert);
+        http_error("KEY: [%s]", key);
+        http_error("PORT: [%s]", port);
     }
 }
 
@@ -390,7 +389,7 @@ http_root(http_s* http, const char* path)
 {
     snprintf(http->root, sizeof(http->root), "%s", path);
     http->serve_opts.document_root = http->root;
-    log_info("(HTTP) Serving... [%s]", http->root);
+    http_info("Serving... [%s]", http->root);
 }
 
 void
@@ -415,7 +414,7 @@ http_parse_query_str(
                 *l = end ? end - spot : q->len - (spot - q->p);
                 *result = spot;
             } else {
-                log_error("(HTTP) Invalid Query String Detected");
+                http_error("Invalid Query String Detected");
                 *result = NULL;
                 *l = 0;
             }

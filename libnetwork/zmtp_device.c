@@ -7,6 +7,13 @@
 #include "device.h"
 #include "log.h"
 
+#define dev_info(...) log_info("DEV", __VA_ARGS__)
+#define dev_warn(...) log_warn("DEV", __VA_ARGS__)
+#define dev_debug(...) log_debug("DEV", __VA_ARGS__)
+#define dev_trace(...) log_trace("DEV", __VA_ARGS__)
+#define dev_error(...) log_error("DEV", __VA_ARGS__)
+#define dev_fatal(...) log_fatal("DEV", __VA_ARGS__)
+
 #define exe_on_complete(rp, err, dat, dp)                                      \
     do {                                                                       \
         if ((*rp)->callback) (*rp)->callback((*rp)->ctx, err, dat, dp);        \
@@ -315,9 +322,9 @@ zmtp_device_request_flush(node_s* base)
     if (request_send(*r_p, d->sock) < 0) {
         exe_on_complete(r_p, d->base.serial, LINQ_ERROR_IO, NULL);
         request_destroy(r_p);
-        log_trace("(ZMTP) [%.6s...] send fail", device_serial(base));
+        dev_trace("[%.6s...] send fail", device_serial(base));
     } else {
-        log_trace("(ZMTP) [%.6s...] send sent!", device_serial(base));
+        dev_trace("[%.6s...] send sent!", device_serial(base));
     }
 }
 
@@ -333,9 +340,9 @@ zmtp_device_request_retry(node_s* base)
     if (request_send(*r_p, d->sock) < 0) {
         exe_on_complete(r_p, d->base.serial, LINQ_ERROR_IO, NULL);
         request_destroy(r_p);
-        log_trace("(ZMTP) [%.6s...] retry fail", device_serial(base));
+        dev_trace("[%.6s...] retry fail", device_serial(base));
     } else {
-        log_trace("(ZMTP) [%.6s...] retry sent!", device_serial(base));
+        dev_trace("[%.6s...] retry sent!", device_serial(base));
     }
 }
 
@@ -370,9 +377,9 @@ zmtp_device_poll(node_s* base, void* ctx)
         uint32_t retry_at = zmtp_device_request_retry_at(&d->base);
         uint32_t retry_count = zmtp_device_request_retry_count(&d->base);
         if (tick >= retry_at) {
-            log_info("(ZMTP) timeout [%s]", d->base.serial);
+            dev_info("timeout [%s]", d->base.serial);
             if (!(retry_count >= max_retry)) {
-                log_info("(ZMTP) retry (%d) [%s]", retry_count, d->base.serial);
+                dev_info("retry (%d) [%s]", retry_count, d->base.serial);
                 zmtp_device_request_retry(&d->base);
             } else {
                 zmtp_device_request_resolve(

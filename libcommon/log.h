@@ -96,6 +96,7 @@ extern "C"
         E_LOG_LEVEL level,
         const char* file,
         int line,
+        const char* cat,
         const char* fmt,
         ...);
 

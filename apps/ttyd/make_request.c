@@ -12,6 +12,13 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#define app_info(...) log_info("TTYD", __VA_ARGS__)
+#define app_warn(...) log_warn("TTYD", __VA_ARGS__)
+#define app_debug(...) log_debug("TTYD", __VA_ARGS__)
+#define app_trace(...) log_trace("TTYD", __VA_ARGS__)
+#define app_error(...) log_error("TTYD", __VA_ARGS__)
+#define app_fatal(...) log_fatal("TTYD", __VA_ARGS__)
+
 #define FMT_GET                                                                \
     "%s %s HTTP/1.1\r\n"                                                       \
     "host: atx-usbd\r\n"                                                       \
@@ -154,11 +161,11 @@ req_connect(int* sock_p, const char* host, int port)
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
     if (inet_pton(AF_INET, host, &addr.sin_addr.s_addr)) {
-        log_error("inet_pton error [%d] [%s]", errno, strerror(errno));
+        app_error("inet_pton error [%d] [%s]", errno, strerror(errno));
         return -1;
     }
     if ((*sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        log_error("socket error [%d] [%s]", errno, strerror(errno));
+        app_error("socket error [%d] [%s]", errno, strerror(errno));
         return -1;
     }
     int rc = connect(*sock, (struct sockaddr*)&addr, sizeof(addr));
@@ -229,14 +236,14 @@ make_request(
 
     rc = req_connect(&sock, "http://127.0.0.1", map_port(path));
     if (!rc) {
-        log_error("(APP) failed to connect!");
+        app_error("failed to connect!");
         free(req);
         return -1;
     }
 
     rc = req_send(&sock, req, l);
     if (!(rc == l)) {
-        log_error("(APP) failed to send!");
+        app_error("failed to send!");
         close(sock);
         free(req);
         return -1;
@@ -244,7 +251,7 @@ make_request(
 
     l = req_recv(&sock, resp, sizeof(resp));
     if (!(l > 0)) {
-        log_error("(APP) failed to recv!");
+        app_error("failed to recv!");
         close(sock);
         free(req);
         return -1;
@@ -255,7 +262,7 @@ make_request(
     parser.data = &context;
     rc = http_parser_execute(&parser, &parse_http_settings_response, resp, l);
     if (!(rc == l)) {
-        log_error("(APP) failed to parse HTTP response!");
+        app_error("failed to parse HTTP response!");
         close(sock);
         free(req);
         return -1;

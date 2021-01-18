@@ -3,12 +3,19 @@
 #include "log.h"
 #include "wire.h"
 
-#define LOG_ERROR_DEVICE "(USB) Failed to open USB device [%s]"
-#define LOG_DEBUG_INCOMING "(USB) incoming [%s]"
-#define LOG_DEBUG_OUTGOING "(USB) outgoing [%s]"
-#define LOG_ERROR_ERROR "(USB) error [%s]"
-#define LOG_INFO_INIT "(USB) device open [%s]"
-#define LOG_INFO_FREE "(USB) device close [%s]"
+#define usb_info(...) log_info("USB", __VA_ARGS__)
+#define usb_warn(...) log_warn("USB", __VA_ARGS__)
+#define usb_debug(...) log_debug("USB", __VA_ARGS__)
+#define usb_trace(...) log_trace("USB", __VA_ARGS__)
+#define usb_error(...) log_error("USB", __VA_ARGS__)
+#define usb_fatal(...) log_fatal("USB", __VA_ARGS__)
+
+#define LOG_ERROR_DEVICE "Failed to open USB device [%s]"
+#define LOG_DEBUG_INCOMING "incoming [%s]"
+#define LOG_DEBUG_OUTGOING "outgoing [%s]"
+#define LOG_ERROR_ERROR "error [%s]"
+#define LOG_INFO_INIT "device open [%s]"
+#define LOG_INFO_FREE "device close [%s]"
 
 static int
 usb_read(usbd_s* usb)
@@ -24,9 +31,9 @@ usbd_init(usbd_s* usb)
     const char* p = LINQ_USB_CONFIG_IO;
     usb->io = sys_open(p, FILE_MODE_READ_WRITE, FILE_NON_BLOCKING);
     if (!usb->io) {
-        log_error(LOG_ERROR_DEVICE, LINQ_USB_CONFIG_IO);
+        usb_error(LOG_ERROR_DEVICE, LINQ_USB_CONFIG_IO);
     } else {
-        log_info(LOG_INFO_INIT, LINQ_USB_CONFIG_IO);
+        usb_info(LOG_INFO_INIT, LINQ_USB_CONFIG_IO);
     }
     return usb->io ? 0 : -1;
 }
@@ -36,7 +43,7 @@ usbd_free(usbd_s* usb)
 {
     if (usb->io) {
         sys_close(&usb->io);
-        log_info(LOG_INFO_FREE, LINQ_USB_CONFIG_IO);
+        usb_info(LOG_INFO_FREE, LINQ_USB_CONFIG_IO);
     }
     memset(usb, 0, sizeof(usbd_s));
 }
@@ -46,7 +53,7 @@ usbd_poll(usbd_s* usb, usbd_event_fn fn, void* ctx)
 {
     int len = usb_read(usb), count;
     if (len > 0) {
-        log_info("(USB) - recv [%d]", len);
+        usb_info("recv [%d]", len);
         wire_parser_http_request_s request;
         int rc;
         rc = wire_parse_http_request(usb->incoming, len, &request);
@@ -63,7 +70,7 @@ usbd_poll(usbd_s* usb, usbd_event_fn fn, void* ctx)
         }
         memset(usb->incoming, 0, len);
     } else if (len < 0) {
-        log_error("(USB) - recv [%s]", strerror(errno));
+        usb_error("recv [%s]", strerror(errno));
     }
     return len;
 }

@@ -5,6 +5,13 @@
 #include "route_config.h"
 #include <signal.h>
 
+#define app_info(...) log_info("LINQD", __VA_ARGS__)
+#define app_warn(...) log_warn("LINQD", __VA_ARGS__)
+#define app_debug(...) log_debug("LINQD", __VA_ARGS__)
+#define app_trace(...) log_trace("LINQD", __VA_ARGS__)
+#define app_error(...) log_error("LINQD", __VA_ARGS__)
+#define app_fatal(...) log_fatal("LINQD", __VA_ARGS__)
+
 static volatile int running = 1;
 
 void
@@ -124,26 +131,21 @@ parse_config_file(config_s* config)
 static void
 print_config(config_s* c)
 {
-    log_info("(APP) Print config requested...");
-    log_info("(APP) [        daemon] [%s]", c->daemon ? "true" : "false");
-    log_info("(APP) [         print] [%s]", c->print ? "true" : "false");
-    log_info("(APP) [          zmtp] [%d]", c->zmtp);
-    log_info("(APP) [          http] [%d]", c->http);
-    log_info("(APP) [         https] [%d]", c->https);
-    log_info("(APP) [          save] [%.*s]", c->save.len, c->save.p);
-    log_info("(APP) [      web_root] [%.*s]", c->web_root.len, c->web_root.p);
-    log_info("(APP) [            db] [%.*s]", c->db.len, c->db.p);
-    log_info("(APP) [          cert] [%.*s]", c->cert.len, c->cert.p);
-    log_info("(APP) [           key] [%.*s]", c->key.len, c->key.p);
-    log_info("(APP) [           log] [%.*s]", c->log.len, c->log.p);
-    log_info(
-        "(APP) [  node_primary] [%.*s]",
-        c->node_primary.len,
-        c->node_primary.p);
-    log_info(
-        "(APP) [node_secondary] [%.*s]",
-        c->node_secondary.len,
-        c->node_secondary.p);
+    app_info("Print config requested...");
+    app_info("[        daemon] [%s]", c->daemon ? "true" : "false");
+    app_info("[         print] [%s]", c->print ? "true" : "false");
+    app_info("[          zmtp] [%d]", c->zmtp);
+    app_info("[          http] [%d]", c->http);
+    app_info("[         https] [%d]", c->https);
+    app_info("[          save] [%.*s]", c->save.len, c->save.p);
+    app_info("[      web_root] [%.*s]", c->web_root.len, c->web_root.p);
+    app_info("[            db] [%.*s]", c->db.len, c->db.p);
+    app_info("[          cert] [%.*s]", c->cert.len, c->cert.p);
+    app_info("[           key] [%.*s]", c->key.len, c->key.p);
+    app_info("[           log] [%.*s]", c->log.len, c->log.p);
+    app_info("[  node_primary] [%.*s]", c->node_primary.len, c->node_primary.p);
+    app_info(
+        "[node_secondary] [%.*s]", c->node_secondary.len, c->node_secondary.p);
 }
 
 int
@@ -174,11 +176,11 @@ main(int argc, char* argv[])
         snprintf(b, sizeof(b), "%.*s", config.save.len, config.save.p);
         sys_file* f = sys_open(b, FILE_MODE_READ_WRITE_CREATE, FILE_BLOCKING);
         if (f) {
-            log_info("(APP) Saving config to [%s]", b);
+            app_info("Saving config to [%s]", b);
             config_fprint(f, &config);
             sys_close(&f);
         } else {
-            log_error("(APP) Failed to open file for saving!");
+            app_error("Failed to open file for saving!");
         }
     }
 

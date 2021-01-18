@@ -11,6 +11,13 @@
 
 #include "json.h"
 
+#define zmtp_info(...) log_info("ZMTP", __VA_ARGS__)
+#define zmtp_warn(...) log_warn("ZMTP", __VA_ARGS__)
+#define zmtp_debug(...) log_debug("ZMTP", __VA_ARGS__)
+#define zmtp_trace(...) log_trace("ZMTP", __VA_ARGS__)
+#define zmtp_error(...) log_error("ZMTP", __VA_ARGS__)
+#define zmtp_fatal(...) log_fatal("ZMTP", __VA_ARGS__)
+
 extern volatile int zsys_interrupted;
 
 MAP_INIT(socket, zsock_t, zsock_destroy);
@@ -188,19 +195,19 @@ device_resolve(zmtp_s* l, zsock_t* sock, zframe_t** frames, bool insert)
     char sid[SID_LEN], tid[TID_LEN] = { 0 };
     print_null_terminated(sid, SID_LEN, frames[FRAME_SID_IDX]);
     print_null_terminated(tid, TID_LEN, frames[FRAME_HB_TID_IDX]);
-    log_trace("(ZMTP) [%s] Heartbeat received", sid);
+    zmtp_trace("[%s] Heartbeat received", sid);
     node_s** d = devices_get(map, sid);
     if (d) {
-        log_trace("(ZMTP) [%s] Device exists", sid);
+        zmtp_trace("[%s] Device exists", sid);
         device_heartbeat(*d);
         if (rid) zmtp_device_update_router(*d, rid, rid_sz);
     } else {
         if (insert) {
-            log_trace("(ZMTP) [%s] New device", sid);
+            zmtp_trace("[%s] New device", sid);
             node_s* node = zmtp_device_create(sock, rid, rid_sz, sid, tid);
             if (node) d = devices_add(map, device_serial(node), &node);
             if (l->callbacks && l->callbacks->on_new) {
-                log_trace("(ZMTP) Executing new callback", sid);
+                zmtp_trace("Executing new callback", sid);
                 l->callbacks->on_new(l->context, sid);
             }
         }
@@ -221,39 +228,39 @@ node_resolve(zsock_t* sock, node_map_s* map, zframe_t** frames, bool insert)
     uint8_t* rid = NULL;
     node_zmtp_s** node = NULL;
     if (frames[FRAME_RID_IDX]) {
-        log_debug("(ZMTP) node resolve via router");
+        zmtp_debug("node resolve via router");
         ridlen = zframe_size(frames[FRAME_RID_IDX]);
         rid = zframe_data(frames[FRAME_RID_IDX]);
         b64_encode((uint8_t*)key, &keylen, rid, ridlen);
-        log_debug("(ZMTP) node resolve key [%s] [%d]", key, keylen);
+        zmtp_debug("node resolve key [%s] [%d]", key, keylen);
         node = node_map_get(map, key);
         if (!node) {
-            log_debug("(ZMTP) unknown node (does not exist in hash map)");
+            zmtp_debug("unknown node (does not exist in hash map)");
             if (insert) {
-                log_debug("(ZMTP) inserting node into hash map");
+                zmtp_debug("inserting node into hash map");
                 node_zmtp_s* n = node_create(sock, rid, ridlen, key);
                 if (n) {
                     node_map_add(map, node_serial(n), &n);
                     node = node_map_get(map, key);
                 } else {
-                    log_error("(ZMTP) failed to create node! [%s]", key);
+                    zmtp_error("failed to create node! [%s]", key);
                 }
             }
         }
     } else {
-        log_debug("(ZMTP) node resolve via seek");
+        zmtp_debug("node resolve via seek");
         node = node_map_find_by_sock(map, sock);
         if (!node) {
-            log_debug("(ZMTP) unknown node (does not exist in hash map)");
+            zmtp_debug("unknown node (does not exist in hash map)");
             if (insert) {
-                log_debug("(ZMTP) inserting node into hash map");
+                zmtp_debug("inserting node into hash map");
                 snprintf(key, sizeof(key), "%d", dealer_key_gen++);
                 node_zmtp_s* n = node_create(sock, rid, ridlen, key);
                 if (n) {
                     node_map_add(map, node_serial(n), &n);
                     node = node_map_get(map, key);
                 } else {
-                    log_error("(ZMTP) failed to create node! [%s]", key);
+                    zmtp_error("failed to create node! [%s]", key);
                 }
             }
         }
@@ -284,7 +291,7 @@ on_device_response(
     E_LINQ_ERROR error,
     const char* json)
 {
-    log_trace("(ZMTP) Device response received");
+    zmtp_trace("Device response received");
     int16_t e = error;
     // TODO use zsock_send_frames_n(...)
     node_zmtp_s** node = ctx;
@@ -308,7 +315,7 @@ on_device_response(
 static E_LINQ_ERROR
 process_request(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
 {
-    log_trace("(ZMTP) Processing request");
+    zmtp_trace("Processing request");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     zframe_t *path = NULL, *data = NULL;
     char url[128] = { 0 }, json[JSON_LEN] = { 0 };
@@ -322,7 +329,7 @@ process_request(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
         if (n && d) {
             print_null_terminated(url, sizeof(url), path);
             if (data) print_null_terminated(json, sizeof(json), data);
-            log_trace("(ZMTP) Sending request");
+            zmtp_trace("Sending request");
             zmtp_device_send_raw(
                 *d, url, data ? json : NULL, on_device_response, n);
             e = LINQ_ERROR_OK;
@@ -331,11 +338,11 @@ process_request(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
             //      need to figure how to resolve node (ie use zsock)
             //      The node_zmtp_s* is client abstraction to represent a
             //      connection but the zsock should be used instead
-            log_trace("(ZMTP) Device does not exist");
+            zmtp_trace("Device does not exist");
             // TODO send 404 response (device not here)
         }
     }
-    log_trace("(ZMTP) Request result [%d]", (int)e);
+    zmtp_trace("Request result [%d]", (int)e);
     return e;
 }
 
@@ -343,7 +350,7 @@ process_request(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
 static E_LINQ_ERROR
 process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
 {
-    log_trace("(ZMTP) Processing response");
+    zmtp_trace("Processing response");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     zframe_t *err, *dat;
     int16_t err_code;
@@ -360,15 +367,13 @@ process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
                 if (err_code == LINQ_ERROR_504) {
                     if (zmtp_device_request_retry_count(*d) >=
                         LINQ_NETW_MAX_RETRY) {
-                        log_warn(
-                            "(ZMTP) [%.6s...] (%.3d)",
-                            device_serial(*d),
-                            err_code);
+                        zmtp_warn(
+                            "[%.6s...] (%.3d)", device_serial(*d), err_code);
                         zmtp_device_request_resolve(*d, err_code, json);
                         zmtp_device_request_flush_w_check(*d);
                     } else {
-                        log_warn(
-                            "(ZMTP) [%.6s...] (%.3d) retrying...",
+                        zmtp_warn(
+                            "[%.6s...] (%.3d) retrying...",
                             device_serial(*d),
                             err_code);
                         // After 504 we don't send retry right away. We wait
@@ -376,8 +381,8 @@ process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
                         zmtp_device_request_retry_at_set(*d, -1);
                     }
                 } else {
-                    log_debug(
-                        "(ZMTP) [%.6s...] (%.3d) %.20s...",
+                    zmtp_debug(
+                        "[%.6s...] (%.3d) %.20s...",
                         device_serial(*d),
                         err_code,
                         json);
@@ -387,7 +392,7 @@ process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
             }
         }
     }
-    log_trace("(ZMTP) Response result [%d]", (int)e);
+    zmtp_trace("Response result [%d]", (int)e);
     return e;
 }
 
@@ -395,7 +400,7 @@ process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
 static E_LINQ_ERROR
 process_alert(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
 {
-    log_trace("(ZMTP) Processing alert");
+    zmtp_trace("Processing alert");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     char alert_data[JSON_LEN];
     char email_data[JSON_LEN];
@@ -417,7 +422,7 @@ process_alert(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
                 node_map_foreach(*z->nodes_p, foreach_node_forward_message, &f);
             }
             if (z->callbacks && z->callbacks->on_alert) {
-                log_trace("(ZMTP) Executing alert callback");
+                zmtp_trace("Executing alert callback");
                 z->callbacks->on_alert(
                     z->context, device_serial(*d), &alert, &email);
             }
@@ -425,7 +430,7 @@ process_alert(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
         }
     }
 
-    log_trace("(ZMTP) Alert result [%d]", (int)e);
+    zmtp_trace("Alert result [%d]", (int)e);
     return e;
 }
 
@@ -437,11 +442,11 @@ process_hello(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
     ((void)msg);
     ((void)socket);
     ((void)frames);
-    log_trace("(ZMTP) Processing hello");
+    zmtp_trace("Processing hello");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     node_zmtp_s** s = node_resolve(socket, *z->nodes_p, frames, true);
     if (s) e = LINQ_ERROR_OK;
-    log_trace("(ZMTP) Hello result [%d]", (int)e);
+    zmtp_trace("Hello result [%d]", (int)e);
     return e;
 }
 
@@ -449,7 +454,7 @@ process_hello(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
 static E_LINQ_ERROR
 process_heartbeat(zmtp_s* z, zsock_t* s, zmsg_t** msg, zframe_t** frames)
 {
-    log_trace("(ZMTP) Processing heartbeat");
+    zmtp_trace("Processing heartbeat");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     if (zmsg_size(*msg) == 2 &&
         (frames[FRAME_HB_TID_IDX] = pop_le(*msg, TID_LEN)) &&
@@ -457,7 +462,7 @@ process_heartbeat(zmtp_s* z, zsock_t* s, zmsg_t** msg, zframe_t** frames)
         node_s** d = device_resolve(z, s, frames, true);
         frames_s f = { 5, &frames[1] };
         if (d) {
-            log_trace("(ZMTP) Device resolved");
+            zmtp_trace("Device resolved");
             if (!FRAME_IS_BROADCAST(zframe_data(frames[FRAME_TYP_IDX])[0])) {
                 // We only broadcast when the device is directly connected
                 // otherwize, nodes would rebroadcast to eachother infinite
@@ -465,13 +470,13 @@ process_heartbeat(zmtp_s* z, zsock_t* s, zmsg_t** msg, zframe_t** frames)
                 node_map_foreach(*z->nodes_p, foreach_node_forward_message, &f);
             }
             if (z->callbacks && z->callbacks->on_heartbeat) {
-                log_trace("(ZMTP) Executing heartbeat callback");
+                zmtp_trace("Executing heartbeat callback");
                 z->callbacks->on_heartbeat(z->context, device_serial(*d));
             }
             e = LINQ_ERROR_OK;
         }
     }
-    log_trace("(ZMTP) Heartbeat result [%d]", (int)e);
+    zmtp_trace("Heartbeat result [%d]", (int)e);
     return e;
 }
 
@@ -479,7 +484,7 @@ process_heartbeat(zmtp_s* z, zsock_t* s, zmsg_t** msg, zframe_t** frames)
 static E_LINQ_ERROR
 process_packet(zmtp_s* z, zsock_t* s)
 {
-    log_trace("(ZMTP) Processing packet");
+    zmtp_trace("Processing packet");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     int total_frames = 0, start = 1;
     bool router = is_router(s);
@@ -509,9 +514,9 @@ process_packet(zmtp_s* z, zsock_t* s)
         }
     }
     if (e) {
-        log_error("(ZMTP) Processing packet error [%d]", (int)e);
+        zmtp_error("Processing packet error [%d]", (int)e);
         if (z->callbacks && z->callbacks->on_err) {
-            log_trace("(ZMTP) Executing error callback");
+            zmtp_trace("Executing error callback");
             if (f[FRAME_SID_IDX]) {
                 print_null_terminated(sid, SID_LEN, f[FRAME_SID_IDX]);
             }
@@ -541,7 +546,7 @@ zmtp_init(
     zmtp->shutdown = false;
     zmtp->routers = socket_map_create();
     zmtp->dealers = socket_map_create();
-    log_debug("(ZMTP) Context created...");
+    zmtp_debug("Context created...");
 }
 
 void
@@ -549,7 +554,7 @@ zmtp_deinit(zmtp_s* zmtp)
 {
     socket_map_destroy(&zmtp->routers);
     socket_map_destroy(&zmtp->dealers);
-    log_debug("(ZMTP) Context destroyed...");
+    zmtp_debug("Context destroyed...");
 }
 
 netw_socket
@@ -560,10 +565,10 @@ zmtp_listen(zmtp_s* zmtp, const char* ep)
         socket_map_add(zmtp->routers, ep, &socket);
         int key = socket_map_key(zmtp->routers, ep);
         key |= ATX_NET_SOCKET_TYPE_ROUTER << 0x08;
-        log_info("(ZMTP) bind socket success [%s]", ep);
+        zmtp_info("bind socket success [%s]", ep);
         return key;
     } else {
-        log_error("(ZMTP) failed to bind socket [%s]", ep);
+        zmtp_error("failed to bind socket [%s]", ep);
         return LINQ_ERROR_SOCKET;
     }
 }
@@ -605,7 +610,7 @@ zmtp_close_router(zmtp_s* zmtp, netw_socket handle)
     if (s) {
         // remove_devices(s, *zmtp->devices_p);
         count = devices_foreach_remove_if(*zmtp->devices_p, remove_if, s);
-        log_info("(ZMTP) [%d] device nodes closed");
+        zmtp_info("[%d] device nodes closed");
         socket_map_remove_iter(zmtp->routers, socket);
         return LINQ_ERROR_OK;
     } else {
@@ -622,9 +627,9 @@ zmtp_close_dealer(zmtp_s* zmtp, netw_socket handle)
         // remove_devices(s, *zmtp->devices_p);
         // remove_nodes(s, *zmtp->nodes_p);
         count = devices_foreach_remove_if(*zmtp->devices_p, remove_if, s);
-        log_info("(ZMTP) [%d] device nodes closed");
+        zmtp_info("[%d] device nodes closed");
         count = node_map_foreach_remove_if(*zmtp->nodes_p, remove_if, s);
-        log_info("(ZMTP) [%d] client nodes closed");
+        zmtp_info("[%d] client nodes closed");
         socket_map_remove_iter(zmtp->dealers, socket);
         return LINQ_ERROR_OK;
     } else {
@@ -677,7 +682,7 @@ zmtp_poll(zmtp_s* zmtp, int32_t ms)
     // TODO needs test
     if (!sys_running()) {
         if (zmtp->callbacks && zmtp->callbacks->on_ctrlc) {
-            log_trace("(ZMTP) Executing ctrlc callback");
+            zmtp_trace("Executing ctrlc callback");
             zmtp->callbacks->on_ctrlc(zmtp->context);
         }
     }

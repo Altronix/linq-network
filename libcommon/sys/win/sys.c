@@ -186,7 +186,7 @@ sys_make_absolute(const char* path, char* buffer, uint32_t* l)
 int
 sys_daemonize(const char* log, sys_file** f, sys_pid* pid)
 {
-    log_error("(SYS) daemon mode not supported on windows atm");
+    log_error("SYS", "daemon mode not supported on windows atm");
     return -1;
 }
 

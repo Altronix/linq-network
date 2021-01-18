@@ -159,12 +159,13 @@ database_init(database_s* d)
     for (int i = 0; i < NUM_DATABASES; i++) {
         if (!table_exists(d, db[i].table)) {
             log_info(
-                "(DATA) %s database not found! Creating %s database...",
+                "DATA",
+                "%s database not found! Creating %s database...",
                 db[i].table,
                 db[i].table);
             create_table(d, db[i].table, db[i].schema);
         } else {
-            log_info("(DATA) %s database found!", db[i].table);
+            log_info("DATA", "%s database found!", db[i].table);
         }
     }
 }

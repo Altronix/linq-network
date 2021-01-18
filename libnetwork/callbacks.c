@@ -7,6 +7,13 @@
 #include "http.h"
 #endif
 
+#define zmtp_info(...) log_info("ZMTP", __VA_ARGS__)
+#define zmtp_warn(...) log_warn("ZMTP", __VA_ARGS__)
+#define zmtp_debug(...) log_debug("ZMTP", __VA_ARGS__)
+#define zmtp_trace(...) log_trace("ZMTP", __VA_ARGS__)
+#define zmtp_error(...) log_error("ZMTP", __VA_ARGS__)
+#define zmtp_fatal(...) log_fatal("ZMTP", __VA_ARGS__)
+
 #define WEBSOCKET_NEW_FMT                                                      \
     "{"                                                                        \
     "\"type\":\"new\","                                                        \
@@ -40,7 +47,7 @@
 static void
 on_zmtp_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 {
-    log_error("(ZMTP) Event Error [%d]", e);
+    zmtp_error("Event Error [%d]", e);
     netw_s* l = ctx;
     if (l->callbacks && l->callbacks->on_err) {
         l->callbacks->on_err(l->context, e, what, serial);
@@ -54,10 +61,10 @@ handle_about_response(
     E_LINQ_ERROR e,
     const char* r)
 {
-    log_trace("(ZMTP) [%.6s...] About data received", r);
+    zmtp_trace("[%.6s...] About data received", r);
     netw_s* l = ctx;
     if (e) {
-        log_warn("(LINQ) [%.6s...] (%.3d) About request failed!", serial, e);
+        zmtp_warn("[%.6s...] (%.3d) About request failed!", serial, e);
     } else {
         database_device_insert_json(&l->database, serial, r, strlen(r));
     }
@@ -67,7 +74,7 @@ static void
 on_zmtp_new(void* ctx, const char* sid)
 {
     netw_s* netw = ctx;
-    log_info("(ZMTP) [%.6s...] Event New Device", sid);
+    zmtp_info("[%.6s...] Event New Device", sid);
     if (netw->callbacks && netw->callbacks->on_new) {
         netw->callbacks->on_new(netw->context, sid);
     }
@@ -87,7 +94,7 @@ static void
 on_zmtp_heartbeat(void* ctx, const char* s)
 {
     netw_s* l = ctx;
-    log_info("(ZMTP) [%.6s...] Event Heartbeat", s);
+    zmtp_info("[%.6s...] Event Heartbeat", s);
     if (l->callbacks && l->callbacks->on_heartbeat) {
         l->callbacks->on_heartbeat(l->context, s);
     }
@@ -103,7 +110,7 @@ on_zmtp_alert(
 {
     netw_s* l = ctx;
     int err;
-    log_info("(LINQ) [%.6s...] Event Alert", serial);
+    zmtp_info("[%.6s...] Event Alert", serial);
     char when[32];
     alert_insert_s alert = { .who = { .p = a->who.p, .len = a->who.len },
                              .what = { .p = a->what.p, .len = a->what.len },
@@ -111,7 +118,7 @@ on_zmtp_alert(
                              .time = { .p = a->when.p, .len = a->when.len },
                              .mesg = { .p = a->mesg.p, .len = a->mesg.len } };
 
-    log_info("(ZMTP) [%.6s...] Event Alert", serial);
+    zmtp_info("[%.6s...] Event Alert", serial);
     if (l->callbacks && l->callbacks->on_alert) {
         l->callbacks->on_alert(l->context, serial, a, email);
     }
@@ -133,7 +140,7 @@ on_zmtp_alert(
 static void
 on_zmtp_ctrlc(void* ctx)
 {
-    log_info("(ZMTP) Received shutdown signal...");
+    zmtp_info("Received shutdown signal...");
     netw_s* l = ctx;
     if (l->callbacks && l->callbacks->on_ctrlc) {
         l->callbacks->on_ctrlc(l->context);
@@ -143,7 +150,7 @@ on_zmtp_ctrlc(void* ctx)
 static void
 on_zmtp_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)
 {
-    log_error("(ZMTP) Event Error [%d]", e);
+    zmtp_error("Event Error [%d]", e);
     netw_s* l = ctx;
     if (l->callbacks && l->callbacks->on_err) {
         l->callbacks->on_err(l->context, e, what, serial);
@@ -154,7 +161,7 @@ static void
 on_zmtp_new(void* ctx, const char* sid)
 {
     netw_s* l = ctx;
-    log_info("(ZMTP) [%.6s...] Event New Device", sid);
+    zmtp_info("[%.6s...] Event New Device", sid);
     if (l->callbacks && l->callbacks->on_new) {
         l->callbacks->on_new(l->context, sid);
     }
@@ -164,7 +171,7 @@ static void
 on_zmtp_heartbeat(void* ctx, const char* sid)
 {
     netw_s* l = ctx;
-    log_info("(ZMTP) [%.6s...] Event Heartbeat", sid);
+    zmtp_info("[%.6s...] Event Heartbeat", sid);
     if (l->callbacks && l->callbacks->on_heartbeat) {
         l->callbacks->on_heartbeat(l->context, sid);
     }
@@ -178,7 +185,7 @@ on_zmtp_alert(
     netw_email_s* email)
 {
     netw_s* l = ctx;
-    log_info("(ZMTP) [%.6s...] Event Alert", serial);
+    zmtp_info("[%.6s...] Event Alert", serial);
     if (l->callbacks && l->callbacks->on_alert) {
         l->callbacks->on_alert(l->context, serial, a, email);
     }
@@ -187,7 +194,7 @@ on_zmtp_alert(
 static void
 on_zmtp_ctrlc(void* ctx)
 {
-    log_info("(ZMTP) Received shutdown signal...");
+    zmtp_info("Received shutdown signal...");
     netw_s* l = ctx;
     if (l->callbacks && l->callbacks->on_ctrlc) {
         l->callbacks->on_ctrlc(l->context);

@@ -7,6 +7,13 @@
 
 #include "openssl/sha.h"
 
+#define user_info(...) log_info("USER", __VA_ARGS__)
+#define user_warn(...) log_warn("USER", __VA_ARGS__)
+#define user_debug(...) log_debug("USER", __VA_ARGS__)
+#define user_trace(...) log_trace("USER", __VA_ARGS__)
+#define user_error(...) log_error("USER", __VA_ARGS__)
+#define user_fatal(...) log_fatal("USER", __VA_ARGS__)
+
 void
 login(http_request_s* r, HTTP_METHOD meth, uint32_t l, const char* body)
 {
@@ -78,7 +85,7 @@ process_create_admin(http_request_s* r, uint32_t l, const char* body)
         (p = json_get_member(body, t, "pass"))) {
         (user = &body[u->start], ulen = u->end - u->start);
         (pass = &body[p->start], plen = p->end - p->start);
-        log_info("(DATA) creating admin account %.*s", ulen, user);
+        user_info("creating admin account %.*s", ulen, user);
         http_auth_generate_uuid(uid);
         err = http_auth_generate_password_hash(h, s, (char*)pass, plen);
         if (!err) {

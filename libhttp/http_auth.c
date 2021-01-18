@@ -7,6 +7,13 @@
 
 #include "openssl/sha.h"
 
+#define auth_info(...) log_info("AUTH", __VA_ARGS__)
+#define auth_warn(...) log_warn("AUTH", __VA_ARGS__)
+#define auth_debug(...) log_debug("AUTH", __VA_ARGS__)
+#define auth_trace(...) log_trace("AUTH", __VA_ARGS__)
+#define auth_error(...) log_error("AUTH", __VA_ARGS__)
+#define auth_fatal(...) log_fatal("AUTH", __VA_ARGS__)
+
 /// gen_salt() - Generate randomness to concat with password for hashing
 #ifdef TESTING
 static void
@@ -46,7 +53,7 @@ gen_uuid(char dst[UUID_MAX_LEN])
 static void
 get_secret(char secret[SECRET_LEN])
 {
-    log_warn("(HTTP) validating tokens with debugger Secret!");
+    auth_warn("validating tokens with debugger Secret!");
     memset(secret, 0, SECRET_LEN);
     snprintf(secret, SECRET_LEN, "%s", UNSAFE_SECRET);
 }
@@ -55,7 +62,7 @@ static void
 get_secret(char secret[SECRET_LEN])
 {
     // TODO
-    log_warn("(HTTP) TODO - Using UNSAFE secret in production!");
+    auth_warn("TODO - Using UNSAFE secret in production!");
     memset(secret, 0, SECRET_LEN);
     snprintf(secret, SECRET_LEN, "%s", UNSAFE_SECRET);
 }
@@ -202,7 +209,7 @@ http_auth_generate_password_hash(
     char concat[PASS_MAX_LEN + SALT_LEN];
     int l;
 #ifdef TESTING
-    log_warn("(HTTP) generating unsafe debug hash!");
+    auth_warn("generating unsafe debug hash!");
 #endif
     if (!(len < PASS_MAX_LEN && len >= PASS_MIN_LEN)) return -1;
     gen_salt(salt);

@@ -4,6 +4,13 @@
 #include "log.h"
 #include "sys.h"
 
+#define app_info(...) log_info("LINQD", __VA_ARGS__)
+#define app_warn(...) log_warn("LINQD", __VA_ARGS__)
+#define app_debug(...) log_debug("LINQD", __VA_ARGS__)
+#define app_trace(...) log_trace("LINQD", __VA_ARGS__)
+#define app_error(...) log_error("LINQD", __VA_ARGS__)
+#define app_fatal(...) log_fatal("LINQD", __VA_ARGS__)
+
 static void
 get(http_request_s* r, uint32_t l, const char* b)
 {
@@ -18,7 +25,7 @@ get(http_request_s* r, uint32_t l, const char* b)
         http_printf_json(r->connection, 200, buffer);
         sys_close(&f);
     } else {
-        log_error("(APP) req 404");
+        app_error("req 404");
         const char* err404 = "{\"error\":\"Not found\"}";
         http_printf_json(r->connection, 404, err404);
     }
@@ -41,12 +48,12 @@ put(http_request_s* r, uint32_t l, const char* b)
             http_printf_json(r->connection, 200, e);
         } else {
             e = strerror(errno);
-            log_error("(APP) file io error [%s]", r);
+            app_error("file io error [%s]", r);
             http_printf_json(r->connection, 500, errfmt, r);
         }
     } else {
         e = strerror(errno);
-        log_error("(APP) file io error [%s]", r);
+        app_error("file io error [%s]", r);
         http_printf_json(r->connection, 500, errfmt, r);
     }
 }

@@ -3,6 +3,12 @@
 #include "io_m5.h"
 #include "libusb-1.0/libusb.h"
 #include "log.h"
+#define usb_info(...) log_info("USB", __VA_ARGS__)
+#define usb_warn(...) log_warn("USB", __VA_ARGS__)
+#define usb_debug(...) log_debug("USB", __VA_ARGS__)
+#define usb_trace(...) log_trace("USB", __VA_ARGS__)
+#define usb_error(...) log_error("USB", __VA_ARGS__)
+#define usb_fatal(...) log_fatal("USB", __VA_ARGS__)
 
 typedef libusb_context usb_context;
 
@@ -12,7 +18,7 @@ io_error_fn(node_s* n, void* ctx, int err)
     usbh_s* usb = ctx;
     const char* serial = device_serial(n);
     if (LIBUSB_ERROR_NO_DEVICE == err) {
-        log_error("(USB) device not available, removing device [%s]", serial);
+        usb_error("device not available, removing device [%s]", serial);
         devices_remove(*usb->devices_p, serial);
     }
 }
@@ -63,12 +69,12 @@ usbh_scan(usbh_s* usb, uint16_t vend, uint16_t prod)
             struct libusb_device_descriptor desc;
             int err = libusb_get_device_descriptor(dev, &desc);
             if (err == 0) {
-                log_info("(USB) - scan [%d/%d]", desc.idVendor, desc.idProduct);
+                usb_info("scan [%d/%d]", desc.idVendor, desc.idProduct);
                 if (desc.idVendor == vend && desc.idProduct == prod) {
                     d = io_m5_init(dev, desc, &callbacks, usb);
                     if (d) {
                         ++n;
-                        log_info("(USB) - disc [%s]", d->serial);
+                        usb_info("disc [%s]", d->serial);
                         serial = (const char*)d->serial;
                         if (!devices_get(*usb->devices_p, serial)) {
                             devices_add(*usb->devices_p, serial, &d);
