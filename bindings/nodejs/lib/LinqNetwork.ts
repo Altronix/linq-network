@@ -148,7 +148,7 @@ export class LinqNetwork extends Events.EventEmitter {
           return this.events().pipe(whenCtrlc());
       }
     } else {
-      return this.events$.asObservable();
+      return this.events$.asObservable().pipe(takeUntil(this.shutdownPromise));
     }
   }
 
