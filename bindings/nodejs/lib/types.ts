@@ -44,13 +44,13 @@ export interface UsbhResponse<T = any> {
 export type UsbhResponseBinding = Omit<UsbhResponse, "data"> & { data: string };
 
 export interface LogData {
-  tick: number;
-  line: number;
   level: string;
+  message: string;
+  category: string;
   file: string;
-  mesg: string;
+  line: number;
+  tick: number;
 }
-
 export type UpdateTypes = "firmware" | "website" | "dashboard";
 export interface Update {
   type: "firmware" | "website";

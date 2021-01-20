@@ -19,12 +19,12 @@ class Logger : public Napi::ObjectWrap<Logger>
         if (l->callback) {
             auto env = l->callback.Env();
             Napi::Object obj = Napi::Object::New(env);
-            obj.Set("tick", Napi::Number::New(env, callback->tick));
-            obj.Set("line", Napi::Number::New(env, callback->line));
-            obj.Set("file", Napi::String::New(env, callback->file));
             obj.Set("level", Napi::String::New(env, callback->level));
+            obj.Set("message", Napi::String::New(env, callback->message));
             obj.Set("category", Napi::String::New(env, callback->category));
-            obj.Set("mesg", Napi::String::New(env, callback->message));
+            obj.Set("file", Napi::String::New(env, callback->file));
+            obj.Set("line", Napi::Number::New(env, callback->line));
+            obj.Set("tick", Napi::Number::New(env, callback->tick));
             l->callback.Call({ obj });
         }
     }
