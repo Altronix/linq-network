@@ -44,7 +44,7 @@ export interface UsbhResponse<T = any> {
 export type UsbhResponseBinding = Omit<UsbhResponse, "data"> & { data: string };
 
 export interface LogData {
-  level: string;
+  level: "TRACE" | "DEBUG" | "INFO" | "WARN" | "ERROR" | "FATAL";
   message: string;
   category: string;
   file: string;
@@ -144,12 +144,17 @@ export interface EventCtrlc {
   type: "ctrlc";
 }
 
+export interface EventLog extends LogData {
+  type: "log";
+}
+
 export type Events =
   | EventNew
   | EventAbout
   | EventHeartbeat
   | EventAlert
   | EventError
-  | EventCtrlc;
+  | EventCtrlc
+  | EventLog;
 
 export type EventData<Event> = Omit<Event, "type">;

@@ -120,7 +120,7 @@ export class LinqNetwork extends Events.EventEmitter {
       });
   }
 
-  logs() {
+  logs(): Observable<LogData> {
     return this.logger.listen().pipe(takeUntil(this.shutdownPromise));
   }
 
@@ -152,8 +152,16 @@ export class LinqNetwork extends Events.EventEmitter {
     }
   }
 
-  watch(): Observable<Event | LogData> {
-    return merge(this.events(), this.logs());
+  watch(): Observable<Event> {
+    return merge(
+      this.events(),
+      this.logs().pipe(
+        map((log) => {
+          const type = "log" as const;
+          return { type, ...log };
+        })
+      )
+    );
   }
 
   version() {
