@@ -1,6 +1,6 @@
 if(NOT MSVC)
     ExternalProject_Add(openssl-project
-        SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/openssl
+        SOURCE_DIR ${EXTERNAL_DIR}/openssl
         INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
         UPDATE_COMMAND ""
         CONFIGURE_COMMAND ./config no-tests --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR>/ssl
@@ -24,7 +24,7 @@ else()
     message(STATUS "PERL_EXECUTABLE: ${PERL_EXECUTABLE}")
     message(STATUS "PERL_VERSION_STRING: ${PERL_VERSION_STRING}")
     ExternalProject_Add(openssl-project
-        SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/openssl
+        SOURCE_DIR ${EXTERNAL_DIR}/openssl
         INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
         UPDATE_COMMAND ""
         CONFIGURE_COMMAND ${PERL_EXECUTABLE} ./Configure VC-WIN64A no-asm no-tests --prefix=<INSTALL_DIR> --openssldir=<INSTALL_DIR>/ssl

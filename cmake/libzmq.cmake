@@ -1,10 +1,10 @@
 # libzmq
 
-set(LIBZMQ_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/libzmq)
+set(LIBZMQ_SOURCE_DIR ${EXTERNAL_DIR}/libzmq)
 
 if(NOT EXISTS ${LIBZMQ_SOURCE_DIR}/CMakeLists.txt)
 	execute_process(
-		COMMAND ${GIT_EXECUTABLE} submodule update --init external/libzmq
+	        COMMAND ${GIT_EXECUTABLE} submodule update --init ${LIBZMQ_SOURCE_DIR}
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 		RESULT_VARIABLE GIT_CLONE_LIBZMQ_RESULT)
 	message(STATUS "GIT_CLONE_LIBZMQ_RESULT: ${GIT_CLONE_LIBZMQ_RESULT}")
@@ -41,7 +41,7 @@ FILE(MAKE_DIRECTORY ${install_dir}/include)
 IF(NOT MSVC)
   # Get the version of the ZMQ library
   execute_process(COMMAND ${CMAKE_SOURCE_DIR}/scripts/read_zmq_version.sh
-    ${CMAKE_SOURCE_DIR}/external/libzmq/include/zmq.h
+    ${EXTERNAL_DIR}/libzmq/include/zmq.h
     OUTPUT_VARIABLE zmq_VERSION)
   set(zmq_static_LIBRARY ${CMAKE_STATIC_LIBRARY_PREFIX}zmq${CMAKE_STATIC_LIBRARY_SUFFIX})
   set(zmq_shared_LIBRARY ${CMAKE_SHARED_LIBRARY_PREFIX}zmq${CMAKE_SHARED_LIBRARY_SUFFIX})
@@ -50,7 +50,7 @@ IF(NOT MSVC)
 ELSE()
   execute_process(COMMAND powershell -ExecutionPolicy Bypass
     -File "${CMAKE_SOURCE_DIR}/scripts/read_zmq_version.ps1"
-          "${CMAKE_SOURCE_DIR}/external/libzmq/include/zmq.h"
+    "${EXTERNAL_DIR}/libzmq/include/zmq.h"
     OUTPUT_VARIABLE zmq_VERSION)
   STRING(REGEX REPLACE "\n" "" zmq_VERSION ${zmq_VERSION})
   STRING(REGEX REPLACE "\r" "" zmq_VERSION ${zmq_VERSION})

@@ -2,7 +2,7 @@
 set(V_MAJOR 0)
 set(V_MINOR 0)
 set(V_PATCH 4)
-set(V_RC -rc16)
+set(V_RC -rc17)
 set(LINQ_NETWORK_VERSION "v${V_MAJOR}.${V_MINOR}.${V_PATCH}${V_RC}")
 function (append_version_compiler_flags dst)
   list(APPEND arg "${${dst}}")
@@ -14,6 +14,7 @@ endfunction()
 option(BUILD_SHARED "Whether or not to build the shared object"  ON)
 option(BUILD_STATIC "Whether or not to build the static archive" ON)
 set(BUILDROOT_DIR "" CACHE STRING "set to fullpath of root buildroot directory outside of buildroot")
+set(EXTERNAL_DIR "external" CACHE STRING "Set path too external dependencies")
 
 # Build (or find) dependencies
 option(BUILD_DEPENDENCIES "Build all dependencies (except openssl)" OFF)

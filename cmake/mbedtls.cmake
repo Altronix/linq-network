@@ -1,4 +1,4 @@
-set(mbedtls_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/mbedtls)
+set(mbedtls_SOURCE_DIR ${EXTERNAL_DIR}/mbedtls)
 
 if(NOT MSVC)
   ### Build Wolfssl ###

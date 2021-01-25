@@ -1,4 +1,4 @@
-set(wolfssl_SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/wolfssl")
+set(wolfssl_SOURCE_DIR "${EXTERNAL_DIR}/wolfssl")
 set(wolfssl_BUILD_DIR "${CMAKE_BINARY_DIR}/wolfssl-build")
 file(COPY "${wolfssl_SOURCE_DIR}/" DESTINATION ${wolfssl_BUILD_DIR} PATTERN "*")
 

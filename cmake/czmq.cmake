@@ -1,10 +1,10 @@
 # czmq
 
-set(CZMQ_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/czmq)
+set(CZMQ_SOURCE_DIR ${EXTERNAL_DIR}/czmq)
 
 if(NOT EXISTS ${CZMQ_SOURCE_DIR}/CMakeLists.txt)
 	execute_process(
-		COMMAND ${GIT_EXECUTABLE} submodule update --init external/czmq
+	    COMMAND ${GIT_EXECUTABLE} submodule update --init ${EXTERNAL_DIR}/czmq
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 		RESULT_VARIABLE GIT_CLONE_CZMQ_RESULT)
 	message(STATUS "GIT_CLONE_CZMQ_RESULT: ${GIT_CLONE_CZMQ_RESULT}")

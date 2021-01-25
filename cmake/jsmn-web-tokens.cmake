@@ -1,10 +1,10 @@
-set(JSMN_WEB_TOKENS_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/jsmn-web-tokens)
+set(JSMN_WEB_TOKENS_SOURCE_DIR ${EXTERNAL_DIR}/jsmn-web-tokens)
 set(JSMN_WEB_TOKENS_TEST_FILE ${JSMN_WEB_TOKENS_SOURCE_DIR}/CMakeLists.txt)
 if(NOT USE_SYSTEM_JSMN_WEB_TOKENS)
     if(GIT_FOUND AND NOT EXISTS "${JSMN_WEB_TOKENS_TEST_FILE}")
         message(STATUS "Downloading jsmn-web-tokens submodule")
         execute_process(
-            COMMAND ${GIT_EXECUTABLE} submodule update --init external/jsmn-web-tokens
+            COMMAND ${GIT_EXECUTABLE} submodule update --init ${JSMN_WEB_TOKENS_SOURCE_DIR}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             RESULT_VARIABLE JSMN_WEB_TOKENS_GIT_CLONE_RESULT)
         message(STATUS "jsmn-web-tokens download result: ${JSMN_WEB_TOKENS_GIT_CLONE_RESULT}")
