@@ -10,6 +10,15 @@ function (append_version_compiler_flags dst)
   set(${dst} "${arg}" PARENT_SCOPE)
 endfunction()
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS on)
+set(ROOT_DIR "." CACHE STRING "Set Monorepo Root Directory")
+make_absolute("${ROOT_DIR}" ROOT_DIR)
+set(EXTERNAL_DIR "${ROOT_DIR}/external" CACHE STRING "Dependency source loc")
+set(DOWNLOAD_DIR "${ROOT_DIR}/dl" CACHE STRING "Downloaded files")
+message(STATUS "ROOT: ${ROOT_DIR}")
+message(STATUS "EXTERNAL: ${EXTERNAL_DIR}")
+message(STATUS "DOWNLOAD: ${DOWNLOAD_DIR}")
+
 # Library Output options
 option(BUILD_SHARED "Whether or not to build the shared object"  ON)
 option(BUILD_STATIC "Whether or not to build the static archive" ON)

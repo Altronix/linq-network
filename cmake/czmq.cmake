@@ -1,14 +1,8 @@
 # czmq
 
-set(CZMQ_SOURCE_DIR ${EXTERNAL_DIR}/czmq)
-
-if(NOT EXISTS ${CZMQ_SOURCE_DIR}/CMakeLists.txt)
-	execute_process(
-	    COMMAND ${GIT_EXECUTABLE} submodule update --init ${EXTERNAL_DIR}/czmq
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-		RESULT_VARIABLE GIT_CLONE_CZMQ_RESULT)
-	message(STATUS "GIT_CLONE_CZMQ_RESULT: ${GIT_CLONE_CZMQ_RESULT}")
-endif()
+set(CZMQ_SOURCE_DIR "${EXTERNAL_DIR}/czmq-4.2.1")
+set(CZMQ_TEST_FILE "${CZMQ_SOURCE_DIR}/LICENSE")
+check_extract("${DOWNLOAD_DIR}/czmq-4.2.1.tar.gz" "${CZMQ_TEST_FILE}")
 
 ExternalProject_Add(czmq-project
 	SOURCE_DIR ${CZMQ_SOURCE_DIR}

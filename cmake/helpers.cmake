@@ -33,3 +33,59 @@ function(import_library_static ARG_LIB ARG_ID ARG_PATH)
 	  IMPORTED_LOCATION ${VAR_LOC}
 	  INTERFACE_INCLUDE_DIRECTORIES "${VAR_INC}")
 endfunction()
+
+function (make_absolute path result)
+  if(NOT IS_ABSOLUTE "${path}")
+    get_filename_component(TMP "${path}" ABSOLUTE)
+    set("${result}" "${TMP}" PARENT_SCOPE)
+  endif()
+endfunction()
+
+function (resolve_install_dir loc result)
+  set(TMP "${CMAKE_INSTALL_PREFIX}")
+  if(NOT IS_ABSOLUTE "${TMP}")
+    make_absolute("${TMP}" TMP)
+  endif()
+  set(TMP "${TMP}/${loc}")
+  message(STATUS "RESOLVE ${loc} => ${TMP}")
+  set("${result}" "${TMP}" PARENT_SCOPE)
+endfunction()
+
+function (copy_command src dst)
+  add_custom_command(
+    OUTPUT "${dst}"
+    COMMAND ${CMAKE_COMMAND} -E copy
+    "${src}"
+    "${dst}"
+  )
+endfunction()
+
+function (check_submodule root test_file)
+  get_filename_component(REPO "${test_file}" DIRECTORY)
+  if(NOT EXISTS "${test_file}")
+    message(STATUS "${test_file} not found! cloneing submodule ${REPO}")
+    execute_process(
+      COMMAND ${GIT_EXECUTABLE} submodule update --init "${REPO}"
+      WORKING_DIRECTORY ${root}
+      RESULT_VARIABLE R
+    )
+    message(STATUS "GIT SUBMODULE UPDATE RESULT: ${R}")
+  else()
+    message(STATUS "${test_file} found!")
+  endif()
+endfunction()
+
+function (check_extract dl test_file)
+  get_filename_component(REPO "${test_file}" DIRECTORY)
+  if(NOT EXISTS "${test_file}")
+    message(STATUS "${test_file} not found! extracting ${REPO}")
+    execute_process(
+    	COMMAND tar -xzvf "${dl}" -C "${EXTERNAL_DIR}"
+    	WORKING_DIRECTORY ${ROOT_DIR}
+    	RESULT_VARIABLE EXTRACT_CMOCKA_RESULT)
+    message(STATUS "EXTRACT_CMOCKA_RESULT: ${EXTRACT_CMOCKA_RESULT}")
+    message(STATUS "GIT SUBMODULE UPDATE RESULT: ${R}")
+  else()
+    message(STATUS "${test_file} found!")
+  endif()
+endfunction()

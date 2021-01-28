@@ -24,10 +24,6 @@ if(BUILD_DEBUG)
   set(CMAKE_BUILD_TYPE Debug)
 endif()
 
-if(NOT IS_ABSOLUTE "${EXTERNAL_DIR}")
-  set(EXTERNAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${EXTERNAL_DIR}")
-endif()
-
 # [DEPENDENCIES] libzmq, czmq, [,jsmn-web-tokens ,openssl ,libusb]
 if(BUILD_DEPENDENCIES)
   if(BUILD_LINQD)

@@ -46,6 +46,8 @@ dist
 
 #externals
 external/cmocka-1.1.5
+external/zeromq-4.3.4
+external/czmq-4.2.1
 
 #sqlite
 **/*/test.db
