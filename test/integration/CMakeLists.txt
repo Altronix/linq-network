@@ -28,11 +28,12 @@ add_test(NAME integration-forward-response-test
          COMMAND integration-forward-response-test)
 
 # 504 integration test
-add_executable(integration-504-test process_504.c)
-target_link_libraries(integration-504-test 
-                      linq-common-fixture 
-                      network-static)
-add_test(NAME integration-504-test COMMAND integration-504-test)
+# TODO investigate why this test takes so long in memory checker before re-enable
+# add_executable(integration-504-test process_504.c)
+# target_link_libraries(integration-504-test 
+#                       linq-common-fixture 
+#                       network-static)
+# add_test(NAME integration-504-test COMMAND integration-504-test)
 
 # swarm test
 add_executable(swarm-test swarm.c)

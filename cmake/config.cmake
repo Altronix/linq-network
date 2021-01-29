@@ -23,7 +23,6 @@ message(STATUS "DOWNLOAD: ${DOWNLOAD_DIR}")
 option(BUILD_SHARED "Whether or not to build the shared object"  ON)
 option(BUILD_STATIC "Whether or not to build the static archive" ON)
 set(BUILDROOT_DIR "" CACHE STRING "set to fullpath of root buildroot directory outside of buildroot")
-set(EXTERNAL_DIR "external" CACHE STRING "Set path too external dependencies")
 
 # Build (or find) dependencies
 option(BUILD_DEPENDENCIES "Build all dependencies (except openssl)" OFF)
