@@ -28,16 +28,16 @@ zmq_spy_poll_set_ready(uint32_t val)
     ready = val;
 }
 
-mock_zmq_msg_s*
+mock_zmq_msg_s
 zmq_spy_mesg_pop_outgoing()
 {
-    return msg_vec_pop(&outgoing);
+    return *msg_vec_pop(&outgoing);
 }
 
-mock_zmq_msg_s*
+mock_zmq_msg_s
 zmq_spy_mesg_pop_incoming()
 {
-    return msg_vec_pop(&incoming);
+    return *msg_vec_pop(&incoming);
 }
 
 void
@@ -100,15 +100,28 @@ __wrap_zmq_poll(zmq_pollitem_t* items_, int nitems_, long timeout_)
 }
 
 int
+__wrap_zmq_msg_close(zmq_msg_t* msg)
+{
+    return 0;
+}
+
+int
 __wrap_zmq_msg_send(zmq_msg_t* msg, void* socket, int flags)
 {
-    msg_vec_push(&outgoing, &msg);
+    ((mock_zmq_msg_s*)msg)->flags = flags;
+    msg_vec_push(&outgoing, (mock_zmq_msg_s**)&msg);
     return zmq_msg_size(msg);
 }
 
 int
 __wrap_zmq_msg_recv(zmq_msg_t* msg, void* socket, int flags)
 {
-    msg = msg_vec_pop(&incoming);
+    msg = (zmq_msg_t*)msg_vec_pop(&incoming);
     return zmq_msg_size(msg);
+}
+
+int
+__wrap_zmq_msg_more(zmq_msg_t* msg)
+{
+    return ((mock_zmq_msg_s*)msg)->flags & ZMQ_SNDMORE ? 1 : 0;
 }

@@ -3,29 +3,59 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <setjmp.h>
 
 #include <cmocka.h>
 
 static void
-test_mock_msg(void** context_p)
+assert_msg_equal(mock_zmq_msg_s* msg, int more, void* data, uint32_t l)
 {
-    zmq_msg_t a, b, c;
-    zmq_msg_init_size(&a, 1);
-    zmq_msg_init_size(&b, 1);
-    zmq_msg_init_size(&c, 1);
-    (*(char*)zmq_msg_data(&a)) = 'a';
-    (*(char*)zmq_msg_data(&b)) = 'b';
-    (*(char*)zmq_msg_data(&c)) = 'c';
+    void* src = zmq_msg_data(ZMQ_MSG(msg));
+    assert_int_equal(zmq_msg_size(ZMQ_MSG(msg)), l);
+    assert_int_equal(zmq_msg_more(ZMQ_MSG(msg)), more);
+    assert_memory_equal(src, data, l);
+}
 
-    zmq_msg_send(&a, NULL, ZMQ_SNDMORE);
-    zmq_msg_send(&b, NULL, ZMQ_SNDMORE);
-    zmq_msg_send(&c, NULL, 0);
+static void
+test_mock_send(void** context_p)
+{
+    // TODO use vec that does FIFO (current implementation is FILO)
+    zmq_spy_init();
 
-    zmq_msg_close(&a);
-    zmq_msg_close(&b);
-    zmq_msg_close(&c);
+    mock_zmq_msg_s a, b, c, outgoing;
+    zmq_msg_init_size(ZMQ_MSG(&a), 3);
+    zmq_msg_init_size(ZMQ_MSG(&b), 3);
+    zmq_msg_init_size(ZMQ_MSG(&c), 3);
+    memcpy(zmq_msg_data(ZMQ_MSG(&a)), "aaa", 3);
+    memcpy(zmq_msg_data(ZMQ_MSG(&b)), "bbb", 3);
+    memcpy(zmq_msg_data(ZMQ_MSG(&c)), "ccc", 3);
+
+    zmq_msg_send(ZMQ_MSG(&a), NULL, ZMQ_SNDMORE);
+    zmq_msg_send(ZMQ_MSG(&b), NULL, ZMQ_SNDMORE);
+    zmq_msg_send(ZMQ_MSG(&c), NULL, 0);
+
+    outgoing = zmq_spy_mesg_pop_outgoing();
+    assert_msg_equal(&outgoing, 0, "ccc", 3);
+    outgoing = zmq_spy_mesg_pop_outgoing();
+    assert_msg_equal(&outgoing, 1, "bbb", 3);
+    outgoing = zmq_spy_mesg_pop_outgoing();
+    assert_msg_equal(&outgoing, 1, "aaa", 3);
+
+    zmq_msg_close(ZMQ_MSG(&a));
+    zmq_msg_close(ZMQ_MSG(&b));
+    zmq_msg_close(ZMQ_MSG(&c));
+
+    zmq_spy_free();
+}
+
+static void
+test_mock_recv(void** context_p)
+{
+    zmq_spy_init();
+
+    zmq_spy_free();
 }
 
 int
@@ -34,7 +64,8 @@ main(int argc, char* argv[])
     ((void)argc);
     ((void)argv);
     int err;
-    const struct CMUnitTest tests[] = { cmocka_unit_test(test_mock_msg) };
+    const struct CMUnitTest tests[] = { cmocka_unit_test(test_mock_send),
+                                        cmocka_unit_test(test_mock_recv) };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
     return err;
