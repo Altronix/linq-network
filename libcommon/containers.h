@@ -199,6 +199,51 @@ extern "C"
         }                                                                      \
     }
 
+#define VEC_INIT_H(tag, type)                                                  \
+    typedef struct tag##_vec_s                                                 \
+    {                                                                          \
+        size_t n, m;                                                           \
+        type* a;                                                               \
+    } tag##_vec_s;                                                             \
+    void tag##_vec_init(tag##_vec_s*);                                         \
+    void tag##_vec_free(tag##_vec_s*);                                         \
+    uint32_t tag##_vec_size(tag##_vec_s*);                                     \
+    void tag##_vec_push(tag##_vec_s*, type*);                                  \
+    type tag##_vec_pop(tag##_vec_s*);                                          \
+    type* tag##_vec_at(tag##_vec_s*, int);                                     \
+    type* tag##_vec_last(tag##_vec_s*);
+
+#define VEC_INIT(tag, type)                                                    \
+    void tag##_vec_init(tag##_vec_s* v)                                        \
+    {                                                                          \
+        (v)->n = (v)->m = 0, (v)->a = NULL;                                    \
+    }                                                                          \
+    void tag##_vec_free(tag##_vec_s* v)                                        \
+    {                                                                          \
+        if (v->a) linq_network_free(v->a);                                     \
+    }                                                                          \
+    uint32_t tag##_vec_size(tag##_vec_s* v) { return v->n; }                   \
+    void tag##_vec_push(tag##_vec_s* vec, type* v)                             \
+    {                                                                          \
+        do {                                                                   \
+            if ((vec->n == vec->m)) {                                          \
+                vec->m = vec->m ? vec->m << 1 : 2;                             \
+                vec->a = (type*)realloc(vec->a, sizeof(type) * vec->m);        \
+            }                                                                  \
+            vec->a[vec->n++] = *v;                                             \
+        } while (0);                                                           \
+    }                                                                          \
+    type tag##_vec_pop(tag##_vec_s* v) { return v->a[--v->n]; }                \
+    type* tag##_vec_at(tag##_vec_s* v, int idx) { return &v->a[idx]; }         \
+    type* tag##_vec_last(tag##_vec_s* v)                                       \
+    {                                                                          \
+        return tag##_vec_at(v, v->n > 0 ? v->n - 1 : 0);                       \
+    };
+
+#define VEC_INIT_W_HEADER(tag, type)                                           \
+    VEC_INIT_H(tag, type)                                                      \
+    VEC_INIT(tag, type)
+
 #ifdef __cplusplus
 }
 #endif

@@ -117,6 +117,48 @@ test_container_map_create(void** context_p)
     assert_null(hash);
 }
 
+VEC_INIT_H(car, item_s);
+VEC_INIT(car, item_s);
+
+static void
+test_container_vec_create(void** context_p)
+{
+    ((void)context_p);
+    car_vec_s vec;
+    car_vec_init(&vec);
+    item_s item0 = { .val = 0 };
+    item_s item1 = { .val = 1 };
+    item_s item2 = { .val = 2 };
+    item_s test;
+
+    assert_int_equal(car_vec_size(&vec), 0);
+    car_vec_push(&vec, &item0);
+    assert_int_equal(car_vec_size(&vec), 1);
+    car_vec_push(&vec, &item1);
+    assert_int_equal(car_vec_size(&vec), 2);
+    car_vec_push(&vec, &item2);
+    assert_int_equal(car_vec_size(&vec), 3);
+
+    memset(&item0, 0, sizeof(item_s));
+    memset(&item1, 0, sizeof(item_s));
+    memset(&item2, 0, sizeof(item_s));
+
+    assert_int_equal(car_vec_last(&vec)->val, 2);
+    test = car_vec_pop(&vec);
+    assert_int_equal(test.val, 2);
+    assert_int_equal(car_vec_size(&vec), 2);
+    assert_int_equal(car_vec_last(&vec)->val, 1);
+    test = car_vec_pop(&vec);
+    assert_int_equal(test.val, 1);
+    assert_int_equal(car_vec_size(&vec), 1);
+    assert_int_equal(car_vec_last(&vec)->val, 0);
+    test = car_vec_pop(&vec);
+    assert_int_equal(test.val, 0);
+    assert_int_equal(car_vec_size(&vec), 0);
+
+    car_vec_free(&vec);
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -125,7 +167,8 @@ main(int argc, char* argv[])
     int err;
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_container_list_create),
-        cmocka_unit_test(test_container_map_create)
+        cmocka_unit_test(test_container_map_create),
+        cmocka_unit_test(test_container_vec_create)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);
