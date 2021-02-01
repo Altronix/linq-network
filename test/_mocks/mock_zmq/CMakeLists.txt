@@ -1,7 +1,9 @@
 add_library(mock-zmq mock_zmq.c mock_zmq.h)
 target_link_libraries(mock-zmq 
+  common-static
   mock-utils 
-  ${LIBZMQ_STATIC_LIBS} 
+  ${CMAKE_THREAD_LIBS_INIT}
+  ${ZMQ_LIBS} 
   stdc++ 
   uuid)
 target_include_directories(mock-zmq PUBLIC .)
@@ -14,8 +16,8 @@ function(mock_zmq_linker_flags dst)
   string(CONCAT wrap ${wrap} "--wrap=zmq_connect,")
   string(CONCAT wrap ${wrap} "--wrap=zmq_close,")
   string(CONCAT wrap ${wrap} "--wrap=zmq_poll,")
-  string(CONCAT wrap ${wrap} "--wrap=zmq_send,")
-  string(CONCAT wrap ${wrap} "--wrap=zmq_recv")
+  string(CONCAT wrap ${wrap} "--wrap=zmq_msg_send,")
+  string(CONCAT wrap ${wrap} "--wrap=zmq_msg_recv")
 endfunction()
 
 mock_zmq_linker_flags(wrap_flags)
