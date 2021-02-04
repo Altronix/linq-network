@@ -341,6 +341,12 @@ netw_shutdown(netw_s* netw)
     }
 }
 
+LINQ_EXPORT void
+netw_log_fn_set(log_callback_fn fn, void* ctx)
+{
+    log_set_callback_fn(fn, ctx);
+}
+
 LINQ_EXPORT int
 netw_scan(netw_s* linq)
 {

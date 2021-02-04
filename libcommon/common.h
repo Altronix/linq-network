@@ -11,10 +11,36 @@
 #define LINQ_TID_LEN 64
 #endif
 
+#ifndef LOG_MESSAGE_LEN
+#define LOG_MESSAGE_LEN 128
+#endif
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+    typedef enum
+    {
+        LINQ_TRACE,
+        LINQ_DEBUG,
+        LINQ_INFO,
+        LINQ_WARN,
+        LINQ_ERROR,
+        LINQ_FATAL,
+        LINQ_NONE
+    } E_LOG_LEVEL;
+
+    typedef struct log_callback_s
+    {
+        void* context;
+        uint32_t line;
+        uint32_t tick;
+        const char* file;
+        const char* level;
+        const char* category;
+        char message[LOG_MESSAGE_LEN];
+    } log_callback_s;
+    typedef void (*log_callback_fn)(log_callback_s*);
 
 #ifdef BUILD_LINQD
     // Type of request

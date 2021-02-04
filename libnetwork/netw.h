@@ -65,6 +65,7 @@ extern "C"
     LINQ_EXPORT void netw_max_retry_set(int);
     LINQ_EXPORT int netw_max_retry_get();
     LINQ_EXPORT void netw_shutdown(netw_s* netw);
+    LINQ_EXPORT void netw_log_fn_set(log_callback_fn fn, void* ctx);
 
 #ifdef BUILD_LINQD
     typedef struct database_s database_s;
