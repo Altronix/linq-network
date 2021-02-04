@@ -344,6 +344,7 @@ netw_shutdown(netw_s* netw)
 LINQ_EXPORT void
 netw_log_fn_set(log_callback_fn fn, void* ctx)
 {
+    netw_info("Log output redirecting...");
     log_set_callback_fn(fn, ctx);
 }
 
