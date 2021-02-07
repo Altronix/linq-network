@@ -767,6 +767,53 @@ test_netw_receive_hello_double_id(void** context_p)
 }
 
 static void
+on_response_bad_args(void* pass, const char* serial, int err, const char* data)
+{
+    *(bool*)pass = true;
+    assert_int_equal(err, LINQ_ERROR_BAD_ARGS);
+}
+
+static void
+test_netw_send_bad_args(void** context_p)
+{
+    ((void)context_p);
+    bool pass = false;
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 32820,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
+    const char* serial = expect_sid = "serial";
+    zmsg_t* r = helpers_make_response("rid0", serial, 0, "{\"test\":1}");
+
+    helpers_test_context_s* test = test_init(&config);
+    helpers_add_device(test, serial, "rid", "pid", "sid");
+
+    czmq_spy_mesg_push_incoming(&r);
+    czmq_spy_poll_set_incoming((0x01));
+
+    // Receive heartbeat (add device to linq)
+    // Send a get request
+    // receive get response
+    // make sure callback is as expect
+    netw_send(
+        test->net,
+        serial,
+        "GET",
+        "/ATX/test",
+        9,
+        "",
+        0,
+        on_response_bad_args,
+        &pass);
+    netw_poll(test->net, 5);
+    assert_true(pass);
+
+    test_reset(&test);
+}
+
+static void
 test_netw_broadcast_heartbeat_receive(void** context_p)
 {
     ((void)context_p);
@@ -1266,6 +1313,7 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_netw_receive_response_ok_504),
         cmocka_unit_test(test_netw_receive_hello),
         cmocka_unit_test(test_netw_receive_hello_double_id),
+        cmocka_unit_test(test_netw_send_bad_args),
         cmocka_unit_test(test_netw_broadcast_heartbeat),
         cmocka_unit_test(test_netw_broadcast_heartbeat_receive),
         cmocka_unit_test(test_netw_broadcast_alert),

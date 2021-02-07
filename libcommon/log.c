@@ -64,8 +64,8 @@ static const char* level_names[] = { "TRACE", "DEBUG", "INFO ",
 static const char* level_colors[] = { LOG_LIGHT_BLUE, LOG_CYAN, LOG_GREEN,
                                       LOG_YELLOW,     LOG_RED,  LOG_MAGENTA };
 
-log_callback_fn log_callback = NULL;
-void* log_callback_context = NULL;
+static log_callback_fn log_callback = NULL;
+static void* log_callback_context = NULL;
 
 void
 log_set_callback_fn(log_callback_fn fn, void* ctx)

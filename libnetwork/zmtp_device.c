@@ -249,6 +249,7 @@ zmtp_device_send(
     linq_request_complete_fn fn,
     void* context)
 {
+    int e;
     zmtp_device_s* d = (zmtp_device_s*)base;
     request_s* r = request_alloc_mem(
         &d->base, method, path, plen, json, jlen, fn, context);
@@ -256,7 +257,8 @@ zmtp_device_send(
         request_list_push(d->requests, &r);
         zmtp_device_request_flush_w_check(&d->base);
     } else {
-        exe_on_complete(&r, d->base.serial, LINQ_ERROR_OOM, NULL);
+        e = json && !jlen ? LINQ_ERROR_BAD_ARGS : LINQ_ERROR_OOM;
+        if (fn) fn(context, d->base.serial, e, NULL);
     }
 }
 
