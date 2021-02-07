@@ -111,7 +111,7 @@ log_log(
         callback.category = cat;
         callback.context = log_callback_context;
         va_start(args, fmt);
-        snprintf(callback.message, sizeof(callback.message), fmt, args);
+        vsnprintf(callback.message, sizeof(callback.message), fmt, args);
         va_end(args);
         log_callback(&callback);
     } else {
