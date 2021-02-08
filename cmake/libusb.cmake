@@ -1,13 +1,6 @@
-set(LIBUSB_SOURCE_DIR ${EXTERNAL_DIR}/libusb)
+set(LIBUSB_SOURCE_DIR ${EXTERNAL_DIR}/libusb-1.0.24)
 set(LIBUSB_TEST_FILE ${LIBUSB_SOURCE_DIR}/README)
-if(GIT_FOUND AND NOT EXISTS "${LIBUSB_TEST_FILE}")
-  message(STATUS "Downloading libusb submodule")
-  execute_process(
-      COMMAND ${GIT_EXECUTABLE} submodule update --init ${LIBUSB_SOURCE_DIR}
-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-      RESULT_VARIABLE LIBUSB_GIT_CLONE_RESULT)
-  message(STATUS "libusb download result: ${LIBUSB_GIT_CLONE_RESULT}")
-endif()
+check_extract("${DOWNLOAD_DIR}/libusb-1.0.24.tar.gz" "${LIBUSB_TEST_FILE}")
 
 if(NOT MSVC)
   # IE if(UNIX OR CYGWIN OR MINGW)

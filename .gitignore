@@ -48,6 +48,7 @@ dist
 external/cmocka*
 external/zeromq*
 external/czmq*
+external/libusb*
 
 #sqlite
 **/*/test.db
