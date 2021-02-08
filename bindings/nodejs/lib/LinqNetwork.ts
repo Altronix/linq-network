@@ -203,7 +203,9 @@ export class LinqNetwork extends Events.EventEmitter {
     path: string,
     data?: T
   ): Promise<R> {
-    const d = data ? JSON.stringify(data) : "";
+    const d: string = data
+      ? (typeof data === "string" && data) || JSON.stringify(data)
+      : "";
     let response = await this.netw.send(serial, meth, path, d);
     try {
       return JSON.parse(response) as R;
