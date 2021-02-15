@@ -246,6 +246,7 @@ export class LinqNetwork extends Events.EventEmitter {
 
   // remove
   remove(sid: string): LinqNetwork {
+    if (this.devices[sid]) delete this.devices[sid];
     this.netw.deviceRemove(sid);
     return this;
   }
