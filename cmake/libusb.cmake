@@ -41,7 +41,7 @@ else()
       COMMAND MSBuild.exe
               -p:Configuration=Release
               -p:Platform=x64
-              ${LIBUSB_SOURCE_DIR}/msvc/libusb_static_2017.vcxproj
+              ${LIBUSB_SOURCE_DIR}/msvc/libusb_static_2019.vcxproj
       COMMAND ${CMAKE_COMMAND}
               -E
               copy
@@ -70,7 +70,7 @@ else()
       COMMAND MSBuild.exe
               -p:Configuration=Release
               -p:Platform=x64
-              ${LIBUSB_SOURCE_DIR}/msvc/libusb_dll_2017.vcxproj
+              ${LIBUSB_SOURCE_DIR}/msvc/libusb_dll_2019.vcxproj
       COMMAND ${CMAKE_COMMAND}
               -E
               copy

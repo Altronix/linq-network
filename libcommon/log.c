@@ -95,7 +95,7 @@ log_log(
     const char* fmt,
     ...)
 {
-    log_callback_s callback = {};
+    log_callback_s callback = {0};
     size_t flen = strlen(file) - 1;
     while ((!(file[flen] == '/' || file[flen] == '\\')) && flen) { flen--; }
     file = flen > 1 ? &file[flen + 1] : file;

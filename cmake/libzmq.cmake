@@ -43,7 +43,7 @@ IF(NOT MSVC)
 ELSE()
   execute_process(COMMAND powershell -ExecutionPolicy Bypass
     -File "${CMAKE_SOURCE_DIR}/scripts/read_zmq_version.ps1"
-    "${EXTERNAL_DIR}/libzmq/include/zmq.h"
+    "${ZMQ_SOURCE_DIR}/include/zmq.h"
     OUTPUT_VARIABLE zmq_VERSION)
   STRING(REGEX REPLACE "\n" "" zmq_VERSION ${zmq_VERSION})
   STRING(REGEX REPLACE "\r" "" zmq_VERSION ${zmq_VERSION})
