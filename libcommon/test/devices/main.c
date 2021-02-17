@@ -137,12 +137,12 @@ test_device_map_alloc_summary(void** context_p)
     device_map_add(devices, device_serial(nodeb), &nodeb);
     device_map_add(devices, device_serial(nodec), &nodec);
     int err;
-    const char* b = devices_alloc_summary(devices);
+    const char* b = devices_summary_alloc(devices);
     assert_non_null(b);
     json_parser p;
     jsontok t[1024];
     json_init(&p);
-    err = json_parse(&p, b, err, t, 1024);
+    err = json_parse(&p, b, strlen(b), t, 1024);
     assert_true(err > 0);
 
     jassert_memory_equal("nodea", json_delve(b, t, ".nodea.serial"), b);
@@ -163,6 +163,7 @@ test_device_map_alloc_summary(void** context_p)
     jassert_int_equal(3, json_delve(b, t, ".nodec.birth"), b);
     jassert_int_equal(30, json_delve(b, t, ".nodec.lastSeen"), b);
 
+    devices_summary_free(&b);
     device_map_destroy(&devices);
 }
 

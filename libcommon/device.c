@@ -94,15 +94,15 @@ devices_iter_exist(device_map_s* map, devices_iter it)
 }
 
 LINQ_EXPORT const char*
-devices_alloc_summary(device_map_s* map)
+devices_summary_alloc(device_map_s* map)
 {
     char* alloc = NULL;
     uint32_t n = devices_size(map), spot = 0, l = (n + 1) * 512;
     alloc = linq_network_malloc(l);
-    devices_iter i;
-    node_s* node;
     if (alloc) {
         alloc[spot++] = '{';
+        devices_iter i;
+        node_s* node;
         devices_foreach(map, i)
         {
             if ((node = devices_iter_exist(map, i))) {
@@ -117,13 +117,23 @@ devices_alloc_summary(device_map_s* map)
                     device_uptime(node),
                     device_last_seen(node),
                     device_transport(node));
-                if (--n && spot < l) alloc[(spot++)] = ',';
+                if (--n) {
+                    if (spot < l) alloc[(spot++)] = ',';
+                }
             }
         }
         if (spot < l) alloc[(spot)++] = '}';
         if (spot < l) alloc[(spot)++] = '\0';
     }
     return alloc;
+}
+
+LINQ_EXPORT void
+devices_summary_free(const char** mem_p)
+{
+    char* mem = (char*)*mem_p;
+    *mem_p = NULL;
+    linq_network_free(mem);
 }
 
 LINQ_EXPORT uint32_t
