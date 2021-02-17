@@ -14,6 +14,16 @@
     "\"product\":\"%s\""                                                       \
     "}"
 
+#define SUMMARY_FMT                                                            \
+    "\"%s\":{"                                                                 \
+    "\"serial\":\"%s\","                                                       \
+    "\"type\":\"%s\","                                                         \
+    "\"birth\":%d,"                                                            \
+    "\"uptime\":%d,"                                                           \
+    "\"lastSeen\":%d,"                                                         \
+    "\"transport\":%d"                                                         \
+    "}"
+
 static void
 node_destroy(node_s** node_p)
 {
@@ -35,6 +45,18 @@ device_serial(node_s* d)
     return d->serial;
 }
 
+LINQ_EXPORT E_TRANSPORT
+device_transport(node_s* d)
+{
+    return d->transport;
+}
+
+LINQ_EXPORT uint32_t
+device_birth(node_s* d)
+{
+    return d->birth;
+}
+
 LINQ_EXPORT uint32_t
 device_last_seen(node_s* d)
 {
@@ -51,6 +73,57 @@ LINQ_EXPORT void
 device_heartbeat(node_s* d)
 {
     d->last_seen = sys_tick();
+}
+
+LINQ_EXPORT devices_iter
+devices_iter_start(device_map_s* map)
+{
+    return kh_begin(map);
+}
+
+LINQ_EXPORT devices_iter
+devices_iter_end(device_map_s* map)
+{
+    return kh_end(map);
+}
+
+LINQ_EXPORT node_s*
+devices_iter_exist(device_map_s* map, devices_iter it)
+{
+    return map_has_key(map, it) ? map_val(map, it) : NULL;
+}
+
+LINQ_EXPORT const char*
+devices_alloc_summary(device_map_s* map)
+{
+    char* alloc = NULL;
+    uint32_t n = devices_size(map), spot = 0, l = (n + 1) * 512;
+    alloc = linq_network_malloc(l);
+    devices_iter i;
+    node_s* node;
+    if (alloc) {
+        alloc[spot++] = '{';
+        devices_foreach(map, i)
+        {
+            if ((node = devices_iter_exist(map, i))) {
+                spot += snprintf(
+                    &alloc[spot],
+                    l - spot,
+                    SUMMARY_FMT,
+                    device_serial(node),
+                    device_serial(node),
+                    device_type(node),
+                    device_birth(node),
+                    device_uptime(node),
+                    device_last_seen(node),
+                    device_transport(node));
+                if (--n && spot < l) alloc[(spot++)] = ',';
+            }
+        }
+        if (spot < l) alloc[(spot)++] = '}';
+        if (spot < l) alloc[(spot)++] = '\0';
+    }
+    return alloc;
 }
 
 LINQ_EXPORT uint32_t
