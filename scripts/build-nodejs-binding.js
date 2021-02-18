@@ -62,18 +62,20 @@ const withDebug = (json) =>
   isTrue(process.env.LINQ_NETWORK_DEBUG) || (json && json.debug) || false;
 
 // Generate cmake-js argument
-const cmakeCmd = process.platform === "win32" ? `cmake-js.cmd` : `cmake-js`;
 const cmakeArgs = (json) =>
-  `${systemOpt(withSystem(json))} ` +
-  `${linqdOpt(withLinqd(json))} ` +
-  `${usbhOpt(withUsbh(json))} ` +
-  `${disablePassOpt(withDisablePass(json))} ` +
-  `${logOpt(withLog(json))} ` +
-  `${debugOpt(withDebug(json))} ` +
-  `--CDCMAKE_INSTALL_PREFIX=./ --CDBUILD_SHARED=OFF ` +
-  `--CDBUILD_APPS=OFF ` +
-  `--CDWITH_NODEJS_BINDING ` +
-  `build --target=install`;
+  (
+    `cmake-js ` +
+    `${systemOpt(withSystem(json))} ` +
+    `${linqdOpt(withLinqd(json))} ` +
+    `${usbhOpt(withUsbh(json))} ` +
+    `${disablePassOpt(withDisablePass(json))} ` +
+    `${logOpt(withLog(json))} ` +
+    `${debugOpt(withDebug(json))} ` +
+    `--CDCMAKE_INSTALL_PREFIX=./ --CDBUILD_SHARED=OFF ` +
+    `--CDBUILD_APPS=OFF ` +
+    `--CDWITH_NODEJS_BINDING ` +
+    `build --target=install`
+  ).split(" ");
 
 // Find the prebuilt binary (Only used if native build fails)
 const getPrebuilt = () =>
@@ -100,7 +102,7 @@ const tryBuild = async (json) => {
   logger.info(`Settings: LINQ_NETWORK_DEBUG       -> ${withDebug(json)}`);
 
   // Call cmake-js
-  const result = cp.spawnSync(cmakeCmd, cmakeArgs(json).split(" "), {
+  const result = cp.spawnSync("yarn", cmakeArgs(json), {
     env,
     stdio: "inherit",
     shell: process.platform === "win32",
