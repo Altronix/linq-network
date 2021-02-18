@@ -41,6 +41,8 @@ extern "C"
     LINQ_EXPORT E_LINQ_ERROR netw_close(netw_s*, netw_socket);
     LINQ_EXPORT E_LINQ_ERROR netw_poll(netw_s* l, int32_t ms);
     LINQ_EXPORT node_s** netw_device(const netw_s* l, const char* serial);
+    LINQ_EXPORT const char* netw_devices_summary_alloc(const netw_s* l);
+    LINQ_EXPORT void netw_devices_summary_free(const char**);
     LINQ_EXPORT bool netw_device_exists(const netw_s*, const char* sid);
     LINQ_EXPORT uint32_t netw_device_count(const netw_s*);
     LINQ_EXPORT int netw_device_remove(const netw_s* l, const char* sid);

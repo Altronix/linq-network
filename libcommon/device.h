@@ -14,12 +14,25 @@ extern "C"
 {
 #endif
 
+#define devices_foreach(hash, iter)                                            \
+    for (iter = devices_iter_start(hash); iter != devices_iter_end(hash);      \
+         ++iter)
+
+    typedef unsigned long long devices_iter;
+
     MAP_INIT_H(device, node_s);
     LINQ_EXPORT const char* device_type(node_s* d);
     LINQ_EXPORT const char* device_serial(node_s* d);
+    LINQ_EXPORT E_TRANSPORT device_transport(node_s* d);
+    LINQ_EXPORT uint32_t device_birth(node_s* d);
     LINQ_EXPORT uint32_t device_last_seen(node_s* d);
     LINQ_EXPORT uint32_t device_uptime(node_s* d);
     LINQ_EXPORT void device_heartbeat(node_s* d);
+    LINQ_EXPORT devices_iter devices_iter_start(device_map_s* map);
+    LINQ_EXPORT devices_iter devices_iter_end(device_map_s* map);
+    LINQ_EXPORT node_s* devices_iter_exist(device_map_s* map, devices_iter it);
+    LINQ_EXPORT const char* devices_summary_alloc(device_map_s* map);
+    LINQ_EXPORT void devices_summary_free(const char** mem_p);
     LINQ_EXPORT int device_map_print(device_map_s* d, char* b, uint32_t l);
 
     LINQ_EXPORT uint32_t devices_foreach_remove_if(

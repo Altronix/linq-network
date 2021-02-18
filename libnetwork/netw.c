@@ -187,6 +187,20 @@ netw_device(const netw_s* l, const char* serial)
     return devices_get(l->devices, serial);
 }
 
+// Print a summary in json
+LINQ_EXPORT const char*
+netw_devices_summary_alloc(const netw_s* l)
+{
+    return devices_summary_alloc(l->devices);
+}
+
+// free json summary
+LINQ_EXPORT void
+netw_devices_summary_free(const char** alloc_p)
+{
+    devices_summary_free(alloc_p);
+}
+
 // Check if the serial number is known in our hash table
 bool
 netw_device_exists(const netw_s* linq, const char* sid)
