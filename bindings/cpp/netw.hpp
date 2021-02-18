@@ -193,6 +193,18 @@ class Linq
     // get number of devices connected to linq
     uint32_t device_count() { return netw_device_count(netw_); }
 
+    std::string devices()
+    {
+        const char* devices = netw_devices_summary_alloc(this->netw_);
+        if (devices) {
+            std::string ret{ devices };
+            netw_devices_summary_free(&devices);
+            return ret;
+        } else {
+            return "{}";
+        }
+    }
+
     int device_remove(std::string& serial)
     {
         return netw_device_remove(netw_, serial.c_str());

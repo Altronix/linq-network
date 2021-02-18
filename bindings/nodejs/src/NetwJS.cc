@@ -25,6 +25,7 @@ LinqNetwork::Init(Napi::Env env, Napi::Object exports)
           InstanceMethod("listen", &LinqNetwork::Listen),
           InstanceMethod("connect", &LinqNetwork::Connect),
           InstanceMethod("close", &LinqNetwork::Close),
+          InstanceMethod("devices", &LinqNetwork::Devices),
           InstanceMethod("deviceCount", &LinqNetwork::DeviceCount),
           InstanceMethod("deviceRemove", &LinqNetwork::DeviceRemove),
           InstanceMethod("nodeCount", &LinqNetwork::NodeCount),
@@ -235,6 +236,12 @@ LinqNetwork::Close(const Napi::CallbackInfo& info)
     uint32_t arg0 = info[0].ToNumber();
     this->linq_.close(arg0);
     return info.Env().Null();
+}
+
+Napi::Value
+LinqNetwork::Devices(const Napi::CallbackInfo& info)
+{
+    return Napi::String::New(info.Env(), this->linq_.devices());
 }
 
 Napi::Value

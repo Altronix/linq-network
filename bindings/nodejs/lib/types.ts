@@ -2,8 +2,21 @@ export type Method = "GET" | "POST" | "DELETE";
 export type LINQ_EVENTS = "heartbeat" | "alert" | "error" | "new" | "ctrlc";
 export type LINQ_EVENTS_DATA = string | EventDataAlert | EventDataError;
 
+export interface DeviceSummary {
+  serial: string;
+  type: string;
+  birth: number;
+  uptime: number;
+  lastSeen: number;
+  transport: number;
+}
+
+export interface DevicesSummary {
+  [x: string]: DeviceSummary;
+}
+
 export interface Devices {
-  [x: string]: EventDataAbout & { lastSeen?: Date };
+  [x: string]: EventDataAbout & DeviceSummary;
 }
 
 export interface Binding {
@@ -17,6 +30,7 @@ export interface Binding {
   listen: (arg: string | number) => Binding;
   connect: (arg: string | number) => Binding;
   close: (arg: number) => Binding;
+  devices: () => string;
   deviceCount: () => number;
   deviceRemove: (sid: string) => number;
   nodeCount: () => number;

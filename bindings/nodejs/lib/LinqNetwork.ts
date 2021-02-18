@@ -18,6 +18,7 @@ import {
   Binding,
   LogData,
   Devices,
+  DevicesSummary,
   Update,
   UpdateDashboard,
   UpdateTypes,
@@ -63,6 +64,10 @@ export class LinqNetwork extends Events.EventEmitter {
   private shutdownResolve: any;
   private _devices: Devices = {};
   get devices() {
+    const summaries: DevicesSummary = JSON.parse(this.netw.devices());
+    this._devices = [...Object.keys(summaries), ...Object.keys(this._devices)]
+      .map((k) => ({ ...this._devices[k], ...summaries[k] }))
+      .reduce((acc, cur) => ({ [cur.serial]: cur, ...acc }), {});
     return this._devices;
   }
 
@@ -107,8 +112,9 @@ export class LinqNetwork extends Events.EventEmitter {
               ).pipe(
                 mapAboutResponse(),
                 tap((event) => {
-                  self.devices[event.sid] = event;
-                  self.devices[event.sid].lastSeen = new Date();
+                  const sum: DevicesSummary = JSON.parse(self.netw.devices());
+                  const sid = sum[event.sid] || {};
+                  self._devices[event.sid] = { ...event, ...sid };
                 })
               )
         )
@@ -246,7 +252,7 @@ export class LinqNetwork extends Events.EventEmitter {
 
   // remove
   remove(sid: string): LinqNetwork {
-    if (this.devices[sid]) delete this.devices[sid];
+    if (this._devices[sid]) delete this._devices[sid];
     this.netw.deviceRemove(sid);
     return this;
   }
