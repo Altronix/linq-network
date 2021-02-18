@@ -103,7 +103,7 @@ const tryBuild = async (json) => {
   const result = cp.spawnSync(cmakeCmd, cmakeArgs(json).split(" "), {
     env,
     stdio: "inherit",
-    shell: true
+    shell: process.platform === "win32",
   });
 
   if (!result.status) {
