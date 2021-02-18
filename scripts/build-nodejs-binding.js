@@ -103,6 +103,7 @@ const tryBuild = async (json) => {
   const result = cp.spawnSync(cmakeCmd, cmakeArgs(json).split(" "), {
     env,
     stdio: "inherit",
+    shell: true
   });
 
   if (!result.status) {
@@ -111,7 +112,7 @@ const tryBuild = async (json) => {
     process.exit(result.status);
   } else {
     logger.warn("Failed to build linq binding!");
-    logger.warn(result.error);
+    logger.warn(JSON.stringify(result));
     installPrebuilt();
     logger.info("Installed prebuilt binaries OK");
     process.exit(0);

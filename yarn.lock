@@ -735,6 +735,13 @@ aws4@^1.8.0:
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.11.0.tgz#d61f46d83b2519250e2784daf5b09479a8b41c59"
   integrity sha512-xh1Rl34h6Fi1DC2WWKfxUTVqRsNnr6LsKz2+hfwDxQJWmrx8+c7ylaqBMcHfl1U1r2dsifOvKX3LQuLNZ+XSvA==
 
+axios@^0.21.1:
+  version "0.21.1"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.1.tgz#22563481962f4d6bde9a76d516ef0e5d3c09b2b8"
+  integrity sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==
+  dependencies:
+    follow-redirects "^1.10.0"
+
 babel-jest@^26.6.3:
   version "26.6.3"
   resolved "https://registry.yarnpkg.com/babel-jest/-/babel-jest-26.6.3.tgz#d87d25cb0037577a0c89f82e5755c5d293c01056"
@@ -1035,11 +1042,11 @@ cliui@^6.0.0:
     strip-ansi "^6.0.0"
     wrap-ansi "^6.2.0"
 
-cmake-js@^6.1.0:
+"cmake-js@https://github.com/tomzbench/cmake-js":
   version "6.1.0"
-  resolved "https://registry.yarnpkg.com/cmake-js/-/cmake-js-6.1.0.tgz#bec7381b58d454acee09d4fb0047153a005063a6"
-  integrity sha512-utmukLQftpgrCpGRCaHnkv4K27HZNNFqmBl4vnvccy0xp4c1erxjFU/Lq4wn5ngAhFZmpwBPQfoKWKThjSBiwg==
+  resolved "https://github.com/tomzbench/cmake-js#5c2387e859bf0cd2d5a76582fe2ec23a6d0f4e6b"
   dependencies:
+    axios "^0.21.1"
     debug "^4"
     fs-extra "^5.0.0"
     is-iojs "^1.0.1"
@@ -1047,7 +1054,6 @@ cmake-js@^6.1.0:
     memory-stream "0"
     npmlog "^1.2.0"
     rc "^1.2.7"
-    request "^2.54.0"
     semver "^5.0.3"
     splitargs "0"
     tar "^4"
@@ -1517,6 +1523,11 @@ find-up@^4.0.0, find-up@^4.1.0:
   dependencies:
     locate-path "^5.0.0"
     path-exists "^4.0.0"
+
+follow-redirects@^1.10.0:
+  version "1.13.2"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.13.2.tgz#dd73c8effc12728ba5cf4259d760ea5fb83e3147"
+  integrity sha512-6mPTgLxYm3r6Bkkg0vNM0HTjfGrOEtsfbhagQvbxDEsEkpNhw582upBaoRZylzen6krEmxXJgt9Ju6HiI4O7BA==
 
 for-in@^1.0.2:
   version "1.0.2"
@@ -3199,7 +3210,7 @@ request-promise-native@^1.0.8:
     stealthy-require "^1.1.1"
     tough-cookie "^2.3.3"
 
-request@^2.54.0, request@^2.88.2:
+request@^2.88.2:
   version "2.88.2"
   resolved "https://registry.yarnpkg.com/request/-/request-2.88.2.tgz#d73c918731cb5a87da047e207234146f664d12b3"
   integrity sha512-MsvtOrfG9ZcrOwAW+Qi+F6HbD0CWXEh9ou77uOb7FM2WPhwT7smM833PzanhJLsgXjN89Ir6V2PczXNnMpwKhw==
