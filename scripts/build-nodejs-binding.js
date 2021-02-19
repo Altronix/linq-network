@@ -61,14 +61,14 @@ function cmakeArgDebug(json) {
 // Generate entire cmake command
 function cmakeArgs({ sourceDir, buildDir, installDir, config }) {
   return [
-    `-S${sourceDir}`,
-    `-B${buildDir}`,
+    `-S "${sourceDir}"`,
+    `-B "${buildDir}"`,
     `-D${cmakeArgUsbh(config)}`,
     `-D${cmakeArgDisablePassword(config)}`,
     `-D${cmakeArgLogLevel(config)}`,
     `-D${cmakeArgDebug(config)}`,
     `-DBUILD_DEPENDENCIES=ON`,
-    `-DCMAKE_INSTALL_PREFIX=${installDir}`,
+    `-DCMAKE_INSTALL_PREFIX="${installDir}"`,
     `-DBUILD_SHARED=OFF`,
     `-DBUILD_APPS=OFF`,
   ];
@@ -98,7 +98,7 @@ function tryConfig(args) {
 }
 
 function tryBuild(buildDir) {
-  const args = [`--build`, `${buildDir}`, "--target", `install`];
+  const args = [`--build`, `"${buildDir}"`, "--target", `install`];
   logger.info(`Building: ${args}`);
   const result = cp.spawnSync("cmake", args, {
     env,
