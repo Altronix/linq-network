@@ -11,6 +11,6 @@ exports.sanitizeEnv = function (envArg = process.env) {
   return env;
 };
 
-exports.sanitizePath = function (path) {
-  return path.replace(" ", "\\ ");
+exports.sanitizePath = function (env, path) {
+  return env.platform === "win32" ? `"${path}"` : `${path.replace(" ", "\\ ")}`;
 };
