@@ -62,14 +62,14 @@ function cmakeArgDebug(json) {
 // Generate entire cmake command
 function cmakeArgs({ sourceDir, buildDir, installDir, config }) {
   return [
-    `-S${sanitizePath(__env, sourceDir)}`,
-    `-B${sanitizePath(__env, buildDir)}`,
+    `-S${sanitizePath(sourceDir)}`,
+    `-B${sanitizePath(buildDir)}`,
     `-D${cmakeArgUsbh(config)}`,
     `-D${cmakeArgDisablePassword(config)}`,
     `-D${cmakeArgLogLevel(config)}`,
     `-D${cmakeArgDebug(config)}`,
     `-DBUILD_DEPENDENCIES=ON`,
-    `-DCMAKE_INSTALL_PREFIX=${sanitizePath(__env, installDir)}`,
+    `-DCMAKE_INSTALL_PREFIX=${sanitizePath(installDir)}`,
     `-DBUILD_SHARED=OFF`,
     `-DBUILD_APPS=OFF`,
   ];
@@ -99,12 +99,7 @@ function tryConfig(args) {
 }
 
 function tryBuild(buildDir) {
-  const args = [
-    `--build`,
-    `${sanitizePath(__env, buildDir)}`,
-    "--target",
-    `install`,
-  ];
+  const args = [`--build`, `${sanitizePath(buildDir)}`, "--target", `install`];
   logger.info(`Building: ${args}`);
   const result = cp.spawnSync("cmake", args, {
     env: __env,
