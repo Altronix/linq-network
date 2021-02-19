@@ -2,7 +2,7 @@
 // -d --daemon Build with daemon
 
 const fs = require("fs");
-let path = require("path");
+const path = require("path");
 const cp = require("child_process");
 const args = require("minimist")(process.argv.slice(2));
 const env = Object.assign({}, process.env);
@@ -11,136 +11,141 @@ const logger = require("./logger");
 const root = __dirname + "/../";
 
 // Helper for parsing enviorment variable
-const isTrue = (opt) =>
-  opt === "ON" ||
-  opt === "on" ||
-  opt === "On" ||
-  opt === "TRUE" ||
-  opt === "true" ||
-  opt === "True" ||
-  opt === "YES" ||
-  opt === "yes" ||
-  opt === "Yes" ||
-  opt === 1;
+function isTrue(opt) {
+  return (
+    opt === "ON" ||
+    opt === "on" ||
+    opt === "On" ||
+    opt === "TRUE" ||
+    opt === "true" ||
+    opt === "True" ||
+    opt === "YES" ||
+    opt === "yes" ||
+    opt === "Yes" ||
+    opt === 1
+  );
+}
 
-// Build command string from user argument linqd option
-const linqdOpt = (opt) => `${opt ? "--CDBUILD_LINQD=ON" : ""}`;
-const usbhOpt = (opt) => `${opt ? "--CDBUILD_USBH=ON" : ""}`;
-const disablePassOpt = (opt) => `${opt ? "--CDDISABLE_PASSWORD=ON" : ""}`;
-const systemOpt = (opt) => (opt ? "" : `--CDBUILD_DEPENDENCIES=ON`);
-const logOpt = (opt) => (opt ? `--CDLOG_LEVEL=${opt}` : ``);
-const debugOpt = (opt) => `--CDCMAKE_BUILD_TYPE=${opt ? "Debug" : "Release"}`;
+// Generate cmake arg for the USB config
+function cmakeArgUsbh(json) {
+  return isTrue(process.env.LINQ_WITH_USBH) ||
+    args._.indexOf("usbh") >= 0 ||
+    (json && json.usbh) ||
+    false
+    ? "BUILD_USBH=ON"
+    : "BUILD_USBH=OFF";
+}
 
-// Parse user options for linqd
-const withLinqd = (json) =>
-  isTrue(process.env.LINQ_NETWORK_WITH_LINQD) ||
-  args._.indexOf("linqd") >= 0 ||
-  (json && json.linqd) ||
-  !!args.d;
+// Generate CMake arg for the disable password config
+function cmakeArgDisablePassword(json) {
+  return isTrue(process.env.LINQ_DISABLE_PASSWORD) ||
+    (json && json.disablePassword) ||
+    false
+    ? "DISALBE_PASSWORD=ON"
+    : "DISABLE_PASSWORD=OFF";
+}
 
-const withLog = (json) =>
-  process.env.LINQ_NETWORK_LOG_LEVEL || (json && json.log) || false;
+// Generate cmake arg for the log level config
+function cmakeArgLogLevel(json) {
+  const level = process.env.LINQ_LOG_LEVEL || (json && json.log) || "INFO";
+  return `LOG_LEVEL=${level}`;
+}
 
-const withUsbh = (json) =>
-  isTrue(process.env.LINQ_NETWORK_WITH_USBH) ||
-  args._.indexOf("usbh") >= 0 ||
-  (json && json.usbh) ||
-  false;
+// Generate CMake arg for the debug config
+function cmakeArgDebug(json) {
+  return isTrue(process.env.LINQ_DEBUG) || (json && json.debug) || false
+    ? "CMAKE_BUILD_TYPE=Debug"
+    : "CMAKE_BUILD_TYPE=Release";
+}
 
-// Parse user options for system
-const withSystem = (json) =>
-  isTrue(process.env.LINQ_NETWORK_USE_SYSTEM_DEPENDENCIES) ||
-  args._.indexOf("system") >= 0 ||
-  !!args.s;
-
-const withDisablePass = (json) =>
-  isTrue(process.env.LINQ_NETWORK_DISABLE_PASSWORD) ||
-  (json && json.disablePassword) ||
-  false;
-
-const withDebug = (json) =>
-  isTrue(process.env.LINQ_NETWORK_DEBUG) || (json && json.debug) || false;
-
-// Generate cmake-js argument
-const cmakeArgs = (json) =>
-  (
-    `cmake-js ` +
-    `${systemOpt(withSystem(json))} ` +
-    `${linqdOpt(withLinqd(json))} ` +
-    `${usbhOpt(withUsbh(json))} ` +
-    `${disablePassOpt(withDisablePass(json))} ` +
-    `${logOpt(withLog(json))} ` +
-    `${debugOpt(withDebug(json))} ` +
-    `--CDCMAKE_INSTALL_PREFIX=./ --CDBUILD_SHARED=OFF ` +
-    `--CDBUILD_APPS=OFF ` +
-    `--CDWITH_NODEJS_BINDING ` +
-    `build --target=install`
-  ).split(" ");
-
-// Find the prebuilt binary (Only used if native build fails)
-const getPrebuilt = () =>
-  process.platform === "win32"
-    ? root + "./bindings/nodejs/prebuilds/win32-x64/linq.node"
-    : root + "./bindings/nodejs/prebuilds/linux-x64/linq.node";
+// Generate entire cmake command
+function cmakeArgs({ sourceDir, buildDir, installDir, config }) {
+  return [
+    `-S${sourceDir}`,
+    `-B${buildDir}`,
+    `-D${cmakeArgUsbh(config)}`,
+    `-D${cmakeArgDisablePassword(config)}`,
+    `-D${cmakeArgLogLevel(config)}`,
+    `-D${cmakeArgDebug(config)}`,
+    `-DBUILD_DEPENDENCIES=ON`,
+    `-DCMAKE_INSTALL_PREFIX=${installDir}`,
+    `-DBUILD_SHARED=OFF`,
+    `-DBUILD_APPS=OFF`,
+  ];
+}
 
 // Install prebuilt binary into a build folder
-const installPrebuilt = () => {
-  const prebuilt = getPrebuilt();
-  if (!fs.existsSync(root + "./build")) fs.mkdirSync(root + "./build");
+function installPrebuilt() {
+  const buildDir = path.join(root, "build");
+  const prebuilt =
+    process.platform === "win32"
+      ? path.join(root, "./bindings/nodejs/prebuilds/win32-x64/linq.node")
+      : path.join(root, "./bindings/nodejs/prebuilds/linux-x64/linq.node");
+  if (!fs.existsSync(buildDir)) fs.mkdirSync(buildDir);
   logger.info(`Installing prebuilt binaries: ${prebuilt}`);
-  fs.copyFileSync(prebuilt, root + "./build/linq.node");
-};
+  fs.copyFileSync(prebuilt, path.join(buildDir, "linq.node"));
+}
 
 // Attempt to build binaries using users compiler
-const tryBuild = async (json) => {
-  logger.info("Attempting build with your compiler");
-  logger.info(`Settings: WITH_SYSTEM_DEPENDENCIES -> ${withSystem(json)}`);
-  logger.info(`Settings: WITH_LINQD               -> ${withLinqd(json)}`);
-  logger.info(`Settings: WITH_USBH                -> ${withUsbh(json)}`);
-  logger.info(`Settings: DISABLE_PASSWORD         -> ${withDisablePass(json)}`);
-  logger.info(`Settings: LOG_LEVEL                -> ${withLog(json)}`);
-  logger.info(`Settings: LINQ_NETWORK_DEBUG       -> ${withDebug(json)}`);
-
-  // Call cmake-js
-  const result = cp.spawnSync("yarn", cmakeArgs(json), {
+function tryConfig(args) {
+  logger.info(`Configuring: ${JSON.stringify(args)}`);
+  const result = cp.spawnSync("cmake", args, {
     env,
     stdio: "inherit",
     shell: process.platform === "win32",
   });
+  if (!(result.status === 0)) throw new Error("CMake failed to configure!");
+}
 
-  if (!result.status) {
-    logger.info("Build Success!");
-    logger.debug(JSON.stringify(result));
-    process.exit(result.status);
-  } else {
-    logger.warn("Failed to build linq binding!");
-    logger.warn(JSON.stringify(result));
-    installPrebuilt();
-    logger.info("Installed prebuilt binaries OK");
-    process.exit(0);
+function tryBuild(buildDir) {
+  const args = [`--build`, `${buildDir}`, "--target", `install`];
+  logger.info(`Building: ${args}`);
+  const result = cp.spawnSync("cmake", args, {
+    env,
+    stdio: "inherit",
+    shell: process.platform === "win32",
+  });
+  if (!(result.status === 0)) throw new Error("CMake failed to build!");
+}
+
+function seekRoot(start, count) {
+  try {
+    let file = fs.readFileSync(path.join(start, "package.json"));
+    JSON.parse(file);
+    return path.resolve(start);
+  } catch {
+    return count ? seekRoot(path.join(start, ".."), --count) : undefined;
   }
-};
+}
+
+function readFileName() {
+  return (
+    (require.main && require.main.filename) ||
+    (process.mainModule && process.mainModule.filename)
+  );
+}
 
 (async () => {
-  const filename =
-      (require.main && require.main.filename) ||
-      (process.mainModule && process.mainModule.filename),
-    start = path.join(path.dirname(filename), "../.."),
-    count = 10;
-  let json = await (async function seek(start, count) {
-    try {
-      let file = await fs.promises.readFile(path.join(start, "package.json"));
-      return JSON.parse(file);
-    } catch {
-      return count ? seek(path.join(start, ".."), --count) : undefined;
-    }
-  })(start, count);
+  const filename = readFileName(),
+    start = path.join(path.dirname(filename), ".."),
+    sourceDir = seekRoot(start, 10),
+    buildDir = path.join(sourceDir, "build"),
+    installDir = path.join(buildDir, "install");
+  let json = JSON.parse(fs.readFileSync(path.join(sourceDir, "package.json")));
   if (json && (json = json["linq"])) logger.info("Loading JSON config");
-  if (process.env.LINQ_NETWORK_USE_PREBUILT || (json && json.prebuilt)) {
+  if (process.env.LINQ_USE_PREBUILT || (json && json.prebuilt)) {
     installPrebuilt();
     logger.info("Installed prebuilt binaries OK");
     process.exit(0);
   } else {
-    tryBuild(json);
+    try {
+      tryConfig(cmakeArgs({ sourceDir, buildDir, installDir, config: json }));
+      tryBuild(buildDir);
+    } catch (e) {
+      logger.error(`${e} ...Installing prebuilt`);
+      installPrebuilt();
+      logger.info("Installed prebuilt binaries OK");
+      process.exit(0);
+    }
   }
 })();
