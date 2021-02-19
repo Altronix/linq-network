@@ -5,7 +5,8 @@ const fs = require("fs");
 const path = require("path");
 const cp = require("child_process");
 const args = require("minimist")(process.argv.slice(2));
-const env = Object.assign({}, process.env);
+const { sanitizeEnv } = require("./sanitize_env");
+const __env = sanitizeEnv(process.env);
 const logger = require("./logger");
 
 const root = __dirname + "/../";
@@ -28,7 +29,7 @@ function isTrue(opt) {
 
 // Generate cmake arg for the USB config
 function cmakeArgUsbh(json) {
-  return isTrue(process.env.LINQ_WITH_USBH) ||
+  return isTrue(__env.LINQ_WITH_USBH) ||
     args._.indexOf("usbh") >= 0 ||
     (json && json.usbh) ||
     false
@@ -38,7 +39,7 @@ function cmakeArgUsbh(json) {
 
 // Generate CMake arg for the disable password config
 function cmakeArgDisablePassword(json) {
-  return isTrue(process.env.LINQ_DISABLE_PASSWORD) ||
+  return isTrue(__env.LINQ_DISABLE_PASSWORD) ||
     (json && json.disablePassword) ||
     false
     ? "DISALBE_PASSWORD=ON"
@@ -47,13 +48,13 @@ function cmakeArgDisablePassword(json) {
 
 // Generate cmake arg for the log level config
 function cmakeArgLogLevel(json) {
-  const level = process.env.LINQ_LOG_LEVEL || (json && json.log) || "INFO";
+  const level = __env.LINQ_LOG_LEVEL || (json && json.log) || "INFO";
   return `LOG_LEVEL=${level}`;
 }
 
 // Generate CMake arg for the debug config
 function cmakeArgDebug(json) {
-  return isTrue(process.env.LINQ_DEBUG) || (json && json.debug) || false
+  return isTrue(__env.LINQ_DEBUG) || (json && json.debug) || false
     ? "CMAKE_BUILD_TYPE=Debug"
     : "CMAKE_BUILD_TYPE=Release";
 }
@@ -90,7 +91,7 @@ function installPrebuilt() {
 function tryConfig(args) {
   logger.info(`Configuring: ${JSON.stringify(args)}`);
   const result = cp.spawnSync("cmake", args, {
-    env,
+    env: __env,
     stdio: "inherit",
     shell: process.platform === "win32",
   });
@@ -101,7 +102,7 @@ function tryBuild(buildDir) {
   const args = [`--build`, `"${buildDir}"`, "--target", `install`];
   logger.info(`Building: ${args}`);
   const result = cp.spawnSync("cmake", args, {
-    env,
+    env: __env,
     stdio: "inherit",
     shell: process.platform === "win32",
   });
@@ -133,7 +134,7 @@ function readFileName() {
     installDir = path.join(buildDir, "install");
   let json = JSON.parse(fs.readFileSync(path.join(sourceDir, "package.json")));
   if (json && (json = json["linq"])) logger.info("Loading JSON config");
-  if (process.env.LINQ_USE_PREBUILT || (json && json.prebuilt)) {
+  if (__env.LINQ_USE_PREBUILT || (json && json.prebuilt)) {
     installPrebuilt();
     logger.info("Installed prebuilt binaries OK");
     process.exit(0);
