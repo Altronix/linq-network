@@ -5,7 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const cp = require("child_process");
 const args = require("minimist")(process.argv.slice(2));
-const { sanitizeEnv } = require("./sanitize_env");
+const { sanitizeEnv, sanitizePath } = require("./sanitize");
 const __env = sanitizeEnv(process.env);
 const logger = require("./logger");
 
@@ -62,14 +62,14 @@ function cmakeArgDebug(json) {
 // Generate entire cmake command
 function cmakeArgs({ sourceDir, buildDir, installDir, config }) {
   return [
-    `-S "${sourceDir}"`,
-    `-B "${buildDir}"`,
+    `-S${sanitizePath(sourceDir)}`,
+    `-B${sanitizePath(buildDir)}`,
     `-D${cmakeArgUsbh(config)}`,
     `-D${cmakeArgDisablePassword(config)}`,
     `-D${cmakeArgLogLevel(config)}`,
     `-D${cmakeArgDebug(config)}`,
     `-DBUILD_DEPENDENCIES=ON`,
-    `-DCMAKE_INSTALL_PREFIX="${installDir}"`,
+    `-DCMAKE_INSTALL_PREFIX='${sanitizePath(installDir)}'`,
     `-DBUILD_SHARED=OFF`,
     `-DBUILD_APPS=OFF`,
   ];

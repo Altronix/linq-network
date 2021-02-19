@@ -10,3 +10,7 @@ exports.sanitizeEnv = function (envArg = process.env) {
   }
   return env;
 };
+
+exports.sanitizePath = function (path) {
+  return path.replace(" ", "\\ ");
+};
