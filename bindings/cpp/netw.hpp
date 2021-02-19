@@ -42,6 +42,8 @@ class Linq
         if (netw_) netw_destroy(&netw_);
     }
 
+    std::string version() { return netw_version(); }
+
     static void zmtp_error_callback(
         void* context,
         E_LINQ_ERROR e,

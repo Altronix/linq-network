@@ -157,7 +157,7 @@ LinqNetwork::EarlyDestruct(const Napi::CallbackInfo& info)
 Napi::Value
 LinqNetwork::Version(const Napi::CallbackInfo& info)
 {
-    return Napi::String::New(info.Env(), "0.0.1");
+    return Napi::String::New(info.Env(), this->linq_.version());
 }
 
 Napi::Value
