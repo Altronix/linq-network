@@ -1,15 +1,21 @@
 // -s --system Build system libraries
 // -d --daemon Build with daemon
 
+// Note cannot import from node_modules because it doesn't exist yet
 const fs = require("fs");
 const path = require("path");
 const cp = require("child_process");
-const args = require("minimist")(process.argv.slice(2));
 const { sanitizeEnv, sanitizePath } = require("./sanitize");
 const __env = sanitizeEnv(process.env);
 const logger = require("./logger");
 
 const root = __dirname + "/../";
+
+const spawnEnv = {
+  env: __env,
+  stdio: "inherit",
+  shell: process.platform === "win32",
+};
 
 // Helper for parsing enviorment variable
 function isTrue(opt) {
@@ -30,7 +36,6 @@ function isTrue(opt) {
 // Generate cmake arg for the USB config
 function cmakeArgUsbh(json) {
   return isTrue(__env.LINQ_WITH_USBH) ||
-    args._.indexOf("usbh") >= 0 ||
     (json && json.usbh) ||
     false
     ? "BUILD_USBH=ON"
@@ -90,22 +95,14 @@ function installPrebuilt() {
 // Attempt to build binaries using users compiler
 function tryConfig(args) {
   logger.info(`Configuring: ${JSON.stringify(args)}`);
-  const result = cp.spawnSync("cmake", args, {
-    env: __env,
-    stdio: "inherit",
-    shell: process.platform === "win32",
-  });
+  const result = cp.spawnSync("cmake", args, spawnEnv);
   if (!(result.status === 0)) throw new Error("CMake failed to configure!");
 }
 
 function tryBuild(buildDir) {
   const args = [`--build`, `${sanitizePath(buildDir)}`, "--target", `install`];
   logger.info(`Building: ${args}`);
-  const result = cp.spawnSync("cmake", args, {
-    env: __env,
-    stdio: "inherit",
-    shell: process.platform === "win32",
-  });
+  const result = cp.spawnSync("cmake", args, spawnEnv);
   if (!(result.status === 0)) throw new Error("CMake failed to build!");
 }
 
@@ -130,7 +127,7 @@ function readFileName() {
   const filename = readFileName(),
     start = path.join(path.dirname(filename), ".."),
     sourceDir = seekRoot(start, 10),
-    buildDir = path.join(sourceDir, "build"),
+    buildDir = path.join(sourceDir, "build-linq"),
     installDir = path.join(buildDir, "install");
   let json = JSON.parse(fs.readFileSync(path.join(sourceDir, "package.json")));
   if (json && (json = json["linq"])) logger.info("Loading JSON config");

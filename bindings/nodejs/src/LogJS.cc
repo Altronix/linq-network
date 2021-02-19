@@ -1,5 +1,5 @@
 #include "LogJS.h"
-#include "log.h"
+#include "netw.h"
 #include <napi.h>
 
 Napi::FunctionReference Logger::constructor;
@@ -32,7 +32,7 @@ Logger::Open(const Napi::CallbackInfo& info)
 {
     if (info.Length() >= 1 && info[0].IsFunction()) {
         this->callback = Napi::Persistent(info[0].As<Napi::Function>());
-        log_set_callback_fn(this->logs, this);
+        netw_log_fn_set(this->logs, this);
     }
     return info.This();
 }

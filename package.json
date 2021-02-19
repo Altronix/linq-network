@@ -3,16 +3,23 @@
   "version": "0.0.4-rc.32",
   "description": "Node bindings for linq-network",
   "main": "./build/install/lib/index.js",
+  "linq": {
+    "usbh": true
+  },
   "scripts": {
     "test": "jest --config=./bindings/nodejs/lib/jest.config.js",
-    "native-build": "node ./scripts/build-nodejs-binding.js",
-    "native-clean": "cmake-js clean",
+    "native:cmake": "node ./scripts/build-nodejs-binding.js",
+    "native:build": "yarn run node-gyp build",
+    "native:configure": "yarn run node-gyp configure",
+    "native:install": "yarn run node-gyp install",
+    "native:clean": "yarn node-gyp clean",
     "build": "npm run native-build && tsc -p ./bindings/nodejs/lib",
     "build:examples": "tsc --build ./bindings/nodejs/examples/update/tsconfig.json",
     "build:integration-test": "tsc --build ./test/integration/timeout/tsconfig.json",
     "build:events": "tsc --build ./bindings/nodejs/examples/events",
     "run:events": "node ./bindings/nodejs/examples/events/index.js",
-    "postinstall": "npm run native-build && tsc -p ./bindings/nodejs/lib"
+    "preinstall": "yarn run native:cmake",
+    "postinstall": "yarn run native:build && yarn run native:configure && tsc -p ./bindings/nodejs/lib"
   },
   "files": [
     "/bindings/cpp",

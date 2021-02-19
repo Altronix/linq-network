@@ -1,4 +1,4 @@
-#include "log.h"
+#include "netw.h"
 #include <napi.h>
 
 class Logger : public Napi::ObjectWrap<Logger>
