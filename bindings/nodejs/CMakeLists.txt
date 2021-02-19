@@ -1,3 +1,4 @@
+# TODO this is deprecated (we switched to node-gyp)
 set(CMAKE_POSITION_INDEPENDENT_CODE on)
 set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 
