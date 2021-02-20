@@ -43,7 +43,7 @@
             "../build-linq/install/lib/linqusb.lib",
             "../build-linq/install/lib/libusb-1.0.lib",
             "../build-linq/install/lib/libzmq-v142-mt-4_3_4.lib",
-            "../build-linq/install/lib/libczmq.lib",
+            "../build-linq/install/lib/czmq.lib",
             "uuid",
 	    "ws2_32",
 	    "iphlpapi",
@@ -55,14 +55,7 @@
             "VCCLCompilerTool": {
               "ExceptionHandling": "1",
               "AdditionalOptions": [ "/EHsc" ],
-	    },
-            # "VCLinkerTool": {
-            #   "IgnoreDefaultLibraryNames": [
-	    #     "libcmtd.lib",
-	    #     "msvcrt.lib",
-	    #     "msvcrtd.lib"
-	    #   ]
-            # }
+	    }
           }
         }]
       ]
