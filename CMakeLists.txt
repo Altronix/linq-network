@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.9.3...3.16)
+cmake_policy(SET CMP<0091> NEW)
+cmake_minimum_required(VERSION 3.15...3.16)
 project(linq-network)
 
 find_package(Git)
@@ -23,6 +24,7 @@ include(cmake/sqlite.cmake)
 if(BUILD_DEBUG)
   set(CMAKE_BUILD_TYPE Debug)
 endif()
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # [DEPENDENCIES] libzmq, czmq, [,jsmn-web-tokens ,openssl ,libusb]
 if(BUILD_DEPENDENCIES)
