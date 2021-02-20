@@ -17,6 +17,7 @@
         "./build-linq/install/include/altronix/",
         "<!@(node -p \"require('node-addon-api').include\")"
       ],
+      "defines": [ "LINQ_STATIC" ],
       "dependencies": ["<!(node -p \"require('node-addon-api').gyp\")"],
       "cflags!":["-fno-exceptions"],
       "cflags_cc!":["-fno-exceptions"],
@@ -35,7 +36,34 @@
           ]
         }],
         [ "OS=='win'", {
-            "libraries":[]
+          "libraries":[
+            "../build-linq/install/lib/linqnetwork.lib",
+            "../build-linq/install/lib/linqcommon.lib",
+            "../build-linq/install/lib/linqusbh.lib",
+            "../build-linq/install/lib/linqusb.lib",
+            "../build-linq/install/lib/libusb-1.0.lib",
+            "../build-linq/install/lib/libzmq-v142-mt-4_3_4.lib",
+            "../build-linq/install/lib/libczmq.lib",
+            "uuid",
+	    "ws2_32",
+	    "iphlpapi",
+	    "wldap32",
+	    "Rpcrt4"
+	  ],
+          "defines": [ "NAPI_DISABLE_CPP_EXCEPTIONS" ],
+          "msvs_settings": {
+            "VCCLCompilerTool": {
+              "ExceptionHandling": "1",
+              "AdditionalOptions": [ "/EHsc" ],
+	    },
+            # "VCLinkerTool": {
+            #   "IgnoreDefaultLibraryNames": [
+	    #     "libcmtd.lib",
+	    #     "msvcrt.lib",
+	    #     "msvcrtd.lib"
+	    #   ]
+            # }
+          }
         }]
       ]
     }

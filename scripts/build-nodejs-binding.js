@@ -100,7 +100,7 @@ function tryConfig(args) {
 }
 
 function tryBuild(buildDir) {
-  const args = [`--build`, `${sanitizePath(buildDir)}`, "--target", `install`];
+  const args = [`--build`, `${sanitizePath(buildDir)}`, "--config", "Release", "--target", `install`];
   logger.info(`Building: ${args}`);
   const result = cp.spawnSync("cmake", args, spawnEnv);
   if (!(result.status === 0)) throw new Error("CMake failed to build!");
