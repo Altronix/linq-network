@@ -42,14 +42,23 @@
             "../build-linq/install/lib/linqusbh.lib",
             "../build-linq/install/lib/linqusb.lib",
             "../build-linq/install/lib/libusb-1.0.lib",
-            "../build-linq/install/lib/libzmq-v142-mt-s-4_3_4.lib",
-            "../build-linq/install/lib/libczmq.lib",
+            "../build-linq/install/lib/libzmq-v142-mt-4_3_4.lib",
+            "../build-linq/install/lib/czmq.lib",
             "uuid",
 	    "ws2_32",
 	    "iphlpapi",
 	    "wldap32",
 	    "Rpcrt4"
 	  ],
+          "copies": [
+            {
+              "destination": "./build/Release",
+              "files": [
+                "./build-linq/install/bin/libzmq-v142-mt-4_3_4.dll",
+                "./build-linq/install/bin/libczmq.dll"
+              ]
+            }
+          ],
           "defines": [ "NAPI_DISABLE_CPP_EXCEPTIONS" ],
           "msvs_settings": {
             "VCCLCompilerTool": {
