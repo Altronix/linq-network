@@ -13,13 +13,13 @@
     "native:configure": "yarn run node-gyp configure",
     "native:install": "yarn run node-gyp install",
     "native:clean": "yarn node-gyp clean",
-    "build": "npm run native-build && tsc -p ./bindings/nodejs/lib",
+    "build": "tsc -p ./bindings/nodejs/lib",
     "build:examples": "tsc --build ./bindings/nodejs/examples/update/tsconfig.json",
     "build:integration-test": "tsc --build ./test/integration/timeout/tsconfig.json",
     "build:events": "tsc --build ./bindings/nodejs/examples/events",
     "run:events": "node ./bindings/nodejs/examples/events/index.js",
     "preinstall": "yarn run native:cmake",
-    "postinstall": "yarn run native:build && yarn run native:configure && tsc -p ./bindings/nodejs/lib"
+    "postinstall": "yarn run native:configure && yarn run native:build && tsc -p ./bindings/nodejs/lib"
   },
   "files": [
     "/bindings/cpp",

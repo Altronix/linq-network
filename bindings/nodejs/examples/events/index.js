@@ -7,5 +7,4 @@ lib_1.network
     .watch()
     .subscribe((event) => {
     console.log(event);
-    console.log(lib_1.network.devices);
 });

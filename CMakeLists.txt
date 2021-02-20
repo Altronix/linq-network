@@ -24,6 +24,7 @@ include(cmake/sqlite.cmake)
 if(BUILD_DEBUG)
   set(CMAKE_BUILD_TYPE Debug)
 endif()
+# NOTE required this line here to make linking on windows easier
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # [DEPENDENCIES] libzmq, czmq, [,jsmn-web-tokens ,openssl ,libusb]

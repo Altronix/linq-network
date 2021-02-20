@@ -18,8 +18,6 @@
 #define zmtp_error(...) log_error("ZMTP", __VA_ARGS__)
 #define zmtp_fatal(...) log_fatal("ZMTP", __VA_ARGS__)
 
-extern volatile int zsys_interrupted;
-
 MAP_INIT(socket, zsock_t, zsock_destroy);
 
 // A version on the wire is a byte
@@ -693,5 +691,5 @@ zmtp_poll(zmtp_s* zmtp, int32_t ms)
 bool
 sys_running()
 {
-    return !zsys_interrupted;
+    return !zsys_is_interrupted();
 }
