@@ -95,7 +95,7 @@ node_send_frames(node_zmtp_s* node, uint32_t n, zmq_msg_t* frames)
 
     while (count < n) {
         zmq_msg_init(&m);
-        err = zmq_msg_copy(&m, &frames[count++]);
+        err = zmq_msg_copy(&m, &frames[count]);
         linq_network_assert(err == 0);
         err = zmq_msg_send(
             &m, zsock_resolve(node->sock), count == (n - 1) ? 0 : ZMQ_SNDMORE);
@@ -104,6 +104,7 @@ node_send_frames(node_zmtp_s* node, uint32_t n, zmq_msg_t* frames)
             zmq_msg_close(&m);
             break;
         }
+        count++;
     }
 }
 

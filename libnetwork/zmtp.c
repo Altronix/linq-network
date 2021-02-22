@@ -33,6 +33,12 @@ typedef enum
     TYPE_HELLO = FRAME_TYP_HELLO
 } E_TYPE;
 
+typedef struct
+{
+    zmq_msg_t (*msgs)[FRAME_MAX];
+    bool router;
+} incoming_s;
+
 char g_frame_ver_0 = FRAME_VER_0;
 char g_frame_typ_heartbeat = FRAME_TYP_HEARTBEAT;
 char g_frame_typ_request = FRAME_TYP_REQUEST;
@@ -173,17 +179,13 @@ read_email(zmq_msg_t* msg, netw_email_s* emails)
 
 // A device is resolved by the serial number frame
 static node_s**
-device_resolve(
-    zmtp_s* l,
-    zsock_t* sock,
-    zmq_msg_t (*msgs)[FRAME_MAX],
-    bool insert)
+device_resolve(zmtp_s* l, zsock_t* sock, incoming_s* in, bool insert)
 {
-    zmq_msg_t* m = *msgs;
+    zmq_msg_t* m = *in->msgs;
     uint32_t rid_sz = 0;
     uint8_t* rid = NULL;
     device_map_s* map = *l->devices_p;
-    if (&m[FRAME_RID_IDX]) {
+    if (in->router) {
         rid_sz = zmq_msg_size(&m[FRAME_RID_IDX]);
         rid = zmq_msg_data(&m[FRAME_RID_IDX]);
     }
@@ -214,13 +216,9 @@ device_resolve(
 // If node == router => node = map[router]
 // else              => node = seek(map[iter].sock == sock)
 static node_zmtp_s**
-node_resolve(
-    zsock_t* sock,
-    node_map_s* map,
-    zmq_msg_t (*msgs)[FRAME_MAX],
-    bool insert)
+node_resolve(zsock_t* sock, node_map_s* map, incoming_s* in, bool insert)
 {
-    zmq_msg_t* m = *msgs;
+    zmq_msg_t* m = *in->msgs;
     static uint32_t dealer_key_gen = 0;
     char key[B64_RID_LEN];
     uint32_t ridlen = 0;
@@ -313,23 +311,19 @@ on_device_response(
 
 // check the zmq request frames are valid and process the request
 static E_LINQ_ERROR
-process_request(
-    zmtp_s* l,
-    zsock_t* sock,
-    zmq_msg_t (*msgs)[FRAME_MAX],
-    uint32_t total)
+process_request(zmtp_s* l, zsock_t* sock, incoming_s* in, uint32_t total)
 {
-    zmq_msg_t* m = *msgs;
+    zmq_msg_t* m = *in->msgs;
     zmtp_trace("Processing request");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     zmq_msg_t *path = NULL, *data = NULL;
     char url[128] = { 0 }, json[JSON_LEN] = { 0 };
     if ((total >= FRAME_REQ_PATH_IDX) &&
         (path = check_le(&m[FRAME_REQ_PATH_IDX], 128))) {
-        if (total >= FRAME_REQ_DATA_IDX) {
+        if (total > FRAME_REQ_DATA_IDX) {
             data = check_le(&m[FRAME_REQ_DATA_IDX], JSON_LEN);
         }
-        node_zmtp_s** n = node_resolve(sock, *l->nodes_p, msgs, false);
+        node_zmtp_s** n = node_resolve(sock, *l->nodes_p, in, false);
         node_s** d = device_get_from_frame(l, &m[FRAME_SID_IDX]);
         if (n && d) {
             print_null_terminated(url, sizeof(url), path);
@@ -353,22 +347,18 @@ process_request(
 
 // check the zmq response frames are valid and process the response
 static E_LINQ_ERROR
-process_response(
-    zmtp_s* l,
-    zsock_t* sock,
-    zmq_msg_t (*msgs)[FRAME_MAX],
-    uint32_t total)
+process_response(zmtp_s* l, zsock_t* sock, incoming_s* in, uint32_t total)
 {
     zmtp_trace("Processing response");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
-    zmq_msg_t *err, *dat, *m = *msgs;
+    zmq_msg_t *err, *dat, *m = *in->msgs;
     int16_t err_code;
     char json[JSON_LEN] = { 0 };
     if ((total >= FRAME_RES_DAT_IDX) &&
         (err = check_eq(&m[FRAME_RES_ERR_IDX], 2)) &&
         (dat = check_le(&m[FRAME_RES_DAT_IDX], JSON_LEN))) {
         e = LINQ_ERROR_OK;
-        node_s** d = device_resolve(l, sock, msgs, false);
+        node_s** d = device_resolve(l, sock, in, false);
         if (d) {
             print_null_terminated(json, sizeof(json), dat);
             if (zmtp_device_request_pending(*d)) {
@@ -408,15 +398,11 @@ process_response(
 
 // check the zmq alert frames are valid and process the alert
 static E_LINQ_ERROR
-process_alert(
-    zmtp_s* z,
-    zsock_t* socket,
-    zmq_msg_t (*msgs)[FRAME_MAX],
-    uint32_t total)
+process_alert(zmtp_s* z, zsock_t* socket, incoming_s* in, uint32_t total)
 {
     zmtp_trace("Processing alert");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
-    zmq_msg_t* m = *msgs;
+    zmq_msg_t* m = *in->msgs;
     char alert_data[JSON_LEN];
     char email_data[JSON_LEN];
     netw_alert_s alert;
@@ -429,7 +415,7 @@ process_alert(
         (check_le(&m[FRAME_ALERT_TID_IDX], TID_LEN)) &&
         (!read_alert(&m[FRAME_ALERT_DAT_IDX], &alert)) &&
         (!read_email(&m[FRAME_ALERT_DST_IDX], &email))) {
-        node_s** d = device_resolve(z, socket, msgs, false);
+        node_s** d = device_resolve(z, socket, in, false);
         frames_s f = { .n = 6, .frames = &m[1] };
         if (d) {
             E_TYPE t = ((char*)zmq_msg_data(&m[FRAME_TYP_IDX]))[0];
@@ -454,11 +440,11 @@ process_alert(
 // check the zmq hello message is valid and add a node if it does not exist
 // TODO nodes are not resolvable from hello packet
 static E_LINQ_ERROR
-process_hello(zmtp_s* z, zsock_t* socket, zmq_msg_t (*frames)[FRAME_MAX])
+process_hello(zmtp_s* z, zsock_t* socket, incoming_s* in)
 {
     zmtp_trace("Processing hello");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
-    node_zmtp_s** s = node_resolve(socket, *z->nodes_p, frames, true);
+    node_zmtp_s** s = node_resolve(socket, *z->nodes_p, in, true);
     if (s) e = LINQ_ERROR_OK;
     zmtp_trace("Hello result [%d]", (int)e);
     return e;
@@ -466,19 +452,15 @@ process_hello(zmtp_s* z, zsock_t* socket, zmq_msg_t (*frames)[FRAME_MAX])
 
 // check the zmq heartbeat frames are valid and process the heartbeat
 static E_LINQ_ERROR
-process_heartbeat(
-    zmtp_s* z,
-    zsock_t* s,
-    zmq_msg_t (*msgs)[FRAME_MAX],
-    uint32_t total)
+process_heartbeat(zmtp_s* z, zsock_t* s, incoming_s* in, uint32_t total)
 {
     zmtp_trace("Processing heartbeat");
-    zmq_msg_t* m = *msgs;
+    zmq_msg_t* m = *in->msgs;
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     if (total >= FRAME_HB_SITE_IDX && //
         (check_le(&m[FRAME_HB_TID_IDX], TID_LEN)) &&
         (check_le(&m[FRAME_HB_SITE_IDX], SITE_LEN))) {
-        node_s** d = device_resolve(z, s, msgs, true);
+        node_s** d = device_resolve(z, s, in, true);
         frames_s f = { .n = 5, .frames = &m[1] };
         if (d) {
             zmtp_trace("Device resolved");
@@ -526,12 +508,13 @@ process_packet(zmtp_s* z, zsock_t* s)
         (check_eq(&m[FRAME_VER_IDX], 1)) && (check_eq(&m[FRAME_TYP_IDX], 1)) &&
         (check_le(&m[FRAME_SID_IDX], SID_LEN))) {
         E_TYPE t = FRAME_TYPE(((uint8_t*)zmq_msg_data(&m[FRAME_TYP_IDX]))[0]);
+        incoming_s in = { .router = router, .msgs = &m };
         switch (t) {
-            case TYPE_HEARTBEAT: e = process_heartbeat(z, s, &m, end); break;
-            case TYPE_REQUEST: e = process_request(z, s, &m, end); break;
-            case TYPE_RESPONSE: e = process_response(z, s, &m, end); break;
-            case TYPE_ALERT: e = process_alert(z, s, &m, end); break;
-            case TYPE_HELLO: e = process_hello(z, s, &m); break;
+            case TYPE_HEARTBEAT: e = process_heartbeat(z, s, &in, end); break;
+            case TYPE_REQUEST: e = process_request(z, s, &in, end); break;
+            case TYPE_RESPONSE: e = process_response(z, s, &in, end); break;
+            case TYPE_ALERT: e = process_alert(z, s, &in, end); break;
+            case TYPE_HELLO: e = process_hello(z, s, &in); break;
         }
     }
     if (e) {
