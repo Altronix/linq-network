@@ -57,11 +57,11 @@ json_get_str(const char* b, const jsontok* t)
 
 // Write null terminated string into a frame data buffer
 static int
-print_null_terminated(char* c, uint32_t sz, zframe_t* f)
+print_null_terminated(char* c, uint32_t sz, zmq_msg_t* msg)
 {
-    uint32_t fsz = zframe_size(f);
+    uint32_t fsz = zmq_msg_size(msg);
     if (fsz + 1 <= sz) {
-        memcpy(c, zframe_data(f), fsz);
+        memcpy(c, zmq_msg_data(msg), fsz);
         c[fsz] = 0;
         return 0;
     } else {
@@ -76,7 +76,7 @@ device_get(const zmtp_s* zmtp, const char* serial)
 }
 
 node_s**
-device_get_from_frame(zmtp_s* l, zframe_t* frame)
+device_get_from_frame(zmtp_s* l, zmq_msg_t* frame)
 {
     char sid[SID_LEN];
     print_null_terminated(sid, SID_LEN, frame);
@@ -84,115 +84,112 @@ device_get_from_frame(zmtp_s* l, zframe_t* frame)
 }
 
 // read incoming zmq frame and test size is equal to expected
-static zframe_t*
-pop_eq(zmsg_t* msg, uint32_t expect)
+zmq_msg_t*
+check_eq(zmq_msg_t* msg, uint32_t expect)
 {
-    zframe_t* frame = zmsg_pop(msg);
-    if (zframe_size(frame) == expect) {
-        return frame;
-    } else {
-        zframe_destroy(&frame);
-        return NULL;
-    }
+    return zmq_msg_size(msg) == expect ? msg : NULL;
 }
 
 // read incoming zmq frame and test size is less than value
-static zframe_t*
-pop_lt(zmsg_t* msg, uint32_t lt)
+zmq_msg_t*
+check_lt(zmq_msg_t* msg, uint32_t lt)
 {
-    zframe_t* frame = zmsg_pop(msg);
-    if (zframe_size(frame) < lt) {
-        return frame;
-    } else {
-        zframe_destroy(&frame);
-        return NULL;
-    }
+    return zmq_msg_size(msg) < lt ? msg : NULL;
 }
 
 // read incoming zmq frame and test size is less than value
-static zframe_t*
-pop_le(zmsg_t* msg, uint32_t le)
+zmq_msg_t*
+check_le(zmq_msg_t* msg, uint32_t le)
 {
-    zframe_t* frame = zmsg_pop(msg);
-    if (zframe_size(frame) <= le) {
-        return frame;
-    } else {
-        zframe_destroy(&frame);
-        return NULL;
-    }
+    return zmq_msg_size(msg) <= le ? msg : NULL;
 }
 
 // read incoming zmq frame and test valid json
-static zframe_t*
-pop_alert(zmsg_t* msg, netw_alert_s* a)
+int
+read_alert(zmq_msg_t* msg, netw_alert_s* a)
 {
     int count, sz;
-    zframe_t* f = pop_le(msg, JSON_LEN);
-    sz = zframe_size(f);
-    memcpy(a->data, zframe_data(f), sz);
-    const jsontok *who, *what, *site, *when, *mesg;
-    jsontok t[30];
-    json_parser p;
-    json_init(&p);
-    count = json_parse(&p, a->data, sz, t, 30);
-    if (count > 0 && (who = json_get_member(a->data, t, "who")) &&
-        (what = json_get_member(a->data, t, "what")) &&
-        (site = json_get_member(a->data, t, "siteId")) &&
-        (when = json_get_member(a->data, t, "when")) &&
-        (mesg = json_get_member(a->data, t, "mesg"))) {
-        a->who = json_get_str(a->data, who);
-        a->what = json_get_str(a->data, what);
-        a->where = json_get_str(a->data, site);
-        a->when = json_get_str(a->data, when);
-        a->mesg = json_get_str(a->data, mesg);
+    if (check_le(msg, JSON_LEN)) {
+        sz = zmq_msg_size(msg);
+        memcpy(a->data, zmq_msg_data(msg), sz);
+        const jsontok *who, *what, *site, *when, *mesg;
+        jsontok t[30];
+        json_parser p;
+        json_init(&p);
+        count = json_parse(&p, a->data, sz, t, 30);
+        if (count > 0 && (who = json_get_member(a->data, t, "who")) &&
+            (what = json_get_member(a->data, t, "what")) &&
+            (site = json_get_member(a->data, t, "siteId")) &&
+            (when = json_get_member(a->data, t, "when")) &&
+            (mesg = json_get_member(a->data, t, "mesg"))) {
+            a->who = json_get_str(a->data, who);
+            a->what = json_get_str(a->data, what);
+            a->where = json_get_str(a->data, site);
+            a->when = json_get_str(a->data, when);
+            a->mesg = json_get_str(a->data, mesg);
+        } else {
+            zmtp_error("Failed to parse alert!");
+            return -1;
+        }
     } else {
-        zframe_destroy(&f);
+        zmtp_error("Alert data to large!");
+        return -1;
     }
-    return f;
+    return 0;
 }
 
-static zframe_t*
-pop_email(zmsg_t* msg, netw_email_s* emails)
+static int
+read_email(zmq_msg_t* msg, netw_email_s* emails)
 {
     int count, sz;
-    zframe_t* f = pop_le(msg, JSON_LEN);
-    sz = zframe_size(f);
-    memcpy(emails->data, zframe_data(f), sz);
-    json_parser p;
-    jsontok t[30];
-    const jsontok *to0, *to1, *to2, *to3, *to4;
-    json_init(&p);
-    count = json_parse(&p, emails->data, sz, t, 30);
-    if (count > 0 && (to0 = json_get_member(emails->data, t, "to0")) &&
-        (to1 = json_get_member(emails->data, t, "to1")) &&
-        (to2 = json_get_member(emails->data, t, "to2")) &&
-        (to3 = json_get_member(emails->data, t, "to3")) &&
-        (to4 = json_get_member(emails->data, t, "to4"))) {
-        emails->to0 = json_get_str(emails->data, to0);
-        emails->to1 = json_get_str(emails->data, to1);
-        emails->to2 = json_get_str(emails->data, to2);
-        emails->to3 = json_get_str(emails->data, to3);
-        emails->to4 = json_get_str(emails->data, to4);
+    if (check_le(msg, JSON_LEN)) {
+        sz = zmq_msg_size(msg);
+        memcpy(emails->data, zmq_msg_data(msg), sz);
+        json_parser p;
+        jsontok t[30];
+        const jsontok *to0, *to1, *to2, *to3, *to4;
+        json_init(&p);
+        count = json_parse(&p, emails->data, sz, t, 30);
+        if (count > 0 && (to0 = json_get_member(emails->data, t, "to0")) &&
+            (to1 = json_get_member(emails->data, t, "to1")) &&
+            (to2 = json_get_member(emails->data, t, "to2")) &&
+            (to3 = json_get_member(emails->data, t, "to3")) &&
+            (to4 = json_get_member(emails->data, t, "to4"))) {
+            emails->to0 = json_get_str(emails->data, to0);
+            emails->to1 = json_get_str(emails->data, to1);
+            emails->to2 = json_get_str(emails->data, to2);
+            emails->to3 = json_get_str(emails->data, to3);
+            emails->to4 = json_get_str(emails->data, to4);
+        } else {
+            zmtp_error("Failed to parse email");
+            return -1;
+        }
     } else {
-        zframe_destroy(&f);
+        zmtp_error("Email data to large!");
+        return -1;
     }
-    return f;
+    return 0;
 }
 
 // A device is resolved by the serial number frame
 static node_s**
-device_resolve(zmtp_s* l, zsock_t* sock, zframe_t** frames, bool insert)
+device_resolve(
+    zmtp_s* l,
+    zsock_t* sock,
+    zmq_msg_t (*msgs)[FRAME_MAX],
+    bool insert)
 {
+    zmq_msg_t* m = *msgs;
     uint32_t rid_sz = 0;
     uint8_t* rid = NULL;
     device_map_s* map = *l->devices_p;
-    if (frames[FRAME_RID_IDX]) {
-        rid_sz = zframe_size(frames[FRAME_RID_IDX]);
-        rid = zframe_data(frames[FRAME_RID_IDX]);
+    if (&m[FRAME_RID_IDX]) {
+        rid_sz = zmq_msg_size(&m[FRAME_RID_IDX]);
+        rid = zmq_msg_data(&m[FRAME_RID_IDX]);
     }
     char sid[SID_LEN], tid[TID_LEN] = { 0 };
-    print_null_terminated(sid, SID_LEN, frames[FRAME_SID_IDX]);
-    print_null_terminated(tid, TID_LEN, frames[FRAME_HB_TID_IDX]);
+    print_null_terminated(sid, SID_LEN, &m[FRAME_SID_IDX]);
+    print_null_terminated(tid, TID_LEN, &m[FRAME_HB_TID_IDX]);
     zmtp_trace("[%s] Heartbeat received", sid);
     node_s** d = devices_get(map, sid);
     if (d) {
@@ -217,18 +214,23 @@ device_resolve(zmtp_s* l, zsock_t* sock, zframe_t** frames, bool insert)
 // If node == router => node = map[router]
 // else              => node = seek(map[iter].sock == sock)
 static node_zmtp_s**
-node_resolve(zsock_t* sock, node_map_s* map, zframe_t** frames, bool insert)
+node_resolve(
+    zsock_t* sock,
+    node_map_s* map,
+    zmq_msg_t (*msgs)[FRAME_MAX],
+    bool insert)
 {
+    zmq_msg_t* m = *msgs;
     static uint32_t dealer_key_gen = 0;
     char key[B64_RID_LEN];
     uint32_t ridlen = 0;
     size_t keylen = sizeof(key);
     uint8_t* rid = NULL;
     node_zmtp_s** node = NULL;
-    if (frames[FRAME_RID_IDX]) {
+    if (&m[FRAME_RID_IDX]) {
         zmtp_debug("node resolve via router");
-        ridlen = zframe_size(frames[FRAME_RID_IDX]);
-        rid = zframe_data(frames[FRAME_RID_IDX]);
+        ridlen = zmq_msg_size(&m[FRAME_RID_IDX]);
+        rid = zmq_msg_data(&m[FRAME_RID_IDX]);
         b64_encode((uint8_t*)key, &keylen, rid, ridlen);
         zmtp_debug("node resolve key [%s] [%d]", key, keylen);
         node = node_map_get(map, key);
@@ -311,19 +313,24 @@ on_device_response(
 
 // check the zmq request frames are valid and process the request
 static E_LINQ_ERROR
-process_request(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
+process_request(
+    zmtp_s* l,
+    zsock_t* sock,
+    zmq_msg_t (*msgs)[FRAME_MAX],
+    uint32_t total)
 {
+    zmq_msg_t* m = *msgs;
     zmtp_trace("Processing request");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
-    zframe_t *path = NULL, *data = NULL;
+    zmq_msg_t *path = NULL, *data = NULL;
     char url[128] = { 0 }, json[JSON_LEN] = { 0 };
-    if ((zmsg_size(*msg) >= 1) &&
-        (path = frames[FRAME_REQ_PATH_IDX] = pop_le(*msg, 128))) {
-        if (zmsg_size(*msg) == 1) {
-            data = frames[FRAME_REQ_DATA_IDX] = pop_le(*msg, JSON_LEN);
+    if ((total >= FRAME_REQ_PATH_IDX) &&
+        (path = check_le(&m[FRAME_REQ_PATH_IDX], 128))) {
+        if (total >= FRAME_REQ_DATA_IDX) {
+            data = check_le(&m[FRAME_REQ_DATA_IDX], JSON_LEN);
         }
-        node_zmtp_s** n = node_resolve(sock, *l->nodes_p, frames, false);
-        node_s** d = device_get_from_frame(l, frames[FRAME_SID_IDX]);
+        node_zmtp_s** n = node_resolve(sock, *l->nodes_p, msgs, false);
+        node_s** d = device_get_from_frame(l, &m[FRAME_SID_IDX]);
         if (n && d) {
             print_null_terminated(url, sizeof(url), path);
             if (data) print_null_terminated(json, sizeof(json), data);
@@ -346,22 +353,27 @@ process_request(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
 
 // check the zmq response frames are valid and process the response
 static E_LINQ_ERROR
-process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
+process_response(
+    zmtp_s* l,
+    zsock_t* sock,
+    zmq_msg_t (*msgs)[FRAME_MAX],
+    uint32_t total)
 {
     zmtp_trace("Processing response");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
-    zframe_t *err, *dat;
+    zmq_msg_t *err, *dat, *m = *msgs;
     int16_t err_code;
     char json[JSON_LEN] = { 0 };
-    if ((zmsg_size(*msg) == 2) &&
-        (err = frames[FRAME_RES_ERR_IDX] = pop_eq(*msg, 2)) &&
-        (dat = frames[FRAME_RES_DAT_IDX] = pop_le(*msg, JSON_LEN))) {
+    if ((total >= FRAME_RES_DAT_IDX) &&
+        (err = check_eq(&m[FRAME_RES_ERR_IDX], 2)) &&
+        (dat = check_le(&m[FRAME_RES_DAT_IDX], JSON_LEN))) {
         e = LINQ_ERROR_OK;
-        node_s** d = device_resolve(l, sock, frames, false);
+        node_s** d = device_resolve(l, sock, msgs, false);
         if (d) {
             print_null_terminated(json, sizeof(json), dat);
             if (zmtp_device_request_pending(*d)) {
-                err_code = zframe_data(err)[1] | zframe_data(err)[0] << 8;
+                err_code = ((uint8_t*)zmq_msg_data(err))[1] |
+                           ((uint8_t*)zmq_msg_data(err))[0] << 8;
                 if (err_code == LINQ_ERROR_504) {
                     if (zmtp_device_request_retry_count(*d) >=
                         LINQ_NETW_MAX_RETRY) {
@@ -396,10 +408,15 @@ process_response(zmtp_s* l, zsock_t* sock, zmsg_t** msg, zframe_t** frames)
 
 // check the zmq alert frames are valid and process the alert
 static E_LINQ_ERROR
-process_alert(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
+process_alert(
+    zmtp_s* z,
+    zsock_t* socket,
+    zmq_msg_t (*msgs)[FRAME_MAX],
+    uint32_t total)
 {
     zmtp_trace("Processing alert");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
+    zmq_msg_t* m = *msgs;
     char alert_data[JSON_LEN];
     char email_data[JSON_LEN];
     netw_alert_s alert;
@@ -408,15 +425,17 @@ process_alert(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
     memset(&email, 0, sizeof(email));
     alert.data = alert_data;
     email.data = email_data;
-    if (zmsg_size(*msg) == 3 &&
-        (frames[FRAME_ALERT_TID_IDX] = pop_le(*msg, TID_LEN)) &&
-        (frames[FRAME_ALERT_DAT_IDX] = pop_alert(*msg, &alert)) &&
-        (frames[FRAME_ALERT_DST_IDX] = pop_email(*msg, &email))) {
-        node_s** d = device_resolve(z, socket, frames, false);
-        frames_s f = { 6, &frames[1] };
+    if (total >= FRAME_ALERT_DST_IDX &&
+        (check_le(&m[FRAME_ALERT_TID_IDX], TID_LEN)) &&
+        (!read_alert(&m[FRAME_ALERT_DAT_IDX], &alert)) &&
+        (!read_email(&m[FRAME_ALERT_DST_IDX], &email))) {
+        node_s** d = device_resolve(z, socket, msgs, false);
+        frames_s f = { .n = 6, .frames = &m[1] };
         if (d) {
-            if (!FRAME_IS_BROADCAST(zframe_data(frames[FRAME_TYP_IDX])[0])) {
-                zframe_data(frames[FRAME_TYP_IDX])[0] |= 0x80;
+            E_TYPE t = ((char*)zmq_msg_data(&m[FRAME_TYP_IDX]))[0];
+            if (!FRAME_IS_BROADCAST(t)) {
+                FRAME_SET_BROADCAST(t);
+                ((char*)zmq_msg_data(&m[FRAME_TYP_IDX]))[0] = t;
                 node_map_foreach(*z->nodes_p, foreach_node_forward_message, &f);
             }
             if (z->callbacks && z->callbacks->on_alert) {
@@ -435,11 +454,8 @@ process_alert(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
 // check the zmq hello message is valid and add a node if it does not exist
 // TODO nodes are not resolvable from hello packet
 static E_LINQ_ERROR
-process_hello(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
+process_hello(zmtp_s* z, zsock_t* socket, zmq_msg_t (*frames)[FRAME_MAX])
 {
-    ((void)msg);
-    ((void)socket);
-    ((void)frames);
     zmtp_trace("Processing hello");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     node_zmtp_s** s = node_resolve(socket, *z->nodes_p, frames, true);
@@ -450,21 +466,26 @@ process_hello(zmtp_s* z, zsock_t* socket, zmsg_t** msg, zframe_t** frames)
 
 // check the zmq heartbeat frames are valid and process the heartbeat
 static E_LINQ_ERROR
-process_heartbeat(zmtp_s* z, zsock_t* s, zmsg_t** msg, zframe_t** frames)
+process_heartbeat(
+    zmtp_s* z,
+    zsock_t* s,
+    zmq_msg_t (*msgs)[FRAME_MAX],
+    uint32_t total)
 {
     zmtp_trace("Processing heartbeat");
+    zmq_msg_t* m = *msgs;
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
-    if (zmsg_size(*msg) == 2 &&
-        (frames[FRAME_HB_TID_IDX] = pop_le(*msg, TID_LEN)) &&
-        (frames[FRAME_HB_SITE_IDX] = pop_le(*msg, SITE_LEN))) {
-        node_s** d = device_resolve(z, s, frames, true);
-        frames_s f = { 5, &frames[1] };
+    if (total >= FRAME_HB_SITE_IDX && //
+        (check_le(&m[FRAME_HB_TID_IDX], TID_LEN)) &&
+        (check_le(&m[FRAME_HB_SITE_IDX], SITE_LEN))) {
+        node_s** d = device_resolve(z, s, msgs, true);
+        frames_s f = { .n = 5, .frames = &m[1] };
         if (d) {
             zmtp_trace("Device resolved");
-            if (!FRAME_IS_BROADCAST(zframe_data(frames[FRAME_TYP_IDX])[0])) {
-                // We only broadcast when the device is directly connected
-                // otherwize, nodes would rebroadcast to eachother infinite
-                zframe_data(frames[FRAME_TYP_IDX])[0] |= 0x80;
+            E_TYPE t = ((char*)zmq_msg_data(&m[FRAME_TYP_IDX]))[0];
+            if (!FRAME_IS_BROADCAST(t)) {
+                FRAME_SET_BROADCAST(t);
+                ((char*)zmq_msg_data(&m[FRAME_TYP_IDX]))[0] = t;
                 node_map_foreach(*z->nodes_p, foreach_node_forward_message, &f);
             }
             if (z->callbacks && z->callbacks->on_heartbeat) {
@@ -484,48 +505,46 @@ process_packet(zmtp_s* z, zsock_t* s)
 {
     zmtp_trace("Processing packet");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
-    int total_frames = 0, start = 1;
     bool router = is_router(s);
+    int more = 1, err, start = router ? FRAME_RID_IDX : FRAME_VER_IDX,
+        end = start;
+    size_t more_size = sizeof(more);
     char sid[SID_LEN] = "";
-    zframe_t* f[FRAME_MAX];
-    memset(f, 0, sizeof(f));
-    zmsg_t* msg = zmsg_recv(s); // TODO can be null
-    total_frames = zmsg_size(msg);
-    if (total_frames > FRAME_MAX) total_frames = FRAME_MAX;
-
-    if (router) {
-        f[FRAME_RID_IDX] = pop_le(msg, RID_LEN);
-        start = FRAME_RID_IDX;
+    zmq_msg_t m[FRAME_MAX];
+    while (more) {
+        linq_network_assert(end < FRAME_MAX);
+        err = zmq_msg_init(&m[end]);
+        linq_network_assert(err == 0);
+        err = zmq_msg_recv(&m[end], zsock_resolve(s), 0);
+        linq_network_assert(!(err == -1));
+        err = zmq_getsockopt(zsock_resolve(s), ZMQ_RCVMORE, &more, &more_size);
+        linq_network_assert(err == 0);
+        end++;
     }
 
-    if (msg && zmsg_size(msg) >= 3 && (!router || (router && f[0])) &&
-        (f[FRAME_VER_IDX] = pop_eq(msg, 1)) &&
-        (f[FRAME_TYP_IDX] = pop_eq(msg, 1)) &&
-        (f[FRAME_SID_IDX] = pop_le(msg, SID_LEN))) {
-        E_TYPE typ = FRAME_TYPE(zframe_data(f[FRAME_TYP_IDX])[0]);
-        switch (typ) {
-            case TYPE_HEARTBEAT: e = process_heartbeat(z, s, &msg, f); break;
-            case TYPE_REQUEST: e = process_request(z, s, &msg, f); break;
-            case TYPE_RESPONSE: e = process_response(z, s, &msg, f); break;
-            case TYPE_ALERT: e = process_alert(z, s, &msg, f); break;
-            case TYPE_HELLO: e = process_hello(z, s, &msg, f); break;
+    if (end >= 3 && (!router || (router && check_le(&m[0], RID_LEN))) &&
+        (check_eq(&m[FRAME_VER_IDX], 1)) && (check_eq(&m[FRAME_TYP_IDX], 1)) &&
+        (check_le(&m[FRAME_SID_IDX], SID_LEN))) {
+        E_TYPE t = FRAME_TYPE(((uint8_t*)zmq_msg_data(&m[FRAME_TYP_IDX]))[0]);
+        switch (t) {
+            case TYPE_HEARTBEAT: e = process_heartbeat(z, s, &m, end); break;
+            case TYPE_REQUEST: e = process_request(z, s, &m, end); break;
+            case TYPE_RESPONSE: e = process_response(z, s, &m, end); break;
+            case TYPE_ALERT: e = process_alert(z, s, &m, end); break;
+            case TYPE_HELLO: e = process_hello(z, s, &m); break;
         }
     }
     if (e) {
         zmtp_error("Processing packet error [%d]", (int)e);
         if (z->callbacks && z->callbacks->on_err) {
             zmtp_trace("Executing error callback");
-            if (f[FRAME_SID_IDX]) {
-                print_null_terminated(sid, SID_LEN, f[FRAME_SID_IDX]);
+            if (end >= FRAME_SID_IDX) {
+                print_null_terminated(sid, SID_LEN, &m[FRAME_SID_IDX]);
             }
             z->callbacks->on_err(z->context, e, sid, "");
         }
     }
-    zmsg_destroy(&msg);
-    for (int i = 0; i < total_frames; i++) {
-        if (f[start]) zframe_destroy(&f[start]);
-        start++;
-    }
+    for (int i = start; i < end; i++) { zmq_msg_close(&m[i]); }
     return e;
 }
 

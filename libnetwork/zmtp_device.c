@@ -165,8 +165,10 @@ static void
 request_router_id_set(request_s* base, uint8_t* rid, uint32_t rid_len)
 {
     request_zmtp_s* r = (request_zmtp_s*)base;
-    if (!((r->frames[FRAME_RID_IDX]->sz == rid_len) &&
-          (!memcmp(r->frames[FRAME_RID_IDX]->data, rid, rid_len)))) {
+    if (!r->frames[FRAME_RID_IDX]) {
+        r->frames[FRAME_RID_IDX] = write_frame((char*)rid, rid_len);
+    } else if (!((r->frames[FRAME_RID_IDX]->sz == rid_len) &&
+                 (!memcmp(r->frames[FRAME_RID_IDX]->data, rid, rid_len)))) {
         linq_network_free(r->frames[FRAME_RID_IDX]);
         r->frames[FRAME_RID_IDX] = write_frame((char*)rid, rid_len);
     }

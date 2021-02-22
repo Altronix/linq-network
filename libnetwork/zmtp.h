@@ -93,7 +93,7 @@ extern "C"
     typedef struct
     {
         uint32_t n;
-        zframe_t** frames;
+        zmq_msg_t* frames;
     } frames_s;
 
     typedef unsigned char uchar;

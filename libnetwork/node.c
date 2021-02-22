@@ -4,6 +4,7 @@
 
 #include "node.h"
 #include "containers.h"
+#include "log.h"
 #include "zmtp.h"
 
 // main class struct (extends netw_socket_s)
@@ -57,19 +58,21 @@ node_serial(node_zmtp_s* node)
     return node->base.serial;
 }
 
-static int
-optional_prepend_router(node_zmtp_s* node, zmsg_t* msg)
+static bool
+optional_send_router(node_zmtp_s* node)
 {
+    zmq_msg_t m;
+    int err;
     if (node->router.sz) {
-        zframe_t* router = zframe_new(node->router.id, node->router.sz);
-        if (router) {
-            zmsg_prepend(msg, &router);
-        } else {
-            zmsg_destroy(&msg);
-            return -1;
-        }
+        err = zmq_msg_init_size(&m, node->router.sz);
+        linq_network_assert(err == 0);
+        memcpy(zmq_msg_data(&m), node->router.id, node->router.sz);
+        err = zmq_msg_send(&m, zsock_resolve(node->sock), ZMQ_SNDMORE);
+        linq_network_assert(err >= 0);
+        return true;
+    } else {
+        return false;
     }
-    return 0;
 }
 
 void
@@ -81,22 +84,25 @@ node_send_hello(node_zmtp_s* node)
 }
 
 void
-node_send_frames(node_zmtp_s* node, uint32_t n, zframe_t** frames)
+node_send_frames(node_zmtp_s* node, uint32_t n, zmq_msg_t* frames)
 {
 
+    zmq_msg_t m;
+    int err;
     uint32_t count = 0;
-    zmsg_t* msg = zmsg_new();
 
-    if (msg) {
-        for (uint32_t i = 0; i < n; i++) {
-            zframe_t* frame = zframe_dup(frames[i]);
-            if (!frame) break;
-            count++;
-            zmsg_append(msg, &frame);
-        }
-        if (!(count == n && !optional_prepend_router(node, msg) &&
-              !zmsg_send(&msg, node->sock))) {
-            zmsg_destroy(&msg);
+    optional_send_router(node);
+
+    while (count < n) {
+        zmq_msg_init(&m);
+        err = zmq_msg_copy(&m, &frames[count++]);
+        linq_network_assert(err == 0);
+        err = zmq_msg_send(
+            &m, zsock_resolve(node->sock), count == (n - 1) ? 0 : ZMQ_SNDMORE);
+        if (err < 0) {
+            log_error("NODE", "Failed to send to node!");
+            zmq_msg_close(&m);
+            break;
         }
     }
 }
@@ -104,28 +110,30 @@ node_send_frames(node_zmtp_s* node, uint32_t n, zframe_t** frames)
 void
 node_send_frames_n(node_zmtp_s* node, uint32_t n, ...)
 {
+    zmq_msg_t m;
+    int err;
     uint32_t count = 0;
-    zmsg_t* msg = zmsg_new();
 
-    if (msg) {
-        va_list list;
-        va_start(list, n);
-        for (uint32_t i = 0; i < n; i++) {
-            uint8_t* arg = va_arg(list, uint8_t*);
-            size_t sz = va_arg(list, size_t);
-            zframe_t* f = zframe_new(arg, sz);
-            if (f) {
-                count++;
-                zmsg_append(msg, &f);
-            }
-        }
-        va_end(list);
+    optional_send_router(node);
 
-        if (!(count == n && !optional_prepend_router(node, msg) &&
-              !zmsg_send(&msg, node->sock))) {
-            zmsg_destroy(&msg);
+    va_list list;
+    va_start(list, n);
+    while (count < n) {
+        uint8_t* arg = va_arg(list, uint8_t*);
+        size_t sz = va_arg(list, size_t);
+        err = zmq_msg_init_size(&m, sz);
+        linq_network_assert(err == 0);
+        memcpy(zmq_msg_data(&m), arg, sz);
+        err = zmq_msg_send(
+            &m, zsock_resolve(node->sock), count == n - 1 ? 0 : ZMQ_SNDMORE);
+        if (err < 0) {
+            log_error("NODE", "Failed to send to node!");
+            zmq_msg_close(&m);
+            break;
         }
+        count++;
     }
+    va_end(list);
 }
 
 uint32_t

@@ -28,7 +28,7 @@ extern "C"
     void node_update_router(node_zmtp_s*, const uint8_t*, uint32_t);
     const char* node_serial(node_zmtp_s*);
     void node_send_hello(node_zmtp_s* node);
-    void node_send_frames(node_zmtp_s* node, uint32_t n, zframe_t** frames);
+    void node_send_frames(node_zmtp_s* node, uint32_t n, zmq_msg_t* frames);
     void node_send_frames_n(node_zmtp_s* node, uint32_t n, ...);
     uint32_t node_map_foreach_remove_if(
         node_map_s* hash,
