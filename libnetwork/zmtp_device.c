@@ -19,11 +19,17 @@
         if ((*rp)->callback) (*rp)->callback((*rp)->ctx, err, dat, dp);        \
     } while (0)
 
+typedef struct
+{
+    uint32_t sz;
+    uint8_t data[];
+} packet_s;
+
 typedef struct request_zmtp_s
 {
     request_s base;
     router_s forward;
-    zframe_t* frames[FRAME_REQ_DATA_IDX + 1];
+    packet_s* frames[FRAME_REQ_DATA_IDX + 1];
 } request_zmtp_s;
 static void request_destroy(request_s** r_p);
 LIST_INIT(request, request_s, request_destroy);
@@ -40,27 +46,44 @@ typedef struct zmtp_device_s
     request_list_s* requests;
 } zmtp_device_s;
 
-static zframe_t*
-write_path_to_frame(const char* method, const char* path, uint32_t path_len)
+static packet_s*
+write_frame(const char* data, uint32_t len)
 {
-    ((void)path_len);
-    uint32_t sz;
-    char url[128];
-    if (*path == '/') {
-        sz = snprintf(url, sizeof(url), "%s %.*s", method, path_len, path);
-    } else {
-        sz = snprintf(url, sizeof(url), "%s /%.*s", method, path_len, path);
-    }
-    return zframe_new(url, sz);
+    packet_s* p = linq_network_malloc(sizeof(packet_s) + len);
+    linq_network_assert(p);
+    p->sz = len;
+    memcpy(p->data, data, len);
+    return p;
 }
 
-static zframe_t*
+static packet_s*
+write_path_to_frame(const char* method, const char* path, uint32_t path_len)
+{
+    uint32_t sz;
+    packet_s* pack = NULL;
+    if (*path == '/') {
+        sz = strlen(method) + 1 + path_len;
+        pack = linq_network_malloc(sizeof(packet_s) + sz + 1);
+        linq_network_assert(pack);
+        pack->sz = sz;
+        snprintf((char*)pack->data, sz + 1, "%s %.*s", method, path_len, path);
+    } else {
+        sz = strlen(method) + 2 + path_len;
+        pack = linq_network_malloc(sizeof(packet_s) + sz + 1);
+        linq_network_assert(pack);
+        pack->sz = sz;
+        snprintf((char*)pack->data, sz + 1, "%s/ %.*s", method, path_len, path);
+    }
+    return pack;
+}
+
+static packet_s*
 path_to_frame(E_REQUEST_METHOD method, const char* path, uint32_t path_len)
 {
-    zframe_t* frame = NULL;
+    packet_s* frame = NULL;
 
     switch (method) {
-        case REQUEST_METHOD_RAW: frame = zframe_new(path, path_len); break;
+        case REQUEST_METHOD_RAW: frame = write_frame(path, path_len); break;
         case REQUEST_METHOD_GET:
             frame = write_path_to_frame("GET", path, path_len);
             break;
@@ -95,16 +118,11 @@ request_alloc_mem(
         r->base.callback = fn;
         r->base.ctx = context;
         r->base.retry_at = sys_tick() + retry_timeout;
-        r->frames[FRAME_VER_IDX] = zframe_new("\0", 1);
-        r->frames[FRAME_TYP_IDX] = zframe_new("\1", 1);
-        r->frames[FRAME_SID_IDX] = zframe_new(s, slen);
+        r->frames[FRAME_VER_IDX] = write_frame("\0", 1);
+        r->frames[FRAME_TYP_IDX] = write_frame("\1", 1);
+        r->frames[FRAME_SID_IDX] = write_frame(s, slen);
         r->frames[FRAME_REQ_PATH_IDX] = path_to_frame(method, p, plen);
-        r->frames[FRAME_REQ_DATA_IDX] = d && dlen ? zframe_new(d, dlen) : NULL;
-        if (!(r->frames[FRAME_VER_IDX] && r->frames[FRAME_TYP_IDX] &&
-              r->frames[FRAME_SID_IDX] &&
-              ((d && r->frames[FRAME_REQ_DATA_IDX]) || !d))) {
-            request_destroy((request_s**)&r);
-        }
+        r->frames[FRAME_REQ_DATA_IDX] = d && dlen ? write_frame(d, dlen) : NULL;
     }
     return (request_s*)r;
 }
@@ -134,8 +152,11 @@ request_destroy(request_s** r_p)
 {
     request_zmtp_s* r = *(request_zmtp_s**)r_p;
     *r_p = NULL;
-    for (uint32_t i = 0; i < (sizeof(r->frames) / sizeof(zframe_t*)); i++) {
-        if (r->frames[i]) zframe_destroy(&r->frames[i]);
+    for (uint32_t i = 0; i < FRAME_REQ_DATA_IDX + 1; i++) {
+        if (r->frames[i]) {
+            linq_network_free(r->frames[i]);
+            r->frames[i] = NULL;
+        }
     }
     linq_network_free(r);
 }
@@ -144,40 +165,39 @@ static void
 request_router_id_set(request_s* base, uint8_t* rid, uint32_t rid_len)
 {
     request_zmtp_s* r = (request_zmtp_s*)base;
-    if (r->frames[FRAME_RID_IDX]) zframe_destroy(&r->frames[FRAME_RID_IDX]);
-    r->frames[FRAME_RID_IDX] = zframe_new(rid, rid_len);
-    linq_network_assert(r->frames[FRAME_RID_IDX]);
-}
-
-static const char*
-request_serial_get(request_s* base)
-{
-    request_zmtp_s* r = (request_zmtp_s*)base;
-    return (char*)zframe_data(r->frames[FRAME_SID_IDX]);
+    if (!((r->frames[FRAME_RID_IDX]->sz == rid_len) &&
+          (!memcmp(r->frames[FRAME_RID_IDX]->data, rid, rid_len)))) {
+        linq_network_free(r->frames[FRAME_RID_IDX]);
+        r->frames[FRAME_RID_IDX] = write_frame((char*)rid, rid_len);
+    }
 }
 
 static int
 request_send(request_s* base, zsock_t* sock)
 {
+    dev_trace("request_send()");
     request_zmtp_s* r = (request_zmtp_s*)base;
-    zmsg_t* msg = zmsg_new();
-    zframe_t* f = NULL;
-    int err, c = r->frames[FRAME_RID_IDX] ? 0 : 1;
-    while (c < FRAME_REQ_DATA_IDX) {
-        if (r->frames[c]) {
-            f = zframe_dup(r->frames[c]);
-            linq_network_assert(f);
-            zmsg_append(msg, &f);
+    zmq_msg_t msgs[6];
+    int err, flags[6] = {
+        ZMQ_SNDMORE,                                     // router
+        ZMQ_SNDMORE,                                     // version
+        ZMQ_SNDMORE,                                     // type
+        ZMQ_SNDMORE,                                     // serial
+        r->frames[FRAME_REQ_DATA_IDX] ? ZMQ_SNDMORE : 0, // path
+        0                                                // [,dat]
+    };
+    for (int c = r->frames[FRAME_RID_IDX] ? 0 : 1; r->frames[c]; c++) {
+        err = zmq_msg_init_size(&msgs[c], r->frames[c]->sz);
+        linq_network_assert(err == 0);
+        memcpy(zmq_msg_data(&msgs[c]), r->frames[c]->data, r->frames[c]->sz);
+        err = zmq_msg_send(&msgs[c], zsock_resolve(sock), flags[c]);
+        if (err < 0) {
+            dev_error("Failed to send to socket!");
+            zmq_msg_close(&msgs[c]);
+            break;
         }
-        c++;
-    }
-    if (r->frames[c]) {
-        f = zframe_dup(r->frames[c]);
-        zmsg_append(msg, &f);
     }
     r->base.sent_at = sys_tick();
-    err = zmsg_send(&msg, sock);
-    if (err) zmsg_destroy(&msg);
     return err;
 }
 
