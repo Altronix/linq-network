@@ -18,6 +18,7 @@ zmq_spy_init()
 void
 zmq_spy_free()
 {
+    ready = 0;
     msg_vec_free(&incoming);
     msg_vec_free(&outgoing);
 }
@@ -26,6 +27,18 @@ void
 zmq_spy_poll_set_ready(uint32_t val)
 {
     ready = val;
+}
+
+mock_zmq_msg_s*
+zmq_spy_mesg_at_outgoing(int at)
+{
+    return *msg_vec_at(&outgoing, at);
+}
+
+mock_zmq_msg_s*
+zmq_spy_mesg_at_incoming(int at)
+{
+    return *msg_vec_at(&incoming, at);
 }
 
 mock_zmq_msg_s

@@ -21,7 +21,6 @@ assert_msg_equal(mock_zmq_msg_s* msg, int more, void* data, uint32_t l)
 static void
 test_mock_send(void** context_p)
 {
-    // TODO use vec that does FIFO (current implementation is FILO)
     zmq_spy_init();
 
     mock_zmq_msg_s a, b, c, outgoing;
@@ -36,12 +35,9 @@ test_mock_send(void** context_p)
     zmq_msg_send(ZMQ_MSG(&b), NULL, ZMQ_SNDMORE);
     zmq_msg_send(ZMQ_MSG(&c), NULL, 0);
 
-    outgoing = zmq_spy_mesg_pop_outgoing();
-    assert_msg_equal(&outgoing, 0, "ccc", 3);
-    outgoing = zmq_spy_mesg_pop_outgoing();
-    assert_msg_equal(&outgoing, 1, "bbb", 3);
-    outgoing = zmq_spy_mesg_pop_outgoing();
-    assert_msg_equal(&outgoing, 1, "aaa", 3);
+    assert_msg_equal(zmq_spy_mesg_at_outgoing(0), 1, "aaa", 3);
+    assert_msg_equal(zmq_spy_mesg_at_outgoing(1), 1, "bbb", 3);
+    assert_msg_equal(zmq_spy_mesg_at_outgoing(2), 0, "ccc", 3);
 
     zmq_msg_close(ZMQ_MSG(&a));
     zmq_msg_close(ZMQ_MSG(&b));
