@@ -132,11 +132,11 @@ test_container_vec_create(void** context_p)
     item_s test;
 
     assert_int_equal(car_vec_size(&vec), 0);
-    car_vec_push(&vec, &item0);
+    car_vec_push(&vec, item0);
     assert_int_equal(car_vec_size(&vec), 1);
-    car_vec_push(&vec, &item1);
+    car_vec_push(&vec, item1);
     assert_int_equal(car_vec_size(&vec), 2);
-    car_vec_push(&vec, &item2);
+    car_vec_push(&vec, item2);
     assert_int_equal(car_vec_size(&vec), 3);
 
     memset(&item0, 0, sizeof(item_s));

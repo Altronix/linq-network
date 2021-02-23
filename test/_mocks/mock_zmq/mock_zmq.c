@@ -2,7 +2,7 @@
 #include "containers.h"
 #include "zmq.h"
 
-VEC_INIT_W_HEADER(msg, mock_zmq_msg_s*);
+VEC_INIT_W_HEADER(msg, mock_zmq_msg_s);
 static uint32_t ready = 0;
 msg_vec_s incoming;
 msg_vec_s outgoing;
@@ -19,6 +19,9 @@ void
 zmq_spy_free()
 {
     ready = 0;
+    for (int i = 0; i < msg_vec_size(&outgoing); i++) {
+        zmq_spy_mesg_close_outgoing(i);
+    }
     msg_vec_free(&incoming);
     msg_vec_free(&outgoing);
 }
@@ -32,38 +35,24 @@ zmq_spy_poll_set_ready(uint32_t val)
 mock_zmq_msg_s*
 zmq_spy_mesg_at_outgoing(int at)
 {
-    return *msg_vec_at(&outgoing, at);
+    return msg_vec_at(&outgoing, at);
+}
+
+void
+zmq_spy_mesg_close_outgoing(int at)
+{
+    zmq_msg_close(msg_vec_at(&outgoing, at)->msg);
 }
 
 mock_zmq_msg_s*
 zmq_spy_mesg_at_incoming(int at)
 {
-    return *msg_vec_at(&incoming, at);
+    return msg_vec_at(&incoming, at);
 }
 
-mock_zmq_msg_s
-zmq_spy_mesg_pop_outgoing()
-{
-    return *msg_vec_pop(&outgoing);
-}
-
-mock_zmq_msg_s
-zmq_spy_mesg_pop_incoming()
-{
-    return *msg_vec_pop(&incoming);
-}
-
-void
-zmq_spy_mesg_flush_outgoing()
-{
-    while (msg_vec_size(&outgoing)) linq_network_free(msg_vec_pop(&outgoing));
-}
-
-void
-zmq_spy_mesg_flush_incoming()
-{
-    while (msg_vec_size(&incoming)) linq_network_free(msg_vec_pop(&incoming));
-}
+int
+zmq_spy_msg_push_incoming()
+{}
 
 void*
 __wrap_zmq_ctx_new()
@@ -113,28 +102,37 @@ __wrap_zmq_poll(zmq_pollitem_t* items_, int nitems_, long timeout_)
 }
 
 int
-__wrap_zmq_msg_close(zmq_msg_t* msg)
-{
-    return 0;
-}
-
-int
 __wrap_zmq_msg_send(zmq_msg_t* msg, void* socket, int flags)
 {
-    ((mock_zmq_msg_s*)msg)->flags = flags;
-    msg_vec_push(&outgoing, (mock_zmq_msg_s**)&msg);
+    mock_zmq_msg_s mock = { .msg = msg, .flags = flags };
+    msg_vec_push(&outgoing, mock);
     return zmq_msg_size(msg);
 }
 
 int
 __wrap_zmq_msg_recv(zmq_msg_t* msg, void* socket, int flags)
 {
-    msg = (zmq_msg_t*)msg_vec_pop(&incoming);
-    return zmq_msg_size(msg);
+    msg = msg_vec_last(&incoming)->msg;
+    int sz = zmq_msg_size(msg);
+    return sz;
 }
 
 int
 __wrap_zmq_msg_more(zmq_msg_t* msg)
 {
-    return ((mock_zmq_msg_s*)msg)->flags & ZMQ_SNDMORE ? 1 : 0;
+    return -1;
+}
+
+int
+__wrap_zmq_getsockopt(void* s_, int option_, void* optval_, size_t* optvallen_)
+{
+    if (option_ == ZMQ_RCVMORE) {
+        if (msg_vec_last(&incoming)->flags & ZMQ_SNDMORE) {
+            *((int*)optval_) = 1;
+        } else {
+            *((int*)optval_) = 0;
+        }
+        return 0;
+    }
+    return -1;
 }

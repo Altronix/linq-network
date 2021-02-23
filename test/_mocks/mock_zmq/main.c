@@ -10,11 +10,11 @@
 #include <cmocka.h>
 
 static void
-assert_msg_equal(mock_zmq_msg_s* msg, int more, void* data, uint32_t l)
+assert_msg_equal(mock_zmq_msg_s* msg, int flags, void* data, uint32_t l)
 {
-    void* src = zmq_msg_data(ZMQ_MSG(msg));
-    assert_int_equal(zmq_msg_size(ZMQ_MSG(msg)), l);
-    assert_int_equal(zmq_msg_more(ZMQ_MSG(msg)), more);
+    void* src = zmq_msg_data(msg->msg);
+    assert_int_equal(zmq_msg_size(msg->msg), l);
+    assert_int_equal(msg->flags, flags);
     assert_memory_equal(src, data, l);
 }
 
@@ -23,26 +23,43 @@ test_mock_send(void** context_p)
 {
     zmq_spy_init();
 
-    mock_zmq_msg_s a, b, c, outgoing;
-    zmq_msg_init_size(ZMQ_MSG(&a), 3);
-    zmq_msg_init_size(ZMQ_MSG(&b), 3);
-    zmq_msg_init_size(ZMQ_MSG(&c), 3);
-    memcpy(zmq_msg_data(ZMQ_MSG(&a)), "aaa", 3);
-    memcpy(zmq_msg_data(ZMQ_MSG(&b)), "bbb", 3);
-    memcpy(zmq_msg_data(ZMQ_MSG(&c)), "ccc", 3);
+    zmq_msg_t a, b, c, outgoing;
+    zmq_msg_init_size(&a, 3);
+    zmq_msg_init_size(&b, 3);
+    zmq_msg_init_size(&c, 3);
+    memcpy(zmq_msg_data(&a), "aaa", 3);
+    memcpy(zmq_msg_data(&b), "bbb", 3);
+    memcpy(zmq_msg_data(&c), "ccc", 3);
 
-    zmq_msg_send(ZMQ_MSG(&a), NULL, ZMQ_SNDMORE);
-    zmq_msg_send(ZMQ_MSG(&b), NULL, ZMQ_SNDMORE);
-    zmq_msg_send(ZMQ_MSG(&c), NULL, 0);
+    zmq_msg_send(&a, NULL, ZMQ_SNDMORE);
+    zmq_msg_send(&b, NULL, ZMQ_SNDMORE);
+    zmq_msg_send(&c, NULL, 0);
 
-    assert_msg_equal(zmq_spy_mesg_at_outgoing(0), 1, "aaa", 3);
-    assert_msg_equal(zmq_spy_mesg_at_outgoing(1), 1, "bbb", 3);
+    assert_msg_equal(zmq_spy_mesg_at_outgoing(0), ZMQ_SNDMORE, "aaa", 3);
+    assert_msg_equal(zmq_spy_mesg_at_outgoing(1), ZMQ_SNDMORE, "bbb", 3);
     assert_msg_equal(zmq_spy_mesg_at_outgoing(2), 0, "ccc", 3);
 
-    zmq_msg_close(ZMQ_MSG(&a));
-    zmq_msg_close(ZMQ_MSG(&b));
-    zmq_msg_close(ZMQ_MSG(&c));
+    zmq_msg_close(&a);
+    zmq_msg_close(&b);
+    zmq_msg_close(&c);
 
+    zmq_spy_free();
+}
+
+static void
+test_mock_send_large(void** context_p)
+{
+    char b[4096];
+    zmq_spy_init();
+    zmq_msg_t a;
+    zmq_msg_init_size(&a, sizeof(b));
+    memset(b, 'A', sizeof(b));
+    memcpy(zmq_msg_data(&a), b, sizeof(b));
+    zmq_msg_send(&a, NULL, 0);
+    mock_zmq_msg_s* m = zmq_spy_mesg_at_outgoing(0);
+    assert_int_equal(m->flags, 0);
+    assert_int_equal(zmq_msg_size(m->msg), sizeof(b));
+    assert_memory_equal(zmq_msg_data(m->msg), b, 4096);
     zmq_spy_free();
 }
 
@@ -61,6 +78,7 @@ main(int argc, char* argv[])
     ((void)argv);
     int err;
     const struct CMUnitTest tests[] = { cmocka_unit_test(test_mock_send),
+                                        cmocka_unit_test(test_mock_send_large),
                                         cmocka_unit_test(test_mock_recv) };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);

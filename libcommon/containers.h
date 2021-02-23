@@ -208,7 +208,7 @@ extern "C"
     void tag##_vec_init(tag##_vec_s*);                                         \
     void tag##_vec_free(tag##_vec_s*);                                         \
     uint32_t tag##_vec_size(tag##_vec_s*);                                     \
-    void tag##_vec_push(tag##_vec_s*, type*);                                  \
+    void tag##_vec_push(tag##_vec_s*, type);                                   \
     type tag##_vec_pop(tag##_vec_s*);                                          \
     type* tag##_vec_at(tag##_vec_s*, int);                                     \
     type* tag##_vec_last(tag##_vec_s*);
@@ -223,14 +223,14 @@ extern "C"
         if (v->a) linq_network_free(v->a);                                     \
     }                                                                          \
     uint32_t tag##_vec_size(tag##_vec_s* v) { return v->n; }                   \
-    void tag##_vec_push(tag##_vec_s* vec, type* v)                             \
+    void tag##_vec_push(tag##_vec_s* vec, type v)                              \
     {                                                                          \
         do {                                                                   \
             if ((vec->n == vec->m)) {                                          \
                 vec->m = vec->m ? vec->m << 1 : 2;                             \
                 vec->a = (type*)realloc(vec->a, sizeof(type) * vec->m);        \
             }                                                                  \
-            vec->a[vec->n++] = *v;                                             \
+            vec->a[vec->n++] = v;                                              \
         } while (0);                                                           \
     }                                                                          \
     type tag##_vec_pop(tag##_vec_s* v) { return v->a[--v->n]; }                \
