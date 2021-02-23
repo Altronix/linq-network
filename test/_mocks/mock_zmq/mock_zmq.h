@@ -1,6 +1,7 @@
 #ifndef MOCK_ZMQ_H_
 #define MOCK_ZMQ_H_
 
+#include "more.h"
 #include "stdint.h"
 #include "zmq.h"
 
@@ -11,8 +12,8 @@ extern "C"
 
     typedef struct mock_zmq_send_msg_s
     {
-        zmq_msg_t *msg, *recvd;
-        int flags, closed;
+        zmq_msg_t* msg;
+        int closed, recvd;
     } mock_zmq_msg_s;
 
     void zmq_spy_init();
