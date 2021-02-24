@@ -44,6 +44,14 @@ test_more(void** context_p)
 }
 
 static void
+test_more_getsockopt(void** context_p)
+{
+    // TODO if no messages have been received and incoming has message send 1
+    //      if messages have been received, look at the last received message
+    //      more flag
+}
+
+static void
 test_mock_send(void** context_p)
 {
     zmq_spy_init();
@@ -131,6 +139,7 @@ main(int argc, char* argv[])
     ((void)argv);
     int err;
     const struct CMUnitTest tests[] = { cmocka_unit_test(test_more),
+                                        cmocka_unit_test(test_more_getsockopt),
                                         cmocka_unit_test(test_mock_send),
                                         cmocka_unit_test(test_mock_send_large),
                                         cmocka_unit_test(test_mock_recv) };
