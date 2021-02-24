@@ -1,6 +1,6 @@
 {
   "name": "@altronix/linq",
-  "version": "0.0.4-rc.33",
+  "version": "0.0.4-rc.34",
   "description": "Node bindings for linq-network",
   "main": "./build/install/lib/index.js",
   "linq": {
@@ -9,9 +9,9 @@
   "scripts": {
     "test": "jest --config=./bindings/nodejs/lib/jest.config.js",
     "native:cmake": "node ./scripts/build-nodejs-binding.js",
-    "native:build": "yarn run node-gyp build",
-    "native:configure": "yarn run node-gyp configure",
-    "native:install": "yarn run node-gyp install",
+    "native:build": "yarn node-gyp build",
+    "native:configure": "yarn node-gyp configure",
+    "native:install": "yarn node-gyp install",
     "native:clean": "yarn node-gyp clean",
     "build": "tsc -p ./bindings/nodejs/lib",
     "build:examples": "tsc --build ./bindings/nodejs/examples/update/tsconfig.json",
