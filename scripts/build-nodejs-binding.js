@@ -35,9 +35,7 @@ function isTrue(opt) {
 
 // Generate cmake arg for the USB config
 function cmakeArgUsbh(json) {
-  return isTrue(__env.LINQ_WITH_USBH) ||
-    (json && json.usbh) ||
-    false
+  return isTrue(__env.LINQ_WITH_USBH) || (json && json.usbh) || false
     ? "BUILD_USBH=ON"
     : "BUILD_USBH=OFF";
 }
@@ -85,11 +83,21 @@ function installPrebuilt() {
   const buildDir = path.join(root, "build");
   const prebuilt =
     process.platform === "win32"
-      ? path.join(root, "./bindings/nodejs/prebuilds/win32-x64/linq.node")
-      : path.join(root, "./bindings/nodejs/prebuilds/linux-x64/linq.node");
+      ? path.join(root, "./bindings/nodejs/prebuilds/win32-x64/")
+      : path.join(root, "./bindings/nodejs/prebuilds/linux-x64/");
   if (!fs.existsSync(buildDir)) fs.mkdirSync(buildDir);
   logger.info(`Installing prebuilt binaries: ${prebuilt}`);
-  fs.copyFileSync(prebuilt, path.join(buildDir, "linq.node"));
+  const linq = "linq.node";
+  const zmq = "libzmq-v142-mt-4_3_4.dll";
+  const czmq = "libczmq.dll";
+  const prebuiltLinq = path.join(prebuilt, linq);
+  const prebuiltZmq = path.join(prebuilt, zmq);
+  const prebuildCzmq = path.join(prebuilt, czmq);
+  copyFileSync(linq, path.join(buildDir, linq));
+  if (fs.existsSync(prebuiltZmq)) {
+    fs.copyFileSync(prebuiltZmq, path.join(buildDir, zmq));
+    fs.copyFileSync(prebuiltCzmq, path.join(buildDir, czmq));
+  }
 }
 
 // Attempt to build binaries using users compiler
@@ -100,7 +108,14 @@ function tryConfig(args) {
 }
 
 function tryBuild(buildDir) {
-  const args = [`--build`, `${sanitizePath(buildDir)}`, "--config", "Release", "--target", `install`];
+  const args = [
+    `--build`,
+    `${sanitizePath(buildDir)}`,
+    "--config",
+    "Release",
+    "--target",
+    `install`,
+  ];
   logger.info(`Building: ${args}`);
   const result = cp.spawnSync("cmake", args, spawnEnv);
   if (!(result.status === 0)) throw new Error("CMake failed to build!");
