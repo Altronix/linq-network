@@ -92,8 +92,8 @@ function installPrebuilt() {
   const czmq = "libczmq.dll";
   const prebuiltLinq = path.join(prebuilt, linq);
   const prebuiltZmq = path.join(prebuilt, zmq);
-  const prebuildCzmq = path.join(prebuilt, czmq);
-  copyFileSync(linq, path.join(buildDir, linq));
+  const prebuiltCzmq = path.join(prebuilt, czmq);
+  fs.copyFileSync(prebuiltLinq, path.join(buildDir, linq));
   if (fs.existsSync(prebuiltZmq)) {
     fs.copyFileSync(prebuiltZmq, path.join(buildDir, zmq));
     fs.copyFileSync(prebuiltCzmq, path.join(buildDir, czmq));
