@@ -45,7 +45,7 @@ endif()
 
 if(ENABLE_TESTING)
   add_library(network-test-static STATIC ${SOURCES} ${HEADERS})
-  target_link_libraries(network-test-static mock-czmq ${LIBS})
+  target_link_libraries(network-test-static ${LIBS})
   target_compile_definitions(network-test-static PUBLIC 
     "LINQ_STATIC" 
     ${definitions})

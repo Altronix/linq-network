@@ -3,11 +3,10 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "containers.h"
-#include "helpers.h"
-#include "netw.h"
+
+#include <setjmp.h>
 
 #include <cmocka.h>
-#include <setjmp.h>
 
 typedef struct foo
 {

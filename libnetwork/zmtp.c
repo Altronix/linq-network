@@ -704,5 +704,7 @@ zmtp_poll(zmtp_s* zmtp, int32_t ms)
 bool
 sys_running()
 {
-    return !zsys_is_interrupted();
+    // TODO
+    return true;
+    // return !zsys_is_interrupted();
 }

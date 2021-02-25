@@ -2,8 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "helpers.h"
-#include "libcommon/device.h"
+#include "device.h"
+#include "json.h"
+
+#include <setjmp.h>
+
+#include <cmocka.h>
 
 static void
 destroy_node(node_s** node_p)

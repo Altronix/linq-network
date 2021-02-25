@@ -19,7 +19,6 @@
 #include "http.h"
 #include "netw.h"
 
-#include "czmq.h"
 #undef closesocket    // Mongoose and czmq both define these
 #undef INVALID_SOCKET // Mongoose and czmq both define these
 

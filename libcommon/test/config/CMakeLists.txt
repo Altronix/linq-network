@@ -1,5 +1,5 @@
 add_executable(test-config main.c)
-target_link_libraries(test-config network-test-static)
+target_link_libraries(test-config network-test-static cmocka)
 set(wrap_flags "-Wl,--wrap=stat")
 set_target_properties(test-config PROPERTIES LINK_FLAGS ${wrap_flags})
 add_test(NAME test-config COMMAND test-config)
