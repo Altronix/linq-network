@@ -15,6 +15,7 @@
 #include "cmocka.h"
 
 #include "netw.h"
+#include "zmq.h"
 
 #undef closesocket    // Mongoose and czmq both define these
 #undef INVALID_SOCKET // Mongoose and czmq both define these
@@ -69,6 +70,9 @@ extern "C"
 {
 #endif
 
+#define DONE 0
+#define MORE 1
+
     typedef struct helpers_test_context_s
     {
         netw_s* net;
@@ -116,6 +120,8 @@ extern "C"
     void helpers_push_hello(const char* router, const char* node);
     void helpers_push_incoming_mem(int n, ...);
     void helpers_push_incoming_str(int n, ...);
+    void assert_msg_equal(zmq_msg_t* msg, int more, void* data, uint32_t l);
+    void assert_recv_msg_equal(int more, void* data, uint32_t l);
 
 #ifdef __cplusplus
 }

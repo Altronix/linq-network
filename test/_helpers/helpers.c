@@ -230,3 +230,25 @@ helpers_push_incoming_mem(int n, ...)
     }
     va_end(list);
 }
+
+void
+assert_msg_equal(zmq_msg_t* msg, int more, void* data, uint32_t l)
+{
+    void* src = zmq_msg_data(msg);
+    assert_int_equal(zmq_msg_size(msg), l);
+    assert_int_equal(zmq_msg_more(msg), more);
+    assert_memory_equal(src, data, l);
+}
+
+void
+assert_recv_msg_equal(int more, void* data, uint32_t l)
+{
+    int sz;
+    zmq_msg_t incoming;
+    zmq_msg_init(&incoming);
+    sz = zmq_msg_recv(&incoming, NULL, 0);
+    assert_int_equal(sz, zmq_msg_size(&incoming));
+    assert_msg_equal(&incoming, more, data, l);
+    zmq_msg_close(&incoming);
+}
+

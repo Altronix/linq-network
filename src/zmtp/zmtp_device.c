@@ -72,7 +72,7 @@ write_path_to_frame(const char* method, const char* path, uint32_t path_len)
         pack = linq_network_malloc(sizeof(packet_s) + sz + 1);
         linq_network_assert(pack);
         pack->sz = sz;
-        snprintf((char*)pack->data, sz + 1, "%s/ %.*s", method, path_len, path);
+        snprintf((char*)pack->data, sz + 1, "%s /%.*s", method, path_len, path);
     }
     return pack;
 }
