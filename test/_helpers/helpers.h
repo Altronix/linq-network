@@ -5,7 +5,6 @@
 #ifndef HELPERS_H_
 #define HELPERS_H_
 
-#include "http_auth_unsafe.h"
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -15,8 +14,6 @@
 
 #include "cmocka.h"
 
-#include "database.h"
-#include "http.h"
 #include "netw.h"
 
 #undef closesocket    // Mongoose and czmq both define these
@@ -89,8 +86,6 @@ extern "C"
 
     void helpers_test_init();
     void helpers_test_reset();
-    void
-    helpers_test_create_admin(http_s*, const char* user, const char* password);
 
     helpers_test_context_s* helpers_test_context_create(
         helpers_test_config_s* config);
@@ -101,27 +96,26 @@ extern "C"
         const char* rid,
         const char* pid,
         const char* sid);
-    zmsg_t* helpers_make_heartbeat(
+    void helpers_push_heartbeat(
         const char* router,
         const char* serial,
         const char* product,
         const char* site_id);
-    void helpers_test_context_flush();
-    zmsg_t* helpers_make_alert(const char*, const char*, const char*);
-    zmsg_t* helpers_make_legacy_alert();
-    zmsg_t* helpers_make_response(
+    void helpers_push_alert(const char*, const char*, const char*);
+    void helpers_push_legacy_alert();
+    void helpers_push_response(
         const char* rid,
         const char* sid,
         int16_t err,
         const char* data);
-    zmsg_t* helpers_make_request(
+    void helpers_push_request(
         const char* rid,
         const char* sid,
         const char* path,
         const char* data);
-    zmsg_t* helpers_make_hello(const char* router, const char* node);
-    zmsg_t* helpers_create_message_mem(int n, ...);
-    zmsg_t* helpers_create_message_str(int n, ...);
+    void helpers_push_hello(const char* router, const char* node);
+    void helpers_push_incoming_mem(int n, ...);
+    void helpers_push_incoming_str(int n, ...);
 
 #ifdef __cplusplus
 }

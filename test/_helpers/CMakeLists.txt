@@ -3,10 +3,8 @@ add_library(helpers
   helpers.h)
 
 target_link_libraries(helpers
-  mock-mongoose
-  mock-sqlite
-  mock-czmq
-  mock-utils
+  network-static
+  mock-zmq
   stdc++
   uuid)
 

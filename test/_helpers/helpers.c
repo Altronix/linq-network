@@ -3,45 +3,20 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "helpers.h"
-#include "database.h"
+#include "mock_zmq.h"
 #include "netw_internal.h"
-#include "zmtp.h"
-
-#include "mock_mongoose.h"
-#include "mock_sqlite.h"
-#include "mock_zmsg.h"
-#include "mock_zpoll.h"
+#include "zmtp/zmtp.h"
 
 void
 helpers_test_init()
 {
-    mongoose_spy_init();
-    sqlite_spy_init();
-    sqlite_spy_step_return_push(SQLITE_DONE); // PRAGMA
-
-    for (int i = 0; i < NUM_DATABASES; i++) {
-        sqlite_spy_step_return_push(SQLITE_ROW);
-    }
+    zmq_spy_init();
 }
 
 void
 helpers_test_reset()
 {
-    czmq_spy_mesg_reset();
-    czmq_spy_poll_reset();
-    mongoose_spy_deinit();
-    sqlite_spy_deinit();
-}
-
-void
-helpers_test_create_admin(http_s* http, const char* user, const char* pass)
-{
-    const char* req_path = "/api/v1/public/create_admin";
-    char b[128];
-    snprintf(b, sizeof(b), "{\"user\":\"%s\",\"pass\":\"%s\"}", user, pass);
-
-    mongoose_spy_event_request_push("", "POST", req_path, b);
-    for (int i = 0; i < 4; i++) http_poll(http, -1);
+    zmq_spy_free();
 }
 
 helpers_test_context_s*
@@ -60,16 +35,7 @@ helpers_test_context_create(helpers_test_config_s* config)
         netw_listen(ctx->net, endpoint);
     }
 
-    if (config->http) {
-        snprintf(endpoint, sizeof(endpoint), "%d", config->http);
-        netw_listen(ctx->net, endpoint);
-    }
-
-    if (config->user) {
-        helpers_test_create_admin(&ctx->net->http, config->user, config->pass);
-    }
-
-    helpers_test_context_flush();
+    zmq_spy_flush();
     return ctx;
 }
 
@@ -84,14 +50,6 @@ helpers_test_context_destroy(helpers_test_context_s** ctx_p)
 }
 
 void
-helpers_test_context_flush()
-{
-    sqlite_spy_outgoing_statement_flush();
-    mongoose_spy_incoming_events_flush();
-    mongoose_spy_outgoing_data_flush();
-}
-
-void
 helpers_add_device(
     helpers_test_context_s* ctx,
     const char* ser,
@@ -101,24 +59,28 @@ helpers_add_device(
 {
     // When we receive a heartbeat, we flush out the about request/response
     // that is created by the event
-    zmsg_t* hb = helpers_make_heartbeat(rid, ser, pid, sid);
-    zmsg_t* r = helpers_make_response(rid, ser, 0, "{\"about\":null}");
-    czmq_spy_mesg_push_incoming(&hb);
-    czmq_spy_mesg_push_incoming(&r);
-    czmq_spy_poll_set_incoming((0x01));
+    helpers_push_heartbeat(rid, ser, pid, sid);
+    helpers_push_response(rid, ser, 0, "{\"about\":null}");
+    zmq_spy_poll_set_ready((0x01));
     netw_poll(ctx->net, 5);
     netw_poll(ctx->net, 5);
-    czmq_spy_mesg_flush_outgoing();
+    zmq_spy_flush();
 }
 
-zmsg_t*
-helpers_make_heartbeat(
+void
+helpers_push_heartbeat(
     const char* rid,
     const char* sid,
     const char* pid,
     const char* site_id)
 {
-    zmsg_t* m = helpers_create_message_mem(
+    zmq_msg_t msg;
+    if (rid) {
+        zmq_msg_init_size(&msg, strlen(rid));
+        zmq_spy_msg_push_incoming(&msg, ZMQ_SNDMORE);
+    }
+
+    helpers_push_incoming_mem(
         5,
         &g_frame_ver_0,         // version
         1,                      //
@@ -131,17 +93,17 @@ helpers_make_heartbeat(
         site_id,                // site id
         strlen(site_id)         //
     );
-    if (rid) {
-        zframe_t* r = zframe_new(rid, strlen(rid));
-        zmsg_prepend(m, &r);
-    }
-    return m;
 }
 
-zmsg_t*
-helpers_make_alert(const char* rid, const char* sid, const char* pid)
+void
+helpers_push_alert(const char* rid, const char* sid, const char* pid)
 {
-    zmsg_t* m = helpers_create_message_mem(
+    zmq_msg_t msg;
+    if (rid) {
+        zmq_msg_init_size(&msg, strlen(rid));
+        zmq_spy_msg_push_incoming(&msg, ZMQ_SNDMORE);
+    }
+    helpers_push_incoming_mem(
         6,
         &g_frame_ver_0,     // version
         1,                  //
@@ -156,29 +118,22 @@ helpers_make_alert(const char* rid, const char* sid, const char* pid)
         TEST_EMAIL,         // mail
         strlen(TEST_EMAIL)  //
     );
-    if (rid) {
-        zframe_t* r = zframe_new(rid, strlen(rid));
-        zmsg_prepend(m, &r);
-    }
-    return m;
 }
 
-zmsg_t*
-helpers_make_legacy_alert()
-{
-    return helpers_create_message_str(
-        4, "rid", "sid", "typ", TEST_ALERT_LEGACY);
-}
-
-zmsg_t*
-helpers_make_response(
+void
+helpers_push_response(
     const char* rid,
     const char* sid,
     int16_t err,
     const char* data)
 {
+    zmq_msg_t msg;
     err = (err >> 8 | err << 8);
-    zmsg_t* m = helpers_create_message_mem(
+    if (rid) {
+        zmq_msg_init_size(&msg, strlen(rid));
+        zmq_spy_msg_push_incoming(&msg, ZMQ_SNDMORE);
+    }
+    helpers_push_incoming_mem(
         5,
         &g_frame_ver_0,        // version
         1,                     //
@@ -190,53 +145,48 @@ helpers_make_response(
         2,                     //
         data,                  // data
         strlen(data));         //
-    if (rid) {
-        zframe_t* r = zframe_new(rid, strlen(rid));
-        zmsg_prepend(m, &r);
-    }
-    return m;
 }
 
-zmsg_t*
-helpers_make_request(
+void
+helpers_push_request(
     const char* rid,
     const char* sid,
     const char* path,
     const char* data)
 {
-    zmsg_t* m = data ? helpers_create_message_mem(
-                           5,
-                           &g_frame_ver_0,
-                           1,
-                           &g_frame_typ_request,
-                           1,
-                           sid,
-                           strlen(sid),
-                           path,
-                           strlen(path),
-                           data,
-                           strlen(data))
-                     : helpers_create_message_mem(
-                           4,
-                           &g_frame_ver_0,
-                           1,
-                           &g_frame_typ_request,
-                           1,
-                           sid,
-                           strlen(sid),
-                           path,
-                           strlen(path));
+    zmq_msg_t msg;
     if (rid) {
-        zframe_t* r = zframe_new(rid, strlen(rid));
-        zmsg_prepend(m, &r);
+        zmq_msg_init_size(&msg, strlen(rid));
+        zmq_spy_msg_push_incoming(&msg, ZMQ_SNDMORE);
     }
-    return m;
+    data ? helpers_push_incoming_mem(
+               5,
+               &g_frame_ver_0,
+               1,
+               &g_frame_typ_request,
+               1,
+               sid,
+               strlen(sid),
+               path,
+               strlen(path),
+               data,
+               strlen(data))
+         : helpers_push_incoming_mem(
+               4,
+               &g_frame_ver_0,
+               1,
+               &g_frame_typ_request,
+               1,
+               sid,
+               strlen(sid),
+               path,
+               strlen(path));
 }
 
-zmsg_t*
-helpers_make_hello(const char* router, const char* node)
+void
+helpers_push_hello(const char* router, const char* node)
 {
-    return helpers_create_message_mem(
+    helpers_push_incoming_mem(
         4,
         router,
         strlen(router),
@@ -248,38 +198,35 @@ helpers_make_hello(const char* router, const char* node)
         strlen(node));
 }
 
-zmsg_t*
-helpers_create_message_str(int n, ...)
+void
+helpers_push_incoming_str(int n, ...)
 {
     va_list list;
     va_start(list, n);
-    zmsg_t* msg = zmsg_new();
-    assert_non_null(msg);
     for (int i = 0; i < n; i++) {
+        zmq_msg_t msg;
         char* arg = va_arg(list, char*);
-        zframe_t* frame = zframe_new(arg, strlen(arg));
-        assert_non_null(frame);
-        zmsg_append(msg, &frame);
+        int sz = strlen(arg);
+        zmq_msg_init_size(&msg, strlen(arg) + 1);
+        snprintf(zmq_msg_data(&msg), sz + 1, "%s", arg);
+        zmq_spy_msg_push_incoming(&msg, i = n - 1 ? 0 : ZMQ_SNDMORE);
     }
     va_end(list);
-    return msg;
 }
 
-// TODO set more flag on frames...
-zmsg_t*
-helpers_create_message_mem(int n, ...)
+void
+helpers_push_incoming_mem(int n, ...)
 {
+    int err;
     va_list list;
     va_start(list, n);
-    zmsg_t* msg = zmsg_new();
-    assert_non_null(msg);
     for (int i = 0; i < n; i++) {
+        zmq_msg_t msg;
         uint8_t* arg = va_arg(list, uint8_t*);
         size_t sz = va_arg(list, size_t);
-        zframe_t* frame = zframe_new(arg, sz);
-        assert_non_null(frame);
-        zmsg_append(msg, &frame);
+        err = zmq_msg_init_size(&msg, sz);
+        memcpy(zmq_msg_data(&msg), arg, sz);
+        zmq_spy_msg_push_incoming(&msg, i = n - 1 ? 0 : ZMQ_SNDMORE);
     }
     va_end(list);
-    return msg;
 }

@@ -19,6 +19,7 @@ extern "C"
 
     void zmq_spy_init();
     void zmq_spy_free();
+    void zmq_spy_flush();
     void zmq_spy_poll_set_ready(uint32_t val);
     mock_zmq_msg_s* zmq_spy_mesg_at_outgoing(int);
     mock_zmq_msg_s* zmq_spy_msg_push_incoming(zmq_msg_t* m, int);

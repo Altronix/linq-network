@@ -12,23 +12,6 @@ static uint32_t ready = 0;
 msg_vec_s outgoing;
 msg_vec_s incoming;
 
-static mock_zmq_msg_s*
-find_msg_in_vec(msg_vec_s* vec, zmq_msg_t* m)
-{
-    for (int i = 0; i < msg_vec_size(vec); i++) {
-        mock_zmq_msg_s* mock = msg_vec_at(vec, i);
-        if (mock->msg == m) return msg_vec_at(vec, i);
-    }
-    return NULL;
-}
-
-static mock_zmq_msg_s*
-find_msg(zmq_msg_t* m)
-{
-    mock_zmq_msg_s* msg = find_msg_in_vec(&incoming, m);
-    return msg ? msg : find_msg_in_vec(&outgoing, m);
-}
-
 void
 zmq_spy_init()
 {
@@ -49,6 +32,13 @@ zmq_spy_free()
     }
     msg_vec_free(&outgoing);
     msg_vec_free(&incoming);
+}
+
+void
+zmq_spy_flush()
+{
+    zmq_spy_free();
+    zmq_spy_init();
 }
 
 void
@@ -159,13 +149,8 @@ __wrap_zmq_msg_recv(zmq_msg_t* msg, void* socket, int flags)
 int
 __wrap_zmq_msg_close(zmq_msg_t* msg)
 {
-    mock_zmq_msg_s* mock = find_msg(msg);
-    if (mock) {
-        assert(!mock->closed);
-        mock->closed = 1;
-    }
     int ret = __real_zmq_msg_close(msg);
-    assert(ret == 0);
+    // assert(ret == 0);
     return ret;
 }
 
