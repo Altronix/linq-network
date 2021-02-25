@@ -188,7 +188,8 @@ request_send(request_s* base, zmq_socket_s* sock)
         r->frames[FRAME_REQ_DATA_IDX] ? ZMQ_SNDMORE : 0, // path
         0                                                // [,dat]
     };
-    for (int c = r->frames[FRAME_RID_IDX] ? 0 : 1; r->frames[c]; c++) {
+    int c = r->frames[FRAME_RID_IDX] ? 0 : 1;
+    for (; c <= 5 && r->frames[c]; c++) {
         err = zmq_msg_init_size(&msgs[c], r->frames[c]->sz);
         linq_network_assert(err == 0);
         memcpy(zmq_msg_data(&msgs[c]), r->frames[c]->data, r->frames[c]->sz);
