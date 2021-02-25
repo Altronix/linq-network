@@ -8,6 +8,7 @@
 #include "containers.h"
 #include "libcommon/device.h"
 #include "node.h"
+#include "zmq.h"
 
 // [router, version, type, serial]
 // [router, version, 0x00, serial, type, siteId]         = HEARTBEAT
@@ -89,6 +90,10 @@ extern "C"
 {
 #endif
 
+    // Forward declarations
+    typedef void zmq_context_s;
+    typedef void zmq_socket_s;
+
     // helpful struct for maintaining frames
     typedef struct
     {
@@ -114,14 +119,15 @@ extern "C"
     typedef struct
     {
         node_s base;
-        zsock_t* sock;
+        zmq_socket_s* sock;
         router_s* router;
     } netw_socket_s;
 
-    MAP_INIT_H(socket, zsock_t);
+    MAP_INIT_H(socket, zmq_socket_s);
     typedef struct zmtp_s
     {
         void* context;
+        zmq_context_s* zmq;
         socket_map_s* routers;
         socket_map_s* dealers;
         device_map_s** devices_p;

@@ -18,7 +18,7 @@ extern "C"
 #endif
 
     node_s* zmtp_device_create(
-        zsock_t* sock_p,
+        zmq_socket_s* sock_p,
         const uint8_t* router,
         uint32_t router_sz,
         const char* serial,

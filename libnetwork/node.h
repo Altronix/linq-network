@@ -7,9 +7,9 @@
 
 #include "common.h"
 #include "containers.h"
-#include "czmq.h"
 #undef closesocket    // Mongoose and czmq both define these
 #undef INVALID_SOCKET // Mongoose and czmq both define these
+#include "zmq.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -19,11 +19,8 @@ extern "C"
     typedef struct node_zmtp_s node_zmtp_s;
     MAP_INIT_H(node, node_zmtp_s);
 
-    node_zmtp_s* node_create(
-        zsock_t*,
-        const uint8_t* router,
-        uint32_t router_sz,
-        const char*);
+    node_zmtp_s*
+    node_create(void*, const uint8_t* router, uint32_t router_sz, const char*);
     void node_destroy(node_zmtp_s**);
     void node_update_router(node_zmtp_s*, const uint8_t*, uint32_t);
     const char* node_serial(node_zmtp_s*);
@@ -34,7 +31,7 @@ extern "C"
         node_map_s* hash,
         bool (*remove)(node_s*, void*),
         void* ctx);
-    node_zmtp_s** node_map_find_by_sock(node_map_s* hash, zsock_t* sock);
+    node_zmtp_s** node_map_find_by_sock(node_map_s* hash, void* sock);
 #ifdef __cplusplus
 }
 #endif

@@ -11,17 +11,13 @@
 typedef struct node_zmtp_s
 {
     node_s base;     // will cast into netw_socket_s ...must be on top
-    zsock_t* sock;   // will cast into netw_socket_s ...must be on top
+    void* sock;      // will cast into netw_socket_s ...must be on top
     router_s router; // will cast into netw_socket_s ...must be on top
 } node_zmtp_s;
 MAP_INIT(node, node_zmtp_s, node_destroy);
 
 node_zmtp_s*
-node_create(
-    zsock_t* s,
-    const uint8_t* router,
-    uint32_t router_sz,
-    const char* sid)
+node_create(void* s, const uint8_t* router, uint32_t router_sz, const char* sid)
 {
     node_zmtp_s* node = linq_network_malloc(sizeof(node_zmtp_s));
     if (node) {
@@ -67,7 +63,7 @@ optional_send_router(node_zmtp_s* node)
         err = zmq_msg_init_size(&m, node->router.sz);
         linq_network_assert(err == 0);
         memcpy(zmq_msg_data(&m), node->router.id, node->router.sz);
-        err = zmq_msg_send(&m, zsock_resolve(node->sock), ZMQ_SNDMORE);
+        err = zmq_msg_send(&m, node->sock, ZMQ_SNDMORE);
         linq_network_assert(err >= 0);
         return true;
     } else {
@@ -97,8 +93,7 @@ node_send_frames(node_zmtp_s* node, uint32_t n, zmq_msg_t* frames)
         zmq_msg_init(&m);
         err = zmq_msg_copy(&m, &frames[count]);
         linq_network_assert(err == 0);
-        err = zmq_msg_send(
-            &m, zsock_resolve(node->sock), count == (n - 1) ? 0 : ZMQ_SNDMORE);
+        err = zmq_msg_send(&m, node->sock, count == (n - 1) ? 0 : ZMQ_SNDMORE);
         if (err < 0) {
             log_error("NODE", "Failed to send to node!");
             zmq_msg_close(&m);
@@ -125,8 +120,7 @@ node_send_frames_n(node_zmtp_s* node, uint32_t n, ...)
         err = zmq_msg_init_size(&m, sz);
         linq_network_assert(err == 0);
         memcpy(zmq_msg_data(&m), arg, sz);
-        err = zmq_msg_send(
-            &m, zsock_resolve(node->sock), count == n - 1 ? 0 : ZMQ_SNDMORE);
+        err = zmq_msg_send(&m, node->sock, count == n - 1 ? 0 : ZMQ_SNDMORE);
         if (err < 0) {
             log_error("NODE", "Failed to send to node!");
             zmq_msg_close(&m);
@@ -159,7 +153,7 @@ node_map_foreach_remove_if(
 }
 
 node_zmtp_s**
-node_map_find_by_sock(node_map_s* hash, zsock_t* sock)
+node_map_find_by_sock(node_map_s* hash, void* sock)
 {
     map_iter iter;
     map_foreach(hash, iter)

@@ -18,7 +18,14 @@
 #define zmtp_error(...) log_error("ZMTP", __VA_ARGS__)
 #define zmtp_fatal(...) log_fatal("ZMTP", __VA_ARGS__)
 
-MAP_INIT(socket, zsock_t, zsock_destroy);
+static void
+zmq_socket_free_fn(void** socket_p)
+{
+    zmq_socket_s* s = *socket_p;
+    *socket_p = NULL;
+    zmq_close(s);
+}
+MAP_INIT(socket, zmq_socket_s, zmq_socket_free_fn);
 
 // A version on the wire is a byte
 typedef int8_t version;
@@ -45,12 +52,6 @@ char g_frame_typ_request = FRAME_TYP_REQUEST;
 char g_frame_typ_response = FRAME_TYP_RESPONSE;
 char g_frame_typ_alert = FRAME_TYP_ALERT;
 char g_frame_typ_hello = FRAME_TYP_HELLO;
-
-static bool
-is_router(zsock_t* sock)
-{
-    return zsock_type_str(sock)[0] == 'R';
-}
 
 static atx_str
 json_get_str(const char* b, const jsontok* t)
@@ -179,7 +180,7 @@ read_email(zmq_msg_t* msg, netw_email_s* emails)
 
 // A device is resolved by the serial number frame
 static node_s**
-device_resolve(zmtp_s* l, zsock_t* sock, incoming_s* in, bool insert)
+device_resolve(zmtp_s* l, zmq_socket_s* sock, incoming_s* in, bool insert)
 {
     zmq_msg_t* m = *in->msgs;
     uint32_t rid_sz = 0;
@@ -216,7 +217,7 @@ device_resolve(zmtp_s* l, zsock_t* sock, incoming_s* in, bool insert)
 // If node == router => node = map[router]
 // else              => node = seek(map[iter].sock == sock)
 static node_zmtp_s**
-node_resolve(zsock_t* sock, node_map_s* map, incoming_s* in, bool insert)
+node_resolve(zmq_socket_s* sock, node_map_s* map, incoming_s* in, bool insert)
 {
     zmq_msg_t* m = *in->msgs;
     static uint32_t dealer_key_gen = 0;
@@ -291,7 +292,7 @@ on_device_response(
 {
     zmtp_trace("Device response received");
     int16_t e = error;
-    // TODO use zsock_send_frames_n(...)
+    // TODO use sock_send_frames_n(...)
     node_zmtp_s** node = ctx;
     node_send_frames_n(
         *node,
@@ -311,7 +312,7 @@ on_device_response(
 
 // check the zmq request frames are valid and process the request
 static E_LINQ_ERROR
-process_request(zmtp_s* l, zsock_t* sock, incoming_s* in, uint32_t total)
+process_request(zmtp_s* l, zmq_socket_s* sock, incoming_s* in, uint32_t total)
 {
     zmq_msg_t* m = *in->msgs;
     zmtp_trace("Processing request");
@@ -334,9 +335,9 @@ process_request(zmtp_s* l, zsock_t* sock, incoming_s* in, uint32_t total)
             e = LINQ_ERROR_OK;
         } else {
             // TODO we arrive here because n == NULL
-            //      need to figure how to resolve node (ie use zsock)
+            //      need to figure how to resolve node (ie use sock)
             //      The node_zmtp_s* is client abstraction to represent a
-            //      connection but the zsock should be used instead
+            //      connection but the sock should be used instead
             zmtp_trace("Device does not exist");
             // TODO send 404 response (device not here)
         }
@@ -347,7 +348,7 @@ process_request(zmtp_s* l, zsock_t* sock, incoming_s* in, uint32_t total)
 
 // check the zmq response frames are valid and process the response
 static E_LINQ_ERROR
-process_response(zmtp_s* l, zsock_t* sock, incoming_s* in, uint32_t total)
+process_response(zmtp_s* l, zmq_socket_s* sock, incoming_s* in, uint32_t total)
 {
     zmtp_trace("Processing response");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
@@ -398,7 +399,7 @@ process_response(zmtp_s* l, zsock_t* sock, incoming_s* in, uint32_t total)
 
 // check the zmq alert frames are valid and process the alert
 static E_LINQ_ERROR
-process_alert(zmtp_s* z, zsock_t* socket, incoming_s* in, uint32_t total)
+process_alert(zmtp_s* z, zmq_socket_s* socket, incoming_s* in, uint32_t total)
 {
     zmtp_trace("Processing alert");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
@@ -440,7 +441,7 @@ process_alert(zmtp_s* z, zsock_t* socket, incoming_s* in, uint32_t total)
 // check the zmq hello message is valid and add a node if it does not exist
 // TODO nodes are not resolvable from hello packet
 static E_LINQ_ERROR
-process_hello(zmtp_s* z, zsock_t* socket, incoming_s* in)
+process_hello(zmtp_s* z, zmq_socket_s* socket, incoming_s* in)
 {
     zmtp_trace("Processing hello");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
@@ -452,7 +453,7 @@ process_hello(zmtp_s* z, zsock_t* socket, incoming_s* in)
 
 // check the zmq heartbeat frames are valid and process the heartbeat
 static E_LINQ_ERROR
-process_heartbeat(zmtp_s* z, zsock_t* s, incoming_s* in, uint32_t total)
+process_heartbeat(zmtp_s* z, zmq_socket_s* s, incoming_s* in, uint32_t total)
 {
     zmtp_trace("Processing heartbeat");
     zmq_msg_t* m = *in->msgs;
@@ -483,11 +484,10 @@ process_heartbeat(zmtp_s* z, zsock_t* s, incoming_s* in, uint32_t total)
 
 // check the zmq header frames are valid and process the packet
 static E_LINQ_ERROR
-process_packet(zmtp_s* z, zsock_t* s)
+process_packet(zmtp_s* z, zmq_socket_s* s, bool router)
 {
     zmtp_trace("Processing packet");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
-    bool router = is_router(s);
     int more = 1, err, start = router ? FRAME_RID_IDX : FRAME_VER_IDX,
         end = start;
     size_t more_size = sizeof(more);
@@ -497,9 +497,9 @@ process_packet(zmtp_s* z, zsock_t* s)
         linq_network_assert(end < FRAME_MAX);
         err = zmq_msg_init(&m[end]);
         linq_network_assert(err == 0);
-        err = zmq_msg_recv(&m[end], zsock_resolve(s), 0);
+        err = zmq_msg_recv(&m[end], s, 0);
         linq_network_assert(!(err == -1));
-        err = zmq_getsockopt(zsock_resolve(s), ZMQ_RCVMORE, &more, &more_size);
+        err = zmq_getsockopt(s, ZMQ_RCVMORE, &more, &more_size);
         linq_network_assert(err == 0);
         end++;
     }
@@ -539,6 +539,7 @@ zmtp_init(
     const netw_callbacks* callbacks,
     void* context)
 {
+    zmtp->zmq = zmq_ctx_new();
     zmtp->devices_p = devices_p;
     zmtp->nodes_p = nodes_p;
     zmtp->callbacks = callbacks;
@@ -554,20 +555,26 @@ zmtp_deinit(zmtp_s* zmtp)
 {
     socket_map_destroy(&zmtp->routers);
     socket_map_destroy(&zmtp->dealers);
+    zmq_ctx_destroy(zmtp->zmq);
+    zmtp->zmq = NULL;
     zmtp_debug("Context destroyed...");
 }
 
 netw_socket
 zmtp_listen(zmtp_s* zmtp, const char* ep)
 {
-    zsock_t* socket = zsock_new_router(ep);
-    if (socket) {
+    int err;
+    zmq_socket_s* socket = zmq_socket(zmtp->zmq, ZMQ_ROUTER);
+    linq_network_assert(socket);
+    err = zmq_bind(socket, ep);
+    if (err == 0) {
         socket_map_add(zmtp->routers, ep, &socket);
         int key = socket_map_key(zmtp->routers, ep);
         key |= ATX_NET_SOCKET_TYPE_ROUTER << 0x08;
         zmtp_info("bind socket success [%s]", ep);
         return key;
     } else {
+        zmq_close(socket);
         zmtp_error("failed to bind socket [%s]", ep);
         return LINQ_ERROR_SOCKET;
     }
@@ -576,20 +583,24 @@ zmtp_listen(zmtp_s* zmtp, const char* ep)
 netw_socket
 zmtp_connect(zmtp_s* zmtp, const char* ep)
 {
-    zsock_t* socket = zsock_new_dealer(ep);
-    if (socket) {
-        socket_map_add(zmtp->dealers, ep, &socket);
-        node_zmtp_s* n =
-            node_create(*socket_map_get(zmtp->dealers, ep), NULL, 0, ep);
-        if (n) {
-            node_send_hello(n);
-            node_map_add(*zmtp->nodes_p, node_serial(n), &n);
-        }
+    int err;
+    zmq_socket_s* socket = zmq_socket(zmtp->zmq, ZMQ_DEALER);
+    linq_network_assert(socket);
+    err = zmq_connect(socket, ep);
+    if (err == 0) {
+        socket = *socket_map_add(zmtp->dealers, ep, &socket);
+        node_zmtp_s* n = node_create(socket, NULL, 0, ep);
+        linq_network_assert(n);
+        node_send_hello(n);
+        node_map_add(*zmtp->nodes_p, node_serial(n), &n);
         int key = socket_map_key(zmtp->dealers, ep);
         key |= ATX_NET_SOCKET_TYPE_DEALER << 0x08;
         return key;
+    } else {
+        zmq_close(socket);
+        zmtp_error("failed to connect [%s]", ep);
+        return LINQ_ERROR_SOCKET;
     }
-    return LINQ_ERROR_SOCKET;
 }
 
 static bool
@@ -597,7 +608,7 @@ remove_if(node_s* v, void* socket)
 {
     if (v->transport == TRANSPORT_ZMTP) {
         netw_socket_s* s = (netw_socket_s*)v;
-        if (s->sock == *(zsock_t**)socket) return true;
+        if (s->sock == socket) return true;
     }
     return false;
 }
@@ -606,7 +617,7 @@ E_LINQ_ERROR
 zmtp_close_router(zmtp_s* zmtp, netw_socket handle)
 {
     int socket = ATX_NET_SOCKET(handle), count;
-    zsock_t** s = socket_map_resolve(zmtp->routers, socket);
+    zmq_socket_s** s = socket_map_resolve(zmtp->routers, socket);
     if (s) {
         // remove_devices(s, *zmtp->devices_p);
         count = devices_foreach_remove_if(*zmtp->devices_p, remove_if, s);
@@ -622,7 +633,7 @@ E_LINQ_ERROR
 zmtp_close_dealer(zmtp_s* zmtp, netw_socket handle)
 {
     int socket = ATX_NET_SOCKET(handle), count;
-    zsock_t** s = socket_map_resolve(zmtp->dealers, socket);
+    zmq_socket_s** s = socket_map_resolve(zmtp->dealers, socket);
     if (s) {
         // remove_devices(s, *zmtp->devices_p);
         // remove_nodes(s, *zmtp->nodes_p);
@@ -641,17 +652,17 @@ zmtp_close_dealer(zmtp_s* zmtp, netw_socket handle)
     map_foreach(hash, iter)                                                    \
     {                                                                          \
         if (map_has_key(hash, iter)) {                                         \
-            ptr->socket = zsock_resolve(map_val(hash, iter));                  \
+            ptr->socket = map_val(hash, iter);                                 \
             ptr->events = ZMQ_POLLIN;                                          \
             ptr++;                                                             \
         }                                                                      \
     }
-#define process_sockets(err, zmtp, hash, iter, ptr)                            \
+#define process_sockets(err, zmtp, hash, iter, ptr, router)                    \
     map_foreach(hash, iter)                                                    \
     {                                                                          \
         if (map_has_key(hash, iter)) {                                         \
             if (ptr->revents && ZMQ_POLLIN) {                                  \
-                err = process_packet(zmtp, map_val(hash, iter));               \
+                err = process_packet(zmtp, map_val(hash, iter), router);       \
             }                                                                  \
             ptr++;                                                             \
         }                                                                      \
@@ -673,8 +684,8 @@ zmtp_poll(zmtp_s* zmtp, int32_t ms)
     err = zmq_poll(items, n_router + n_dealer, ms);
     if (!(err < 0)) {
         ptr = items;
-        process_sockets(err, zmtp, zmtp->routers, iter, ptr);
-        process_sockets(err, zmtp, zmtp->dealers, iter, ptr);
+        process_sockets(err, zmtp, zmtp->routers, iter, ptr, true);
+        process_sockets(err, zmtp, zmtp->dealers, iter, ptr, false);
         err = 0;
     }
 

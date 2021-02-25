@@ -40,9 +40,9 @@ static int max_retry = LINQ_NETW_MAX_RETRY;
 // main class struct (extends linq_network_socket_s)
 typedef struct zmtp_device_s
 {
-    node_s base;     // will cast into netw_socket_s ...must be on top
-    zsock_t* sock;   // will cast into netw_socket_s ...must be on top
-    router_s router; // will cast into netw_socket_s ...must be on top
+    node_s base;        // will cast into netw_socket_s ...must be on top
+    zmq_socket_s* sock; // will cast into netw_socket_s ...must be on top
+    router_s router;    // will cast into netw_socket_s ...must be on top
     request_list_s* requests;
 } zmtp_device_s;
 
@@ -175,7 +175,7 @@ request_router_id_set(request_s* base, uint8_t* rid, uint32_t rid_len)
 }
 
 static int
-request_send(request_s* base, zsock_t* sock)
+request_send(request_s* base, zmq_socket_s* sock)
 {
     dev_trace("request_send()");
     request_zmtp_s* r = (request_zmtp_s*)base;
@@ -192,7 +192,7 @@ request_send(request_s* base, zsock_t* sock)
         err = zmq_msg_init_size(&msgs[c], r->frames[c]->sz);
         linq_network_assert(err == 0);
         memcpy(zmq_msg_data(&msgs[c]), r->frames[c]->data, r->frames[c]->sz);
-        err = zmq_msg_send(&msgs[c], zsock_resolve(sock), flags[c]);
+        err = zmq_msg_send(&msgs[c], sock, flags[c]);
         if (err < 0) {
             dev_error("Failed to send to socket!");
             zmq_msg_close(&msgs[c]);
@@ -205,7 +205,7 @@ request_send(request_s* base, zsock_t* sock)
 
 node_s*
 zmtp_device_create(
-    zsock_t* sock,
+    zmq_socket_s* sock,
     const uint8_t* router,
     uint32_t router_sz,
     const char* serial,
