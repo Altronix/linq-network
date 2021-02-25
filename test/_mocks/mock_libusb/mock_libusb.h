@@ -1,6 +1,7 @@
 #ifndef MOCK_LIBUSB_H
 #define MOCK_LIBUSB_H
 
+#include "common/sys/sys.h"
 #include "libusb-1.0/libusb.h"
 
 #ifdef __cplusplus

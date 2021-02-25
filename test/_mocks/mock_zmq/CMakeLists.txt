@@ -24,7 +24,7 @@ target_link_libraries(mock-more ${ZMQ_LIBS})
 add_library(mock-zmq mock_zmq.c mock_zmq.h)
 set_target_properties(mock-zmq PROPERTIES LINK_FLAGS "${wrap_flags}")
 target_link_libraries(mock-zmq 
-  common-static
+  network-static
   mock-utils 
   ${CMAKE_THREAD_LIBS_INIT}
   ${ZMQ_LIBS} 

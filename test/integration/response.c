@@ -10,7 +10,6 @@
 
 #include "fixture.h"
 #include "netw.h"
-#include "zmtp.h"
 
 void
 on_request_complete(

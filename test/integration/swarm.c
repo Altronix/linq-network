@@ -1,4 +1,3 @@
-#include "log.h"
 #include "netw.h"
 
 #ifndef SWARM_NODES

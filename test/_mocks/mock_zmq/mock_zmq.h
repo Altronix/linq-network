@@ -1,6 +1,7 @@
 #ifndef MOCK_ZMQ_H_
 #define MOCK_ZMQ_H_
 
+#include "common/sys/sys.h"
 #include "more.h"
 #include "stdint.h"
 #include "zmq.h"
