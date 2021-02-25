@@ -57,21 +57,21 @@ void
 zmq_spy_mesg_close_outgoing(int at)
 {
     mock_zmq_msg_s* m = msg_vec_at(&outgoing, at);
-    if (m && (!m->closed)) zmq_msg_close(msg_vec_at(&outgoing, at)->msg);
+    if (m && (!m->closed)) zmq_msg_close(&msg_vec_at(&outgoing, at)->msg);
 }
 
 void
 zmq_spy_mesg_close_incoming(int at)
 {
     mock_zmq_msg_s* m = msg_vec_at(&incoming, at);
-    if (m && (!m->closed)) zmq_msg_close(msg_vec_at(&incoming, at)->msg);
+    if (m && (!m->closed)) zmq_msg_close(&msg_vec_at(&incoming, at)->msg);
 }
 
 mock_zmq_msg_s*
 zmq_spy_msg_push_incoming(zmq_msg_t* msg, int f)
 {
-    mock_zmq_msg_s mock = { .msg = msg, .closed = 0, .recvd = 0 };
-    if (f & ZMQ_SNDMORE) more_set(msg);
+    mock_zmq_msg_s mock = { .msg = *msg, .closed = 0, .recvd = 0 };
+    if (f & ZMQ_SNDMORE) more_set(&mock.msg);
     msg_vec_push(&incoming, mock);
     return msg_vec_last(&incoming);
 }
@@ -126,8 +126,8 @@ __wrap_zmq_poll(zmq_pollitem_t* items_, int nitems_, long timeout_)
 int
 __wrap_zmq_msg_send(zmq_msg_t* msg, void* socket, int f)
 {
-    mock_zmq_msg_s mock = { .msg = msg, .closed = 0, .recvd = 0 };
-    if (f & ZMQ_SNDMORE) more_set(msg);
+    mock_zmq_msg_s mock = { .msg = *msg, .closed = 0, .recvd = 0 };
+    if (f & ZMQ_SNDMORE) more_set(&mock.msg);
     msg_vec_push(&outgoing, mock);
     return zmq_msg_size(msg);
 }
@@ -139,7 +139,7 @@ __wrap_zmq_msg_recv(zmq_msg_t* msg, void* socket, int flags)
         mock_zmq_msg_s* mock = msg_vec_at(&incoming, i);
         if (!mock->recvd) {
             mock->recvd = 1;
-            *msg = *mock->msg;
+            *msg = mock->msg;
             return zmq_msg_size(msg);
         }
     }
@@ -164,7 +164,7 @@ int
 __wrap_zmq_getsockopt(void* s_, int option_, void* optval_, size_t* optvallen_)
 {
     if (option_ == ZMQ_RCVMORE) {
-        if (zmq_msg_more(msg_vec_last(&incoming)->msg)) {
+        if (zmq_msg_more(&msg_vec_last(&incoming)->msg)) {
             *((int*)optval_) = 1;
         } else {
             *((int*)optval_) = 0;

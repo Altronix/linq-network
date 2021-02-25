@@ -68,9 +68,9 @@ test_mock_send(void** context_p)
     zmq_msg_send(&b, NULL, ZMQ_SNDMORE);
     zmq_msg_send(&c, NULL, 0);
 
-    assert_msg_equal(zmq_spy_mesg_at_outgoing(0)->msg, MORE, "aaa", 3);
-    assert_msg_equal(zmq_spy_mesg_at_outgoing(1)->msg, MORE, "bbb", 3);
-    assert_msg_equal(zmq_spy_mesg_at_outgoing(2)->msg, DONE, "ccc", 3);
+    assert_msg_equal(&zmq_spy_mesg_at_outgoing(0)->msg, MORE, "aaa", 3);
+    assert_msg_equal(&zmq_spy_mesg_at_outgoing(1)->msg, MORE, "bbb", 3);
+    assert_msg_equal(&zmq_spy_mesg_at_outgoing(2)->msg, DONE, "ccc", 3);
 
     zmq_msg_close(&a);
     zmq_msg_close(&b);
@@ -90,9 +90,9 @@ test_mock_send_large(void** context_p)
     memcpy(zmq_msg_data(&a), b, sizeof(b));
     zmq_msg_send(&a, NULL, 0);
     mock_zmq_msg_s* m = zmq_spy_mesg_at_outgoing(0);
-    assert_int_equal(zmq_msg_more(m->msg), 0);
-    assert_int_equal(zmq_msg_size(m->msg), sizeof(b));
-    assert_memory_equal(zmq_msg_data(m->msg), b, 4096);
+    assert_int_equal(zmq_msg_more(&m->msg), 0);
+    assert_int_equal(zmq_msg_size(&m->msg), sizeof(b));
+    assert_memory_equal(zmq_msg_data(&m->msg), b, 4096);
     zmq_spy_free();
 }
 

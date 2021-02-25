@@ -13,7 +13,7 @@ extern "C"
 
     typedef struct mock_zmq_send_msg_s
     {
-        zmq_msg_t* msg;
+        zmq_msg_t msg;
         int closed, recvd;
     } mock_zmq_msg_s;
 
