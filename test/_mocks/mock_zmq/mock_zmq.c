@@ -159,17 +159,3 @@ __wrap_zmq_msg_more(zmq_msg_t* msg)
 {
     return __real_zmq_msg_more(msg);
 }
-
-int
-__wrap_zmq_getsockopt(void* s_, int option_, void* optval_, size_t* optvallen_)
-{
-    if (option_ == ZMQ_RCVMORE) {
-        if (zmq_msg_more(&msg_vec_last(&incoming)->msg)) {
-            *((int*)optval_) = 1;
-        } else {
-            *((int*)optval_) = 0;
-        }
-        return 0;
-    }
-    return -1;
-}

@@ -489,7 +489,6 @@ process_packet(zmtp_s* z, zmq_socket_s* s, bool router)
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     int more = 1, err, start = router ? FRAME_RID_IDX : FRAME_VER_IDX,
         end = start;
-    size_t more_size = sizeof(more);
     char sid[SID_LEN] = "";
     zmq_msg_t m[FRAME_MAX];
     while (more) {
@@ -498,8 +497,7 @@ process_packet(zmtp_s* z, zmq_socket_s* s, bool router)
         linq_network_assert(err == 0);
         err = zmq_msg_recv(&m[end], s, 0);
         linq_network_assert(!(err == -1));
-        err = zmq_getsockopt(s, ZMQ_RCVMORE, &more, &more_size);
-        linq_network_assert(err == 0);
+        more = zmq_msg_more(&m[end]);
         end++;
     }
 

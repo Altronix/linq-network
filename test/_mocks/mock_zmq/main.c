@@ -99,6 +99,8 @@ test_mock_send_large(void** context_p)
 static void
 test_mock_recv(void** context_p)
 {
+    int more;
+    size_t more_size = sizeof(more);
     zmq_spy_init();
     zmq_msg_t a, b, c, x, y, z, incoming;
     zmq_msg_init_size(&a, 3);
@@ -117,7 +119,6 @@ test_mock_recv(void** context_p)
     zmq_spy_msg_push_incoming(&a, ZMQ_SNDMORE);
     zmq_spy_msg_push_incoming(&b, ZMQ_SNDMORE);
     zmq_spy_msg_push_incoming(&c, 0);
-
     zmq_spy_msg_push_incoming(&x, ZMQ_SNDMORE);
     zmq_spy_msg_push_incoming(&y, ZMQ_SNDMORE);
     zmq_spy_msg_push_incoming(&z, 0);

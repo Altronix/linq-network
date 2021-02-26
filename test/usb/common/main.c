@@ -1,7 +1,7 @@
-#include "json.h"
-#include "rlp.h"
-#include "sys.h"
-#include "wire.h"
+#include "common/json.h"
+#include "common/rlp.h"
+#include "common/sys/sys.h"
+#include "usb/common/wire.h"
 
 #include <setjmp.h>
 

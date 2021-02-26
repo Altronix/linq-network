@@ -19,7 +19,7 @@
  * @date 2017
  */
 
-#include "rlp.h"
+#include "common/rlp.h"
 #include "stdio.h"
 
 uint8_t rlp_null[] = { '\x80' };

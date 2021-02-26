@@ -1,8 +1,8 @@
-#include "device.h"
-#include "io_m5.h"
-#include "json.h"
-#include "sys.h"
-#include "usbh.h"
+#include "common/device.h"
+#include "common/json.h"
+#include "common/sys/sys.h"
+#include "usb/host/io_m5.h"
+#include "usb/host/usbh.h"
 
 #include <setjmp.h>
 

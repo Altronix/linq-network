@@ -36,10 +36,6 @@ extern "C"
 #ifdef BUILD_USBH
         usbh_s usb;
 #endif
-#ifdef BUILD_LINQD
-        http_s http;
-        database_s database;
-#endif
         char uuid[UUID_LEN * 2 + 1];
     } netw_s;
 

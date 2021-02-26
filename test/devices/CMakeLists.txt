@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 add_executable(test-devices main.c)
 target_link_libraries(test-devices
-                      common-static
+                      network-test-static
                       mock-utils
                       cmocka)
 
