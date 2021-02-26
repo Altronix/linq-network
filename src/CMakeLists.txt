@@ -18,7 +18,6 @@ set(SOURCES
     zmtp/zmtp.h
     zmtp/zmtp_device.h
     common/base64.h 
-    common/common.h
     common/config.h
     common/containers.h
     common/device.h

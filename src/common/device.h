@@ -6,8 +6,8 @@
 #define DEVICE_H_
 
 // includes
-#include "common.h"
 #include "containers.h"
+#include "netw.h"
 
 #ifdef __cplusplus
 extern "C"

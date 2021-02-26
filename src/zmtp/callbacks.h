@@ -1,8 +1,8 @@
 #ifndef CALLBACKS_H
 #define CALLBACKS_H
 
-#include "common/common.h"
 #include "common/sys/sys.h"
+#include "netw.h"
 
 #ifdef __cplusplus
 extern "C"

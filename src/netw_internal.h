@@ -8,9 +8,6 @@
 // System includes
 #include "sys.h"
 
-// Common lib
-#include "common/common.h"
-
 // project includes
 #include "common/device.h"
 #include "zmtp/node.h"

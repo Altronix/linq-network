@@ -1,9 +1,9 @@
 #ifndef IO_H
 #define IO_H
 
-#include "common/common.h"
 #include "common/containers.h"
 #include "libusb-1.0/libusb.h"
+#include "netw.h"
 #include "sys.h"
 
 #ifdef __cplusplus

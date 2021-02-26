@@ -5,7 +5,7 @@
 #ifndef LOG_H
 #define LOG_H
 
-#include "common.h"
+#include "netw.h"
 
 #ifdef __cplusplus
 extern "C"

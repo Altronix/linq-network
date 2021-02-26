@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "common/common.h"
 #include "fixture.h"
 #include "netw.h"
 
