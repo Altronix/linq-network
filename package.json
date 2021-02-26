@@ -8,18 +8,11 @@
   },
   "scripts": {
     "test": "jest --config=./bindings/nodejs/lib/jest.config.js",
-    "native:cmake": "node ./scripts/build-nodejs-binding.js",
-    "native:build": "yarn run node-gyp build",
-    "native:configure": "yarn run node-gyp configure",
-    "native:install": "yarn run node-gyp install",
-    "native:clean": "yarn node-gyp clean",
-    "build": "tsc -p ./bindings/nodejs/lib",
+    "build": "node ./scripts/build-node-binding.js ./ ./build-linq ./build-linq/install ./bindings/node/lib",
     "build:examples": "tsc --build ./bindings/nodejs/examples/update/tsconfig.json",
     "build:integration-test": "tsc --build ./test/integration/timeout/tsconfig.json",
     "build:events": "tsc --build ./bindings/nodejs/examples/events",
-    "run:events": "node ./bindings/nodejs/examples/events/index.js",
-    "preinstall": "yarn run native:cmake",
-    "postinstall": "yarn run native:configure && yarn run native:build && tsc -p ./bindings/nodejs/lib"
+    "run:events": "node ./bindings/nodejs/examples/events/index.js"
   },
   "files": [
     "/bindings/cpp",

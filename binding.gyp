@@ -4,15 +4,15 @@
       "target_name":"linq",
       "sources":[
         "./bindings/cpp/netw.hpp",
-        "./bindings/nodejs/src/binding.cc",
-        "./bindings/nodejs/src/LogJS.cc",
-        "./bindings/nodejs/src/LogJS.h",
-        "./bindings/nodejs/src/NetwJS.cc",
-        "./bindings/nodejs/src/NetwJS.h"
+        "./bindings/node/src/binding.cc",
+        "./bindings/node/src/LogJS.cc",
+        "./bindings/node/src/LogJS.h",
+        "./bindings/node/src/NetwJS.cc",
+        "./bindings/node/src/NetwJS.h"
       ],
       "include_dirs":[
         "./bindings/cpp/",
-        "./bindings/nodejs/src/",
+        "./bindings/node/src/",
         "./build-linq/install/include/",
         "./build-linq/install/include/altronix/",
         "<!@(node -p \"require('node-addon-api').include\")"
@@ -25,25 +25,24 @@
         [ "OS=='linux'", {
           "libraries":[
             "../build-linq/install/lib/liblinqnetwork.a",
-            "../build-linq/install/lib/liblinqcommon.a",
-            "../build-linq/install/lib/liblinqusbh.a",
-            "../build-linq/install/lib/liblinqusb.a",
             "../build-linq/install/lib/libusb-1.0.a",
             "../build-linq/install/lib/libzmq.a",
-            "../build-linq/install/lib/libczmq.a",
             "-luuid",
             "-ludev"
-          ]
+          ],
+          "copies": [
+            {
+              "destination": "./dist",
+              "files": [
+              ]
+            }
+          ],
         }],
         [ "OS=='win'", {
           "libraries":[
             "../build-linq/install/lib/linqnetwork.lib",
-            "../build-linq/install/lib/linqcommon.lib",
-            "../build-linq/install/lib/linqusbh.lib",
-            "../build-linq/install/lib/linqusb.lib",
             "../build-linq/install/lib/libusb-1.0.lib",
             "../build-linq/install/lib/libzmq-v142-mt-4_3_4.lib",
-            "../build-linq/install/lib/czmq.lib",
             "uuid",
 	    "ws2_32",
 	    "iphlpapi",
@@ -52,10 +51,8 @@
 	  ],
           "copies": [
             {
-              "destination": "./build/Release",
+              "destination": "./dist",
               "files": [
-                "./build-linq/install/bin/libzmq-v142-mt-4_3_4.dll",
-                "./build-linq/install/bin/libczmq.dll"
               ]
             }
           ],

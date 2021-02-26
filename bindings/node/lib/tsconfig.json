@@ -1,7 +1,7 @@
 {
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "../../../build/install/lib"
+    "outDir": "../../../dist/"
   },
   "include": ["./"],
   "exclude": ["node_modules", "__tests__"]

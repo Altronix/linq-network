@@ -1,3 +1,7 @@
+const cp = require("child_process");
+const { sanitizeEnv, sanitizePath } = require("./sanitize");
+const __env = sanitizeEnv(process.env);
+
 const RESET = "\x1b[0m";
 const BOLD = "\x1b[1m";
 const BOLD_OFF = "\x1b[21m";
@@ -48,12 +52,12 @@ const colorMap = {
   info: `${GREEN}`,
   warn: `${YELLOW}`,
   error: `${RED}`,
-  fatal: `${MAGENTA}`
+  fatal: `${MAGENTA}`,
 };
 
 exports = module.exports;
 
-exports.log = function(channel, message) {
+exports.log = function (channel, message) {
   const now = `${CYAN}|Build LinQ|`;
   const arrow = `${WHITE}=>`;
   const level = `${colorMap[channel]}${channel.slice(-5).toUpperCase()}`;
@@ -61,26 +65,63 @@ exports.log = function(channel, message) {
   console.log(`${now} ${arrow} ${level} ${m}`);
 };
 
-exports.traice = function(message) {
+exports.traice = function (message) {
   this.log("trace", message);
 };
 
-exports.debug = function(message) {
+exports.debug = function (message) {
   this.log("debug", message);
 };
 
-exports.info = function(message) {
+exports.info = function (message) {
   this.log("info", message);
 };
 
-exports.warn = function(message) {
+exports.warn = function (message) {
   this.log("warn", message);
 };
 
-exports.error = function(message) {
+exports.error = function (message) {
   this.log("error", message);
 };
 
-exports.fatal = function(message) {
+exports.fatal = function (message) {
   this.log("fatal", message);
+};
+
+exports.spawnEnv = {
+  env: __env,
+  stdio: "inherit",
+  shell: process.platform === "win32",
+};
+
+exports.makeCmakeConfigArgs = function ({ sourceDir, buildDir, installDir }) {
+  return [
+    `-S${sanitizePath(sourceDir)}`,
+    `-B${sanitizePath(buildDir)}`,
+    `-DBUILD_USBH=ON`,
+    `-DLOG_LEVEL=TRACE`,
+    `-DCMAKE_BUILD_TYPE=Release`,
+    `-DBUILD_DEPENDENCIES=ON`,
+    `-DCMAKE_INSTALL_PREFIX=${sanitizePath(installDir)}`,
+    `-DBUILD_SHARED=OFF`,
+    `-DBUILD_APPS=OFF`,
+  ];
+};
+
+exports.makeCmakeBuildArgs = function ({ buildDir }) {
+  return [
+    `--build`,
+    `${sanitizePath(buildDir)}`,
+    "--config",
+    "Release",
+    "--target",
+    `install`,
+  ];
+};
+
+exports.spawn = function (cmd, args, env = exports.spawnEnv) {
+  exports.info(`${cmd}: ${JSON.stringify(args)}`);
+  const result = cp.spawnSync(cmd, args, env);
+  if (!(result.status === 0)) throw new Error(`${cmd} failed!`);
 };
