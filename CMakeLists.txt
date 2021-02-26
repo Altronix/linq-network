@@ -140,10 +140,16 @@ if(ENABLE_TESTING)
     COMMAND test-device
     COMMAND test-devices
     COMMAND test-json
+    COMMAND test-linq
     COMMAND test-rlp
     COMMAND test-sys
     COMMAND test-usb-common
-    COMMAND test-usbh)
+    COMMAND test-usbh
+    COMMAND integration-alert-test
+    COMMAND integration-broadcast-test
+    COMMAND integration-response-test
+    COMMAND integration-forward-response-test
+    )
     # COMMAND test-network
     # COMMAND binding-network-cpp-test)
 
