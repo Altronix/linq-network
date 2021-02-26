@@ -1,6 +1,3 @@
-[submodule "external/libzmq"]
-	path = external/libzmq
-	url = https://github.com/zeromq/libzmq
 [submodule "external/linq-common"]
 	path = external/linq-common
 	url = https://bitbucket.org/Altronix/linq-common

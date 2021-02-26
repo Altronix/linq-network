@@ -49,6 +49,7 @@ external/cmocka*
 external/zeromq*
 external/czmq*
 external/libusb*
+external/http_parser*
 
 #sqlite
 **/*/test.db

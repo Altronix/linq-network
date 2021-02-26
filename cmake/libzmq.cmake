@@ -1,8 +1,9 @@
 # libzmq
 
-set(ZMQ_SOURCE_DIR "${EXTERNAL_DIR}/zeromq-4.3.4")
+set(ZMQ_VERSION "4.3.4")
+set(ZMQ_SOURCE_DIR "${EXTERNAL_DIR}/zeromq-${ZMQ_VERSION}")
 set(ZMQ_TEST_FILE "${ZMQ_SOURCE_DIR}/CMakeLists.txt")
-check_extract("${DOWNLOAD_DIR}/zeromq-4.3.4.tar.gz" "${ZMQ_TEST_FILE}")
+check_extract("${DOWNLOAD_DIR}/zeromq-${ZMQ_VERSION}.tar.gz" "${ZMQ_TEST_FILE}")
 
 ExternalProject_Add(zmq-project
 	SOURCE_DIR ${ZMQ_SOURCE_DIR}
