@@ -1,6 +1,5 @@
 const cp = require("child_process");
-const { sanitizeEnv, sanitizePath } = require("./sanitize");
-const __env = sanitizeEnv(process.env);
+// const __env = exports.sanitizeEnv(process.env);
 
 const RESET = "\x1b[0m";
 const BOLD = "\x1b[1m";
@@ -89,21 +88,38 @@ exports.fatal = function (message) {
   this.log("fatal", message);
 };
 
+// https://github.com/dotnet/msbuild/issues/5726
+exports.sanitizeEnv = function sanitizeEnv(envArg = process.env) {
+  const env = { ...envArg };
+  if (env.Path && env.PATH) {
+    const PATH = [...env.Path.split(";"), ...env.Path.split(";")];
+    env.PATH = [...new Set(PATH)].join(";");
+    delete env.Path;
+  }
+  return env;
+};
+
+exports.sanitizePath = function sanitizePath(path) {
+  return process.platform === "win32"
+    ? `"${path}"`
+    : `${path.replace(" ", "\\ ")}`;
+};
+
 exports.spawnEnv = {
-  env: __env,
+  env: exports.sanitizeEnv(process.env),
   stdio: "inherit",
   shell: process.platform === "win32",
 };
 
 exports.makeCmakeConfigArgs = function ({ sourceDir, buildDir, installDir }) {
   return [
-    `-S${sanitizePath(sourceDir)}`,
-    `-B${sanitizePath(buildDir)}`,
+    `-S${exports.sanitizePath(sourceDir)}`,
+    `-B${exports.sanitizePath(buildDir)}`,
     `-DBUILD_USBH=ON`,
     `-DLOG_LEVEL=TRACE`,
     `-DCMAKE_BUILD_TYPE=Release`,
     `-DBUILD_DEPENDENCIES=ON`,
-    `-DCMAKE_INSTALL_PREFIX=${sanitizePath(installDir)}`,
+    `-DCMAKE_INSTALL_PREFIX=${exports.sanitizePath(installDir)}`,
     `-DBUILD_SHARED=OFF`,
     `-DBUILD_APPS=OFF`,
   ];
@@ -112,7 +128,7 @@ exports.makeCmakeConfigArgs = function ({ sourceDir, buildDir, installDir }) {
 exports.makeCmakeBuildArgs = function ({ buildDir }) {
   return [
     `--build`,
-    `${sanitizePath(buildDir)}`,
+    `${exports.sanitizePath(buildDir)}`,
     "--config",
     "Release",
     "--target",
