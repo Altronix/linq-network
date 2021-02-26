@@ -5,10 +5,14 @@
 #ifndef LINQ_H_
 #define LINQ_H_
 
-#include "common/sys/sys.h"
-
 // clang-format off
 #if defined _WIN32
+#  include <assert.h>
+#  include <stdarg.h>
+#  include <stdbool.h>
+#  include <stdint.h>
+#  include <stdio.h>
+#  include <string.h>
 #  if defined LINQ_STATIC
 #    define LINQ_EXPORT
 #  elif defined DLL_EXPORT
@@ -17,9 +21,27 @@
 #    define LINQ_EXPORT __declspec(dllimport)
 #  endif
 #else
+#  include <assert.h>
+#  include <stdarg.h>
+#  include <stdbool.h>
+#  include <stddef.h>
+#  include <stdint.h>
+#  include <stdio.h>
+#  include <stdlib.h>
+#  include <string.h>
+#  include <sys/stat.h>
+#  include <sys/types.h>
+#  include <unistd.h>
 #  define LINQ_EXPORT
 #endif
 // clang-format on
+
+#define linq_network_malloc_fn malloc
+#define linq_network_free_fn free
+#define linq_network_assert_fn assert
+#define linq_network_malloc(x) linq_network_malloc_fn(x)
+#define linq_network_free(x) linq_network_free_fn(x)
+#define linq_network_assert(x) linq_network_assert_fn(x)
 
 #ifndef LINQ_SID_LEN
 #define LINQ_SID_LEN 64

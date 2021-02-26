@@ -6,6 +6,7 @@
 #include "common/containers.h"
 #include "common/device.h"
 #include "common/log.h"
+#include "common/sys/sys.h"
 
 #define dev_info(...) log_info("DEV", __VA_ARGS__)
 #define dev_warn(...) log_warn("DEV", __VA_ARGS__)

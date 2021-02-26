@@ -5,34 +5,7 @@
 #ifndef SYS_H
 #define SYS_H
 
-#include <assert.h>
-#include <stdarg.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-
-// clang-format off
-#if defined _WIN32
-#  if defined LINQ_STATIC
-#    define LINQ_EXPORT
-#  elif defined DLL_EXPORT
-#    define LINQ_EXPORT __declspec(dllexport)
-#  else
-#    define LINQ_EXPORT __declspec(dllimport)
-#  endif
-#else
-#  define LINQ_EXPORT
-#endif
-// clang-format on
-
-#define linq_network_malloc_fn malloc
-#define linq_network_free_fn free
-#define linq_network_assert_fn assert
-
-#define linq_network_malloc(x) linq_network_malloc_fn(x)
-#define linq_network_free(x) linq_network_free_fn(x)
-#define linq_network_assert(x) linq_network_assert_fn(x)
+#include "netw.h"
 
 #define memmem sys_memmem
 

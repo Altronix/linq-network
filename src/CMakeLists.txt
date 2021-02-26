@@ -26,7 +26,7 @@ set(SOURCES
     common/log.h
     common/klib/khash.h 
     common/klib/klist.h)
-set(INSTALL_HEADERS netw.h common.h)
+set(INSTALL_HEADERS netw.h)
 set(INCS ./)
 if(BUILD_USBH)
   list(APPEND definitions "BUILD_USBH")
