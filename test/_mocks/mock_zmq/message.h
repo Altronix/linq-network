@@ -9,7 +9,8 @@ extern "C"
 {
 #endif
 
-    void more_set(zmq_msg_t* msg);
+    void message_more_set(zmq_msg_t* msg);
+    int message_valid(zmq_msg_t* msg);
 
 #ifdef __cplusplus
 }

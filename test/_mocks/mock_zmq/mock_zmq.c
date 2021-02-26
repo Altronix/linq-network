@@ -1,6 +1,6 @@
 #include "mock_zmq.h"
 #include "common/containers.h"
-#include "more.h"
+#include "message.h"
 
 #include "zmq.h"
 
@@ -57,21 +57,21 @@ void
 zmq_spy_mesg_close_outgoing(int at)
 {
     mock_zmq_msg_s* m = msg_vec_at(&outgoing, at);
-    if (m && (!m->closed)) zmq_msg_close(&msg_vec_at(&outgoing, at)->msg);
+    if (m) zmq_msg_close(&msg_vec_at(&outgoing, at)->msg);
 }
 
 void
 zmq_spy_mesg_close_incoming(int at)
 {
     mock_zmq_msg_s* m = msg_vec_at(&incoming, at);
-    if (m && (!m->closed)) zmq_msg_close(&msg_vec_at(&incoming, at)->msg);
+    if (m) zmq_msg_close(&msg_vec_at(&incoming, at)->msg);
 }
 
 mock_zmq_msg_s*
 zmq_spy_msg_push_incoming(zmq_msg_t* msg, int f)
 {
     mock_zmq_msg_s mock = { .msg = *msg, .closed = 0, .recvd = 0 };
-    if (f & ZMQ_SNDMORE) more_set(&mock.msg);
+    if (f & ZMQ_SNDMORE) message_more_set(&mock.msg);
     msg_vec_push(&incoming, mock);
     return msg_vec_last(&incoming);
 }
@@ -88,6 +88,13 @@ __wrap_zmq_ctx_destroy(void* ctx)
 {
     ((void)ctx);
     return 0;
+}
+
+void*
+__wrap_zmq_socket(void* ctx, int type_)
+{
+    static int foo = 0;
+    return &foo;
 }
 
 int
@@ -127,7 +134,7 @@ int
 __wrap_zmq_msg_send(zmq_msg_t* msg, void* socket, int f)
 {
     mock_zmq_msg_s mock = { .msg = *msg, .closed = 0, .recvd = 0 };
-    if (f & ZMQ_SNDMORE) more_set(&mock.msg);
+    if (f & ZMQ_SNDMORE) message_more_set(&mock.msg);
     msg_vec_push(&outgoing, mock);
     return zmq_msg_size(msg);
 }
@@ -139,7 +146,7 @@ __wrap_zmq_msg_recv(zmq_msg_t* msg, void* socket, int flags)
         mock_zmq_msg_s* mock = msg_vec_at(&incoming, i);
         if (!mock->recvd) {
             mock->recvd = 1;
-            *msg = mock->msg;
+            zmq_msg_copy(msg, &mock->msg);
             return zmq_msg_size(msg);
         }
     }
@@ -149,9 +156,12 @@ __wrap_zmq_msg_recv(zmq_msg_t* msg, void* socket, int flags)
 int
 __wrap_zmq_msg_close(zmq_msg_t* msg)
 {
-    int ret = __real_zmq_msg_close(msg);
-    // assert(ret == 0);
-    return ret;
+    if (message_valid(msg)) {
+        int ret = __real_zmq_msg_close(msg);
+        return ret;
+    } else {
+        return -1;
+    }
 }
 
 int
@@ -159,3 +169,4 @@ __wrap_zmq_msg_more(zmq_msg_t* msg)
 {
     return __real_zmq_msg_more(msg);
 }
+

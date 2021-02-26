@@ -27,7 +27,6 @@ helpers_test_context_create(helpers_test_config_s* config)
         linq_network_malloc(sizeof(helpers_test_context_s));
     linq_network_assert(ctx);
     memset(ctx, 0, sizeof(helpers_test_context_s));
-    helpers_test_init();
     ctx->net = netw_create(config->callbacks, config->context);
 
     if (config->zmtp) {
@@ -46,7 +45,6 @@ helpers_test_context_destroy(helpers_test_context_s** ctx_p)
     *ctx_p = NULL;
     netw_destroy(&ctx->net);
     linq_network_free(ctx);
-    helpers_test_reset();
 }
 
 void
@@ -80,7 +78,7 @@ helpers_push_heartbeat(
         zmq_spy_msg_push_incoming(&msg, ZMQ_SNDMORE);
     }
 
-    helpers_push_incoming_mem(
+    helpers_push_mem(
         5,
         &g_frame_ver_0,         // version
         1,                      //
@@ -103,7 +101,7 @@ helpers_push_alert(const char* rid, const char* sid, const char* pid)
         zmq_msg_init_size(&msg, strlen(rid));
         zmq_spy_msg_push_incoming(&msg, ZMQ_SNDMORE);
     }
-    helpers_push_incoming_mem(
+    helpers_push_mem(
         6,
         &g_frame_ver_0,     // version
         1,                  //
@@ -133,7 +131,7 @@ helpers_push_response(
         zmq_msg_init_size(&msg, strlen(rid));
         zmq_spy_msg_push_incoming(&msg, ZMQ_SNDMORE);
     }
-    helpers_push_incoming_mem(
+    helpers_push_mem(
         5,
         &g_frame_ver_0,        // version
         1,                     //
@@ -159,7 +157,7 @@ helpers_push_request(
         zmq_msg_init_size(&msg, strlen(rid));
         zmq_spy_msg_push_incoming(&msg, ZMQ_SNDMORE);
     }
-    data ? helpers_push_incoming_mem(
+    data ? helpers_push_mem(
                5,
                &g_frame_ver_0,
                1,
@@ -171,7 +169,7 @@ helpers_push_request(
                strlen(path),
                data,
                strlen(data))
-         : helpers_push_incoming_mem(
+         : helpers_push_mem(
                4,
                &g_frame_ver_0,
                1,
@@ -186,7 +184,7 @@ helpers_push_request(
 void
 helpers_push_hello(const char* router, const char* node)
 {
-    helpers_push_incoming_mem(
+    helpers_push_mem(
         4,
         router,
         strlen(router),
@@ -199,7 +197,7 @@ helpers_push_hello(const char* router, const char* node)
 }
 
 void
-helpers_push_incoming_str(int n, ...)
+helpers_push_str(int n, ...)
 {
     va_list list;
     va_start(list, n);
@@ -209,13 +207,13 @@ helpers_push_incoming_str(int n, ...)
         int sz = strlen(arg);
         zmq_msg_init_size(&msg, strlen(arg) + 1);
         snprintf(zmq_msg_data(&msg), sz + 1, "%s", arg);
-        zmq_spy_msg_push_incoming(&msg, i = n - 1 ? 0 : ZMQ_SNDMORE);
+        zmq_spy_msg_push_incoming(&msg, i == (n - 1) ? 0 : ZMQ_SNDMORE);
     }
     va_end(list);
 }
 
 void
-helpers_push_incoming_mem(int n, ...)
+helpers_push_mem(int n, ...)
 {
     int err;
     va_list list;
@@ -226,7 +224,7 @@ helpers_push_incoming_mem(int n, ...)
         size_t sz = va_arg(list, size_t);
         err = zmq_msg_init_size(&msg, sz);
         memcpy(zmq_msg_data(&msg), arg, sz);
-        zmq_spy_msg_push_incoming(&msg, i = n - 1 ? 0 : ZMQ_SNDMORE);
+        zmq_spy_msg_push_incoming(&msg, i == (n - 1) ? 0 : ZMQ_SNDMORE);
     }
     va_end(list);
 }

@@ -124,12 +124,15 @@ if(ENABLE_TESTING)
   add_subdirectory(test/sys)
   add_subdirectory(test/usb/common)
   add_subdirectory(test/usb/host)
+  add_subdirectory(test/linq)
+  # add_subdirectory(bindings/cpp/test)
   # add_subdirectory(src/test/linq_network)
   # add_subdirectory(bindings/cpp/test)
 
   # add test coverage
   APPEND_COVERAGE_COMPILER_FLAGS()
   set(COVERAGE_EXCLUDES 
+    "external/http_parser/http_parser.c"
     "src/common/base64.*")
 
   setup_target_for_coverage_lcov(NAME test-coverage

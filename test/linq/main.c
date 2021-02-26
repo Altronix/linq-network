@@ -2,15 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include "common/device.h"
 #include "helpers.h"
-#include "libcommon/device.h"
-#include "mock_mongoose.h"
-#include "mock_sqlite.h"
 #include "mock_utils.h"
-#include "mock_zmsg.h"
-#include "mock_zpoll.h"
+#include "mock_zmq.h"
 #include "netw.h"
-#include "zmtp_device.h"
+#include "zmtp/zmtp_device.h"
 
 #define USER "unsafe_user"
 #define PASS "unsafe_pass"
@@ -28,6 +25,7 @@ test_init(helpers_test_config_s* config)
 {
     zmtp_device_retry_timeout_set(TEST_RETRY_TIMEOUT);
     zmtp_device_max_retry_set(TEST_MAX_RETRY);
+    helpers_test_init();
     return helpers_test_context_create(config);
 }
 
@@ -35,10 +33,10 @@ static void
 test_reset(helpers_test_context_s** test_p)
 {
     helpers_test_context_destroy(test_p);
+    helpers_test_reset();
     expect_error = LINQ_ERROR_OK;
     expect_what = empty;
     expect_sid = empty;
-    helpers_test_reset();
 }
 
 static void
@@ -116,12 +114,11 @@ test_netw_receive_protocol_error_short(void** context_p)
                                      .http = 0,
                                      .user = USER,
                                      .pass = PASS };
-    zmsg_t* m = helpers_create_message_str(2, "too", "short");
-
     helpers_test_context_s* test = test_init(&config);
+
+    helpers_push_str(2, "too", "short");
     expect_error = LINQ_ERROR_PROTOCOL;
-    czmq_spy_mesg_push_incoming(&m);
-    czmq_spy_poll_set_incoming((0x01));
+    zmq_spy_poll_set_ready((0x01));
 
     netw_poll(test->net, 5);
 
@@ -141,20 +138,12 @@ test_netw_receive_protocol_error_callback_has_serial(void** context_p)
                                      .http = 0,
                                      .user = USER,
                                      .pass = PASS };
-    // clang-format off
-    zmsg_t* m = helpers_create_message_mem(
-        5, 
-        "router", 6, 
-        "\x0", 1, 
-        "\x8", 1, 
-        "bar", 3, 
-        "car", 3);
-    // clang-format on
 
     helpers_test_context_s* test = test_init(&config);
+
+    helpers_push_mem(5, "router", 6, "\x0", 1, "\x8", 1, "bar", 3, "car", 3);
     expect_error = LINQ_ERROR_PROTOCOL;
-    czmq_spy_mesg_push_incoming(&m);
-    czmq_spy_poll_set_incoming((0x01));
+    zmq_spy_poll_set_ready(0x01);
     expect_sid = "bar";
 
     netw_poll(test->net, 5);
@@ -177,12 +166,20 @@ test_netw_receive_protocol_error_serial(void** context_p)
                                      .http = 0,
                                      .user = USER,
                                      .pass = PASS };
-    zmsg_t* m = helpers_create_message_mem(
-        6, "rid", 3, "\x0", 1, "\x0", 1, sid, SID_LEN + 1, "pid", 3, "site", 4);
-
     helpers_test_context_s* test = test_init(&config);
-    czmq_spy_mesg_push_incoming(&m);
-    czmq_spy_poll_set_incoming((0x01));
+
+    // clang-format off
+    helpers_push_mem(
+        6,
+        "rid", 3,
+        "\x0", 1,
+        "\x0", 1,
+        sid, SID_LEN + 1,
+        "pid", 3,
+        "site", 4);
+    // clang-format on
+
+    zmq_spy_poll_set_ready((0x01));
 
     expect_error = LINQ_ERROR_PROTOCOL;
 
@@ -193,6 +190,7 @@ test_netw_receive_protocol_error_serial(void** context_p)
     test_reset(&test);
 }
 
+/*
 static void
 test_netw_receive_protocol_error_router(void** context_p)
 {
@@ -206,12 +204,20 @@ test_netw_receive_protocol_error_router(void** context_p)
                                      .http = 0,
                                      .user = USER,
                                      .pass = PASS };
-    zmsg_t* m = helpers_create_message_mem(
-        6, rid, RID_LEN + 1, "\x0", 1, "\x0", 1, "sid", 3, "pid", 3, "site", 4);
-
     helpers_test_context_s* test = test_init(&config);
-    czmq_spy_mesg_push_incoming(&m);
-    czmq_spy_poll_set_incoming((0x01));
+
+    // clang-format off
+    helpers_push_mem(
+        6,
+        rid, RID_LEN + 1,
+        "\x0", 1,
+        "\x0", 1,
+        "sid", 3,
+        "pid", 3,
+        "site", 4);
+    // clang-format on
+
+    zmq_spy_poll_set_ready(0x01);
 
     expect_error = LINQ_ERROR_PROTOCOL;
 
@@ -1202,54 +1208,6 @@ test_netw_devices_callback(void* context, const char* sid, const char* pid)
     assert_int_equal(idx, atoi(&pid[3]));
 }
 
-/*
-static void
-test_netw_devices_foreach(void** context_p)
-{
-    ((void)context_p);
-    helpers_test_config_s config = { .callbacks = NULL,
-                                     .context = NULL,
-                                     .zmtp = 0,
-                                     .http = 0,
-                                     .user = USER,
-                                     .pass = PASS };
-
-    helpers_test_context_s* test = test_init(&config);
-
-    netw_listen(test->net, "tcp://1.2.3.4:8080");
-    netw_listen(test->net, "tcp://5.6.7.8:8080");
-    netw_connect(test->net, "tcp://11.22.33.44:8888");
-    netw_connect(test->net, "tcp://55.66.77.88:8888");
-    zmsg_t* hb0 = helpers_make_heartbeat("r0", "dev0", "pid0", "site");
-    zmsg_t* hb1 = helpers_make_heartbeat("r1", "dev1", "pid1", "site");
-    zmsg_t* hb2 = helpers_make_heartbeat(NULL, "dev2", "pid2", "site");
-    zmsg_t* hb3 = helpers_make_heartbeat(NULL, "dev3", "pid3", "site");
-    zmsg_t* hb4 = helpers_make_heartbeat("r5", "dev4", "pid4", "site");
-    zmsg_t* hb5 = helpers_make_heartbeat("r6", "dev5", "pid5", "site");
-    zmsg_t* hb6 = helpers_make_heartbeat(NULL, "dev6", "pid6", "site");
-    zmsg_t* hb7 = helpers_make_heartbeat(NULL, "dev7", "pid7", "site");
-
-    czmq_spy_mesg_push_incoming(&hb0);
-    czmq_spy_mesg_push_incoming(&hb1);
-    czmq_spy_mesg_push_incoming(&hb2);
-    czmq_spy_mesg_push_incoming(&hb3);
-    czmq_spy_mesg_push_incoming(&hb4);
-    czmq_spy_mesg_push_incoming(&hb5);
-    czmq_spy_mesg_push_incoming(&hb6);
-    czmq_spy_mesg_push_incoming(&hb7);
-    czmq_spy_poll_set_incoming((0b1111)); // Knowledge of innards
-    netw_poll(test->net, 5);
-    netw_poll(test->net, 5);
-    assert_int_equal(netw_device_count(test->net), 8);
-
-    uint32_t mask = 0x00;
-    netw_devices_foreach(test->net, test_netw_devices_callback, &mask);
-    assert_int_equal(mask, 0b11111111);
-
-    test_reset(&test);
-}
-*/
-
 static void
 test_netw_device_remove(void** context_p)
 {
@@ -1289,6 +1247,7 @@ test_netw_device_remove(void** context_p)
 
     test_reset(&test);
 }
+*/
 
 int
 main(int argc, char* argv[])
@@ -1301,28 +1260,28 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_netw_receive_protocol_error_short),
         cmocka_unit_test(test_netw_receive_protocol_error_callback_has_serial),
         cmocka_unit_test(test_netw_receive_protocol_error_serial),
-        cmocka_unit_test(test_netw_receive_protocol_error_router),
-        cmocka_unit_test(test_netw_receive_heartbeat_ok),
-        cmocka_unit_test(test_netw_receive_heartbeat_error_short),
-        cmocka_unit_test(test_netw_receive_alert_ok),
-        cmocka_unit_test(test_netw_receive_alert_error_short),
-        cmocka_unit_test(test_netw_receive_response_ok),
-        cmocka_unit_test(test_netw_receive_response_error_timeout),
-        cmocka_unit_test(test_netw_receive_response_error_codes),
-        cmocka_unit_test(test_netw_receive_response_error_504),
-        cmocka_unit_test(test_netw_receive_response_ok_504),
-        cmocka_unit_test(test_netw_receive_hello),
-        cmocka_unit_test(test_netw_receive_hello_double_id),
-        cmocka_unit_test(test_netw_send_bad_args),
-        cmocka_unit_test(test_netw_broadcast_heartbeat),
-        cmocka_unit_test(test_netw_broadcast_heartbeat_receive),
-        cmocka_unit_test(test_netw_broadcast_alert),
-        cmocka_unit_test(test_netw_forward_request),
-        cmocka_unit_test(test_netw_forward_client_request),
-        cmocka_unit_test(test_netw_connect),
-        cmocka_unit_test(test_netw_close_router),
-        cmocka_unit_test(test_netw_device_remove),
-        // cmocka_unit_test(test_netw_devices_foreach)
+        // cmocka_unit_test(test_netw_receive_protocol_error_router),
+        // cmocka_unit_test(test_netw_receive_heartbeat_ok),
+        // cmocka_unit_test(test_netw_receive_heartbeat_error_short),
+        // cmocka_unit_test(test_netw_receive_alert_ok),
+        // cmocka_unit_test(test_netw_receive_alert_error_short),
+        // cmocka_unit_test(test_netw_receive_response_ok),
+        // cmocka_unit_test(test_netw_receive_response_error_timeout),
+        // cmocka_unit_test(test_netw_receive_response_error_codes),
+        // cmocka_unit_test(test_netw_receive_response_error_504),
+        // cmocka_unit_test(test_netw_receive_response_ok_504),
+        // cmocka_unit_test(test_netw_receive_hello),
+        // cmocka_unit_test(test_netw_receive_hello_double_id),
+        // cmocka_unit_test(test_netw_send_bad_args),
+        // cmocka_unit_test(test_netw_broadcast_heartbeat),
+        // cmocka_unit_test(test_netw_broadcast_heartbeat_receive),
+        // cmocka_unit_test(test_netw_broadcast_alert),
+        // cmocka_unit_test(test_netw_forward_request),
+        // cmocka_unit_test(test_netw_forward_client_request),
+        // cmocka_unit_test(test_netw_connect),
+        // cmocka_unit_test(test_netw_close_router),
+        // cmocka_unit_test(test_netw_device_remove),
+        // // cmocka_unit_test(test_netw_devices_foreach)
     };
 
     err = cmocka_run_group_tests(tests, NULL, NULL);

@@ -118,8 +118,8 @@ extern "C"
         const char* path,
         const char* data);
     void helpers_push_hello(const char* router, const char* node);
-    void helpers_push_incoming_mem(int n, ...);
-    void helpers_push_incoming_str(int n, ...);
+    void helpers_push_mem(int n, ...);
+    void helpers_push_str(int n, ...);
     void assert_msg_equal(zmq_msg_t* msg, int more, void* data, uint32_t l);
     void assert_recv_msg_equal(int more, void* data, uint32_t l);
 

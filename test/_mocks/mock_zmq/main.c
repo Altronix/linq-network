@@ -39,16 +39,12 @@ test_more(void** context_p)
     zmq_msg_t m;
     zmq_msg_init(&m);
     assert_int_equal(zmq_msg_more(&m), 0);
-    more_set(&m);
+    assert_true(message_valid(&m));
+    message_more_set(&m);
     assert_int_equal(zmq_msg_more(&m), 1);
-}
-
-static void
-test_more_getsockopt(void** context_p)
-{
-    // TODO if no messages have been received and incoming has message send 1
-    //      if messages have been received, look at the last received message
-    //      more flag
+    assert_true(message_valid(&m));
+    zmq_msg_close(&m);
+    assert_false(message_valid(&m));
 }
 
 static void
@@ -140,7 +136,6 @@ main(int argc, char* argv[])
     ((void)argv);
     int err;
     const struct CMUnitTest tests[] = { cmocka_unit_test(test_more),
-                                        cmocka_unit_test(test_more_getsockopt),
                                         cmocka_unit_test(test_mock_send),
                                         cmocka_unit_test(test_mock_send_large),
                                         cmocka_unit_test(test_mock_recv) };
