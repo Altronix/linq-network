@@ -18,8 +18,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 include(cmake/helpers.cmake)
 include(cmake/config.cmake)
-include(cmake/mongoose.cmake)
-include(cmake/sqlite.cmake)
 
 if(BUILD_DEBUG)
   set(CMAKE_BUILD_TYPE Debug)
@@ -119,11 +117,11 @@ if(ENABLE_TESTING)
   add_subdirectory(test/_mocks/mock_libusb)
   add_subdirectory(test/_mocks/mock_zmq)
   add_subdirectory(test/containers)
+  add_subdirectory(test/device)
+  add_subdirectory(test/devices)
   add_subdirectory(test/json)
   add_subdirectory(test/rlp)
   add_subdirectory(test/sys)
-  add_subdirectory(test/devices)
-  add_subdirectory(test/device)
   add_subdirectory(test/usb/common)
   add_subdirectory(test/usb/host)
   # add_subdirectory(src/test/linq_network)
@@ -132,29 +130,19 @@ if(ENABLE_TESTING)
   # add test coverage
   APPEND_COVERAGE_COMPILER_FLAGS()
   set(COVERAGE_EXCLUDES 
-    "examples/server/*"
-    "libhttp/mongoose.*"
-    "libdatabase/sqlite3.*"
-    "libcommon/sys/mock/*"
-    "libcommon/base64.*"
-    "external/http_parser/*")
+    "src/common/base64.*")
 
   setup_target_for_coverage_lcov(NAME test-coverage
     EXECUTABLE test-containers
-    COMMAND test-jsmn
-    COMMAND test-sys
-    COMMAND test-rlp
-    COMMAND test-usbh
-    COMMAND test-usbd
-    COMMAND test-network
     COMMAND test-device
-    COMMAND test-jsmn
-    COMMAND test-http
-    COMMAND test-http-routes
-    COMMAND test-database
-    COMMAND test-routes
-    COMMAND test-callbacks
-    COMMAND binding-network-cpp-test)
+    COMMAND test-devices
+    COMMAND test-json
+    COMMAND test-rlp
+    COMMAND test-sys
+    COMMAND test-usb-common
+    COMMAND test-usbh)
+    # COMMAND test-network
+    # COMMAND binding-network-cpp-test)
 
 endif()
 
