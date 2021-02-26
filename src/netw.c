@@ -5,16 +5,11 @@
 #include "netw.h"
 #include "common/log.h"
 #include "common/sys/sys.h"
+#include "netw_internal.h"
+#include "zmtp/callbacks.h"
 #include "zmtp/node.h"
 #include "zmtp/zmtp.h"
 #include "zmtp/zmtp_device.h"
-#include "zmtp/callbacks.h"
-#ifdef BUILD_LINQD
-#include "database.h"
-#include "http.h"
-#include "routes/routes.h"
-#endif
-#include "netw_internal.h"
 
 #define netw_info(...) log_info("NETW", __VA_ARGS__)
 #define netw_warn(...) log_warn("NETW", __VA_ARGS__)
@@ -53,19 +48,6 @@ netw_create(const netw_callbacks* cb, void* context)
 #ifdef BUILD_USBH
         usbh_init(&l->usb, &l->devices);
 #endif
-
-#ifdef BUILD_LINQD
-#define ADD_ROUTE(http, path, fn, ctx) http_use(http, path, fn, ctx)
-        database_init(&l->database);
-        http_init(&l->http, &l->database);
-        ADD_ROUTE(&l->http, "/api/v1/devices", route_devices, l);
-        ADD_ROUTE(&l->http, "/api/v1/alerts", route_alerts, l);
-        ADD_ROUTE(&l->http, "/api/v1/exe/scan", route_scan, l);
-        ADD_ROUTE(&l->http, "/api/v1/exe/kill", route_quit, l);
-        ADD_ROUTE(&l->http, "/api/v1/proxy/...", route_proxy, l);
-        ADD_ROUTE(&l->http, "/api/v1/connect", route_connect, l);
-#undef ADD_ROUTE
-#endif
     }
     return l;
 }
@@ -83,10 +65,6 @@ netw_destroy(netw_s** netw_p)
     usbh_free(&l->usb);
 #endif
 
-#if BUILD_LINQD
-    http_deinit(&l->http);
-    database_deinit(&l->database);
-#endif
     zmtp_deinit(&l->zmtp);
     linq_network_free(l);
 }
@@ -100,11 +78,7 @@ netw_context_set(netw_s* linq, void* ctx)
 void
 netw_root(netw_s* linq, const char* root)
 {
-#ifdef BUILD_LINQD
-    http_root(&linq->http, root);
-#else
     netw_error("http support not enabled!");
-#endif
 }
 
 // Listen for incoming device connections on "endpoint"
@@ -116,18 +90,8 @@ netw_listen(netw_s* l, const char* ep)
         netw_info("Listening... [%s]", ep);
         return zmtp_listen(&l->zmtp, ep);
     } else {
-#ifdef BUILD_LINQD
-        if (ep_len > 9 && !memcmp(ep, "http://*:", 9)) {
-            http_listen(&l->http, ep + 9);
-            return LINQ_ERROR_OK;
-        } else {
-            http_listen(&l->http, ep);
-            return LINQ_ERROR_OK;
-        }
-#else
         netw_error("not supported");
         return -1;
-#endif
     }
 }
 
@@ -166,11 +130,6 @@ netw_poll(netw_s* l, int32_t ms)
 
 #if BUILD_USBH
     err = usbh_poll(&l->usb, ms);
-    if (err < 0) netw_error("polling error %d", err);
-#endif
-
-#if BUILD_LINQD
-    err = http_poll(&l->http, ms);
     if (err < 0) netw_error("polling error %d", err);
 #endif
 
@@ -372,17 +331,3 @@ netw_scan(netw_s* linq)
     return -1;
 #endif
 }
-
-#ifdef BUILD_LINQD
-LINQ_EXPORT database_s*
-netw_database(netw_s* l)
-{
-    return &l->database;
-}
-
-LINQ_EXPORT void
-netw_use(netw_s* netw, const char* path, http_route_cb cb, void* context)
-{
-    http_use(&netw->http, path, cb, context);
-}
-#endif
