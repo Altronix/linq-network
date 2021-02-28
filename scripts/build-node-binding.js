@@ -5,10 +5,10 @@ const fs = require("fs");
 // Read arguments from command line
 function processArgs(args = process.argv.slice(2)) {
   return {
-    sourceDir: args[0],
-    buildDir: args[1],
-    installDir: args[2],
-    bindingDir: args[3],
+    sourceDir: helpers.sanitizePath(args[0]),
+    buildDir: helpers.sanitizePath(args[1]),
+    installDir: helpers.sanitizePath(args[2]),
+    bindingDir: helpers.sanitizePath(args[3]),
   };
 }
 
@@ -26,9 +26,9 @@ try {
   const buildArgs = helpers.makeCmakeBuildArgs({ buildDir });
   helpers.spawn("cmake", configArgs);
   helpers.spawn("cmake", buildArgs);
-  helpers.spawn("node", ["./node_modules/.bin/node-gyp", "configure"]);
-  helpers.spawn("node", ["./node_modules/.bin/node-gyp", "build"]);
-  helpers.spawn("node", ["./node_modules/.bin/tsc", "-p", bindingDir]);
+  helpers.spawn("yarn", ["node-gyp", "configure"]);
+  helpers.spawn("yarn", ["node-gyp", "build"]);
+  helpers.spawn("yarn", ["tsc", "-p", bindingDir]);
   if (!fs.existsSync(addonDir)) fs.mkdirSync(addonDir);
   fs.copyFileSync("./package.json", "dist/package.json");
   fs.copyFileSync("./build/Release/linq.node", `dist/linq.node`);
