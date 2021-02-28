@@ -25,10 +25,10 @@ config.status
 
 #cmake
 build/
-build*
-build-linux/
-build-windows/
-build-buildroot/
+build-linq
+build-fedora
+build-ubuntu
+build-windows
 target
 
 #ctags
