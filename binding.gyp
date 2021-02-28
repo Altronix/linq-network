@@ -32,7 +32,7 @@
           ],
           "copies": [
             {
-              "destination": "./dist",
+              "destination": "./dist/linux-x64",
               "files": [
               ]
             }
@@ -51,7 +51,7 @@
 	  ],
           "copies": [
             {
-              "destination": "./dist",
+              "destination": "./dist/win32-x64",
               "files": [
               ]
             }

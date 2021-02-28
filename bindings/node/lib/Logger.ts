@@ -1,4 +1,4 @@
-const binding = require("bindings")("linq");
+const binding = require("./linq");
 import { Subject } from "rxjs";
 import { LogData } from "./types";
 

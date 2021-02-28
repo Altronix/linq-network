@@ -51,7 +51,7 @@ import {
   takeWhileRunning,
 } from "./event";
 import { Logger } from "./Logger";
-const binding = require("bindings")("linq");
+const binding = require("./linq");
 
 export class LinqNetwork extends Events.EventEmitter {
   netw: Binding;

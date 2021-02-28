@@ -7,35 +7,14 @@
     "usbh": true
   },
   "scripts": {
-    "test": "jest --config=./bindings/nodejs/lib/jest.config.js",
+    "test": "jest --config=./bindings/node/lib/jest.config.js",
     "build": "node ./scripts/build-node-binding.js ./ ./build-linq ./build-linq/install ./bindings/node/lib",
-    "build:examples": "tsc --build ./bindings/nodejs/examples/update/tsconfig.json",
+    "build:examples": "tsc --build ./bindings/node/examples/update/tsconfig.json",
     "build:integration-test": "tsc --build ./test/integration/timeout/tsconfig.json",
-    "build:events": "tsc --build ./bindings/nodejs/examples/events",
-    "run:events": "node ./bindings/nodejs/examples/events/index.js"
+    "build:events": "tsc --build ./bindings/node/examples/events",
+    "run:events": "node ./bindings/node/examples/events/index.js",
+    "postinstall": "node postinstall.js"
   },
-  "files": [
-    "/bindings/cpp",
-    "/bindings/nodejs/lib",
-    "/bindings/nodejs/prebuilds",
-    "/bindings/nodejs/src",
-    "/bindings/nodejs/CMakeLists.txt",
-    "/cmake",
-    "/dl/*",
-    "/external/jsmn-web-tokens",
-    "/external/libusb",
-    "/libcommon",
-    "/libdatabase",
-    "/libhttp",
-    "/libnetwork",
-    "/libusb",
-    "/scripts",
-    "CMakeLists.txt",
-    "COPYING",
-    "package.json",
-    "tsconfig.base.json",
-    "README.md"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/TomzBench/linq-network.git"
