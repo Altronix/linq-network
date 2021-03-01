@@ -42,7 +42,7 @@
           "libraries":[
             "../build-linq/install/lib/linqnetwork.lib",
             "../build-linq/install/lib/libusb-1.0.lib",
-            "../build-linq/install/lib/libzmq-v142-mt-4_3_4.lib",
+            "../build-linq/install/lib/libzmq-v142-mt-s-4_3_4.lib",
             "uuid",
 	    "ws2_32",
 	    "iphlpapi",
@@ -59,6 +59,7 @@
           "defines": [ "NAPI_DISABLE_CPP_EXCEPTIONS" ],
           "msvs_settings": {
             "VCCLCompilerTool": {
+	      "RuntimeLibrary": "0",
               "ExceptionHandling": "1",
               "AdditionalOptions": [ "/EHsc" ],
 	    }

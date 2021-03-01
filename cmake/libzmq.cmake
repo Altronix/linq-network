@@ -5,6 +5,22 @@ set(ZMQ_SOURCE_DIR "${EXTERNAL_DIR}/zeromq-${ZMQ_VERSION}")
 set(ZMQ_TEST_FILE "${ZMQ_SOURCE_DIR}/CMakeLists.txt")
 check_extract("${DOWNLOAD_DIR}/zeromq-${ZMQ_VERSION}.tar.gz" "${ZMQ_TEST_FILE}")
 
+if(MSVC)
+  # NOTE - we use CMAKE 3.15 policy for setting MSVC Runtime Library (Which 
+  # leaves absent the /MT switch from cache FLAG variables in favor of the 
+  # CMAKE_MSVC_RUNTIME_LIBRARY variable.  The ZMQ CMakeLists does not support
+  # The MSVC Runtime variable so we explicitly add the switch here.
+  set(ZMQ_C_FLAGS "${CMAKE_C_FLAGS} /MT")
+  set(ZMQ_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MT")
+  set(ZMQ_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /MT")
+  set(ZMQ_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+else()
+  set(ZMQ_C_FLAGS "${CMAKE_C_FLAGS}")
+  set(ZMQ_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  set(ZMQ_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
+  set(ZMQ_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
+endif()
+
 ExternalProject_Add(zmq-project
 	SOURCE_DIR ${ZMQ_SOURCE_DIR}
 	INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
@@ -14,18 +30,21 @@ ExternalProject_Add(zmq-project
 		cmake
 		--build .
 		--target install
-		--config MinSizeRel
+		--config Release
 	LIST_SEPARATOR |
 	CMAKE_ARGS 
 		-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
 		-DCMAKE_INSTALL_LIBDIR=<INSTALL_DIR>/lib
-		-DCMAKE_BUILD_TYPE:STRING=Debug
+		-DCMAKE_C_FLAGS:STRING=${ZMQ_C_FLAGS}
+		-DCMAKE_C_FLAGS_RELEASE:STRING=${ZMQ_C_FLAGS_RELEASE}
+		-DCMAKE_CXX_FLAGS:STRING=${ZMQ_CXX_FLAGS}
+		-DCMAKE_CXX_FLAGS_RELEASE:STRING=${ZMQ_CXX_FLAGS_RELEASE}
 		-DZMQ_BUILD_TESTS:BOOL=OFF 
 		-DENABLE_WS:BOOL=OFF
 		-DENABLE_CURVE:BOOL=OFF
 		-DBUILD_TESTS:BOOL=OFF 
 		-DBUILD_STATIC:BOOL=ON
-		-DBUILD_SHARED:BOOL=ON
+		-DBUILD_SHARED:BOOL=OFF
 		-DWITH_DOCS:BOOL=OFF
 		-DWITH_PERF_TOOL:BOOL=OFF
 	)
