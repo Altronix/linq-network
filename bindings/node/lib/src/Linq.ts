@@ -51,7 +51,7 @@ import {
   request,
   takeWhileRunning,
 } from "./event";
-const binding = require("./linq");
+const binding = require("./linq.node");
 
 export class Linq extends Events.EventEmitter {
   netw: Binding;
