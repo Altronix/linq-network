@@ -2,7 +2,7 @@
   "name": "@altronix/linq",
   "version": "0.0.4-rc.34",
   "description": "Node bindings for linq-network",
-  "main": "./build/install/lib/index.js",
+  "main": "./src/index.js",
   "linq": {
     "usbh": true
   },

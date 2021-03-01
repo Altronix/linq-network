@@ -15,7 +15,7 @@ function processArgs(args = process.argv.slice(2)) {
 // Start building
 const { sourceDir, buildDir, installDir, bindingDir } = processArgs();
 try {
-  const addonDir = `dist/${
+  const prebuiltDir = `dist/${
     process.platform === "win32" ? "win32-x64" : "linux-x64"
   }`;
   const configArgs = helpers.makeCmakeConfigArgs({
@@ -29,10 +29,10 @@ try {
   helpers.spawn("yarn", ["node-gyp", "configure"]);
   helpers.spawn("yarn", ["node-gyp", "build"]);
   helpers.spawn("yarn", ["tsc", "-p", bindingDir]);
-  if (!fs.existsSync(addonDir)) fs.mkdirSync(addonDir);
+  if (!fs.existsSync(prebuiltDir)) fs.mkdirSync(prebuiltDir);
   fs.copyFileSync("./package.json", "dist/package.json");
-  fs.copyFileSync("./build/Release/linq.node", `dist/linq.node`);
-  fs.copyFileSync("./build/Release/linq.node", `${addonDir}/linq.node`);
+  fs.copyFileSync("./build/Release/linq.node", `dist/src/linq.node`);
+  fs.copyFileSync("./build/Release/linq.node", `${prebuiltDir}/linq.node`);
   fs.copyFileSync("./scripts/postinstall.js", "dist/postinstall.js");
 } catch (e) {
   helpers.error(`${e}`);

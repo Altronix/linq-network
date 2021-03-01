@@ -4,12 +4,12 @@
 #include "netw.hpp"
 #include <napi.h>
 
-class LinqNetwork : public Napi::ObjectWrap<LinqNetwork>
+class Linq : public Napi::ObjectWrap<Linq>
 {
   public:
     static Napi::Object Init(Napi::Env env, Napi::Object exports);
-    LinqNetwork(const Napi::CallbackInfo& info);
-    ~LinqNetwork();
+    Linq(const Napi::CallbackInfo& info);
+    ~Linq();
 
   private:
     // Binding functions

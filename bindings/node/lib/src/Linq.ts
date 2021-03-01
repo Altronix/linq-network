@@ -33,6 +33,7 @@ import {
   EventCtrlc,
   EventData,
   EventDataAbout,
+  EventLog,
 } from "./types";
 import {
   isEventDataNew,
@@ -50,15 +51,14 @@ import {
   request,
   takeWhileRunning,
 } from "./event";
-import { Logger } from "./Logger";
 const binding = require("./linq");
 
-export class LinqNetwork extends Events.EventEmitter {
+export class Linq extends Events.EventEmitter {
   netw: Binding;
   running: boolean = true;
   shutdownPromise: any;
   events$: Subject<Event> = new Subject<Event>();
-  private logger: Logger;
+  private logger: { open: (fn: (data: LogData) => void) => void };
   private _events$: Subject<Event> = new Subject<Event>();
   private shutdownTimer: any;
   private shutdownResolve: any;
@@ -71,12 +71,13 @@ export class LinqNetwork extends Events.EventEmitter {
     return this._devices;
   }
 
-  constructor(b?: Binding, logger?: Logger) {
+  constructor(b?: Binding) {
     super();
 
     let self = this;
-    this.logger = logger || new Logger();
-    this.netw = b || new binding.LinqNetwork();
+    this.logger = new binding.Logger();
+    this.logger.open((data) => this.events$.next({ type: "log", ...data }));
+    this.netw = b || new binding.Linq();
     this.netw.registerCallback(async function (
       event: LINQ_EVENTS,
       ...args: any[]
@@ -121,13 +122,17 @@ export class LinqNetwork extends Events.EventEmitter {
       )
       .subscribe((ev) => {
         // Subscribe to our observable and expose traditional event emitter api
+        console.log(ev);
         self.events$.next(ev);
         self.emit(ev.type, { ...ev });
       });
   }
 
   logs(): Observable<LogData> {
-    return this.logger.listen().pipe(takeUntil(this.shutdownPromise));
+    return this.events$.asObservable().pipe(
+      filter((e): e is EventLog => e.type !== "log"),
+      takeUntil(this.shutdownPromise)
+    );
   }
 
   events(ev: "_new"): Observable<EventNew>;
@@ -174,24 +179,24 @@ export class LinqNetwork extends Events.EventEmitter {
     return this.netw.version();
   }
 
-  root(path: string): LinqNetwork {
+  root(path: string): Linq {
     this.netw.root(path);
     return this;
   }
 
   // listen
-  listen(port: number): LinqNetwork;
-  listen(port: string): LinqNetwork;
-  listen(port: string | number): LinqNetwork {
+  listen(port: number): Linq;
+  listen(port: string): Linq;
+  listen(port: string | number): Linq {
     if (typeof port === "number") port = `tcp://*:${port}`;
     this.netw.listen(port);
     return this;
   }
 
   // connect
-  connect(port: number): LinqNetwork;
-  connect(port: string): LinqNetwork;
-  connect(port: string | number): LinqNetwork {
+  connect(port: number): Linq;
+  connect(port: string): Linq;
+  connect(port: string | number): Linq {
     if (typeof port === "number") port = `tcp://*:${port}`;
     this.netw.connect(port);
     return this;
@@ -251,14 +256,14 @@ export class LinqNetwork extends Events.EventEmitter {
   }
 
   // remove
-  remove(sid: string): LinqNetwork {
+  remove(sid: string): Linq {
     if (this._devices[sid]) delete this._devices[sid];
     this.netw.deviceRemove(sid);
     return this;
   }
 
   // Shutdown our run timer
-  shutdown(): LinqNetwork {
+  shutdown(): Linq {
     this.running = false;
     if (this.shutdownTimer) {
       clearTimeout(this.shutdownTimer);
@@ -322,7 +327,7 @@ export class LinqNetwork extends Events.EventEmitter {
   }
 }
 
-inherits(LinqNetwork, Events.EventEmitter);
+inherits(Linq, Events.EventEmitter);
 
-export const network = new LinqNetwork();
+export const network = new Linq();
 export default network;

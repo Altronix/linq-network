@@ -7,8 +7,8 @@
         "./bindings/node/src/binding.cc",
         "./bindings/node/src/LogJS.cc",
         "./bindings/node/src/LogJS.h",
-        "./bindings/node/src/NetwJS.cc",
-        "./bindings/node/src/NetwJS.h"
+        "./bindings/node/src/LinqJS.cc",
+        "./bindings/node/src/LinqJS.h"
       ],
       "include_dirs":[
         "./bindings/cpp/",

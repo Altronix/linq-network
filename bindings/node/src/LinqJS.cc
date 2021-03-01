@@ -1,4 +1,4 @@
-#include "NetwJS.h"
+#include "LinqJS.h"
 #include "napi.h"
 #include <chrono>
 
@@ -7,42 +7,42 @@
         Napi::TypeError::New(__env, __err).ThrowAsJavaScriptException();       \
     } while (0)
 
-Napi::FunctionReference LinqNetwork::constructor;
+Napi::FunctionReference Linq::constructor;
 
 Napi::Object
-LinqNetwork::Init(Napi::Env env, Napi::Object exports)
+Linq::Init(Napi::Env env, Napi::Object exports)
 {
     Napi::HandleScope scope(env);
     Napi::Function func = DefineClass(
         env,
-        "LinqNetwork",
-        { InstanceMethod("earlyDestruct", &LinqNetwork::EarlyDestruct),
-          InstanceMethod("version", &LinqNetwork::Version),
-          InstanceMethod("registerCallback", &LinqNetwork::RegisterCallback),
-          InstanceMethod("isRunning", &LinqNetwork::IsRunning),
-          InstanceMethod("poll", &LinqNetwork::Poll),
-          InstanceMethod("root", &LinqNetwork::Root),
-          InstanceMethod("listen", &LinqNetwork::Listen),
-          InstanceMethod("connect", &LinqNetwork::Connect),
-          InstanceMethod("close", &LinqNetwork::Close),
-          InstanceMethod("devices", &LinqNetwork::Devices),
-          InstanceMethod("deviceCount", &LinqNetwork::DeviceCount),
-          InstanceMethod("deviceRemove", &LinqNetwork::DeviceRemove),
-          InstanceMethod("nodeCount", &LinqNetwork::NodeCount),
-          InstanceMethod("send", &LinqNetwork::Send),
-          InstanceMethod("sendGet", &LinqNetwork::Get),
-          InstanceMethod("sendPost", &LinqNetwork::Post),
-          InstanceMethod("sendDelete", &LinqNetwork::Del),
-          InstanceMethod("scan", &LinqNetwork::Scan) });
+        "Linq",
+        { InstanceMethod("earlyDestruct", &Linq::EarlyDestruct),
+          InstanceMethod("version", &Linq::Version),
+          InstanceMethod("registerCallback", &Linq::RegisterCallback),
+          InstanceMethod("isRunning", &Linq::IsRunning),
+          InstanceMethod("poll", &Linq::Poll),
+          InstanceMethod("root", &Linq::Root),
+          InstanceMethod("listen", &Linq::Listen),
+          InstanceMethod("connect", &Linq::Connect),
+          InstanceMethod("close", &Linq::Close),
+          InstanceMethod("devices", &Linq::Devices),
+          InstanceMethod("deviceCount", &Linq::DeviceCount),
+          InstanceMethod("deviceRemove", &Linq::DeviceRemove),
+          InstanceMethod("nodeCount", &Linq::NodeCount),
+          InstanceMethod("send", &Linq::Send),
+          InstanceMethod("sendGet", &Linq::Get),
+          InstanceMethod("sendPost", &Linq::Post),
+          InstanceMethod("sendDelete", &Linq::Del),
+          InstanceMethod("scan", &Linq::Scan) });
     constructor = Napi::Persistent(func);
     constructor.SuppressDestruct();
-    exports.Set("LinqNetwork", func);
+    exports.Set("Linq", func);
     return exports;
 }
 
-LinqNetwork::LinqNetwork(const Napi::CallbackInfo& info)
+Linq::Linq(const Napi::CallbackInfo& info)
     : shutdown_{ false }
-    , Napi::ObjectWrap<LinqNetwork>(info)
+    , Napi::ObjectWrap<Linq>(info)
 {
     this->linq_
         .on_new([this](const char* serial) {
@@ -144,10 +144,10 @@ LinqNetwork::LinqNetwork(const Napi::CallbackInfo& info)
         });
 }
 
-LinqNetwork::~LinqNetwork() {}
+Linq::~Linq() {}
 
 Napi::Value
-LinqNetwork::EarlyDestruct(const Napi::CallbackInfo& info)
+Linq::EarlyDestruct(const Napi::CallbackInfo& info)
 {
     Napi::Env env = info.Env();
     this->linq_.early_destruct();
@@ -155,13 +155,13 @@ LinqNetwork::EarlyDestruct(const Napi::CallbackInfo& info)
 }
 
 Napi::Value
-LinqNetwork::Version(const Napi::CallbackInfo& info)
+Linq::Version(const Napi::CallbackInfo& info)
 {
     return Napi::String::New(info.Env(), this->linq_.version());
 }
 
 Napi::Value
-LinqNetwork::RegisterCallback(const Napi::CallbackInfo& info)
+Linq::RegisterCallback(const Napi::CallbackInfo& info)
 {
     Napi::Env env = info.Env();
 
@@ -172,13 +172,13 @@ LinqNetwork::RegisterCallback(const Napi::CallbackInfo& info)
 }
 
 Napi::Value
-LinqNetwork::IsRunning(const Napi::CallbackInfo& info)
+Linq::IsRunning(const Napi::CallbackInfo& info)
 {
     return Napi::Boolean::New(info.Env(), !this->shutdown_);
 }
 
 Napi::Value
-LinqNetwork::Poll(const Napi::CallbackInfo& info)
+Linq::Poll(const Napi::CallbackInfo& info)
 {
     Napi::Env env = info.Env();
     if (!(info.Length())) _NTHROW(env, "Incorrect number of arguments!");
@@ -189,7 +189,7 @@ LinqNetwork::Poll(const Napi::CallbackInfo& info)
 }
 
 Napi::Value
-LinqNetwork::Root(const Napi::CallbackInfo& info)
+Linq::Root(const Napi::CallbackInfo& info)
 {
     Napi::Env env = info.Env();
     if (!(info.Length())) _NTHROW(env, "Incorrect number of arguments!");
@@ -200,7 +200,7 @@ LinqNetwork::Root(const Napi::CallbackInfo& info)
 }
 
 Napi::Value
-LinqNetwork::Listen(const Napi::CallbackInfo& info)
+Linq::Listen(const Napi::CallbackInfo& info)
 {
     Napi::Env env = info.Env();
     // Validate inputs
@@ -214,7 +214,7 @@ LinqNetwork::Listen(const Napi::CallbackInfo& info)
 }
 
 Napi::Value
-LinqNetwork::Connect(const Napi::CallbackInfo& info)
+Linq::Connect(const Napi::CallbackInfo& info)
 {
     Napi::Env env = info.Env();
     // Validate inputs
@@ -228,7 +228,7 @@ LinqNetwork::Connect(const Napi::CallbackInfo& info)
 }
 
 Napi::Value
-LinqNetwork::Close(const Napi::CallbackInfo& info)
+Linq::Close(const Napi::CallbackInfo& info)
 {
     Napi::Env env = info.Env();
     if (!(info.Length())) _NTHROW(env, "Incorrect number of arguments!");
@@ -239,25 +239,25 @@ LinqNetwork::Close(const Napi::CallbackInfo& info)
 }
 
 Napi::Value
-LinqNetwork::Devices(const Napi::CallbackInfo& info)
+Linq::Devices(const Napi::CallbackInfo& info)
 {
     return Napi::String::New(info.Env(), this->linq_.devices());
 }
 
 Napi::Value
-LinqNetwork::DeviceCount(const Napi::CallbackInfo& info)
+Linq::DeviceCount(const Napi::CallbackInfo& info)
 {
     return Napi::Number::New(info.Env(), this->linq_.device_count());
 }
 
 Napi::Value
-LinqNetwork::NodeCount(const Napi::CallbackInfo& info)
+Linq::NodeCount(const Napi::CallbackInfo& info)
 {
     return Napi::Number::New(info.Env(), this->linq_.node_count());
 }
 
 Napi::Value
-LinqNetwork::DeviceRemove(const Napi::CallbackInfo& info)
+Linq::DeviceRemove(const Napi::CallbackInfo& info)
 {
     Napi::Env env = Env();
     if (!(info.Length() >= 1)) _NTHROW(env, "Incorrect number of arguments!");
@@ -267,7 +267,7 @@ LinqNetwork::DeviceRemove(const Napi::CallbackInfo& info)
 }
 
 Napi::Value
-LinqNetwork::Get(const Napi::CallbackInfo& info)
+Linq::Get(const Napi::CallbackInfo& info)
 {
     // Napi::Env env = info.Env();
     Napi::Env env = Env();
@@ -287,19 +287,19 @@ LinqNetwork::Get(const Napi::CallbackInfo& info)
 }
 
 Napi::Value
-LinqNetwork::Post(const Napi::CallbackInfo& info)
+Linq::Post(const Napi::CallbackInfo& info)
 {
     return Napi::String::New(info.Env(), "TODO");
 }
 
 Napi::Value
-LinqNetwork::Del(const Napi::CallbackInfo& info)
+Linq::Del(const Napi::CallbackInfo& info)
 {
     return Napi::String::New(info.Env(), "TODO");
 }
 
 Napi::Value
-LinqNetwork::Send(const Napi::CallbackInfo& info)
+Linq::Send(const Napi::CallbackInfo& info)
 {
     // Napi::Env env = info.Env();
     Napi::Env env = Env();
@@ -325,13 +325,13 @@ LinqNetwork::Send(const Napi::CallbackInfo& info)
 }
 
 void
-LinqNetwork::shutdown()
+Linq::shutdown()
 {
     this->shutdown_ = true;
 }
 
 Napi::Value
-LinqNetwork::Scan(const Napi::CallbackInfo& info)
+Linq::Scan(const Napi::CallbackInfo& info)
 {
     Napi::Env env = info.Env();
     int ret = this->linq_.scan();
