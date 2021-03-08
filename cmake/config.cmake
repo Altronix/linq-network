@@ -28,11 +28,8 @@ set(BUILDROOT_DIR "" CACHE STRING "set to fullpath of root buildroot directory o
 option(BUILD_DEPENDENCIES "Build all dependencies (except openssl)" OFF)
 
 # binary output options
-option(BUILD_LINQD "Whether or not to build the daemon" OFF)
-option(BUILD_USBD "Whether or not to build USB device support" OFF)
 option(BUILD_USBH "Whether or not to build USB host support" OFF)
 option(BUILD_DEBUG "Build with debug flags?" OFF)
-option(BUILD_APPS "Build the applications in apps folder" OFF)
 
 # bindings
 option(WITH_NODEJS_BINDING "Build the NODEJS bindings" OFF)

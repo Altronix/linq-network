@@ -219,7 +219,7 @@ zmtp_device_create(
         if (router) zmtp_device_update_router(&d->base, router, router_sz);
         d->sock = sock;
         d->requests = request_list_create();
-        d->base.birth = d->base.last_seen = sys_tick();
+        d->base.birth = d->base.last_seen = sys_unix();
         d->base.transport = TRANSPORT_ZMTP;
         d->base.poll = zmtp_device_poll;
         d->base.free = zmtp_device_destroy;

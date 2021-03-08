@@ -73,7 +73,7 @@ device_uptime(node_s* d)
 LINQ_EXPORT void
 device_heartbeat(node_s* d)
 {
-    d->last_seen = sys_tick();
+    d->last_seen = sys_unix();
 }
 
 LINQ_EXPORT devices_iter
