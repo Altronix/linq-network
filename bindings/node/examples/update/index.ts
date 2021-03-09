@@ -1,22 +1,24 @@
-import { network as linq } from "../../../../build/install/lib";
-import { from, of } from "rxjs";
-import { takeWhile, take, switchMap, tap, map } from "rxjs/operators";
+import { network as linq } from "../../../../dist";
+import { merge, from, of } from "rxjs";
+import { take, takeWhile, switchMap, tap, map, filter } from "rxjs/operators";
 import * as fs from "fs";
-const update = __dirname + "/linq2-2.4.6-dashboard.json";
-let running = linq.run(10);
+
+const update = JSON.parse(
+  fs.readFileSync(__dirname + "/linq2-2.6.3-dashboard.json", "utf-8")
+);
 
 linq
+  .tick(10)
   .listen(33455)
   .events("new")
   .pipe(
+    filter((ev) => ev.product.toLowerCase() === "linq2"),
     take(1),
-    switchMap((e) =>
-      from(fs.promises.readFile(update, "utf-8")).pipe(
-        map((update) => JSON.parse(update)),
-        switchMap((update) => linq.update(e.serial, update))
-      )
-    )
+    switchMap((ev) => linq.update(ev.serial, update)),
+    switchMap(({ remaining: r }) => `[UPDAT] => remaining ${r}\n`)
   )
-  .subscribe((e) => {
-    console.log(e);
-  });
+  .subscribe(
+    (message) => process.stdout.write(message),
+    (error) => console.error(error),
+    async () => await linq.shutdown()
+  );

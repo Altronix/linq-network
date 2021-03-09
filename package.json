@@ -9,10 +9,11 @@
   "scripts": {
     "test": "jest --config=./bindings/node/lib/jest.config.js",
     "build": "node ./scripts/build-node-binding.js ./ ./build-linq ./build-linq/install ./bindings/node/lib",
-    "build:examples": "tsc --build ./bindings/node/examples/update/tsconfig.json",
     "build:integration-test": "tsc --build ./test/integration/timeout/tsconfig.json",
-    "build:events": "tsc --build ./bindings/node/examples/events",
-    "run:events": "node ./bindings/node/examples/events/index.js",
+    "events:build": "tsc --build ./bindings/node/examples/events",
+    "events:run": "node ./bindings/node/examples/events/index.js",
+    "update:build": "tsc --build ./bindings/node/examples/update",
+    "update:run": "node ./bindings/node/examples/update/index.js",
     "postinstall": "node postinstall.js"
   },
   "repository": {

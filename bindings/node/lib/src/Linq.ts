@@ -122,15 +122,14 @@ export class Linq extends Events.EventEmitter {
       )
       .subscribe((ev) => {
         // Subscribe to our observable and expose traditional event emitter api
-        console.log(ev);
         self.events$.next(ev);
         self.emit(ev.type, { ...ev });
       });
   }
 
-  logs(): Observable<LogData> {
+  logs(): Observable<EventLog> {
     return this.events$.asObservable().pipe(
-      filter((e): e is EventLog => e.type !== "log"),
+      filter((e): e is EventLog => e.type === "log"),
       takeUntil(this.shutdownPromise)
     );
   }
@@ -161,18 +160,6 @@ export class Linq extends Events.EventEmitter {
     } else {
       return this.events$.asObservable().pipe(takeUntil(this.shutdownPromise));
     }
-  }
-
-  watch(): Observable<Event> {
-    return merge(
-      this.events(),
-      this.logs().pipe(
-        map((log) => {
-          const type = "log" as const;
-          return { type, ...log };
-        })
-      )
-    );
   }
 
   version() {

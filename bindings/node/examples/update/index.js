@@ -14,21 +14,27 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const update = __dirname + "/linq2-2.4.6-dashboard.json";
-const lib_1 = require("../../../../build/install/lib");
-const rxjs_1 = require("rxjs");
+const dist_1 = require("../../../../dist");
 const operators_1 = require("rxjs/operators");
 const fs = __importStar(require("fs"));
-let running = lib_1.network.run(10);
-lib_1.network
+const update = JSON.parse(fs.readFileSync(__dirname + "/linq2-2.6.3-dashboard.json", "utf-8"));
+dist_1.network
+    .tick(10)
     .listen(33455)
     .events("new")
-    .pipe(operators_1.take(1), operators_1.switchMap((e) => rxjs_1.from(fs.promises.readFile(update, "utf-8")).pipe(operators_1.map((update) => JSON.parse(update)), operators_1.switchMap((update) => lib_1.network.update(e.serial, update)))))
-    .subscribe((e) => {
-    console.log(e);
-});
+    .pipe(operators_1.filter((ev) => ev.product.toLowerCase() === "linq2"), operators_1.take(1), operators_1.switchMap((ev) => dist_1.network.update(ev.serial, update)), operators_1.switchMap(({ remaining: r }) => `[UPDAT] => remaining ${r}\n`))
+    .subscribe((message) => process.stdout.write(message), (error) => console.error(error), () => __awaiter(void 0, void 0, void 0, function* () { return yield dist_1.network.shutdown(); }));
