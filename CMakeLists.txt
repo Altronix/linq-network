@@ -157,6 +157,10 @@ endif()
 
 add_subdirectory(src)
 
+if(BUILD_APPS)
+  add_subdirectory(apps/linqd)
+endif()
+
 if(WITH_CPP_BINDING)
   add_subdirectory(bindings/cpp)
 endif()

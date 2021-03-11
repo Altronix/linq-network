@@ -331,3 +331,10 @@ netw_scan(netw_s* linq)
     return -1;
 #endif
 }
+
+LINQ_EXPORT const char*
+netw_strerror(E_LINQ_ERROR e)
+{
+    static const char* error = "TODO";
+    return error;
+}

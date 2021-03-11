@@ -258,6 +258,7 @@ extern "C"
     LINQ_EXPORT int netw_max_retry_get();
     LINQ_EXPORT void netw_shutdown(netw_s* netw);
     LINQ_EXPORT void netw_log_fn_set(log_callback_fn fn, void* ctx);
+    LINQ_EXPORT const char* netw_strerror(E_LINQ_ERROR e);
 
 #ifdef __cplusplus
 }

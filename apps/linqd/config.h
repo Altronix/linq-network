@@ -2,7 +2,7 @@
 #define PARSE_CONFIG_H
 
 #include "json.h"
-#include "sys.h"
+#include "stdio.h"
 
 #ifndef APP_CONFIG_ZMTP
 #define APP_CONFIG_ZMTP 33247
@@ -70,8 +70,6 @@ extern "C"
         bool daemon;
         bool print;
         int zmtp;
-        int http;
-        int https;
         json_value save;
         json_value web_root;
         json_value db;
@@ -82,10 +80,10 @@ extern "C"
         json_value node_secondary;
     } config_s;
 
-    LINQ_EXPORT void config_init(config_s* config);
-    LINQ_EXPORT int config_parse(const char*, uint32_t l, config_s*);
-    LINQ_EXPORT int config_fprint(FILE* f, config_s* config);
-    LINQ_EXPORT int config_print(char* buff, uint32_t l, config_s* config);
+    void config_init(config_s* config);
+    int config_parse(const char*, uint32_t l, config_s*);
+    int config_fprint(FILE* f, config_s* config);
+    int config_print(char* buff, uint32_t l, config_s* config);
 
 #ifdef __cplusplus
 }

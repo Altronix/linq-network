@@ -1,16 +1,9 @@
+#include "callbacks.h"
 #include "config.h"
-#include "libcommon/config.h"
 #include "log.h"
 #include "netw.h"
-#include "route_config.h"
+#include "sys.h"
 #include <signal.h>
-
-#define app_info(...) log_info("LINQD", __VA_ARGS__)
-#define app_warn(...) log_warn("LINQD", __VA_ARGS__)
-#define app_debug(...) log_debug("LINQD", __VA_ARGS__)
-#define app_trace(...) log_trace("LINQD", __VA_ARGS__)
-#define app_error(...) log_error("LINQD", __VA_ARGS__)
-#define app_fatal(...) log_fatal("LINQD", __VA_ARGS__)
 
 static volatile int running = 1;
 
@@ -76,8 +69,6 @@ parse_args(config_s* config, int argc, char* argv[])
     while ((opt = getopt(argc, argv, "zpskcdDlnwCPvh?")) != -1) {
         switch (opt) {
             case 'z': config->zmtp = atoi(argv[optind]); break;
-            case 'p': config->http = atoi(argv[optind]); break;
-            case 's': config->https = atoi(argv[optind]); break;
             case 'd': config->daemon = true; break;
             case 'D': config->db = parse_arg(argv[optind]); break;
             case 'l': config->log = parse_arg(argv[optind]); break;
@@ -135,8 +126,6 @@ print_config(config_s* c)
     app_info("[        daemon] [%s]", c->daemon ? "true" : "false");
     app_info("[         print] [%s]", c->print ? "true" : "false");
     app_info("[          zmtp] [%d]", c->zmtp);
-    app_info("[          http] [%d]", c->http);
-    app_info("[         https] [%d]", c->https);
     app_info("[          save] [%.*s]", c->save.len, c->save.p);
     app_info("[      web_root] [%.*s]", c->web_root.len, c->web_root.p);
     app_info("[            db] [%.*s]", c->db.len, c->db.p);
@@ -198,18 +187,12 @@ main(int argc, char* argv[])
         }
     }
 
-    netw = netw_create(NULL, NULL);
+    netw = netw_create(&callbacks, netw);
     assert(netw);
 
     if (config.zmtp) {
         snprintf(b, sizeof(b), "tcp://*:%d", config.zmtp);
         netw_listen(netw, b);
-    }
-
-    if (config.http) {
-        snprintf(b, sizeof(b), "http://*:%d", config.http);
-        netw_listen(netw, b);
-        netw_use(netw, "/api/v1/config", route_config, netw);
     }
 
     if (config.node_primary.p) {
@@ -227,15 +210,7 @@ main(int argc, char* argv[])
         netw_root(netw, b);
     }
 
-    if (config.https) {
-        if (config.cert.p && config.key.p && config.https) {
-            // TODO install tls
-        }
-        snprintf(b, sizeof(b), "%d", config.http);
-        // netw_listen_https(netw, b); // TODO
-    }
-
-    while (netw_running(netw)) { err = netw_poll(netw, 50); };
+    while (running) { err = netw_poll(netw, 50); };
 
     netw_destroy(&netw);
     if (f) sys_close(&f);
