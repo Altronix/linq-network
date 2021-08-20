@@ -115,7 +115,7 @@ exports.makeCmakeConfigArgs = function ({ sourceDir, buildDir, installDir }) {
   return [
     `-S${exports.sanitizePath(sourceDir)}`,
     `-B${exports.sanitizePath(buildDir)}`,
-    `-DBUILD_USBH=ON`,
+    `-DBUILD_USBH=OFF`,
     `-DLOG_LEVEL=TRACE`,
     `-DCMAKE_BUILD_TYPE=Release`,
     `-DBUILD_DEPENDENCIES=ON`,
