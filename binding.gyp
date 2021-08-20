@@ -25,7 +25,6 @@
         [ "OS=='linux'", {
           "libraries":[
             "../build-linq/install/lib/liblinqnetwork.a",
-            "../build-linq/install/lib/libusb-1.0.a",
             "../build-linq/install/lib/libzmq.a",
             "-luuid",
             "-ludev"
@@ -41,7 +40,6 @@
         [ "OS=='win'", {
           "libraries":[
             "../build-linq/install/lib/linqnetwork.lib",
-            "../build-linq/install/lib/libusb-1.0.lib",
             "../build-linq/install/lib/libzmq-v142-mt-s-4_3_4.lib",
             "uuid",
 	    "ws2_32",
