@@ -332,7 +332,15 @@ zmtp_device_request_resolve(node_s* base, E_LINQ_ERROR err, const char* str)
 {
     char json[JSON_LEN + 1];
     request_s** r_p = &base->pending;
+    request_zmtp_s* r = *((request_zmtp_s**)r_p);
     snprintf(json, sizeof(json), "%s", str);
+    dev_debug(
+        "\n Request: [%.6s...] => [%.*s]\nResponse: [%.6s...] <= %s",
+        device_serial(base),
+        r->frames[FRAME_REQ_PATH_IDX]->sz,
+        r->frames[FRAME_REQ_PATH_IDX]->data,
+        device_serial(base),
+        str);
     exe_on_complete(r_p, base->serial, err, json);
     request_destroy(r_p);
 }

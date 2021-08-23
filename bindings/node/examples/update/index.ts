@@ -7,6 +7,8 @@ const update = JSON.parse(
   fs.readFileSync(__dirname + "/linq2-2.6.3-dashboard.json", "utf-8")
 );
 
+linq.logs().subscribe((l) => console.log(l));
+
 linq
   .tick(10)
   .listen(33455)

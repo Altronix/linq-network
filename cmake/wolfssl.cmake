@@ -18,6 +18,7 @@ if(NOT MSVC)
   		--enable-oldtls=no
   		--enable-keygen
   		--enable-certgen
+                --enable-crypttests=no
   		--enable-testcert
                 # --enable-opensslextra
   	BUILD_COMMAND make
