@@ -44,6 +44,7 @@ typedef struct zmtp_device_s
     node_s base;        // will cast into netw_socket_s ...must be on top
     zmq_socket_s* sock; // will cast into netw_socket_s ...must be on top
     router_s router;    // will cast into netw_socket_s ...must be on top
+    int64_t reqid;
     request_list_s* requests;
 } zmtp_device_s;
 
@@ -54,6 +55,23 @@ write_frame(const char* data, uint32_t len)
     linq_network_assert(p);
     p->sz = len;
     memcpy(p->data, data, len);
+    return p;
+}
+
+static packet_s*
+write_i64(int64_t n)
+{
+    packet_s* p = linq_network_malloc(sizeof(packet_s) + 8);
+    linq_network_assert(p);
+    p->sz = 8;
+    p->data[0] = n >> 56;
+    p->data[1] = n >> 48;
+    p->data[2] = n >> 40;
+    p->data[3] = n >> 32;
+    p->data[4] = n >> 24;
+    p->data[5] = n >> 16;
+    p->data[6] = n >> 8;
+    p->data[7] = n;
     return p;
 }
 
@@ -175,22 +193,36 @@ request_router_id_set(request_s* base, uint8_t* rid, uint32_t rid_len)
     }
 }
 
+static void
+request_id_set(node_s* d, request_s* r)
+{
+    request_zmtp_s* req = (request_zmtp_s*)r;
+    zmtp_device_s* dev = (zmtp_device_s*)d;
+    if (req->frames[FRAME_REQ_ID_IDX]) {
+        linq_network_free(req->frames[FRAME_REQ_ID_IDX]);
+        req->frames[FRAME_REQ_ID_IDX] = NULL;
+    }
+    req->frames[FRAME_REQ_ID_IDX] = write_i64(dev->reqid);
+    dev->reqid++;
+}
+
 static int
 request_send(request_s* base, zmq_socket_s* sock)
 {
     dev_trace("request_send()");
     request_zmtp_s* r = (request_zmtp_s*)base;
-    zmq_msg_t msgs[6];
-    int err, flags[6] = {
+    zmq_msg_t msgs[7];
+    int err, flags[7] = {
         ZMQ_SNDMORE,                                     // router
         ZMQ_SNDMORE,                                     // version
         ZMQ_SNDMORE,                                     // type
         ZMQ_SNDMORE,                                     // serial
+        ZMQ_SNDMORE,                                     // reqid
         r->frames[FRAME_REQ_DATA_IDX] ? ZMQ_SNDMORE : 0, // path
         0                                                // [,dat]
     };
     int c = r->frames[FRAME_RID_IDX] ? 0 : 1;
-    for (; c <= 5 && r->frames[c]; c++) {
+    for (; c <= 6 && r->frames[c]; c++) {
         err = zmq_msg_init_size(&msgs[c], r->frames[c]->sz);
         linq_network_assert(err == 0);
         memcpy(zmq_msg_data(&msgs[c]), r->frames[c]->data, r->frames[c]->sz);
@@ -352,6 +384,7 @@ zmtp_device_request_flush(node_s* base)
     linq_network_assert(d->base.pending == NULL);
     request_s** r_p = &d->base.pending;
     *r_p = request_list_pop(d->requests);
+    request_id_set(base, *r_p);
     if (d->router.sz) request_router_id_set(*r_p, d->router.id, d->router.sz);
     if (request_send(*r_p, d->sock) < 0) {
         exe_on_complete(r_p, d->base.serial, LINQ_ERROR_IO, NULL);
@@ -370,6 +403,7 @@ zmtp_device_request_retry(node_s* base)
     request_s** r_p = &d->base.pending;
     (*r_p)->retry_at = sys_tick() + retry_timeout;
     (*r_p)->retry_count++;
+    request_id_set(base, *r_p);
     if (d->router.sz) request_router_id_set(*r_p, d->router.id, d->router.sz);
     if (request_send(*r_p, d->sock) < 0) {
         exe_on_complete(r_p, d->base.serial, LINQ_ERROR_IO, NULL);

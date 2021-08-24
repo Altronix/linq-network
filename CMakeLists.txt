@@ -104,11 +104,11 @@ if(ENABLE_TESTING)
   include(cmake/CodeCoverage.cmake)
   if(EXISTS "${CMAKE_SOURCE_DIR}/external/linq-common/CMakeLists.txt")
     MESSAGE(STATUS "linq-common found!")
-    MESSAGE(STATUS "Building linq-common integration test")
+    ## MESSAGE(STATUS "Building linq-common integration test")
     include(cmake/wolfssl.cmake)
     include(cmake/http_parser.cmake)
     include(cmake/test-fixture.cmake)
-    add_subdirectory(test/integration)
+    ## add_subdirectory(test/integration)
     add_subdirectory(test/_fixture)
   endif()
   add_subdirectory(test/_helpers)
@@ -145,10 +145,10 @@ if(ENABLE_TESTING)
     COMMAND test-sys
     COMMAND test-usb-common
     # COMMAND test-usbh
-    COMMAND integration-alert-test
-    COMMAND integration-broadcast-test
-    COMMAND integration-response-test
-    COMMAND integration-forward-response-test
+    ## COMMAND integration-alert-test
+    ## COMMAND integration-broadcast-test
+    ## COMMAND integration-response-test
+    ## COMMAND integration-forward-response-test
     )
     # COMMAND test-network
     # COMMAND binding-network-cpp-test)

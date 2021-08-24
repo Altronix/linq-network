@@ -52,8 +52,9 @@
 #define FRAME_ALERT_DST_IDX 6
 
 // Request IDX
-#define FRAME_REQ_PATH_IDX 4
-#define FRAME_REQ_DATA_IDX 5
+#define FRAME_REQ_ID_IDX 4
+#define FRAME_REQ_PATH_IDX 5
+#define FRAME_REQ_DATA_IDX 6
 
 // Response IDX
 #define FRAME_RES_ERR_IDX 4
