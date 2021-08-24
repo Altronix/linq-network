@@ -75,6 +75,14 @@ write_i64(int64_t n)
     return p;
 }
 
+static int64_t
+read_i64(uint8_t* bytes)
+{
+    int64_t sz = 0;
+    for (int i = 0; i < 8; i++) { ((uint8_t*)&sz)[7 - i] = *bytes++; }
+    return sz;
+}
+
 static packet_s*
 write_path_to_frame(const char* method, const char* path, uint32_t path_len)
 {
@@ -425,10 +433,27 @@ zmtp_device_request_flush_w_check(node_s* base)
     }
 }
 
+int64_t
+zmtp_device_request_pending_id(node_s* n)
+{
+    // NOTE the current pending id is the next reqid - 1 (hackyish)
+    return ((zmtp_device_s*)n)->reqid - 1;
+}
+
 bool
-zmtp_device_request_pending(node_s* n)
+zmtp_device_request_has_pending(node_s* n)
 {
     return n->pending ? true : false;
+}
+
+bool
+zmtp_device_request_pending(node_s* n, int64_t reqid)
+{
+    if (n->pending) {
+        return reqid == zmtp_device_request_pending_id(n);
+    } else {
+        return false;
+    }
 }
 
 uint32_t
@@ -442,7 +467,7 @@ void
 zmtp_device_poll(node_s* base, void* ctx)
 {
     zmtp_device_s* d = (zmtp_device_s*)base;
-    if (zmtp_device_request_pending(&d->base)) {
+    if (zmtp_device_request_has_pending(&d->base)) {
         uint32_t tick = sys_tick();
         uint32_t retry_at = zmtp_device_request_retry_at(&d->base);
         uint32_t retry_count = zmtp_device_request_retry_count(&d->base);

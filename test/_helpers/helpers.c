@@ -20,6 +20,14 @@ write_i64(int64_t n, uint8_t* bytes)
     bytes[7] = n;
 }
 
+static int64_t
+read_i64(uint8_t* bytes)
+{
+    int64_t sz = 0;
+    for (int i = 0; i < 8; i++) { ((uint8_t*)&sz)[7 - i] = *bytes++; }
+    return sz;
+}
+
 void
 helpers_test_init()
 {
@@ -150,18 +158,18 @@ helpers_push_response(
     write_i64(reqid, (void*)&reqid_packet);
     helpers_push_mem(
         6,
-        &g_frame_ver_0,                     // version
-        1,                                  //
-        &g_frame_typ_response,              // type
-        1,                                  //
-        sid,                                // serial
-        strlen(sid),                        //
-        "\x00\x00\x00\x00\x00\x00\x00\x00", // reqid
-        8,                                  //
-        &err,                               // error
-        2,                                  //
-        data,                               // data
-        strlen(data));                      //
+        &g_frame_ver_0,        // version
+        1,                     //
+        &g_frame_typ_response, // type
+        1,                     //
+        sid,                   // serial
+        strlen(sid),           //
+        &reqid_packet,         // reqid
+        8,                     //
+        &err,                  // error
+        2,                     //
+        data,                  // data
+        strlen(data));         //
 }
 
 void

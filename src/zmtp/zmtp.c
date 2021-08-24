@@ -52,6 +52,14 @@ char g_frame_typ_response = FRAME_TYP_RESPONSE;
 char g_frame_typ_alert = FRAME_TYP_ALERT;
 char g_frame_typ_hello = FRAME_TYP_HELLO;
 
+static int64_t
+read_i64(uint8_t* bytes)
+{
+    int64_t sz = 0;
+    for (int i = 0; i < 8; i++) { ((uint8_t*)&sz)[7 - i] = *bytes++; }
+    return sz;
+}
+
 static atx_str
 json_get_str(const char* b, const jsontok* t)
 {
@@ -360,9 +368,10 @@ process_response(zmtp_s* l, zmq_socket_s* sock, incoming_s* in, uint32_t total)
         (dat = check_le(&m[FRAME_RES_DAT_IDX], JSON_LEN))) {
         e = LINQ_ERROR_OK;
         node_s** d = device_resolve(l, sock, in, false);
+        int64_t reqid = read_i64(zmq_msg_data(id));
         if (d) {
             print_null_terminated(json, sizeof(json), dat);
-            if (zmtp_device_request_pending(*d)) {
+            if (zmtp_device_request_pending(*d, reqid)) {
                 err_code = ((uint8_t*)zmq_msg_data(err))[1] |
                            ((uint8_t*)zmq_msg_data(err))[0] << 8;
                 if (err_code == LINQ_ERROR_504) {

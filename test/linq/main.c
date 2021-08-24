@@ -549,7 +549,7 @@ test_netw_receive_response_error_504(void** context_p)
                                      .http = 0,
                                      .user = USER,
                                      .pass = PASS };
-    uint32_t t = 0, outgoing = 0;
+    uint32_t t = 0, outgoing = 0, reqid = 0;
     const char* serial = expect_sid = "serial";
     node_s** d;
 
@@ -579,7 +579,7 @@ test_netw_receive_response_error_504(void** context_p)
 
     for (int i = 0; i < TEST_MAX_RETRY; i++) {
         // incoming 504
-        helpers_push_response("rid0", serial, 0, 504, "{\"error\":504}");
+        helpers_push_response("rid0", serial, reqid, 504, "{\"error\":504}");
         zmq_spy_poll_set_ready((0x01));
         netw_poll(test->net, 0);
 
@@ -596,11 +596,12 @@ test_netw_receive_response_error_504(void** context_p)
         zmq_spy_poll_set_ready((0x00));
         netw_poll(test->net, 0);
         outgoing += 6;
+        reqid++;
         assert_int_equal(zmq_spy_mesg_n_outgoing(), outgoing);
     }
 
     // Send the final amount of 504's we're willing to tollorate
-    helpers_push_response("rid0", serial, 0, 504, "{\"error\":504}");
+    helpers_push_response("rid0", serial, reqid, 504, "{\"error\":504}");
     zmq_spy_poll_set_ready(0x01);
     netw_poll(test->net, 0);
 
@@ -628,7 +629,7 @@ test_netw_receive_response_ok_504(void** context_p)
                                      .http = 0,
                                      .user = USER,
                                      .pass = PASS };
-    uint32_t t = 0, outgoing = 0;
+    uint32_t t = 0, outgoing = 0, reqid = 0;
     const char* serial = expect_sid = "serial";
     node_s** d;
 
@@ -657,7 +658,7 @@ test_netw_receive_response_ok_504(void** context_p)
 
     for (int i = 0; i < TEST_MAX_RETRY; i++) {
         // incoming 504
-        helpers_push_response("rid0", serial, 0, 504, "{\"error\":504}");
+        helpers_push_response("rid0", serial, reqid, 504, "{\"error\":504}");
         zmq_spy_poll_set_ready((0x01));
         netw_poll(test->net, 0);
 
@@ -674,15 +675,69 @@ test_netw_receive_response_ok_504(void** context_p)
         zmq_spy_poll_set_ready((0x00));
         netw_poll(test->net, 0);
         outgoing += 6;
+        reqid++;
         assert_int_equal(zmq_spy_mesg_n_outgoing(), outgoing);
         assert_false(pass);
     }
 
-    helpers_push_response("rid0", serial, 0, 0, "{\"test\":1}");
+    helpers_push_response("rid0", serial, reqid, 0, "{\"test\":1}");
     zmq_spy_poll_set_ready(0x01);
     netw_poll(test->net, 0);
 
     assert_true(pass);
+    test_reset(&test);
+}
+
+static void
+on_response_drop(void* pass, const char* serial, int err, const char* data)
+{
+    assert_int_equal(err, 0);
+    assert_string_equal(data, "{\"test\":1}");
+    assert_string_equal(serial, "serial");
+    *(bool*)pass = true;
+}
+static void
+test_netw_receive_late_response_w_drop_ok(void** context_p)
+{
+    ((void)context_p);
+    bool pass = false;
+    helpers_test_config_s config = { .callbacks = NULL,
+                                     .context = NULL,
+                                     .zmtp = 32820,
+                                     .http = 0,
+                                     .user = USER,
+                                     .pass = PASS };
+    const char* serial = expect_sid = "serial";
+
+    helpers_test_context_s* test = test_init(&config);
+    helpers_add_device(test, serial, "rid", "pid", "sid");
+
+    helpers_push_response("rid0", serial, 1, 0, "{\"test\":1}");
+    helpers_push_response("rid0", serial, 0, 0, "{\"test\":1}");
+
+    zmq_spy_poll_set_ready((0x01));
+
+    // Receive heartbeat (add device to linq)
+    // Send a get request
+    // receive get response with WRONG ID
+    // receive get response with CORRECT ID
+    // make sure callback is as expect
+    netw_send(
+        test->net,
+        serial,
+        "GET",
+        "/ATX/test",
+        9,
+        NULL,
+        0,
+        on_response_drop,
+        &pass);
+
+    netw_poll(test->net, 5);
+    assert_false(pass);
+    netw_poll(test->net, 5);
+    assert_true(pass);
+
     test_reset(&test);
 }
 
@@ -1237,6 +1292,7 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_netw_receive_response_error_codes),
         cmocka_unit_test(test_netw_receive_response_error_504),
         cmocka_unit_test(test_netw_receive_response_ok_504),
+        cmocka_unit_test(test_netw_receive_late_response_w_drop_ok),
         // cmocka_unit_test(test_netw_receive_hello),
         // cmocka_unit_test(test_netw_receive_hello_double_id),
         // cmocka_unit_test(test_netw_send_bad_args),
