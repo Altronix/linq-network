@@ -1,6 +1,3 @@
 [submodule "external/linq-common"]
 	path = external/linq-common
 	url = https://bitbucket.org/Altronix/linq-common
-[submodule "external/wolfssl"]
-	path = external/wolfssl
-	url = https://bitbucket.org/Altronix/wolfssl

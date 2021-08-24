@@ -1,6 +1,7 @@
-set(wolfssl_SOURCE_DIR "${EXTERNAL_DIR}/wolfssl")
-set(wolfssl_BUILD_DIR "${CMAKE_BINARY_DIR}/wolfssl-build")
-file(COPY "${wolfssl_SOURCE_DIR}/" DESTINATION ${wolfssl_BUILD_DIR} PATTERN "*")
+set(WOLFSSL_VERSION "4.8.1")
+set(WOLFSSL_SOURCE_DIR "${EXTERNAL_DIR}/wolfssl-${WOLFSSL_VERSION}")
+set(WOLFSSL_TEST_FILE "${WOLFSSL_SOURCE_DIR}/CMakeLists.txt")
+check_extract("${DOWNLOAD_DIR}/wolfssl-${WOLFSSL_VERSION}.tar.gz" "${WOLFSSL_TEST_FILE}")
 
 if(NOT MSVC)
   ### Build Wolfssl ###
