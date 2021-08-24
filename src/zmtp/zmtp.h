@@ -11,11 +11,11 @@
 #include "zmq.h"
 
 // [router, version, type, serial]
-// [router, version, 0x00, serial, type, siteId]         = HEARTBEAT
-// [router, version, 0x01, serial, path [, data] ]       = REQUEST
-// [router, version, 0x02, serial, error, data]          = RESPONSE
-// [router, version, 0x03, serial, type, alert, mail]    = ALERT
-// [router, version, 0x04, serial, ...]                  = HELLO
+// [router, version, 0x00, serial, type, siteId]                = HEARTBEAT
+// [router, version, 0x01, serial, reqid, path [, data] ]       = REQUEST
+// [router, version, 0x02, serial, reqid, error, data]          = RESPONSE
+// [router, version, 0x03, serial, type, alert, mail]           = ALERT
+// [router, version, 0x04, serial, ...]                         = HELLO
 
 #ifndef LINQ_NETW_MAX_RETRY
 #define LINQ_NETW_MAX_RETRY 5
@@ -57,8 +57,9 @@
 #define FRAME_REQ_DATA_IDX 6
 
 // Response IDX
-#define FRAME_RES_ERR_IDX 4
-#define FRAME_RES_DAT_IDX 5
+#define FRAME_RES_ID_IDX 4
+#define FRAME_RES_ERR_IDX 5
+#define FRAME_RES_DAT_IDX 6
 
 // Maximum sockets
 #define MAX_CONNECTIONS 10

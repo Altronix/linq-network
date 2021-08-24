@@ -351,10 +351,11 @@ process_response(zmtp_s* l, zmq_socket_s* sock, incoming_s* in, uint32_t total)
 {
     zmtp_trace("Processing response");
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
-    zmq_msg_t *err, *dat, *m = *in->msgs;
+    zmq_msg_t *id, *err, *dat, *m = *in->msgs;
     int16_t err_code;
     char json[JSON_LEN] = { 0 };
     if ((total >= FRAME_RES_DAT_IDX) &&
+        (id = check_eq(&m[FRAME_RES_ID_IDX], 8)) &&
         (err = check_eq(&m[FRAME_RES_ERR_IDX], 2)) &&
         (dat = check_le(&m[FRAME_RES_DAT_IDX], JSON_LEN))) {
         e = LINQ_ERROR_OK;

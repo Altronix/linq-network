@@ -47,6 +47,12 @@ zmq_spy_poll_set_ready(uint32_t val)
     ready = val;
 }
 
+uint32_t
+zmq_spy_mesg_n_outgoing()
+{
+    return msg_vec_size(&outgoing);
+}
+
 mock_zmq_msg_s*
 zmq_spy_mesg_at_outgoing(int at)
 {

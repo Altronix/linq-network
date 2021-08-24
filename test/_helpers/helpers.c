@@ -7,6 +7,19 @@
 #include "netw_internal.h"
 #include "zmtp/zmtp.h"
 
+static void
+write_i64(int64_t n, uint8_t* bytes)
+{
+    bytes[0] = n >> 56;
+    bytes[1] = n >> 48;
+    bytes[2] = n >> 40;
+    bytes[3] = n >> 32;
+    bytes[4] = n >> 24;
+    bytes[5] = n >> 16;
+    bytes[6] = n >> 8;
+    bytes[7] = n;
+}
+
 void
 helpers_test_init()
 {
@@ -58,9 +71,7 @@ helpers_add_device(
     // When we receive a heartbeat, we flush out the about request/response
     // that is created by the event
     helpers_push_heartbeat(rid, ser, pid, sid);
-    helpers_push_response(rid, ser, 0, "{\"about\":null}");
     zmq_spy_poll_set_ready((0x01));
-    netw_poll(ctx->net, 5);
     netw_poll(ctx->net, 5);
     zmq_spy_flush();
 }
@@ -75,6 +86,7 @@ helpers_push_heartbeat(
     zmq_msg_t msg;
     if (rid) {
         zmq_msg_init_size(&msg, strlen(rid));
+        memcpy(zmq_msg_data(&msg), rid, strlen(rid));
         zmq_spy_msg_push_incoming(&msg, ZMQ_SNDMORE);
     }
 
@@ -99,6 +111,7 @@ helpers_push_alert(const char* rid, const char* sid, const char* pid)
     zmq_msg_t msg;
     if (rid) {
         zmq_msg_init_size(&msg, strlen(rid));
+        memcpy(zmq_msg_data(&msg), rid, strlen(rid));
         zmq_spy_msg_push_incoming(&msg, ZMQ_SNDMORE);
     }
     helpers_push_mem(
@@ -122,27 +135,33 @@ void
 helpers_push_response(
     const char* rid,
     const char* sid,
+    int64_t reqid,
     int16_t err,
     const char* data)
 {
     zmq_msg_t msg;
     err = (err >> 8 | err << 8);
+    int64_t reqid_packet;
     if (rid) {
         zmq_msg_init_size(&msg, strlen(rid));
+        memcpy(zmq_msg_data(&msg), rid, strlen(rid));
         zmq_spy_msg_push_incoming(&msg, ZMQ_SNDMORE);
     }
+    write_i64(reqid, (void*)&reqid_packet);
     helpers_push_mem(
-        5,
-        &g_frame_ver_0,        // version
-        1,                     //
-        &g_frame_typ_response, // type
-        1,                     //
-        sid,                   // serial
-        strlen(sid),           //
-        &err,                  // error
-        2,                     //
-        data,                  // data
-        strlen(data));         //
+        6,
+        &g_frame_ver_0,                     // version
+        1,                                  //
+        &g_frame_typ_response,              // type
+        1,                                  //
+        sid,                                // serial
+        strlen(sid),                        //
+        "\x00\x00\x00\x00\x00\x00\x00\x00", // reqid
+        8,                                  //
+        &err,                               // error
+        2,                                  //
+        data,                               // data
+        strlen(data));                      //
 }
 
 void
@@ -155,6 +174,7 @@ helpers_push_request(
     zmq_msg_t msg;
     if (rid) {
         zmq_msg_init_size(&msg, strlen(rid));
+        memcpy(zmq_msg_data(&msg), rid, strlen(rid));
         zmq_spy_msg_push_incoming(&msg, ZMQ_SNDMORE);
     }
     data ? helpers_push_mem(
