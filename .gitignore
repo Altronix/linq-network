@@ -50,6 +50,7 @@ external/zeromq*
 external/czmq*
 external/libusb*
 external/http_parser*
+external/wolfssl*
 
 #sqlite
 **/*/test.db

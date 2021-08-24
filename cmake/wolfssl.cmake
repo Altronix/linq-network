@@ -1,16 +1,19 @@
-set(WOLFSSL_VERSION "4.8.1")
-set(WOLFSSL_SOURCE_DIR "${EXTERNAL_DIR}/wolfssl-${WOLFSSL_VERSION}")
-set(WOLFSSL_TEST_FILE "${WOLFSSL_SOURCE_DIR}/CMakeLists.txt")
-check_extract("${DOWNLOAD_DIR}/wolfssl-${WOLFSSL_VERSION}.tar.gz" "${WOLFSSL_TEST_FILE}")
+set(wolfssl_VERSION "4.8.1")
+set(wolfssl_SOURCE_DIR "${EXTERNAL_DIR}/wolfssl-${wolfssl_VERSION}-stable")
+set(wolfssl_BUILD_DIR "${CMAKE_BINARY_DIR}/wolfssl-build")
+set(wolfssl_TEST_FILE "${wolfssl_SOURCE_DIR}/CMakeLists.txt")
+check_extract("${DOWNLOAD_DIR}/wolfssl-${wolfssl_VERSION}.tar.gz" "${wolfssl_TEST_FILE}")
+file(COPY "${wolfssl_SOURCE_DIR}/" DESTINATION "${wolfssl_BUILD_DIR}" PATTERN "*")
 
 if(NOT MSVC)
   ### Build Wolfssl ###
   ExternalProject_Add(wolfssl-project
   	SOURCE_DIR ${wolfssl_SOURCE_DIR}
   	INSTALL_DIR "${CMAKE_INSTALL_PREFIX}"
-        BINARY_DIR "${CMAKE_BINARY_DIR}/wolfssl-build"
+        BINARY_DIR "${wolfssl_BUILD_DIR}"
   	UPDATE_COMMAND ""
   	PREFIX ${CMAKE_INSTALL_PREFIX}
+        # BUILD_IN_SOURCE
         CONFIGURE_COMMAND ${wolfssl_BUILD_DIR}/autogen.sh
                 COMMAND ${wolfssl_BUILD_DIR}/configure --prefix=<INSTALL_DIR>
   		--enable-debug

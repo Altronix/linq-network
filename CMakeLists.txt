@@ -114,7 +114,7 @@ if(ENABLE_TESTING)
   add_subdirectory(test/_helpers)
   add_subdirectory(test/_mocks/mock_utils)
   add_subdirectory(test/_mocks/mock_file)
-  add_subdirectory(test/_mocks/mock_libusb)
+  # add_subdirectory(test/_mocks/mock_libusb)
   add_subdirectory(test/_mocks/mock_zmq)
   add_subdirectory(test/containers)
   add_subdirectory(test/device)
@@ -122,8 +122,8 @@ if(ENABLE_TESTING)
   add_subdirectory(test/json)
   add_subdirectory(test/rlp)
   add_subdirectory(test/sys)
-  add_subdirectory(test/usb/common)
-  add_subdirectory(test/usb/host)
+  # add_subdirectory(test/usb/common)
+  # add_subdirectory(test/usb/host)
   add_subdirectory(test/linq)
   # add_subdirectory(bindings/cpp/test)
   # add_subdirectory(src/test/linq_network)
@@ -144,7 +144,7 @@ if(ENABLE_TESTING)
     COMMAND test-rlp
     COMMAND test-sys
     COMMAND test-usb-common
-    COMMAND test-usbh
+    # COMMAND test-usbh
     COMMAND integration-alert-test
     COMMAND integration-broadcast-test
     COMMAND integration-response-test
