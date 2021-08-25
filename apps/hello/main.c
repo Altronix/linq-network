@@ -39,7 +39,11 @@ on_heartbeat_fn(void* context, const char* serial)
     if (!hello) send_hello(linq, serial);
 }
 
-netw_callbacks callbacks = { .on_heartbeat = on_heartbeat_fn };
+netw_callbacks callbacks = { .on_heartbeat = on_heartbeat_fn,
+                             .on_alert = NULL,
+                             .on_new = NULL,
+                             .on_err = NULL,
+                             .on_ctrlc = NULL };
 
 int
 main(int argc, char* argv[])
@@ -49,8 +53,9 @@ main(int argc, char* argv[])
     char b[512];
     netw_s* netw;
 
-    netw = netw_create(&callbacks, netw);
+    netw = netw_create(&callbacks, NULL);
     assert(netw);
+    netw_context_set(netw, netw);
 
     netw_listen(netw, "tcp://*:33455");
 
