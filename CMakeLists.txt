@@ -159,6 +159,7 @@ add_subdirectory(src)
 
 if(BUILD_APPS)
   add_subdirectory(apps/linqd)
+  add_subdirectory(apps/hello)
 endif()
 
 if(WITH_CPP_BINDING)
