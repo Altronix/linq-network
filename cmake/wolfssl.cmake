@@ -2,7 +2,7 @@ set(wolfssl_VERSION "4.8.1")
 set(wolfssl_SOURCE_DIR "${EXTERNAL_DIR}/wolfssl-${wolfssl_VERSION}-stable")
 set(wolfssl_BUILD_DIR "${CMAKE_BINARY_DIR}/wolfssl-build")
 set(wolfssl_TEST_FILE "${wolfssl_SOURCE_DIR}/CMakeLists.txt")
-check_extract("${DOWNLOAD_DIR}/wolfssl-${wolfssl_VERSION}.tar.gz" "${wolfssl_TEST_FILE}")
+check_extract("${DOWNLOAD_DIR}/wolfssl-${wolfssl_VERSION}-stable.tar.gz" "${wolfssl_TEST_FILE}")
 file(COPY "${wolfssl_SOURCE_DIR}/" DESTINATION "${wolfssl_BUILD_DIR}" PATTERN "*")
 
 if(NOT MSVC)
