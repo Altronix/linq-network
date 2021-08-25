@@ -1,6 +1,6 @@
 {
   "name": "@altronix/linq",
-  "version": "0.1.1-rc.4",
+  "version": "0.1.1-rc.5",
   "description": "Node bindings for linq-network",
   "main": "./src/index.js",
   "linq": {
