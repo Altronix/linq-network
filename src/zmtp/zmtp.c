@@ -399,6 +399,11 @@ process_response(zmtp_s* l, zmq_socket_s* sock, incoming_s* in, uint32_t total)
                     zmtp_device_request_resolve(*d, err_code, json);
                     zmtp_device_request_flush_w_check(*d);
                 }
+            } else {
+                zmtp_warn(
+                    "[&.6s...] unsolicited or late response [%d]",
+                    device_serial(*d),
+                    reqid);
             }
         }
     }
