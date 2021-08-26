@@ -52,11 +52,11 @@ char g_frame_typ_response = FRAME_TYP_RESPONSE;
 char g_frame_typ_alert = FRAME_TYP_ALERT;
 char g_frame_typ_hello = FRAME_TYP_HELLO;
 
-static int64_t
-read_i64(uint8_t* bytes)
+static int32_t
+read_i32(uint8_t* bytes)
 {
-    int64_t sz = 0;
-    for (int i = 0; i < 8; i++) { ((uint8_t*)&sz)[7 - i] = *bytes++; }
+    int32_t sz = 0;
+    for (int i = 0; i < 4; i++) { ((uint8_t*)&sz)[3 - i] = *bytes++; }
     return sz;
 }
 
@@ -363,12 +363,12 @@ process_response(zmtp_s* l, zmq_socket_s* sock, incoming_s* in, uint32_t total)
     int16_t err_code;
     char json[JSON_LEN] = { 0 };
     if ((total >= FRAME_RES_DAT_IDX) &&
-        (id = check_eq(&m[FRAME_RES_ID_IDX], 8)) &&
+        (id = check_eq(&m[FRAME_RES_ID_IDX], 4)) &&
         (err = check_eq(&m[FRAME_RES_ERR_IDX], 2)) &&
         (dat = check_le(&m[FRAME_RES_DAT_IDX], JSON_LEN))) {
         e = LINQ_ERROR_OK;
         node_s** d = device_resolve(l, sock, in, false);
-        int64_t reqid = read_i64(zmq_msg_data(id));
+        int32_t reqid = read_i32(zmq_msg_data(id));
         if (d) {
             print_null_terminated(json, sizeof(json), dat);
             if (zmtp_device_request_pending(*d, reqid)) {

@@ -44,7 +44,7 @@ typedef struct zmtp_device_s
     node_s base;        // will cast into netw_socket_s ...must be on top
     zmq_socket_s* sock; // will cast into netw_socket_s ...must be on top
     router_s router;    // will cast into netw_socket_s ...must be on top
-    int64_t reqid;
+    int32_t reqid;
     request_list_s* requests;
 } zmtp_device_s;
 
@@ -59,27 +59,23 @@ write_frame(const char* data, uint32_t len)
 }
 
 static packet_s*
-write_i64(int64_t n)
+write_i32(int32_t n)
 {
-    packet_s* p = linq_network_malloc(sizeof(packet_s) + 8);
+    packet_s* p = linq_network_malloc(sizeof(packet_s) + 4);
     linq_network_assert(p);
-    p->sz = 8;
-    p->data[0] = n >> 56;
-    p->data[1] = n >> 48;
-    p->data[2] = n >> 40;
-    p->data[3] = n >> 32;
-    p->data[4] = n >> 24;
-    p->data[5] = n >> 16;
-    p->data[6] = n >> 8;
-    p->data[7] = n;
+    p->sz = 4;
+    p->data[0] = n >> 24;
+    p->data[1] = n >> 16;
+    p->data[2] = n >> 8;
+    p->data[3] = n;
     return p;
 }
 
-static int64_t
-read_i64(uint8_t* bytes)
+static int32_t
+read_i32(uint8_t* bytes)
 {
-    int64_t sz = 0;
-    for (int i = 0; i < 8; i++) { ((uint8_t*)&sz)[7 - i] = *bytes++; }
+    int32_t sz = 0;
+    for (int i = 0; i < 4; i++) { ((uint8_t*)&sz)[3 - i] = *bytes++; }
     return sz;
 }
 
@@ -212,7 +208,7 @@ request_id_set(node_s* d, request_s* r)
         linq_network_free(req->frames[FRAME_REQ_ID_IDX]);
         req->frames[FRAME_REQ_ID_IDX] = NULL;
     }
-    req->frames[FRAME_REQ_ID_IDX] = write_i64(dev->reqid);
+    req->frames[FRAME_REQ_ID_IDX] = write_i32(dev->reqid);
     dev->reqid++;
 }
 
@@ -433,7 +429,7 @@ zmtp_device_request_flush_w_check(node_s* base)
     }
 }
 
-int64_t
+int32_t
 zmtp_device_request_pending_id(node_s* n)
 {
     // NOTE the current pending id is the next reqid - 1 (hackyish)
@@ -447,7 +443,7 @@ zmtp_device_request_has_pending(node_s* n)
 }
 
 bool
-zmtp_device_request_pending(node_s* n, int64_t reqid)
+zmtp_device_request_pending(node_s* n, int32_t reqid)
 {
     if (n->pending) {
         return reqid == zmtp_device_request_pending_id(n);

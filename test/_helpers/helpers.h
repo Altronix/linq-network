@@ -110,7 +110,7 @@ extern "C"
     void helpers_push_response(
         const char* rid,
         const char* sid,
-        int64_t reqid,
+        int32_t reqid,
         int16_t err,
         const char* data);
     void helpers_push_request(

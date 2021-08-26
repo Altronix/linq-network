@@ -49,7 +49,7 @@ extern "C"
     void zmtp_device_request_resolve(node_s* d, int err, const char*);
     void zmtp_device_request_flush(node_s* d);
     void zmtp_device_request_flush_w_check(node_s* d);
-    bool zmtp_device_request_pending(node_s* n, int64_t reqid);
+    bool zmtp_device_request_pending(node_s* n, int32_t reqid);
     uint32_t zmtp_device_request_pending_count(node_s* d);
     void zmtp_device_poll(node_s* base, void* ctx);
     void zmtp_device_retry_timeout_set(int val);

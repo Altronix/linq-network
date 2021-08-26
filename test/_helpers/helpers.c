@@ -8,23 +8,19 @@
 #include "zmtp/zmtp.h"
 
 static void
-write_i64(int64_t n, uint8_t* bytes)
+write_i32(int32_t n, uint8_t* bytes)
 {
-    bytes[0] = n >> 56;
-    bytes[1] = n >> 48;
-    bytes[2] = n >> 40;
-    bytes[3] = n >> 32;
-    bytes[4] = n >> 24;
-    bytes[5] = n >> 16;
-    bytes[6] = n >> 8;
-    bytes[7] = n;
+    bytes[0] = n >> 24;
+    bytes[1] = n >> 16;
+    bytes[2] = n >> 8;
+    bytes[3] = n;
 }
 
-static int64_t
-read_i64(uint8_t* bytes)
+static int32_t
+read_i32(uint8_t* bytes)
 {
-    int64_t sz = 0;
-    for (int i = 0; i < 8; i++) { ((uint8_t*)&sz)[7 - i] = *bytes++; }
+    int32_t sz = 0;
+    for (int i = 0; i < 4; i++) { ((uint8_t*)&sz)[3 - i] = *bytes++; }
     return sz;
 }
 
@@ -143,19 +139,19 @@ void
 helpers_push_response(
     const char* rid,
     const char* sid,
-    int64_t reqid,
+    int32_t reqid,
     int16_t err,
     const char* data)
 {
     zmq_msg_t msg;
     err = (err >> 8 | err << 8);
-    int64_t reqid_packet;
+    int32_t reqid_packet;
     if (rid) {
         zmq_msg_init_size(&msg, strlen(rid));
         memcpy(zmq_msg_data(&msg), rid, strlen(rid));
         zmq_spy_msg_push_incoming(&msg, ZMQ_SNDMORE);
     }
-    write_i64(reqid, (void*)&reqid_packet);
+    write_i32(reqid, (void*)&reqid_packet);
     helpers_push_mem(
         6,
         &g_frame_ver_0,        // version
@@ -165,7 +161,7 @@ helpers_push_response(
         sid,                   // serial
         strlen(sid),           //
         &reqid_packet,         // reqid
-        8,                     //
+        4,                     //
         &err,                  // error
         2,                     //
         data,                  // data
