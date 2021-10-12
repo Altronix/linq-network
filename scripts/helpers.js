@@ -64,7 +64,7 @@ exports.log = function (channel, message) {
   console.log(`${now} ${arrow} ${level} ${m}`);
 };
 
-exports.traice = function (message) {
+exports.trace = function (message) {
   this.log("trace", message);
 };
 
@@ -111,7 +111,7 @@ exports.spawnEnv = {
   shell: process.platform === "win32",
 };
 
-exports.makeCmakeConfigArgs = function ({ sourceDir, buildDir, installDir }) {
+exports.cmakeConfigArgs = function ({ sourceDir, buildDir, installDir }) {
   return [
     `-S${exports.sanitizePath(sourceDir)}`,
     `-B${exports.sanitizePath(buildDir)}`,
@@ -125,10 +125,24 @@ exports.makeCmakeConfigArgs = function ({ sourceDir, buildDir, installDir }) {
   ];
 };
 
-exports.makeCmakeBuildArgs = function ({ buildDir }) {
+exports.cmakeConfigArgsShared = function ({ sourceDir, buildDir, installDir }) {
+  return [
+    `-S${exports.sanitizePath(sourceDir)}`,
+    `-B${exports.sanitizePath(buildDir)}`,
+    `-DBUILD_USBH=OFF`,
+    `-DLOG_LEVEL=TRACE`,
+    `-DCMAKE_BUILD_TYPE=Release`,
+    `-DBUILD_DEPENDENCIES=OFF`,
+    `-DCMAKE_INSTALL_PREFIX=${exports.sanitizePath(installDir)}`,
+    `-DBUILD_SHARED=OFF`,
+    `-DBUILD_APPS=OFF`,
+  ];
+};
+
+exports.cmakeBuildArgs = function (dir) {
   return [
     `--build`,
-    `${exports.sanitizePath(buildDir)}`,
+    `${exports.sanitizePath(dir)}`,
     "--config",
     "Release",
     "--target",
@@ -139,5 +153,8 @@ exports.makeCmakeBuildArgs = function ({ buildDir }) {
 exports.spawn = function (cmd, args, env = exports.spawnEnv) {
   exports.info(`${cmd}: ${JSON.stringify(args)}`);
   const result = cp.spawnSync(cmd, args, env);
-  if (!(result.status === 0)) throw new Error(`${cmd} failed!`);
+  if (!(result.status === 0)) {
+    console.error(result);
+    throw new Error(`${cmd} failed!`);
+  }
 };

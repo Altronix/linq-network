@@ -1,21 +1,30 @@
 {
   "name": "@altronix/linq",
-  "version": "0.1.1-rc.6",
+  "version": "0.2.0-rc.0",
   "description": "Node bindings for linq-network",
-  "main": "./src/index.js",
+  "main": "./dist/src/index.js",
   "linq": {
     "usbh": true
   },
   "scripts": {
     "test": "jest --config=./bindings/node/lib/jest.config.js",
-    "build": "node ./scripts/build-node-binding.js ./ ./build-linq ./build-linq/install ./bindings/node/lib",
+    "install": "node ./scripts/install.js",
     "build:integration-test": "tsc --build ./test/integration/timeout/tsconfig.json",
     "events:build": "tsc --build ./bindings/node/examples/events",
     "events:run": "node ./bindings/node/examples/events/index.js",
     "update:build": "tsc --build ./bindings/node/examples/update",
-    "update:run": "node ./bindings/node/examples/update/index.js",
-    "postinstall": "node postinstall.js"
+    "update:run": "node ./bindings/node/examples/update/index.js"
   },
+  "files": [
+    "/bindings/node",
+    "/cmake",
+    "/dl",
+    "/scripts",
+    "/src",
+    "/binding.gyp",
+    "/CMakeLists.txt",
+    "/tsconfig.base.json"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/TomzBench/linq-network.git"

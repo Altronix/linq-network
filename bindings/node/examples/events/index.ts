@@ -1,4 +1,4 @@
-import { network as linq } from "../../../../dist";
+import { network as linq } from "../../../../";
 
 linq
   .listen("tcp://*:33455")

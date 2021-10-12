@@ -1,8 +1,8 @@
 # Version
 set(V_MAJOR 0)
-set(V_MINOR 1)
-set(V_PATCH 1)
-set(V_RC -rc6)
+set(V_MINOR 2)
+set(V_PATCH 0)
+set(V_RC -rc0)
 set(LINQ_NETWORK_VERSION "v${V_MAJOR}.${V_MINOR}.${V_PATCH}${V_RC}")
 function (append_version_compiler_flags dst)
   list(APPEND arg "${${dst}}")

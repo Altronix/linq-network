@@ -1,4 +1,4 @@
-import { network as linq } from "../../../../dist";
+import { network as linq } from "../../../../";
 import { merge, from, of } from "rxjs";
 import { take, takeWhile, switchMap, tap, map, filter } from "rxjs/operators";
 import * as fs from "fs";

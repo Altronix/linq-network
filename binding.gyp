@@ -13,8 +13,9 @@
       "include_dirs":[
         "./bindings/cpp/",
         "./bindings/node/src/",
-        "./build-linq/install/include/",
-        "./build-linq/install/include/altronix/",
+        "./build/install/include/",
+        "./build/install/include/altronix/",
+	"<!@(node ./scripts/generate_includes.js)",
         "<!@(node -p \"require('node-addon-api').include\")"
       ],
       "defines": [ "LINQ_STATIC", "ZMQ_STATIC", "CZMQ_STATIC" ],
@@ -24,8 +25,8 @@
       "conditions":[
         [ "OS=='linux'", {
           "libraries":[
-            "../build-linq/install/lib/liblinqnetwork.a",
-            "../build-linq/install/lib/libzmq.a",
+	    "<!@(node ./scripts/generate_libraries.js)",
+            # common libraries
             "-luuid",
             "-ludev"
           ],
@@ -39,8 +40,7 @@
         }],
         [ "OS=='win'", {
           "libraries":[
-            "../build-linq/install/lib/linqnetwork.lib",
-            "../build-linq/install/lib/libzmq-v142-mt-s-4_3_4.lib",
+	    "<!@(node ./scripts/generate_libraries.js)",
             "uuid",
 	    "ws2_32",
 	    "iphlpapi",
