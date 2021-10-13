@@ -1,14 +1,11 @@
 {
   "name": "@altronix/linq",
-  "version": "0.2.0-rc.0",
+  "version": "0.2.0-rc.3",
   "description": "Node bindings for linq-network",
   "main": "./dist/src/index.js",
-  "linq": {
-    "usbh": true
-  },
   "scripts": {
-    "test": "jest --config=./bindings/node/lib/jest.config.js",
     "install": "node ./scripts/install.js",
+    "test": "jest --config=./bindings/node/lib/jest.config.js",
     "build:integration-test": "tsc --build ./test/integration/timeout/tsconfig.json",
     "events:build": "tsc --build ./bindings/node/examples/events",
     "events:run": "node ./bindings/node/examples/events/index.js",
@@ -16,14 +13,8 @@
     "update:run": "node ./bindings/node/examples/update/index.js"
   },
   "files": [
-    "/bindings/node",
-    "/cmake",
-    "/dl",
     "/scripts",
-    "/src",
-    "/binding.gyp",
-    "/CMakeLists.txt",
-    "/tsconfig.base.json"
+    "/dist"
   ],
   "repository": {
     "type": "git",

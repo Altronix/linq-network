@@ -1,4 +1,4 @@
-if (process.env["LINQ_NETWORK_SHARED"]) {
+if (process.env["LINQ_NETWORK_BUILDROOT"]) {
   // NOTE spaces required
   process.stdout.write("-llinqnetwork ");
   process.stdout.write("-lzmq ");
@@ -7,5 +7,7 @@ if (process.env["LINQ_NETWORK_SHARED"]) {
   process.stdout.write("../build/install/lib/liblinqnetwork.a ");
   if (process.platform === "win32") {
     process.stdout.write("../build/install/lib/libzmq-v142-mt-s-4_3_4.lib");
+  } else {
+    process.stdout.write("../build/install/lib/libzmq.a");
   }
 }

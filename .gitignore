@@ -62,3 +62,6 @@ compile_commands.json
 # tsc compiler output
 bindings/nodejs/examples/**/*.js
 test/integration/timeout/*.js
+
+#tmp
+**/*.linq-tmp
