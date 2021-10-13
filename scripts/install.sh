@@ -8,8 +8,6 @@
 #   DESCRIPTION: Build linq-network in various ways depending if Windows, Linux
 #		 or Buildroot.
 # 
-# NODEJS_CPU = arm
-# npm_config_arch=$(NODEJS_CPU) \
 #       OPTIONS: ---
 #       CREATED: 10/12/2021 18:54
 #      REVISION:  ---
