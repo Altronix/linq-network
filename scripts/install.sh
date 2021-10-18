@@ -156,6 +156,10 @@ done
 #-------------------------------------------------------------------------------
 print_config
 
+if [[ ! -d ./dist/src ]]; then
+	mkdir -p ./dist/src;
+fi
+
 #-------------------------------------------------------------------------------
 # build cmake
 #-------------------------------------------------------------------------------
@@ -179,9 +183,9 @@ fi;
 if [[ ${config_build_node,,} = true ]]; then
 	if [[ ${config_build_shared,,} = true ]]; then
 		LINQ_NETWORK_BUILD_SHARED=true \
-			"$dir_node/.bin/node-gyp" configure;
+			"$dir_node/.bin/node-gyp" configure || exit 1;
 		LINQ_NETWORK_BUILD_SHARED=true \
-			"$dir_node/.bin/node-gyp" build;
+			"$dir_node/.bin/node-gyp" build || exit 1;
 	else
 		"$dir_node/.bin/node-gyp" configure || exit 1;
 		"$dir_node/.bin/node-gyp" build || exit 1;
