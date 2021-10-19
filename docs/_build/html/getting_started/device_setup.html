@@ -1,11 +1,11 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="lang:clipboard.copy" content="Copy to clipboard">
@@ -19,9 +19,8 @@
   <meta name="lang:search.tokenizer" content="[\s\-]+">
 
   
-    <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin="">
-    <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono:400,500,700&display=fallback">
+    <link href="https://fonts.gstatic.com/" rel="preconnect" crossorigin>
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,500,700|Roboto:300,400,400i,700&display=fallback" rel="stylesheet">
 
     <style>
       body,
@@ -46,41 +45,34 @@
   <meta name="theme-color" content="#3f51b5">
   <script src="../_static/javascripts/modernizr.js"></script>
   
-  <script>
-      window.ga = window.ga || function () {
-          (ga.q = ga.q || []).push(arguments)
-      };
-      ga.l = +new Date;
-      ga('create', 'UA-XXXXX', 'auto');
-      ga('send', 'pageview');
-  </script>
-  <script async src='https://www.google-analytics.com/analytics.js'></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXX"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'UA-XXXXX');
+</script>
   
   
     <title>Setting Up Network Devices &#8212; Linq Network User Guide 0.0.1 documentation</title>
-    <link rel="stylesheet" href="../_static/material.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/material.css" />
     <link rel="stylesheet" type="text/css" href="../_static/css/styles.css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Quick Start (C)" href="quickstart_c.html" />
     <link rel="prev" title="Library Configuration Options" href="configuration.html" />
   
    
-  
-  <script src="../_static/javascripts/version_dropdown.js"></script>
-  <script>
-    var json_loc = "../"versions.json"",
-        target_loc = "../../",
-        text = "Versions";
-    $( document ).ready( add_version_dropdown(json_loc, target_loc, text));
-  </script>
-
 
   </head>
   <body dir=ltr
@@ -140,6 +132,17 @@
           </div>
         </div>
       
+      
+  
+  <script src="../_static/javascripts/version_dropdown.js"></script>
+  <script>
+    var json_loc = "../"versions.json"",
+        target_loc = "../../",
+        text = "Versions";
+    $( document ).ready( add_version_dropdown(json_loc, target_loc, text));
+  </script>
+  
+
     </div>
   </nav>
 </header>
@@ -191,38 +194,49 @@
   
 
   
-  
   <ul class="md-nav__list">
     <li class="md-nav__item">
+    
     
       <a href="getting_started.html" class="md-nav__link">Getting Started</a>
       <ul class="md-nav__list"> 
     <li class="md-nav__item">
     
+    
       <a href="windows.html" class="md-nav__link">Windows Enviorment</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="linux.html" class="md-nav__link">Linux Enviorment</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="buildroot.html" class="md-nav__link">Buildroot Environment</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="docker.html" class="md-nav__link">Docker Image</a>
       
+    
     </li>
     <li class="md-nav__item">
     
+    
       <a href="configuration.html" class="md-nav__link">Library Configuration Options</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
     <label class="md-nav__link md-nav__link--active" for="__toc"> Setting Up Network Devices </label>
@@ -245,63 +259,88 @@
 <li class="md-nav__item"><a class="md-nav__extra_link" href="../_sources/getting_started/device_setup.rst.txt">Show Source</a> </li>
 
   </ul>
-</nav><ul class="md-nav__list"> 
+</nav>
+      <ul class="md-nav__list"> 
     <li class="md-nav__item">
+    
     
       <a href="#enable-cloud" class="md-nav__link">Enable Cloud</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="#upload-certificate-required-for-tls-only" class="md-nav__link">Upload Certificate (Required for TLS Only)</a>
       
+    
     </li></ul>
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="quickstart_c.html" class="md-nav__link">Quick Start (C)</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="quickstart_cpp.html" class="md-nav__link">Quick Start (C++)</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="quickstart_rust.html" class="md-nav__link">Quick Start (Rust)</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="quickstart_nodejs.html" class="md-nav__link">Quick Start (NodeJS)</a>
       
+    
     </li></ul>
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="../api/api_c/api_c.html" class="md-nav__link">C API Reference</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="../api/api_cpp/api_cpp.html" class="md-nav__link">C++ API Reference</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="../api/api_rust/api_rust.html" class="md-nav__link">Rust API Reference</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="../api/api_nodejs/api_nodejs.html" class="md-nav__link">NodeJS API Reference</a>
       
+    
     </li>
     <li class="md-nav__item">
     
+    
       <a href="../api/api_http/api_http.html" class="md-nav__link">HTTP API Reference</a>
       
+    
     </li>
   </ul>
   
@@ -339,47 +378,48 @@
         <div class="md-content">
           <article class="md-content__inner md-typeset" role="main">
             
-  
+  <section id="setting-up-network-devices">
 <h1 id="getting-started-device-setup--page-root">Setting Up Network Devices<a class="headerlink" href="#getting-started-device-setup--page-root" title="Permalink to this headline">¶</a></h1>
 <p>The following settings describe how to connect your Altronix LinQ enabled product to the Altronix Dashboard Software.</p>
-
+<section id="enable-cloud">
 <span id="ref-getting-started-device-setup-enable-cloud"></span><h2 id="enable-cloud">Enable Cloud<a class="headerlink" href="#enable-cloud" title="Permalink to this headline">¶</a></h2>
 <img alt="../_images/cloud-tcp-setup.png" src="../_images/cloud-tcp-setup.png"/>
 <ol class="arabic simple">
-<li>Connect your Altronix LinQ enabled product to your Local Area Network (LAN).</li>
-<li>Open a browser and navigate to the Altronix LinQ enabled product Web Page by entering the IP address of your Altronix LinQ enabled product into the URL bar.</li>
-<li>Log into the device by entering the user name and password.</li>
-<li>Navigate to Settings -&gt; Cloud from the side navigation panel.</li>
-<li>Click on the TCP / IP tab from the Cloud configuration view.</li>
-<li>Enter the IP address of the machine running Altronix LinQ Dashboard Software into the IP field.<ol class="arabic">
-<li>Example: 192.168.0.34</li>
+<li><p>Connect your Altronix LinQ enabled product to your Local Area Network (LAN).</p></li>
+<li><p>Open a browser and navigate to the Altronix LinQ enabled product Web Page by entering the IP address of your Altronix LinQ enabled product into the URL bar.</p></li>
+<li><p>Log into the device by entering the user name and password.</p></li>
+<li><p>Navigate to Settings -&gt; Cloud from the side navigation panel.</p></li>
+<li><p>Click on the TCP / IP tab from the Cloud configuration view.</p></li>
+<li><p>Enter the IP address of the machine running Altronix LinQ Dashboard Software into the IP field.</p>
+<ol class="arabic simple">
+<li><p>Example: 192.168.0.34</p></li>
 </ol>
 </li>
-<li>Enter the Port number that is configured into the Altronix LinQ Dashboard software.<ol class="arabic">
-<li>Default: TODO</li>
+<li><p>Enter the Port number that is configured into the Altronix LinQ Dashboard software.</p>
+<ol class="arabic simple">
+<li><p>Default: TODO</p></li>
 </ol>
 </li>
 </ol>
 <div class="admonition attention">
-<p class="first admonition-title">Attention</p>
-<p class="last">If you are using TLS to protect the connection between the device and host. You must select “Enable TLS” on the device cloud configuration form.</p>
+<p class="admonition-title">Attention</p>
+<p>If you are using TLS to protect the connection between the device and host. You must select “Enable TLS” on the device cloud configuration form.</p>
 </div>
-
-
+</section>
+<section id="upload-certificate-required-for-tls-only">
 <span id="ref-getting-started-device-setup-upload-certificate"></span><h2 id="upload-certificate-required-for-tls-only">Upload Certificate (Required for TLS Only)<a class="headerlink" href="#upload-certificate-required-for-tls-only" title="Permalink to this headline">¶</a></h2>
 <img alt="../_images/cloud-cert-setup.png" src="../_images/cloud-cert-setup.png"/>
 <ol class="arabic">
-<li><p class="first">From the Settings -&gt; Cloud form, navigate to the “Certificate” tab.</p>
-</li>
-<li><p class="first">Click on the “Upload” icon and navigate to the Public Key of the Certificate installed on the Altronix Dashboard Software.</p>
+<li><p>From the Settings -&gt; Cloud form, navigate to the “Certificate” tab.</p></li>
+<li><p>Click on the “Upload” icon and navigate to the Public Key of the Certificate installed on the Altronix Dashboard Software.</p>
 <div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">The Public Key must be in plain text PEM format!</p>
+<p class="admonition-title">Warning</p>
+<p>The Public Key must be in plain text PEM format!</p>
 </div>
 </li>
 </ol>
-
-
+</section>
+</section>
 
 
           </article>
@@ -391,7 +431,7 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
           
-            <a href="configuration.html" title="Material"
+            <a href="configuration.html" title="Library Configuration Options"
                class="md-flex md-footer-nav__link md-footer-nav__link--prev"
                rel="prev">
               <div class="md-flex__cell md-flex__cell--shrink">
@@ -405,7 +445,7 @@
             </a>
           
           
-            <a href="quickstart_c.html" title="Admonition"
+            <a href="quickstart_c.html" title="Quick Start (C)"
                class="md-flex md-footer-nav__link md-footer-nav__link--next"
                rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title"><span
@@ -428,7 +468,7 @@
               
           </div>
             Created using
-            <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+            <a href="http://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
              and
             <a href="https://github.com/bashtage/sphinx-material/">Material for
               Sphinx</a>

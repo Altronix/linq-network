@@ -233,4 +233,4 @@ todo_include_todos = True
 import os
 
 def setup(app):
-    app.add_stylesheet('css/styles.css')
+    app.add_css_file('css/styles.css')
