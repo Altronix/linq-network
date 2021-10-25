@@ -3,11 +3,11 @@ import { merge, from, of } from "rxjs";
 import { take, takeWhile, switchMap, tap, map, filter } from "rxjs/operators";
 import * as fs from "fs";
 
-const update = JSON.parse(
-  fs.readFileSync(__dirname + "/linq2-2.6.3-dashboard.json", "utf-8")
-);
+if (!(process.argv.length > 2)) process.exit(-1);
 
-linq.logs().subscribe((l) => console.log(l));
+const update = JSON.parse(fs.readFileSync(process.argv[2], "utf-8"));
+
+// linq.logs().subscribe((l) => console.log(l));
 
 linq
   .tick(10)

@@ -187,6 +187,19 @@ read_email(zmq_msg_t* msg, netw_email_s* emails)
     return 0;
 }
 
+static void
+device_legacy_detect(node_s** d, char ver)
+{
+    const sid = device_serial(*d);
+    if (ver == FRAME_VER_0 && !device_legacy(*d)) {
+        zmtp_debug("[%s] legacy device detected", sid);
+        device_legacy_set(*d, true);
+    } else if (ver == FRAME_VER_1 && device_legacy(*d)) {
+        zmtp_debug("[%s] device updated detected", sid);
+        device_legacy_set(*d, false);
+    }
+}
+
 // A device is resolved by the serial number frame
 static node_s**
 device_resolve(zmtp_s* l, zmq_socket_s* sock, incoming_s* in, bool insert)
@@ -208,18 +221,13 @@ device_resolve(zmtp_s* l, zmq_socket_s* sock, incoming_s* in, bool insert)
         zmtp_debug("[%s] Device exists", sid);
         device_heartbeat(*d);
         if (rid) zmtp_device_update_router(*d, rid, rid_sz);
-        if (in->ver == FRAME_VER_0 && !device_legacy(*d)) {
-            zmtp_debug("[%s] legacy device detected", sid);
-            device_legacy_set(*d, true);
-        } else if (in->ver == FRAME_VER_1 && device_legacy(*d)) {
-            zmtp_debug("[%s] device updated detected", sid);
-            device_legacy_set(*d, false);
-        }
+        device_legacy_detect(d, in->ver);
     } else {
         if (insert) {
             zmtp_debug("[%s] New device", sid);
             node_s* node = zmtp_device_create(sock, rid, rid_sz, sid, tid);
             if (node) d = devices_add(map, device_serial(node), &node);
+            device_legacy_detect(d, in->ver);
             if (l->callbacks && l->callbacks->on_new) {
                 zmtp_debug("Executing new callback", sid);
                 l->callbacks->on_new(l->context, sid);
