@@ -449,7 +449,8 @@ bool
 zmtp_device_request_pending(node_s* n, int32_t reqid)
 {
     if (n->pending) {
-        return reqid == zmtp_device_request_pending_id(n);
+        return reqid >= 0 ? reqid == zmtp_device_request_pending_id(n)
+                          : zmtp_device_request_has_pending(n);
     } else {
         return false;
     }

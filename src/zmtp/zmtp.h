@@ -62,6 +62,10 @@
 #define FRAME_RES_ERR_IDX 5
 #define FRAME_RES_DAT_IDX 6
 
+// Response LEGACY IDX
+#define FRAME_RES_LEGACY_ERR_IDX 4
+#define FRAME_RES_LEGACY_DAT_IDX 5
+
 // Maximum sockets
 #define MAX_CONNECTIONS 10
 

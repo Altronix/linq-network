@@ -363,6 +363,32 @@ process_request(zmtp_s* l, zmq_socket_s* sock, incoming_s* in, uint32_t total)
     return e;
 }
 
+static E_LINQ_ERROR
+parse_response(
+    incoming_s* in,
+    uint32_t total,
+    zmq_msg_t** id,
+    zmq_msg_t** e,
+    zmq_msg_t** dat)
+{
+    zmq_msg_t* m = *in->msgs;
+    if (in->ver == FRAME_VER_0 && //
+        (total >= FRAME_RES_LEGACY_DAT_IDX) &&
+        (*e = check_eq(&m[FRAME_RES_LEGACY_ERR_IDX], 2)) &&
+        (*dat = check_le(&m[FRAME_RES_LEGACY_DAT_IDX], JSON_LEN))) {
+        *id = NULL;
+        return LINQ_ERROR_OK;
+    } else if (
+        in->ver == FRAME_VER_1 && (total >= FRAME_RES_DAT_IDX) &&
+        (*id = check_eq(&m[FRAME_RES_ID_IDX], 4)) &&
+        (*e = check_eq(&m[FRAME_RES_ERR_IDX], 2)) &&
+        (*dat = check_le(&m[FRAME_RES_DAT_IDX], JSON_LEN))) {
+        return LINQ_ERROR_OK;
+    } else {
+        return LINQ_ERROR_PROTOCOL;
+    }
+}
+
 // check the zmq response frames are valid and process the response
 static E_LINQ_ERROR
 process_response(zmtp_s* l, zmq_socket_s* sock, incoming_s* in, uint32_t total)
@@ -372,13 +398,9 @@ process_response(zmtp_s* l, zmq_socket_s* sock, incoming_s* in, uint32_t total)
     zmq_msg_t *id, *err, *dat, *m = *in->msgs;
     int16_t err_code;
     char json[JSON_LEN] = { 0 };
-    if ((total >= FRAME_RES_DAT_IDX) &&
-        (id = check_eq(&m[FRAME_RES_ID_IDX], 4)) &&
-        (err = check_eq(&m[FRAME_RES_ERR_IDX], 2)) &&
-        (dat = check_le(&m[FRAME_RES_DAT_IDX], JSON_LEN))) {
-        e = LINQ_ERROR_OK;
+    if ((e = parse_response(in, total, &id, &err, &dat)) == LINQ_ERROR_OK) {
         node_s** d = device_resolve(l, sock, in, false);
-        int32_t reqid = read_i32(zmq_msg_data(id));
+        int32_t reqid = id ? read_i32(zmq_msg_data(id)) : -1;
         if (d) {
             print_null_terminated(json, sizeof(json), dat);
             if (zmtp_device_request_pending(*d, reqid)) {
