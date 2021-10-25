@@ -76,6 +76,18 @@ device_heartbeat(node_s* d)
     d->last_seen = sys_unix();
 }
 
+LINQ_EXPORT bool
+device_legacy(node_s* d)
+{
+    return d->legacy;
+}
+
+LINQ_EXPORT bool
+device_legacy_set(node_s* d, bool legacy)
+{
+    d->legacy = legacy;
+}
+
 LINQ_EXPORT devices_iter
 devices_iter_start(device_map_s* map)
 {

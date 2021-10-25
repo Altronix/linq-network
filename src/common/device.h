@@ -28,6 +28,8 @@ extern "C"
     LINQ_EXPORT uint32_t device_last_seen(node_s* d);
     LINQ_EXPORT uint32_t device_uptime(node_s* d);
     LINQ_EXPORT void device_heartbeat(node_s* d);
+    LINQ_EXPORT bool device_legacy(node_s* d);
+    LINQ_EXPORT bool device_legacy_set(node_s* d, bool);
     LINQ_EXPORT devices_iter devices_iter_start(device_map_s* map);
     LINQ_EXPORT devices_iter devices_iter_end(device_map_s* map);
     LINQ_EXPORT node_s* devices_iter_exist(device_map_s* map, devices_iter it);

@@ -42,10 +42,12 @@ typedef enum
 typedef struct
 {
     zmq_msg_t (*msgs)[FRAME_MAX];
+    char ver;
     bool router;
 } incoming_s;
 
 char g_frame_ver_0 = FRAME_VER_0;
+char g_frame_ver_1 = FRAME_VER_1;
 char g_frame_typ_heartbeat = FRAME_TYP_HEARTBEAT;
 char g_frame_typ_request = FRAME_TYP_REQUEST;
 char g_frame_typ_response = FRAME_TYP_RESPONSE;
@@ -203,16 +205,23 @@ device_resolve(zmtp_s* l, zmq_socket_s* sock, incoming_s* in, bool insert)
     zmtp_trace("[%s] Heartbeat received", sid);
     node_s** d = devices_get(map, sid);
     if (d) {
-        zmtp_trace("[%s] Device exists", sid);
+        zmtp_debug("[%s] Device exists", sid);
         device_heartbeat(*d);
         if (rid) zmtp_device_update_router(*d, rid, rid_sz);
+        if (in->ver == FRAME_VER_0 && !device_legacy(*d)) {
+            zmtp_debug("[%s] legacy device detected", sid);
+            device_legacy_set(*d, true);
+        } else if (in->ver == FRAME_VER_1 && device_legacy(*d)) {
+            zmtp_debug("[%s] device updated detected", sid);
+            device_legacy_set(*d, false);
+        }
     } else {
         if (insert) {
-            zmtp_trace("[%s] New device", sid);
+            zmtp_debug("[%s] New device", sid);
             node_s* node = zmtp_device_create(sock, rid, rid_sz, sid, tid);
             if (node) d = devices_add(map, device_serial(node), &node);
             if (l->callbacks && l->callbacks->on_new) {
-                zmtp_trace("Executing new callback", sid);
+                zmtp_debug("Executing new callback", sid);
                 l->callbacks->on_new(l->context, sid);
             }
         }
@@ -290,6 +299,7 @@ foreach_node_forward_message(
 
 // A device has responded to a request from a node on linq->nodes. Forward
 // the response to the node @ linq->nodes
+// NOTE DEPRECATED
 static void
 on_device_response(
     void* ctx,
@@ -304,7 +314,7 @@ on_device_response(
     node_send_frames_n(
         *node,
         5,
-        &g_frame_ver_0,        // version
+        &g_frame_ver_1,        // version
         1,                     //
         &g_frame_typ_response, // type
         1,                     //
@@ -475,10 +485,10 @@ process_heartbeat(zmtp_s* z, zmq_socket_s* s, incoming_s* in, uint32_t total)
     if (total >= FRAME_HB_SITE_IDX && //
         (check_le(&m[FRAME_HB_TID_IDX], TID_LEN)) &&
         (check_le(&m[FRAME_HB_SITE_IDX], SITE_LEN))) {
-        node_s** d = device_resolve(z, s, in, true);
         frames_s f = { .n = 5, .frames = &m[1] };
+        node_s** d = device_resolve(z, s, in, true);
         if (d) {
-            zmtp_trace("Device resolved");
+            zmtp_debug("Device resolved");
             E_TYPE t = ((char*)zmq_msg_data(&m[FRAME_TYP_IDX]))[0];
             if (!FRAME_IS_BROADCAST(t)) {
                 FRAME_SET_BROADCAST(t);
@@ -486,7 +496,7 @@ process_heartbeat(zmtp_s* z, zmq_socket_s* s, incoming_s* in, uint32_t total)
                 node_map_foreach(*z->nodes_p, foreach_node_forward_message, &f);
             }
             if (z->callbacks && z->callbacks->on_heartbeat) {
-                zmtp_trace("Executing heartbeat callback");
+                zmtp_debug("Executing heartbeat callback");
                 z->callbacks->on_heartbeat(z->context, device_serial(*d));
             }
             e = LINQ_ERROR_OK;
@@ -504,7 +514,7 @@ process_packet(zmtp_s* z, zmq_socket_s* s, bool router)
     E_LINQ_ERROR e = LINQ_ERROR_PROTOCOL;
     int more = 1, err, start = router ? FRAME_RID_IDX : FRAME_VER_IDX,
         end = start;
-    char sid[SID_LEN] = "";
+    char sid[SID_LEN] = "", ver;
     zmq_msg_t m[FRAME_MAX];
     while (more) {
         linq_network_assert(end < FRAME_MAX);
@@ -519,8 +529,9 @@ process_packet(zmtp_s* z, zmq_socket_s* s, bool router)
     if (end >= 3 && (!router || (router && check_le(&m[0], RID_LEN))) &&
         (check_eq(&m[FRAME_VER_IDX], 1)) && (check_eq(&m[FRAME_TYP_IDX], 1)) &&
         (check_le(&m[FRAME_SID_IDX], SID_LEN))) {
+        ver = ((char*)zmq_msg_data(&m[FRAME_VER_IDX]))[0];
         E_TYPE t = FRAME_TYPE(((uint8_t*)zmq_msg_data(&m[FRAME_TYP_IDX]))[0]);
-        incoming_s in = { .router = router, .msgs = &m };
+        incoming_s in = { .router = router, .msgs = &m, .ver = ver };
         switch (t) {
             case TYPE_HEARTBEAT: e = process_heartbeat(z, s, &in, end); break;
             case TYPE_REQUEST: e = process_request(z, s, &in, end); break;

@@ -26,6 +26,7 @@
 #endif
 
 #define FRAME_VER_0 ('\x0')
+#define FRAME_VER_1 ('\x1')
 #define FRAME_TYP_HEARTBEAT ('\x0')
 #define FRAME_TYP_REQUEST ('\x1')
 #define FRAME_TYP_RESPONSE ('\x2')
@@ -104,6 +105,7 @@ extern "C"
     typedef unsigned char uchar;
 
     extern char g_frame_ver_0;
+    extern char g_frame_ver_1;
     extern char g_frame_typ_heartbeat;
     extern char g_frame_typ_request;
     extern char g_frame_typ_response;

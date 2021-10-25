@@ -195,6 +195,25 @@ test_device_send_post_with_prefix(void** context_p)
 }
 
 static void
+test_device_send_get_legacy(void** context_p)
+{
+    ((void)context_p);
+    node_s* d = zmtp_device_create(NULL, (uint8_t*)"rid", 3, "sid", "pid");
+
+    device_legacy_set(d, true);
+    device_send_get(d, "/ATX", NULL, NULL);
+    check_message(0, MORE, "rid", 3);
+    check_message(1, MORE, "\x0", 1);
+    check_message(2, MORE, "\x1", 1);
+    check_message(3, MORE, "sid", 3);
+    check_message(4, DONE, "GET /ATX", 8);
+    assert_int_equal(zmtp_device_request_pending_count(d), 1);
+
+    zmtp_device_destroy(&d);
+    test_reset();
+}
+
+static void
 test_device_send_hop_get_no_prefix(void** context_p)
 {
     ((void)context_p);
@@ -380,6 +399,7 @@ main(int argc, char* argv[])
         cmocka_unit_test(test_device_send_delete_with_prefix),
         cmocka_unit_test(test_device_send_post_no_prefix),
         cmocka_unit_test(test_device_send_post_with_prefix),
+        cmocka_unit_test(test_device_send_get_legacy),
         cmocka_unit_test(test_device_send_hop_get_no_prefix),
         cmocka_unit_test(test_device_send_hop_get_with_prefix),
         cmocka_unit_test(test_device_send_hop_delete_no_prefix),

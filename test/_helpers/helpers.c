@@ -96,7 +96,7 @@ helpers_push_heartbeat(
 
     helpers_push_mem(
         5,
-        &g_frame_ver_0,         // version
+        &g_frame_ver_1,         // version
         1,                      //
         &g_frame_typ_heartbeat, // type
         1,                      //
@@ -120,7 +120,7 @@ helpers_push_alert(const char* rid, const char* sid, const char* pid)
     }
     helpers_push_mem(
         6,
-        &g_frame_ver_0,     // version
+        &g_frame_ver_1,     // version
         1,                  //
         &g_frame_typ_alert, // type
         1,                  //
@@ -154,7 +154,7 @@ helpers_push_response(
     write_i32(reqid, (void*)&reqid_packet);
     helpers_push_mem(
         6,
-        &g_frame_ver_0,        // version
+        &g_frame_ver_1,        // version
         1,                     //
         &g_frame_typ_response, // type
         1,                     //
@@ -183,7 +183,7 @@ helpers_push_request(
     }
     data ? helpers_push_mem(
                5,
-               &g_frame_ver_0,
+               &g_frame_ver_1,
                1,
                &g_frame_typ_request,
                1,
@@ -195,7 +195,7 @@ helpers_push_request(
                strlen(data))
          : helpers_push_mem(
                4,
-               &g_frame_ver_0,
+               &g_frame_ver_1,
                1,
                &g_frame_typ_request,
                1,
@@ -212,7 +212,7 @@ helpers_push_hello(const char* router, const char* node)
         4,
         router,
         strlen(router),
-        &g_frame_ver_0,
+        &g_frame_ver_1,
         1,
         &g_frame_typ_hello,
         1,

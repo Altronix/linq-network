@@ -141,6 +141,7 @@ extern "C"
         uint32_t uptime;
         uint32_t last_seen;
         E_TRANSPORT transport;
+        bool legacy;
         void (*poll)(struct node_s*, void*);
         void (*free)(struct node_s**);
         void (*send)(
