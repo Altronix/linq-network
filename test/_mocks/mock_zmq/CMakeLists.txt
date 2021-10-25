@@ -27,9 +27,9 @@ set_target_properties(mock-zmq PROPERTIES LINK_FLAGS "${wrap_flags}")
 target_link_libraries(mock-zmq 
   network-static
   mock-utils 
-  ${CMAKE_THREAD_LIBS_INIT}
   ${ZMQ_LIBS} 
   mock-message
+  ${CMAKE_THREAD_LIBS_INIT}
   stdc++ 
   uuid)
 target_include_directories(mock-zmq PUBLIC .)
