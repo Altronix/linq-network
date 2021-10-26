@@ -26,6 +26,7 @@
 #endif
 
 #define FRAME_VER_0 ('\x0')
+#define FRAME_VER_1 ('\x1')
 #define FRAME_TYP_HEARTBEAT ('\x0')
 #define FRAME_TYP_REQUEST ('\x1')
 #define FRAME_TYP_RESPONSE ('\x2')
@@ -60,6 +61,10 @@
 #define FRAME_RES_ID_IDX 4
 #define FRAME_RES_ERR_IDX 5
 #define FRAME_RES_DAT_IDX 6
+
+// Response LEGACY IDX
+#define FRAME_RES_LEGACY_ERR_IDX 4
+#define FRAME_RES_LEGACY_DAT_IDX 5
 
 // Maximum sockets
 #define MAX_CONNECTIONS 10
@@ -104,6 +109,7 @@ extern "C"
     typedef unsigned char uchar;
 
     extern char g_frame_ver_0;
+    extern char g_frame_ver_1;
     extern char g_frame_typ_heartbeat;
     extern char g_frame_typ_request;
     extern char g_frame_typ_response;

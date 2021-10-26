@@ -100,7 +100,18 @@ extern "C"
         const char* rid,
         const char* pid,
         const char* sid);
+    void helpers_add_device_legacy(
+        helpers_test_context_s* ctx,
+        const char* ser,
+        const char* rid,
+        const char* pid,
+        const char* sid);
     void helpers_push_heartbeat(
+        const char* router,
+        const char* serial,
+        const char* product,
+        const char* site_id);
+    void helpers_push_heartbeat_legacy(
         const char* router,
         const char* serial,
         const char* product,
@@ -111,6 +122,11 @@ extern "C"
         const char* rid,
         const char* sid,
         int32_t reqid,
+        int16_t err,
+        const char* data);
+    void helpers_push_response_legacy(
+        const char* rid,
+        const char* sid,
         int16_t err,
         const char* data);
     void helpers_push_request(

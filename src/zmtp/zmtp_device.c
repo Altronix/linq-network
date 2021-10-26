@@ -208,8 +208,10 @@ request_id_set(node_s* d, request_s* r)
         linq_network_free(req->frames[FRAME_REQ_ID_IDX]);
         req->frames[FRAME_REQ_ID_IDX] = NULL;
     }
-    req->frames[FRAME_REQ_ID_IDX] = write_i32(dev->reqid);
-    dev->reqid++;
+    if (!device_legacy(d)) {
+        req->frames[FRAME_REQ_ID_IDX] = write_i32(dev->reqid);
+        dev->reqid++;
+    }
 }
 
 static int
@@ -228,7 +230,8 @@ request_send(request_s* base, zmq_socket_s* sock)
         0                                                // [,dat]
     };
     int c = r->frames[FRAME_RID_IDX] ? 0 : 1;
-    for (; c <= 6 && r->frames[c]; c++) {
+    for (; c < 7; c++) {
+        if (!r->frames[c]) continue;
         err = zmq_msg_init_size(&msgs[c], r->frames[c]->sz);
         linq_network_assert(err == 0);
         memcpy(zmq_msg_data(&msgs[c]), r->frames[c]->data, r->frames[c]->sz);
@@ -446,7 +449,8 @@ bool
 zmtp_device_request_pending(node_s* n, int32_t reqid)
 {
     if (n->pending) {
-        return reqid == zmtp_device_request_pending_id(n);
+        return reqid >= 0 ? reqid == zmtp_device_request_pending_id(n)
+                          : zmtp_device_request_has_pending(n);
     } else {
         return false;
     }

@@ -81,7 +81,52 @@ helpers_add_device(
 }
 
 void
+helpers_add_device_legacy(
+    helpers_test_context_s* ctx,
+    const char* ser,
+    const char* rid,
+    const char* pid,
+    const char* sid)
+{
+    // When we receive a heartbeat, we flush out the about request/response
+    // that is created by the event
+    helpers_push_heartbeat(rid, ser, pid, sid);
+    zmq_spy_poll_set_ready((0x01));
+    netw_poll(ctx->net, 5);
+    zmq_spy_flush();
+}
+
+void
 helpers_push_heartbeat(
+    const char* rid,
+    const char* sid,
+    const char* pid,
+    const char* site_id)
+{
+    zmq_msg_t msg;
+    if (rid) {
+        zmq_msg_init_size(&msg, strlen(rid));
+        memcpy(zmq_msg_data(&msg), rid, strlen(rid));
+        zmq_spy_msg_push_incoming(&msg, ZMQ_SNDMORE);
+    }
+
+    helpers_push_mem(
+        5,
+        &g_frame_ver_0,         // version
+        1,                      //
+        &g_frame_typ_heartbeat, // type
+        1,                      //
+        sid,                    // serial
+        strlen(sid),            //
+        pid,                    // product
+        strlen(pid),            //
+        site_id,                // site id
+        strlen(site_id)         //
+    );
+}
+
+void
+helpers_push_heartbeat_legacy(
     const char* rid,
     const char* sid,
     const char* pid,
@@ -120,7 +165,7 @@ helpers_push_alert(const char* rid, const char* sid, const char* pid)
     }
     helpers_push_mem(
         6,
-        &g_frame_ver_0,     // version
+        &g_frame_ver_1,     // version
         1,                  //
         &g_frame_typ_alert, // type
         1,                  //
@@ -154,7 +199,7 @@ helpers_push_response(
     write_i32(reqid, (void*)&reqid_packet);
     helpers_push_mem(
         6,
-        &g_frame_ver_0,        // version
+        &g_frame_ver_1,        // version
         1,                     //
         &g_frame_typ_response, // type
         1,                     //
@@ -162,6 +207,35 @@ helpers_push_response(
         strlen(sid),           //
         &reqid_packet,         // reqid
         4,                     //
+        &err,                  // error
+        2,                     //
+        data,                  // data
+        strlen(data));         //
+}
+
+void
+helpers_push_response_legacy(
+    const char* rid,
+    const char* sid,
+    int16_t err,
+    const char* data)
+{
+    zmq_msg_t msg;
+    err = (err >> 8 | err << 8);
+    int32_t reqid_packet;
+    if (rid) {
+        zmq_msg_init_size(&msg, strlen(rid));
+        memcpy(zmq_msg_data(&msg), rid, strlen(rid));
+        zmq_spy_msg_push_incoming(&msg, ZMQ_SNDMORE);
+    }
+    helpers_push_mem(
+        5,
+        &g_frame_ver_0,        // version
+        1,                     //
+        &g_frame_typ_response, // type
+        1,                     //
+        sid,                   // serial
+        strlen(sid),           //
         &err,                  // error
         2,                     //
         data,                  // data
@@ -183,7 +257,7 @@ helpers_push_request(
     }
     data ? helpers_push_mem(
                5,
-               &g_frame_ver_0,
+               &g_frame_ver_1,
                1,
                &g_frame_typ_request,
                1,
@@ -195,7 +269,7 @@ helpers_push_request(
                strlen(data))
          : helpers_push_mem(
                4,
-               &g_frame_ver_0,
+               &g_frame_ver_1,
                1,
                &g_frame_typ_request,
                1,
@@ -212,7 +286,7 @@ helpers_push_hello(const char* router, const char* node)
         4,
         router,
         strlen(router),
-        &g_frame_ver_0,
+        &g_frame_ver_1,
         1,
         &g_frame_typ_hello,
         1,
