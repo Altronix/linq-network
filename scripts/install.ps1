@@ -1,14 +1,14 @@
 param (
 	[Alias('p')] [string] $Platform="win32-x64",
-	[Alias('f')] [bool] $Fetch=$false,
+	[Alias('f')] [switch] $Fetch=$false,
 	[Alias('L')] [string] $LogLevel="INFO",
-	[Alias('st')] [bool] $BuildStatic=$true,
-	[Alias('sh')] [bool] $BuildShared=$false,
-	[Alias('t')] [bool] $BuildTypescript=$false,
-	[Alias('n')] [bool] $BuildNode=$false,
-	[Alias('c')] [bool] $BuildCmake=$false,
-	[Alias('d')] [bool] $BuildDependencies=$false,
-	[Alias('a')] [bool] $AutoDetect=$false
+	[Alias('st')] [switch] $BuildStatic=$true,
+	[Alias('sh')] [switch] $BuildShared=$false,
+	[Alias('t')] [switch] $BuildTypescript=$false,
+	[Alias('n')] [switch] $BuildNode=$false,
+	[Alias('c')] [switch] $BuildCmake=$false,
+	[Alias('d')] [switch] $BuildDependencies=$false,
+	[Alias('a')] [switch] $AutoDetect=$false
 )
 
 $CurrentLocation = Get-Location
