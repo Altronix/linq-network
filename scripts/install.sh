@@ -125,7 +125,7 @@ function auto_detect {
 #-------------------------------------------------------------------------------
 # parse args
 #-------------------------------------------------------------------------------
-while getopts "Dcntfl:L:A" opt; do
+while getopts "Dcntfl:L:Aa:" opt; do
 	case $opt in
 		l) 
 			if [[ ${OPTARG,,} = "static" ]]; then
@@ -141,6 +141,7 @@ while getopts "Dcntfl:L:A" opt; do
 				exit 1;
 			fi;;
 		L) config_log_level=${OPTARG^^};;
+		a) config_arch=${OPTARG^^};;
 		f) config_fetch=true;;
 		t) config_build_ts=true;;
 		n) config_build_node=true;;
