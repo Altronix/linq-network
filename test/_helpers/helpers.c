@@ -90,7 +90,7 @@ helpers_add_device_legacy(
 {
     // When we receive a heartbeat, we flush out the about request/response
     // that is created by the event
-    helpers_push_heartbeat(rid, ser, pid, sid);
+    helpers_push_heartbeat_legacy(rid, ser, pid, sid);
     zmq_spy_poll_set_ready((0x01));
     netw_poll(ctx->net, 5);
     zmq_spy_flush();
@@ -112,7 +112,7 @@ helpers_push_heartbeat(
 
     helpers_push_mem(
         5,
-        &g_frame_ver_0,         // version
+        &g_frame_ver_1,         // version
         1,                      //
         &g_frame_typ_heartbeat, // type
         1,                      //

@@ -685,7 +685,7 @@ test_netw_receive_response_error_504_legacy(void** context_p)
         0,
         on_response_error_504,
         &pass);
-    outgoing += 6;
+    outgoing += 5;
     assert_int_equal(zmq_spy_mesg_n_outgoing(), outgoing);
 
     for (int i = 0; i < TEST_MAX_RETRY; i++) {
