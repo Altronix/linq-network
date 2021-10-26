@@ -50,7 +50,7 @@ function print_config {
 	printf "DIR node               : %s\n" "$dir_node";
 	printf "DIR node dist          : %s\n" "$dir_node_dist";
 	printf "DIR prefix             : %s\n" "$dir_prefix";
-	printf "CFG arch 	       : %s\n" "$config_arch";
+	printf "CFG arch 	           : %s\n" "$config_arch";
 	printf "CFG config_fetch       : %s\n" "$config_fetch";
 	printf "CFG build cmake        : %s\n" "$config_build_cmake";
 	printf "CFG build node         : %s\n" "$config_build_node";
