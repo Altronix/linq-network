@@ -8,7 +8,8 @@ param (
 	[Alias('n')] [switch] $BuildNode=$false,
 	[Alias('c')] [switch] $BuildCmake=$false,
 	[Alias('d')] [switch] $BuildDependencies=$false,
-	[Alias('a')] [switch] $AutoDetect=$false
+	[Alias('a')] [switch] $AutoDetect=$false,
+	[Alias('v')] [string] $Version=(node $DirScripts\read_version.js)
 )
 
 $CurrentLocation = Get-Location
@@ -21,10 +22,10 @@ $DirNodeBinding = Resolve-Path $DirRoot\bindings\node\lib
 $DirBuild = "$CurrentLocation\build"
 $DirPrefix = "$DirBuild\install"
 $Downloads = "https://github.com/altronix/linq-network/releases/download";
-$Version = node $DirScripts\read_version.js
 
 function PrintConfig 
 {
+	echo "VER                   : $Version";
 	echo "DIR scripts           : $DirScripts";
 	echo "DIR src               : $DirSrc";
 	echo "DIR node              : $DirNode";
@@ -47,9 +48,8 @@ function PrintConfig
 function fetch
 {
 	New-Item -ItemType Directory -Force -Path "$DirNodeDist\src";
-	cd $DirNodeDist\src
-	wget "${downloads}/v${version}/node-$arch.tar.gz"
-	tar -xzvf "./node-$arch.tar.gz"
+	wget "${downloads}/v${version}/node-$Platform.tar.gz" -O - > "$DirNodeDist\node-$Platform.tar.gz";
+	tar -C "$DirNodeDist\src" -xzvf "$DirNodeDist\node-$Platform.tar.gz"
 }
 
 function InstallBinding
