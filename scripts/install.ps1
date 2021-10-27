@@ -9,7 +9,7 @@ param (
 	[Alias('c')] [switch] $BuildCmake=$false,
 	[Alias('d')] [switch] $BuildDependencies=$false,
 	[Alias('a')] [switch] $AutoDetect=$false,
-	[Alias('v')] [string] $Version=(node $DirScripts\read_version.js)
+	[Alias('v')] [string] $Version=(node $PSScriptRoot\read_version.js)
 )
 
 $CurrentLocation = Get-Location
@@ -18,7 +18,7 @@ $DirRoot = Resolve-Path $DirScripts\..
 $DirSrc = "$DirRoot\src"
 $DirNode = "$DirRoot\node_modules"
 $DirNodeDist = "$DirRoot\dist"
-$DirNodeBinding = Resolve-Path $DirRoot\bindings\node\lib
+$DirNodeBinding = "$DirRoot\bindings\node\lib"
 $DirBuild = "$CurrentLocation\build"
 $DirPrefix = "$DirBuild\install"
 $Downloads = "https://github.com/altronix/linq-network/releases/download";
@@ -47,8 +47,11 @@ function PrintConfig
 
 function fetch
 {
+	$tarball = "$downloads/v$version/node-$Platform.tar.gz";
+	echo $tarball
+	$outfile = "$DirNodeDist\node-$Platform.tar.gz";
 	New-Item -ItemType Directory -Force -Path "$DirNodeDist\src";
-	wget "${downloads}/v${version}/node-$Platform.tar.gz" -O - > "$DirNodeDist\node-$Platform.tar.gz";
+	$response = Invoke-WebRequest -Uri $tarball -OutFile $outfile
 	tar -C "$DirNodeDist\src" -xzvf "$DirNodeDist\node-$Platform.tar.gz"
 }
 
