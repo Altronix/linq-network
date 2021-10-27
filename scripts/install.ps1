@@ -17,6 +17,7 @@ $DirRoot = Resolve-Path $DirScripts\..
 $DirSrc = "$DirRoot\src"
 $DirNode = "$DirRoot\node_modules"
 $DirNodeDist = "$DirRoot\dist"
+$DirNodeBinding = Resolve-Path $DirRoot\bindings\node\lib
 $DirBuild = "$CurrentLocation\build"
 $DirPrefix = "$DirBuild\install"
 $Downloads = "https://github.com/altronix/linq-network/releases/download";
@@ -49,6 +50,18 @@ function fetch
 	cd $DirNodeDist\src
 	wget "${downloads}/v${version}/node-$arch.tar.gz"
 	tar -xzvf "./node-$arch.tar.gz"
+}
+
+function InstallBinding
+{
+	if ((test-path "$DirBuild\Release\linq.node"))
+	{
+		cp "$DirBuild\Release\linq.node" "$DirNodeDist\src"
+	}
+	else
+	{
+		. fetch
+	}
 }
 
 function AutoDetect
@@ -84,5 +97,45 @@ function AutoDetect
 
 if ($AutoDetect) { . AutoDetect }
 
-echo "Printing configuration..."
 . PrintConfig
+
+if ($BuildCmake)
+{
+	echo "Building CMake..."
+	mkdir -Force build/install
+	cmake.exe `
+	"-S$DirRoot" `
+	"-B$DirBuild" `
+	"-DLOG_LEVEL=$LogLevel" `
+	"-DCMAKE_BUILD_TYPE=Release" `
+	"-DCMAKE_INSTALL_PREFIX=$DirPrefix" `
+	"-DBUILD_DEPENDENCIES=$BuildDependencies" `
+	"-DBUILD_SHARED=$BuildShared" `
+	"-DBUILD_STATIC=$BuildStatic" `
+	"-DBUILD_APPS=FALSE";
+	
+	cmake.exe --build "$DirBuild" --config Release --target install;
+}
+
+if ($BuildNode)
+{
+	echo "Building NodeJS Addon..."
+	$result = & "$DirNode/.bin/node-gyp.cmd" configure
+	$result = & "$DirNode/.bin/node-gyp.cmd" build
+	cd "$DirRoot\bindings\node\prebuilds";
+	tar -czvf node-win32-x64.tar.gz -C "$DirBuild\Release" linq.node;
+	cd "$CurrentLocation";
+}
+
+if ($BuildTypescript)
+{
+	echo "Building Typescript..."
+	$result = & "$DirNode/.bin/tsc.cmd" -p "$DirNodeBinding";
+	. InstallBinding
+}
+
+if ($Fetch)
+{
+	echo "Fetching prebuild addon..."
+	. InstallBinding
+}
