@@ -18,13 +18,16 @@ set -o nounset                              # Treat unset variables as an error
 #-------------------------------------------------------------------------------
 # Defaults 
 #-------------------------------------------------------------------------------
+downloads="https://github.com/altronix/linq-network/releases/download";
 dir_scripts=$(eval realpath "$(eval dirname "$0")");
 dir_src=$(eval realpath "$dir_scripts/..");
 dir_node=$(eval realpath "$dir_src/node_modules");
 dir_node_dist=$(eval realpath "$dir_src/dist");
 dir_node_binding=$(eval realpath "$dir_src/bindings/node/lib");
+dir_node_prebuild=$(eval realpath "$dir_src/bindings/node/prebuilds");
 dir_build="$PWD/build";
 dir_prefix="$dir_build/install";
+version=${LINQ_NETWORK_VERSION:-$(eval node "${dir_scripts}/read_version.js")};
 config_buildroot=${LINQ_NETWORK_BUILDROOT:-false};
 if [[ ${config_buildroot,,} = true ]]; then
 	config_arch=${LINQ_NETWORK_ARCH:-linux-arm32};
@@ -45,12 +48,13 @@ config_log_level=${LINQ_NETWORK_LOG_LEVEL:-info};
 #   DESCRIPTION:  
 #-------------------------------------------------------------------------------
 function print_config {
+	printf "VER                    : %s\n" "$version";
 	printf "DIR scripts            : %s\n" "$dir_scripts";
 	printf "DIR src                : %s\n" "$dir_src";
 	printf "DIR node               : %s\n" "$dir_node";
 	printf "DIR node dist          : %s\n" "$dir_node_dist";
 	printf "DIR prefix             : %s\n" "$dir_prefix";
-	printf "CFG arch 	           : %s\n" "$config_arch";
+	printf "CFG arch               : %s\n" "$config_arch";
 	printf "CFG config_fetch       : %s\n" "$config_fetch";
 	printf "CFG build cmake        : %s\n" "$config_build_cmake";
 	printf "CFG build node         : %s\n" "$config_build_node";
@@ -66,13 +70,22 @@ function print_config {
 #          NAME:  install_binding
 #   DESCRIPTION:  
 #-------------------------------------------------------------------------------
+function fetch {
+	wget "${downloads}/v${version}/node-$config_arch.tar.gz" -O - \
+		 > "$dir_node_dist/node-${config_arch}.tar.gz" || exit;
+	tar -C "$dir_node_dist/src" \
+		-xzvf "${dir_node_dist}/node-${config_arch}.tar.gz";
+}
+
+#---  FUNCTION  ----------------------------------------------------------------
+#          NAME:  install_binding
+#   DESCRIPTION:  
+#-------------------------------------------------------------------------------
 function install_binding {
 	if [[ -f "$dir_build/Release/linq.node" ]]; then
 			cp "$dir_build/Release/linq.node" "$dir_node_dist/src";
 		else
-			"$dir_scripts/fetch-tar.sh" \
-				-a "$config_arch" \
-				-o "$dir_node_dist/src/linq.node";
+			fetch
 	fi
 }
 
@@ -125,8 +138,9 @@ function auto_detect {
 #-------------------------------------------------------------------------------
 # parse args
 #-------------------------------------------------------------------------------
-while getopts "Dcntfl:L:Aa:" opt; do
+while getopts "v:Dcntfl:L:Aa:" opt; do
 	case $opt in
+		v) version=${OPTARG};;
 		l) 
 			if [[ ${OPTARG,,} = "static" ]]; then
 				config_build_shared=false;
@@ -191,6 +205,8 @@ if [[ ${config_build_node,,} = true ]]; then
 		"$dir_node/.bin/node-gyp" configure || exit 1;
 		"$dir_node/.bin/node-gyp" build || exit 1;
 	fi
+	tar -czvf "$dir_node_prebuild/node-$config_arch.tar.gz" \
+		-C "$dir_build/Release" linq.node;
 fi
 
 #-------------------------------------------------------------------------------
