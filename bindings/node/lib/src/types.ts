@@ -86,8 +86,8 @@ export interface UpdateDashboard {
   files: [{ update: Update[] }, { update: Update[] }];
 }
 
-export interface UpdateResponse<T = any> {
-  response: T;
+export interface UpdateResponse {
+  response: {error:number};
   remaining: number;
 }
 

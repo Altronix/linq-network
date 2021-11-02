@@ -1,5 +1,4 @@
 import { network as linq } from "../../../../";
-import { merge, from, of } from "rxjs";
 import { take, takeWhile, switchMap, tap, map, filter } from "rxjs/operators";
 import * as fs from "fs";
 
@@ -7,7 +6,8 @@ if (!(process.argv.length > 2)) process.exit(-1);
 
 const update = JSON.parse(fs.readFileSync(process.argv[2], "utf-8"));
 
-// linq.logs().subscribe((l) => console.log(l));
+// hack
+let serial = "";
 
 linq
   .tick(10)
@@ -16,11 +16,17 @@ linq
   .pipe(
     filter((ev) => ev.product.toLowerCase() === "linq2"),
     take(1),
-    switchMap((ev) => linq.update(ev.serial, update)),
-    switchMap(({ remaining: r }) => `[UPDAT] => remaining ${r}\n`)
+    switchMap((ev) => {
+      serial = ev.serial;
+      console.log(linq.devices[serial]);
+      return linq.update(serial, update);
+    })
   )
   .subscribe(
-    (message) => process.stdout.write(message),
+    (message) => console.log(message),
     (error) => console.error(error),
-    async () => await linq.shutdown()
+    () => {
+      console.log(linq.devices[serial]);
+      linq.shutdown();
+    }
   );

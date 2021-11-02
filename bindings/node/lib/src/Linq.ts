@@ -1,6 +1,6 @@
 import * as Events from "events";
 import { inherits } from "util";
-import { of, from, merge, Observable, Subject } from "rxjs";
+import { of, from, defer, concat, EMPTY, Observable, Subject } from "rxjs";
 import {
   switchMap,
   concatMap,
@@ -9,7 +9,6 @@ import {
   filter,
   mergeMap,
   takeUntil,
-  takeWhile,
 } from "rxjs/operators";
 import { isUpdateDashboard, normalizeUpdateDashboard } from "./update";
 import {
@@ -21,7 +20,6 @@ import {
   DevicesSummary,
   Update,
   UpdateDashboard,
-  UpdateTypes,
   UpdateResponse,
   AboutResponse,
   Events as Event,
@@ -31,13 +29,10 @@ import {
   EventAlert,
   EventError,
   EventCtrlc,
-  EventData,
-  EventDataAbout,
   EventLog,
 } from "./types";
 import {
   isEventDataNew,
-  isEventDataAbout,
   isEventDataHeartbeat,
   isEventDataAlert,
   isEventDataError,
@@ -48,7 +43,6 @@ import {
   whenAlert,
   whenError,
   whenCtrlc,
-  request,
   takeWhileRunning,
 } from "./event";
 const binding = require("./linq.node");
@@ -189,6 +183,12 @@ export class Linq extends Events.EventEmitter {
     return this;
   }
 
+  async refresh(serial: string): Promise<AboutResponse["about"]> {
+    let { about } = await this.send<AboutResponse>(serial, "GET", "/ATX/about");
+    this._devices[serial] = { ...this._devices[serial], ...about };
+    return about;
+  }
+
   // close
   close(idx: number) {
     this.netw.close(idx);
@@ -265,22 +265,26 @@ export class Linq extends Events.EventEmitter {
     return this.netw.scan();
   }
 
-  update<T>(
+  update(
     serial: string,
     update: Update[] | UpdateDashboard
-  ): Observable<UpdateResponse<T>> {
-    return of(
-      isUpdateDashboard(update) ? normalizeUpdateDashboard(update) : update
-    ).pipe(
-      switchMap((update) => {
-        let size = update.length;
-        return from(update).pipe(
-          concatMap((u) => this.send<T>(serial, "POST", "/ATX/exe/update", u)),
-          map((response) => {
-            return { response, remaining: --size };
-          })
-        );
-      })
+  ): Observable<UpdateResponse> {
+    type E = { error: number };
+    const URL = "/ATX/exe/update";
+    const packets = isUpdateDashboard(update)
+      ? normalizeUpdateDashboard(update)
+      : update;
+    return concat(
+      of(packets).pipe(
+        switchMap((update) => {
+          let remaining = update.length;
+          return from(update).pipe(
+            concatMap((u) => this.send<E>(serial, "POST", URL, u)),
+            map((response) => ({ response, remaining: --remaining }))
+          );
+        })
+      ),
+      defer(() => this.refresh(serial)).pipe(switchMap((_) => EMPTY))
     );
   }
 

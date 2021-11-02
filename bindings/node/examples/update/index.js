@@ -18,26 +18,25 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const dist_1 = require("../../../../dist");
+const __1 = require("../../../../");
 const operators_1 = require("rxjs/operators");
 const fs = __importStar(require("fs"));
 if (!(process.argv.length > 2))
     process.exit(-1);
 const update = JSON.parse(fs.readFileSync(process.argv[2], "utf-8"));
-// linq.logs().subscribe((l) => console.log(l));
-dist_1.network
+// hack
+let serial = "";
+__1.network
     .tick(10)
     .listen(33455)
     .events("new")
-    .pipe(operators_1.filter((ev) => ev.product.toLowerCase() === "linq2"), operators_1.take(1), operators_1.switchMap((ev) => dist_1.network.update(ev.serial, update)), operators_1.switchMap(({ remaining: r }) => `[UPDAT] => remaining ${r}\n`))
-    .subscribe((message) => process.stdout.write(message), (error) => console.error(error), () => __awaiter(void 0, void 0, void 0, function* () { return yield dist_1.network.shutdown(); }));
+    .pipe(operators_1.filter((ev) => ev.product.toLowerCase() === "linq2"), operators_1.take(1), operators_1.switchMap((ev) => {
+    serial = ev.serial;
+    console.log(__1.network.devices[serial]);
+    return __1.network.update(serial, update);
+}))
+    .subscribe((message) => console.log(message), (error) => console.error(error), () => {
+    console.log(__1.network.devices[serial]);
+    __1.network.shutdown();
+});
