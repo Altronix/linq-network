@@ -41,6 +41,7 @@ config_build_ts=${LINQ_NETWORK_BUILD_TS:-false};
 config_build_shared=${LINQ_NETWORK_BUILD_SHARED:-false};
 config_build_static=${LINQ_NETWORK_BUILD_STATIC:-true};
 config_build_dependencies=${LINQ_NETWORK_BUILD_DEPENDENCIES:-false};
+config_build_tar=${LINQ_NETWORK_BUILD_TAR:-false};
 config_log_level=${LINQ_NETWORK_LOG_LEVEL:-info};
 
 #---  FUNCTION  ----------------------------------------------------------------
@@ -62,6 +63,7 @@ function print_config {
 	printf "CFG build shared       : %s\n" "$config_build_shared";
 	printf "CFG build static       : %s\n" "$config_build_static";
 	printf "CFG build dependencies : %s\n" "$config_build_dependencies";
+	printf "CFG build tar          : %s\n" "$config_build_tar";
 	printf "CFG log level          : %s\n" "$config_log_level";
 }
 
@@ -138,7 +140,7 @@ function auto_detect {
 #-------------------------------------------------------------------------------
 # parse args
 #-------------------------------------------------------------------------------
-while getopts "v:Dcntfl:L:Aa:" opt; do
+while getopts "v:Dcntfl:L:Aa:x" opt; do
 	case $opt in
 		v) version=${OPTARG};;
 		l) 
@@ -161,6 +163,7 @@ while getopts "v:Dcntfl:L:Aa:" opt; do
 		n) config_build_node=true;;
 		c) config_build_cmake=true;;
 		D) config_build_dependencies=true;;
+		x) config_build_tar=true;;
 		A) auto_detect;;
 		*) printf "bad arg";;
 	esac
@@ -205,8 +208,6 @@ if [[ ${config_build_node,,} = true ]]; then
 		"$dir_node/.bin/node-gyp" configure || exit 1;
 		"$dir_node/.bin/node-gyp" build || exit 1;
 	fi
-	tar -czvf "$dir_node_prebuild/node-$config_arch.tar.gz" \
-		-C "$dir_build/Release" linq.node;
 fi
 
 #-------------------------------------------------------------------------------
@@ -215,6 +216,14 @@ fi
 if [[ ${config_build_ts,,} = true ]]; then
 	"$dir_node/.bin/tsc" -p "$dir_node_binding" || exit 1; 
 	install_binding;
+fi
+
+#-------------------------------------------------------------------------------
+# build node tarbal
+#-------------------------------------------------------------------------------
+if [[ ${config_build_tar,,} = true ]]; then
+	tar -czvf "$dir_node_prebuild/node-$config_arch.tar.gz" \
+		-C "$dir_build/Release" linq.node;
 fi
 
 #-------------------------------------------------------------------------------
