@@ -1,11 +1,13 @@
 {
   "name": "@altronix/linq",
-  "version": "0.2.0-rc.9",
+  "version": "0.2.0-rc.10",
   "description": "Node bindings for linq-network",
   "main": "./dist/src/index.js",
   "scripts": {
-    "preinstall": "node ./scripts/install.js",
+    "preinstall": "npm run build -- -cD",
+    "postinstall": "npm run build -- -ntfx",
     "test": "jest --config=./bindings/node/lib/jest.config.js",
+    "build": "node ./scripts/install.js",
     "build:integration-test": "tsc --build ./test/integration/timeout/tsconfig.json",
     "events:build": "tsc --build ./bindings/node/examples/events",
     "events:run": "node ./bindings/node/examples/events/index.js",

@@ -34,6 +34,7 @@ if [[ ${config_buildroot,,} = true ]]; then
 else
 	config_arch=${LINQ_NETWORK_ARCH:-linux-x64};
 fi
+config_has_src=${LINQ_NETWORK_HAS_SRC:-false};
 config_fetch=${LINQ_NETWORK_FETCH:-false};
 config_build_cmake=${LINQ_NETWORK_BUILD_CMAKE:-false};
 config_build_node=${LINQ_NETWORK_BUILD_NODE:-false};
@@ -56,6 +57,7 @@ function print_config {
 	printf "DIR node dist          : %s\n" "$dir_node_dist";
 	printf "DIR prefix             : %s\n" "$dir_prefix";
 	printf "CFG arch               : %s\n" "$config_arch";
+	printf "CFG has_src            : %s\n" "$config_has_src";
 	printf "CFG config_fetch       : %s\n" "$config_fetch";
 	printf "CFG build cmake        : %s\n" "$config_build_cmake";
 	printf "CFG build node         : %s\n" "$config_build_node";
@@ -98,7 +100,7 @@ function install_binding {
 #                 libraries or not. On arm (aka buildroot) we use shared libs
 #-------------------------------------------------------------------------------
 function auto_detect {
-	printf "attempting to automatically detect best way to build\n"
+	printf "attempting to automatically detect src files\n"
 
 	if [[ 
 		-d "$dir_src/bindings" &&
@@ -111,36 +113,19 @@ function auto_detect {
 	   ]]; then
 	   	# We  assume a full repository and build everything
 		printf "detected source code\n"
-		config_fetch=false;
-		config_build_cmake=true;
-		config_build_node=true;
-		config_build_ts=true;
-		if [[ ${config_arch} = linux-arm32 ]]; then
-			printf "detected buildroot\n"
-			config_build_cmake=false;
-			config_build_shared=false;
-			config_build_static=false;
-			config_build_dependencies=false;
-		else
-			config_build_shared=false;
-			config_build_static=true;
-			config_build_dependencies=true;
-		fi
+		config_has_src=true;
 	else
 		# We were likely installed from an npm install command so we 
 		# fetch prebuilt binaries
 		printf "no source detected, using prebuilt binaries\n"
-		config_fetch=true;
-		config_build_cmake=false;
-		config_build_node=false;
-		config_build_ts=false;
+		config_has_src=false;
 	fi
 }
 
 #-------------------------------------------------------------------------------
 # parse args
 #-------------------------------------------------------------------------------
-while getopts "v:Dcntfl:L:Aa:x" opt; do
+while getopts "v:Dcntfl:L:a:x" opt; do
 	case $opt in
 		v) version=${OPTARG};;
 		l) 
@@ -164,7 +149,6 @@ while getopts "v:Dcntfl:L:Aa:x" opt; do
 		c) config_build_cmake=true;;
 		D) config_build_dependencies=true;;
 		x) config_build_tar=true;;
-		A) auto_detect;;
 		*) printf "bad arg";;
 	esac
 done
@@ -172,6 +156,7 @@ done
 #-------------------------------------------------------------------------------
 #  prepare workspace and print configuration
 #-------------------------------------------------------------------------------
+auto_detect
 print_config
 
 if [[ ! -d ./dist/src ]]; then
@@ -182,31 +167,39 @@ fi
 # build cmake
 #-------------------------------------------------------------------------------
 if [[ ${config_build_cmake,,} = true ]]; then
-	cmake "-S${dir_src}" \
-		"-B${dir_build}" \
-		"-DLOG_LEVEL=${config_log_level^^}" \
-		"-DCMAKE_BUILD_TYPE=Release" \
-		"-DCMAKE_INSTALL_PREFIX=$dir_prefix" \
-		"-DBUILD_DEPENDENCIES=${config_build_dependencies^^}" \
-		"-DBUILD_SHARED=${config_build_shared^^}" \
-		"-DBUILD_STATIC=${config_build_static^^}" \
-		"-DBUILD_APPS=FALSE" || exit 1;
-		
-	cmake --build "$dir_build" --config Release --target install || exit 1;
+	if [[ ${config_has_src} = true ]]; then
+		cmake "-S${dir_src}" \
+			"-B${dir_build}" \
+			"-DLOG_LEVEL=${config_log_level^^}" \
+			"-DCMAKE_BUILD_TYPE=Release" \
+			"-DCMAKE_INSTALL_PREFIX=$dir_prefix" \
+			"-DBUILD_DEPENDENCIES=${config_build_dependencies^^}" \
+			"-DBUILD_SHARED=${config_build_shared^^}" \
+			"-DBUILD_STATIC=${config_build_static^^}" \
+			"-DBUILD_APPS=FALSE" || exit 1;
+			
+		cmake --build "$dir_build" --config Release --target install || exit 1;
+	else
+		printf "warning, src files not detected. Cannot build cmake"
+	fi;
 fi;
 
 #-------------------------------------------------------------------------------
 # build node binding
 #-------------------------------------------------------------------------------
 if [[ ${config_build_node,,} = true ]]; then
-	if [[ ${config_build_shared,,} = true ]]; then
-		LINQ_NETWORK_BUILD_SHARED=true \
+	if [[ ${config_has_src} = true ]]; then
+		if [[ ${config_build_shared,,} = true ]]; then
+			LINQ_NETWORK_BUILD_SHARED=true \
+				"$dir_node/.bin/node-gyp" configure || exit 1;
+			LINQ_NETWORK_BUILD_SHARED=true \
+				"$dir_node/.bin/node-gyp" build || exit 1;
+		else
 			"$dir_node/.bin/node-gyp" configure || exit 1;
-		LINQ_NETWORK_BUILD_SHARED=true \
 			"$dir_node/.bin/node-gyp" build || exit 1;
+		fi
 	else
-		"$dir_node/.bin/node-gyp" configure || exit 1;
-		"$dir_node/.bin/node-gyp" build || exit 1;
+		printf "warning, src files not detected. Cannot build node"
 	fi
 fi
 
@@ -214,16 +207,22 @@ fi
 # build typescript
 #-------------------------------------------------------------------------------
 if [[ ${config_build_ts,,} = true ]]; then
-	"$dir_node/.bin/tsc" -p "$dir_node_binding" || exit 1; 
-	install_binding;
+	if [[ ${config_has_src} = true ]]; then
+		"$dir_node/.bin/tsc" -p "$dir_node_binding" || exit 1; 
+		install_binding;
+	else
+		printf "warning, src files not detected. Cannot build typescript"
+	fi
 fi
 
 #-------------------------------------------------------------------------------
 # build node tarbal
 #-------------------------------------------------------------------------------
 if [[ ${config_build_tar,,} = true ]]; then
-	tar -czvf "$dir_node_prebuild/node-$config_arch.tar.gz" \
-		-C "$dir_build/Release" linq.node;
+	if [[ -f "$dir_build/Release/linq.node" ]]; then
+		tar -czvf "$dir_node_prebuild/node-$config_arch.tar.gz" \
+			-C "$dir_build/Release" linq.node;
+	fi
 fi
 
 #-------------------------------------------------------------------------------
