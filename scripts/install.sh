@@ -43,7 +43,7 @@ config_build_shared=${LINQ_NETWORK_BUILD_SHARED:-false};
 config_build_static=${LINQ_NETWORK_BUILD_STATIC:-true};
 config_build_dependencies=${LINQ_NETWORK_BUILD_DEPENDENCIES:-false};
 config_build_tar=${LINQ_NETWORK_BUILD_TAR:-false};
-config_log_level=${LINQ_NETWORK_LOG_LEVEL:-info};
+config_log_level=${LINQ_NETWORK_LOG_LEVEL:-trace};
 
 #---  FUNCTION  ----------------------------------------------------------------
 #          NAME:  print_config
@@ -180,7 +180,7 @@ if [[ ${config_build_cmake,,} = true ]]; then
 			
 		cmake --build "$dir_build" --config Release --target install || exit 1;
 	else
-		printf "warning, src files not detected. Cannot build cmake"
+		printf "warning, src files not detected. Cannot build cmake\n"
 	fi;
 fi;
 
@@ -199,7 +199,7 @@ if [[ ${config_build_node,,} = true ]]; then
 			"$dir_node/.bin/node-gyp" build || exit 1;
 		fi
 	else
-		printf "warning, src files not detected. Cannot build node"
+		printf "warning, src files not detected. Cannot build node\n"
 	fi
 fi
 
@@ -211,7 +211,7 @@ if [[ ${config_build_ts,,} = true ]]; then
 		"$dir_node/.bin/tsc" -p "$dir_node_binding" || exit 1; 
 		install_binding;
 	else
-		printf "warning, src files not detected. Cannot build typescript"
+		printf "warning, src files not detected. Cannot build typescript\n"
 	fi
 fi
 

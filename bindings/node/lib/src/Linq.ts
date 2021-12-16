@@ -6,6 +6,7 @@ import {
   concatMap,
   map,
   tap,
+  catchError,
   filter,
   mergeMap,
   takeUntil,
@@ -110,7 +111,8 @@ export class Linq extends Events.EventEmitter {
                   const sum: DevicesSummary = JSON.parse(self.netw.devices());
                   const sid = sum[event.sid] || {};
                   self._devices[event.sid] = { ...event, ...sid };
-                })
+                }),
+                catchError((_) => EMPTY)
               )
         )
       )
