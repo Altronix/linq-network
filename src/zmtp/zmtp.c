@@ -190,7 +190,7 @@ read_email(zmq_msg_t* msg, netw_email_s* emails)
 static void
 device_legacy_detect(node_s** d, char ver)
 {
-    const sid = device_serial(*d);
+    const char* sid = device_serial(*d);
     if (ver == FRAME_VER_0 && !device_legacy(*d)) {
         zmtp_debug("[%s] legacy device detected", sid);
         device_legacy_set(*d, true);
