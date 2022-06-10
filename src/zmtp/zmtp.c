@@ -556,7 +556,7 @@ process_packet(zmtp_s* z, zmq_socket_s* s, bool router)
         end++;
     }
 
-    if (end >= 3 && (!router || (router && check_le(&m[0], RID_LEN))) &&
+    if (end > 3 && (!router || (router && check_le(&m[0], RID_LEN))) &&
         (check_eq(&m[FRAME_VER_IDX], 1)) && (check_eq(&m[FRAME_TYP_IDX], 1)) &&
         (check_le(&m[FRAME_SID_IDX], SID_LEN))) {
         ver = ((char*)zmq_msg_data(&m[FRAME_VER_IDX]))[0];
@@ -574,7 +574,7 @@ process_packet(zmtp_s* z, zmq_socket_s* s, bool router)
         zmtp_error("Processing packet error [%d]", (int)e);
         if (z->callbacks && z->callbacks->on_err) {
             zmtp_trace("Executing error callback");
-            if (end >= FRAME_SID_IDX) {
+            if (end > FRAME_SID_IDX) {
                 print_null_terminated(sid, SID_LEN, &m[FRAME_SID_IDX]);
             }
             z->callbacks->on_err(z->context, e, sid, "");
