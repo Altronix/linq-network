@@ -1,11 +1,12 @@
 add_executable(test-linqd-parse-config main.c)
 target_link_libraries(test-linqd-parse-config 
-  atx-linqd-lib
-  network-test-static 
   cmocka
-  mock-utils 
   mock-mongoose
-  mock-file)
+  mock-file
+  mock-utils
+  atx-linqd-lib
+  network-test-static)
+  
 mock_utils_linker_flags(wrap_flags)
 mock_mongoose_linker_flags(wrap_flags)
 append_mock_file_linker_flags(wrap_flags)

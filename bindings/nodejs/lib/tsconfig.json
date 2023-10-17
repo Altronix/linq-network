@@ -1,8 +1,0 @@
-{
-  "extends": "../../../tsconfig.base.json",
-  "compilerOptions": {
-    "outDir": "../../../build/install/lib"
-  },
-  "include": ["./"],
-  "exclude": ["node_modules", "__tests__"]
-}

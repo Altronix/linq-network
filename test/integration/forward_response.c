@@ -10,7 +10,6 @@
 
 #include "fixture.h"
 #include "netw.h"
-#include "zmtp.h"
 
 static void
 on_error(void* ctx, E_LINQ_ERROR e, const char* what, const char* serial)

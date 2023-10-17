@@ -1,14 +1,8 @@
 # cmocka
 
-set(CMOCKA_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/cmocka-1.1.5)
-if(NOT EXISTS ${CMOCKA_SOURCE_DIR}/CMakeLists.txt)
-	execute_process(
-		COMMAND tar -xzvf ${CMAKE_SOURCE_DIR}/dl/cmocka-1.1.5.tar.gz 
-			    -C ${CMAKE_SOURCE_DIR}/external
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-		RESULT_VARIABLE EXTRACT_CMOCKA_RESULT)
-	message(STATUS "EXTRACT_CMOCKA_RESULT: ${EXTRACT_CMOCKA_RESULT}")
-endif()
+set(CMOCKA_SOURCE_DIR "${EXTERNAL_DIR}/cmocka-1.1.5")
+set(CMOCKA_TEST_FILE "${CMOCKA_SOURCE_DIR}/CMakeLists.txt")
+check_extract("${DOWNLOAD_DIR}/cmocka-1.1.5.tar.gz" "${CMOCKA_TEST_FILE}")
 
 ExternalProject_Add(cmocka-project
 	SOURCE_DIR ${CMOCKA_SOURCE_DIR}

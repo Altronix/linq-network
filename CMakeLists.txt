@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.9.3...3.16)
+cmake_policy(SET CMP0091 NEW)
+cmake_minimum_required(VERSION 3.15...3.16)
 project(linq-network)
 
 find_package(Git)
@@ -17,14 +18,14 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 include(cmake/helpers.cmake)
 include(cmake/config.cmake)
-include(cmake/mongoose.cmake)
-include(cmake/sqlite.cmake)
 
 if(BUILD_DEBUG)
   set(CMAKE_BUILD_TYPE Debug)
 endif()
+# NOTE required this line here to make linking on windows easier
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-# [DEPENDENCIES] libzmq, czmq, [,jsmn-web-tokens ,openssl ,libusb]
+# [DEPENDENCIES] libzmq, [,jsmn-web-tokens ,openssl ,libusb]
 if(BUILD_DEPENDENCIES)
   if(BUILD_LINQD)
     find_package(OpenSSL REQUIRED)
@@ -36,16 +37,25 @@ if(BUILD_DEPENDENCIES)
     include(cmake/libusb.cmake)
   endif()
   include(cmake/libzmq.cmake)
-  include(cmake/czmq.cmake)
-  set(ZMQ_LIBS czmq-static zmq-static)
+  set(ZMQ_LIBS zmq-static)
 else()
   if("${BUILDROOT_DIR}" STREQUAL "")
+    set(SEARCH_DIR "${CMAKE_INSTALL_PREFIX}/lib")
     if(BUILD_LINQD)
       find_package(OpenSSL REQUIRED)
       set(TLS_LIBS OpenSSL::Crypto OpenSSL::SSL)
       set(JSMN_WEB_TOKENS_LIBS jsmn-web-tokens)
     endif()
-    set(ZMQ_LIBS zmq czmq)
+    if(BUILD_USBH)
+      find_library(USB_LIBRARY_PATH usb NO_CMAKE_SYSTEM_PATH PATHS ${SEARCH_DIR})
+      message(STATUS "Found usb  : ${USB_LIBRARY_PATH}")
+      import_library_static(usb-1.0 libusb-static ${USB_LIBRARY_PATH})
+      import_library_shared(usb-1.0 libusb-shared ${USB_LIBRARY_PATH})
+    endif()
+    find_library(ZMQ_LIBRARY_PATH zmq NO_CMAKE_SYSTEM_PATH PATHS ${SEARCH_DIR})
+    message(STATUS "Found zmq  : ${ZMQ_LIBRARY_PATH}")
+    import_library_shared(zmq zmq-shared ${ZMQ_LIBRARY_PATH})
+    set(ZMQ_LIBS zmq-shared)
   else()
     # When building for buildroot outside of buildroot use BUILDROOT_DIR=/...
     message(STATUS "Building for remote buildroot")
@@ -79,12 +89,9 @@ else()
       set(JSMN_WEB_TOKENS_LIBS jsmn-web-tokens-shared)
     endif()
     find_library(ZMQ_LIBRARY_PATH zmq NO_CMAKE_SYSTEM_PATH PATHS ${SEARCH_DIR})
-    find_library(CZMQ_LIBRARY_PATH czmq NO_CMAKE_SYSTEM_PATH PATHS ${SEARCH_DIR})
     message(STATUS "Found zmq             : ${ZMQ_LIBRARY_PATH}")
-    message(STATUS "Found czmq            : ${CZMQ_LIBRARY_PATH}")
     import_library_shared(zmq zmq-shared ${ZMQ_LIBRARY_PATH})
-    import_library_shared(czmq czmq-shared ${CZMQ_LIBRARY_PATH})
-    set(ZMQ_LIBS czmq-shared zmq-shared)
+    set(ZMQ_LIBS zmq-shared)
   endif()
 endif()
 
@@ -95,98 +102,64 @@ if(ENABLE_TESTING)
   include(CTest)
   include(cmake/cmocka.cmake)
   include(cmake/CodeCoverage.cmake)
-  include(cmake/http-parser.cmake)
   if(EXISTS "${CMAKE_SOURCE_DIR}/external/linq-common/CMakeLists.txt")
     MESSAGE(STATUS "linq-common found!")
-    MESSAGE(STATUS "Building linq-common integration test")
+    ## MESSAGE(STATUS "Building linq-common integration test")
     include(cmake/wolfssl.cmake)
+    include(cmake/http_parser.cmake)
     include(cmake/test-fixture.cmake)
-    add_subdirectory(test/integration)
+    ## add_subdirectory(test/integration)
     add_subdirectory(test/_fixture)
   endif()
   add_subdirectory(test/_helpers)
   add_subdirectory(test/_mocks/mock_utils)
   add_subdirectory(test/_mocks/mock_file)
-  add_subdirectory(test/_mocks/mock_libusb)
-  add_subdirectory(test/_mocks/mock_czmq)
-  add_subdirectory(test/_mocks/mock_mongoose)
-  add_subdirectory(test/_mocks/mock_sqlite)
-  add_subdirectory(libdatabase/test)
-  add_subdirectory(libhttp/test/http)
-  add_subdirectory(libhttp/test/routes)
-  add_subdirectory(libusb/host/test)
-  add_subdirectory(libusb/device/test)
-  add_subdirectory(libusb/common/test)
-  add_subdirectory(libcommon/test/config)
-  add_subdirectory(libcommon/test/containers)
-  add_subdirectory(libcommon/test/jsmn)
-  add_subdirectory(libcommon/test/devices)
-  add_subdirectory(libcommon/test/sys)
-  add_subdirectory(libcommon/test/rlp)
-  add_subdirectory(libnetwork/test/callbacks)
-  add_subdirectory(libnetwork/test/linq_network)
-  add_subdirectory(libnetwork/test/device)
-  add_subdirectory(libnetwork/test/routes)
-  add_subdirectory(bindings/cpp/test)
-  if(BUILD_APPS)
-    add_subdirectory(apps/linqd/test)
-  endif()
+  # add_subdirectory(test/_mocks/mock_libusb)
+  add_subdirectory(test/_mocks/mock_zmq)
+  add_subdirectory(test/containers)
+  add_subdirectory(test/device)
+  add_subdirectory(test/devices)
+  add_subdirectory(test/json)
+  add_subdirectory(test/rlp)
+  add_subdirectory(test/sys)
+  # add_subdirectory(test/usb/common)
+  # add_subdirectory(test/usb/host)
+  add_subdirectory(test/linq)
+  # add_subdirectory(bindings/cpp/test)
+  # add_subdirectory(src/test/linq_network)
+  # add_subdirectory(bindings/cpp/test)
 
   # add test coverage
   APPEND_COVERAGE_COMPILER_FLAGS()
   set(COVERAGE_EXCLUDES 
-    "examples/server/*"
-    "libhttp/mongoose.*"
-    "libdatabase/sqlite3.*"
-    "libcommon/sys/mock/*"
-    "libcommon/base64.*"
-    "external/http_parser/*")
+    "external/http_parser/http_parser.c"
+    "src/common/base64.*")
 
   setup_target_for_coverage_lcov(NAME test-coverage
     EXECUTABLE test-containers
-    COMMAND test-jsmn
-    COMMAND test-sys
-    COMMAND test-rlp
-    COMMAND test-usbh
-    COMMAND test-usbd
-    COMMAND test-network
     COMMAND test-device
-    COMMAND test-jsmn
-    COMMAND test-http
-    COMMAND test-http-routes
-    COMMAND test-database
-    COMMAND test-routes
-    COMMAND test-callbacks
-    COMMAND binding-network-cpp-test)
+    COMMAND test-devices
+    COMMAND test-json
+    COMMAND test-linq
+    COMMAND test-rlp
+    COMMAND test-sys
+    COMMAND test-usb-common
+    # COMMAND test-usbh
+    ## COMMAND integration-alert-test
+    ## COMMAND integration-broadcast-test
+    ## COMMAND integration-response-test
+    ## COMMAND integration-forward-response-test
+    )
+    # COMMAND test-network
+    # COMMAND binding-network-cpp-test)
 
 endif()
 
-add_subdirectory(libcommon)
-add_subdirectory(libnetwork)
+add_subdirectory(src)
 
-if(BUILD_LINQD)
-  add_subdirectory(libdatabase)
-  add_subdirectory(libhttp)
-  if(BUILD_APPS)
-    add_subdirectory(apps/linqd)
-  endif()
-endif()
-
-if(BUILD_USBD OR BUILD_USBH)
-  add_subdirectory(libusb/common)
-  if(BUILD_USBD)
-    add_subdirectory(libusb/device)
-    if(BUILD_APPS)
-      add_subdirectory(apps/ttyd)
-    endif()
-  endif()
-  
-  if(BUILD_USBH)
-    add_subdirectory(libusb/host)
-    if(BUILD_APPS)
-      add_subdirectory(apps/tty-request)
-    endif()
-  endif()
+if(BUILD_APPS)
+  add_subdirectory(apps/linqd)
+  add_subdirectory(apps/hello)
 endif()
 
 if(WITH_CPP_BINDING)

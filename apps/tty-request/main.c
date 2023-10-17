@@ -1,10 +1,17 @@
 #include "log.h"
 #include "netw.h"
 
+#define app_info(...) log_info("TTY", __VA_ARGS__)
+#define app_warn(...) log_warn("TTY", __VA_ARGS__)
+#define app_debug(...) log_debug("TTY", __VA_ARGS__)
+#define app_trace(...) log_trace("TTY", __VA_ARGS__)
+#define app_error(...) log_error("TTY", __VA_ARGS__)
+#define app_fatal(...) log_fatal("TTY", __VA_ARGS__)
+
 static void
 response(void* ctx, const char* serial, E_LINQ_ERROR e, const char* mesg)
 {
-    log_info("(APP) response [%d] [%s]", e, mesg);
+    app_info("response [%d] [%s]", e, mesg);
     *((bool*)ctx) = true;
 }
 
@@ -18,7 +25,7 @@ main(int argc, char* argv[])
     assert(netw);
 
     rc = netw_scan(netw);
-    log_info("(APP) usb scan [%d]", rc);
+    app_info("usb scan [%d]", rc);
 
     rc = netw_send(
         netw,
@@ -31,7 +38,7 @@ main(int argc, char* argv[])
         response,
         &done);
     if (rc < 0) {
-        log_error("(APP) send error [%d]", rc);
+        app_error("send error [%d]", rc);
         netw_destroy(&netw);
         exit(rc);
     }

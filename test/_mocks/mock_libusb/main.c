@@ -1,5 +1,5 @@
+#include "common/sys/sys.h"
 #include "mock_libusb.h"
-#include "sys.h"
 #include <sys/ioctl.h>
 
 #include <setjmp.h>

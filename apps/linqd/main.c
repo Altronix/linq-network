@@ -1,8 +1,8 @@
+#include "callbacks.h"
 #include "config.h"
-#include "libcommon/config.h"
 #include "log.h"
 #include "netw.h"
-#include "route_config.h"
+#include "sys.h"
 #include <signal.h>
 
 static volatile int running = 1;
@@ -69,8 +69,6 @@ parse_args(config_s* config, int argc, char* argv[])
     while ((opt = getopt(argc, argv, "zpskcdDlnwCPvh?")) != -1) {
         switch (opt) {
             case 'z': config->zmtp = atoi(argv[optind]); break;
-            case 'p': config->http = atoi(argv[optind]); break;
-            case 's': config->https = atoi(argv[optind]); break;
             case 'd': config->daemon = true; break;
             case 'D': config->db = parse_arg(argv[optind]); break;
             case 'l': config->log = parse_arg(argv[optind]); break;
@@ -124,26 +122,19 @@ parse_config_file(config_s* config)
 static void
 print_config(config_s* c)
 {
-    log_info("(APP) Print config requested...");
-    log_info("(APP) [        daemon] [%s]", c->daemon ? "true" : "false");
-    log_info("(APP) [         print] [%s]", c->print ? "true" : "false");
-    log_info("(APP) [          zmtp] [%d]", c->zmtp);
-    log_info("(APP) [          http] [%d]", c->http);
-    log_info("(APP) [         https] [%d]", c->https);
-    log_info("(APP) [          save] [%.*s]", c->save.len, c->save.p);
-    log_info("(APP) [      web_root] [%.*s]", c->web_root.len, c->web_root.p);
-    log_info("(APP) [            db] [%.*s]", c->db.len, c->db.p);
-    log_info("(APP) [          cert] [%.*s]", c->cert.len, c->cert.p);
-    log_info("(APP) [           key] [%.*s]", c->key.len, c->key.p);
-    log_info("(APP) [           log] [%.*s]", c->log.len, c->log.p);
-    log_info(
-        "(APP) [  node_primary] [%.*s]",
-        c->node_primary.len,
-        c->node_primary.p);
-    log_info(
-        "(APP) [node_secondary] [%.*s]",
-        c->node_secondary.len,
-        c->node_secondary.p);
+    app_info("Print config requested...");
+    app_info("[        daemon] [%s]", c->daemon ? "true" : "false");
+    app_info("[         print] [%s]", c->print ? "true" : "false");
+    app_info("[          zmtp] [%d]", c->zmtp);
+    app_info("[          save] [%.*s]", c->save.len, c->save.p);
+    app_info("[      web_root] [%.*s]", c->web_root.len, c->web_root.p);
+    app_info("[            db] [%.*s]", c->db.len, c->db.p);
+    app_info("[          cert] [%.*s]", c->cert.len, c->cert.p);
+    app_info("[           key] [%.*s]", c->key.len, c->key.p);
+    app_info("[           log] [%.*s]", c->log.len, c->log.p);
+    app_info("[  node_primary] [%.*s]", c->node_primary.len, c->node_primary.p);
+    app_info(
+        "[node_secondary] [%.*s]", c->node_secondary.len, c->node_secondary.p);
 }
 
 int
@@ -174,31 +165,34 @@ main(int argc, char* argv[])
         snprintf(b, sizeof(b), "%.*s", config.save.len, config.save.p);
         sys_file* f = sys_open(b, FILE_MODE_READ_WRITE_CREATE, FILE_BLOCKING);
         if (f) {
-            log_info("(APP) Saving config to [%s]", b);
+            app_info("Saving config to [%s]", b);
             config_fprint(f, &config);
             sys_close(&f);
         } else {
-            log_error("(APP) Failed to open file for saving!");
+            app_error("Failed to open file for saving!");
         }
     }
 
+    snprintf(b, sizeof(b), "%.*s", config.log.len, config.log.p);
     if (config.daemon) {
-        snprintf(b, sizeof(b), "%.*s", config.log.len, config.log.p);
         sys_daemonize(b, &f, &pid);
+    } else if (config.log.len) {
+        f = sys_open(b, FILE_MODE_READ_APPEND_CREATE, FILE_BLOCKING);
+        if (f) {
+            log_set_fd(f);
+            log_set_color(false);
+            close(STDIN_FILENO);
+            close(STDOUT_FILENO);
+            close(STDERR_FILENO);
+        }
     }
 
-    netw = netw_create(NULL, NULL);
+    netw = netw_create(&callbacks, netw);
     assert(netw);
 
     if (config.zmtp) {
         snprintf(b, sizeof(b), "tcp://*:%d", config.zmtp);
         netw_listen(netw, b);
-    }
-
-    if (config.http) {
-        snprintf(b, sizeof(b), "http://*:%d", config.http);
-        netw_listen(netw, b);
-        netw_use(netw, "/api/v1/config", route_config, netw);
     }
 
     if (config.node_primary.p) {
@@ -216,15 +210,7 @@ main(int argc, char* argv[])
         netw_root(netw, b);
     }
 
-    if (config.https) {
-        if (config.cert.p && config.key.p && config.https) {
-            // TODO install tls
-        }
-        snprintf(b, sizeof(b), "%d", config.http);
-        // netw_listen_https(netw, b); // TODO
-    }
-
-    while (netw_running(netw)) { err = netw_poll(netw, 50); };
+    while (running) { err = netw_poll(netw, 50); };
 
     netw_destroy(&netw);
     if (f) sys_close(&f);

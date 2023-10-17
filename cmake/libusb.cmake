@@ -1,13 +1,6 @@
-set(LIBUSB_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/libusb)
+set(LIBUSB_SOURCE_DIR ${EXTERNAL_DIR}/libusb-1.0.24)
 set(LIBUSB_TEST_FILE ${LIBUSB_SOURCE_DIR}/README)
-if(GIT_FOUND AND NOT EXISTS "${LIBUSB_TEST_FILE}")
-  message(STATUS "Downloading libusb submodule")
-  execute_process(
-      COMMAND ${GIT_EXECUTABLE} submodule update --init external/libusb
-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-      RESULT_VARIABLE LIBUSB_GIT_CLONE_RESULT)
-  message(STATUS "libusb download result: ${LIBUSB_GIT_CLONE_RESULT}")
-endif()
+check_extract("${DOWNLOAD_DIR}/libusb-1.0.24.tar.gz" "${LIBUSB_TEST_FILE}")
 
 if(NOT MSVC)
   # IE if(UNIX OR CYGWIN OR MINGW)
@@ -48,7 +41,7 @@ else()
       COMMAND MSBuild.exe
               -p:Configuration=Release
               -p:Platform=x64
-              ${LIBUSB_SOURCE_DIR}/msvc/libusb_static_2017.vcxproj
+              ${LIBUSB_SOURCE_DIR}/msvc/libusb_static_2019.vcxproj
       COMMAND ${CMAKE_COMMAND}
               -E
               copy
@@ -77,7 +70,7 @@ else()
       COMMAND MSBuild.exe
               -p:Configuration=Release
               -p:Platform=x64
-              ${LIBUSB_SOURCE_DIR}/msvc/libusb_dll_2017.vcxproj
+              ${LIBUSB_SOURCE_DIR}/msvc/libusb_dll_2019.vcxproj
       COMMAND ${CMAKE_COMMAND}
               -E
               copy

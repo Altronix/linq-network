@@ -9,6 +9,13 @@
 #define USBD_LOG_DEFAULT "/var/log/atx-ttyd.log"
 #endif
 
+#define app_info(...) log_info("TTYD", __VA_ARGS__)
+#define app_warn(...) log_warn("TTYD", __VA_ARGS__)
+#define app_debug(...) log_debug("TTYD", __VA_ARGS__)
+#define app_trace(...) log_trace("TTYD", __VA_ARGS__)
+#define app_error(...) log_error("TTYD", __VA_ARGS__)
+#define app_fatal(...) log_fatal("TTYD", __VA_ARGS__)
+
 #define TTYD_VERSION "v0.0.0"
 
 typedef struct usbd_config_s
@@ -76,10 +83,10 @@ static void
 on_resp(void* ctx, uint16_t code, const char* body)
 {
     int rc;
-    log_info("(USB) response [%s]", body);
+    app_info("response [%s]", body);
     usbd_s* usb = ctx;
     rc = usbd_write_http_response(usb, code, body);
-    if (rc < 0) { log_error("(USB) response error [%s]", strerror(errno)); }
+    if (rc < 0) { app_error("response error [%s]", strerror(errno)); }
 }
 
 static void
@@ -92,7 +99,7 @@ usbd_event(usbd_s* usb, void* ctx, E_USB_EVENTS e, ...)
         meth = va_arg(list, const char*);
         path = va_arg(list, const char*);
         data = va_arg(list, const char*);
-        log_info("(USB) RECV [%s] [%s] [%s]", meth, path, data ? data : "");
+        app_info("RECV [%s] [%s] [%s]", meth, path, data ? data : "");
         make_request(meth, path, data, data ? strlen(data) : 0, on_resp, usb);
         va_end(list);
     } else if (USB_EVENTS_ERROR == e) {
@@ -101,7 +108,7 @@ usbd_event(usbd_s* usb, void* ctx, E_USB_EVENTS e, ...)
         va_start(list, e);
         ret = va_arg(list, int);
         va_end(list);
-        log_info("(USB) error [%d]", ret);
+        app_info("error [%d]", ret);
     }
 }
 

@@ -1,21 +1,3 @@
-[submodule "external/libzmq"]
-	path = external/libzmq
-	url = https://github.com/zeromq/libzmq
-[submodule "external/czmq"]
-	path = external/czmq
-	url = https://github.com/zeromq/czmq
 [submodule "external/linq-common"]
 	path = external/linq-common
 	url = https://bitbucket.org/Altronix/linq-common
-[submodule "external/http_parser"]
-	path = external/http_parser
-	url = https://bitbucket.org/Altronix/http_parser
-[submodule "external/wolfssl"]
-	path = external/wolfssl
-	url = https://bitbucket.org/Altronix/wolfssl
-[submodule "external/jsmn-web-tokens"]
-	path = external/jsmn-web-tokens
-	url = https://github.com/TomzBench/jsmn-web-tokens
-[submodule "external/libusb"]
-	path = external/libusb
-	url = https://github.com/libusb/libusb.git

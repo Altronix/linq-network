@@ -1,39 +1,22 @@
 {
   "name": "@altronix/linq",
-  "version": "0.0.4-rc.11",
+  "version": "0.2.0-rc.13",
   "description": "Node bindings for linq-network",
-  "main": "./build/install/lib/index.js",
+  "main": "./dist/src/index.js",
   "scripts": {
-    "test": "jest --config=./bindings/nodejs/lib/jest.config.js",
-    "native-build": "node ./scripts/build-nodejs-binding.js",
-    "native-clean": "cmake-js clean",
-    "build": "npm run native-build && tsc -p ./bindings/nodejs/lib",
-    "build:examples": "tsc --build ./bindings/nodejs/examples/update/tsconfig.json",
+    "preinstall": "npm run build -- -cD",
+    "postinstall": "npm run build -- -ntfx",
+    "test": "jest --config=./bindings/node/lib/jest.config.js",
+    "build": "node ./scripts/install.js",
     "build:integration-test": "tsc --build ./test/integration/timeout/tsconfig.json",
-    "postinstall": "npm run native-build && tsc -p ./bindings/nodejs/lib"
+    "events:build": "tsc --build ./bindings/node/examples/events",
+    "events:run": "node ./bindings/node/examples/events/index.js",
+    "update:build": "tsc --build ./bindings/node/examples/update",
+    "update:run": "node ./bindings/node/examples/update/index.js"
   },
   "files": [
-    "/bindings/cpp",
-    "/bindings/nodejs/lib",
-    "/bindings/nodejs/prebuilds",
-    "/bindings/nodejs/src",
-    "/bindings/nodejs/CMakeLists.txt",
-    "/cmake",
-    "/external/czmq",
-    "/external/libzmq",
-    "/external/jsmn-web-tokens",
-    "/external/libusb",
-    "/libcommon",
-    "/libdatabase",
-    "/libhttp",
-    "/libnetwork",
-    "/libusb",
     "/scripts",
-    "CMakeLists.txt",
-    "COPYING",
-    "package.json",
-    "tsconfig.base.json",
-    "README.md"
+    "/dist"
   ],
   "repository": {
     "type": "git",
@@ -46,19 +29,19 @@
   },
   "homepage": "https://github.com/TomzBench/linq-network#readme",
   "dependencies": {
-    "@types/node": "^13.11.0",
+    "@types/node": "^14.14.22",
     "bindings": "^1.5.0",
-    "cmake-js": "^6.1.0",
-    "nan": "^2.14.0",
-    "node-addon-api": "^2.0.0",
-    "rxjs": "^6.6.3",
-    "typescript": "^3.9.7"
+    "nan": "^2.14.2",
+    "node-addon-api": "^3.1.0",
+    "node-gyp": "^7.1.2",
+    "rxjs": "^7.8.0",
+    "typescript": "^4.1.3"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.10",
-    "jest": "^26.4.1",
-    "jest-cli": "^26.4.1",
+    "@types/jest": "^26.0.20",
+    "jest": "^26.6.3",
+    "jest-cli": "^26.6.3",
     "minimist": "^1.2.5",
-    "ts-jest": "^26.2.0"
+    "ts-jest": "^26.4.4"
   }
 }

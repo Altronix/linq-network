@@ -25,10 +25,10 @@ config.status
 
 #cmake
 build/
-build*
-build-linux/
-build-windows/
-build-buildroot/
+build-linq
+build-fedora
+build-ubuntu
+build-windows
 target
 
 #ctags
@@ -43,9 +43,15 @@ Cargo.lock
 **/*/node_modules
 node_modules
 dist
+bindings/node/prebuilds/*.tar.gz
 
 #externals
-external/cmocka-1.1.5
+external/cmocka*
+external/zeromq*
+external/czmq*
+external/libusb*
+external/http_parser*
+external/wolfssl*
 
 #sqlite
 **/*/test.db
@@ -57,3 +63,6 @@ compile_commands.json
 # tsc compiler output
 bindings/nodejs/examples/**/*.js
 test/integration/timeout/*.js
+
+#tmp
+**/*.linq-tmp

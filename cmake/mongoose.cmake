@@ -1,7 +1,0 @@
-function(append_mongoose_compiler_flags dst)
-  list(APPEND definitions "-DMG_ENABLE_HTTP_STREAMING_MULTIPART")
-  list(APPEND definitions "-DMG_ENABLE_WEBSOCKET")
-  list(APPEND definitions "-DMG_ENABLE_CALLBACK_USERDATA")
-  list(APPEND definitions "-DMG_ENABLE_SSL")
-  set(${dst} ${definitions} PARENT_SCOPE)
-endfunction()

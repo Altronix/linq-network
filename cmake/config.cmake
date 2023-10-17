@@ -1,14 +1,20 @@
 # Version
 set(V_MAJOR 0)
-set(V_MINOR 0)
-set(V_PATCH 4)
-set(V_RC -rc11)
+set(V_MINOR 2)
+set(V_PATCH 0)
+set(V_RC -rc13)
 set(LINQ_NETWORK_VERSION "v${V_MAJOR}.${V_MINOR}.${V_PATCH}${V_RC}")
 function (append_version_compiler_flags dst)
   list(APPEND arg "${${dst}}")
   list(APPEND arg "LINQ_NETWORK_VERSION=\"${LINQ_NETWORK_VERSION}\"")
   set(${dst} "${arg}" PARENT_SCOPE)
 endfunction()
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS on)
+set(ROOT_DIR "." CACHE STRING "Set Monorepo Root Directory")
+make_absolute("${ROOT_DIR}" ROOT_DIR)
+set(EXTERNAL_DIR "${ROOT_DIR}/external" CACHE STRING "Dependency source loc")
+set(DOWNLOAD_DIR "${ROOT_DIR}/dl" CACHE STRING "Downloaded files")
 
 # Library Output options
 option(BUILD_SHARED "Whether or not to build the shared object"  ON)
@@ -18,12 +24,17 @@ set(BUILDROOT_DIR "" CACHE STRING "set to fullpath of root buildroot directory o
 # Build (or find) dependencies
 option(BUILD_DEPENDENCIES "Build all dependencies (except openssl)" OFF)
 
+# Log build configuration
+message(STATUS "ROOT: ${ROOT_DIR}")
+message(STATUS "EXTERNAL: ${EXTERNAL_DIR}")
+message(STATUS "DOWNLOAD: ${DOWNLOAD_DIR}")
+message(STATUS "BUILD_STATIC: ${BUILD_STATIC}")
+message(STATUS "BUILD_SHARED: ${BUILD_SHARED}")
+message(STATUS "BUILD_DEPENDENCIES: ${BUILD_DEPENDENCIES}")
+
 # binary output options
-option(BUILD_LINQD "Whether or not to build the daemon" OFF)
-option(BUILD_USBD "Whether or not to build USB device support" OFF)
 option(BUILD_USBH "Whether or not to build USB host support" OFF)
 option(BUILD_DEBUG "Build with debug flags?" OFF)
-option(BUILD_APPS "Build the applications in apps folder" OFF)
 
 # bindings
 option(WITH_NODEJS_BINDING "Build the NODEJS bindings" OFF)

@@ -1,6 +1,5 @@
 add_library(linq-common-fixture fixture.c fixture.h)
 target_link_libraries(linq-common-fixture
-                      helpers
                       http-parser
                       wolfssl
                       crypt

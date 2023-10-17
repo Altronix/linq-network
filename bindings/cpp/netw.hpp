@@ -42,6 +42,8 @@ class Linq
         if (netw_) netw_destroy(&netw_);
     }
 
+    std::string version() { return netw_version(); }
+
     static void zmtp_error_callback(
         void* context,
         E_LINQ_ERROR e,
@@ -192,6 +194,18 @@ class Linq
 
     // get number of devices connected to linq
     uint32_t device_count() { return netw_device_count(netw_); }
+
+    std::string devices()
+    {
+        const char* devices = netw_devices_summary_alloc(this->netw_);
+        if (devices) {
+            std::string ret{ devices };
+            netw_devices_summary_free(&devices);
+            return ret;
+        } else {
+            return "{}";
+        }
+    }
 
     int device_remove(std::string& serial)
     {

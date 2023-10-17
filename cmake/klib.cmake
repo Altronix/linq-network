@@ -13,8 +13,8 @@ MESSAGE(STATUS "klib_INSTALL_DIR ${klib_INSTALL_DIR}")
 file(MAKE_DIRECTORY ${klib_INSTALL_DIR})
 add_custom_command(
 	OUTPUT ${klib_INSTALL_DIR}/khash.h ${klib_INSTALL_DIR}/klist.h
- 	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/external/klib/khash.h ${klib_INSTALL_DIR}/
- 	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/external/klib/klist.h ${klib_INSTALL_DIR}/)
+	COMMAND ${CMAKE_COMMAND} -E copy ${EXTERNAL_DIR}/klib/khash.h ${klib_INSTALL_DIR}/
+ 	COMMAND ${CMAKE_COMMAND} -E copy ${EXTERNAL_DIR}/klib/klist.h ${klib_INSTALL_DIR}/)
 
 add_custom_target(klib-install DEPENDS ${klib_INSTALL_DIR}/khash.h)
 add_library(klib INTERFACE)

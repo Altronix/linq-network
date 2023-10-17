@@ -4,8 +4,6 @@
 static const char* config_fmt = "{"
                                 "\"ports\":{"
                                 "\"zmtp\":%d,"
-                                "\"http\":%d,"
-                                "\"https\":%d"
                                 "},"
                                 "\"nodes\":{"
                                 "\"primary\":\"%.*s\","
@@ -18,14 +16,12 @@ static const char* config_fmt = "{"
                                 "\"logPath\":\"%.*s\""
                                 "}";
 
-LINQ_EXPORT void
+void
 config_init(config_s* c)
 {
     c->daemon = false;
     c->print = false;
     c->zmtp = APP_CONFIG_ZMTP;
-    c->http = APP_CONFIG_HTTP;
-    c->https = APP_CONFIG_HTTPS;
     c->save.p = APP_CONFIG_SAVE;
     c->save.len = APP_CONFIG_SAVE_LEN;
     c->node_primary.p = APP_CONFIG_NODE_PRIMARY;
@@ -44,7 +40,7 @@ config_init(config_s* c)
     c->log.len = APP_CONFIG_LOG_LEN;
 }
 
-LINQ_EXPORT int
+int
 config_parse(const char* buff, uint32_t l, config_s* config)
 {
     int err = -1;
@@ -55,8 +51,6 @@ config_parse(const char* buff, uint32_t l, config_s* config)
     err = json_parse(&p, buff, l, toks, 56);
     if (err > 0 && //
         !parse_int(buff, toks, ".ports.zmtp", &config->zmtp) &&
-        !parse_int(buff, toks, ".ports.http", &config->http) &&
-        !parse_int(buff, toks, ".ports.https", &config->https) &&
         !parse_value(buff, toks, ".nodes.primary", &config->node_primary) &&
         !parse_value(buff, toks, ".nodes.secondary", &config->node_secondary) &&
         !parse_value(buff, toks, ".webRootPath", &config->web_root) &&
@@ -69,7 +63,7 @@ config_parse(const char* buff, uint32_t l, config_s* config)
     return err;
 }
 
-LINQ_EXPORT int
+int
 config_fprint(FILE* f, config_s* config)
 {
     // clang-format off
@@ -77,8 +71,6 @@ config_fprint(FILE* f, config_s* config)
         f,
         config_fmt,
         config->zmtp,
-        config->http,
-        config->https,
         config->node_primary.len,   config->node_primary.p,
         config->node_secondary.len, config->node_secondary.p,
         config->web_root.len,       config->web_root.p,
@@ -89,7 +81,7 @@ config_fprint(FILE* f, config_s* config)
     // clang-format on
 }
 
-LINQ_EXPORT int
+int
 config_print(char* buff, uint32_t l, config_s* config)
 {
     // clang-format off
@@ -97,8 +89,6 @@ config_print(char* buff, uint32_t l, config_s* config)
         buff,l,
         config_fmt,
         config->zmtp,
-        config->http,
-        config->https,
         config->node_primary.len,   config->node_primary.p,
         config->node_secondary.len, config->node_secondary.p,
         config->web_root.len,  config->web_root.p,

@@ -1,6 +1,6 @@
 # test-fixture
 
-set(linq_common_SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/linq-common)
+set(linq_common_SOURCE_DIR ${EXTERNAL_DIR}/linq-common)
 
 ### build linq-common ###
 add_definitions(-DCONFIG_LINUX_EMU)

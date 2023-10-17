@@ -1,11 +1,11 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="lang:clipboard.copy" content="Copy to clipboard">
@@ -19,9 +19,8 @@
   <meta name="lang:search.tokenizer" content="[\s\-]+">
 
   
-    <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin="">
-    <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono:400,500,700&display=fallback">
+    <link href="https://fonts.gstatic.com/" rel="preconnect" crossorigin>
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,500,700|Roboto:300,400,400i,700&display=fallback" rel="stylesheet">
 
     <style>
       body,
@@ -46,41 +45,34 @@
   <meta name="theme-color" content="#3f51b5">
   <script src="../_static/javascripts/modernizr.js"></script>
   
-  <script>
-      window.ga = window.ga || function () {
-          (ga.q = ga.q || []).push(arguments)
-      };
-      ga.l = +new Date;
-      ga('create', 'UA-XXXXX', 'auto');
-      ga('send', 'pageview');
-  </script>
-  <script async src='https://www.google-analytics.com/analytics.js'></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXX"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'UA-XXXXX');
+</script>
   
   
     <title>Docker Image &#8212; Linq Network User Guide 0.0.1 documentation</title>
-    <link rel="stylesheet" href="../_static/material.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/material.css" />
     <link rel="stylesheet" type="text/css" href="../_static/css/styles.css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Library Configuration Options" href="configuration.html" />
     <link rel="prev" title="Buildroot Environment" href="buildroot.html" />
   
    
-  
-  <script src="../_static/javascripts/version_dropdown.js"></script>
-  <script>
-    var json_loc = "../"versions.json"",
-        target_loc = "../../",
-        text = "Versions";
-    $( document ).ready( add_version_dropdown(json_loc, target_loc, text));
-  </script>
-
 
   </head>
   <body dir=ltr
@@ -140,6 +132,17 @@
           </div>
         </div>
       
+      
+  
+  <script src="../_static/javascripts/version_dropdown.js"></script>
+  <script>
+    var json_loc = "../"versions.json"",
+        target_loc = "../../",
+        text = "Versions";
+    $( document ).ready( add_version_dropdown(json_loc, target_loc, text));
+  </script>
+  
+
     </div>
   </nav>
 </header>
@@ -191,28 +194,35 @@
   
 
   
-  
   <ul class="md-nav__list">
     <li class="md-nav__item">
+    
     
       <a href="getting_started.html" class="md-nav__link">Getting Started</a>
       <ul class="md-nav__list"> 
     <li class="md-nav__item">
     
+    
       <a href="windows.html" class="md-nav__link">Windows Enviorment</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="linux.html" class="md-nav__link">Linux Enviorment</a>
       
+    
     </li>
     <li class="md-nav__item">
     
+    
       <a href="buildroot.html" class="md-nav__link">Buildroot Environment</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
     <label class="md-nav__link md-nav__link--active" for="__toc"> Docker Image </label>
@@ -237,78 +247,109 @@
 <li class="md-nav__item"><a class="md-nav__extra_link" href="../_sources/getting_started/docker.rst.txt">Show Source</a> </li>
 
   </ul>
-</nav><ul class="md-nav__list"> 
+</nav>
+      <ul class="md-nav__list"> 
     <li class="md-nav__item">
+    
     
       <a href="#running-docker-image-from-docker-hub" class="md-nav__link">Running docker image from docker hub</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="#download-the-image-from-docker-hub" class="md-nav__link">Download the image from docker hub</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="#build-the-docker-container-from-source" class="md-nav__link">Build the docker container from source</a>
       
+    
     </li></ul>
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="configuration.html" class="md-nav__link">Library Configuration Options</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="device_setup.html" class="md-nav__link">Setting Up Network Devices</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="quickstart_c.html" class="md-nav__link">Quick Start (C)</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="quickstart_cpp.html" class="md-nav__link">Quick Start (C++)</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="quickstart_rust.html" class="md-nav__link">Quick Start (Rust)</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="quickstart_nodejs.html" class="md-nav__link">Quick Start (NodeJS)</a>
       
+    
     </li></ul>
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="../api/api_c/api_c.html" class="md-nav__link">C API Reference</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="../api/api_cpp/api_cpp.html" class="md-nav__link">C++ API Reference</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="../api/api_rust/api_rust.html" class="md-nav__link">Rust API Reference</a>
       
+    
     </li>
     <li class="md-nav__item">
+    
     
       <a href="../api/api_nodejs/api_nodejs.html" class="md-nav__link">NodeJS API Reference</a>
       
+    
     </li>
     <li class="md-nav__item">
     
+    
       <a href="../api/api_http/api_http.html" class="md-nav__link">HTTP API Reference</a>
       
+    
     </li>
   </ul>
   
@@ -348,47 +389,47 @@
         <div class="md-content">
           <article class="md-content__inner md-typeset" role="main">
             
-  
+  <section id="docker-image">
 <span id="ref-getting-started-docker"></span><h1 id="getting-started-docker--page-root">Docker Image<a class="headerlink" href="#getting-started-docker--page-root" title="Permalink to this headline">¶</a></h1>
 <p>The LinQ Network Library has a demonstration application that conforms to the linqd API specification <a class="reference internal" href="../api/api_http/linqd/linqd.html#ref-api-http-linqd"><span class="std std-ref">(See here)</span></a>. The LinQ Network demo application docker container can serve as an API endpoint during front end development. The following methods below can get you started with running the docker image.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The <code class="docutils literal notranslate"><span class="pre">altronix/linqd:demo</span></code> container is listing to HTTP connections on port 8000 and listening for device connections on port 33455. You must use the -p flags to expose the container ports to your host network.</p>
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">altronix/linqd:demo</span></code> container is listing to HTTP connections on port 8000 and listening for device connections on port 33455. You must use the -p flags to expose the container ports to your host network.</p>
 </div>
-
+<section id="running-docker-image-from-docker-hub">
 <h2 id="running-docker-image-from-docker-hub">Running docker image from docker hub<a class="headerlink" href="#running-docker-image-from-docker-hub" title="Permalink to this headline">¶</a></h2>
 <p>Use this method to download the docker image from docker hub and run the service on your local machine.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --rm -d -p <span class="m">8001</span>:8000 -p <span class="m">33456</span>:33455 altronix/linqd:demo
 </pre></div>
 </div>
 <p>The following commands are described:</p>
-<table border="1">
+<table>
 <colgroup>
-<col width="11%"/>
-<col width="89%"/>
+<col style="width: 11%"/>
+<col style="width: 89%"/>
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Flags</th>
-<th class="head">Description</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>Flags</p></th>
+<th class="head"><p>Description</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>–rm</td>
-<td>Remove this container when the container exits</td>
+<tbody>
+<tr class="row-even"><td><p>–rm</p></td>
+<td><p>Remove this container when the container exits</p></td>
 </tr>
-<tr class="row-odd"><td>-d</td>
-<td>Run this image in “background” (IE: Daemon mode)</td>
+<tr class="row-odd"><td><p>-d</p></td>
+<td><p>Run this image in “background” (IE: Daemon mode)</p></td>
 </tr>
-<tr class="row-even"><td>-p 8001:8000</td>
-<td>Forward incoming connections to my host machine on port 8001 to port 8000 on the <code class="docutils literal notranslate"><span class="pre">altronix/linqd:demo</span></code> container</td>
+<tr class="row-even"><td><p>-p 8001:8000</p></td>
+<td><p>Forward incoming connections to my host machine on port 8001 to port 8000 on the <code class="docutils literal notranslate"><span class="pre">altronix/linqd:demo</span></code> container</p></td>
 </tr>
-<tr class="row-odd"><td>-p 33456:33455</td>
-<td>Forward incoming connections to my host machine on port 33456 to port 33455 on the <code class="docutils literal notranslate"><span class="pre">altronix/linqd:demo</span></code> container</td>
+<tr class="row-odd"><td><p>-p 33456:33455</p></td>
+<td><p>Forward incoming connections to my host machine on port 33456 to port 33455 on the <code class="docutils literal notranslate"><span class="pre">altronix/linqd:demo</span></code> container</p></td>
 </tr>
 </tbody>
 </table>
-
-
+</section>
+<section id="download-the-image-from-docker-hub">
 <h2 id="download-the-image-from-docker-hub">Download the image from docker hub<a class="headerlink" href="#download-the-image-from-docker-hub" title="Permalink to this headline">¶</a></h2>
 <p>You can alternatively download the <code class="docutils literal notranslate"><span class="pre">altronix/linqd:demo</span></code> container to run at a later time</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker pull altronix/linqd:demo
@@ -398,8 +439,8 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run --rm -d -p <span class="m">8000</span>:8000 -p <span class="m">33455</span>:33455 altronix/linqd:demo
 </pre></div>
 </div>
-
-
+</section>
+<section id="build-the-docker-container-from-source">
 <h2 id="build-the-docker-container-from-source">Build the docker container from source<a class="headerlink" href="#build-the-docker-container-from-source" title="Permalink to this headline">¶</a></h2>
 <p>For developers working on the LinQ Network Library or wishing to modify the docker image. You can build the docker image from source.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/altronix/linq-network
@@ -413,8 +454,8 @@ docker build -t linqd -f docker/ubuntu-aarch64/Dockerfile .
 </pre></div>
 </div>
 <p>When the LinQ Service Demo container is running and you have successfully exposed the container ZMTP and HTTP ports, you can connect devices to the LinQ Network Service and access device data via the <a class="reference internal" href="../api/api_http/linqd/linqd.html#ref-api-http-linqd"><span class="std std-ref">LinQ Service</span></a></p>
-
-
+</section>
+</section>
 
 
           </article>
@@ -426,7 +467,7 @@ docker build -t linqd -f docker/ubuntu-aarch64/Dockerfile .
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
           
-            <a href="buildroot.html" title="Material"
+            <a href="buildroot.html" title="Buildroot Environment"
                class="md-flex md-footer-nav__link md-footer-nav__link--prev"
                rel="prev">
               <div class="md-flex__cell md-flex__cell--shrink">
@@ -440,7 +481,7 @@ docker build -t linqd -f docker/ubuntu-aarch64/Dockerfile .
             </a>
           
           
-            <a href="configuration.html" title="Admonition"
+            <a href="configuration.html" title="Library Configuration Options"
                class="md-flex md-footer-nav__link md-footer-nav__link--next"
                rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title"><span
@@ -463,7 +504,7 @@ docker build -t linqd -f docker/ubuntu-aarch64/Dockerfile .
               
           </div>
             Created using
-            <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+            <a href="http://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
              and
             <a href="https://github.com/bashtage/sphinx-material/">Material for
               Sphinx</a>
