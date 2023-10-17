@@ -26,6 +26,8 @@ static void
 on_alert(void* ctx, const char* serial, netw_alert_s* a, netw_email_s* email)
 {
     app_info("Received Alert [%.6s...]", serial);
+    app_info("PARAM : [%d]", a->param);
+    app_info("NAME  : [%.*s]", a->name.len, a->name.p);
     app_info("WHO   : [%.*s]", a->who.len, a->who.p);
     app_info("WHAT  : [%.*s]", a->what.len, a->what.p);
     app_info("WHERE : [%.*s]", a->where.len, a->where.p);

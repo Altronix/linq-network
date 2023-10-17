@@ -71,6 +71,14 @@ json_get_str(const char* b, const jsontok* t)
     return ret;
 }
 
+static int32_t
+json_get_num(const char* b, const jsontok* t)
+{
+    char buf[32] = { 0 };
+    memcpy(buf, &b[t->start], t->end - t->start);
+    return atoi(buf);
+}
+
 // Write null terminated string into a frame data buffer
 static int
 print_null_terminated(char* c, uint32_t sz, zmq_msg_t* msg)
@@ -128,21 +136,26 @@ read_alert(zmq_msg_t* msg, netw_alert_s* a)
     if (check_le(msg, JSON_LEN)) {
         sz = zmq_msg_size(msg);
         memcpy(a->data, zmq_msg_data(msg), sz);
-        const jsontok *who, *what, *site, *when, *mesg;
-        jsontok t[30];
+        const jsontok *param, *name, *who, *what, *site, *when, *mesg;
+        jsontok t[38];
         json_parser p;
         json_init(&p);
         count = json_parse(&p, a->data, sz, t, 30);
         if (count > 0 && (who = json_get_member(a->data, t, "who")) &&
+            (name = json_get_member(a->data, t, "name")) &&
             (what = json_get_member(a->data, t, "what")) &&
             (site = json_get_member(a->data, t, "siteId")) &&
             (when = json_get_member(a->data, t, "when")) &&
             (mesg = json_get_member(a->data, t, "mesg"))) {
             a->who = json_get_str(a->data, who);
+            a->name = json_get_str(a->data, name);
             a->what = json_get_str(a->data, what);
             a->where = json_get_str(a->data, site);
             a->when = json_get_str(a->data, when);
             a->mesg = json_get_str(a->data, mesg);
+            if ((param = json_get_member(a->data, t, "param"))) {
+                a->param = json_get_num(a->data, param);
+            }
         } else {
             zmtp_error("Failed to parse alert!");
             return -1;

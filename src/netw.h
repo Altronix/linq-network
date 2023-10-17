@@ -166,6 +166,7 @@ extern "C"
 
     typedef struct netw_alert_s
     {
+        int32_t param;
         atx_str who;
         atx_str what;
         atx_str where;
