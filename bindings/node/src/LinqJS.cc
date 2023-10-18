@@ -99,6 +99,7 @@ Linq::Linq(const Napi::CallbackInfo& info)
                 obj.Set("what", what);
                 obj.Set("where", where);
                 obj.Set("when", when);
+                obj.Set("param", alert->param);
                 obj.Set("mesg", mesg);
                 obj.Set("name", name);
                 obj.Set("product", product);

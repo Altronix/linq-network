@@ -117,6 +117,8 @@ export interface EventDataAlert {
   when: number;
   mesg: string;
   serial: string;
+  name: string;
+  param: number;
   from: string;
   subject: string;
   user: string;
